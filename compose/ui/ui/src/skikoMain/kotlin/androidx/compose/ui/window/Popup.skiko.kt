@@ -50,26 +50,26 @@ import androidx.compose.ui.unit.round
 /**
  * Properties used to customize the behavior of a [Popup].
  *
- * @property focusable Whether the popup is focusable. When true, the popup will receive IME
- * events and key presses, such as when the back button is pressed.
- * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button
- * on Android or escape key on desktop.
- * If true, pressing the back button will call onDismissRequest. Note that [focusable] must be
- * set to true in order to receive key events such as the back button - if the popup is not
- * focusable then this property does nothing.
+ * @property focusable Whether the popup is focusable. When true, the popup will receive IME events
+ *   and key presses, such as when the back button is pressed.
+ * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button on
+ *   Android or escape key on desktop. If true, pressing the back button will call onDismissRequest.
+ *   Note that [focusable] must be set to true in order to receive key events such as the back
+ *   button - if the popup is not focusable then this property does nothing.
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
- * popup's bounds. If true, clicking outside the popup will call onDismissRequest.
+ *   popup's bounds. If true, clicking outside the popup will call onDismissRequest.
  * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the
- * screen. By default, the window is clipped to the screen boundaries. Setting this to false will
- * allow windows to be accurately positioned.
- * The default value is true.
+ *   screen. By default, the window is clipped to the screen boundaries. Setting this to false will
+ *   allow windows to be accurately positioned. The default value is true.
  * @property usePlatformDefaultWidth Whether the width of the popup's content should be limited to
- * the platform default, which is smaller than the screen width.
+ *   the platform default, which is smaller than the screen width.
  * @property usePlatformInsets Whether the width of the popup's content should be limited by
- * platform insets.
+ *   platform insets.
  */
 @Immutable
-actual class PopupProperties @ExperimentalComposeUiApi constructor(
+actual class PopupProperties
+@ExperimentalComposeUiApi
+constructor(
     actual val focusable: Boolean = false,
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
@@ -121,32 +121,34 @@ actual class PopupProperties @ExperimentalComposeUiApi constructor(
 /**
  * Opens a popup with the given content.
  *
- * The popup is positioned relative to its parent, using the [alignment] and [offset].
- * The popup is visible as long as it is part of the composition hierarchy.
+ * The popup is positioned relative to its parent, using the [alignment] and [offset]. The popup is
+ * visible as long as it is part of the composition hierarchy.
  *
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
- * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
- * will be subtracted from it.
+ *   Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
+ *   will be subtracted from it.
  * @param focusable Indicates if the popup can grab the focus.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
- * Return true to stop propagation of this event. If you return false, the key event will be
- * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
- * it will be sent back up to the root using the onKeyEvent callback.
- * @param onKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. While implementing this callback, return true to stop propagation of this event.
- * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ *   keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ *   Return true to stop propagation of this event. If you return false, the key event will be sent
+ *   to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it will be sent
+ *   back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware keyboard.
+ *   While implementing this callback, return true to stop propagation of this event. If you return
+ *   false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
 @Deprecated(
     "Replaced by Popup with properties parameter",
-    ReplaceWith("Popup(alignment, offset, onDismissRequest, " +
-        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
-        "onPreviewKeyEvent, onKeyEvent, content)")
+    ReplaceWith(
+        "Popup(alignment, offset, onDismissRequest, " +
+            "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+            "onPreviewKeyEvent, onKeyEvent, content)"
+    )
 )
 @Composable
 fun Popup(
@@ -157,20 +159,21 @@ fun Popup(
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable () -> Unit
-) = Popup(
-    alignment = alignment,
-    offset = offset,
-    onDismissRequest = onDismissRequest,
-    properties = PopupProperties(
-        focusable = focusable,
-        dismissOnBackPress = true,
-        dismissOnClickOutside = focusable
-
-    ),
-    onPreviewKeyEvent = onPreviewKeyEvent,
-    onKeyEvent = onKeyEvent,
-    content = content
-)
+) =
+    Popup(
+        alignment = alignment,
+        offset = offset,
+        onDismissRequest = onDismissRequest,
+        properties =
+            PopupProperties(
+                focusable = focusable,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = focusable
+            ),
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = content
+    )
 
 /**
  * Opens a popup with the given content.
@@ -183,20 +186,22 @@ fun Popup(
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param focusable Indicates if the popup can grab the focus.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
- * Return true to stop propagation of this event. If you return false, the key event will be
- * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
- * it will be sent back up to the root using the onKeyEvent callback.
- * @param onKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. While implementing this callback, return true to stop propagation of this event.
- * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ *   keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ *   Return true to stop propagation of this event. If you return false, the key event will be sent
+ *   to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it will be sent
+ *   back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware keyboard.
+ *   While implementing this callback, return true to stop propagation of this event. If you return
+ *   false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
 @Deprecated(
     "Replaced by Popup with properties parameter",
-    ReplaceWith("Popup(popupPositionProvider, onDismissRequest, " +
-        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
-        "onPreviewKeyEvent, onKeyEvent, content)")
+    ReplaceWith(
+        "Popup(popupPositionProvider, onDismissRequest, " +
+            "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+            "onPreviewKeyEvent, onKeyEvent, content)"
+    )
 )
 @Composable
 fun Popup(
@@ -206,36 +211,37 @@ fun Popup(
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     focusable: Boolean = false,
     content: @Composable () -> Unit
-) = Popup(
-    popupPositionProvider = popupPositionProvider,
-    onDismissRequest = onDismissRequest,
-    properties = PopupProperties(
-        focusable = focusable,
-        dismissOnBackPress = true,
-        dismissOnClickOutside = focusable
-
-    ),
-    onPreviewKeyEvent = onPreviewKeyEvent,
-    onKeyEvent = onKeyEvent,
-    content = content
-)
+) =
+    Popup(
+        popupPositionProvider = popupPositionProvider,
+        onDismissRequest = onDismissRequest,
+        properties =
+            PopupProperties(
+                focusable = focusable,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = focusable
+            ),
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = content
+    )
 
 /**
  * Opens a popup with the given content.
  *
- * A popup is a floating container that appears on top of the current activity.
- * It is especially useful for non-modal UI surfaces that remain hidden until they
- * are needed, for example floating menus like Cut/Copy/Paste.
+ * A popup is a floating container that appears on top of the current activity. It is especially
+ * useful for non-modal UI surfaces that remain hidden until they are needed, for example floating
+ * menus like Cut/Copy/Paste.
  *
- * The popup is positioned relative to its parent, using the [alignment] and [offset].
- * The popup is visible as long as it is part of the composition hierarchy.
+ * The popup is positioned relative to its parent, using the [alignment] and [offset]. The popup is
+ * visible as long as it is part of the composition hierarchy.
  *
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
- * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
- * will be subtracted from it.
+ *   Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
+ *   will be subtracted from it.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param content The content to be displayed inside the popup.
@@ -247,15 +253,16 @@ actual fun Popup(
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
     content: @Composable () -> Unit
-): Unit = Popup(
-    alignment = alignment,
-    offset = offset,
-    onDismissRequest = onDismissRequest,
-    properties = properties,
-    onPreviewKeyEvent = null,
-    onKeyEvent = null,
-    content = content
-)
+): Unit =
+    Popup(
+        alignment = alignment,
+        offset = offset,
+        onDismissRequest = onDismissRequest,
+        properties = properties,
+        onPreviewKeyEvent = null,
+        onKeyEvent = null,
+        content = content
+    )
 
 /**
  * Opens a popup with the given content.
@@ -275,41 +282,42 @@ actual fun Popup(
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
     content: @Composable () -> Unit
-): Unit = Popup(
-    popupPositionProvider = popupPositionProvider,
-    onDismissRequest = onDismissRequest,
-    properties = properties,
-    onPreviewKeyEvent = null,
-    onKeyEvent = null,
-    content = content
-)
+): Unit =
+    Popup(
+        popupPositionProvider = popupPositionProvider,
+        onDismissRequest = onDismissRequest,
+        properties = properties,
+        onPreviewKeyEvent = null,
+        onKeyEvent = null,
+        content = content
+    )
 
 /**
  * Opens a popup with the given content.
  *
- * A popup is a floating container that appears on top of the current activity.
- * It is especially useful for non-modal UI surfaces that remain hidden until they
- * are needed, for example floating menus like Cut/Copy/Paste.
+ * A popup is a floating container that appears on top of the current activity. It is especially
+ * useful for non-modal UI surfaces that remain hidden until they are needed, for example floating
+ * menus like Cut/Copy/Paste.
  *
- * The popup is positioned relative to its parent, using the [alignment] and [offset].
- * The popup is visible as long as it is part of the composition hierarchy.
+ * The popup is positioned relative to its parent, using the [alignment] and [offset]. The popup is
+ * visible as long as it is part of the composition hierarchy.
  *
  * @sample androidx.compose.ui.samples.PopupSample
  *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
- * Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
- * will be subtracted from it.
+ *   Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
+ *   will be subtracted from it.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
- * Return true to stop propagation of this event. If you return false, the key event will be
- * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
- * it will be sent back up to the root using the onKeyEvent callback.
- * @param onKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. While implementing this callback, return true to stop propagation of this event.
- * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ *   keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ *   Return true to stop propagation of this event. If you return false, the key event will be sent
+ *   to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it will be sent
+ *   back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware keyboard.
+ *   While implementing this callback, return true to stop propagation of this event. If you return
+ *   false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
 @Composable
@@ -322,9 +330,8 @@ fun Popup(
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
     content: @Composable () -> Unit
 ) {
-    val popupPositioner = remember(alignment, offset) {
-        AlignmentOffsetPositionProvider(alignment, offset)
-    }
+    val popupPositioner =
+        remember(alignment, offset) { AlignmentOffsetPositionProvider(alignment, offset) }
     Popup(
         popupPositionProvider = popupPositioner,
         onDismissRequest = onDismissRequest,
@@ -346,13 +353,13 @@ fun Popup(
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
- * Return true to stop propagation of this event. If you return false, the key event will be
- * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
- * it will be sent back up to the root using the onKeyEvent callback.
- * @param onKeyEvent This callback is invoked when the user interacts with the hardware
- * keyboard. While implementing this callback, return true to stop propagation of this event.
- * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+ *   keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+ *   Return true to stop propagation of this event. If you return false, the key event will be sent
+ *   to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it will be sent
+ *   back up to the root using the onKeyEvent callback.
+ * @param onKeyEvent This callback is invoked when the user interacts with the hardware keyboard.
+ *   While implementing this callback, return true to stop propagation of this event. If you return
+ *   false, the key event will be sent to this [onKeyEvent]'s parent.
  * @param content The content to be displayed inside the popup.
  */
 @Composable
@@ -367,20 +374,21 @@ fun Popup(
     val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
     val currentOnKeyEvent by rememberUpdatedState(onKeyEvent)
 
-    val overriddenOnKeyEvent = if (properties.dismissOnBackPress && onDismissRequest != null) {
-        // No need to remember this lambda, as it doesn't capture any values that can change.
-        { event: KeyEvent ->
-            val consumed = currentOnKeyEvent?.invoke(event) ?: false
-            if (!consumed && event.isDismissRequest()) {
-                currentOnDismissRequest?.invoke()
-                true
-            } else {
-                consumed
+    val overriddenOnKeyEvent =
+        if (properties.dismissOnBackPress && onDismissRequest != null) {
+            // No need to remember this lambda, as it doesn't capture any values that can change.
+            { event: KeyEvent ->
+                val consumed = currentOnKeyEvent?.invoke(event) ?: false
+                if (!consumed && event.isDismissRequest()) {
+                    currentOnDismissRequest?.invoke()
+                    true
+                } else {
+                    consumed
+                }
             }
+        } else {
+            onKeyEvent
         }
-    } else {
-        onKeyEvent
-    }
     PopupLayout(
         popupPositionProvider = popupPositionProvider,
         focusable = properties.focusable,
@@ -412,63 +420,66 @@ internal fun PopupLayout(
     // getting parent bounds
     Layout(
         content = {},
-        modifier = Modifier.onGloballyPositioned { childCoordinates ->
-            val coordinates = childCoordinates.parentCoordinates!!
-            parentBounds = IntRect(
-                coordinates.localToWindow(Offset.Zero).round(),
-                coordinates.size
-            )
-        },
-        measurePolicy = { _, _ ->
-            layout(0, 0) {}
-        }
+        modifier =
+            Modifier.onGloballyPositioned { childCoordinates ->
+                val coordinates = childCoordinates.parentCoordinates!!
+                parentBounds =
+                    IntRect(coordinates.localToWindow(Offset.Zero).round(), coordinates.size)
+            },
+        measurePolicy = { _, _ -> layout(0, 0) {} }
     )
 
     val parentComposition = rememberCompositionContext()
-    val (owner, composition) = remember {
-        val owner = SkiaBasedOwner(
-            platformInputService = scene.platformInputService,
-            component = scene.component,
-            density = density,
-            coroutineContext = parentComposition.effectCoroutineContext,
-            isPopup = true,
-            isFocusable = focusable,
-            onDismissRequest = onDismissRequest,
-            onPreviewKeyEvent = onPreviewKeyEvent ?: { false },
-            onKeyEvent = onKeyEvent ?: { false }
-        )
-        scene.attach(owner)
-        val composition = owner.setContent(parent = parentComposition) {
-            Layout(
-                content = content,
-                modifier = modifier,
-                measurePolicy = { measurables, constraints ->
-                    val width = constraints.maxWidth
-                    val height = constraints.maxHeight
+    val (owner, composition) =
+        remember {
+            val owner =
+                SkiaBasedOwner(
+                    platformInputService = scene.platformInputService,
+                    component = scene.component,
+                    density = density,
+                    coroutineContext = parentComposition.effectCoroutineContext,
+                    isPopup = true,
+                    isFocusable = focusable,
+                    onDismissRequest = onDismissRequest,
+                    onPreviewKeyEvent = onPreviewKeyEvent ?: { false },
+                    onKeyEvent = onKeyEvent ?: { false }
+                )
+            scene.attach(owner)
+            val composition =
+                owner.setContent(parent = parentComposition) {
+                    Layout(
+                        content = content,
+                        modifier = modifier,
+                        measurePolicy = { measurables, constraints ->
+                            val width = constraints.maxWidth
+                            val height = constraints.maxHeight
 
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        measurables.forEach {
-                            val placeable = it.measure(constraints)
-                            val position = popupPositionProvider.calculatePosition(
-                                anchorBounds = parentBounds,
-                                windowSize = IntSize(width, height),
-                                layoutDirection = layoutDirection,
-                                popupContentSize = IntSize(placeable.width, placeable.height)
-                            )
+                            layout(constraints.maxWidth, constraints.maxHeight) {
+                                measurables.forEach {
+                                    val placeable = it.measure(constraints)
+                                    val position =
+                                        popupPositionProvider.calculatePosition(
+                                            anchorBounds = parentBounds,
+                                            windowSize = IntSize(width, height),
+                                            layoutDirection = layoutDirection,
+                                            popupContentSize =
+                                                IntSize(placeable.width, placeable.height)
+                                        )
 
-                            popupBounds = IntRect(
-                                position,
-                                IntSize(placeable.width, placeable.height)
-                            )
-                            owner.bounds = popupBounds
-                            placeable.place(position.x, position.y)
+                                    popupBounds =
+                                        IntRect(
+                                            position,
+                                            IntSize(placeable.width, placeable.height)
+                                        )
+                                    owner.bounds = popupBounds
+                                    placeable.place(position.x, position.y)
+                                }
+                            }
                         }
-                    }
+                    )
                 }
-            )
+            owner to composition
         }
-        owner to composition
-    }
     owner.density = density
     DisposableEffect(Unit) {
         onDispose {
@@ -479,5 +490,4 @@ internal fun PopupLayout(
     }
 }
 
-private fun KeyEvent.isDismissRequest() =
-    type == KeyEventType.KeyDown && key == Key.Escape
+private fun KeyEvent.isDismissRequest() = type == KeyEventType.KeyDown && key == Key.Escape

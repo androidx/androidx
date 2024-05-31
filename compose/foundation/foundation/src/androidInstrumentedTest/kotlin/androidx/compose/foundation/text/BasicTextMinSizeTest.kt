@@ -38,17 +38,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicTextMinSizeTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun changingMinSizeConstraint_shrinksLayout() {
         var isBig by mutableStateOf(true)
         val widths = mutableListOf<Int>()
         rule.setContent {
-            MinSizeChangeLayout(isBig = { isBig }, onMeasure = { widths += it }) {
-                BasicText("A")
-            }
+            MinSizeChangeLayout(isBig = { isBig }, onMeasure = { widths += it }) { BasicText("A") }
         }
         rule.waitForIdle()
         isBig = !isBig
@@ -85,20 +82,22 @@ fun MinSizeChangeLayout(
     Layout(
         modifier = Modifier.fillMaxWidth(),
         measurePolicy = { measurables, constraints ->
-            val newConstraints = Constraints(
-                minWidth = if (isBig()) { constraints.maxWidth } else { constraints.maxWidth / 2 },
-                maxWidth = constraints.maxWidth,
-                minHeight = 0,
-                maxHeight = constraints.maxHeight
-            )
-            val placeables = measurables.map {
-                it.measure(newConstraints)
-            }
+            val newConstraints =
+                Constraints(
+                    minWidth =
+                        if (isBig()) {
+                            constraints.maxWidth
+                        } else {
+                            constraints.maxWidth / 2
+                        },
+                    maxWidth = constraints.maxWidth,
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight
+                )
+            val placeables = measurables.map { it.measure(newConstraints) }
             onMeasure(placeables.first().width)
             layout(constraints.minWidth, placeables[0].height) {
-                placeables.forEachIndexed { _, it ->
-                    it.place(0, 0)
-                }
+                placeables.forEachIndexed { _, it -> it.place(0, 0) }
             }
         },
         content = content

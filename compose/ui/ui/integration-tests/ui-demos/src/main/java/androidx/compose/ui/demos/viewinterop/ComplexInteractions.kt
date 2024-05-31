@@ -43,14 +43,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
-val ComplexTouchInterop = DemoCategory(
-    "Complex Touch Interop",
-    listOf(
-        ComposableDemo("Compose in Android in Compose in Android") {
-            ComposeInAndroidInComposeEtcTargetingDemo()
-        }
+val ComplexTouchInterop =
+    DemoCategory(
+        "Complex Touch Interop",
+        listOf(
+            ComposableDemo("Compose in Android in Compose in Android") {
+                ComposeInAndroidInComposeEtcTargetingDemo()
+            }
+        )
     )
-)
 
 @Composable
 fun ComposeInAndroidInComposeEtcTargetingDemo() {
@@ -66,13 +67,7 @@ fun ComposeInAndroidInComposeEtcTargetingDemo() {
                 "events translate from Android to compose a couple of times and everything " +
                 "still works."
         )
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(color = Color(0xFF777777))
-                .padding(48.dp)
-        ) {
-
+        Box(Modifier.fillMaxSize().background(color = Color(0xFF777777)).padding(48.dp)) {
             AndroidView(
                 modifier = Modifier.fillMaxHeight(),
                 factory = {
@@ -90,8 +85,7 @@ fun ComposeInAndroidInComposeEtcTargetingDemo() {
                                     }
                                 setContent {
                                     Box(
-                                        Modifier
-                                            .background(color = Color(0xFFAAAAAA))
+                                        Modifier.background(color = Color(0xFFAAAAAA))
                                             .fillMaxSize()
                                             .wrapContentSize(Alignment.Center)
                                     ) {

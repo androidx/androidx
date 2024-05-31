@@ -39,9 +39,10 @@ fun ColorAnimationSample() {
         // Animates to primary or secondary color, depending on whether [primary] is true
         // [animateState] returns the current animation value in a State<Color> in this example. We
         // use the State<Color> object as a property delegate here.
-        val color: Color by animateColorAsState(
-            if (primary) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
-        )
+        val color: Color by
+            animateColorAsState(
+                if (primary) MaterialTheme.colors.primary else MaterialTheme.colors.secondary
+            )
         Box(modifier = Modifier.background(color))
     }
 }

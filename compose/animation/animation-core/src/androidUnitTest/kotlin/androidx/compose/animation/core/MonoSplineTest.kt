@@ -28,9 +28,7 @@ class MonoSplineTest {
     @Test
     fun testCurveFit01() {
         val points = arrayOf(floatArrayOf(0f, 0f), floatArrayOf(1f, 1f), floatArrayOf(2f, 0f))
-        val time = floatArrayOf(
-            0f, 5f, 10f
-        )
+        val time = floatArrayOf(0f, 5f, 10f)
         val spline = MonoSpline(time, points, Float.NaN)
         var value = spline.getPos(5f, 0).toDouble()
         assertEquals(1.0, value, 0.001)
@@ -42,17 +40,16 @@ class MonoSplineTest {
 
     @Test
     fun testMonoSpline() {
-        val points = arrayOf(
-            floatArrayOf(0f, 0f),
-            floatArrayOf(1f, 1f),
-            floatArrayOf(1f, 0f),
-            floatArrayOf(2f, 0f),
-            floatArrayOf(2f, 0f),
-            floatArrayOf(3f, 0f)
-        )
-        val time = floatArrayOf(
-            0f, 1f, 2f, 3f, 4f, 5f
-        )
+        val points =
+            arrayOf(
+                floatArrayOf(0f, 0f),
+                floatArrayOf(1f, 1f),
+                floatArrayOf(1f, 0f),
+                floatArrayOf(2f, 0f),
+                floatArrayOf(2f, 0f),
+                floatArrayOf(3f, 0f)
+            )
+        val time = floatArrayOf(0f, 1f, 2f, 3f, 4f, 5f)
         val mspline = MonoSpline(time, points, Float.NaN)
         assertEquals(1.0f, mspline.getPos(1f, 0), 0.001f)
         assertEquals(1.0f, mspline.getPos(1.1f, 0), 0.001f)
@@ -61,7 +58,8 @@ class MonoSplineTest {
         assertEquals(1.0f, mspline.getPos(1.9f, 0), 0.001f)
         assertEquals(2.0f, mspline.getPos(3.5f, 0), 0.001f)
         val s = plotMonoSpline(mspline, 0, 0f, 5f)
-        val expect = """
+        val expect =
+            """
                 |***                                                         | 0.0
                 |   **                                                       |
                 |     **                                                     |
@@ -78,7 +76,8 @@ class MonoSplineTest {
                 |                                                         ** |
                 |                                                           *| 3.0
                 0.0                                                        5.0
-                """.trimIndent()
+                """
+                .trimIndent()
         assertEquals(expect, s)
     }
 
@@ -131,17 +130,19 @@ class MonoSplineTest {
             c[if (flip) dimy - yp - 1 else yp][xp] = '*'
         }
         for (i in c.indices) {
-            var v: Float = if (flip) {
-                (minY - maxY) * (i / (c.size - 1.0f)) + maxY
-            } else {
-                (maxY - minY) * (i / (c.size - 1.0f)) + minY
-            }
+            var v: Float =
+                if (flip) {
+                    (minY - maxY) * (i / (c.size - 1.0f)) + maxY
+                } else {
+                    (maxY - minY) * (i / (c.size - 1.0f)) + minY
+                }
             v = (v * 1000 + 0.5).toInt() / 1000f
-            ret += if (i % 5 == 0 || i == c.size - 1) {
-                "|" + String(c[i]) + "| " + v + "\n"
-            } else {
-                "|" + String(c[i]) + "|\n"
-            }
+            ret +=
+                if (i % 5 == 0 || i == c.size - 1) {
+                    "|" + String(c[i]) + "| " + v + "\n"
+                } else {
+                    "|" + String(c[i]) + "|\n"
+                }
         }
         val minStr = ((minX * 1000 + 0.5).toInt() / 1000f).toString()
         val maxStr = ((maxX * 1000 + 0.5).toInt() / 1000f).toString()

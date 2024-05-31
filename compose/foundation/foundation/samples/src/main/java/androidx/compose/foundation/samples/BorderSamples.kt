@@ -43,28 +43,23 @@ import androidx.compose.ui.unit.sp
 @Composable
 @Sampled
 fun BorderSample() {
-    Text(
-        "Text with  square border",
-        modifier = Modifier
-            .border(4.dp, Color.Magenta)
-            .padding(10.dp)
-    )
+    Text("Text with  square border", modifier = Modifier.border(4.dp, Color.Magenta).padding(10.dp))
 }
 
 @Composable
 @Sampled
 fun BorderSampleWithBrush() {
-    val gradientBrush = Brush.horizontalGradient(
-        colors = listOf(Color.Red, Color.Blue, Color.Green),
-        startX = 0.0f,
-        endX = 500.0f,
-        tileMode = TileMode.Repeated
-    )
+    val gradientBrush =
+        Brush.horizontalGradient(
+            colors = listOf(Color.Red, Color.Blue, Color.Green),
+            startX = 0.0f,
+            endX = 500.0f,
+            tileMode = TileMode.Repeated
+        )
     Text(
         "Text with gradient border",
-        modifier = Modifier
-            .border(width = 2.dp, brush = gradientBrush, shape = CircleShape)
-            .padding(10.dp)
+        modifier =
+            Modifier.border(width = 2.dp, brush = gradientBrush, shape = CircleShape).padding(10.dp)
     )
 }
 
@@ -73,12 +68,9 @@ fun BorderSampleWithBrush() {
 fun BorderSampleWithDataClass() {
     Text(
         "Text with gradient border",
-        modifier = Modifier
-            .border(
-                border = BorderStroke(2.dp, Color.Blue),
-                shape = CutCornerShape(8.dp)
-            )
-            .padding(10.dp)
+        modifier =
+            Modifier.border(border = BorderStroke(2.dp, Color.Blue), shape = CutCornerShape(8.dp))
+                .padding(10.dp)
     )
 }
 
@@ -88,24 +80,23 @@ fun BorderSampleWithDynamicData() {
     val widthRange = (1..10)
     var width by remember { mutableStateOf((widthRange.random()).dp) }
 
-    val shapes = remember {
-        listOf(CutCornerShape(8.dp), CircleShape, RoundedCornerShape(20))
-    }
+    val shapes = remember { listOf(CutCornerShape(8.dp), CircleShape, RoundedCornerShape(20)) }
     var selectedShape by remember { mutableStateOf(shapes.random()) }
 
-    val colors = listOf(
-        Color.Black,
-        Color.DarkGray,
-        Color.Gray,
-        Color.LightGray,
-        Color.White,
-        Color.Red,
-        Color.Blue,
-        Color.Green,
-        Color.Yellow,
-        Color.Cyan,
-        Color.Magenta
-    )
+    val colors =
+        listOf(
+            Color.Black,
+            Color.DarkGray,
+            Color.Gray,
+            Color.LightGray,
+            Color.White,
+            Color.Red,
+            Color.Blue,
+            Color.Green,
+            Color.Yellow,
+            Color.Cyan,
+            Color.Magenta
+        )
     var gradientBrush by remember {
         mutableStateOf(
             Brush.horizontalGradient(
@@ -122,53 +113,36 @@ fun BorderSampleWithDynamicData() {
         Row {
             Button(
                 modifier = Modifier.width(60.dp),
-                onClick = {
-
-                    width = (widthRange.random()).dp
-                }
+                onClick = { width = (widthRange.random()).dp }
             ) {
-                Text(
-                    fontSize = 8.sp,
-                    text = "width"
-                )
+                Text(fontSize = 8.sp, text = "width")
             }
             Button(
                 modifier = Modifier.width(60.dp),
                 onClick = {
-                    gradientBrush = Brush.horizontalGradient(
-                        colors = listOf(colors.random(), colors.random(), colors.random()),
-                        startX = 0.0f,
-                        endX = 500.0f,
-                        tileMode = TileMode.Repeated
-                    )
+                    gradientBrush =
+                        Brush.horizontalGradient(
+                            colors = listOf(colors.random(), colors.random(), colors.random()),
+                            startX = 0.0f,
+                            endX = 500.0f,
+                            tileMode = TileMode.Repeated
+                        )
                 }
             ) {
-                Text(
-                    fontSize = 8.sp,
-                    text = "brush"
-                )
+                Text(fontSize = 8.sp, text = "brush")
             }
             Button(
                 modifier = Modifier.width(60.dp),
-                onClick = {
-                    selectedShape = shapes.random()
-                }
+                onClick = { selectedShape = shapes.random() }
             ) {
-                Text(
-                    fontSize = 8.sp,
-                    text = "shape"
-                )
+                Text(fontSize = 8.sp, text = "shape")
             }
         }
         Text(
             "Dynamic border",
-            modifier = Modifier
-                .border(
-                    width = width,
-                    brush = gradientBrush,
-                    shape = selectedShape
-                )
-                .padding(10.dp)
+            modifier =
+                Modifier.border(width = width, brush = gradientBrush, shape = selectedShape)
+                    .padding(10.dp)
         )
     }
 }

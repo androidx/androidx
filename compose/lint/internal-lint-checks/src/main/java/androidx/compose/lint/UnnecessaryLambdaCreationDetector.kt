@@ -72,13 +72,12 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
     /**
      * This handler visits every lambda expression and reports an issue if the following criteria
      * (in order) hold true:
-     *
      * 1. There is only one expression inside the lambda
      * 2. The lambda literal is created as part of a function call, and not as a property assignment
      *    such as val foo = @Composable {}
      * 3. The expression is an invoke() call
      * 4. The receiver type of the invoke call is a functional type, and it is a subtype of (i.e
-     * compatible to cast to) the lambda parameter functional type
+     *    compatible to cast to) the lambda parameter functional type
      * 5. The lambda parameter and literal have matching composability
      */
     class UnnecessaryLambdaCreationHandler(private val context: JavaContext) : UElementHandler() {
@@ -88,15 +87,16 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
 
             if (expressions.size != 1) return
 
-            val expression = when (val expr = expressions.first().skipParenthesizedExprDown()) {
-                is UCallExpression -> expr
-                is UReturnExpression -> {
-                    if (expr.sourcePsi == null) { // implicit return
-                        expr.returnExpression?.skipParenthesizedExprDown() as? UCallExpression
-                    } else null
-                }
-                else -> null
-            } ?: return
+            val expression =
+                when (val expr = expressions.first().skipParenthesizedExprDown()) {
+                    is UCallExpression -> expr
+                    is UReturnExpression -> {
+                        if (expr.sourcePsi == null) { // implicit return
+                            expr.returnExpression?.skipParenthesizedExprDown() as? UCallExpression
+                        } else null
+                    }
+                    else -> null
+                } ?: return
 
             // This is the parent function call that contains the lambda expression.
             // I.e in Foo { bar() } this will be the call to `Foo`.
@@ -128,28 +128,38 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
 
             // Try and get the UElement for the source of the lambda
             val sourcePsi = expression.sourcePsi as? KtCallElement ?: return
-            val resolvedLambdaSource = sourcePsi.calleeExpression?.toUElement()
-                ?.tryResolve()?.toUElement()
-                // Sometimes the above will give us a method (representing the getter for a`
-                // property), when the actual backing element is a property. Going to the source
-                // and back should give us the actual UVariable we are looking for.
-                ?.sourcePsi.toUElement()
+            val resolvedLambdaSource =
+                sourcePsi.calleeExpression
+                    ?.toUElement()
+                    ?.tryResolve()
+                    ?.toUElement()
+                    // Sometimes the above will give us a method (representing the getter for a`
+                    // property), when the actual backing element is a property. Going to the source
+                    // and back should give us the actual UVariable we are looking for.
+                    ?.sourcePsi
+                    .toUElement()
 
-            val isComposable = when (resolvedLambdaSource) {
-                is UVariable -> resolvedLambdaSource.isComposable
-                // If the source is a method, then the lambda is the return type of the method, so
-                // check the return type
-                is UMethod -> resolvedLambdaSource.returnTypeReference?.isComposable == true
-                // Safe return if we failed to resolve. This can happen for implicit `it` parameters
-                // that are lambdas, but this should only happen exceptionally for lambdas with
-                // an `Any` parameter, such as { any: Any -> }.let { it(Any()) }, since this passes
-                // the isSubTypeOf check above. In this case it isn't possible to inline this call,
-                // so no need to handle these implicit parameters.
-                null -> return
-                // Throw since this is an internal check, and we want to fix this for unknown types.
-                // If making this check public, it's safer to return instead without throwing.
-                else -> error(parentExpression.asSourceString())
-            }
+            val isComposable =
+                when (resolvedLambdaSource) {
+                    is UVariable -> resolvedLambdaSource.isComposable
+                    // If the source is a method, then the lambda is the return type of the method,
+                    // so
+                    // check the return type
+                    is UMethod -> resolvedLambdaSource.returnTypeReference?.isComposable == true
+                    // Safe return if we failed to resolve. This can happen for implicit `it`
+                    // parameters
+                    // that are lambdas, but this should only happen exceptionally for lambdas with
+                    // an `Any` parameter, such as { any: Any -> }.let { it(Any()) }, since this
+                    // passes
+                    // the isSubTypeOf check above. In this case it isn't possible to inline this
+                    // call,
+                    // so no need to handle these implicit parameters.
+                    null -> return
+                    // Throw since this is an internal check, and we want to fix this for unknown
+                    // types.
+                    // If making this check public, it's safer to return instead without throwing.
+                    else -> error(parentExpression.asSourceString())
+                }
 
             if (isComposable != expectedComposable) return
 
@@ -169,21 +179,22 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 "this lambda to track invalidations. This adds some extra runtime cost so you" +
                 " should instead just directly pass the lambda as a parameter to the function."
 
-        val ISSUE = Issue.create(
-            "UnnecessaryLambdaCreation",
-            "Creating an unnecessary lambda to emit a captured lambda",
-            Explanation,
-            Category.PERFORMANCE, 5, Severity.ERROR,
-            Implementation(
-                UnnecessaryLambdaCreationDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                "UnnecessaryLambdaCreation",
+                "Creating an unnecessary lambda to emit a captured lambda",
+                Explanation,
+                Category.PERFORMANCE,
+                5,
+                Severity.ERROR,
+                Implementation(UnnecessaryLambdaCreationDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }
 
 private fun KtAnalysisSession.dispatchReceiverType(callElement: KtCallElement): KtFunctionalType? =
-    callElement.resolveCall()
+    callElement
+        .resolveCall()
         ?.singleFunctionCallOrNull()
         ?.takeIf { it is KtSimpleFunctionCall && it.isImplicitInvoke }
         ?.partiallyAppliedSymbol

@@ -831,9 +831,11 @@ class OffsetMappingCalculatorTest {
         // Check well off the end of the valid index range just to be sure.
         repeat(length + 2) {
             assertWithMessage("Mapping from source offset $it")
-                .that(mapFromSource(it)).isEqualTo(TextRange(it))
+                .that(mapFromSource(it))
+                .isEqualTo(TextRange(it))
             assertWithMessage("Mapping from dest offset $it")
-                .that(mapFromDest(it)).isEqualTo(TextRange(it))
+                .that(mapFromDest(it))
+                .isEqualTo(TextRange(it))
         }
     }
 
@@ -842,7 +844,8 @@ class OffsetMappingCalculatorTest {
     ) {
         expectedMappings.forEach { (srcOffset, dstRange) ->
             assertWithMessage("Mapping from source offset $srcOffset")
-                .that(mapFromSource(srcOffset)).isEqualTo(dstRange)
+                .that(mapFromSource(srcOffset))
+                .isEqualTo(dstRange)
         }
     }
 
@@ -851,7 +854,8 @@ class OffsetMappingCalculatorTest {
     ) {
         expectedMappings.forEach { (dstOffset, srcRange) ->
             assertWithMessage("Mapping from dest offset $dstOffset")
-                .that(mapFromDest(dstOffset)).isEqualTo(srcRange)
+                .that(mapFromDest(dstOffset))
+                .isEqualTo(srcRange)
         }
     }
 
@@ -859,9 +863,8 @@ class OffsetMappingCalculatorTest {
      * Basic implementation of a text editing buffer that uses [OffsetMappingCalculator] to make
      * testing easier.
      */
-    private class TestEditBuffer private constructor(
-        private val builder: StringBuilder
-    ) : CharSequence by builder {
+    private class TestEditBuffer private constructor(private val builder: StringBuilder) :
+        CharSequence by builder {
         constructor(text: CharSequence = "") : this(StringBuilder(text))
 
         private val tracker = OffsetMappingCalculator()
@@ -895,6 +898,7 @@ class OffsetMappingCalculatorTest {
         }
 
         fun mapFromSource(offset: Int): TextRange = tracker.mapFromSource(offset)
+
         fun mapFromDest(offset: Int): TextRange = tracker.mapFromDest(offset)
 
         override fun toString(): String = builder.toString()

@@ -38,13 +38,10 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class TextFieldBenchmark(private val type: TextFieldType) {
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = TextFieldType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = TextFieldType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val textFieldTestCaseFactory = { TextFieldTestCase(type) }
 
@@ -62,9 +59,8 @@ class TextFieldBenchmark(private val type: TextFieldType) {
     }
 }
 
-internal class TextFieldTestCase(
-    private val type: TextFieldType
-) : LayeredComposeTestCase(), ToggleableTestCase {
+internal class TextFieldTestCase(private val type: TextFieldType) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var state: MutableState<String>
 
     @Composable
@@ -87,9 +83,7 @@ internal class TextFieldTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {
@@ -98,5 +92,6 @@ internal class TextFieldTestCase(
 }
 
 enum class TextFieldType {
-    Filled, Outlined
+    Filled,
+    Outlined
 }

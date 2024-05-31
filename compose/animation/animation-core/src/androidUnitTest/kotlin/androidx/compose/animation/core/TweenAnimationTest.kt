@@ -31,11 +31,12 @@ class TweenAnimationTest {
         val start = AnimationVector1D(0f)
         val end = AnimationVector1D(1000f)
 
-        val animation = VectorizedTweenSpec<AnimationVector1D>(
-            delayMillis = 100,
-            durationMillis = testDuration,
-            easing = LinearEasing
-        )
+        val animation =
+            VectorizedTweenSpec<AnimationVector1D>(
+                delayMillis = 100,
+                durationMillis = testDuration,
+                easing = LinearEasing
+            )
 
         fun atPlaytime(playTime: Long) =
             animation.getValueFromMillis(playTime, start, end, AnimationVector1D(0f)).value
@@ -50,10 +51,11 @@ class TweenAnimationTest {
     fun easingIsApplied() {
         val totalDuration = 300
         val accelerateEasing: Easing = Easing { fraction -> fraction * 2f }
-        val animation = VectorizedTweenSpec<AnimationVector1D>(
-            durationMillis = totalDuration,
-            easing = accelerateEasing
-        )
+        val animation =
+            VectorizedTweenSpec<AnimationVector1D>(
+                durationMillis = totalDuration,
+                easing = accelerateEasing
+            )
 
         val fraction = 0.3f
         val value = animation.at((totalDuration * fraction).toLong())
@@ -65,9 +67,7 @@ class TweenAnimationTest {
     fun endValueCalculatedForPlaytimeOverDuration() {
         val testDuration = 200
 
-        val animation = VectorizedTweenSpec<AnimationVector1D>(
-            durationMillis = testDuration
-        )
+        val animation = VectorizedTweenSpec<AnimationVector1D>(durationMillis = testDuration)
 
         assertThat(animation.at(testDuration + 10L)).isEqualTo(1f)
     }

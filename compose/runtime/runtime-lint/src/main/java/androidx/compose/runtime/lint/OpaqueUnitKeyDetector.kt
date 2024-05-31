@@ -49,24 +49,25 @@ import org.jetbrains.uast.toUElement
 
 /**
  * Detector to warn when [Unit] is being passed "opaquely" as an argument to any of the methods in
- * [getApplicableMethodNames]. An argument is defined as an opaque unit key if all the following
- * are true:
- *  - The argument is an expression of type `Unit`
- *  - The argument is being passed to a parameter of type `Any?`
- *  - The argument is not the `Unit` literal
- *  - The argument is not a trivial variable or property read expression
+ * [getApplicableMethodNames]. An argument is defined as an opaque unit key if all the following are
+ * true:
+ * - The argument is an expression of type `Unit`
+ * - The argument is being passed to a parameter of type `Any?`
+ * - The argument is not the `Unit` literal
+ * - The argument is not a trivial variable or property read expression
  */
 class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        Names.Runtime.Remember.shortName,
-        Names.Runtime.RememberSaveable.shortName,
-        Names.Runtime.DisposableEffect.shortName,
-        Names.Runtime.LaunchedEffect.shortName,
-        Names.Runtime.ProduceState.shortName,
-        Names.Runtime.ReusableContent.shortName,
-        Names.Runtime.Key.shortName,
-    )
+    override fun getApplicableMethodNames(): List<String> =
+        listOf(
+            Names.Runtime.Remember.shortName,
+            Names.Runtime.RememberSaveable.shortName,
+            Names.Runtime.DisposableEffect.shortName,
+            Names.Runtime.LaunchedEffect.shortName,
+            Names.Runtime.ProduceState.shortName,
+            Names.Runtime.ReusableContent.shortName,
+            Names.Runtime.Key.shortName,
+        )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Runtime.PackageName)) return
@@ -108,8 +109,9 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
     ) {
         val rootExpression = methodInvocation.resolveRootExpression()
         val rootExpressionLocation = context.getLocation(rootExpression)
-        val name = "Move expression outside of `${method.name}`'s arguments " +
-            "and pass `Unit` explicitly"
+        val name =
+            "Move expression outside of `${method.name}`'s arguments " +
+                "and pass `Unit` explicitly"
         context.report(
             OpaqueUnitKey,
             argument,
@@ -174,7 +176,9 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
         var root: UExpression = this
         var parent: UExpression? = root.getParentExpression()
         while (parent != null && parent !is UBlockExpression) {
-            if (!parent.isVirtual) { root = parent }
+            if (!parent.isVirtual) {
+                root = parent
+            }
             parent = parent.getParentExpression()
         }
         return root
@@ -191,7 +195,8 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
         return false
     }
 
-    private val UElement.isVirtual get() = sourcePsi == null
+    private val UElement.isVirtual
+        get() = sourcePsi == null
 
     private fun UExpression.getParentExpression(): UExpression? {
         return when (val parent = uastParent) {
@@ -227,26 +232,29 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
         private const val FqUnitName = "kotlin.Unit"
         private const val FqKotlinNullableAnnotation = "org.jetbrains.annotations.Nullable"
 
-        val OpaqueUnitKey = Issue.create(
-            "OpaqueUnitKey",
-            "Passing an expression which always returns `Unit` as a key argument",
-            "Certain Compose functions including `remember`, `LaunchedEffect`, and " +
-                "`DisposableEffect` declare (and sometimes require) one or more key parameters. " +
-                "When a key parameter changes, it is a signal that the previous invocation is " +
-                "now invalid. In certain cases, it may be required to pass `Unit` as a key to " +
-                "one of these functions, indicating that the invocation never becomes invalid. " +
-                "Using `Unit` as a key should be done infrequently, and should always be done " +
-                "explicitly by passing the `Unit` literal. This inspection checks for " +
-                "invocations where `Unit` is being passed as a key argument in any form other " +
-                "than the `Unit` literal. This is usually done by mistake, and can harm " +
-                "readability. If a Unit expression is being passed as a key, it is always " +
-                "equivalent to move the expression before the function invocation and pass the " +
-                "`Unit` literal instead.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                OpaqueUnitKeyDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val OpaqueUnitKey =
+            Issue.create(
+                "OpaqueUnitKey",
+                "Passing an expression which always returns `Unit` as a key argument",
+                "Certain Compose functions including `remember`, `LaunchedEffect`, and " +
+                    "`DisposableEffect` declare (and sometimes require) one or more key parameters. " +
+                    "When a key parameter changes, it is a signal that the previous invocation is " +
+                    "now invalid. In certain cases, it may be required to pass `Unit` as a key to " +
+                    "one of these functions, indicating that the invocation never becomes invalid. " +
+                    "Using `Unit` as a key should be done infrequently, and should always be done " +
+                    "explicitly by passing the `Unit` literal. This inspection checks for " +
+                    "invocations where `Unit` is being passed as a key argument in any form other " +
+                    "than the `Unit` literal. This is usually done by mistake, and can harm " +
+                    "readability. If a Unit expression is being passed as a key, it is always " +
+                    "equivalent to move the expression before the function invocation and pass the " +
+                    "`Unit` literal instead.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    OpaqueUnitKeyDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

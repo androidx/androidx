@@ -36,9 +36,11 @@ class PlatformFontFamilyTypefaceAdapterTest {
     private val fontLoader = AndroidFontLoader(context)
 
     @Suppress("MemberVisibilityCanBePrivate")
-    val parameters: List<Pair<FontWeight, FontStyle>> = (15 until 1000 step 15)
-        .zip(listOf(FontStyle.Italic, FontStyle.Normal))
-        .map { (weight, style) -> FontWeight(weight) to style }
+    val parameters: List<Pair<FontWeight, FontStyle>> =
+        (15 until 1000 step 15).zip(listOf(FontStyle.Italic, FontStyle.Normal)).map {
+            (weight, style) ->
+            FontWeight(weight) to style
+        }
 
     @Test
     fun canLoadNullTypeface() {
@@ -78,26 +80,19 @@ class PlatformFontFamilyTypefaceAdapterTest {
     @Suppress("DEPRECATION")
     @Test
     fun canLoadLoadedFontFamily_noSynthesis() {
-        val fontFamily = FontFamily(
-            Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily())
-        )
+        val fontFamily = FontFamily(Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily()))
         // this runs through synthesis path
         parameters.forEach { (weight, style) ->
             val subject = PlatformFontFamilyTypefaceAdapter()
-            val typeRequest = TypefaceRequest(
-                fontFamily,
-                weight,
-                style,
-                FontSynthesis.None,
-                null
-            )
+            val typeRequest = TypefaceRequest(fontFamily, weight, style, FontSynthesis.None, null)
             val trackingFun = TrackingFun()
-            val result = subject.resolve(
-                typefaceRequest = typeRequest,
-                platformFontLoader = fontLoader,
-                onAsyncCompletion = trackingFun,
-                createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
-            )
+            val result =
+                subject.resolve(
+                    typefaceRequest = typeRequest,
+                    platformFontLoader = fontLoader,
+                    onAsyncCompletion = trackingFun,
+                    createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
+                )
 
             val typeface = (result as TypefaceResult.Immutable).value as Typeface?
             assertThat(typeface).hasWeightAndStyle(FontWeight.W100, FontStyle.Normal)
@@ -108,26 +103,19 @@ class PlatformFontFamilyTypefaceAdapterTest {
     @Suppress("DEPRECATION")
     @Test
     fun canLoadLoadedFontFamily_synthesizeStyle() {
-        val fontFamily = FontFamily(
-            Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily())
-        )
+        val fontFamily = FontFamily(Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily()))
         // this runs through synthesis path
         parameters.forEach { (weight, style) ->
             val subject = PlatformFontFamilyTypefaceAdapter()
-            val typeRequest = TypefaceRequest(
-                fontFamily,
-                weight,
-                style,
-                FontSynthesis.Style,
-                null
-            )
+            val typeRequest = TypefaceRequest(fontFamily, weight, style, FontSynthesis.Style, null)
             val trackingFun = TrackingFun()
-            val result = subject.resolve(
-                typefaceRequest = typeRequest,
-                platformFontLoader = fontLoader,
-                onAsyncCompletion = trackingFun,
-                createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
-            )
+            val result =
+                subject.resolve(
+                    typefaceRequest = typeRequest,
+                    platformFontLoader = fontLoader,
+                    onAsyncCompletion = trackingFun,
+                    createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
+                )
 
             val typeface = (result as TypefaceResult.Immutable).value as Typeface?
             assertThat(typeface).hasWeightAndStyle(FontWeight.W100, style)
@@ -138,33 +126,27 @@ class PlatformFontFamilyTypefaceAdapterTest {
     @Suppress("DEPRECATION")
     @Test
     fun canLoadLoadedFontFamily_weightSynthesis() {
-        val fontFamily = FontFamily(
-            Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily())
-        )
+        val fontFamily = FontFamily(Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily()))
         // this runs through synthesis path
         parameters.forEach { (weight, style) ->
             val subject = PlatformFontFamilyTypefaceAdapter()
-            val typeRequest = TypefaceRequest(
-                fontFamily,
-                weight,
-                style,
-                FontSynthesis.Weight,
-                null
-            )
+            val typeRequest = TypefaceRequest(fontFamily, weight, style, FontSynthesis.Weight, null)
             val trackingFun = TrackingFun()
-            val result = subject.resolve(
-                typefaceRequest = typeRequest,
-                platformFontLoader = fontLoader,
-                onAsyncCompletion = trackingFun,
-                createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
-            )
+            val result =
+                subject.resolve(
+                    typefaceRequest = typeRequest,
+                    platformFontLoader = fontLoader,
+                    onAsyncCompletion = trackingFun,
+                    createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
+                )
 
             val typeface = (result as TypefaceResult.Immutable).value as Typeface?
-            val finalWeight = if (weight >= FontWeight.AndroidBold) {
-                weight
-            } else {
-                FontWeight.W100
-            }
+            val finalWeight =
+                if (weight >= FontWeight.AndroidBold) {
+                    weight
+                } else {
+                    FontWeight.W100
+                }
             assertThat(typeface).hasWeightAndStyle(finalWeight, FontStyle.Normal)
             trackingFun.assertNeverCalled()
         }
@@ -173,33 +155,27 @@ class PlatformFontFamilyTypefaceAdapterTest {
     @Suppress("DEPRECATION")
     @Test
     fun canLoadLoadedFontFamily_allSynthesis() {
-        val fontFamily = FontFamily(
-            Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily())
-        )
+        val fontFamily = FontFamily(Typeface(context, FontTestData.FONT_100_REGULAR.toFontFamily()))
         // this runs through synthesis path
         parameters.forEach { (weight, style) ->
             val subject = PlatformFontFamilyTypefaceAdapter()
-            val typeRequest = TypefaceRequest(
-                fontFamily,
-                weight,
-                style,
-                FontSynthesis.All,
-                null
-            )
+            val typeRequest = TypefaceRequest(fontFamily, weight, style, FontSynthesis.All, null)
             val trackingFun = TrackingFun()
-            val result = subject.resolve(
-                typefaceRequest = typeRequest,
-                platformFontLoader = fontLoader,
-                onAsyncCompletion = trackingFun,
-                createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
-            )
+            val result =
+                subject.resolve(
+                    typefaceRequest = typeRequest,
+                    platformFontLoader = fontLoader,
+                    onAsyncCompletion = trackingFun,
+                    createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
+                )
 
             val typeface = (result as TypefaceResult.Immutable).value as Typeface?
-            val finalWeight = if (weight >= FontWeight.AndroidBold) {
-                weight
-            } else {
-                FontWeight.W100
-            }
+            val finalWeight =
+                if (weight >= FontWeight.AndroidBold) {
+                    weight
+                } else {
+                    FontWeight.W100
+                }
             assertThat(typeface).hasWeightAndStyle(finalWeight, style)
             trackingFun.assertNeverCalled()
         }
@@ -208,20 +184,22 @@ class PlatformFontFamilyTypefaceAdapterTest {
     @Test
     fun fontListFontFamily_returnsNull() {
         val subject = PlatformFontFamilyTypefaceAdapter()
-        val typeRequest = TypefaceRequest(
-            FontTestData.FONT_100_REGULAR.toFontFamily(),
-            FontWeight.W100,
-            FontStyle.Normal,
-            FontSynthesis.All,
-            null
-        )
+        val typeRequest =
+            TypefaceRequest(
+                FontTestData.FONT_100_REGULAR.toFontFamily(),
+                FontWeight.W100,
+                FontStyle.Normal,
+                FontSynthesis.All,
+                null
+            )
         val trackingFun = TrackingFun()
-        val result = subject.resolve(
-            typefaceRequest = typeRequest,
-            platformFontLoader = fontLoader,
-            onAsyncCompletion = trackingFun,
-            createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
-        )
+        val result =
+            subject.resolve(
+                typefaceRequest = typeRequest,
+                platformFontLoader = fontLoader,
+                onAsyncCompletion = trackingFun,
+                createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
+            )
 
         assertThat(result).isNull()
         trackingFun.assertNeverCalled()
@@ -230,20 +208,22 @@ class PlatformFontFamilyTypefaceAdapterTest {
     private fun assertLoadForAllWeightsAndStyles(fontFamily: FontFamily?) {
         parameters.forEach { (weight, style) ->
             val subject = PlatformFontFamilyTypefaceAdapter()
-            val typeRequest = TypefaceRequest(
-                fontFamily,
-                weight,
-                style,
-                FontSynthesis.All,
-                null,
-            )
+            val typeRequest =
+                TypefaceRequest(
+                    fontFamily,
+                    weight,
+                    style,
+                    FontSynthesis.All,
+                    null,
+                )
             val trackingFun = TrackingFun()
-            val result = subject.resolve(
-                typefaceRequest = typeRequest,
-                platformFontLoader = fontLoader,
-                onAsyncCompletion = trackingFun,
-                createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
-            )
+            val result =
+                subject.resolve(
+                    typefaceRequest = typeRequest,
+                    platformFontLoader = fontLoader,
+                    onAsyncCompletion = trackingFun,
+                    createDefaultTypeface = { android.graphics.Typeface.DEFAULT }
+                )
 
             val typeface = (result as TypefaceResult.Immutable).value as Typeface?
             assertThat(typeface).hasWeightAndStyle(weight, style)
@@ -258,9 +238,7 @@ class PlatformFontFamilyTypefaceAdapterTest {
             get() = synchronized(lock) { _calledWith }
 
         override operator fun invoke(typefaceResult: TypefaceResult) {
-            synchronized(lock) {
-                _calledWith.add(typefaceResult)
-            }
+            synchronized(lock) { _calledWith.add(typefaceResult) }
         }
 
         fun assertNeverCalled() {

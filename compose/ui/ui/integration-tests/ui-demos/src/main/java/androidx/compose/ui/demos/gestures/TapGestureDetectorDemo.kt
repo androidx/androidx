@@ -36,16 +36,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple [detectTapGestures] demo.
- */
+/** Simple [detectTapGestures] demo. */
 @Composable
 fun DetectTapGesturesDemo() {
     val color = remember { mutableStateOf(Colors.random()) }
 
-    val onTap: (Offset) -> Unit = {
-        color.value = color.value.anotherRandomColor()
-    }
+    val onTap: (Offset) -> Unit = { color.value = color.value.anotherRandomColor() }
 
     Column {
         Text("The box changes color when you tap it.")

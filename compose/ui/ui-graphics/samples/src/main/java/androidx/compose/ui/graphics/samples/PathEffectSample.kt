@@ -37,12 +37,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun StampedPathEffectSample() {
     val size = 20f
-    val square = Path().apply {
-        lineTo(size, 0f)
-        lineTo(size, size)
-        lineTo(0f, size)
-        close()
-    }
+    val square =
+        Path().apply {
+            lineTo(size, 0f)
+            lineTo(size, size)
+            lineTo(0f, size)
+            close()
+        }
     Column(modifier = Modifier.fillMaxHeight().wrapContentSize(Alignment.Center)) {
         val canvasModifier = Modifier.requiredSize(80.dp).align(Alignment.CenterHorizontally)
 
@@ -53,14 +54,16 @@ fun StampedPathEffectSample() {
             drawCircle(color = Color.Blue)
             drawCircle(
                 color = Color.Red,
-                style = Stroke(
-                    pathEffect = PathEffect.stampedPathEffect(
-                        shape = square,
-                        style = StampedPathEffectStyle.Morph,
-                        phase = 0f,
-                        advance = 30f
+                style =
+                    Stroke(
+                        pathEffect =
+                            PathEffect.stampedPathEffect(
+                                shape = square,
+                                style = StampedPathEffectStyle.Morph,
+                                phase = 0f,
+                                advance = 30f
+                            )
                     )
-                )
             )
         }
 
@@ -73,14 +76,16 @@ fun StampedPathEffectSample() {
             drawCircle(color = Color.Blue)
             drawCircle(
                 color = Color.Red,
-                style = Stroke(
-                    pathEffect = PathEffect.stampedPathEffect(
-                        shape = square,
-                        style = StampedPathEffectStyle.Rotate,
-                        phase = 0f,
-                        advance = 30f
+                style =
+                    Stroke(
+                        pathEffect =
+                            PathEffect.stampedPathEffect(
+                                shape = square,
+                                style = StampedPathEffectStyle.Rotate,
+                                phase = 0f,
+                                advance = 30f
+                            )
                     )
-                )
             )
         }
 
@@ -92,14 +97,16 @@ fun StampedPathEffectSample() {
             drawCircle(color = Color.Blue)
             drawCircle(
                 color = Color.Red,
-                style = Stroke(
-                    pathEffect = PathEffect.stampedPathEffect(
-                        shape = square,
-                        style = StampedPathEffectStyle.Translate,
-                        phase = 0f,
-                        advance = 30f
+                style =
+                    Stroke(
+                        pathEffect =
+                            PathEffect.stampedPathEffect(
+                                shape = square,
+                                style = StampedPathEffectStyle.Translate,
+                                phase = 0f,
+                                advance = 30f
+                            )
                     )
-                )
             )
         }
     }

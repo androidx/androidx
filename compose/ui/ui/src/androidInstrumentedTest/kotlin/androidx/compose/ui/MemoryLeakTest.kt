@@ -69,13 +69,7 @@ class MemoryLeakTest {
                 // The following line adds coverage for delayed coroutine memory leaks.
                 LaunchedEffect(Unit) { delay(10000) }
 
-                Column {
-                    repeat(3) {
-                        Box {
-                            BasicText("Hello")
-                        }
-                    }
-                }
+                Column { repeat(3) { Box { BasicText("Hello") } } }
             }
         }
         val testCaseFactory = { SimpleTestCase() }
@@ -86,14 +80,14 @@ class MemoryLeakTest {
         // still issue for benchmarks though, as they need to fully occupy the main thread. You can
         // add check on main looper and perform clean asap if you are on main thread.
         withContext(AndroidUiDispatcher.Main) {
-            val runner = createAndroidComposeBenchmarkRunner(
-                testCaseFactory,
-                activityTestRule.activity
-            )
+            val runner =
+                createAndroidComposeBenchmarkRunner(testCaseFactory, activityTestRule.activity)
 
             try {
-                // Unfortunately we have to ignore the first run as it seems that even though the view
-                // gets properly garbage collected there are some data that remain allocated. Not sure
+                // Unfortunately we have to ignore the first run as it seems that even though the
+                // view
+                // gets properly garbage collected there are some data that remain allocated. Not
+                // sure
                 // what is causing this but could be some static variables.
                 loopAndVerifyMemory(iterations = 400, gcFrequency = 40, ignoreFirstRun = true) {
                     try {
@@ -112,33 +106,26 @@ class MemoryLeakTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266743031
     @Test
-    fun disposeContent_assertNoLeak() = runBlocking(AndroidUiDispatcher.Main) {
-        // We have to ignore the first run because `dispose` leaves the OwnerView in the
-        // View hierarchy to reuse it next time. That is probably not the final desired behavior
-        val emptyView = View(activityTestRule.activity)
-        loopAndVerifyMemory(iterations = 400, gcFrequency = 40) {
-            activityTestRule.activity.setContent {
-                Column {
-                    repeat(3) {
-                        Box {
-                            BasicText("Hello")
-                        }
-                    }
+    fun disposeContent_assertNoLeak() =
+        runBlocking(AndroidUiDispatcher.Main) {
+            // We have to ignore the first run because `dispose` leaves the OwnerView in the
+            // View hierarchy to reuse it next time. That is probably not the final desired behavior
+            val emptyView = View(activityTestRule.activity)
+            loopAndVerifyMemory(iterations = 400, gcFrequency = 40) {
+                activityTestRule.activity.setContent {
+                    Column { repeat(3) { Box { BasicText("Hello") } } }
                 }
-            }
 
-            // This replaces the Compose view, disposing its composition.
-            activityTestRule.activity.setContentView(emptyView)
+                // This replaces the Compose view, disposing its composition.
+                activityTestRule.activity.setContentView(emptyView)
+            }
         }
-    }
 
     @Test
     fun memoryCheckerTest_noAllocationsExpected() = runBlocking {
         // This smoke test checks that we don't give false alert and run all the iterations
         var i = 0
-        loopAndVerifyMemory(200, 10) {
-            i++
-        }
+        loopAndVerifyMemory(200, 10) { i++ }
         assertThat(i).isEqualTo(200)
     }
 
@@ -158,61 +145,69 @@ class MemoryLeakTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun recreateAndroidView_assertNoLeak() = runBlocking(AndroidUiDispatcher.Main) {
-        val immediateClock = object : MonotonicFrameClock {
-            override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
-                yield()
-                return onFrame(0L)
-            }
-        }
-        val context = coroutineContext + immediateClock
-        val recomposer = Recomposer(context)
+    fun recreateAndroidView_assertNoLeak() =
+        runBlocking(AndroidUiDispatcher.Main) {
+            val immediateClock =
+                object : MonotonicFrameClock {
+                    override suspend fun <R> withFrameNanos(
+                        onFrame: (frameTimeNanos: Long) -> R
+                    ): R {
+                        yield()
+                        return onFrame(0L)
+                    }
+                }
+            val context = coroutineContext + immediateClock
+            val recomposer = Recomposer(context)
 
-        suspend fun doFrame() {
-            Snapshot.sendApplyNotifications()
+            suspend fun doFrame() {
+                Snapshot.sendApplyNotifications()
 
-            var pendingCount = 0
-            while (recomposer.hasPendingWork) {
-                pendingCount++
-                yield()
-                if (pendingCount == 10) {
-                    error("Recomposer still pending work after 10 frames.")
+                var pendingCount = 0
+                while (recomposer.hasPendingWork) {
+                    pendingCount++
+                    yield()
+                    if (pendingCount == 10) {
+                        error("Recomposer still pending work after 10 frames.")
+                    }
                 }
             }
-        }
 
-        var compose by mutableStateOf(false)
-        activityTestRule.activity.setContent(recomposer) {
-            if (compose) {
-                AndroidView(factory = {
-                    object : View(it) { val alloc = List(1024) { 0 } }
-                })
+            var compose by mutableStateOf(false)
+            activityTestRule.activity.setContent(recomposer) {
+                if (compose) {
+                    AndroidView(
+                        factory = {
+                            object : View(it) {
+                                val alloc = List(1024) { 0 }
+                            }
+                        }
+                    )
+                }
             }
-        }
-        launch(context = context, start = CoroutineStart.UNDISPATCHED) {
-            recomposer.runRecomposeAndApplyChanges()
-        }
-        doFrame()
-
-        loopAndVerifyMemory(ignoreFirstRun = true, iterations = 400, gcFrequency = 40) {
-            // Add AndroidView into the composition
-            compose = true
+            launch(context = context, start = CoroutineStart.UNDISPATCHED) {
+                recomposer.runRecomposeAndApplyChanges()
+            }
             doFrame()
 
-            // This removes the AndroidView
-            compose = false
-            doFrame()
-        }
+            loopAndVerifyMemory(ignoreFirstRun = true, iterations = 400, gcFrequency = 40) {
+                // Add AndroidView into the composition
+                compose = true
+                doFrame()
 
-        recomposer.cancel()
-        recomposer.join()
-    }
+                // This removes the AndroidView
+                compose = false
+                doFrame()
+            }
+
+            recomposer.cancel()
+            recomposer.join()
+        }
 
     /**
      * Runs the given code in a loop for exactly [iterations] times and every [gcFrequency] it will
-     * force garbage collection and check the allocated heap size.
-     * Suspending so that we can briefly yield() to the dispatcher before collecting garbage
-     * so that event loop driven cleanup processes can run before we take measurements.
+     * force garbage collection and check the allocated heap size. Suspending so that we can briefly
+     * yield() to the dispatcher before collecting garbage so that event loop driven cleanup
+     * processes can run before we take measurements.
      */
     suspend fun loopAndVerifyMemory(
         iterations: Int,
@@ -252,9 +247,7 @@ class MemoryLeakTest {
         }
 
         // Check if every iteration the memory grew => that's a bad sign
-        val diffs = memoryStats
-            .zipWithNext()
-            .map { (it.second - it.first) / 1024 }
+        val diffs = memoryStats.zipWithNext().map { (it.second - it.first) / 1024 }
         val areAllDiffsGrowing = diffs.all { it > 0 }
         if (areAllDiffsGrowing) {
             throw AssertionError(

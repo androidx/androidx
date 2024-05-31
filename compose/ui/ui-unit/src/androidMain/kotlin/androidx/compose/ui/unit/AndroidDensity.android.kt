@@ -52,5 +52,6 @@ private data class DensityWithConverter(
 
 private data class LinearFontScaleConverter(private val fontScale: Float) : FontScaleConverter {
     override fun convertSpToDp(sp: Float) = sp * fontScale
+
     override fun convertDpToSp(dp: Float) = dp / fontScale
 }

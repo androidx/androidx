@@ -41,14 +41,11 @@ class MeasureAndLayoutDelegateTest {
     private val DifferentSize = 50
     private val DifferentSize2 = 30
 
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     @Test
     fun requiresMeasureWhenJustCreated() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         createDelegate(root, firstMeasureCompleted = false)
 
@@ -58,9 +55,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun measureNotRequiredAfterFirstMeasure() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         createDelegate(root)
 
@@ -70,9 +65,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun relayoutNotRequiredAfterFirstMeasure() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         createDelegate(root)
 
@@ -82,15 +75,9 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun measuredAndLaidOutAfterFirstMeasureAndLayout() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
-        assertRemeasured(root) {
-            assertRemeasured(root.first) {
-                createDelegate(root)
-            }
-        }
+        assertRemeasured(root) { assertRemeasured(root.first) { createDelegate(root) } }
     }
 
     @Test
@@ -114,9 +101,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureRequest_remeasureRequired() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -126,9 +111,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureRequest_childRemeasured() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -155,9 +138,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureWithTheSameResult_parentNotRemeasured() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -171,11 +152,7 @@ class MeasureAndLayoutDelegateTest {
     fun childRemeasureWithDifferentResult_parentRemeasured() {
         val root = root {
             wrapChildren = true
-            add(
-                node {
-                    size = DifferentSize
-                }
-            )
+            add(node { size = DifferentSize })
         }
 
         val delegate = createDelegate(root)
@@ -222,9 +199,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureRequest_childRelaidOut() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -251,9 +226,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureWithTheSameResult_parentNotRelaidOut() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -296,9 +269,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun rootRemeasureRequest_childNotAffected() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -314,13 +285,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun parentRemeasureRequest_childNotAffected() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
@@ -338,9 +303,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutRequest_childRelayoutRequired() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -350,9 +313,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutRequest_childRelaidOut() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -364,9 +325,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutRequest_childNotRemeasured() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -378,9 +337,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutRequest_parentNotRemeasured() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -392,9 +349,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutRequest_parentNotRelaidOut() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -436,9 +391,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun rootRelayoutRequest_childNotAffected() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -452,13 +405,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun parentRelayoutRequest_childNotAffected() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
@@ -474,9 +421,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureRequestedTwice_childRemeasuredOnce() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -489,9 +434,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureRequestedTwice_childRelaidOutOnce() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -504,9 +447,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureAndRelayoutRequested_childRemeasured() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -519,9 +460,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRemeasureAndRelayoutRequested_childRelaidOut() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -534,9 +473,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutAndRemeasureRequested_childRemeasured() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -549,9 +486,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun childRelayoutAndRemeasureRequested_childRelaidOut() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
@@ -668,9 +603,7 @@ class MeasureAndLayoutDelegateTest {
                 if (!isLookingAhead) {
                     placedNode.add(node())
                 }
-                with(MeasureInMeasureBlock()) {
-                    measure(measurables, constraints)
-                }
+                with(MeasureInMeasureBlock()) { measure(measurables, constraints) }
             }
             add(
                 virtualNode {
@@ -731,9 +664,7 @@ class MeasureAndLayoutDelegateTest {
         }
         val root = root {
             measurePolicy = MeasurePolicy { measurables, _ ->
-                with(MeasureInMeasureBlock()) {
-                    measure(measurables, expectedConstraints)
-                }
+                with(MeasureInMeasureBlock()) { measure(measurables, expectedConstraints) }
             }
             add(
                 node {
@@ -765,11 +696,7 @@ class MeasureAndLayoutDelegateTest {
     fun remeasureTwoNodesOnDifferentLayers_othersAreNotAffected() {
         val root = root {
             add(node())
-            add(
-                node {
-                    add(node())
-                }
-            )
+            add(node { add(node()) })
         }
 
         val delegate = createDelegate(root)
@@ -797,11 +724,7 @@ class MeasureAndLayoutDelegateTest {
                     add(
                         node {
                             wrapChildren = true
-                            add(
-                                node {
-                                    size = DifferentSize
-                                }
-                            )
+                            add(node { size = DifferentSize })
                         }
                     )
                 }
@@ -827,16 +750,8 @@ class MeasureAndLayoutDelegateTest {
     @Test
     fun remeasureRequestForItemsOnTheSameLevelButDifferentParents() {
         val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-            add(
-                node {
-                    add(node())
-                }
-            )
+            add(node { add(node()) })
+            add(node { add(node()) })
         }
 
         val delegate = createDelegate(root)
@@ -859,16 +774,8 @@ class MeasureAndLayoutDelegateTest {
     @Test
     fun relayoutRequestForItemsOnTheSameLevelButDifferentParents() {
         val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-            add(
-                node {
-                    add(node())
-                }
-            )
+            add(node { add(node()) })
+            add(node { add(node()) })
         }
 
         val delegate = createDelegate(root)
@@ -891,16 +798,8 @@ class MeasureAndLayoutDelegateTest {
     @Test
     fun relayoutAndRemeasureRequestForItemsOnTheSameLevelButDifferentParents() {
         val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-            add(
-                node {
-                    add(node())
-                }
-            )
+            add(node { add(node()) })
+            add(node { add(node()) })
         }
 
         val delegate = createDelegate(root)
@@ -924,17 +823,13 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestChildRemeasureDuringMeasure() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root) {
             assertRemeasured(root.first) {
-                root.runDuringMeasure {
-                    delegate.requestRemeasure(root.first)
-                }
+                root.runDuringMeasure { delegate.requestRemeasure(root.first) }
                 delegate.requestRemeasure(root)
                 assertThat(delegate.measureAndLayout()).isFalse()
             }
@@ -943,22 +838,14 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestGrandchildRemeasureDuringMeasure() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root) {
             assertNotRemeasured(root.first) {
                 assertRemeasured(root.first.first) {
-                    root.runDuringMeasure {
-                        delegate.requestRemeasure(root.first.first)
-                    }
+                    root.runDuringMeasure { delegate.requestRemeasure(root.first.first) }
                     delegate.requestRemeasure(root)
                     assertThat(delegate.measureAndLayout()).isFalse()
                 }
@@ -968,17 +855,13 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestChildRelayoutDuringMeasure() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root) {
             assertRelaidOut(root.first) {
-                root.runDuringMeasure {
-                    delegate.requestRelayout(root.first)
-                }
+                root.runDuringMeasure { delegate.requestRelayout(root.first) }
                 delegate.requestRemeasure(root)
                 assertThat(delegate.measureAndLayout()).isFalse()
             }
@@ -987,22 +870,14 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestGrandchildRelayoutDuringMeasure() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root) {
             assertNotRelaidOut(root.first) {
                 assertRelaidOut(root.first.first) {
-                    root.runDuringMeasure {
-                        delegate.requestRelayout(root.first.first)
-                    }
+                    root.runDuringMeasure { delegate.requestRelayout(root.first.first) }
                     delegate.requestRemeasure(root)
                     assertThat(delegate.measureAndLayout()).isFalse()
                 }
@@ -1012,17 +887,13 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestChildRemeasureDuringParentLayout() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertRelaidOut(root) {
             assertRemeasured(root.first) {
-                root.runDuringLayout {
-                    delegate.requestRemeasure(root.first)
-                }
+                root.runDuringLayout { delegate.requestRemeasure(root.first) }
                 delegate.requestRelayout(root)
                 assertThat(delegate.measureAndLayout()).isFalse()
             }
@@ -1031,22 +902,14 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestGrandchildRemeasureDuringParentLayout() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
         assertRelaidOut(root) {
             assertNotRelaidOut(root.first) {
                 assertRemeasured(root.first.first) {
-                    root.runDuringLayout {
-                        delegate.requestRemeasure(root.first.first)
-                    }
+                    root.runDuringLayout { delegate.requestRemeasure(root.first.first) }
                     delegate.requestRelayout(root)
                     assertThat(delegate.measureAndLayout()).isFalse()
                 }
@@ -1056,16 +919,12 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestRemeasureForCurrentlyBeingRemeasuredNode() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root.first) {
-            root.runDuringMeasure {
-                delegate.requestRemeasure(root.first)
-            }
+            root.runDuringMeasure { delegate.requestRemeasure(root.first) }
             delegate.requestRemeasure(root.first)
             assertThat(delegate.measureAndLayout()).isFalse()
         }
@@ -1073,17 +932,13 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestRelayoutForCurrentlyBeingRemeasuredNode() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root.first) {
             assertRelaidOut(root.first) {
-                root.runDuringMeasure {
-                    delegate.requestRelayout(root.first)
-                }
+                root.runDuringMeasure { delegate.requestRelayout(root.first) }
                 delegate.requestRemeasure(root.first)
                 assertThat(delegate.measureAndLayout()).isFalse()
             }
@@ -1092,17 +947,13 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestRemeasureForCurrentlyBeingRelayoutNode() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertRemeasured(root.first) {
             assertRelaidOut(root.first, times = 2) {
-                root.first.runDuringLayout {
-                    delegate.requestRemeasure(root.first)
-                }
+                root.first.runDuringLayout { delegate.requestRemeasure(root.first) }
                 delegate.requestRelayout(root.first)
                 assertThat(delegate.measureAndLayout()).isFalse()
             }
@@ -1111,17 +962,13 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun requestRelayoutForCurrentlyBeingRelayoutNode() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
 
         val delegate = createDelegate(root)
 
         assertNotRemeasured(root.first) {
             assertRelaidOut(root.first) {
-                root.runDuringLayout {
-                    delegate.requestRelayout(root.first)
-                }
+                root.runDuringLayout { delegate.requestRelayout(root.first) }
                 delegate.requestRelayout(root.first)
                 assertThat(delegate.measureAndLayout()).isFalse()
             }
@@ -1132,22 +979,14 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun changingParentParamsToTheSameValue_noRemeasures() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
         assertNotRemeasured(root) {
             assertNotRemeasured(root.first) {
                 assertNotRemeasured(root.first.first) {
-                    delegate.updateRootConstraints(
-                        defaultRootConstraints()
-                    )
+                    delegate.updateRootConstraints(defaultRootConstraints())
                     assertThat(delegate.measureAndLayout()).isFalse()
                 }
             }
@@ -1156,13 +995,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun changingParentConstraints_remeasureSubTree() {
-        val root = root {
-            add(
-                node {
-                    add(node())
-                }
-            )
-        }
+        val root = root { add(node { add(node()) }) }
 
         val delegate = createDelegate(root)
 
@@ -1206,13 +1039,7 @@ class MeasureAndLayoutDelegateTest {
     @Test
     fun requestRemeasureTriggersModifierRemeasure() {
         val spyModifier = SpyLayoutModifier()
-        val root = root {
-            add(
-                node {
-                    modifier = spyModifier
-                }
-            )
-        }
+        val root = root { add(node { modifier = spyModifier }) }
 
         val delegate = createDelegate(root)
 
@@ -1225,13 +1052,7 @@ class MeasureAndLayoutDelegateTest {
     @Test
     fun requestRelayoutTriggersModifierRelayout() {
         val spyModifier = SpyLayoutModifier()
-        val root = root {
-            add(
-                node {
-                    modifier = spyModifier
-                }
-            )
-        }
+        val root = root { add(node { modifier = spyModifier }) }
 
         val delegate = createDelegate(root)
 
@@ -1307,9 +1128,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun hasRelayoutNodes() {
-        val root = root {
-            add(node())
-        }
+        val root = root { add(node()) }
         val delegate = createDelegate(root)
         assertThat(delegate.hasPendingMeasureOrLayout).isFalse()
         delegate.requestRemeasure(root.first)
@@ -1320,17 +1139,7 @@ class MeasureAndLayoutDelegateTest {
 
     @Test
     fun theWholeSubtreeIsNotPlacedWhenParentWasntPlaced() {
-        val root = root {
-            add(
-                node {
-                    add(
-                        node {
-                            add(node())
-                        }
-                    )
-                }
-            )
-        }
+        val root = root { add(node { add(node { add(node()) }) }) }
 
         val delegate = createDelegate(root)
 
@@ -1353,15 +1162,19 @@ class MeasureAndLayoutDelegateTest {
         lateinit var node5: LayoutNode
         val root = root {
             size = 100
-            add(node {
-                node1 = this
-                size = 50
-                add(node {
-                    node2 = this
-                    add(node { node3 = this })
-                })
-                add(node { node4 = this })
-            })
+            add(
+                node {
+                    node1 = this
+                    size = 50
+                    add(
+                        node {
+                            node2 = this
+                            add(node { node3 = this })
+                        }
+                    )
+                    add(node { node4 = this })
+                }
+            )
             add(node { node5 = this })
         }
 
@@ -1374,9 +1187,7 @@ class MeasureAndLayoutDelegateTest {
         // be remeasured via owner.forceMeasureTheSubtree() logic.
         delegate.requestRemeasure(node3)
         // we also want node5 to synchronously request remeasure for already measured node1
-        node5.runDuringMeasure {
-            delegate.requestRemeasure(node1)
-        }
+        node5.runDuringMeasure { delegate.requestRemeasure(node1) }
         node2.toString()
         node4.toString()
         // this was crashing and reported as b/208675143
@@ -1385,9 +1196,7 @@ class MeasureAndLayoutDelegateTest {
                 assertNotRemeasured(node2) {
                     assertRemeasured(node3) {
                         assertNotRemeasured(node4) {
-                            assertRemeasured(node5) {
-                                delegate.measureAndLayout()
-                            }
+                            assertRemeasured(node5) { delegate.measureAndLayout() }
                         }
                     }
                 }
@@ -1404,15 +1213,19 @@ class MeasureAndLayoutDelegateTest {
 
         var activeLayers = 0
 
-        val delegate = createDelegate(root, createLayer = {
-            activeLayers++
-            object : MockLayer() {
-                override fun destroy() {
-                    super.destroy()
-                    activeLayers--
+        val delegate =
+            createDelegate(
+                root,
+                createLayer = {
+                    activeLayers++
+                    object : MockLayer() {
+                        override fun destroy() {
+                            super.destroy()
+                            activeLayers--
+                        }
+                    }
                 }
-            }
-        })
+            )
 
         assertThat(activeLayers).isEqualTo(1)
 
@@ -1428,31 +1241,37 @@ class MeasureAndLayoutDelegateTest {
     @Test
     fun removingModifierWithLayerFromTheNodeDestroysTheLayer() {
         val root = root {
-            add(node {
-                modifier = Modifier
-                    .graphicsLayer()
-                    // we add extra layout modifier after graphicsLayer so the layer is added on
-                    // the coordinator associated with the modifier which is going to be removed
-                    .layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
-                        }
-                    }
-            })
+            add(
+                node {
+                    modifier =
+                        Modifier.graphicsLayer()
+                            // we add extra layout modifier after graphicsLayer so the layer is
+                            // added on
+                            // the coordinator associated with the modifier which is going to be
+                            // removed
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                            }
+                }
+            )
         }
 
         var activeLayers = 0
 
-        val delegate = createDelegate(root, createLayer = {
-            activeLayers++
-            object : MockLayer() {
-                override fun destroy() {
-                    super.destroy()
-                    activeLayers--
+        val delegate =
+            createDelegate(
+                root,
+                createLayer = {
+                    activeLayers++
+                    object : MockLayer() {
+                        override fun destroy() {
+                            super.destroy()
+                            activeLayers--
+                        }
+                    }
                 }
-            }
-        })
+            )
 
         assertThat(activeLayers).isEqualTo(1)
 

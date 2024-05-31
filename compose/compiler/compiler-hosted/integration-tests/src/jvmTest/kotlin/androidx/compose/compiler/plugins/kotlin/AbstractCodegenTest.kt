@@ -20,31 +20,28 @@ import androidx.compose.compiler.plugins.kotlin.facade.SourceFile
 import java.io.File
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader
+
 var uniqueNumber = 0
 
 abstract class AbstractCodegenTest(useFir: Boolean) : AbstractCompilerTest(useFir) {
     private fun dumpClasses(loader: GeneratedClassLoader) {
-        for (
-            file in loader.allGeneratedFiles.filter {
-                it.relativePath.endsWith(".class")
-            }
-        ) {
+        for (file in loader.allGeneratedFiles.filter { it.relativePath.endsWith(".class") }) {
             println("------\nFILE: ${file.relativePath}\n------")
             println(file.asText())
         }
     }
 
     protected fun validateBytecode(
-        @Language("kotlin")
-        src: String,
+        @Language("kotlin") src: String,
         dumpClasses: Boolean = false,
         validate: (String) -> Unit
     ) {
         val className = "Test_REPLACEME_${uniqueNumber++}"
         val fileName = "$className.kt"
 
-        val loader = classLoader(
-            """
+        val loader =
+            classLoader(
+                """
            @file:OptIn(
              InternalComposeApi::class,
            )
@@ -56,21 +53,20 @@ abstract class AbstractCodegenTest(useFir: Boolean) : AbstractCompilerTest(useFi
 
             fun used(x: Any?) {}
         """,
-            fileName, dumpClasses
-        )
+                fileName,
+                dumpClasses
+            )
 
-        val apiString = loader
-            .allGeneratedFiles
-            .filter { it.relativePath.endsWith(".class") }.joinToString("\n") {
-                it.asText().replace('$', '%').replace(className, "Test")
-            }
+        val apiString =
+            loader.allGeneratedFiles
+                .filter { it.relativePath.endsWith(".class") }
+                .joinToString("\n") { it.asText().replace('$', '%').replace(className, "Test") }
 
         validate(apiString)
     }
 
     protected fun classLoader(
-        @Language("kotlin")
-        source: String,
+        @Language("kotlin") source: String,
         fileName: String,
         dumpClasses: Boolean = false
     ): GeneratedClassLoader {
@@ -83,9 +79,8 @@ abstract class AbstractCodegenTest(useFir: Boolean) : AbstractCompilerTest(useFi
         sources: Map<String, String>,
         dumpClasses: Boolean = false
     ): GeneratedClassLoader {
-        val loader = createClassLoader(
-            sources.map { (fileName, source) -> SourceFile(fileName, source) }
-        )
+        val loader =
+            createClassLoader(sources.map { (fileName, source) -> SourceFile(fileName, source) })
         if (dumpClasses) dumpClasses(loader)
         return loader
     }
@@ -95,10 +90,11 @@ abstract class AbstractCodegenTest(useFir: Boolean) : AbstractCompilerTest(useFi
         commonSources: Map<String, String>,
         dumpClasses: Boolean = false
     ): GeneratedClassLoader {
-        val loader = createClassLoader(
-            platformSources.map { (fileName, source) -> SourceFile(fileName, source) },
-            commonSources.map { (fileName, source) -> SourceFile(fileName, source) }
-        )
+        val loader =
+            createClassLoader(
+                platformSources.map { (fileName, source) -> SourceFile(fileName, source) },
+                commonSources.map { (fileName, source) -> SourceFile(fileName, source) }
+            )
         if (dumpClasses) dumpClasses(loader)
         return loader
     }
@@ -109,11 +105,12 @@ abstract class AbstractCodegenTest(useFir: Boolean) : AbstractCompilerTest(useFi
         dumpClasses: Boolean = false,
         forcedFirSetting: Boolean? = null
     ): GeneratedClassLoader {
-        val loader = createClassLoader(
-            sources.map { (fileName, source) -> SourceFile(fileName, source) },
-            additionalPaths = additionalPaths,
-            forcedFirSetting = forcedFirSetting
-        )
+        val loader =
+            createClassLoader(
+                sources.map { (fileName, source) -> SourceFile(fileName, source) },
+                additionalPaths = additionalPaths,
+                forcedFirSetting = forcedFirSetting
+            )
         if (dumpClasses) dumpClasses(loader)
         return loader
     }

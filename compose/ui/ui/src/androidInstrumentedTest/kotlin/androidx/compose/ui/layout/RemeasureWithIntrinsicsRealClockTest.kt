@@ -47,18 +47,16 @@ import org.junit.runner.RunWith
 
 /**
  * Copies of most of the tests in [RemeasureWithIntrinsicsTest] but without using
- * TestMonotonicFrameClock, since it does layout passes slightly differently than in production
- * and this has bitten us in the past (see b/222093277).
+ * TestMonotonicFrameClock, since it does layout passes slightly differently than in production and
+ * this has bitten us in the past (see b/222093277).
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RemeasureWithIntrinsicsRealClockTest {
 
-    @get:Rule
-    val rule = ActivityScenarioRule(TestActivity::class.java)
+    @get:Rule val rule = ActivityScenarioRule(TestActivity::class.java)
 
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     private val testLatch = CountDownLatch(1)
 
@@ -100,8 +98,7 @@ class RemeasureWithIntrinsicsRealClockTest {
             content = {
                 LayoutUsingIntrinsics {
                     Box(
-                        Modifier
-                            .onSizeChanged { childSize = it }
+                        Modifier.onSizeChanged { childSize = it }
                             .withIntrinsics(intrinsicWidth, intrinsicHeight)
                     )
                 }
@@ -159,8 +156,7 @@ class RemeasureWithIntrinsicsRealClockTest {
                 LayoutUsingIntrinsics {
                     Box(propagateMinConstraints = true) {
                         Box(
-                            Modifier
-                                .onSizeChanged { childSize = it }
+                            Modifier.onSizeChanged { childSize = it }
                                 .withIntrinsics(intrinsicWidth, intrinsicHeight)
                         )
                     }
@@ -216,16 +212,10 @@ class RemeasureWithIntrinsicsRealClockTest {
 
         setTestContent(
             content = {
-                LayoutUsingIntrinsics(
-                    onMeasure = { ++measures1 }
-                ) {
+                LayoutUsingIntrinsics(onMeasure = { ++measures1 }) {
                     Box {
-                        LayoutUsingIntrinsics(
-                            onMeasure = { ++measures2 }
-                        ) {
-                            Box {
-                                LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight)
-                            }
+                        LayoutUsingIntrinsics(onMeasure = { ++measures2 }) {
+                            Box { LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight) }
                         }
                     }
                 }
@@ -261,9 +251,7 @@ class RemeasureWithIntrinsicsRealClockTest {
             measurable.maxIntrinsicWidth(constraints.maxHeight)
             measurable.maxIntrinsicHeight(constraints.maxWidth)
             val placeable = measurable.measure(constraints)
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(0, 0)
-            }
+            layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
         }
 
         setTestContent(
@@ -305,11 +293,7 @@ class RemeasureWithIntrinsicsRealClockTest {
                     // Box used to fast return intrinsics and do not remeasure when the size
                     // of the inner Box is changing after the intrinsics change.
                     Box(Modifier.requiredSize(100.toDp())) {
-                        Box(
-                            Modifier
-                                .onSizeChanged { boxSize = it }
-                                .then(ModifierUsingIntrinsics)
-                        ) {
+                        Box(Modifier.onSizeChanged { boxSize = it }.then(ModifierUsingIntrinsics)) {
                             LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight)
                         }
                     }
@@ -339,11 +323,7 @@ class RemeasureWithIntrinsicsRealClockTest {
                     // Box used to fast return intrinsics and do not remeasure when the size
                     // of the inner Box is changing after the intrinsics change.
                     Box(Modifier.requiredSize(100.toDp())) {
-                        Box(
-                            Modifier
-                                .onSizeChanged { boxSize = it }
-                                .then(ModifierUsingIntrinsics)
-                        ) {
+                        Box(Modifier.onSizeChanged { boxSize = it }.then(ModifierUsingIntrinsics)) {
                             LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight)
                         }
                     }
@@ -368,11 +348,7 @@ class RemeasureWithIntrinsicsRealClockTest {
         setTestContent(
             content = {
                 LayoutUsingIntrinsics {
-                    Box(
-                        Modifier
-                            .onSizeChanged { childSize = it }
-                            .then(childModifier)
-                    )
+                    Box(Modifier.onSizeChanged { childSize = it }.then(childModifier))
                 }
             },
             test = {
@@ -416,25 +392,26 @@ class RemeasureWithIntrinsicsRealClockTest {
         Layout(
             content = content,
             modifier = modifier,
-            measurePolicy = object : MeasurePolicy {
-                override fun MeasureScope.measure(
-                    measurables: List<Measurable>,
-                    constraints: Constraints
-                ): MeasureResult {
-                    onMeasure()
-                    return layout(constraints.minWidth, constraints.minHeight) {}
+            measurePolicy =
+                object : MeasurePolicy {
+                    override fun MeasureScope.measure(
+                        measurables: List<Measurable>,
+                        constraints: Constraints
+                    ): MeasureResult {
+                        onMeasure()
+                        return layout(constraints.minWidth, constraints.minHeight) {}
+                    }
+
+                    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                        measurables: List<IntrinsicMeasurable>,
+                        height: Int
+                    ): Int = width
+
+                    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                        measurables: List<IntrinsicMeasurable>,
+                        width: Int
+                    ): Int = height
                 }
-
-                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                    measurables: List<IntrinsicMeasurable>,
-                    height: Int
-                ): Int = width
-
-                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                    measurables: List<IntrinsicMeasurable>,
-                    width: Int
-                ): Int = height
-            }
         )
     }
 
@@ -453,17 +430,17 @@ class RemeasureWithIntrinsicsRealClockTest {
                 ): MeasureResult {
                     require(measurables.size == 1)
                     onMeasure()
-                    val childConstraints = if (useIntrinsics()) {
-                        val width = measurables.first().maxIntrinsicWidth(constraints.maxHeight)
-                        val height = measurables.first().maxIntrinsicHeight(constraints.maxWidth)
-                        Constraints.fixed(width, height)
-                    } else {
-                        constraints
-                    }
+                    val childConstraints =
+                        if (useIntrinsics()) {
+                            val width = measurables.first().maxIntrinsicWidth(constraints.maxHeight)
+                            val height =
+                                measurables.first().maxIntrinsicHeight(constraints.maxWidth)
+                            Constraints.fixed(width, height)
+                        } else {
+                            constraints
+                        }
                     val placeable = measurables.first().measure(childConstraints)
-                    return layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
+                    return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                 }
 
                 override fun IntrinsicMeasureScope.minIntrinsicWidth(
@@ -497,61 +474,60 @@ class RemeasureWithIntrinsicsRealClockTest {
         content: @Composable () -> Unit
     ) = LayoutMaybeUsingIntrinsics({ true }, modifier, onMeasure, content)
 
-    private val ModifierUsingIntrinsics = object : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints
-        ): MeasureResult {
-            val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
-            val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
-            val placeable = measurable.measure(Constraints.fixed(width, height))
-            return layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
-            }
-        }
-
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-            measurable: IntrinsicMeasurable,
-            height: Int
-        ) = measurable.minIntrinsicWidth(height)
-
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-            measurable: IntrinsicMeasurable,
-            width: Int
-        ) = measurable.minIntrinsicHeight(width)
-
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-            measurable: IntrinsicMeasurable,
-            height: Int
-        ) = measurable.maxIntrinsicWidth(height)
-
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-            measurable: IntrinsicMeasurable,
-            width: Int
-        ) = measurable.maxIntrinsicHeight(width)
-    }
-
-    private fun Modifier.withIntrinsics(width: Int, height: Int): Modifier {
-        return this.then(object : LayoutModifier {
+    private val ModifierUsingIntrinsics =
+        object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
                 constraints: Constraints
             ): MeasureResult {
-                val placeable = measurable.measure(constraints)
-                return layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
+                val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
+                val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
+                val placeable = measurable.measure(Constraints.fixed(width, height))
+                return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurable: IntrinsicMeasurable,
+                height: Int
+            ) = measurable.minIntrinsicWidth(height)
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurable: IntrinsicMeasurable,
+                width: Int
+            ) = measurable.minIntrinsicHeight(width)
 
             override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                 measurable: IntrinsicMeasurable,
                 height: Int
-            ): Int = width
+            ) = measurable.maxIntrinsicWidth(height)
 
             override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                 measurable: IntrinsicMeasurable,
                 width: Int
-            ): Int = height
-        })
+            ) = measurable.maxIntrinsicHeight(width)
+        }
+
+    private fun Modifier.withIntrinsics(width: Int, height: Int): Modifier {
+        return this.then(
+            object : LayoutModifier {
+                override fun MeasureScope.measure(
+                    measurable: Measurable,
+                    constraints: Constraints
+                ): MeasureResult {
+                    val placeable = measurable.measure(constraints)
+                    return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                }
+
+                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                    measurable: IntrinsicMeasurable,
+                    height: Int
+                ): Int = width
+
+                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                    measurable: IntrinsicMeasurable,
+                    width: Int
+                ): Int = height
+            }
+        )
     }
 }

@@ -21,50 +21,44 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 
 /**
- * A `Locale` object represents a specific geographical, political, or cultural region. An
- * operation that requires a `Locale` to perform its task is called _locale-sensitive_ and uses the
- * `Locale` to tailor information for the user. For example, displaying a number is a
- * locale-sensitive operation— the number should be formatted according to the customs and
- * conventions of the user's native country, region, or culture.
+ * A `Locale` object represents a specific geographical, political, or cultural region. An operation
+ * that requires a `Locale` to perform its task is called _locale-sensitive_ and uses the `Locale`
+ * to tailor information for the user. For example, displaying a number is a locale-sensitive
+ * operation— the number should be formatted according to the customs and conventions of the user's
+ * native country, region, or culture.
  *
  * @param platformLocale Platform specific Locale object that provides the actual values for the
- * members of this class.
- *
+ *   members of this class.
  * @see TextStyle
  * @see SpanStyle
  */
 @Immutable
 class Locale internal constructor(val platformLocale: PlatformLocale) {
     companion object {
-        /**
-         * Returns a [Locale] object which represents current locale
-         */
-        val current: Locale get() = platformLocaleDelegate.current[0]
+        /** Returns a [Locale] object which represents current locale */
+        val current: Locale
+            get() = platformLocaleDelegate.current[0]
     }
 
     /**
      * Create Locale object from a language tag.
      *
      * @param languageTag A [IETF BCP47](https://tools.ietf.org/html/bcp47) compliant language tag.
-     *
      * @return a locale object
      */
     constructor(languageTag: String) : this(platformLocaleDelegate.parseLanguageTag(languageTag))
 
-    /**
-     * The ISO 639 compliant language code.
-     */
-    val language: String get() = platformLocale.language
+    /** The ISO 639 compliant language code. */
+    val language: String
+        get() = platformLocale.language
 
-    /**
-     * The ISO 15924 compliant 4-letter script code.
-     */
-    val script: String get() = platformLocale.script
+    /** The ISO 15924 compliant 4-letter script code. */
+    val script: String
+        get() = platformLocale.script
 
-    /**
-     * The ISO 3166 compliant region code.
-     */
-    val region: String get() = platformLocale.region
+    /** The ISO 3166 compliant region code. */
+    val region: String
+        get() = platformLocale.region
 
     /**
      * Returns a IETF BCP47 compliant language tag representation of this Locale.

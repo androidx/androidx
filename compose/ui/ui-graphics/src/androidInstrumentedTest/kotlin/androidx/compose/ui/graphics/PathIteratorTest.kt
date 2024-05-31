@@ -49,24 +49,18 @@ class PathIteratorTest {
 
     @Test
     fun nonEmptyIterator() {
-        val path = Path().apply {
-            moveTo(1.0f, 1.0f)
-            lineTo(2.0f, 2.0f)
-            close()
-        }
+        val path =
+            Path().apply {
+                moveTo(1.0f, 1.0f)
+                lineTo(2.0f, 2.0f)
+                close()
+            }
 
         val iterator = path.iterator()
         assertTrue(iterator.hasNext())
 
-        val types = arrayOf(
-            PathSegment.Type.Move,
-            PathSegment.Type.Line,
-            PathSegment.Type.Close
-        )
-        val points = arrayOf(
-            Offset(1.0f, 1.0f),
-            Offset(2.0f, 2.0f)
-        )
+        val types = arrayOf(PathSegment.Type.Move, PathSegment.Type.Line, PathSegment.Type.Close)
+        val points = arrayOf(Offset(1.0f, 1.0f), Offset(2.0f, 2.0f))
 
         var count = 0
         for (segment in path) {
@@ -79,7 +73,7 @@ class PathIteratorTest {
                     assertEquals(points[count - 1], Offset(segment.points[0], segment.points[1]))
                     assertEquals(points[count], Offset(segment.points[2], segment.points[3]))
                 }
-                else -> { }
+                else -> {}
             }
             count++
         }
@@ -89,18 +83,17 @@ class PathIteratorTest {
 
     @Test
     fun iteratorStyles() {
-        val path = Path().apply {
-            moveTo(1.0f, 1.0f)
-            lineTo(2.0f, 2.0f)
-            cubicTo(3.0f, 3.0f, 4.0f, 4.0f, 5.0f, 5.0f)
-            quadraticTo(7.0f, 7.0f, 8.0f, 8.0f)
-            moveTo(10.0f, 10.0f)
-            // addRoundRect() will generate conic curves on certain API levels
-            addRoundRect(
-                RoundRect(12.0f, 12.0f, 36.0f, 36.0f, 8.0f, 8.0f)
-            )
-            close()
-        }
+        val path =
+            Path().apply {
+                moveTo(1.0f, 1.0f)
+                lineTo(2.0f, 2.0f)
+                cubicTo(3.0f, 3.0f, 4.0f, 4.0f, 5.0f, 5.0f)
+                quadraticTo(7.0f, 7.0f, 8.0f, 8.0f)
+                moveTo(10.0f, 10.0f)
+                // addRoundRect() will generate conic curves on certain API levels
+                addRoundRect(RoundRect(12.0f, 12.0f, 36.0f, 36.0f, 8.0f, 8.0f))
+                close()
+            }
 
         val iterator1 = path.iterator(PathIterator.ConicEvaluation.AsConic)
         val iterator2 = path.iterator(PathIterator.ConicEvaluation.AsConic)
@@ -159,17 +152,15 @@ class PathIteratorTest {
                     assertPointEquals(Offset(p[4], p[5]), points2, 6)
                     assertPointEquals(Offset(p[6], p[7]), points2, 7)
                 }
-                PathSegment.Type.Close -> { }
-                PathSegment.Type.Done -> { }
+                PathSegment.Type.Close -> {}
+                PathSegment.Type.Done -> {}
             }
         }
     }
 
     @Test
     fun done() {
-        val path = Path().apply {
-            close()
-        }
+        val path = Path().apply { close() }
 
         val segment = path.iterator().next()
 
@@ -180,10 +171,11 @@ class PathIteratorTest {
 
     @Test
     fun close() {
-        val path = Path().apply {
-            lineTo(10.0f, 12.0f)
-            close()
-        }
+        val path =
+            Path().apply {
+                lineTo(10.0f, 12.0f)
+                close()
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -200,9 +192,7 @@ class PathIteratorTest {
 
     @Test
     fun moveTo() {
-        val path = Path().apply {
-            moveTo(10.0f, 12.0f)
-        }
+        val path = Path().apply { moveTo(10.0f, 12.0f) }
 
         val segment = path.iterator().next()
 
@@ -215,10 +205,11 @@ class PathIteratorTest {
 
     @Test
     fun lineTo() {
-        val path = Path().apply {
-            moveTo(4.0f, 6.0f)
-            lineTo(10.0f, 12.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(4.0f, 6.0f)
+                lineTo(10.0f, 12.0f)
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -236,10 +227,11 @@ class PathIteratorTest {
 
     @Test
     fun quadraticTo() {
-        val path = Path().apply {
-            moveTo(4.0f, 6.0f)
-            quadraticTo(10.0f, 12.0f, 20.0f, 24.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(4.0f, 6.0f)
+                quadraticTo(10.0f, 12.0f, 20.0f, 24.0f)
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -258,10 +250,11 @@ class PathIteratorTest {
 
     @Test
     fun cubicTo() {
-        val path = Path().apply {
-            moveTo(4.0f, 6.0f)
-            cubicTo(10.0f, 12.0f, 20.0f, 24.0f, 30.0f, 36.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(4.0f, 6.0f)
+                cubicTo(10.0f, 12.0f, 20.0f, 24.0f, 30.0f, 36.0f)
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -282,9 +275,8 @@ class PathIteratorTest {
     @Test
     fun conicTo() {
         if (Build.VERSION.SDK_INT >= 25) {
-            val path = Path().apply {
-                addRoundRect(RoundRect(12.0f, 12.0f, 24.0f, 24.0f, 8.0f, 8.0f))
-            }
+            val path =
+                Path().apply { addRoundRect(RoundRect(12.0f, 12.0f, 24.0f, 24.0f, 8.0f, 8.0f)) }
 
             val iterator = path.iterator(PathIterator.ConicEvaluation.AsConic)
             // Swallow the move
@@ -305,9 +297,7 @@ class PathIteratorTest {
 
     @Test
     fun conicAsQuadratics() {
-        val path = Path().apply {
-            addRoundRect(RoundRect(12.0f, 12.0f, 24.0f, 24.0f, 8.0f, 8.0f))
-        }
+        val path = Path().apply { addRoundRect(RoundRect(12.0f, 12.0f, 24.0f, 24.0f, 8.0f, 8.0f)) }
 
         for (segment in path) {
             if (segment.type == PathSegment.Type.Conic) fail("Found conic, none expected: $segment")

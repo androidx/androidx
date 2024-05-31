@@ -33,7 +33,6 @@ import java.lang.IllegalArgumentException
  *
  * @param context to load font from
  * @param fontXml fontRes to load
- *
  * @throws IllegalArgumentException if the fontRes does not exist or is not an xml GoogleFont
  */
 // This is an API for accessing Google Fonts at fonts.google.com
@@ -42,22 +41,24 @@ import java.lang.IllegalArgumentException
 fun GoogleFont(context: Context, @FontRes fontXml: Int): GoogleFont {
     val resources = context.resources
     val xml = resources.getXml(fontXml)
-    val loaded = try {
-        FontResourcesParserCompat.parse(xml, resources)
-            as? FontResourcesParserCompat.ProviderResourceEntry
-    } catch (cause: Exception) {
-        val resName = resources.getResourceName(fontXml)
-        throw IllegalArgumentException("Unable to load XML fontRes $resName", cause)
-    }
+    val loaded =
+        try {
+            FontResourcesParserCompat.parse(xml, resources)
+                as? FontResourcesParserCompat.ProviderResourceEntry
+        } catch (cause: Exception) {
+            val resName = resources.getResourceName(fontXml)
+            throw IllegalArgumentException("Unable to load XML fontRes $resName", cause)
+        }
 
-    requireNotNull(loaded) {
-        "Unable to load XML fontRes ${resources.getResourceName(fontXml)}"
-    }
+    requireNotNull(loaded) { "Unable to load XML fontRes ${resources.getResourceName(fontXml)}" }
 
     val query = Uri.parse("?" + loaded.request.query)
-    val name = query.getQueryParameter("name")
-        ?: throw IllegalArgumentException("No google font name provided in fontRes:" +
-            " ${resources.getResourceName(fontXml)}")
+    val name =
+        query.getQueryParameter("name")
+            ?: throw IllegalArgumentException(
+                "No google font name provided in fontRes:" +
+                    " ${resources.getResourceName(fontXml)}"
+            )
     val bestEffort = query.getQueryParameter("besteffort") ?: "true"
     return GoogleFont(name, bestEffort == "true")
 }

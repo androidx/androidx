@@ -22,15 +22,13 @@ import androidx.compose.foundation.text.findPrecedingBreak
 /**
  * Commit final [text] to the text box and set the new cursor position.
  *
- * See [`commitText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)).
+ * See
+ * [`commitText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)).
  *
  * @param text The text to commit.
  * @param newCursorPosition The cursor position after inserted text.
  */
-internal fun EditingBuffer.commitText(
-    text: String,
-    newCursorPosition: Int
-) {
+internal fun EditingBuffer.commitText(text: String, newCursorPosition: Int) {
     // API description says replace ongoing composition text if there. Then, if there is no
     // composition text, insert text into cursor position or replace selection.
     if (hasComposition()) {
@@ -45,11 +43,12 @@ internal fun EditingBuffer.commitText(
     val newCursor = cursor
 
     // See above API description for the meaning of newCursorPosition.
-    val newCursorInBuffer = if (newCursorPosition > 0) {
-        newCursor + newCursorPosition - 1
-    } else {
-        newCursor + newCursorPosition - text.length
-    }
+    val newCursorInBuffer =
+        if (newCursorPosition > 0) {
+            newCursor + newCursorPosition - 1
+        } else {
+            newCursor + newCursorPosition - text.length
+        }
 
     cursor = newCursorInBuffer.coerceIn(0, length)
 }
@@ -57,15 +56,13 @@ internal fun EditingBuffer.commitText(
 /**
  * Mark a certain region of text as composing text.
  *
- * See [`setComposingRegion`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)).
+ * See
+ * [`setComposingRegion`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)).
  *
  * @param start The inclusive start offset of the composing region.
  * @param end The exclusive end offset of the composing region
  */
-internal fun EditingBuffer.setComposingRegion(
-    start: Int,
-    end: Int
-) {
+internal fun EditingBuffer.setComposingRegion(start: Int, end: Int) {
     // The API description says, different from SetComposingText, SetComposingRegion must
     // preserve the ongoing composition text and set new composition.
     if (hasComposition()) {
@@ -88,15 +85,13 @@ internal fun EditingBuffer.setComposingRegion(
  * Replace the currently composing text with the given text, and set the new cursor position. Any
  * composing text set previously will be removed automatically.
  *
- * See [`setComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)).
+ * See
+ * [`setComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)).
  *
  * @param text The composing text.
  * @param newCursorPosition The cursor position after setting composing text.
  */
-internal fun EditingBuffer.setComposingText(
-    text: String,
-    newCursorPosition: Int
-) {
+internal fun EditingBuffer.setComposingText(text: String, newCursorPosition: Int) {
     if (hasComposition()) {
         // API doc says, if there is ongoing composing text, replace it with new text.
         val compositionStart = compositionStart
@@ -119,33 +114,33 @@ internal fun EditingBuffer.setComposingText(
     val newCursor = cursor
 
     // See above API description for the meaning of newCursorPosition.
-    val newCursorInBuffer = if (newCursorPosition > 0) {
-        newCursor + newCursorPosition - 1
-    } else {
-        newCursor + newCursorPosition - text.length
-    }
+    val newCursorInBuffer =
+        if (newCursorPosition > 0) {
+            newCursor + newCursorPosition - 1
+        } else {
+            newCursor + newCursorPosition - text.length
+        }
 
     cursor = newCursorInBuffer.coerceIn(0, length)
 }
 
 /**
  * Delete [lengthBeforeCursor] characters of text before the current cursor position, and delete
- * [lengthAfterCursor] characters of text after the current cursor position, excluding the selection.
+ * [lengthAfterCursor] characters of text after the current cursor position, excluding the
+ * selection.
  *
  * Before and after refer to the order of the characters in the string, not to their visual
  * representation.
  *
- * See [`deleteSurroundingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)).
+ * See
+ * [`deleteSurroundingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)).
  *
  * @param lengthBeforeCursor The number of characters in UTF-16 before the cursor to be deleted.
- * Must be non-negative.
- * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted.
- * Must be non-negative.
+ *   Must be non-negative.
+ * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted. Must
+ *   be non-negative.
  */
-internal fun EditingBuffer.deleteSurroundingText(
-    lengthBeforeCursor: Int,
-    lengthAfterCursor: Int
-) {
+internal fun EditingBuffer.deleteSurroundingText(lengthBeforeCursor: Int, lengthAfterCursor: Int) {
     require(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
             "$lengthBeforeCursor and $lengthAfterCursor respectively."
@@ -165,15 +160,16 @@ internal fun EditingBuffer.deleteSurroundingText(
 /**
  * A variant of [deleteSurroundingText]. The difference is that
  * * The lengths are supplied in code points, not in chars.
- * * This command does nothing if there are one or more invalid surrogate pairs
- * in the requested range.
+ * * This command does nothing if there are one or more invalid surrogate pairs in the requested
+ *   range.
  *
- * See [`deleteSurroundingTextInCodePoints`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)).
+ * See
+ * [`deleteSurroundingTextInCodePoints`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)).
  *
  * @param lengthBeforeCursor The number of characters in Unicode code points before the cursor to be
- * deleted. Must be non-negative.
+ *   deleted. Must be non-negative.
  * @param lengthAfterCursor The number of characters in Unicode code points after the cursor to be
- * deleted. Must be non-negative.
+ *   deleted. Must be non-negative.
  */
 internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
     lengthBeforeCursor: Int,
@@ -225,11 +221,12 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
 }
 
 /**
- * Finishes the composing text that is currently active. This simply leaves the text as-is,
- * removing any special composing styling or other state that was around it. The cursor position
- * remains unchanged.
+ * Finishes the composing text that is currently active. This simply leaves the text as-is, removing
+ * any special composing styling or other state that was around it. The cursor position remains
+ * unchanged.
  *
- * See [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
+ * See
+ * [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
  */
 internal fun EditingBuffer.finishComposingText() {
     commitComposition()
@@ -238,9 +235,9 @@ internal fun EditingBuffer.finishComposingText() {
 /**
  * Represents a backspace operation at the cursor position.
  *
- * If there is composition, delete the text in the composition range.
- * If there is no composition but there is selection, delete whole selected range.
- * If there is no composition and selection, perform backspace key event at the cursor position.
+ * If there is composition, delete the text in the composition range. If there is no composition but
+ * there is selection, delete whole selected range. If there is no composition and selection,
+ * perform backspace key event at the cursor position.
  */
 internal fun EditingBuffer.backspace() {
     if (hasComposition()) {
@@ -288,16 +285,14 @@ internal fun EditingBuffer.moveCursor(amount: Int) {
     cursor = newCursor
 }
 
-/**
- * Deletes all the text in the buffer.
- */
+/** Deletes all the text in the buffer. */
 internal fun EditingBuffer.deleteAll() {
     replace(0, length, "")
 }
 
 /**
- * Helper function that returns true when [high] is a Unicode high-surrogate code unit and [low]
- * is a Unicode low-surrogate code unit.
+ * Helper function that returns true when [high] is a Unicode high-surrogate code unit and [low] is
+ * a Unicode low-surrogate code unit.
  */
 private fun isSurrogatePair(high: Char, low: Char): Boolean =
     high.isHighSurrogate() && low.isLowSurrogate()

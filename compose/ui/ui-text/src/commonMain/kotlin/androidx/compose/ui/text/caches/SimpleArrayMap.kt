@@ -23,23 +23,21 @@ private const val TAG = "SimpleArrayMap"
  * Attempt to spot concurrent modifications to this data structure.
  *
  * It's best-effort, but any time we can throw something more diagnostic than an
- * ArrayIndexOutOfBoundsException deep in the ArrayMap internals it's going to
- * save a lot of development time.
+ * ArrayIndexOutOfBoundsException deep in the ArrayMap internals it's going to save a lot of
+ * development time.
  *
- * Good times to look for CME include after any array allocations/copyOf calls
- * and at the end of functions that change size (put/remove/clear).
+ * Good times to look for CME include after any array allocations/copyOf calls and at the end of
+ * functions that change size (put/remove/clear).
  */
 private const val CONCURRENT_MODIFICATION_EXCEPTIONS = true
 
 /**
- * The minimum amount by which the capacity of a ArrayMap will increase.
- * This is tuned to be relatively space-efficient.
+ * The minimum amount by which the capacity of a ArrayMap will increase. This is tuned to be
+ * relatively space-efficient.
  */
 private const val BASE_SIZE = 4
 
-/**
- * Copy of SimpleArrayMap from collection2 until dependency can be added correctly
- */
+/** Copy of SimpleArrayMap from collection2 until dependency can be added correctly */
 internal class SimpleArrayMap<K, V> {
 
     private var hashes: IntArray
@@ -49,7 +47,8 @@ internal class SimpleArrayMap<K, V> {
     // Suppression necessary, see KT-43542.
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:kotlin.jvm.JvmName("size")
-    val size: Int get() = _size
+    val size: Int
+        get() = _size
 
     protected fun indexOf(key: Any, hash: Int): Int {
         val N = _size
@@ -133,9 +132,7 @@ internal class SimpleArrayMap<K, V> {
         return end.inv()
     }
 
-    /**
-     * Create a new ArrayMap with a given initial capacity.
-     */
+    /** Create a new ArrayMap with a given initial capacity. */
     @kotlin.jvm.JvmOverloads
     constructor(capacity: Int = 0) {
         if (capacity == 0) {
@@ -148,9 +145,7 @@ internal class SimpleArrayMap<K, V> {
         _size = 0
     }
 
-    /**
-     * Create a new ArrayMap with the mappings from the given ArrayMap.
-     */
+    /** Create a new ArrayMap with the mappings from the given ArrayMap. */
     constructor(map: SimpleArrayMap<K, V>?) : this() {
         if (map != null) {
             putAll(map)
@@ -158,7 +153,7 @@ internal class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Make the array map empty.  All storage is released.
+     * Make the array map empty. All storage is released.
      *
      * @throws ConcurrentModificationException if the map has been concurrently modified.
      */
@@ -174,8 +169,7 @@ internal class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Ensure the array map can hold at least <var>minimumCapacity</var>
-     * items.
+     * Ensure the array map can hold at least <var>minimumCapacity</var> items.
      *
      * @throws ConcurrentModificationException if the map has been concurrently modified.
      */
@@ -231,8 +225,8 @@ internal class SimpleArrayMap<K, V> {
     }
 
     /**
-     * Check whether a value exists in the array.  This requires a linear search
-     * through the entire array.
+     * Check whether a value exists in the array. This requires a linear search through the entire
+     * array.
      *
      * @param value The value to search for.
      * @return Returns true if the value exists, else false.
@@ -241,9 +235,9 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Retrieve a value from the array.
+     *
      * @param key The key of the value to retrieve.
-     * @return Returns the value associated with the given key,
-     * or null if there is no such key.
+     * @return Returns the value associated with the given key, or null if there is no such key.
      */
     @Suppress("UNCHECKED_CAST")
     operator fun get(key: K): V? {
@@ -254,10 +248,11 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Retrieve a value from the array, or [defaultValue] if there is no mapping for the key.
+     *
      * @param key The key of the value to retrieve.
      * @param defaultValue The default mapping of the key
-     * @return Returns the value associated with the given key,
-     * or [defaultValue] if there is no mapping for the key.
+     * @return Returns the value associated with the given key, or [defaultValue] if there is no
+     *   mapping for the key.
      */
     @Suppress("UNCHECKED_CAST")
     fun getOrDefault(key: K, defaultValue: V): V {
@@ -267,22 +262,23 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Return the key at the given index in the array.
+     *
      * @param index The desired index, must be between 0 and [size]-1.
      * @return Returns the key stored at the given index.
      */
-    @Suppress("UNCHECKED_CAST")
-    fun keyAt(index: Int): K = keyValues[index shl 1] as K
+    @Suppress("UNCHECKED_CAST") fun keyAt(index: Int): K = keyValues[index shl 1] as K
 
     /**
      * Return the value at the given index in the array.
+     *
      * @param index The desired index, must be between 0 and [size]-1.
      * @return Returns the value stored at the given index.
      */
-    @Suppress("UNCHECKED_CAST")
-    fun valueAt(index: Int): V = keyValues[(index shl 1) + 1] as V
+    @Suppress("UNCHECKED_CAST") fun valueAt(index: Int): V = keyValues[(index shl 1) + 1] as V
 
     /**
      * Set the value at a given index in the array.
+     *
      * @param index The desired index, must be between 0 and [size]-1.
      * @param value The new value to store at this index.
      * @return Returns the previous value at the given index.
@@ -295,18 +291,17 @@ internal class SimpleArrayMap<K, V> {
         return old
     }
 
-    /**
-     * Return true if the array map contains no items.
-     */
+    /** Return true if the array map contains no items. */
     fun isEmpty(): Boolean = _size <= 0
 
     /**
      * Add a new value to the array map.
-     * @param key The key under which to store the value.  <b>Must not be null.</b>  If
-     * this key already exists in the array, its value will be replaced.
+     *
+     * @param key The key under which to store the value. <b>Must not be null.</b> If this key
+     *   already exists in the array, its value will be replaced.
      * @param value The value to store for the given key.
-     * @return Returns the old value that was stored for the given key, or null if there
-     * was no such key.
+     * @return Returns the old value that was stored for the given key, or null if there was no such
+     *   key.
      * @throws ConcurrentModificationException if the map has been concurrently modified.
      */
     @Suppress("UNCHECKED_CAST")
@@ -331,11 +326,12 @@ internal class SimpleArrayMap<K, V> {
 
         index = index.inv()
         if (osize >= hashes.size) {
-            val n = when {
-                osize >= BASE_SIZE * 2 -> osize + (osize shr 1)
-                osize >= BASE_SIZE -> BASE_SIZE * 2
-                else -> BASE_SIZE
-            }
+            val n =
+                when {
+                    osize >= BASE_SIZE * 2 -> osize + (osize shr 1)
+                    osize >= BASE_SIZE -> BASE_SIZE * 2
+                    else -> BASE_SIZE
+                }
             if (DEBUG) {
                 println("$TAG put: grow from ${hashes.size} to $n")
             }
@@ -370,6 +366,7 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Perform a [put] of all key/value pairs in <var>array</var>
+     *
      * @param array The array whose contents are to be retrieved.
      */
     fun putAll(array: SimpleArrayMap<out K, out V>) {
@@ -391,10 +388,11 @@ internal class SimpleArrayMap<K, V> {
     /**
      * Add a new value to the array map only if the key does not already have a value or it is
      * mapped to `null`.
+     *
      * @param key The key under which to store the value.
      * @param value The value to store for the given key.
-     * @return Returns the value that was stored for the given key, or null if there
-     * was no such key.
+     * @return Returns the value that was stored for the given key, or null if there was no such
+     *   key.
      */
     fun putIfAbsent(key: K, value: V): V? {
         var mapValue = get(key)
@@ -406,9 +404,9 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Remove an existing key from the array map.
+     *
      * @param key The key of the mapping to remove.
-     * @return Returns the value that was stored under the key, or null if there
-     * was no such key.
+     * @return Returns the value that was stored under the key, or null if there was no such key.
      */
     fun remove(key: K): V? {
         val index = indexOfKey(key)
@@ -417,6 +415,7 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Remove an existing key from the array map only if it is currently mapped to [value].
+     *
      * @param key The key of the mapping to remove.
      * @param value The value expected to be mapped to the key.
      * @return Returns true if the mapping was removed.
@@ -435,6 +434,7 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Remove the key/value mapping at the given index.
+     *
      * @param index The desired index, must be between 0 and [size]-1.
      * @return Returns the value that was stored at this index.
      * @throws ConcurrentModificationException if the map has been concurrently modified.
@@ -455,8 +455,7 @@ internal class SimpleArrayMap<K, V> {
                 // Shrunk enough to reduce size of arrays.  We don't allow it to
                 // shrink smaller than (BASE_SIZE*2) to avoid flapping between
                 // that and BASE_SIZE.
-                val n =
-                    if (osize > BASE_SIZE * 2) osize + (osize shr 1) else BASE_SIZE * 2
+                val n = if (osize > BASE_SIZE * 2) osize + (osize shr 1) else BASE_SIZE * 2
                 if (DEBUG) {
                     println("$TAG remove: shrink from $hashes.size to $n")
                 }
@@ -502,6 +501,7 @@ internal class SimpleArrayMap<K, V> {
 
     /**
      * Replace the mapping for [key] only if it is already mapped to a value.
+     *
      * @param key The key of the mapping to replace.
      * @param value The value to store for the given key.
      * @return Returns the previous mapped value or null.
@@ -534,10 +534,10 @@ internal class SimpleArrayMap<K, V> {
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation returns false if the object is not a Map or
-     * SimpleArrayMap, or if the maps have different sizes. Otherwise, for each
-     * key in this map, values of both maps are compared. If the values for any
-     * key are not equal, the method returns false, otherwise it returns true.
+     * <p>This implementation returns false if the object is not a Map or SimpleArrayMap, or if the
+     * maps have different sizes. Otherwise, for each key in this map, values of both maps are
+     * compared. If the values for any key are not equal, the method returns false, otherwise it
+     * returns true.
      */
     @Suppress("UNCHECKED_CAST")
     override fun equals(other: Any?): Boolean {
@@ -585,15 +585,11 @@ internal class SimpleArrayMap<K, V> {
                 }
                 return true
             }
-        } catch (ignored: NullPointerException) {
-        } catch (ignored: ClassCastException) {
-        }
+        } catch (ignored: NullPointerException) {} catch (ignored: ClassCastException) {}
         return false
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     override fun hashCode(): Int {
         val hashes = hashes
         val array: Array<Any?> = keyValues
@@ -613,9 +609,8 @@ internal class SimpleArrayMap<K, V> {
     /**
      * {@inheritDoc}
      *
-     * <p>This implementation composes a string by iterating over its mappings. If
-     * this map contains itself as a key or a value, the string "(this Map)"
-     * will appear in its place.
+     * <p>This implementation composes a string by iterating over its mappings. If this map contains
+     * itself as a key or a value, the string "(this Map)" will appear in its place.
      */
     override fun toString(): String {
         if (isEmpty()) {

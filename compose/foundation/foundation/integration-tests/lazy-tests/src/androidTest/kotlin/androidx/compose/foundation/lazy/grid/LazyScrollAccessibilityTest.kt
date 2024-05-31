@@ -55,15 +55,10 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
-class LazyScrollAccessibilityTest(
-    private val config: TestConfig
-) : BaseLazyGridTestWithOrientation(config.orientation) {
+class LazyScrollAccessibilityTest(private val config: TestConfig) :
+    BaseLazyGridTestWithOrientation(config.orientation) {
 
-    data class TestConfig(
-        val orientation: Orientation,
-        val rtl: Boolean,
-        val reversed: Boolean
-    ) {
+    data class TestConfig(val orientation: Orientation, val rtl: Boolean, val reversed: Boolean) {
         val horizontal = orientation == Orientation.Horizontal
         val vertical = !horizontal
 
@@ -80,9 +75,7 @@ class LazyScrollAccessibilityTest(
         fun params() =
             listOf(Orientation.Horizontal, Orientation.Vertical).flatMap { horizontal ->
                 listOf(false, true).flatMap { rtl ->
-                    listOf(false, true).map { reversed ->
-                        TestConfig(horizontal, rtl, reversed)
-                    }
+                    listOf(false, true).map { reversed -> TestConfig(horizontal, rtl, reversed) }
                 }
             }
     }
@@ -90,14 +83,16 @@ class LazyScrollAccessibilityTest(
     private val scrollerTag = "ScrollerTest"
     private var composeView: View? = null
     private val accessibilityNodeProvider: AccessibilityNodeProvider
-        get() = checkNotNull(composeView) {
-            "composeView not initialized. Did `composeView = LocalView.current` not work?"
-        }.let { composeView ->
-            ViewCompat
-                .getAccessibilityDelegate(composeView)!!
-                .getAccessibilityNodeProvider(composeView)!!
-                .provider as AccessibilityNodeProvider
-        }
+        get() =
+            checkNotNull(composeView) {
+                    "composeView not initialized. Did `composeView = LocalView.current` not work?"
+                }
+                .let { composeView ->
+                    ViewCompat.getAccessibilityDelegate(composeView)!!.getAccessibilityNodeProvider(
+                            composeView
+                        )!!
+                        .provider as AccessibilityNodeProvider
+                }
 
     private val itemSize = 21
     private var itemSizeDp: Dp = Dp.Unspecified
@@ -157,10 +152,7 @@ class LazyScrollAccessibilityTest(
     @Test
     fun verifyScrollActionsInMiddle() {
         createScrollableContent_StartInMiddle()
-        verifyNodeInfoScrollActions(
-            expectForward = true,
-            expectBackward = true
-        )
+        verifyNodeInfoScrollActions(expectForward = true, expectBackward = true)
     }
 
     @Test
@@ -173,12 +165,12 @@ class LazyScrollAccessibilityTest(
     }
 
     /**
-     * Setup the test, run the given [accessibilityAction], and check if the [canonicalTarget]
-     * has been reached. The canonical target is the item that we expect to see when moving
-     * forward in a non-reversed scrollable (e.g. down in LazyColumn or right in LazyRow in LTR).
-     * The actual target is either the canonical target or the target that is as far from the
-     * middle of the lazy list as the canonical target, but on the other side of the middle,
-     * depending on the [configuration][config].
+     * Setup the test, run the given [accessibilityAction], and check if the [canonicalTarget] has
+     * been reached. The canonical target is the item that we expect to see when moving forward in a
+     * non-reversed scrollable (e.g. down in LazyColumn or right in LazyRow in LTR). The actual
+     * target is either the canonical target or the target that is as far from the middle of the
+     * lazy list as the canonical target, but on the other side of the middle, depending on the
+     * [configuration][config].
      */
     private fun testRelativeDirection(canonicalTarget: Int, accessibilityAction: Int) {
         val target = if (!config.reversed) canonicalTarget else 100 - canonicalTarget - 1
@@ -186,12 +178,12 @@ class LazyScrollAccessibilityTest(
     }
 
     /**
-     * Setup the test, run the given [accessibilityAction], and check if the [canonicalTarget]
-     * has been reached (but only if we [expect][expectActionSuccess] the action to succeed).
-     * The canonical target is the item that we expect to see when moving forward in a
-     * non-reversed scrollable (e.g. down in LazyColumn or right in LazyRow in LTR). The actual
-     * target is either the canonical target or the target that is as far from the middle of the
-     * scrollable as the canonical target, but on the other side of the middle, depending on the
+     * Setup the test, run the given [accessibilityAction], and check if the [canonicalTarget] has
+     * been reached (but only if we [expect][expectActionSuccess] the action to succeed). The
+     * canonical target is the item that we expect to see when moving forward in a non-reversed
+     * scrollable (e.g. down in LazyColumn or right in LazyRow in LTR). The actual target is either
+     * the canonical target or the target that is as far from the middle of the scrollable as the
+     * canonical target, but on the other side of the middle, depending on the
      * [configuration][config].
      */
     private fun testAbsoluteDirection(
@@ -221,9 +213,10 @@ class LazyScrollAccessibilityTest(
         createScrollableContent_StartInMiddle()
         rule.onNodeWithText("$target").assertDoesNotExist()
 
-        val returnValue = rule.onNodeWithTag(scrollerTag).withSemanticsNode {
-            accessibilityNodeProvider.performAction(id, accessibilityAction, null)
-        }
+        val returnValue =
+            rule.onNodeWithTag(scrollerTag).withSemanticsNode {
+                accessibilityNodeProvider.performAction(id, accessibilityAction, null)
+            }
 
         assertThat(returnValue).isEqualTo(expectActionSuccess)
         if (expectActionSuccess) {
@@ -240,11 +233,10 @@ class LazyScrollAccessibilityTest(
      * [reversing][TestConfig.reversed].
      */
     private fun verifyNodeInfoScrollActions(expectForward: Boolean, expectBackward: Boolean) {
-        val nodeInfo = rule.onNodeWithTag(scrollerTag).withSemanticsNode {
-            rule.runOnUiThread {
-                accessibilityNodeProvider.createAccessibilityNodeInfo(id)!!
+        val nodeInfo =
+            rule.onNodeWithTag(scrollerTag).withSemanticsNode {
+                rule.runOnUiThread { accessibilityNodeProvider.createAccessibilityNodeInfo(id)!! }
             }
-        }
 
         val actions = nodeInfo.actionList.map { it.id }
 
@@ -285,9 +277,7 @@ class LazyScrollAccessibilityTest(
         }
     }
 
-    /**
-     * Creates a Row/Column that starts in the middle, according to [createScrollableContent]
-     */
+    /** Creates a Row/Column that starts in the middle, according to [createScrollableContent] */
     private fun createScrollableContent_StartInMiddle() {
         createScrollableContent {
             // Start at the middle:
@@ -295,16 +285,11 @@ class LazyScrollAccessibilityTest(
             // Viewport size: 200 rect - 50 padding on both sides = 100
             // Content outside viewport: 2100 - 100 = 2000
             // -> centered when 1000 on either side, which is 47 items + 13
-            rememberLazyGridState(
-                47,
-                13
-            )
+            rememberLazyGridState(47, 13)
         }
     }
 
-    /**
-     * Creates a Row/Column that starts at the last item, according to [createScrollableContent]
-     */
+    /** Creates a Row/Column that starts at the last item, according to [createScrollableContent] */
     private fun createScrollableContent_StartAtEnd() {
         createScrollableContent {
             // Start at the end:
@@ -312,18 +297,15 @@ class LazyScrollAccessibilityTest(
             // Viewport size: 200 rect - 50 padding on both sides = 100
             // Content outside viewport: 2100 - 100 = 2000
             // -> at the end when offset at 2000, which is 95 items + 5
-            rememberLazyGridState(
-                95,
-                5
-            )
+            rememberLazyGridState(95, 5)
         }
     }
 
     /**
-     * Creates a grid with a viewport of 100 px, containing 100 items each 21 px in size.
-     * The items have a text with their index (ASC), and where the viewport starts is determined
-     * by the given [lambda][rememberLazyGridState]. All properties from [config] are applied.
-     * The viewport has padding around it to make sure scroll distance doesn't include padding.
+     * Creates a grid with a viewport of 100 px, containing 100 items each 21 px in size. The items
+     * have a text with their index (ASC), and where the viewport starts is determined by the given
+     * [lambda][rememberLazyGridState]. All properties from [config] are applied. The viewport has
+     * padding around it to make sure scroll distance doesn't include padding.
      */
     private fun createScrollableContent(rememberLazyGridState: @Composable () -> LazyGridState) {
         rule.setContent {

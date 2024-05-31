@@ -34,10 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
- * WARNING: Any modification of this *requires* a change to OffsetInformationTest
- */
-
+/** WARNING: Any modification of this *requires* a change to OffsetInformationTest */
 @Composable
 fun MyComposeTheme(content: @Composable () -> Unit) {
     content()
@@ -49,33 +46,19 @@ fun OffsetData() {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = "Hello",
-                style = TextStyle(
-                    color = Color.Magenta,
-                    background = Color.White,
-                    fontSize = 30.sp
-                )
+                style = TextStyle(color = Color.Magenta, background = Color.White, fontSize = 30.sp)
             )
             Greeting("Android")
-            Surface(
-                color = Color.Blue,
-                shape = MaterialTheme.shapes.small
-            ) {
+            Surface(color = Color.Blue, shape = MaterialTheme.shapes.small) {
                 Button(onClick = {}) { Text("OK") }
             }
-            Surface(
-                color = Color.Red,
-                shape = MaterialTheme.shapes.small
-            ) {
-                TextButton(
-                    onClick = {},
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+            Surface(color = Color.Red, shape = MaterialTheme.shapes.small) {
+                TextButton(onClick = {}, modifier = Modifier.fillMaxWidth()) {
                     Row(
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                    }
+                    ) {}
                 }
             }
         }

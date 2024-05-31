@@ -26,33 +26,15 @@ class HyphensTest : TextLineBreaker() {
 
     @Test
     fun check_hyphens_Auto() {
-        val brokenLines = breakTextIntoLines(
-            text = text,
-            hyphens = Hyphens.Auto,
-            maxWidth = 30
-        )
-        val expected = listOf(
-            "Tran",
-            "sfor",
-            "ma",
-            "tion"
-        )
+        val brokenLines = breakTextIntoLines(text = text, hyphens = Hyphens.Auto, maxWidth = 30)
+        val expected = listOf("Tran", "sfor", "ma", "tion")
         assertThat(brokenLines).isEqualTo(expected)
     }
 
     @Test
     fun check_hyphens_None() {
-        val brokenLines = breakTextIntoLines(
-            text = text,
-            hyphens = Hyphens.None,
-            maxWidth = 30
-        )
-        val expected = listOf(
-            "Tran",
-            "sfor",
-            "mati",
-            "on"
-        )
+        val brokenLines = breakTextIntoLines(text = text, hyphens = Hyphens.None, maxWidth = 30)
+        val expected = listOf("Tran", "sfor", "mati", "on")
         assertThat(brokenLines).isEqualTo(expected)
     }
 }

@@ -25,22 +25,18 @@ inline fun <T> remember(crossinline calculation: @DisallowComposableCalls () -> 
     currentComposer.cache(false, calculation)
 
 /**
- * Remember the value returned by [calculation] if [key1] compares equal (`==`) to the value it
- * had in the previous composition, otherwise produce and remember a new value by calling
- * [calculation].
+ * Remember the value returned by [calculation] if [key1] compares equal (`==`) to the value it had
+ * in the previous composition, otherwise produce and remember a new value by calling [calculation].
  */
 @Composable
-inline fun <T> remember(
-    key1: Any?,
-    crossinline calculation: @DisallowComposableCalls () -> T
-): T {
+inline fun <T> remember(key1: Any?, crossinline calculation: @DisallowComposableCalls () -> T): T {
     return currentComposer.cache(currentComposer.changed(key1), calculation)
 }
 
 /**
- * Remember the value returned by [calculation] if [key1] and [key2] are equal (`==`) to the
- * values they had in the previous composition, otherwise produce and remember a new value by
- * calling [calculation].
+ * Remember the value returned by [calculation] if [key1] and [key2] are equal (`==`) to the values
+ * they had in the previous composition, otherwise produce and remember a new value by calling
+ * [calculation].
  */
 @Composable
 inline fun <T> remember(
@@ -111,9 +107,9 @@ inline fun <T> remember(
  *
  * @sample androidx.compose.runtime.samples.NotAlwaysUniqueKeys
  *
- * This example assumes that `parent.id` is a unique key for each item in the collection,
- * but this is only true if it is fair to assume that a parent will only ever have a single child,
- * which may not be the case.  Instead, it may be more correct to do the following:
+ * This example assumes that `parent.id` is a unique key for each item in the collection, but this
+ * is only true if it is fair to assume that a parent will only ever have a single child, which may
+ * not be the case. Instead, it may be more correct to do the following:
  *
  * @sample androidx.compose.runtime.samples.MoreCorrectUniqueKeys
  *
@@ -122,30 +118,24 @@ inline fun <T> remember(
  * @sample androidx.compose.runtime.samples.TwoInputsKeySample
  *
  * @param keys The set of values to be used to create a compound key. These will be compared to
- * their previous values using [equals] and [hashCode]
+ *   their previous values using [equals] and [hashCode]
  * @param block The composable children for this group.
  */
 @Composable
-inline fun <T> key(
-    @Suppress("UNUSED_PARAMETER")
-    vararg keys: Any?,
-    block: @Composable () -> T
-) = block()
+inline fun <T> key(@Suppress("UNUSED_PARAMETER") vararg keys: Any?, block: @Composable () -> T) =
+    block()
 
 /**
  * A utility function to mark a composition as supporting recycling. If the [key] changes the
- * composition is replaced by a new composition (as would happen for [key]) but reusable nodes
- * that are emitted by [ReusableComposeNode] are reused.
+ * composition is replaced by a new composition (as would happen for [key]) but reusable nodes that
+ * are emitted by [ReusableComposeNode] are reused.
  *
- * @param key the value that is used to trigger recycling. If recomposed with a different value
- * the composer creates a new composition but tries to reuse reusable nodes.
+ * @param key the value that is used to trigger recycling. If recomposed with a different value the
+ *   composer creates a new composition but tries to reuse reusable nodes.
  * @param content the composable children that are recyclable.
  */
 @Composable
-inline fun ReusableContent(
-    key: Any?,
-    content: @Composable () -> Unit
-) {
+inline fun ReusableContent(key: Any?, content: @Composable () -> Unit) {
     currentComposer.startReusableGroup(reuseKey, key)
     content()
     currentComposer.endReusableGroup()
@@ -159,17 +149,14 @@ inline fun ReusableContent(
  * remembered state of the composition's lifetime being arbitrarily extended.
  *
  * @param active when [active] is `true` [content] is composed normally. When [active] is `false`
- * then the content is deactivated and all remembered state is treated as if the content was
- * deleted but the nodes managed by the composition's [Applier] are unaffected. A [active] becomes
- * `true` any reusable nodes from the previously active composition are candidates for reuse.
+ *   then the content is deactivated and all remembered state is treated as if the content was
+ *   deleted but the nodes managed by the composition's [Applier] are unaffected. A [active] becomes
+ *   `true` any reusable nodes from the previously active composition are candidates for reuse.
  * @param content the composable content that is managed by this composable.
  */
 @Composable
 @ExplicitGroupsComposable
-inline fun ReusableContentHost(
-    active: Boolean,
-    crossinline content: @Composable () -> Unit
-) {
+inline fun ReusableContentHost(active: Boolean, crossinline content: @Composable () -> Unit) {
     currentComposer.startReusableGroup(reuseKey, active)
     val activeChanged = currentComposer.changed(active)
     if (active) {
@@ -180,12 +167,13 @@ inline fun ReusableContentHost(
     currentComposer.endReusableGroup()
 }
 
-/**
- * TODO(lmr): provide documentation
- */
+/** TODO(lmr): provide documentation */
 val currentComposer: Composer
     @ReadOnlyComposable
-    @Composable get() { throw NotImplementedError("Implemented as an intrinsic") }
+    @Composable
+    get() {
+        throw NotImplementedError("Implemented as an intrinsic")
+    }
 
 /**
  * Returns an object which can be used to invalidate the current scope at this point in composition.
@@ -194,33 +182,31 @@ val currentComposer: Composer
 val currentRecomposeScope: RecomposeScope
     @ReadOnlyComposable
     @OptIn(InternalComposeApi::class)
-    @Composable get() {
+    @Composable
+    get() {
         val scope = currentComposer.recomposeScope ?: error("no recompose scope found")
         currentComposer.recordUsed(scope)
         return scope
     }
 
 /**
- * Returns the current [CompositionLocalContext] which contains all
- * [CompositionLocal]'s in the current composition and their values
- * provided by [CompositionLocalProvider]'s.
- * This context can be used to pass locals to another composition via [CompositionLocalProvider].
- * That is usually needed if another composition is not a subcomposition of the current one.
+ * Returns the current [CompositionLocalContext] which contains all [CompositionLocal]'s in the
+ * current composition and their values provided by [CompositionLocalProvider]'s. This context can
+ * be used to pass locals to another composition via [CompositionLocalProvider]. That is usually
+ * needed if another composition is not a subcomposition of the current one.
  */
 @OptIn(InternalComposeApi::class)
 val currentCompositionLocalContext: CompositionLocalContext
-    @Composable get() = CompositionLocalContext(
-        currentComposer.buildContext().getCompositionLocalScope()
-    )
+    @Composable
+    get() = CompositionLocalContext(currentComposer.buildContext().getCompositionLocalScope())
 
 /**
- * This a hash value used to coordinate map externally stored state to the composition. For
- * example, this is used by saved instance state to preserve state across activity lifetime
- * boundaries.
+ * This a hash value used to coordinate map externally stored state to the composition. For example,
+ * this is used by saved instance state to preserve state across activity lifetime boundaries.
  *
- * This value is likely to be unique but is not guaranteed unique. There are known cases,
- * such as for loops without a [key], where the runtime does not have enough information to
- * make the compound key hash unique.
+ * This value is likely to be unique but is not guaranteed unique. There are known cases, such as
+ * for loops without a [key], where the runtime does not have enough information to make the
+ * compound key hash unique.
  */
 val currentCompositeKeyHash: Int
     @Composable
@@ -237,10 +223,9 @@ val currentCompositeKeyHash: Int
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param factory A function which will create a new instance of [T]. This function is NOT
- * guaranteed to be called in place.
+ *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
- * executed. This function is called in place and will be inlined.
- *
+ *   executed. This function is called in place and will be inlined.
  * @see Updater
  * @see Applier
  * @see Composition
@@ -248,7 +233,8 @@ val currentCompositeKeyHash: Int
 // ComposeNode is a special case of readonly composable and handles creating its own groups, so
 // it is okay to use.
 @Suppress("NONREADONLY_CALL_IN_READONLY_COMPOSABLE", "UnnecessaryLambdaCreation")
-@Composable inline fun <T : Any, reified E : Applier<*>> ComposeNode(
+@Composable
+inline fun <T : Any, reified E : Applier<*>> ComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit
 ) {
@@ -272,10 +258,9 @@ val currentCompositeKeyHash: Int
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param factory A function which will create a new instance of [T]. This function is NOT
- * guaranteed to be called in place.
+ *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
- * executed. This function is called in place and will be inlined.
- *
+ *   executed. This function is called in place and will be inlined.
  * @see Updater
  * @see Applier
  * @see Composition
@@ -283,7 +268,8 @@ val currentCompositeKeyHash: Int
 // ComposeNode is a special case of readonly composable and handles creating its own groups, so
 // it is okay to use.
 @Suppress("NONREADONLY_CALL_IN_READONLY_COMPOSABLE", "UnnecessaryLambdaCreation")
-@Composable inline fun <T : Any, reified E : Applier<*>> ReusableComposeNode(
+@Composable
+inline fun <T : Any, reified E : Applier<*>> ReusableComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit
 ) {
@@ -308,11 +294,10 @@ val currentCompositeKeyHash: Int
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param factory A function which will create a new instance of [T]. This function is NOT
- * guaranteed to be called in place.
+ *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
- * executed. This function is called in place and will be inlined.
+ *   executed. This function is called in place and will be inlined.
  * @param content the composable content that will emit the "children" of this node.
- *
  * @see Updater
  * @see Applier
  * @see Composition
@@ -348,11 +333,10 @@ inline fun <T : Any?, reified E : Applier<*>> ComposeNode(
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param factory A function which will create a new instance of [T]. This function is NOT
- * guaranteed to be called in place.
+ *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
- * executed. This function is called in place and will be inlined.
+ *   executed. This function is called in place and will be inlined.
  * @param content the composable content that will emit the "children" of this node.
- *
  * @see Updater
  * @see Applier
  * @see Composition
@@ -388,22 +372,22 @@ inline fun <T : Any?, reified E : Applier<*>> ReusableComposeNode(
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param factory A function which will create a new instance of [T]. This function is NOT
- * guaranteed to be called in place.
+ *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
- * executed. This function is called in place and will be inlined.
- * @param skippableUpdate A function to perform updates on the node. Unlike [update], this
- * function is Composable and will therefore be skipped unless it has been invalidated by some
- * other mechanism. This can be useful to perform expensive calculations for updating the node
- * where the calculations are likely to have the same inputs over time, so the function's
- * execution can be skipped.
+ *   executed. This function is called in place and will be inlined.
+ * @param skippableUpdate A function to perform updates on the node. Unlike [update], this function
+ *   is Composable and will therefore be skipped unless it has been invalidated by some other
+ *   mechanism. This can be useful to perform expensive calculations for updating the node where the
+ *   calculations are likely to have the same inputs over time, so the function's execution can be
+ *   skipped.
  * @param content the composable content that will emit the "children" of this node.
- *
  * @see Updater
  * @see SkippableUpdater
  * @see Applier
  * @see Composition
  */
-@Composable @ExplicitGroupsComposable
+@Composable
+@ExplicitGroupsComposable
 inline fun <T, reified E : Applier<*>> ComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
@@ -435,22 +419,22 @@ inline fun <T, reified E : Applier<*>> ComposeNode(
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
  *
  * @param factory A function which will create a new instance of [T]. This function is NOT
- * guaranteed to be called in place.
+ *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
- * executed. This function is called in place and will be inlined.
- * @param skippableUpdate A function to perform updates on the node. Unlike [update], this
- * function is Composable and will therefore be skipped unless it has been invalidated by some
- * other mechanism. This can be useful to perform expensive calculations for updating the node
- * where the calculations are likely to have the same inputs over time, so the function's
- * execution can be skipped.
+ *   executed. This function is called in place and will be inlined.
+ * @param skippableUpdate A function to perform updates on the node. Unlike [update], this function
+ *   is Composable and will therefore be skipped unless it has been invalidated by some other
+ *   mechanism. This can be useful to perform expensive calculations for updating the node where the
+ *   calculations are likely to have the same inputs over time, so the function's execution can be
+ *   skipped.
  * @param content the composable content that will emit the "children" of this node.
- *
  * @see Updater
  * @see SkippableUpdater
  * @see Applier
  * @see Composition
  */
-@Composable @ExplicitGroupsComposable
+@Composable
+@ExplicitGroupsComposable
 inline fun <T, reified E : Applier<*>> ReusableComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
@@ -472,8 +456,7 @@ inline fun <T, reified E : Applier<*>> ReusableComposeNode(
     currentComposer.endNode()
 }
 
-@PublishedApi
-internal fun invalidApplier(): Unit = error("Invalid applier")
+@PublishedApi internal fun invalidApplier(): Unit = error("Invalid applier")
 
 /**
  * An Effect to construct a [CompositionContext] at the current point of composition. This can be
@@ -482,6 +465,7 @@ internal fun invalidApplier(): Unit = error("Invalid applier")
  * context is invalidated.
  */
 @OptIn(InternalComposeApi::class)
-@Composable fun rememberCompositionContext(): CompositionContext {
+@Composable
+fun rememberCompositionContext(): CompositionContext {
     return currentComposer.buildContext()
 }

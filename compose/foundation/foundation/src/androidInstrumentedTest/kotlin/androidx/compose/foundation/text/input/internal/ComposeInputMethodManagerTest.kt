@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComposeInputMethodManagerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun restartInput_startsNewInputConnection() {
@@ -42,15 +41,18 @@ class ComposeInputMethodManagerTest {
         var imm: ComposeInputMethodManager? = null
         var view: View? = null
         rule.setContent {
-            AndroidView(factory = { context ->
-                TestView(context) { editorInfo ->
-                    calledCreateInputConnection = editorInfo
-                    null
-                }.also {
-                    view = it
-                    imm = ComposeInputMethodManager(it)
+            AndroidView(
+                factory = { context ->
+                    TestView(context) { editorInfo ->
+                            calledCreateInputConnection = editorInfo
+                            null
+                        }
+                        .also {
+                            view = it
+                            imm = ComposeInputMethodManager(it)
+                        }
                 }
-            })
+            )
         }
 
         rule.runOnUiThread {
@@ -58,9 +60,7 @@ class ComposeInputMethodManagerTest {
             imm?.restartInput()
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(calledCreateInputConnection).isNotNull()
-        }
+        rule.runOnIdle { Truth.assertThat(calledCreateInputConnection).isNotNull() }
     }
 
     @Test
@@ -69,15 +69,18 @@ class ComposeInputMethodManagerTest {
         var imm: ComposeInputMethodManager? = null
         var view: View? = null
         rule.setContent {
-            AndroidView(factory = { context ->
-                TestView(context) {
-                    createInputConnectionCalled++
-                    null
-                }.also {
-                    view = it
-                    imm = ComposeInputMethodManager(it)
+            AndroidView(
+                factory = { context ->
+                    TestView(context) {
+                            createInputConnectionCalled++
+                            null
+                        }
+                        .also {
+                            view = it
+                            imm = ComposeInputMethodManager(it)
+                        }
                 }
-            })
+            )
         }
 
         rule.runOnUiThread {
@@ -85,9 +88,7 @@ class ComposeInputMethodManagerTest {
             imm?.restartInput()
         }
 
-        rule.waitUntil {
-            createInputConnectionCalled >= 1
-        }
+        rule.waitUntil { createInputConnectionCalled >= 1 }
         rule.runOnIdle {
             // when first time we start input, checkFocus in platform code causes
             // onCreateInputConnection to be called twice. However, this is not guaranteed.
@@ -95,9 +96,7 @@ class ComposeInputMethodManagerTest {
         }
 
         val previousCreateInputConnectionCalled = createInputConnectionCalled
-        rule.runOnUiThread {
-            imm?.restartInput()
-        }
+        rule.runOnUiThread { imm?.restartInput() }
 
         rule.runOnIdle {
             Truth.assertThat(createInputConnectionCalled)

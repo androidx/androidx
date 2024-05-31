@@ -33,35 +33,27 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DesktopFontTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val fontLoader = SkiaFontLoader()
 
     private val fontListFontFamily by lazy {
         FontFamily(
-            Font(
-                "font/sample_font.ttf"
-            ),
-            Font(
-                "font/test_400_italic.ttf",
-                style = FontStyle.Italic
-            )
+            Font("font/sample_font.ttf"),
+            Font("font/test_400_italic.ttf", style = FontStyle.Italic)
         )
     }
 
     private val loadedTypeface by lazy {
-        val bytes = Thread
-            .currentThread()
-            .contextClassLoader
-            .getResourceAsStream("font/sample_font.ttf")!!
-            .readAllBytes()
+        val bytes =
+            Thread.currentThread()
+                .contextClassLoader
+                .getResourceAsStream("font/sample_font.ttf")!!
+                .readAllBytes()
         Typeface.makeFromData(Data.makeFromBytes(bytes))
     }
 
-    private val loadedFontFamily by lazy {
-        FontFamily(Typeface(loadedTypeface))
-    }
+    private val loadedFontFamily by lazy { FontFamily(Typeface(loadedTypeface)) }
 
     @Test
     fun ensureRegistered() {

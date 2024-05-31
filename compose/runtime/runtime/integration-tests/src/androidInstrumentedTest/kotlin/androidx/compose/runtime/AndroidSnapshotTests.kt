@@ -26,37 +26,34 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AndroidSnapshotTests : BaseComposeTest() {
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @Test // regression test for b/163903673
     fun testCommittingInABackgroundThread() {
         val states = Array(10000) { mutableStateOf(0) }
         var stop = false
         object : Thread() {
-            override fun run() {
-                while (!stop) {
-                    for (state in states) {
-                        state.value = state.value + 1
+                override fun run() {
+                    while (!stop) {
+                        for (state in states) {
+                            state.value = state.value + 1
+                        }
+                        sleep(1)
                     }
-                    sleep(1)
                 }
             }
-        }.start()
+            .start()
         try {
-            val unregister = Snapshot.registerApplyObserver { changed, _ ->
-                // Try to catch a concurrent modification exception
-                val iterator = changed.iterator()
-                while (iterator.hasNext()) {
-                    iterator.next()
-                }
-            }
-            try {
-                repeat(100) {
-                    activityRule.activity.uiThread {
-                        Snapshot.sendApplyNotifications()
+            val unregister =
+                Snapshot.registerApplyObserver { changed, _ ->
+                    // Try to catch a concurrent modification exception
+                    val iterator = changed.iterator()
+                    while (iterator.hasNext()) {
+                        iterator.next()
                     }
                 }
+            try {
+                repeat(100) { activityRule.activity.uiThread { Snapshot.sendApplyNotifications() } }
             } finally {
                 unregister.dispose()
             }

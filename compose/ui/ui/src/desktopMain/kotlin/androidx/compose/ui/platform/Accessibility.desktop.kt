@@ -44,11 +44,9 @@ internal class AccessibilityControllerImpl(
             return _currentNodes
         }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun fireNewNodeEvent(accessible: ComposeAccessible) {}
+    @Suppress("UNUSED_PARAMETER") fun fireNewNodeEvent(accessible: ComposeAccessible) {}
 
-    @Suppress("UNUSED_PARAMETER")
-    fun fireRemovedNodeEvent(accessible: ComposeAccessible) {}
+    @Suppress("UNUSED_PARAMETER") fun fireRemovedNodeEvent(accessible: ComposeAccessible) {}
 
     fun fireChangedNodeEvent(
         component: ComposeAccessible,
@@ -62,31 +60,36 @@ internal class AccessibilityControllerImpl(
                     SemanticsProperties.Text -> {
                         component.accessibleContext.firePropertyChange(
                             ACCESSIBLE_TEXT_PROPERTY,
-                            prev, entry.value
+                            prev,
+                            entry.value
                         )
                     }
                     SemanticsProperties.EditableText -> {
                         component.accessibleContext.firePropertyChange(
                             ACCESSIBLE_TEXT_PROPERTY,
-                            prev, entry.value
+                            prev,
+                            entry.value
                         )
                     }
                     SemanticsProperties.TextSelectionRange -> {
                         component.accessibleContext.firePropertyChange(
                             ACCESSIBLE_CARET_PROPERTY,
-                            prev, (entry.value as TextRange).start
+                            prev,
+                            (entry.value as TextRange).start
                         )
                     }
                     SemanticsProperties.Focused ->
                         if (entry.value as Boolean) {
                             component.accessibleContext.firePropertyChange(
                                 ACCESSIBLE_STATE_PROPERTY,
-                                null, AccessibleState.FOCUSED
+                                null,
+                                AccessibleState.FOCUSED
                             )
                         } else {
                             component.accessibleContext.firePropertyChange(
                                 ACCESSIBLE_STATE_PROPERTY,
-                                AccessibleState.FOCUSED, null
+                                AccessibleState.FOCUSED,
+                                null
                             )
                         }
                     SemanticsProperties.ToggleableState -> {
@@ -94,12 +97,15 @@ internal class AccessibilityControllerImpl(
                             ToggleableState.On ->
                                 component.accessibleContext.firePropertyChange(
                                     ACCESSIBLE_STATE_PROPERTY,
-                                    null, AccessibleState.CHECKED
+                                    null,
+                                    AccessibleState.CHECKED
                                 )
-                            ToggleableState.Off, ToggleableState.Indeterminate ->
+                            ToggleableState.Off,
+                            ToggleableState.Indeterminate ->
                                 component.accessibleContext.firePropertyChange(
                                     ACCESSIBLE_STATE_PROPERTY,
-                                    AccessibleState.CHECKED, null
+                                    AccessibleState.CHECKED,
+                                    null
                                 )
                         }
                     }
@@ -116,10 +122,7 @@ internal class AccessibilityControllerImpl(
             get() = System.currentTimeMillis() - lastAccessTimeMillis < maxIdleTimeMillis
     }
 
-    /**
-     * When called wakes up the sync loop, which may be stopped after
-     * some period of inactivity
-     */
+    /** When called wakes up the sync loop, which may be stopped after some period of inactivity */
     fun notifyIsInUse() {
         SyncLoopState.lastAccessTimeMillis = System.currentTimeMillis()
     }
@@ -141,14 +144,13 @@ internal class AccessibilityControllerImpl(
         val previous = _currentNodes
         val nodes = mutableMapOf<Int, ComposeAccessible>()
         fun findAllSemanticNodesRecursive(currentNode: SemanticsNode) {
-            nodes[currentNode.id] = previous[currentNode.id]?.let {
-                val prevSemanticsNode = it.semanticsNode
-                it.semanticsNode = currentNode
-                fireChangedNodeEvent(it, prevSemanticsNode, currentNode)
-                it
-            } ?: ComposeAccessible(currentNode, this).also {
-                fireNewNodeEvent(it)
-            }
+            nodes[currentNode.id] =
+                previous[currentNode.id]?.let {
+                    val prevSemanticsNode = it.semanticsNode
+                    it.semanticsNode = currentNode
+                    fireChangedNodeEvent(it, prevSemanticsNode, currentNode)
+                    it
+                } ?: ComposeAccessible(currentNode, this).also { fireNewNodeEvent(it) }
 
             // TODO fake nodes?
             // TODO find only visible nodes?
@@ -186,15 +188,14 @@ internal class AccessibilityControllerImpl(
 
 internal fun Accessible.print(level: Int = 0) {
     val context = accessibleContext
-    val id = if (this is ComposeAccessible) {
-        this.semanticsNode.id.toString()
-    } else {
-        "unknown"
-    }
-    val str = buildString {
-        (1..level).forEach {
-            append('\t')
+    val id =
+        if (this is ComposeAccessible) {
+            this.semanticsNode.id.toString()
+        } else {
+            "unknown"
         }
+    val str = buildString {
+        (1..level).forEach { append('\t') }
         append(
             "ID: $id Name: ${context.accessibleName} " +
                 "Description: ${context.accessibleDescription} " +

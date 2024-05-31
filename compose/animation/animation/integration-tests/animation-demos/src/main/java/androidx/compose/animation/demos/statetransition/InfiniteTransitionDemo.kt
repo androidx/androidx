@@ -64,31 +64,29 @@ fun InfiniteTransitionDemo() {
 fun InfinitePulsingHeart() {
     val infiniteTransition = rememberInfiniteTransition()
 
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 3f,
-        targetValue = 6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Restart
+    val scale by
+        infiniteTransition.animateFloat(
+            initialValue = 3f,
+            targetValue = 6f,
+            animationSpec =
+                infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Restart)
         )
-    )
 
-    val color by infiniteTransition.animateColor(
-        initialValue = Color.Red,
-        targetValue = Color(0xff800000), // Dark Red
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
+    val color by
+        infiniteTransition.animateColor(
+            initialValue = Color.Red,
+            targetValue = Color(0xff800000), // Dark Red
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(1000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                )
         )
-    )
 
     Icon(
         Icons.Filled.Favorite,
         null,
-        Modifier.graphicsLayer(
-            scaleX = scale,
-            scaleY = scale
-        ),
+        Modifier.graphicsLayer(scaleX = scale, scaleY = scale),
         tint = color
     )
 }
@@ -105,15 +103,19 @@ fun InfiniteProgress() {
 
 @Composable
 fun InfiniteTransition.PulsingDot(startOffset: StartOffset) {
-    val scale by animateFloat(
-        0.2f,
-        1f,
-        infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset)
-    )
+    val scale by
+        animateFloat(
+            0.2f,
+            1f,
+            infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset)
+        )
     Box(
-        Modifier.padding(5.dp).size(20.dp).graphicsLayer {
-            scaleX = scale
-            scaleY = scale
-        }.background(Color.Gray, shape = CircleShape)
+        Modifier.padding(5.dp)
+            .size(20.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .background(Color.Gray, shape = CircleShape)
     )
 }

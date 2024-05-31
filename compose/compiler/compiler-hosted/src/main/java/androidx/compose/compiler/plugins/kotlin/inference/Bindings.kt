@@ -30,8 +30,8 @@ private var valueIndex = 0
 
 /**
  * A binding that is either closed (with a non-null [token]) or open. Unified bindings are linked
- * together in a circular list by [Bindings]. All linked bindings are all closed simultaneously
- * when anyone of them is unified to a closed binding.
+ * together in a circular list by [Bindings]. All linked bindings are all closed simultaneously when
+ * anyone of them is unified to a closed binding.
  *
  * @param token the applier token the binding is bound to if it is closed.
  */
@@ -39,18 +39,19 @@ class Binding(token: String? = null, observers: Set<Bindings>) {
     /**
      * The token that is bound to this binding. If [token] is null then the binding is still open.
      */
-    val token: String? get() = value.token
+    val token: String?
+        get() = value.token
 
     /**
-     * The value of the binding. All linked bindings share the same value which also maintains
-     * the count of linked bindings.
+     * The value of the binding. All linked bindings share the same value which also maintains the
+     * count of linked bindings.
      */
     var value: Value = Value(token, observers)
 
     /**
      * The linked list next pointer. The list is circular an always non-empty as a binding will
-     * always at least contain itself in its own list. All linked [Binding] are in the same
-     * circular list. Open bindings that are unified together are linked.
+     * always at least contain itself in its own list. All linked [Binding] are in the same circular
+     * list. Open bindings that are unified together are linked.
      */
     var next = this
 
@@ -64,38 +65,30 @@ class Binding(token: String? = null, observers: Set<Bindings>) {
  * either bound to an applier token or it is open. All open bindings of the same value are linked
  * together in a circular list. When variables from different groups are unified, their lists are
  * merged and they are all given the lower of the two group's value. Bindings of different values
- * with the same token are considered unified but there is no need to link them as neither will
- * ever change.
+ * with the same token are considered unified but there is no need to link them as neither will ever
+ * change.
  */
 class Bindings {
     private val listeners = mutableListOf<() -> Unit>()
 
-    /**
-     * Create a fresh open applier binding variable
-     */
+    /** Create a fresh open applier binding variable */
     fun open() = Binding(observers = setOf(this))
 
-    /**
-     * Create a closed applier binding variable
-     */
+    /** Create a closed applier binding variable */
     fun closed(target: String) = Binding(token = target, emptySet())
 
-    /**
-     * Listen for when a unification closed a binding or bound two binding groups together.
-     */
+    /** Listen for when a unification closed a binding or bound two binding groups together. */
     fun onChange(callback: () -> Unit): () -> Unit {
         listeners.add(callback)
-        return {
-            listeners.remove(callback)
-        }
+        return { listeners.remove(callback) }
     }
 
     /**
      * Unify a and b; returns true if the unification succeeded. If both a and b are unbound they
-     * will be bound together and will simultaneously be bound if either is later bound. If only
-     * one is bound the other will be bound to the bound token. If a and b are bound already,
-     * unify() returns true if they are bound to the same token or false if they are not. Binding
-     * two open bindings that are already bound together is a noop and succeeds.
+     * will be bound together and will simultaneously be bound if either is later bound. If only one
+     * is bound the other will be bound to the bound token. If a and b are bound already, unify()
+     * returns true if they are bound to the same token or false if they are not. Binding two open
+     * bindings that are already bound together is a noop and succeeds.
      *
      * @param a an applier binding variable
      * @param b an applier binding variable
@@ -175,8 +168,7 @@ class Bindings {
     private fun changed() {
         if (listeners.isNotEmpty()) {
             // Enumerate a copy of the list to allow listeners to delete themselves from the list.
-            for (listener in listeners.toMutableList())
-                listener()
+            for (listener in listeners.toMutableList()) listener()
         }
     }
 }

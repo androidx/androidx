@@ -18,13 +18,10 @@ package androidx.compose.runtime
 
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
-    message = "This is internal API for Compose modules that may change frequently " +
-        "and without warning."
+    message =
+        "This is internal API for Compose modules that may change frequently " +
+            "and without warning."
 )
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY
-)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)
 annotation class InternalComposeApi

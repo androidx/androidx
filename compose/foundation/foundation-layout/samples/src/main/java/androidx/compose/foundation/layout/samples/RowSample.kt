@@ -41,11 +41,7 @@ fun SimpleRow() {
         Box(Modifier.height(40.dp).weight(1f).background(Color.Yellow))
         // Has weight and does not fill, the child will occupy at most half of the remaining width.
         // Therefore it will occupy 80.dp (its preferred width) if the assigned width is larger.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .weight(1f, fill = false)
-                .background(Color.Green)
-        )
+        Box(Modifier.size(80.dp, 40.dp).weight(1f, fill = false).background(Color.Green))
     }
 }
 
@@ -58,25 +54,13 @@ fun SimpleAlignInRow() {
         Box(Modifier.size(80.dp, 40.dp).background(Color.Magenta))
         // Gravity.Top, the child will be positioned so that its top edge is aligned to the top
         // of the vertical axis.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .align(Alignment.Top)
-                .background(Color.Red)
-        )
+        Box(Modifier.size(80.dp, 40.dp).align(Alignment.Top).background(Color.Red))
         // Gravity.Center, the child will be positioned so that its center is in the middle of
         // the vertical axis.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .align(Alignment.CenterVertically)
-                .background(Color.Yellow)
-        )
+        Box(Modifier.size(80.dp, 40.dp).align(Alignment.CenterVertically).background(Color.Yellow))
         // Gravity.Bottom, the child will be positioned so that its bottom edge is aligned to the
         // bottom of the vertical axis.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .align(Alignment.Bottom)
-                .background(Color.Green)
-        )
+        Box(Modifier.size(80.dp, 40.dp).align(Alignment.Bottom).background(Color.Green))
     }
 }
 
@@ -92,18 +76,16 @@ fun SimpleAlignByInRow() {
         // If no other sibling had alignBy() or alignByBaseline(), the modifier would have no
         // effect.
         Box(
-            modifier = Modifier.size(80.dp, 40.dp)
-                .alignBy { it.measuredHeight / 2 }
-                .background(Color.Magenta)
+            modifier =
+                Modifier.size(80.dp, 40.dp)
+                    .alignBy { it.measuredHeight / 2 }
+                    .background(Color.Magenta)
         )
         Text(
             text = "Text 1",
             fontSize = 40.sp,
             modifier = Modifier.alignByBaseline().background(color = Color.Red)
         )
-        Text(
-            text = "Text 2",
-            modifier = Modifier.alignByBaseline().background(color = Color.Cyan)
-        )
+        Text(text = "Text 2", modifier = Modifier.alignByBaseline().background(color = Color.Cyan))
     }
 }

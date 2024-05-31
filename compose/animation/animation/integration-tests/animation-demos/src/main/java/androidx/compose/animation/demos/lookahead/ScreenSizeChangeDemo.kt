@@ -72,10 +72,8 @@ fun ScreenSizeChangeDemo() {
     // A surface container using the 'background' color from the theme
     var state by remember { mutableStateOf(DisplayState.Tablet) }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .clickable(
+        modifier =
+            Modifier.fillMaxSize().background(Color.Black).clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
@@ -109,10 +107,7 @@ fun SceneScope.Details(modifier: Modifier) {
     Surface(shape = RoundedCornerShape(5.dp), modifier = modifier, color = Color(0xfff7f2fa)) {
         Column {
             Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .padding(10.dp),
+                Modifier.fillMaxWidth().height(80.dp).padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
@@ -122,18 +117,18 @@ fun SceneScope.Details(modifier: Modifier) {
                 Spacer(Modifier.weight(1f))
                 Icon(
                     Icons.Default.Delete,
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .background(Color.White, RoundedCornerShape(3.dp))
-                        .padding(6.dp),
+                    modifier =
+                        Modifier.padding(2.dp)
+                            .background(Color.White, RoundedCornerShape(3.dp))
+                            .padding(6.dp),
                     contentDescription = null
                 )
                 Icon(
                     Icons.Default.Menu,
-                    modifier = Modifier
-                        .padding(2.dp)
-                        .background(Color.White, RoundedCornerShape(3.dp))
-                        .padding(6.dp),
+                    modifier =
+                        Modifier.padding(2.dp)
+                            .background(Color.White, RoundedCornerShape(3.dp))
+                            .padding(6.dp),
                     contentDescription = null
                 )
             }
@@ -148,11 +143,9 @@ fun SceneScope.Details(modifier: Modifier) {
 fun Root(state: DisplayState) {
     SceneHost {
         Row(
-            Modifier
-                .animateBounds(
+            Modifier.animateBounds(
                     if (state == DisplayState.Compact) {
-                        Modifier
-                            .wrapContentSize(align = Alignment.TopStart, unbounded = true)
+                        Modifier.wrapContentSize(align = Alignment.TopStart, unbounded = true)
                             .requiredWidth(800.dp)
                             .fillMaxHeight()
                     } else {
@@ -183,59 +176,55 @@ data class MessageData(
     val addressing: String
 )
 
-val MessageList = listOf<MessageData>(
-    MessageData(
-        "老强",
-        "10 mins ago",
-        "豆花鱼",
-        "最近忙吗？昨晚我去了你最爱的那家饭馆，点了他们特色的豆花鱼，吃着吃着就想你了。有空咱们视频？",
-        ""
-    ),
-    MessageData(
-        "So Duri",
-        "20 mins ago",
-        "Dinner Club",
-        "I think it's time for us to finally try that new noodle shop downtown that doesn't use" +
-            " menus. Anyone else have other suggestions for dinner club this week? I'm so" +
-            "intrigued by this idea of a noodle restaurant where no one gets to order for" +
-            "themselves - could be fun, or terrible, or both: :) \n\n" +
-            "So ",
-        "To me, Ziad and Lily"
-    ),
-    MessageData(
-        "Lily",
-        "2 hours ago",
-        "This food show is made for you",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
-            " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
-            " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo" +
-            " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse" +
-            " cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non" +
-            " proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        ""
-    ),
-    MessageData(
-        "Me",
-        "4 mins ago",
-        "",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
-            " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
-            " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo" +
-            " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse" +
-            " cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non" +
-            " proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        "To me, Ziad and Lily"
+val MessageList =
+    listOf<MessageData>(
+        MessageData(
+            "老强",
+            "10 mins ago",
+            "豆花鱼",
+            "最近忙吗？昨晚我去了你最爱的那家饭馆，点了他们特色的豆花鱼，吃着吃着就想你了。有空咱们视频？",
+            ""
+        ),
+        MessageData(
+            "So Duri",
+            "20 mins ago",
+            "Dinner Club",
+            "I think it's time for us to finally try that new noodle shop downtown that doesn't use" +
+                " menus. Anyone else have other suggestions for dinner club this week? I'm so" +
+                "intrigued by this idea of a noodle restaurant where no one gets to order for" +
+                "themselves - could be fun, or terrible, or both: :) \n\n" +
+                "So ",
+            "To me, Ziad and Lily"
+        ),
+        MessageData(
+            "Lily",
+            "2 hours ago",
+            "This food show is made for you",
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
+                " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
+                " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo" +
+                " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse" +
+                " cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non" +
+                " proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            ""
+        ),
+        MessageData(
+            "Me",
+            "4 mins ago",
+            "",
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" +
+                " incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
+                " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo" +
+                " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse" +
+                " cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non" +
+                " proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            "To me, Ziad and Lily"
+        )
     )
-)
 
 @Composable
 fun SearchBar() {
-    Surface(
-        shape = RoundedCornerShape(40),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-    ) {
+    Surface(shape = RoundedCornerShape(40), modifier = Modifier.fillMaxWidth().height(50.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Default.Search,
@@ -245,10 +234,7 @@ fun SearchBar() {
             )
             Text("Search", color = Color.LightGray, modifier = Modifier.weight(1f))
             Box(
-                Modifier
-                    .padding(end = 10.dp)
-                    .size(35.dp)
-                    .background(Color(0xffecddff), CircleShape)
+                Modifier.padding(end = 10.dp).size(35.dp).background(Color(0xffecddff), CircleShape)
             )
         }
     }
@@ -256,18 +242,8 @@ fun SearchBar() {
 
 @Composable
 fun Header(data: MessageData) {
-    Row(
-        Modifier
-            .height(60.dp)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            Modifier
-                .padding(10.dp)
-                .size(35.dp)
-                .background(Color(0xffffddee), CircleShape)
-        )
+    Row(Modifier.height(60.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.padding(10.dp).size(35.dp).background(Color(0xffffddee), CircleShape))
         Column(Modifier.weight(1f)) {
             Text(data.name, color = Color.Gray, fontWeight = FontWeight.Black, fontSize = 10.sp)
             Text(data.time, color = Color.Gray, fontWeight = FontWeight.Black, fontSize = 10.sp)
@@ -275,9 +251,7 @@ fun Header(data: MessageData) {
         Icon(
             Icons.Outlined.Star,
             contentDescription = null,
-            Modifier
-                .background(Color.White, CircleShape)
-                .padding(10.dp)
+            Modifier.background(Color.White, CircleShape).padding(10.dp)
         )
     }
 }
@@ -291,19 +265,13 @@ fun SceneScope.Card(cardData: MessageData, selected: Boolean = false) {
     ) {
         Column(Modifier.padding(10.dp)) {
             Header(data = cardData)
-            Text(
-                cardData.subject,
-                fontSize = 19.sp,
-                modifier = Modifier.padding(start = 10.dp)
-            )
+            Text(cardData.subject, fontSize = 19.sp, modifier = Modifier.padding(start = 10.dp))
             Spacer(Modifier.size(10.dp))
             Text(
                 cardData.content,
                 fontSize = 13.sp,
                 color = Color.Gray,
-                modifier = Modifier
-                    .padding(start = 10.dp)
-                    .animateSizeAndSkipToFinalLayout()
+                modifier = Modifier.padding(start = 10.dp).animateSizeAndSkipToFinalLayout()
             )
         }
     }
@@ -312,8 +280,7 @@ fun SceneScope.Card(cardData: MessageData, selected: Boolean = false) {
 @Composable
 fun SceneScope.Message(messageData: MessageData) {
     Column(
-        Modifier
-            .padding(5.dp)
+        Modifier.padding(5.dp)
             .background(Color(0xfffffbfe), RoundedCornerShape(5.dp))
             .padding(10.dp)
     ) {
@@ -329,28 +296,26 @@ fun SceneScope.Message(messageData: MessageData) {
             messageData.content,
             fontSize = 13.sp,
             color = Color.Gray,
-            modifier = Modifier
-                .padding(start = 10.dp)
-                .animateSizeAndSkipToFinalLayout()
+            modifier = Modifier.padding(start = 10.dp).animateSizeAndSkipToFinalLayout()
         )
         Spacer(Modifier.size(10.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(5.dp)
-                    .height(40.dp)
-                    .background(Color(0xfff2ecf6), RoundedCornerShape(50)),
+                modifier =
+                    Modifier.weight(1f)
+                        .padding(5.dp)
+                        .height(40.dp)
+                        .background(Color(0xfff2ecf6), RoundedCornerShape(50)),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Reply")
             }
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(5.dp)
-                    .height(40.dp)
-                    .background(Color(0xfff2ecf6), RoundedCornerShape(50)),
+                modifier =
+                    Modifier.weight(1f)
+                        .padding(5.dp)
+                        .height(40.dp)
+                        .background(Color(0xfff2ecf6), RoundedCornerShape(50)),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Reply All")
@@ -363,20 +328,15 @@ fun SceneScope.Message(messageData: MessageData) {
 @Composable
 fun SceneScope.NavRail(state: DisplayState) {
     Column(
-        Modifier
-            .animateBounds(
-                if (state == DisplayState.Tablet)
-                    Modifier.width(200.dp)
-                else
-                    Modifier.width(IntrinsicSize.Min)
+        Modifier.animateBounds(
+                if (state == DisplayState.Tablet) Modifier.width(200.dp)
+                else Modifier.width(IntrinsicSize.Min)
             )
             .padding(top = 20.dp, end = 5.dp)
     ) {
         Row(
-            Modifier
-                .fillMaxWidth()
-                .animateSizeAndSkipToFinalLayout()
-                .padding(5.dp), horizontalArrangement = Arrangement.SpaceBetween
+            Modifier.fillMaxWidth().animateSizeAndSkipToFinalLayout().padding(5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (state == DisplayState.Tablet) {
                 Text("REPLY", color = Color(0xffa493c5), fontSize = 15.sp, letterSpacing = 0.12.em)
@@ -385,15 +345,12 @@ fun SceneScope.NavRail(state: DisplayState) {
                 imageVector = Icons.Outlined.Menu,
                 contentDescription = null,
                 tint = Color.Gray,
-                modifier = Modifier
-                    .width(40.dp)
-                    .sharedElement()
+                modifier = Modifier.width(40.dp).sharedElement()
             )
         }
         Spacer(modifier = Modifier.size(10.dp))
         Row(
-            Modifier
-                .height(50.dp)
+            Modifier.height(50.dp)
                 .fillMaxWidth()
                 .background(Color(0xffffddee), RoundedCornerShape(8.dp))
                 .padding(5.dp),
@@ -408,8 +365,7 @@ fun SceneScope.NavRail(state: DisplayState) {
             if (state == DisplayState.Tablet) {
                 Text(
                     "Compose",
-                    Modifier
-                        .padding(start = 30.dp)
+                    Modifier.padding(start = 30.dp)
                         .clipToBounds()
                         .wrapContentWidth(align = Alignment.CenterHorizontally, unbounded = true),
                     color = Color.Gray,
@@ -428,22 +384,22 @@ fun SceneScope.NavRail(state: DisplayState) {
 @Composable
 fun Item(state: DisplayState, icon: ImageVector, text: String, color: Color = Color.Transparent) {
     Row(
-        Modifier
-            .height(50.dp)
+        Modifier.height(50.dp)
             .fillMaxWidth()
             .background(color, RoundedCornerShape(50))
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon, contentDescription = null, tint = Color.Gray,
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color.Gray,
             modifier = Modifier.width(40.dp)
         )
         if (state == DisplayState.Tablet) {
             Text(
                 text,
-                Modifier
-                    .weight(1f)
+                Modifier.weight(1f)
                     .clipToBounds()
                     .wrapContentWidth(align = Alignment.Start, unbounded = true)
                     .padding(start = 15.dp),

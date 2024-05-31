@@ -55,25 +55,25 @@ import kotlin.math.roundToInt
  * The recommended configuration of the [ExpressiveNavigationBar] depends on the width size of the
  * screen it's being displayed at:
  * - In small screens, the [ExpressiveNavigationBar] should contain three to five
- * [ExpressiveNavigationBarItem]s, each representing a singular destination, and its [arrangement]
- * should be [NavigationBarArrangement.EqualWeight], so that the navigation items are equally
- * distributed on the bar.
+ *   [ExpressiveNavigationBarItem]s, each representing a singular destination, and its [arrangement]
+ *   should be [NavigationBarArrangement.EqualWeight], so that the navigation items are equally
+ *   distributed on the bar.
  * - In medium screens, [ExpressiveNavigationBar] should contain three to six
- * [ExpressiveNavigationBarItem]s, each representing a singular destination, and its [arrangement]
- * should be [NavigationBarArrangement.Centered], so that the navigation items are distributed
- * grouped on the center of the bar.
+ *   [ExpressiveNavigationBarItem]s, each representing a singular destination, and its [arrangement]
+ *   should be [NavigationBarArrangement.Centered], so that the navigation items are distributed
+ *   grouped on the center of the bar.
  *
  * See [ExpressiveNavigationBarItem] for configuration specific to each item, and not the overall
  * [ExpressiveNavigationBar] component.
  *
  * @param modifier the [Modifier] to be applied to this expressive navigation bar
  * @param containerColor the color used for the background of this expressive navigation bar. Use
- * [Color.Transparent] to have no color
+ *   [Color.Transparent] to have no color
  * @param contentColor the color for content inside this expressive navigation bar.
  * @param windowInsets a window insets of the expressive navigation bar
  * @param arrangement the [NavigationBarArrangement] of this expressive navigation bar
  * @param content the content of this expressive navigation bar, typically
- * [ExpressiveNavigationBarItem]s
+ *   [ExpressiveNavigationBarItem]s
  *
  * TODO: Remove "internal".
  */
@@ -92,16 +92,24 @@ internal fun ExpressiveNavigationBar(
         contentColor = contentColor,
     ) {
         Layout(
-            modifier = modifier
-                .windowInsetsPadding(windowInsets)
-                .defaultMinSize(minHeight = NavigationBarHeight)
-                .selectableGroup(),
+            modifier =
+                modifier
+                    .windowInsetsPadding(windowInsets)
+                    .defaultMinSize(minHeight = NavigationBarHeight)
+                    .selectableGroup(),
             content = content,
-            measurePolicy = when (arrangement) {
-                NavigationBarArrangement.EqualWeight -> { EqualWeightContentMeasurePolicy() }
-                NavigationBarArrangement.Centered -> { CenteredContentMeasurePolicy() }
-                else -> { throw IllegalArgumentException("Invalid ItemsArrangement value.") }
-            }
+            measurePolicy =
+                when (arrangement) {
+                    NavigationBarArrangement.EqualWeight -> {
+                        EqualWeightContentMeasurePolicy()
+                    }
+                    NavigationBarArrangement.Centered -> {
+                        CenteredContentMeasurePolicy()
+                    }
+                    else -> {
+                        throw IllegalArgumentException("Invalid ItemsArrangement value.")
+                    }
+                }
         )
     }
 }
@@ -118,7 +126,7 @@ internal value class NavigationBarArrangement private constructor(private val va
          * The items are equally distributed on the Expressive Navigation Bar.
          *
          * This configuration is recommended for small width screens.
-        */
+         */
         val EqualWeight = NavigationBarArrangement(0)
 
         /*
@@ -129,11 +137,12 @@ internal value class NavigationBarArrangement private constructor(private val va
         val Centered = NavigationBarArrangement(1)
     }
 
-    override fun toString() = when (this) {
-        EqualWeight -> "EqualWeight"
-        Centered -> "Centered"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            EqualWeight -> "EqualWeight"
+            Centered -> "Centered"
+            else -> "Unknown"
+        }
 }
 
 /**
@@ -148,28 +157,28 @@ internal value class NavigationBarArrangement private constructor(private val va
  * The [ExpressiveNavigationBarItem] supports two different icon positions, top and start, which is
  * controlled by the [iconPosition] param:
  * - If the icon position is [NavigationItemIconPosition.Top] the icon will be displayed above the
- * label. This configuration is recommended for expressive navigation bars used in small width
- * screens, like a phone in portrait mode.
+ *   label. This configuration is recommended for expressive navigation bars used in small width
+ *   screens, like a phone in portrait mode.
  * - If the icon position is [NavigationItemIconPosition.Start] the icon will be displayed to the
- * start of the label. This configuration is recommended for expressive navigation bars used in
- * medium width screens, like a phone in landscape mode.
+ *   start of the label. This configuration is recommended for expressive navigation bars used in
+ *   medium width screens, like a phone in landscape mode.
  *
  * @param selected whether this item is selected
  * @param onClick called when this item is clicked
  * @param icon icon for this item, typically an [Icon]
  * @param modifier the [Modifier] to be applied to this item
  * @param enabled controls the enabled state of this item. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
  * @param label text label for this item
  * @param badge optional badge to show on this item, typically a [Badge]
  * @param iconPosition the [NavigationItemIconPosition] for the icon
- * @param colors [NavigationItemColors] that will be used to resolve the colors used for this
- * item in different states. See [ExpressiveNavigationBarItemDefaults.colors]
+ * @param colors [NavigationItemColors] that will be used to resolve the colors used for this item
+ *   in different states. See [ExpressiveNavigationBarItemDefaults.colors]
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this item. You can use this to change the item's appearance
- * or preview the item in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this item. You can use this to change the item's appearance or
+ *   preview the item in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  *
  * TODO: Remove "internal".
  */
@@ -191,16 +200,18 @@ internal fun ExpressiveNavigationBarItem(
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     val isIconPositionTop = iconPosition == NavigationItemIconPosition.Top
-    val indicatorHorizontalPadding = if (isIconPositionTop) {
-        TopIconIndicatorHorizontalPadding
-    } else {
-        StartIconIndicatorHorizontalPadding
-    }
-    val indicatorVerticalPadding = if (isIconPositionTop) {
-        TopIconIndicatorVerticalPadding
-    } else {
-        StartIconIndicatorVerticalPadding
-    }
+    val indicatorHorizontalPadding =
+        if (isIconPositionTop) {
+            TopIconIndicatorHorizontalPadding
+        } else {
+            StartIconIndicatorHorizontalPadding
+        }
+    val indicatorVerticalPadding =
+        if (isIconPositionTop) {
+            TopIconIndicatorVerticalPadding
+        } else {
+            StartIconIndicatorVerticalPadding
+        }
 
     NavigationItem(
         selected = selected,
@@ -230,20 +241,25 @@ internal fun ExpressiveNavigationBarItem(
 internal object ExpressiveNavigationBarDefaults {
     /** Default container color for an expressive navigation bar. */
     // TODO: Replace with token.
-    val containerColor: Color @Composable get() = ColorSchemeKeyTokens.SurfaceContainer.value
+    val containerColor: Color
+        @Composable get() = ColorSchemeKeyTokens.SurfaceContainer.value
 
     /** Default content color for an expressive navigation bar. */
     // TODO: Replace with token.
-    val contentColor: Color @Composable get() = ColorSchemeKeyTokens.OnSurfaceVariant.value
+    val contentColor: Color
+        @Composable get() = ColorSchemeKeyTokens.OnSurfaceVariant.value
 
     /** Default arrangement for an expressive navigation bar. */
-    val arrangement: NavigationBarArrangement get() = NavigationBarArrangement.EqualWeight
+    val arrangement: NavigationBarArrangement
+        get() = NavigationBarArrangement.EqualWeight
 
     /** Default window insets to be used and consumed by the expressive navigation bar. */
     val windowInsets: WindowInsets
         @Composable
-        get() = WindowInsets.systemBarsForVisualComponents
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        get() =
+            WindowInsets.systemBarsForVisualComponents.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+            )
 }
 
 // TODO: Remove "internal".
@@ -254,22 +270,23 @@ internal object ExpressiveNavigationBarItemDefaults {
      * Creates a [NavigationItemColors] with the provided colors according to the Material
      * specification.
      */
-    @Composable
-    fun colors() = MaterialTheme.colorScheme.defaultExpressiveNavigationBarItemColors
+    @Composable fun colors() = MaterialTheme.colorScheme.defaultExpressiveNavigationBarItemColors
 
     internal val ColorScheme.defaultExpressiveNavigationBarItemColors: NavigationItemColors
         get() {
-            return defaultExpressiveNavigationBarItemColorsCached ?: NavigationItemColors(
-                selectedIconColor = fromToken(ActiveIconColor),
-                selectedTextColor = fromToken(ActiveLabelTextColor),
-                selectedIndicatorColor = fromToken(ActiveIndicatorColor),
-                unselectedIconColor = fromToken(InactiveIconColor),
-                unselectedTextColor = fromToken(InactiveLabelTextColor),
-                disabledIconColor = fromToken(InactiveIconColor).copy(alpha = DisabledAlpha),
-                disabledTextColor = fromToken(InactiveLabelTextColor).copy(alpha = DisabledAlpha),
-            ).also {
-                defaultExpressiveNavigationBarItemColorsCached = it
-            }
+            return defaultExpressiveNavigationBarItemColorsCached
+                ?: NavigationItemColors(
+                        selectedIconColor = fromToken(ActiveIconColor),
+                        selectedTextColor = fromToken(ActiveLabelTextColor),
+                        selectedIndicatorColor = fromToken(ActiveIndicatorColor),
+                        unselectedIconColor = fromToken(InactiveIconColor),
+                        unselectedTextColor = fromToken(InactiveLabelTextColor),
+                        disabledIconColor =
+                            fromToken(InactiveIconColor).copy(alpha = DisabledAlpha),
+                        disabledTextColor =
+                            fromToken(InactiveLabelTextColor).copy(alpha = DisabledAlpha),
+                    )
+                    .also { defaultExpressiveNavigationBarItemColorsCached = it }
         }
 }
 
@@ -283,16 +300,17 @@ private class EqualWeightContentMeasurePolicy : MeasurePolicy {
         val itemsCount = measurables.size
         // If there are no items, bar will be empty.
         if (itemsCount < 1) {
-            return layout(width, itemHeight) { }
+            return layout(width, itemHeight) {}
         }
 
         val itemsPlaceables: List<Placeable>
         if (!constraints.hasBoundedWidth) {
             // If width constraint is not bounded, let item containers widths be as big as they are.
             // This may lead to a different items arrangement than the expected.
-            itemsPlaceables = measurables.fastMap {
-                it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
-            }
+            itemsPlaceables =
+                measurables.fastMap {
+                    it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
+                }
         } else {
             val itemWidth = width / itemsCount
             measurables.fastForEach {
@@ -303,11 +321,14 @@ private class EqualWeightContentMeasurePolicy : MeasurePolicy {
             }
 
             // Make sure the item containers have the same width and height.
-            itemsPlaceables = measurables.fastMap {
-                it.measure(
-                    constraints.constrain(Constraints.fixed(width = itemWidth, height = itemHeight))
-                )
-            }
+            itemsPlaceables =
+                measurables.fastMap {
+                    it.measure(
+                        constraints.constrain(
+                            Constraints.fixed(width = itemWidth, height = itemHeight)
+                        )
+                    )
+                }
         }
 
         return layout(width, itemHeight) {
@@ -331,7 +352,7 @@ private class CenteredContentMeasurePolicy : MeasurePolicy {
         val itemsCount = measurables.size
         // If there are no items, bar will be empty.
         if (itemsCount < 1) {
-            return layout(width, itemHeight) { }
+            return layout(width, itemHeight) {}
         }
 
         var barHorizontalPadding = 0
@@ -339,9 +360,10 @@ private class CenteredContentMeasurePolicy : MeasurePolicy {
         if (!constraints.hasBoundedWidth) {
             // If width constraint is not bounded, let item containers widths be as big as they are.
             // This may lead to a different items arrangement than the expected.
-            itemsPlaceables = measurables.fastMap {
-                it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
-            }
+            itemsPlaceables =
+                measurables.fastMap {
+                    it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
+                }
         } else {
             val itemMaxWidth = width / itemsCount
             barHorizontalPadding = calculateCenteredContentHorizontalPadding(itemsCount, width)
@@ -354,23 +376,24 @@ private class CenteredContentMeasurePolicy : MeasurePolicy {
                     itemHeight = measurableHeight.coerceAtMost(constraints.maxHeight)
                 }
             }
-            itemsPlaceables = measurables.fastMap {
-                var currentItemWidth = itemMinWidth
-                val measurableWidth = it.maxIntrinsicWidth(constraints.minHeight)
-                if (currentItemWidth < measurableWidth) {
-                    // Let an item container be bigger in width if needed, but limit it to
-                    // itemMaxWidth.
-                    currentItemWidth = measurableWidth.coerceAtMost(itemMaxWidth)
-                    // Update horizontal padding so that items remain centered.
-                    barHorizontalPadding -= (currentItemWidth - itemMinWidth) / 2
-                }
+            itemsPlaceables =
+                measurables.fastMap {
+                    var currentItemWidth = itemMinWidth
+                    val measurableWidth = it.maxIntrinsicWidth(constraints.minHeight)
+                    if (currentItemWidth < measurableWidth) {
+                        // Let an item container be bigger in width if needed, but limit it to
+                        // itemMaxWidth.
+                        currentItemWidth = measurableWidth.coerceAtMost(itemMaxWidth)
+                        // Update horizontal padding so that items remain centered.
+                        barHorizontalPadding -= (currentItemWidth - itemMinWidth) / 2
+                    }
 
-                it.measure(
-                    constraints.constrain(
-                        Constraints.fixed(width = currentItemWidth, height = itemHeight)
+                    it.measure(
+                        constraints.constrain(
+                            Constraints.fixed(width = currentItemWidth, height = itemHeight)
+                        )
                     )
-                )
-            }
+                }
         }
 
         return layout(width, itemHeight) {

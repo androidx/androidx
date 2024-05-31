@@ -49,7 +49,7 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  * Provide Android specific input service with the Operating System.
  *
  * @param inputCommandProcessorExecutor [Executor] used to schedule the [processInputCommands]
- * function when a input command is first requested for a frame.
+ *   function when a input command is first requested for a frame.
  */
 @Deprecated(
     "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
@@ -70,7 +70,7 @@ internal class TextInputServiceAndroid(
         StartInput,
         StopInput,
         ShowKeyboard,
-        HideKeyboard;
+        HideKeyboard
     }
 
     /**
@@ -80,8 +80,8 @@ internal class TextInputServiceAndroid(
     private var editorHasFocus = false
 
     /**
-     *  The following three observers are set when the editable composable has initiated the input
-     *  session
+     * The following three observers are set when the editable composable has initiated the input
+     * session
      */
     private var onEditCommand: (List<EditCommand>) -> Unit = {}
     private var onImeActionPerformed: (ImeAction) -> Unit = {}
@@ -89,6 +89,7 @@ internal class TextInputServiceAndroid(
     // Visible for testing
     internal var state = TextFieldValue(text = "", selection = TextRange.Zero)
         private set
+
     private var imeOptions = ImeOptions.Default
 
     // RecordingInputConnection has strong reference to the View through TextInputServiceAndroid and
@@ -98,9 +99,8 @@ internal class TextInputServiceAndroid(
     private var ics = mutableListOf<WeakReference<RecordingInputConnection>>()
 
     // used for sendKeyEvent delegation
-    private val baseInputConnection by lazy(LazyThreadSafetyMode.NONE) {
-        BaseInputConnection(view, false)
-    }
+    private val baseInputConnection by
+        lazy(LazyThreadSafetyMode.NONE) { BaseInputConnection(view, false) }
 
     private var focusedRect: AndroidRect? = null
 
@@ -116,7 +116,10 @@ internal class TextInputServiceAndroid(
     private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
 
-    constructor(view: View, positionCalculator: PositionCalculator) : this(
+    constructor(
+        view: View,
+        positionCalculator: PositionCalculator
+    ) : this(
         view,
         positionCalculator,
         InputMethodManagerImpl(view),
@@ -128,9 +131,7 @@ internal class TextInputServiceAndroid(
         }
     }
 
-    /**
-     * Creates new input connection.
-     */
+    /** Creates new input connection. */
     fun createInputConnection(outAttrs: EditorInfo): InputConnection? {
         if (!editorHasFocus) {
             return null
@@ -140,59 +141,59 @@ internal class TextInputServiceAndroid(
         outAttrs.updateWithEmojiCompat()
 
         return RecordingInputConnection(
-            initState = state,
-            autoCorrect = imeOptions.autoCorrect,
-            eventCallback = object : InputEventCallback2 {
-                override fun onEditCommands(editCommands: List<EditCommand>) {
-                    onEditCommand(editCommands)
-                }
+                initState = state,
+                autoCorrect = imeOptions.autoCorrect,
+                eventCallback =
+                    object : InputEventCallback2 {
+                        override fun onEditCommands(editCommands: List<EditCommand>) {
+                            onEditCommand(editCommands)
+                        }
 
-                override fun onImeAction(imeAction: ImeAction) {
-                    onImeActionPerformed(imeAction)
-                }
+                        override fun onImeAction(imeAction: ImeAction) {
+                            onImeActionPerformed(imeAction)
+                        }
 
-                override fun onKeyEvent(event: KeyEvent) {
-                    baseInputConnection.sendKeyEvent(event)
-                }
+                        override fun onKeyEvent(event: KeyEvent) {
+                            baseInputConnection.sendKeyEvent(event)
+                        }
 
-                override fun onRequestCursorAnchorInfo(
-                    immediate: Boolean,
-                    monitor: Boolean,
-                    includeInsertionMarker: Boolean,
-                    includeCharacterBounds: Boolean,
-                    includeEditorBounds: Boolean,
-                    includeLineBounds: Boolean
-                ) {
-                    cursorAnchorInfoController.requestUpdate(
-                        immediate,
-                        monitor,
-                        includeInsertionMarker,
-                        includeCharacterBounds,
-                        includeEditorBounds,
-                        includeLineBounds
-                    )
-                }
+                        override fun onRequestCursorAnchorInfo(
+                            immediate: Boolean,
+                            monitor: Boolean,
+                            includeInsertionMarker: Boolean,
+                            includeCharacterBounds: Boolean,
+                            includeEditorBounds: Boolean,
+                            includeLineBounds: Boolean
+                        ) {
+                            cursorAnchorInfoController.requestUpdate(
+                                immediate,
+                                monitor,
+                                includeInsertionMarker,
+                                includeCharacterBounds,
+                                includeEditorBounds,
+                                includeLineBounds
+                            )
+                        }
 
-                override fun onConnectionClosed(inputConnection: RecordingInputConnection) {
-                    for (i in 0 until ics.size) {
-                        if (ics[i].get() == inputConnection) {
-                            ics.removeAt(i)
-                            return // No duplicated instances should be in the list.
+                        override fun onConnectionClosed(inputConnection: RecordingInputConnection) {
+                            for (i in 0 until ics.size) {
+                                if (ics[i].get() == inputConnection) {
+                                    ics.removeAt(i)
+                                    return // No duplicated instances should be in the list.
+                                }
+                            }
                         }
                     }
+            )
+            .also {
+                ics.add(WeakReference(it))
+                if (DEBUG) {
+                    Log.d(TAG, "$DEBUG_CLASS.createInputConnection: $ics")
                 }
             }
-        ).also {
-            ics.add(WeakReference(it))
-            if (DEBUG) {
-                Log.d(TAG, "$DEBUG_CLASS.createInputConnection: $ics")
-            }
-        }
     }
 
-    /**
-     * Returns true if some editable component is focused.
-     */
+    /** Returns true if some editable component is focused. */
     fun isEditorFocused(): Boolean = editorHasFocus
 
     override fun startInput(
@@ -259,10 +260,12 @@ internal class TextInputServiceAndroid(
     private fun sendInputCommand(command: TextInputCommand) {
         textInputCommandQueue += command
         if (frameCallback == null) {
-            frameCallback = Runnable {
-                frameCallback = null
-                processInputCommands()
-            }.also(inputCommandProcessorExecutor::execute)
+            frameCallback =
+                Runnable {
+                        frameCallback = null
+                        processInputCommands()
+                    }
+                    .also(inputCommandProcessorExecutor::execute)
         }
     }
 
@@ -293,7 +296,6 @@ internal class TextInputServiceAndroid(
                     // showing.
                     showKeyboard = true
                 }
-
                 StopInput -> {
                     startInput = false
                     // It also doesn't make sense to keep the keyboard visible if it's not
@@ -305,7 +307,6 @@ internal class TextInputServiceAndroid(
                     // https://docs.google.com/document/d/1o-y3NkfFPCBhfDekdVEEl41tqtjjqs8jOss6txNgqaw/edit?resourcekey=0-o728aLn51uXXnA4Pkpe88Q#heading=h.ieacosb5rizm
                     showKeyboard = false
                 }
-
                 ShowKeyboard,
                 HideKeyboard -> {
                     // Any keyboard visibility commands sent after input is stopped but before
@@ -358,8 +359,9 @@ internal class TextInputServiceAndroid(
         // If the selection has changed from the last time, we need to update selection even though
         // the oldValue in EditBuffer is already in sync with the newValue.
         // Same holds for composition b/207800945
-        val needUpdateSelection = (this.state.selection != newValue.selection) ||
-            this.state.composition != newValue.composition
+        val needUpdateSelection =
+            (this.state.selection != newValue.selection) ||
+                this.state.composition != newValue.composition
         this.state = newValue
         // update the latest TextFieldValue in InputConnection
         for (i in 0 until ics.size) {
@@ -383,11 +385,13 @@ internal class TextInputServiceAndroid(
             return
         }
 
-        val restartInput = oldValue?.let {
-            it.text != newValue.text ||
-                // when selection is the same but composition has changed, need to reset the input.
-                (it.selection == newValue.selection && it.composition != newValue.composition)
-        } ?: false
+        val restartInput =
+            oldValue?.let {
+                it.text != newValue.text ||
+                    // when selection is the same but composition has changed, need to reset the
+                    // input.
+                    (it.selection == newValue.selection && it.composition != newValue.composition)
+            } ?: false
 
         if (DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.updateState: restart($restartInput), state: $state")
@@ -404,12 +408,13 @@ internal class TextInputServiceAndroid(
 
     @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
     override fun notifyFocusedRect(rect: Rect) {
-        focusedRect = AndroidRect(
-            rect.left.roundToInt(),
-            rect.top.roundToInt(),
-            rect.right.roundToInt(),
-            rect.bottom.roundToInt()
-        )
+        focusedRect =
+            AndroidRect(
+                rect.left.roundToInt(),
+                rect.top.roundToInt(),
+                rect.right.roundToInt(),
+                rect.bottom.roundToInt()
+            )
 
         // Requesting rectangle too early after obtaining focus may bring view into wrong place
         // probably due to transient IME inset change. We don't know the correct timing of calling
@@ -461,42 +466,39 @@ internal class TextInputServiceAndroid(
     }
 }
 
-/**
- * Call to update EditorInfo correctly when EmojiCompat is configured.
- */
+/** Call to update EditorInfo correctly when EmojiCompat is configured. */
 private fun EditorInfo.updateWithEmojiCompat() {
-    if (!EmojiCompat.isConfigured()) { return }
+    if (!EmojiCompat.isConfigured()) {
+        return
+    }
 
     EmojiCompat.get().updateEditorInfo(this)
 }
 
-/**
- * Fills necessary info of EditorInfo.
- */
+/** Fills necessary info of EditorInfo. */
 internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextFieldValue) {
-    this.imeOptions = when (imeOptions.imeAction) {
-        ImeAction.Default -> {
-            if (imeOptions.singleLine) {
-                // this is the last resort to enable single line
-                // Android IME still show return key even if multi line is not send
-                // TextView.java#onCreateInputConnection
-                EditorInfo.IME_ACTION_DONE
-            } else {
-                EditorInfo.IME_ACTION_UNSPECIFIED
+    this.imeOptions =
+        when (imeOptions.imeAction) {
+            ImeAction.Default -> {
+                if (imeOptions.singleLine) {
+                    // this is the last resort to enable single line
+                    // Android IME still show return key even if multi line is not send
+                    // TextView.java#onCreateInputConnection
+                    EditorInfo.IME_ACTION_DONE
+                } else {
+                    EditorInfo.IME_ACTION_UNSPECIFIED
+                }
             }
+            ImeAction.None -> EditorInfo.IME_ACTION_NONE
+            ImeAction.Go -> EditorInfo.IME_ACTION_GO
+            ImeAction.Next -> EditorInfo.IME_ACTION_NEXT
+            ImeAction.Previous -> EditorInfo.IME_ACTION_PREVIOUS
+            ImeAction.Search -> EditorInfo.IME_ACTION_SEARCH
+            ImeAction.Send -> EditorInfo.IME_ACTION_SEND
+            ImeAction.Done -> EditorInfo.IME_ACTION_DONE
+            else -> error("invalid ImeAction")
         }
-        ImeAction.None -> EditorInfo.IME_ACTION_NONE
-        ImeAction.Go -> EditorInfo.IME_ACTION_GO
-        ImeAction.Next -> EditorInfo.IME_ACTION_NEXT
-        ImeAction.Previous -> EditorInfo.IME_ACTION_PREVIOUS
-        ImeAction.Search -> EditorInfo.IME_ACTION_SEARCH
-        ImeAction.Send -> EditorInfo.IME_ACTION_SEND
-        ImeAction.Done -> EditorInfo.IME_ACTION_DONE
-        else -> error("invalid ImeAction")
-    }
-    imeOptions.platformImeOptions?.privateImeOptions?.let {
-        privateImeOptions = it
-    }
+    imeOptions.platformImeOptions?.privateImeOptions?.let { privateImeOptions = it }
     when (imeOptions.keyboardType) {
         KeyboardType.Text -> this.inputType = InputType.TYPE_CLASS_TEXT
         KeyboardType.Ascii -> {
@@ -511,16 +513,14 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
             this.inputType =
                 InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         KeyboardType.Password -> {
-            this.inputType =
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+            this.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
         }
         KeyboardType.NumberPassword -> {
             this.inputType =
                 InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
         }
         KeyboardType.Decimal -> {
-            this.inputType =
-                InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
+            this.inputType = InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
         }
         else -> error("Invalid Keyboard Type")
     }

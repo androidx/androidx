@@ -65,42 +65,39 @@ fun SnackCollection(
     modifier: Modifier = Modifier,
     index: Int = 0,
     highlight: Boolean = true
-) = trace("SnackCollection") {
-    Column(modifier = modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .heightIn(min = 56.dp)
-                .padding(start = 24.dp)
-        ) {
-            Text(
-                text = snackCollection.name,
-                style = MaterialTheme.typography.h6,
-                color = JetsnackTheme.colors.brand,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentWidth(Alignment.Start)
-            )
-            IconButton(
-                onClick = { /* todo */ },
-                modifier = Modifier.align(Alignment.CenterVertically)
+) =
+    trace("SnackCollection") {
+        Column(modifier = modifier) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.heightIn(min = 56.dp).padding(start = 24.dp)
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    tint = JetsnackTheme.colors.brand,
-                    contentDescription = null
+                Text(
+                    text = snackCollection.name,
+                    style = MaterialTheme.typography.h6,
+                    color = JetsnackTheme.colors.brand,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f).wrapContentWidth(Alignment.Start)
                 )
+                IconButton(
+                    onClick = { /* todo */ },
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                        tint = JetsnackTheme.colors.brand,
+                        contentDescription = null
+                    )
+                }
+            }
+            if (highlight && snackCollection.type == CollectionType.Highlight) {
+                HighlightedSnacks(index, snackCollection.snacks, onSnackClick)
+            } else {
+                Snacks(snackCollection.snacks, onSnackClick)
             }
         }
-        if (highlight && snackCollection.type == CollectionType.Highlight) {
-            HighlightedSnacks(index, snackCollection.snacks, onSnackClick)
-        } else {
-            Snacks(snackCollection.snacks, onSnackClick)
-        }
     }
-}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -131,39 +128,26 @@ private fun Snacks(
     onSnackClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyRow(
-        modifier = modifier,
-        contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
-    ) {
-        items(snacks) { snack ->
-            SnackItem(snack, onSnackClick)
-        }
+    LazyRow(modifier = modifier, contentPadding = PaddingValues(start = 12.dp, end = 12.dp)) {
+        items(snacks) { snack -> SnackItem(snack, onSnackClick) }
     }
 }
 
 @Composable
-fun SnackItem(
-    snack: Snack,
-    onSnackClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun SnackItem(snack: Snack, onSnackClick: (Long) -> Unit, modifier: Modifier = Modifier) {
     JetsnackSurface(
         shape = MaterialTheme.shapes.medium,
-        modifier = modifier.padding(
-            start = 4.dp,
-            end = 4.dp,
-            bottom = 8.dp
-        )
+        modifier = modifier.padding(start = 4.dp, end = 4.dp, bottom = 8.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .clickable(
-                    interactionSource = null,
-                    indication = ripple(),
-                    onClick = { onSnackClick(snack.id) }
-                )
-                .padding(8.dp)
+            modifier =
+                Modifier.clickable(
+                        interactionSource = null,
+                        indication = ripple(),
+                        onClick = { onSnackClick(snack.id) }
+                    )
+                    .padding(8.dp)
         ) {
             SnackImage(
                 imageDrawable = snack.imageDrawable,
@@ -189,39 +173,26 @@ private fun HighlightSnackItem(
     modifier: Modifier = Modifier
 ) {
     JetsnackCard(
-        modifier = modifier
-            .size(
-                width = 170.dp,
-                height = 250.dp
-            )
-            .padding(bottom = 16.dp)
+        modifier = modifier.size(width = 170.dp, height = 250.dp).padding(bottom = 16.dp)
     ) {
         Column(
-            modifier = Modifier
-                .clickable(
-                    interactionSource = null,
-                    indication = ripple(),
-                    onClick = { onSnackClick(snack.id) }
-                )
-                .fillMaxSize()
+            modifier =
+                Modifier.clickable(
+                        interactionSource = null,
+                        indication = ripple(),
+                        onClick = { onSnackClick(snack.id) }
+                    )
+                    .fillMaxSize()
         ) {
-            Box(
-                modifier = Modifier
-                    .height(160.dp)
-                    .fillMaxWidth()
-            ) {
+            Box(modifier = Modifier.height(160.dp).fillMaxWidth()) {
                 Box(
-                    modifier = Modifier
-                        .height(100.dp)
-                        .fillMaxWidth()
-                        .offsetGradientBackground(gradient)
+                    modifier =
+                        Modifier.height(100.dp).fillMaxWidth().offsetGradientBackground(gradient)
                 )
                 SnackImage(
                     imageDrawable = snack.imageDrawable,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(120.dp)
-                        .align(Alignment.BottomCenter)
+                    modifier = Modifier.size(120.dp).align(Alignment.BottomCenter)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -268,8 +239,5 @@ fun SnackImage(
     }
 }
 
-fun Modifier.offsetGradientBackground(
-    colors: List<Color>
-) = background(
-    Brush.horizontalGradient(colors)
-)
+fun Modifier.offsetGradientBackground(colors: List<Color>) =
+    background(Brush.horizontalGradient(colors))

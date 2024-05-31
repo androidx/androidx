@@ -29,8 +29,6 @@ fun OnSizeChangedSample(name: String) {
     // to use the size of one component to affect the size of another component.
     Text(
         "Hello $name",
-        Modifier.onSizeChanged { size ->
-            println("The size of the Text in pixels is $size")
-        }
+        Modifier.onSizeChanged { size -> println("The size of the Text in pixels is $size") }
     )
 }

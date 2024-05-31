@@ -36,16 +36,17 @@ import kotlin.coroutines.coroutineContext
 interface InfiniteAnimationPolicy : CoroutineContext.Element {
     /**
      * Call this to apply the policy on the given suspending [block]. Execution of the block is
-     * determined by the policy implementation. For example, a test policy could decide not to
-     * run the block, or trace its execution.
+     * determined by the policy implementation. For example, a test policy could decide not to run
+     * the block, or trace its execution.
      *
      * The block is intended to be part of and will therefore be treated as an infinite animation,
-     * one that after returning from [onInfiniteOperation] will call it again. If the block is
-     * not part of an infinite animation, the policy will still be applied.
+     * one that after returning from [onInfiniteOperation] will call it again. If the block is not
+     * part of an infinite animation, the policy will still be applied.
      */
     suspend fun <R> onInfiniteOperation(block: suspend () -> R): R
 
-    override val key: CoroutineContext.Key<*> get() = Key
+    override val key: CoroutineContext.Key<*>
+        get() = Key
 
     companion object Key : CoroutineContext.Key<InfiniteAnimationPolicy>
 }

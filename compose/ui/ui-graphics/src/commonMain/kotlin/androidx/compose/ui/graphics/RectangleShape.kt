@@ -22,13 +22,12 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-/**
- * A shape describing the rectangle.
- */
+/** A shape describing the rectangle. */
 @Stable
-val RectangleShape: Shape = object : Shape {
-    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density) =
-        Outline.Rectangle(size.toRect())
+val RectangleShape: Shape =
+    object : Shape {
+        override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density) =
+            Outline.Rectangle(size.toRect())
 
-    override fun toString(): String = "RectangleShape"
-}
+        override fun toString(): String = "RectangleShape"
+    }

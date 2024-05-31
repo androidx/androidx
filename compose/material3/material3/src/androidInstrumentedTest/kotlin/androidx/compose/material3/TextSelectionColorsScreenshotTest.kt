@@ -48,19 +48,17 @@ import org.junit.runner.RunWith
  * Screenshot test for the SelectionColors provided by [MaterialTheme] and used by the selection
  * handle / background.
  *
- * Note: because we cannot screenshot popups, we cannot see the selection handles in the popup,
- * so we can only test the background color here.
+ * Note: because we cannot screenshot popups, we cannot see the selection handles in the popup, so
+ * we can only test the background color here.
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class TextSelectionColorsScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun rememberTextSelectionColors() {
@@ -87,116 +85,100 @@ class TextSelectionColorsScreenshotTest {
 
     @Test
     fun text_lightThemeSelectionColors() {
-        rule.setContent {
-            TextTestContent(lightColorScheme())
-        }
+        rule.setContent { TextTestContent(lightColorScheme()) }
 
-        rule.onNodeWithText(Text)
-            .performTouchInput {
-                longClick()
-            }
+        rule.onNodeWithText(Text).performTouchInput { longClick() }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "text_lightThemeSelectionColors")
     }
 
     @Test
     fun text_darkThemeSelectionColors() {
-        rule.setContent {
-            TextTestContent(darkColorScheme())
-        }
+        rule.setContent { TextTestContent(darkColorScheme()) }
 
-        rule.onNodeWithText(Text)
-            .performTouchInput {
-                longClick()
-            }
+        rule.onNodeWithText(Text).performTouchInput { longClick() }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "text_darkThemeSelectionColors")
     }
 
     @Test
     fun filledTextField_lightThemeSelectionColors() {
-        rule.setContent {
-            FilledTextFieldTestContent(lightColorScheme())
-        }
+        rule.setContent { FilledTextFieldTestContent(lightColorScheme()) }
 
         // Click once to focus text field
-        rule.onNodeWithText(Text)
-            .performTouchInput {
-                click()
-                longClick()
-            }
+        rule.onNodeWithText(Text).performTouchInput {
+            click()
+            longClick()
+        }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "filledTextField_lightThemeSelectionColors")
     }
 
     @Test
     fun filledTextField_darkThemeSelectionColors() {
-        rule.setContent {
-            FilledTextFieldTestContent(darkColorScheme())
-        }
+        rule.setContent { FilledTextFieldTestContent(darkColorScheme()) }
 
         // Click once to focus text field
-        rule.onNodeWithText(Text)
-            .performTouchInput {
-                click()
-                longClick()
-            }
+        rule.onNodeWithText(Text).performTouchInput {
+            click()
+            longClick()
+        }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "filledTextField_darkThemeSelectionColors")
     }
 
     @Test
     fun outlinedTextField_lightThemeSelectionColors() {
-        rule.setContent {
-            OutlinedTextFieldTestContent(lightColorScheme())
-        }
+        rule.setContent { OutlinedTextFieldTestContent(lightColorScheme()) }
 
         // Click once to focus text field
-        rule.onNodeWithText(Text)
-            .performTouchInput {
-                click()
-                longClick()
-            }
+        rule.onNodeWithText(Text).performTouchInput {
+            click()
+            longClick()
+        }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "outlinedTextField_lightThemeSelectionColors")
     }
 
     @Test
     fun outlinedTextField_darkThemeSelectionColors() {
-        rule.setContent {
-            OutlinedTextFieldTestContent(darkColorScheme())
-        }
+        rule.setContent { OutlinedTextFieldTestContent(darkColorScheme()) }
 
         // Click once to focus text field
-        rule.onNodeWithText(Text)
-            .performTouchInput {
-                click()
-                longClick()
-            }
+        rule.onNodeWithText(Text).performTouchInput {
+            click()
+            longClick()
+        }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "outlinedTextField_darkThemeSelectionColors")
     }
@@ -205,11 +187,7 @@ class TextSelectionColorsScreenshotTest {
 @Composable
 private fun TextTestContent(colorScheme: ColorScheme) {
     MaterialTheme(colorScheme) {
-        Surface(Modifier.testTag(Tag)) {
-            SelectionContainer {
-                Text(Text)
-            }
-        }
+        Surface(Modifier.testTag(Tag)) { SelectionContainer { Text(Text) } }
     }
 }
 
@@ -242,9 +220,10 @@ private fun OutlinedTextFieldTestContent(colorScheme: ColorScheme) {
 }
 
 private const val Text = "Selected text"
-private val TextFieldText = TextFieldValue(
-    text = "Selected text",
-    selection = TextRange(0, 8),
-    composition = TextRange(0, 8)
-)
+private val TextFieldText =
+    TextFieldValue(
+        text = "Selected text",
+        selection = TextRange(0, 8),
+        composition = TextRange(0, 8)
+    )
 private const val Tag = "TestTag"

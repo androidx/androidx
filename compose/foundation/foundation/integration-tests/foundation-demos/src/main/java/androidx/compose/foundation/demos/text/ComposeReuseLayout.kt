@@ -42,9 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * TextStyle parameters color, textDecoration and shadow currently have special treatment that
- * they are sent to TextPainter and set on the paint. Previously we did this for performance
- * reasons.
+ * TextStyle parameters color, textDecoration and shadow currently have special treatment that they
+ * are sent to TextPainter and set on the paint. Previously we did this for performance reasons.
  *
  * Some of the text params definitely change the text metrics and require re-layout of the text.
  * However something like background do not change text metrics and ideally could have not required
@@ -62,21 +61,22 @@ fun TextReuseLayoutDemo() {
     val colorAnimationSpec = remember {
         infiniteRepeatable(tween<Color>(3000), repeatMode = RepeatMode.Reverse)
     }
-    val color by rememberInfiniteTransition()
-        .animateColor(Color.Red, Color.Green, colorAnimationSpec)
+    val color by
+        rememberInfiniteTransition().animateColor(Color.Red, Color.Green, colorAnimationSpec)
 
     val shadowDistanceAnimationSpec = remember {
         infiniteRepeatable(tween<Float>(3000), repeatMode = RepeatMode.Reverse)
     }
-    val shadowDistance by rememberInfiniteTransition()
-        .animateFloat(5f, 20f, shadowDistanceAnimationSpec)
+    val shadowDistance by
+        rememberInfiniteTransition().animateFloat(5f, 20f, shadowDistanceAnimationSpec)
 
     val style = TextStyle(fontSize = 64.sp, color = Color.Yellow, fontWeight = FontWeight.Bold)
-    val shadow = Shadow(
-        color = color,
-        blurRadius = Float.MIN_VALUE,
-        offset = Offset(shadowDistance, shadowDistance)
-    )
+    val shadow =
+        Shadow(
+            color = color,
+            blurRadius = Float.MIN_VALUE,
+            offset = Offset(shadowDistance, shadowDistance)
+        )
     val text = "ABC"
 
     Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState())) {

@@ -61,185 +61,203 @@ class MoveTest {
     }
 
     @Test
-    fun moveTo() = runMouseInputInjectionTest(
-        mouseInput = {
-            // enter the box
-            moveToAndCheck(positionIn, delayMillis = 0L)
-            // move around the box
-            moveToAndCheck(positionMove1)
-            // move around the box with long delay
-            moveToAndCheck(positionMove2, delayMillis = 2 * eventPeriodMillis)
-            // exit the box
-            moveToAndCheck(positionOut)
-            // move back in the box
-            moveToAndCheck(positionIn)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(0 * T, Enter, false, positionIn) },
-            { verifyMouseEvent(1 * T, Move, false, positionMove1) },
-            { verifyMouseEvent(3 * T, Move, false, positionMove2) },
-            { verifyMouseEvent(4 * T, Exit, false, positionOut) },
-            { verifyMouseEvent(5 * T, Enter, false, positionIn) },
+    fun moveTo() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // enter the box
+                moveToAndCheck(positionIn, delayMillis = 0L)
+                // move around the box
+                moveToAndCheck(positionMove1)
+                // move around the box with long delay
+                moveToAndCheck(positionMove2, delayMillis = 2 * eventPeriodMillis)
+                // exit the box
+                moveToAndCheck(positionOut)
+                // move back in the box
+                moveToAndCheck(positionIn)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(0 * T, Enter, false, positionIn) },
+                    { verifyMouseEvent(1 * T, Move, false, positionMove1) },
+                    { verifyMouseEvent(3 * T, Move, false, positionMove2) },
+                    { verifyMouseEvent(4 * T, Exit, false, positionOut) },
+                    { verifyMouseEvent(5 * T, Enter, false, positionIn) },
+                )
         )
-    )
 
     @Test
-    fun moveBy() = runMouseInputInjectionTest(
-        mouseInput = {
-            // enter the box
-            moveByAndCheck(positionIn, delayMillis = 0L)
-            // move around the box
-            moveByAndCheck(positionMove1 - positionIn)
-            // move around the box with long delay
-            moveByAndCheck(positionMove2 - positionMove1, delayMillis = 2 * eventPeriodMillis)
-            // exit the box
-            moveByAndCheck(positionOut - positionMove2)
-            // move back in the box
-            moveByAndCheck(positionIn - positionOut)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(0 * T, Enter, false, positionIn) },
-            { verifyMouseEvent(1 * T, Move, false, positionMove1) },
-            { verifyMouseEvent(3 * T, Move, false, positionMove2) },
-            { verifyMouseEvent(4 * T, Exit, false, positionOut) },
-            { verifyMouseEvent(5 * T, Enter, false, positionIn) },
+    fun moveBy() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // enter the box
+                moveByAndCheck(positionIn, delayMillis = 0L)
+                // move around the box
+                moveByAndCheck(positionMove1 - positionIn)
+                // move around the box with long delay
+                moveByAndCheck(positionMove2 - positionMove1, delayMillis = 2 * eventPeriodMillis)
+                // exit the box
+                moveByAndCheck(positionOut - positionMove2)
+                // move back in the box
+                moveByAndCheck(positionIn - positionOut)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(0 * T, Enter, false, positionIn) },
+                    { verifyMouseEvent(1 * T, Move, false, positionMove1) },
+                    { verifyMouseEvent(3 * T, Move, false, positionMove2) },
+                    { verifyMouseEvent(4 * T, Exit, false, positionOut) },
+                    { verifyMouseEvent(5 * T, Enter, false, positionIn) },
+                )
         )
-    )
 
     @Test
-    fun updatePointerTo() = runMouseInputInjectionTest(
-        mouseInput = {
-            // move around
-            updatePointerToAndCheck(positionIn)
-            updatePointerToAndCheck(positionMove1)
-            updatePointerToAndCheck(positionMove2)
-            // press primary button
-            press(MouseButton.Primary)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(0, Enter, false, positionMove2) },
-            { verifyMouseEvent(0, Press, true, positionMove2, PrimaryButton) },
+    fun updatePointerTo() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // move around
+                updatePointerToAndCheck(positionIn)
+                updatePointerToAndCheck(positionMove1)
+                updatePointerToAndCheck(positionMove2)
+                // press primary button
+                press(MouseButton.Primary)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(0, Enter, false, positionMove2) },
+                    { verifyMouseEvent(0, Press, true, positionMove2, PrimaryButton) },
+                )
         )
-    )
 
     @Test
-    fun updatePointerBy() = runMouseInputInjectionTest(
-        mouseInput = {
-            // move around
-            updatePointerByAndCheck(positionIn)
-            updatePointerByAndCheck(positionMove1 - positionIn)
-            updatePointerByAndCheck(positionMove2 - positionMove1)
-            // press primary button
-            press(MouseButton.Primary)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(0, Enter, false, positionMove2) },
-            { verifyMouseEvent(0, Press, true, positionMove2, PrimaryButton) },
+    fun updatePointerBy() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // move around
+                updatePointerByAndCheck(positionIn)
+                updatePointerByAndCheck(positionMove1 - positionIn)
+                updatePointerByAndCheck(positionMove2 - positionMove1)
+                // press primary button
+                press(MouseButton.Primary)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(0, Enter, false, positionMove2) },
+                    { verifyMouseEvent(0, Press, true, positionMove2, PrimaryButton) },
+                )
         )
-    )
 
     @Test
-    fun enter_exit() = runMouseInputInjectionTest(
-        mouseInput = {
-            // enter the box
-            enter(positionIn)
-            // move around the box
-            moveTo(positionMove1)
-            // exit the box
-            exit(positionOut)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(1 * T, Enter, false, positionIn) },
-            { verifyMouseEvent(2 * T, Move, false, positionMove1) },
-            { verifyMouseEvent(3 * T, Exit, false, positionOut) },
-        )
-    )
-
-    @Test
-    fun enter_alreadyEntered() = runMouseInputInjectionTest(
-        mouseInput = {
-            // enter the box
-            enter(positionIn)
-            // enter again
-            expectError<IllegalStateException>(
-                expectedMessage = "Cannot send mouse hover enter event, mouse is already hovering"
-            ) {
-                enter(positionMove1)
-            }
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(1 * T, Enter, false, positionIn) },
-        )
-    )
-
-    @Test
-    fun exit_notEntered() = runMouseInputInjectionTest(
-        mouseInput = {
-            // exit the box
-            expectError<IllegalStateException>(
-                expectedMessage = "Cannot send mouse hover exit event, mouse is not hovering"
-            ) {
+    fun enter_exit() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // enter the box
+                enter(positionIn)
+                // move around the box
+                moveTo(positionMove1)
+                // exit the box
                 exit(positionOut)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                    { verifyMouseEvent(2 * T, Move, false, positionMove1) },
+                    { verifyMouseEvent(3 * T, Exit, false, positionOut) },
+                )
+        )
+
+    @Test
+    fun enter_alreadyEntered() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // enter the box
+                enter(positionIn)
+                // enter again
+                expectError<IllegalStateException>(
+                    expectedMessage =
+                        "Cannot send mouse hover enter event, mouse is already hovering"
+                ) {
+                    enter(positionMove1)
+                }
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(1 * T, Enter, false, positionIn) },
+                )
+        )
+
+    @Test
+    fun exit_notEntered() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // exit the box
+                expectError<IllegalStateException>(
+                    expectedMessage = "Cannot send mouse hover exit event, mouse is not hovering"
+                ) {
+                    exit(positionOut)
+                }
             }
-        }
-    )
+        )
 
     @Test
-    fun animatePointerTo() = runMouseInputInjectionTest(
-        mouseInput = {
-            animateTo(position1, durationMillis = steps * T)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(1 * T, Enter, false, distancePerStep * 1f) },
-            { verifyMouseEvent(2 * T, Move, false, distancePerStep * 2f) },
-            { verifyMouseEvent(3 * T, Move, false, distancePerStep * 3f) },
-            { verifyMouseEvent(4 * T, Move, false, distancePerStep * 4f) },
+    fun animatePointerTo() =
+        runMouseInputInjectionTest(
+            mouseInput = { animateTo(position1, durationMillis = steps * T) },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(1 * T, Enter, false, distancePerStep * 1f) },
+                    { verifyMouseEvent(2 * T, Move, false, distancePerStep * 2f) },
+                    { verifyMouseEvent(3 * T, Move, false, distancePerStep * 3f) },
+                    { verifyMouseEvent(4 * T, Move, false, distancePerStep * 4f) },
+                )
         )
-    )
 
     @Test
-    fun animatePointerBy() = runMouseInputInjectionTest(
-        mouseInput = {
-            moveTo(position2)
-            animateBy(distance, durationMillis = steps * T)
-        },
-        eventVerifiers = arrayOf(
-            { verifyMouseEvent(1 * T, Enter, false, position2) },
-            { verifyMouseEvent(2 * T, Move, false, position2 + (distancePerStep * 1f)) },
-            { verifyMouseEvent(3 * T, Move, false, position2 + (distancePerStep * 2f)) },
-            { verifyMouseEvent(4 * T, Move, false, position2 + (distancePerStep * 3f)) },
-            { verifyMouseEvent(5 * T, Move, false, position2 + (distancePerStep * 4f)) },
+    fun animatePointerBy() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                moveTo(position2)
+                animateBy(distance, durationMillis = steps * T)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { verifyMouseEvent(1 * T, Enter, false, position2) },
+                    { verifyMouseEvent(2 * T, Move, false, position2 + (distancePerStep * 1f)) },
+                    { verifyMouseEvent(3 * T, Move, false, position2 + (distancePerStep * 2f)) },
+                    { verifyMouseEvent(4 * T, Move, false, position2 + (distancePerStep * 3f)) },
+                    { verifyMouseEvent(5 * T, Move, false, position2 + (distancePerStep * 4f)) },
+                )
         )
-    )
 
     @Test
-    fun animateAlong_fromCurrentPosition() = runMouseInputInjectionTest(
-        mouseInput = {
-            animateAlong(curveFromHere, durationMillis = steps * T)
-        },
-        eventVerifiers = arrayOf(
-            // The curve starts at the current position (0, 0) so we expect no initial event.
-            { verifyMouseEvent(1 * T, Enter, false, curveFromHere(1 * T)) },
-            { verifyMouseEvent(2 * T, Move, false, curveFromHere(2 * T)) },
-            { verifyMouseEvent(3 * T, Move, false, curveFromHere(3 * T)) },
-            { verifyMouseEvent(4 * T, Move, false, curveFromHere(4 * T)) },
+    fun animateAlong_fromCurrentPosition() =
+        runMouseInputInjectionTest(
+            mouseInput = { animateAlong(curveFromHere, durationMillis = steps * T) },
+            eventVerifiers =
+                arrayOf(
+                    // The curve starts at the current position (0, 0) so we expect no initial
+                    // event.
+                    { verifyMouseEvent(1 * T, Enter, false, curveFromHere(1 * T)) },
+                    { verifyMouseEvent(2 * T, Move, false, curveFromHere(2 * T)) },
+                    { verifyMouseEvent(3 * T, Move, false, curveFromHere(3 * T)) },
+                    { verifyMouseEvent(4 * T, Move, false, curveFromHere(4 * T)) },
+                )
         )
-    )
 
     @Test
-    fun animateAlong_fromOtherPosition() = runMouseInputInjectionTest(
-        mouseInput = {
-            animateAlong(curveFromElsewhere, durationMillis = steps * T)
-        },
-        eventVerifiers = arrayOf(
-            // The curve doesn't start at the current position (0, 0) so we expect an initial event
-            { verifyMouseEvent(0 * T, Enter, false, curveFromElsewhere(0 * T)) },
-            { verifyMouseEvent(1 * T, Move, false, curveFromElsewhere(1 * T)) },
-            { verifyMouseEvent(2 * T, Move, false, curveFromElsewhere(2 * T)) },
-            { verifyMouseEvent(3 * T, Move, false, curveFromElsewhere(3 * T)) },
-            { verifyMouseEvent(4 * T, Move, false, curveFromElsewhere(4 * T)) },
+    fun animateAlong_fromOtherPosition() =
+        runMouseInputInjectionTest(
+            mouseInput = { animateAlong(curveFromElsewhere, durationMillis = steps * T) },
+            eventVerifiers =
+                arrayOf(
+                    // The curve doesn't start at the current position (0, 0) so we expect an
+                    // initial event
+                    { verifyMouseEvent(0 * T, Enter, false, curveFromElsewhere(0 * T)) },
+                    { verifyMouseEvent(1 * T, Move, false, curveFromElsewhere(1 * T)) },
+                    { verifyMouseEvent(2 * T, Move, false, curveFromElsewhere(2 * T)) },
+                    { verifyMouseEvent(3 * T, Move, false, curveFromElsewhere(3 * T)) },
+                    { verifyMouseEvent(4 * T, Move, false, curveFromElsewhere(4 * T)) },
+                )
         )
-    )
 
     private fun MouseInjectionScope.moveToAndCheck(
         position: Offset,

@@ -51,26 +51,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalComposeUiApi::class)
-val AndroidInComposeDemos = DemoCategory(
-    "Android In Compose Interop",
-    listOf(
-        ComposableDemo("4 Android tap in Compose") { FourAndroidTapInCompose() },
-        ComposableDemo("Android tap in Compose tap") { AndroidTapInComposeTap() },
-        ComposableDemo("Android tap in Compose scroll") { AndroidTapInComposeScroll() },
-        ComposableDemo("Android scroll in Compose scroll (different orientation)") {
-            AndroidScrollInComposeScrollDifferentOrientation()
-        },
-        ComposableDemo("Android scroll in Compose scroll (same orientation)") {
-            AndroidScrollInComposeScrollSameOrientation()
-        },
-        ComposableDemo("2 ScrollViews as separate children of Compose") {
-            TwoAndroidScrollViewsInCompose()
-        },
-        ComposableDemo("MotionEventPointerInputFilter") {
-            PointerInteropFilterDemo()
-        },
+val AndroidInComposeDemos =
+    DemoCategory(
+        "Android In Compose Interop",
+        listOf(
+            ComposableDemo("4 Android tap in Compose") { FourAndroidTapInCompose() },
+            ComposableDemo("Android tap in Compose tap") { AndroidTapInComposeTap() },
+            ComposableDemo("Android tap in Compose scroll") { AndroidTapInComposeScroll() },
+            ComposableDemo("Android scroll in Compose scroll (different orientation)") {
+                AndroidScrollInComposeScrollDifferentOrientation()
+            },
+            ComposableDemo("Android scroll in Compose scroll (same orientation)") {
+                AndroidScrollInComposeScrollSameOrientation()
+            },
+            ComposableDemo("2 ScrollViews as separate children of Compose") {
+                TwoAndroidScrollViewsInCompose()
+            },
+            ComposableDemo("MotionEventPointerInputFilter") { PointerInteropFilterDemo() },
+        )
     )
-)
 
 @Composable
 private fun FourAndroidTapInCompose() {
@@ -80,15 +79,11 @@ private fun FourAndroidTapInCompose() {
             "Below is a ViewGroup with 4 Android buttons in it.  When each button is tapped, the" +
                 " background of the ViewGroup is updated."
         )
-        Box(
-            Modifier
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-                .size(240.dp)
-        ) {
+        Box(Modifier.fillMaxSize().wrapContentSize(Alignment.Center).size(240.dp)) {
             AndroidView({ context ->
                 LayoutInflater.from(context)
-                    .inflate(R.layout.android_4_buttons_in_compose, null).let { view ->
+                    .inflate(R.layout.android_4_buttons_in_compose, null)
+                    .let { view ->
                         view as ViewGroup
                         view.findViewById<View>(R.id.buttonBlue).setOnClickListener {
                             view.setBackgroundColor(Color.BLUE)
@@ -113,9 +108,7 @@ private fun FourAndroidTapInCompose() {
 private fun AndroidTapInComposeTap() {
     var theView: View? = null
 
-    val onTap: (Offset) -> Unit = {
-        theView?.setBackgroundColor(Color.BLUE)
-    }
+    val onTap: (Offset) -> Unit = { theView?.setBackgroundColor(Color.BLUE) }
 
     Column {
         Text(
@@ -130,17 +123,16 @@ private fun AndroidTapInComposeTap() {
                 "Blue."
         )
         Box(
-            Modifier
-                .fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-                .size(240.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = onTap)
-                }
+            Modifier.fillMaxSize().wrapContentSize(Alignment.Center).size(240.dp).pointerInput(
+                Unit
+            ) {
+                detectTapGestures(onTap = onTap)
+            }
         ) {
             AndroidView({ context ->
                 LayoutInflater.from(context)
-                    .inflate(R.layout.android_tap_in_compose_tap, null).let { view ->
+                    .inflate(R.layout.android_tap_in_compose_tap, null)
+                    .let { view ->
                         theView = view
                         theView?.setBackgroundColor(Color.GREEN)
                         view.findViewById<View>(R.id.buttonRed).setOnClickListener {
@@ -170,31 +162,24 @@ private fun AndroidTapInComposeScroll() {
         Row(Modifier.horizontalScroll(rememberScrollState())) {
             AndroidView({ context ->
                 LayoutInflater.from(context)
-                    .inflate(R.layout.android_tap_in_compose_scroll, null).let { view ->
+                    .inflate(R.layout.android_tap_in_compose_scroll, null)
+                    .let { view ->
                         view.setBackgroundColor(Color.YELLOW)
                         view.findViewById<View>(R.id.buttonRed).apply {
                             isClickable = false
-                            setOnClickListener {
-                                view.setBackgroundColor(Color.RED)
-                            }
+                            setOnClickListener { view.setBackgroundColor(Color.RED) }
                         }
                         view.findViewById<View>(R.id.buttonGreen).apply {
                             isClickable = false
-                            setOnClickListener {
-                                view.setBackgroundColor(Color.GREEN)
-                            }
+                            setOnClickListener { view.setBackgroundColor(Color.GREEN) }
                         }
                         view.findViewById<View>(R.id.buttonBlue).apply {
                             isClickable = false
-                            setOnClickListener {
-                                view.setBackgroundColor(Color.BLUE)
-                            }
+                            setOnClickListener { view.setBackgroundColor(Color.BLUE) }
                         }
                         view.findViewById<View>(R.id.buttonYellow).apply {
                             isClickable = false
-                            setOnClickListener {
-                                view.setBackgroundColor(Color.YELLOW)
-                            }
+                            setOnClickListener { view.setBackgroundColor(Color.YELLOW) }
                         }
                         view
                     }
@@ -216,14 +201,15 @@ private fun AndroidScrollInComposeScrollDifferentOrientation() {
                 .horizontalScroll(rememberScrollState())
         ) {
             Box(
-                modifier = Modifier.padding(96.dp)
-                    .background(androidx.compose.ui.graphics.Color.Red)
+                modifier =
+                    Modifier.padding(96.dp).background(androidx.compose.ui.graphics.Color.Red)
             ) {
                 AndroidView({ context ->
-                    LayoutInflater.from(context).inflate(
-                        R.layout.android_scroll_in_compose_scroll_different_orientation,
-                        null
-                    )
+                    LayoutInflater.from(context)
+                        .inflate(
+                            R.layout.android_scroll_in_compose_scroll_different_orientation,
+                            null
+                        )
                 })
             }
         }
@@ -246,15 +232,14 @@ private fun AndroidScrollInComposeScrollSameOrientation() {
                 "intercepting. "
         )
         Column(
-            Modifier
-                .background(androidx.compose.ui.graphics.Color.Blue)
+            Modifier.background(androidx.compose.ui.graphics.Color.Blue)
                 .verticalScroll(rememberScrollState())
         ) {
             Box(
-                modifier = Modifier
-                    .padding(96.dp)
-                    .background(color = androidx.compose.ui.graphics.Color.Red)
-                    .height(750.dp)
+                modifier =
+                    Modifier.padding(96.dp)
+                        .background(color = androidx.compose.ui.graphics.Color.Red)
+                        .height(750.dp)
             ) {
                 AndroidView({ context ->
                     LayoutInflater.from(context)
@@ -276,15 +261,13 @@ private fun TwoAndroidScrollViewsInCompose() {
         Row {
             AndroidView(
                 { context ->
-                    LayoutInflater.from(context)
-                        .inflate(R.layout.android_scrollview, null)
+                    LayoutInflater.from(context).inflate(R.layout.android_scrollview, null)
                 },
                 Modifier.weight(2f)
             )
             AndroidView(
                 { context ->
-                    LayoutInflater.from(context)
-                        .inflate(R.layout.android_scrollview, null)
+                    LayoutInflater.from(context).inflate(R.layout.android_scrollview, null)
                 },
                 Modifier.weight(1f)
             )
@@ -305,8 +288,7 @@ private fun PointerInteropFilterDemo() {
                 " the MotionEvent that the pointerInteropFilter outputs."
         )
         Box(
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .background(androidx.compose.ui.graphics.Color.Gray)
                 .pointerInteropFilter { newMotionEvent ->
                     motionEventString.value = newMotionEvent.toString()

@@ -42,6 +42,7 @@ internal class TailModifierNode : Modifier.Node() {
     // has been run on the tail node, then we can assume that it is a chain update. Importantly,
     // this is different than using isAttached.
     var attachHasBeenRun = false
+
     override fun toString(): String {
         return "<tail>"
     }
@@ -55,15 +56,11 @@ internal class TailModifierNode : Modifier.Node() {
     }
 }
 
-internal class InnerNodeCoordinator(
-    layoutNode: LayoutNode
-) : NodeCoordinator(layoutNode) {
-    @OptIn(ExperimentalComposeUiApi::class)
-    override val tail = TailModifierNode()
+internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(layoutNode) {
+    @OptIn(ExperimentalComposeUiApi::class) override val tail = TailModifierNode()
 
     init {
-        @OptIn(ExperimentalComposeUiApi::class)
-        tail.updateCoordinator(this)
+        @OptIn(ExperimentalComposeUiApi::class) tail.updateCoordinator(this)
     }
 
     override var lookaheadDelegate: LookaheadDelegate? =
@@ -74,42 +71,35 @@ internal class InnerNodeCoordinator(
         // Lookahead measure
         override fun measure(constraints: Constraints): Placeable =
             performingMeasure(constraints) {
-                // before rerunning the user's measure block reset previous measuredByParent for children
+                // before rerunning the user's measure block reset previous measuredByParent for
+                // children
                 layoutNode.forEachChild {
-                    it.lookaheadPassDelegate!!.measuredByParent =
-                        LayoutNode.UsageByParent.NotUsed
+                    it.lookaheadPassDelegate!!.measuredByParent = LayoutNode.UsageByParent.NotUsed
                 }
-                val measureResult = with(layoutNode.measurePolicy) {
-                    measure(
-                        layoutNode.childLookaheadMeasurables,
-                        constraints
-                    )
-                }
+                val measureResult =
+                    with(layoutNode.measurePolicy) {
+                        measure(layoutNode.childLookaheadMeasurables, constraints)
+                    }
                 measureResult
             }
 
         override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {
-            return (alignmentLinesOwner
-                .calculateAlignmentLines()[alignmentLine] ?: AlignmentLine.Unspecified).also {
-                cachedAlignmentLinesMap[alignmentLine] = it
-            }
+            return (alignmentLinesOwner.calculateAlignmentLines()[alignmentLine]
+                    ?: AlignmentLine.Unspecified)
+                .also { cachedAlignmentLinesMap[alignmentLine] = it }
         }
 
         override fun placeChildren() {
             layoutNode.lookaheadPassDelegate!!.onNodePlaced()
         }
 
-        override fun minIntrinsicWidth(height: Int) =
-            layoutNode.minLookaheadIntrinsicWidth(height)
+        override fun minIntrinsicWidth(height: Int) = layoutNode.minLookaheadIntrinsicWidth(height)
 
-        override fun minIntrinsicHeight(width: Int) =
-            layoutNode.minLookaheadIntrinsicHeight(width)
+        override fun minIntrinsicHeight(width: Int) = layoutNode.minLookaheadIntrinsicHeight(width)
 
-        override fun maxIntrinsicWidth(height: Int) =
-            layoutNode.maxLookaheadIntrinsicWidth(height)
+        override fun maxIntrinsicWidth(height: Int) = layoutNode.maxLookaheadIntrinsicWidth(height)
 
-        override fun maxIntrinsicHeight(width: Int) =
-            layoutNode.maxLookaheadIntrinsicHeight(width)
+        override fun maxIntrinsicHeight(width: Int) = layoutNode.maxLookaheadIntrinsicHeight(width)
     }
 
     override fun ensureLookaheadDelegateCreated() {
@@ -119,43 +109,36 @@ internal class InnerNodeCoordinator(
     }
 
     override fun measure(constraints: Constraints): Placeable {
-        @Suppress("NAME_SHADOWING") val constraints =
+        @Suppress("NAME_SHADOWING")
+        val constraints =
             if (forceMeasureWithLookaheadConstraints) {
                 lookaheadDelegate!!.constraints
             } else {
                 constraints
             }
         return performingMeasure(constraints) {
-            // before rerunning the user's measure block reset previous measuredByParent for children
+            // before rerunning the user's measure block reset previous measuredByParent for
+            // children
             layoutNode.forEachChild {
                 it.measurePassDelegate.measuredByParent = LayoutNode.UsageByParent.NotUsed
             }
 
-            measureResult = with(layoutNode.measurePolicy) {
-                measure(layoutNode.childMeasurables, constraints)
-            }
+            measureResult =
+                with(layoutNode.measurePolicy) { measure(layoutNode.childMeasurables, constraints) }
             onMeasured()
             this
         }
     }
 
-    override fun minIntrinsicWidth(height: Int) =
-        layoutNode.minIntrinsicWidth(height)
+    override fun minIntrinsicWidth(height: Int) = layoutNode.minIntrinsicWidth(height)
 
-    override fun minIntrinsicHeight(width: Int) =
-        layoutNode.minIntrinsicHeight(width)
+    override fun minIntrinsicHeight(width: Int) = layoutNode.minIntrinsicHeight(width)
 
-    override fun maxIntrinsicWidth(height: Int) =
-        layoutNode.maxIntrinsicWidth(height)
+    override fun maxIntrinsicWidth(height: Int) = layoutNode.maxIntrinsicWidth(height)
 
-    override fun maxIntrinsicHeight(width: Int) =
-        layoutNode.maxIntrinsicHeight(width)
+    override fun maxIntrinsicHeight(width: Int) = layoutNode.maxIntrinsicHeight(width)
 
-    override fun placeAt(
-        position: IntOffset,
-        zIndex: Float,
-        layer: GraphicsLayer
-    ) {
+    override fun placeAt(position: IntOffset, zIndex: Float, layer: GraphicsLayer) {
         super.placeAt(position, zIndex, layer)
         onAfterPlaceAt()
     }
@@ -184,8 +167,7 @@ internal class InnerNodeCoordinator(
 
     override fun calculateAlignmentLine(alignmentLine: AlignmentLine): Int {
         return lookaheadDelegate?.calculateAlignmentLine(alignmentLine)
-            ?: alignmentLinesOwner
-                .calculateAlignmentLines()[alignmentLine]
+            ?: alignmentLinesOwner.calculateAlignmentLines()[alignmentLine]
             ?: AlignmentLine.Unspecified
     }
 
@@ -215,8 +197,9 @@ internal class InnerNodeCoordinator(
         if (hitTestSource.shouldHitTestChildren(layoutNode)) {
             if (withinLayerBounds(pointerPosition)) {
                 hitTestChildren = true
-            } else if (isTouchEvent &&
-                distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize).isFinite()
+            } else if (
+                isTouchEvent &&
+                    distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize).isFinite()
             ) {
                 inLayer = false
                 hitTestChildren = true
@@ -225,7 +208,8 @@ internal class InnerNodeCoordinator(
 
         if (hitTestChildren) {
             hitTestResult.siblingHits {
-                // Any because as soon as true is returned, we know we have found a hit path and we must
+                // Any because as soon as true is returned, we know we have found a hit path and we
+                // must
                 // not add hit results on different paths so we should not even go looking.
                 layoutNode.zSortedChildren.reversedAny { child ->
                     if (child.isPlaced) {
@@ -256,10 +240,11 @@ internal class InnerNodeCoordinator(
     }
 
     internal companion object {
-        val innerBoundsPaint = Paint().also { paint ->
-            paint.color = Color.Red
-            paint.strokeWidth = 1f
-            paint.style = PaintingStyle.Stroke
-        }
+        val innerBoundsPaint =
+            Paint().also { paint ->
+                paint.color = Color.Red
+                paint.strokeWidth = 1f
+                paint.style = PaintingStyle.Stroke
+            }
     }
 }

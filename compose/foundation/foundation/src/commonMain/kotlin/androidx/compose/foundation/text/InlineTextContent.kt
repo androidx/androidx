@@ -26,32 +26,30 @@ internal const val INLINE_CONTENT_TAG = "androidx.compose.foundation.text.inline
 // A string that contains a replacement character specified by unicode. It's used as the default
 // value of alternate text.
 private const val REPLACEMENT_CHAR = "\uFFFD"
+
 /**
  * Used to insert composables into the text layout. This method can be used together with the
  * inlineContent parameter of [BasicText]. It will append the [alternateText] to this
- * [AnnotatedString] and also mark this range of text to be replaced by a composable.
- * [BasicText] will try to find an [InlineTextContent] in the map defined by inlineContent whose
- * key equals to [id], and it will use the [InlineTextContent.children] to replace this range of
- * text.
+ * [AnnotatedString] and also mark this range of text to be replaced by a composable. [BasicText]
+ * will try to find an [InlineTextContent] in the map defined by inlineContent whose key equals to
+ * [id], and it will use the [InlineTextContent.children] to replace this range of text.
  *
  * @sample androidx.compose.foundation.samples.InlineTextContentSample
- * @see InlineTextContent
- * @see BasicText
  *
  * @param id The id used to look up the [InlineTextContent], it is referred by the inlineContent
- * parameter of [BasicText] to replace the [alternateText] to the corresponding composable.
- * @param alternateText The text to be replaced by the inline content. It's displayed when
- * the inlineContent parameter of [BasicText] doesn't contain [id].
- * Accessibility features will also use this text to describe the inline content.
+ *   parameter of [BasicText] to replace the [alternateText] to the corresponding composable.
+ * @param alternateText The text to be replaced by the inline content. It's displayed when the
+ *   inlineContent parameter of [BasicText] doesn't contain [id]. Accessibility features will also
+ *   use this text to describe the inline content.
  * @throws IllegalArgumentException if [alternateText] has zero length.
+ * @see InlineTextContent
+ * @see BasicText
  */
 fun AnnotatedString.Builder.appendInlineContent(
     id: String,
     alternateText: String = REPLACEMENT_CHAR
 ) {
-    require(alternateText.isNotEmpty()) {
-        "alternateText can't be an empty string."
-    }
+    require(alternateText.isNotEmpty()) { "alternateText can't be an empty string." }
     pushStringAnnotation(INLINE_CONTENT_TAG, id)
     append(alternateText)
     pop()
@@ -61,12 +59,13 @@ fun AnnotatedString.Builder.appendInlineContent(
  * A data class that stores a composable to be inserted into the text layout.
  *
  * Different from a regular composable, a [Placeholder] is also needed for text layout to reserve
- * space. In this [placeholder], the size of the content and how it will be aligned within the
- * text line is defined. When the children composable is measured, its size given in
- * [Placeholder.width] and [Placeholder.height] will be converted into
- * [androidx.compose.ui.unit.Constraints] and passed through [androidx.compose.ui.layout.Layout].
+ * space. In this [placeholder], the size of the content and how it will be aligned within the text
+ * line is defined. When the children composable is measured, its size given in [Placeholder.width]
+ * and [Placeholder.height] will be converted into [androidx.compose.ui.unit.Constraints] and passed
+ * through [androidx.compose.ui.layout.Layout].
  *
  * @sample androidx.compose.foundation.samples.InlineTextContentSample
+ *
  * @see BasicText
  * @see Placeholder
  */
@@ -75,12 +74,13 @@ class InlineTextContent(
     /**
      * The setting object that defines the size and vertical alignment of this composable in the
      * text line. This is different from the measure of Layout
+     *
      * @see Placeholder
      */
     val placeholder: Placeholder,
     /**
-     * The composable to be inserted into the text layout.
-     * The string parameter passed to it will the alternateText given to [appendInlineContent].
+     * The composable to be inserted into the text layout. The string parameter passed to it will
+     * the alternateText given to [appendInlineContent].
      */
     val children: @Composable (String) -> Unit
 )

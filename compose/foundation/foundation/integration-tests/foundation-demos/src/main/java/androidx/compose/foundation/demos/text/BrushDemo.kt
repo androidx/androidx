@@ -101,13 +101,11 @@ fun TextBrushDemo() {
 fun BrushDemo() {
     Text(
         "Brush is awesome\nBrush is awesome\nBrush is awesome",
-        style = TextStyle(
-            brush = Brush.linearGradient(
-                colors = RainbowColors,
-                tileMode = TileMode.Mirror
-            ),
-            fontSize = 30.sp
-        )
+        style =
+            TextStyle(
+                brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror),
+                fontSize = 30.sp
+            )
     )
 }
 
@@ -115,12 +113,10 @@ fun BrushDemo() {
 fun BrushGraphicalEmoji() {
     Text(
         "\uD83D\uDEF3\uD83D\uDD2E\uD83E\uDDED\uD83E\uDD5D\uD83E\uDD8C\uD83D\uDE0D",
-        style = TextStyle(
-            brush = Brush.linearGradient(
-                colors = RainbowColors,
-                tileMode = TileMode.Mirror
-            )
-        ),
+        style =
+            TextStyle(
+                brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror)
+            ),
         fontSize = 30.sp
     )
 }
@@ -128,24 +124,27 @@ fun BrushGraphicalEmoji() {
 @Composable
 fun SingleLineSpanBrush() {
     val infiniteTransition = rememberInfiniteTransition()
-    val start by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 4000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
+    val start by
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 4000f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(durationMillis = 2000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                )
         )
-    )
     Text(
         buildAnnotatedString {
             append("Brush is awesome\n")
             withStyle(
                 SpanStyle(
-                    brush = Brush.linearGradient(
-                        colors = RainbowColors,
-                        start = Offset(start, 0f),
-                        tileMode = TileMode.Mirror
-                    )
+                    brush =
+                        Brush.linearGradient(
+                            colors = RainbowColors,
+                            start = Offset(start, 0f),
+                            tileMode = TileMode.Mirror
+                        )
                 )
             ) {
                 append("Brush is awesome")
@@ -163,10 +162,7 @@ fun MultiLineSpanBrush() {
             append("Brush is aweso")
             withStyle(
                 SpanStyle(
-                    brush = Brush.linearGradient(
-                        colors = RainbowColors,
-                        tileMode = TileMode.Mirror
-                    )
+                    brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror)
                 )
             ) {
                 append("me\nBrush is awesome\nCo")
@@ -189,13 +185,15 @@ fun MultiParagraphBrush() {
                 append(loremIpsum(wordCount = 29))
             }
         },
-        style = TextStyle(
-            brush = Brush.radialGradient(
-                *RainbowStops.zip(RainbowColors).toTypedArray(),
-                radius = 600f,
-                tileMode = TileMode.Mirror
-            )
-        ),
+        style =
+            TextStyle(
+                brush =
+                    Brush.radialGradient(
+                        *RainbowStops.zip(RainbowColors).toTypedArray(),
+                        radius = 600f,
+                        tileMode = TileMode.Mirror
+                    )
+            ),
         fontSize = 30.sp
     )
 }
@@ -203,14 +201,16 @@ fun MultiParagraphBrush() {
 @Composable
 fun AnimatedBrush() {
     val infiniteTransition = rememberInfiniteTransition()
-    val radius by infiniteTransition.animateFloat(
-        initialValue = 100f,
-        targetValue = 300f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
+    val radius by
+        infiniteTransition.animateFloat(
+            initialValue = 100f,
+            targetValue = 300f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(durationMillis = 1000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                )
         )
-    )
     val brush = remember {
         // postpone the state read to shader creation time which happens during draw.
         ShaderBrush { size ->
@@ -223,30 +223,18 @@ fun AnimatedBrush() {
             )
         }
     }
-    Text(
-        text = loremIpsum(wordCount = 29),
-        style = TextStyle(
-            brush = brush,
-            fontSize = 30.sp
-        )
-    )
+    Text(text = loremIpsum(wordCount = 29), style = TextStyle(brush = brush, fontSize = 30.sp))
 }
 
 @Composable
 fun ShadowAndBrush() {
     Text(
         "Brush is awesome",
-        style = TextStyle(
-            shadow = Shadow(
-                offset = Offset(8f, 8f),
-                blurRadius = 4f,
-                color = Color.Black
+        style =
+            TextStyle(
+                shadow = Shadow(offset = Offset(8f, 8f), blurRadius = 4f, color = Color.Black),
+                brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror)
             ),
-            brush = Brush.linearGradient(
-                colors = RainbowColors,
-                tileMode = TileMode.Mirror
-            )
-        ),
         fontSize = 42.sp
     )
 }
@@ -258,25 +246,24 @@ fun TextFieldBrush() {
         value = text,
         onValueChange = { text = it },
         modifier = Modifier.fillMaxWidth(),
-        textStyle = TextStyle(
-            brush = Brush.linearGradient(
-                colors = RainbowColors,
-                tileMode = TileMode.Mirror
-            ),
-            fontSize = 30.sp
-        )
+        textStyle =
+            TextStyle(
+                brush = Brush.linearGradient(colors = RainbowColors, tileMode = TileMode.Mirror),
+                fontSize = 30.sp
+            )
     )
 }
 
 @Suppress("PrimitiveInCollection")
-internal val RainbowColors = listOf(
-    Color(0xff9c4f96),
-    Color(0xffff6355),
-    Color(0xfffba949),
-    Color(0xfffae442),
-    Color(0xff8bd448),
-    Color(0xff2aa8f2)
-)
+internal val RainbowColors =
+    listOf(
+        Color(0xff9c4f96),
+        Color(0xffff6355),
+        Color(0xfffba949),
+        Color(0xfffae442),
+        Color(0xff8bd448),
+        Color(0xff2aa8f2)
+    )
 
 @Suppress("PrimitiveInCollection")
 internal val RainbowStops = listOf(0f, 0.2f, 0.4f, 0.6f, 0.8f, 1f)

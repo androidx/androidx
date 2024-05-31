@@ -26,21 +26,21 @@ import androidx.compose.ui.text.input.ImeAction
 @Stable
 class KeyboardActions(
     /**
-     * This is run when the user triggers the [Done][ImeAction.Done] action. A null value
-     * indicates that the default implementation if any, should be executed.
+     * This is run when the user triggers the [Done][ImeAction.Done] action. A null value indicates
+     * that the default implementation if any, should be executed.
      */
     val onDone: (KeyboardActionScope.() -> Unit)? = null,
 
     /**
-     * This is run when the user triggers the [Go][ImeAction.Go] action. A null value indicates
-     * that the default implementation if any, should be executed.
+     * This is run when the user triggers the [Go][ImeAction.Go] action. A null value indicates that
+     * the default implementation if any, should be executed.
      */
     val onGo: (KeyboardActionScope.() -> Unit)? = null,
 
     /**
-     * This is run when the user triggers the [Next][ImeAction.Next] action. A null value
-     * indicates that the default implementation should be executed. The default implementation
-     * moves focus to the next item in the focus traversal order.
+     * This is run when the user triggers the [Next][ImeAction.Next] action. A null value indicates
+     * that the default implementation should be executed. The default implementation moves focus to
+     * the next item in the focus traversal order.
      *
      * See [Modifier.focusProperties()][androidx.compose.ui.focus.focusProperties] for more details
      * on how to specify a custom focus order if needed.
@@ -64,8 +64,8 @@ class KeyboardActions(
     val onSearch: (KeyboardActionScope.() -> Unit)? = null,
 
     /**
-     * This is run when the user triggers the [Send][ImeAction.Send] action. A null value
-     * indicates that the default implementation if any, should be executed.
+     * This is run when the user triggers the [Send][ImeAction.Send] action. A null value indicates
+     * that the default implementation if any, should be executed.
      */
     val onSend: (KeyboardActionScope.() -> Unit)? = null
 ) {
@@ -97,29 +97,23 @@ class KeyboardActions(
          * Use this default value if you don't want to specify any action but want to use the
          * default action implementations.
          */
-        @Stable
-        val Default: KeyboardActions = KeyboardActions()
+        @Stable val Default: KeyboardActions = KeyboardActions()
     }
 }
 
-/**
- * Creates an instance of [KeyboardActions] that uses the specified lambda for all [ImeAction]s.
- */
-fun KeyboardActions(onAny: KeyboardActionScope.() -> Unit): KeyboardActions = KeyboardActions(
-    onDone = onAny,
-    onGo = onAny,
-    onNext = onAny,
-    onPrevious = onAny,
-    onSearch = onAny,
-    onSend = onAny
-)
+/** Creates an instance of [KeyboardActions] that uses the specified lambda for all [ImeAction]s. */
+fun KeyboardActions(onAny: KeyboardActionScope.() -> Unit): KeyboardActions =
+    KeyboardActions(
+        onDone = onAny,
+        onGo = onAny,
+        onNext = onAny,
+        onPrevious = onAny,
+        onSearch = onAny,
+        onSend = onAny
+    )
 
-/**
- * This scope can be used to execute the default action implementation.
- */
+/** This scope can be used to execute the default action implementation. */
 interface KeyboardActionScope {
-    /**
-     * Runs the default implementation for the specified [action][ImeAction].
-     */
+    /** Runs the default implementation for the specified [action][ImeAction]. */
     fun defaultKeyboardAction(imeAction: ImeAction)
 }

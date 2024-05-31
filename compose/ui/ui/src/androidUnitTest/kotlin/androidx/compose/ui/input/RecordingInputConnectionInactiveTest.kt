@@ -137,39 +137,40 @@ class RecordingInputConnectionInactiveTest {
         assertThat(ic.commitContent(mock(), 0, mock())).isFalse()
     }
 
-    private fun defaultInputConnection() = RecordingInputConnection(
-        initState = TextFieldValue("", TextRange.Zero),
-        eventCallback = mock(),
-        autoCorrect = true
-    )
+    private fun defaultInputConnection() =
+        RecordingInputConnection(
+            initState = TextFieldValue("", TextRange.Zero),
+            eventCallback = mock(),
+            autoCorrect = true
+        )
 
-// The following InputConnection functions does not have well defined inactive input
-// connection behavior, keeping them commented as a reference.
-//    @Test
-//    fun getTextBeforeCursor(){
-//        assertThat(ic.getTextBeforeCursor(mock(), mock())).isEqualTo("")
-//    }
-//
-//    @Test
-//    fun getTextAfterCursor() {
-//        assertThat(ic.getTextAfterCursor(mock(), mock())).isEqualTo("")
-//    }
-//
-//    @Test
-//    fun getSelectedText() {
-//        assertThat(ic.getSelectedText(mock(), mock())).isEqualTo("")
-//    }
-//
-//    @Test
-//    fun getCursorCapsMode() {
-//        assertThat(ic.getCursorCapsMode(mock())).isEqualTo(0)
-//    }
-//    @Test
-//    fun getExtractedText() {
-//        assertThat(ic.getExtractedText(mock(), mock())).isEqualTo(0)
-//    }
-//    @Test
-//    fun getHandler() {
-//        assertThat(ic.handler).isFalse()
-//    }
+    // The following InputConnection functions does not have well defined inactive input
+    // connection behavior, keeping them commented as a reference.
+    //    @Test
+    //    fun getTextBeforeCursor(){
+    //        assertThat(ic.getTextBeforeCursor(mock(), mock())).isEqualTo("")
+    //    }
+    //
+    //    @Test
+    //    fun getTextAfterCursor() {
+    //        assertThat(ic.getTextAfterCursor(mock(), mock())).isEqualTo("")
+    //    }
+    //
+    //    @Test
+    //    fun getSelectedText() {
+    //        assertThat(ic.getSelectedText(mock(), mock())).isEqualTo("")
+    //    }
+    //
+    //    @Test
+    //    fun getCursorCapsMode() {
+    //        assertThat(ic.getCursorCapsMode(mock())).isEqualTo(0)
+    //    }
+    //    @Test
+    //    fun getExtractedText() {
+    //        assertThat(ic.getExtractedText(mock(), mock())).isEqualTo(0)
+    //    }
+    //    @Test
+    //    fun getHandler() {
+    //        assertThat(ic.handler).isFalse()
+    //    }
 }

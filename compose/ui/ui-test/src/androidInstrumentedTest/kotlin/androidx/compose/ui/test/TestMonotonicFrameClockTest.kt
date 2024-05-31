@@ -52,38 +52,42 @@ class TestMonotonicFrameClockTest {
     // TestMonotonicFrameClock machinery doesn't break the delay mechanism and end up using wall
     // clock time for delays.
     @Test
-    fun delaysAreSkipped_unconfinedDispatcher() = runTest(UnconfinedTestDispatcher()) {
-        val delayMillis = 999_999_999L
-        withTestClockContext {
-            val virtualStartTimeMillis = currentTime
-            val realStartTimeNanos = System.nanoTime()
-            delay(delayMillis)
-            val realDurationMillis = (System.nanoTime() - realStartTimeNanos) / 1_000_000
-            val virtualDurationMillis = currentTime - virtualStartTimeMillis
+    fun delaysAreSkipped_unconfinedDispatcher() =
+        runTest(UnconfinedTestDispatcher()) {
+            val delayMillis = 999_999_999L
+            withTestClockContext {
+                val virtualStartTimeMillis = currentTime
+                val realStartTimeNanos = System.nanoTime()
+                delay(delayMillis)
+                val realDurationMillis = (System.nanoTime() - realStartTimeNanos) / 1_000_000
+                val virtualDurationMillis = currentTime - virtualStartTimeMillis
 
-            assertThat(virtualDurationMillis).isEqualTo(delayMillis)
-            // This could theoretically fail if the test host is running _really_ slow, but 500ms
-            // should be more than enough.
-            assertThat(realDurationMillis).isLessThan(500)
+                assertThat(virtualDurationMillis).isEqualTo(delayMillis)
+                // This could theoretically fail if the test host is running _really_ slow, but
+                // 500ms
+                // should be more than enough.
+                assertThat(realDurationMillis).isLessThan(500)
+            }
         }
-    }
 
     @Test
-    fun delaysAreSkipped_standardDispatcher() = runTest(StandardTestDispatcher()) {
-        val delayMillis = 999_999_999L
-        withTestClockContext {
-            val virtualStartTimeMillis = currentTime
-            val realStartTimeNanos = System.nanoTime()
-            delay(delayMillis)
-            val realDurationMillis = (System.nanoTime() - realStartTimeNanos) / 1_000_000
-            val virtualDurationMillis = currentTime - virtualStartTimeMillis
+    fun delaysAreSkipped_standardDispatcher() =
+        runTest(StandardTestDispatcher()) {
+            val delayMillis = 999_999_999L
+            withTestClockContext {
+                val virtualStartTimeMillis = currentTime
+                val realStartTimeNanos = System.nanoTime()
+                delay(delayMillis)
+                val realDurationMillis = (System.nanoTime() - realStartTimeNanos) / 1_000_000
+                val virtualDurationMillis = currentTime - virtualStartTimeMillis
 
-            assertThat(virtualDurationMillis).isEqualTo(delayMillis)
-            // This could theoretically fail if the test host is running _really_ slow, but 500ms
-            // should be more than enough.
-            assertThat(realDurationMillis).isLessThan(500)
+                assertThat(virtualDurationMillis).isEqualTo(delayMillis)
+                // This could theoretically fail if the test host is running _really_ slow, but
+                // 500ms
+                // should be more than enough.
+                assertThat(realDurationMillis).isLessThan(500)
+            }
         }
-    }
 
     @Test
     fun testMonotonicFrameClockRunsFrame_unconfinedDispatcher() =
@@ -171,9 +175,7 @@ class TestMonotonicFrameClockTest {
             val counter = TestCounter()
 
             withTestClockContext(
-                onPerformTraversals = {
-                    counter.expect(9, "perform traversals")
-                }
+                onPerformTraversals = { counter.expect(9, "perform traversals") }
             ) {
                 var continuation: Continuation<Unit>? = null
 
@@ -189,9 +191,7 @@ class TestMonotonicFrameClockTest {
                         counter.expect(5, "in frame callback 1")
                         // Coroutines launched inside withFrameNanos shouldn't be dispatched until
                         // after all frame callbacks are complete.
-                        launch {
-                            counter.expect(10, "in \"effect\" coroutine")
-                        }
+                        launch { counter.expect(10, "in \"effect\" coroutine") }
                         counter.expect(6, "after launching \"effect\" coroutine")
                     }
                     counter.expect(11, "after resuming frame callback 1")
@@ -222,9 +222,7 @@ class TestMonotonicFrameClockTest {
             val counter = TestCounter()
 
             withTestClockContext(
-                onPerformTraversals = {
-                    counter.expect(9, "perform traversals")
-                }
+                onPerformTraversals = { counter.expect(9, "perform traversals") }
             ) {
                 var continuation: Continuation<Unit>? = null
 
@@ -240,9 +238,7 @@ class TestMonotonicFrameClockTest {
                         counter.expect(5, "in frame callback 1")
                         // Coroutines launched inside withFrameNanos shouldn't be dispatched until
                         // after all frame callbacks are complete.
-                        launch {
-                            counter.expect(10, "in \"effect\" coroutine")
-                        }
+                        launch { counter.expect(10, "in \"effect\" coroutine") }
                         counter.expect(6, "after launching \"effect\" coroutine")
                     }
                     counter.expect(11, "after resuming frame callback 1")
@@ -268,76 +264,74 @@ class TestMonotonicFrameClockTest {
         }
 
     @Test
-    fun withFrameNanosThrows_unconfinedDispatcher() = runTest(UnconfinedTestDispatcher()) {
-        val message = "the frame threw an error"
-        var error: RuntimeException? = null
-        var firstCoroutineContinued = false
-        var secondFrameCallbackRan = false
-        var secondCoroutineContinued = false
+    fun withFrameNanosThrows_unconfinedDispatcher() =
+        runTest(UnconfinedTestDispatcher()) {
+            val message = "the frame threw an error"
+            var error: RuntimeException? = null
+            var firstCoroutineContinued = false
+            var secondFrameCallbackRan = false
+            var secondCoroutineContinued = false
 
-        withTestClockContext {
-            launch {
-                try {
-                    withFrameNanos {
-                        throw RuntimeException(message)
+            withTestClockContext {
+                launch {
+                    try {
+                        withFrameNanos { throw RuntimeException(message) }
+                    } catch (e: RuntimeException) {
+                        error = e
                     }
-                } catch (e: RuntimeException) {
-                    error = e
+                    firstCoroutineContinued = true
                 }
-                firstCoroutineContinued = true
-            }
 
-            launch {
-                withFrameNanos {
-                    // If one frame callback throws, other frame callbacks should still run.
-                    secondFrameCallbackRan = true
+                launch {
+                    withFrameNanos {
+                        // If one frame callback throws, other frame callbacks should still run.
+                        secondFrameCallbackRan = true
+                    }
+                    secondCoroutineContinued = true
                 }
-                secondCoroutineContinued = true
-            }
 
-            advanceUntilIdleWorkaround()
-            assertThat(error).hasMessageThat().isEqualTo(message)
-            assertThat(firstCoroutineContinued).isTrue()
-            assertThat(secondFrameCallbackRan).isTrue()
-            assertThat(secondCoroutineContinued).isTrue()
+                advanceUntilIdleWorkaround()
+                assertThat(error).hasMessageThat().isEqualTo(message)
+                assertThat(firstCoroutineContinued).isTrue()
+                assertThat(secondFrameCallbackRan).isTrue()
+                assertThat(secondCoroutineContinued).isTrue()
+            }
         }
-    }
 
     @Test
-    fun withFrameNanosThrows_standardDispatcher() = runTest(StandardTestDispatcher()) {
-        val message = "the frame threw an error"
-        var error: RuntimeException? = null
-        var firstCoroutineContinued = false
-        var secondFrameCallbackRan = false
-        var secondCoroutineContinued = false
+    fun withFrameNanosThrows_standardDispatcher() =
+        runTest(StandardTestDispatcher()) {
+            val message = "the frame threw an error"
+            var error: RuntimeException? = null
+            var firstCoroutineContinued = false
+            var secondFrameCallbackRan = false
+            var secondCoroutineContinued = false
 
-        withTestClockContext {
-            launch {
-                try {
-                    withFrameNanos {
-                        throw RuntimeException(message)
+            withTestClockContext {
+                launch {
+                    try {
+                        withFrameNanos { throw RuntimeException(message) }
+                    } catch (e: RuntimeException) {
+                        error = e
                     }
-                } catch (e: RuntimeException) {
-                    error = e
+                    firstCoroutineContinued = true
                 }
-                firstCoroutineContinued = true
-            }
 
-            launch {
-                withFrameNanos {
-                    // If one frame callback throws, other frame callbacks should still run.
-                    secondFrameCallbackRan = true
+                launch {
+                    withFrameNanos {
+                        // If one frame callback throws, other frame callbacks should still run.
+                        secondFrameCallbackRan = true
+                    }
+                    secondCoroutineContinued = true
                 }
-                secondCoroutineContinued = true
-            }
 
-            advanceUntilIdleWorkaround()
-            assertThat(error).hasMessageThat().isEqualTo(message)
-            assertThat(firstCoroutineContinued).isTrue()
-            assertThat(secondFrameCallbackRan).isTrue()
-            assertThat(secondCoroutineContinued).isTrue()
+                advanceUntilIdleWorkaround()
+                assertThat(error).hasMessageThat().isEqualTo(message)
+                assertThat(firstCoroutineContinued).isTrue()
+                assertThat(secondFrameCallbackRan).isTrue()
+                assertThat(secondCoroutineContinued).isTrue()
+            }
         }
-    }
 
     @Test
     fun performTraversalsThrows_cancelsClockScope_unconfinedDispatcher() {
@@ -354,22 +348,21 @@ class TestMonotonicFrameClockTest {
         val traversalFailure = RuntimeException("traversal failure")
         val frameFailure = RuntimeException("frame failure")
 
-        val testFailure = assertFailsWith<RuntimeException> {
-            runTest(UnconfinedTestDispatcher()) {
-                // Need to override the exception handler installed by runTest so it won't fail the
-                // test unnecessarily.
-                val clock = TestMonotonicFrameClock(
-                    coroutineScope = this,
-                    onPerformTraversals = { throw traversalFailure }
-                )
+        val testFailure =
+            assertFailsWith<RuntimeException> {
+                runTest(UnconfinedTestDispatcher()) {
+                    // Need to override the exception handler installed by runTest so it won't fail
+                    // the
+                    // test unnecessarily.
+                    val clock =
+                        TestMonotonicFrameClock(
+                            coroutineScope = this,
+                            onPerformTraversals = { throw traversalFailure }
+                        )
 
-                withTestClockContext(clock) {
-                    launch {
-                        withFrameNanos { throw frameFailure }
-                    }
+                    withTestClockContext(clock) { launch { withFrameNanos { throw frameFailure } } }
                 }
             }
-        }
 
         assertThat(testFailure).isSameInstanceAs(frameFailure)
         assertThat(testFailure.suppressedExceptions).contains(traversalFailure)
@@ -380,22 +373,21 @@ class TestMonotonicFrameClockTest {
         val traversalFailure = RuntimeException("traversal failure")
         val frameFailure = RuntimeException("frame failure")
 
-        val testFailure = assertFailsWith<RuntimeException> {
-            runTest(StandardTestDispatcher()) {
-                // Need to override the exception handler installed by runTest so it won't fail the
-                // test unnecessarily.
-                val clock = TestMonotonicFrameClock(
-                    coroutineScope = this,
-                    onPerformTraversals = { throw traversalFailure }
-                )
+        val testFailure =
+            assertFailsWith<RuntimeException> {
+                runTest(StandardTestDispatcher()) {
+                    // Need to override the exception handler installed by runTest so it won't fail
+                    // the
+                    // test unnecessarily.
+                    val clock =
+                        TestMonotonicFrameClock(
+                            coroutineScope = this,
+                            onPerformTraversals = { throw traversalFailure }
+                        )
 
-                withTestClockContext(clock) {
-                    launch {
-                        withFrameNanos { throw frameFailure }
-                    }
+                    withTestClockContext(clock) { launch { withFrameNanos { throw frameFailure } } }
                 }
             }
-        }
 
         assertThat(testFailure).isSameInstanceAs(traversalFailure)
         assertThat(testFailure.suppressedExceptions).contains(frameFailure)
@@ -425,13 +417,17 @@ class TestMonotonicFrameClockTest {
         runTest(UnconfinedTestDispatcher()) {
             // Need to override the exception handler installed by runTest so it won't fail the
             // test unnecessarily.
-            val clockScope = this + clockJob + CoroutineExceptionHandler { _, _ ->
-                // Ignore
-            }
-            val clock = TestMonotonicFrameClock(
-                coroutineScope = clockScope,
-                onPerformTraversals = { throw traversalFailure }
-            )
+            val clockScope =
+                this +
+                    clockJob +
+                    CoroutineExceptionHandler { _, _ ->
+                        // Ignore
+                    }
+            val clock =
+                TestMonotonicFrameClock(
+                    coroutineScope = clockScope,
+                    onPerformTraversals = { throw traversalFailure }
+                )
 
             withTestClockContext(clock) {
                 launch {
@@ -439,14 +435,12 @@ class TestMonotonicFrameClockTest {
                     frame1Resumed = true
                 }
                 launch {
-                    internalError1 = assertFailsWith<RuntimeException> {
-                        withFrameNanos { throw frameFailure1 }
-                    }
+                    internalError1 =
+                        assertFailsWith<RuntimeException> { withFrameNanos { throw frameFailure1 } }
                 }
                 launch {
-                    internalError2 = assertFailsWith<RuntimeException> {
-                        withFrameNanos { throw frameFailure2 }
-                    }
+                    internalError2 =
+                        assertFailsWith<RuntimeException> { withFrameNanos { throw frameFailure2 } }
                 }
             }
         }
@@ -475,13 +469,17 @@ class TestMonotonicFrameClockTest {
         runTest(StandardTestDispatcher()) {
             // Need to override the exception handler installed by runTest so it won't fail the
             // test unnecessarily.
-            val clockScope = this + clockJob + CoroutineExceptionHandler { _, _ ->
-                // Ignore
-            }
-            val clock = TestMonotonicFrameClock(
-                coroutineScope = clockScope,
-                onPerformTraversals = { throw traversalFailure }
-            )
+            val clockScope =
+                this +
+                    clockJob +
+                    CoroutineExceptionHandler { _, _ ->
+                        // Ignore
+                    }
+            val clock =
+                TestMonotonicFrameClock(
+                    coroutineScope = clockScope,
+                    onPerformTraversals = { throw traversalFailure }
+                )
 
             withTestClockContext(clock) {
                 launch {
@@ -489,14 +487,12 @@ class TestMonotonicFrameClockTest {
                     frame1Resumed = true
                 }
                 launch {
-                    internalError1 = assertFailsWith<RuntimeException> {
-                        withFrameNanos { throw frameFailure1 }
-                    }
+                    internalError1 =
+                        assertFailsWith<RuntimeException> { withFrameNanos { throw frameFailure1 } }
                 }
                 launch {
-                    internalError2 = assertFailsWith<RuntimeException> {
-                        withFrameNanos { throw frameFailure2 }
-                    }
+                    internalError2 =
+                        assertFailsWith<RuntimeException> { withFrameNanos { throw frameFailure2 } }
                 }
             }
         }
@@ -515,22 +511,21 @@ class TestMonotonicFrameClockTest {
     private fun test_performTraversalsThrows_cancelsClockScope(dispatcher: TestDispatcher) {
         val traversalFailure = RuntimeException("traversal failure")
 
-        val testFailure = assertFailsWith<RuntimeException> {
-            runTest(dispatcher) {
-                // Need to override the exception handler installed by runTest so it won't fail the
-                // test unnecessarily.
-                val clock = TestMonotonicFrameClock(
-                    coroutineScope = this,
-                    onPerformTraversals = { throw traversalFailure }
-                )
+        val testFailure =
+            assertFailsWith<RuntimeException> {
+                runTest(dispatcher) {
+                    // Need to override the exception handler installed by runTest so it won't fail
+                    // the
+                    // test unnecessarily.
+                    val clock =
+                        TestMonotonicFrameClock(
+                            coroutineScope = this,
+                            onPerformTraversals = { throw traversalFailure }
+                        )
 
-                withTestClockContext(clock) {
-                    launch {
-                        withFrameNanos {}
-                    }
+                    withTestClockContext(clock) { launch { withFrameNanos {} } }
                 }
             }
-        }
 
         assertThat(testFailure).isSameInstanceAs(traversalFailure)
     }
@@ -544,13 +539,17 @@ class TestMonotonicFrameClockTest {
         runTest(dispatcher) {
             // Need to override the exception handler installed by runTest so it won't fail the
             // test unnecessarily.
-            val clockScope = this + clockJob + CoroutineExceptionHandler { _, _ ->
-                // Ignore
-            }
-            val clock = TestMonotonicFrameClock(
-                coroutineScope = clockScope,
-                onPerformTraversals = { throw RuntimeException("traversal failed") }
-            )
+            val clockScope =
+                this +
+                    clockJob +
+                    CoroutineExceptionHandler { _, _ ->
+                        // Ignore
+                    }
+            val clock =
+                TestMonotonicFrameClock(
+                    coroutineScope = clockScope,
+                    onPerformTraversals = { throw RuntimeException("traversal failed") }
+                )
 
             // Run these with a separate job so they don't get cancelled by their parent.
             withTestClockContext(clock) {

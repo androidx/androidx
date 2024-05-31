@@ -134,26 +134,10 @@ private fun TypedArray.getKeyframe(
     valueIndex: Int
 ): Keyframe<Any> {
     return when (valueType) {
-        ValueType.Float -> Keyframe(
-            fraction,
-            getFloat(valueIndex, 0f),
-            interpolator
-        )
-        ValueType.Int -> Keyframe(
-            fraction,
-            getInt(valueIndex, 0),
-            interpolator
-        )
-        ValueType.Color -> Keyframe(
-            fraction,
-            Color(getColor(valueIndex, 0)),
-            interpolator
-        )
-        ValueType.Path -> Keyframe(
-            fraction,
-            addPathNodes(getString(valueIndex)),
-            interpolator
-        )
+        ValueType.Float -> Keyframe(fraction, getFloat(valueIndex, 0f), interpolator)
+        ValueType.Int -> Keyframe(fraction, getInt(valueIndex, 0), interpolator)
+        ValueType.Color -> Keyframe(fraction, Color(getColor(valueIndex, 0)), interpolator)
+        ValueType.Path -> Keyframe(fraction, addPathNodes(getString(valueIndex)), interpolator)
     }
 }
 
@@ -163,15 +147,9 @@ private fun XmlPullParser.parsePropertyValuesHolder(
     attrs: AttributeSet,
     interpolator: Easing
 ): PropertyValuesHolder<*> {
-    return attrs.attrs(
-        res,
-        theme,
-        AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER
-    ) { a ->
+    return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER) { a ->
         a.getPropertyValuesHolder1D(
-            a.getString(
-                AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_PROPERTY_NAME
-            )!!,
+            a.getString(AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_PROPERTY_NAME)!!,
             AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_VALUE_TYPE,
             AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_VALUE_FROM,
             AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_VALUE_TO,
@@ -207,10 +185,9 @@ private fun inferValueType(valueType: Int, vararg typedValueTypes: Int): ValueTy
         ValueTypePath -> ValueType.Path
         else ->
             if (
-                typedValueTypes
-                    .all {
-                        it in TypedValue.TYPE_FIRST_COLOR_INT..TypedValue.TYPE_LAST_COLOR_INT
-                    }
+                typedValueTypes.all {
+                    it in TypedValue.TYPE_FIRST_COLOR_INT..TypedValue.TYPE_LAST_COLOR_INT
+                }
             ) {
                 ValueType.Color
             } else {
@@ -224,9 +201,9 @@ private fun inferValueType(valueType: Int, vararg typedValueTypes: Int): ValueTy
  * either `<objectAnimator>` or `<propertyValuesHolder>`.
  *
  * @param parseKeyframes The caller should parse `<keyframe>`s inside of this
- * `<propertyValuesHolder>` and store them in the `keyframes` [MutableList]. The lambda receives
- * a [ValueType] if it has been identified so far. The lambda has to return [ValueType] in case it
- * is first identified while parsing keyframes.
+ *   `<propertyValuesHolder>` and store them in the `keyframes` [MutableList]. The lambda receives a
+ *   [ValueType] if it has been identified so far. The lambda has to return [ValueType] in case it
+ *   is first identified while parsing keyframes.
  */
 private fun TypedArray.getPropertyValuesHolder1D(
     propertyName: String,
@@ -234,15 +211,12 @@ private fun TypedArray.getPropertyValuesHolder1D(
     valueFromIndex: Int,
     valueToIndex: Int,
     interpolator: Easing,
-    parseKeyframes: (
-        valueType: ValueType?,
-        keyframes: MutableList<Keyframe<Any>>
-    ) -> ValueType = { vt, _ -> vt ?: FallbackValueType }
+    parseKeyframes: (valueType: ValueType?, keyframes: MutableList<Keyframe<Any>>) -> ValueType =
+        { vt, _ ->
+            vt ?: FallbackValueType
+        }
 ): PropertyValuesHolder1D<*> {
-    val valueType = getInt(
-        valueTypeIndex,
-        ValueTypeUndefined
-    )
+    val valueType = getInt(valueTypeIndex, ValueTypeUndefined)
 
     val valueFrom = peekValue(valueFromIndex)
     val hasFrom = valueFrom != null
@@ -252,16 +226,10 @@ private fun TypedArray.getPropertyValuesHolder1D(
     val hasTo = valueTo != null
     val typeTo = valueTo?.type ?: ValueTypeUndefined
 
-    var inferredValueType =
-        inferValueType(
-            valueType,
-            typeFrom,
-            typeTo
-        )
+    var inferredValueType = inferValueType(valueType, typeFrom, typeTo)
     val keyframes = mutableListOf<Keyframe<Any>>()
     if (inferredValueType == null && (hasFrom || hasTo)) {
-        inferredValueType =
-            ValueType.Float
+        inferredValueType = ValueType.Float
     }
     if (hasFrom) {
         keyframes.add(getKeyframe(0f, interpolator, inferredValueType!!, valueFromIndex))
@@ -273,29 +241,21 @@ private fun TypedArray.getPropertyValuesHolder1D(
     keyframes.sortBy { it.fraction }
     @Suppress("UNCHECKED_CAST")
     return when (inferredValueType) {
-        ValueType.Float -> PropertyValuesHolderFloat(
-            propertyName,
-            keyframes as List<Keyframe<Float>>
-        )
-        ValueType.Int -> PropertyValuesHolderInt(
-            propertyName,
-            keyframes as List<Keyframe<Int>>
-        )
-        ValueType.Color -> PropertyValuesHolderColor(
-            propertyName,
-            keyframes as List<Keyframe<Color>>
-        )
-        ValueType.Path -> PropertyValuesHolderPath(
-            propertyName,
-            keyframes as List<Keyframe<List<PathNode>>>
-        )
+        ValueType.Float ->
+            PropertyValuesHolderFloat(propertyName, keyframes as List<Keyframe<Float>>)
+        ValueType.Int -> PropertyValuesHolderInt(propertyName, keyframes as List<Keyframe<Int>>)
+        ValueType.Color ->
+            PropertyValuesHolderColor(propertyName, keyframes as List<Keyframe<Color>>)
+        ValueType.Path ->
+            PropertyValuesHolderPath(propertyName, keyframes as List<Keyframe<List<PathNode>>>)
     }
 }
 
-private fun convertRepeatMode(repeatMode: Int) = when (repeatMode) {
-    RepeatModeReverse -> RepeatMode.Reverse
-    else -> RepeatMode.Restart
-}
+private fun convertRepeatMode(repeatMode: Int) =
+    when (repeatMode) {
+        RepeatModeReverse -> RepeatMode.Reverse
+        else -> RepeatMode.Restart
+    }
 
 internal fun XmlPullParser.parseObjectAnimator(
     res: Resources,
@@ -304,16 +264,16 @@ internal fun XmlPullParser.parseObjectAnimator(
 ): ObjectAnimator {
     return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_ANIMATOR) { a ->
         attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR) { oa ->
-            val interpolator = a.getInterpolator(
-                res,
-                theme,
-                AndroidVectorResources.STYLEABLE_ANIMATOR_INTERPOLATOR,
-                AccelerateDecelerateEasing
-            )
+            val interpolator =
+                a.getInterpolator(
+                    res,
+                    theme,
+                    AndroidVectorResources.STYLEABLE_ANIMATOR_INTERPOLATOR,
+                    AccelerateDecelerateEasing
+                )
             val holders = mutableListOf<PropertyValuesHolder<*>>()
-            val pathData = oa.getString(
-                AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR_PATH_DATA
-            )
+            val pathData =
+                oa.getString(AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR_PATH_DATA)
             if (pathData != null) {
                 // 2D; This <objectAnimator> has `pathData`. It should also have `propertyXName`
                 // and `propertyYName`.
@@ -331,19 +291,18 @@ internal fun XmlPullParser.parseObjectAnimator(
                 )
             } else {
                 // 1D; This <objectAnimator> has `propertyName`, `valueFrom`, and `valueTo`.
-                oa.getString(
-                    AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_NAME
-                )?.let { propertyName ->
-                    holders.add(
-                        a.getPropertyValuesHolder1D(
-                            propertyName,
-                            AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_TYPE,
-                            AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_FROM,
-                            AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_TO,
-                            interpolator
+                oa.getString(AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_NAME)
+                    ?.let { propertyName ->
+                        holders.add(
+                            a.getPropertyValuesHolder1D(
+                                propertyName,
+                                AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_TYPE,
+                                AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_FROM,
+                                AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_TO,
+                                interpolator
+                            )
                         )
-                    )
-                }
+                    }
                 // This <objectAnimator> has <propertyValuesHolder> inside.
                 forEachChildOf(TagObjectAnimator) {
                     if (eventType == XmlPullParser.START_TAG && name == TagPropertyValuesHolder) {
@@ -353,21 +312,13 @@ internal fun XmlPullParser.parseObjectAnimator(
             }
 
             ObjectAnimator(
-                duration = a.getInt(
-                    AndroidVectorResources.STYLEABLE_ANIMATOR_DURATION,
-                    300
-                ),
-                startDelay = a.getInt(
-                    AndroidVectorResources.STYLEABLE_ANIMATOR_START_OFFSET,
-                    0
-                ),
-                repeatCount = a.getInt(
-                    AndroidVectorResources.STYLEABLE_ANIMATOR_REPEAT_COUNT,
-                    0
-                ),
-                repeatMode = convertRepeatMode(
-                    a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_REPEAT_MODE, 0)
-                ),
+                duration = a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_DURATION, 300),
+                startDelay = a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_START_OFFSET, 0),
+                repeatCount = a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_REPEAT_COUNT, 0),
+                repeatMode =
+                    convertRepeatMode(
+                        a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_REPEAT_MODE, 0)
+                    ),
                 holders = holders
             )
         }
@@ -390,10 +341,7 @@ internal fun XmlPullParser.parseAnimatorSet(
                 }
             }
         }
-        AnimatorSet(
-            animators,
-            if (ordering != 0) Ordering.Sequentially else Ordering.Together
-        )
+        AnimatorSet(animators, if (ordering != 0) Ordering.Sequentially else Ordering.Together)
     }
 }
 
@@ -405,32 +353,28 @@ internal fun XmlPullParser.parseInterpolator(
     return when (name) {
         "linearInterpolator" -> LinearEasing
         "accelerateInterpolator" ->
-            attrs.attrs(
-                res, theme, AndroidVectorResources.STYLEABLE_ACCELERATE_INTERPOLATOR
-            ) { a ->
-                val factor = a.getFloat(
-                    AndroidVectorResources.STYLEABLE_ACCELERATE_INTERPOLATOR_FACTOR, 1.0f
-                )
+            attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_ACCELERATE_INTERPOLATOR) { a ->
+                val factor =
+                    a.getFloat(
+                        AndroidVectorResources.STYLEABLE_ACCELERATE_INTERPOLATOR_FACTOR,
+                        1.0f
+                    )
                 if (factor == 1.0f) AccelerateEasing else AccelerateEasing(factor)
             }
         "decelerateInterpolator" ->
-            attrs.attrs(
-                res, theme, AndroidVectorResources.STYLEABLE_DECELERATE_INTERPOLATOR
-            ) { a ->
-                val factor = a.getFloat(
-                    AndroidVectorResources.STYLEABLE_DECELERATE_INTERPOLATOR_FACTOR, 1.0f
-                )
+            attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_DECELERATE_INTERPOLATOR) { a ->
+                val factor =
+                    a.getFloat(
+                        AndroidVectorResources.STYLEABLE_DECELERATE_INTERPOLATOR_FACTOR,
+                        1.0f
+                    )
                 if (factor == 1.0f) DecelerateEasing else DecelerateEasing(factor)
             }
         "accelerateDecelerateInterpolator" -> AccelerateDecelerateEasing
         "cycleInterpolator" ->
-            attrs.attrs(
-                res, theme, AndroidVectorResources.STYLEABLE_CYCLE_INTERPOLATOR
-            ) { a ->
+            attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_CYCLE_INTERPOLATOR) { a ->
                 CycleEasing(
-                    a.getFloat(
-                        AndroidVectorResources.STYLEABLE_CYCLE_INTERPOLATOR_CYCLES, 1.0f
-                    )
+                    a.getFloat(AndroidVectorResources.STYLEABLE_CYCLE_INTERPOLATOR_CYCLES, 1.0f)
                 )
             }
         "anticipateInterpolator" ->
@@ -447,9 +391,7 @@ internal fun XmlPullParser.parseInterpolator(
                 )
             }
         "overshootInterpolator" ->
-            attrs.attrs(
-                res, theme, AndroidVectorResources.STYLEABLE_OVERSHOOT_INTERPOLATOR
-            ) { a ->
+            attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_OVERSHOOT_INTERPOLATOR) { a ->
                 OvershootEasing(
                     a.getFloat(
                         AndroidVectorResources.STYLEABLE_OVERSHOOT_INTERPOLATOR_TENSION,
@@ -477,27 +419,26 @@ internal fun XmlPullParser.parseInterpolator(
             }
         "bounceInterpolator" -> BounceEasing
         "pathInterpolator" ->
-            attrs.attrs(
-                res, theme, AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR
-            ) { a ->
+            attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR) { a ->
                 val pathData =
                     a.getString(AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_PATH_DATA)
                 if (pathData != null) {
                     PathInterpolator(PathParser.createPathFromPathData(pathData)).toEasing()
                 } else if (
                     !a.hasValue(AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2) ||
-                    !a.hasValue(AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2)
+                        !a.hasValue(AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2)
                 ) {
                     PathInterpolator(
-                        a.getFloat(
-                            AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1,
-                            0f
-                        ),
-                        a.getFloat(
-                            AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1,
-                            0f
+                            a.getFloat(
+                                AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1,
+                                0f
+                            ),
+                            a.getFloat(
+                                AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1,
+                                0f
+                            )
                         )
-                    ).toEasing()
+                        .toEasing()
                 } else {
                     CubicBezierEasing(
                         a.getFloat(

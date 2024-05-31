@@ -45,9 +45,7 @@ import androidx.compose.ui.input.pointer.isSymPressed
 import androidx.compose.ui.input.pointer.isTertiaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 
-/**
- * Demo to show the state of buttons and meta keys
- */
+/** Demo to show the state of buttons and meta keys */
 @Composable
 fun ButtonMetaStateDemo() {
     var control by remember { mutableStateOf(false) }

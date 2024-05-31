@@ -54,7 +54,6 @@ internal actual val platformDefaultKeyMapping: KeyMapping =
                                 MappedKeys.DirectionDown -> KeyCommand.SELECT_END
                                 else -> null
                             }
-
                         event.isMetaPressed ->
                             when (event.key) {
                                 MappedKeys.DirectionLeft -> KeyCommand.LINE_LEFT
@@ -129,7 +128,6 @@ internal actual val platformDefaultKeyMapping: KeyMapping =
                 }
             }
         }
-
         else -> defaultKeyMapping
     }
 

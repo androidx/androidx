@@ -28,41 +28,40 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.ln
 
 /**
- * CompositionLocal containing the [ElevationOverlay] used by [Surface] components. Provide
- * `null` to turn off [ElevationOverlay]s for the children within this CompositionLocal..
+ * CompositionLocal containing the [ElevationOverlay] used by [Surface] components. Provide `null`
+ * to turn off [ElevationOverlay]s for the children within this CompositionLocal..
  *
  * @see ElevationOverlay
  */
 val LocalElevationOverlay: ProvidableCompositionLocal<ElevationOverlay?> =
-    staticCompositionLocalOf { DefaultElevationOverlay }
+    staticCompositionLocalOf {
+        DefaultElevationOverlay
+    }
 
 // TODO: make this a fun interface
 /**
- * An ElevationOverlay is an overlay applied to the background color of [Surface] components,
- * used to emphasize elevation in dark theme, where shadows are not as visible. An
- * ElevationOverlay does not replace the shadows drawn by a [Surface], but is used as an
- * additional representation of elevation.
+ * An ElevationOverlay is an overlay applied to the background color of [Surface] components, used
+ * to emphasize elevation in dark theme, where shadows are not as visible. An ElevationOverlay does
+ * not replace the shadows drawn by a [Surface], but is used as an additional representation of
+ * elevation.
  *
  * The default ElevationOverlay only applies in dark theme (![Colors.isLight]), in accordance with
  * the Material specification for
  * [Dark Theme](https://material.io/design/color/dark-theme.html#properties).
  *
- * See [LocalElevationOverlay] to provide your own [ElevationOverlay]. You can provide `null`
- * to have no ElevationOverlay applied.
+ * See [LocalElevationOverlay] to provide your own [ElevationOverlay]. You can provide `null` to
+ * have no ElevationOverlay applied.
  */
 interface ElevationOverlay {
     /**
-     * Returns the new background [Color] to use, representing the original background [color]
-     * with an overlay corresponding to [elevation] applied. Typically this should only be
-     * applied to [Colors.surface].
+     * Returns the new background [Color] to use, representing the original background [color] with
+     * an overlay corresponding to [elevation] applied. Typically this should only be applied to
+     * [Colors.surface].
      */
-    @Composable
-    fun apply(color: Color, elevation: Dp): Color
+    @Composable fun apply(color: Color, elevation: Dp): Color
 }
 
-/**
- * The default [ElevationOverlay] implementation.
- */
+/** The default [ElevationOverlay] implementation. */
 private object DefaultElevationOverlay : ElevationOverlay {
     @ReadOnlyComposable
     @Composable
@@ -78,9 +77,9 @@ private object DefaultElevationOverlay : ElevationOverlay {
 }
 
 /**
- * @return the alpha-modified foreground color to overlay on top of the surface color to produce
- * the resultant color. This color is the [contentColorFor] the [backgroundColor], with alpha
- * applied depending on the value of [elevation].
+ * @return the alpha-modified foreground color to overlay on top of the surface color to produce the
+ *   resultant color. This color is the [contentColorFor] the [backgroundColor], with alpha applied
+ *   depending on the value of [elevation].
  */
 @ReadOnlyComposable
 @Composable
@@ -92,9 +91,9 @@ private fun calculateForegroundColor(backgroundColor: Color, elevation: Dp): Col
 
 /**
  * CompositionLocal containing the current absolute elevation provided by [Surface] components. This
- * absolute elevation is a sum of all the previous elevations. Absolute elevation is only
- * used for calculating elevation overlays in dark theme, and is *not* used for drawing the
- * shadow in a [Surface]. See [ElevationOverlay] for more information on elevation overlays.
+ * absolute elevation is a sum of all the previous elevations. Absolute elevation is only used for
+ * calculating elevation overlays in dark theme, and is *not* used for drawing the shadow in a
+ * [Surface]. See [ElevationOverlay] for more information on elevation overlays.
  *
  * @sample androidx.compose.material.samples.AbsoluteElevationSample
  */

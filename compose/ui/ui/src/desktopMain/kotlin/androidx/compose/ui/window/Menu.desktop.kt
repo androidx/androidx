@@ -58,12 +58,11 @@ private val DefaultIconSize = Size(16f, 16f)
  * Composes the given composable into the MenuBar.
  *
  * The new composition can be logically "linked" to an existing one, by providing a
- * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow
- * through the two compositions as if they were not separate.
+ * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow through
+ * the two compositions as if they were not separate.
  *
- * @param parentComposition The parent composition reference to coordinate
- *        scheduling of composition updates.
- *        If null then default root composition will be used.
+ * @param parentComposition The parent composition reference to coordinate scheduling of composition
+ *   updates. If null then default root composition will be used.
  * @param content Composable content of the MenuBar.
  */
 fun JMenuBar.setContent(
@@ -73,9 +72,7 @@ fun JMenuBar.setContent(
     val applier = MutableListApplier(asMutableList())
     val composition = Composition(applier, parentComposition)
     val scope = MenuBarScope()
-    composition.setContent {
-        scope.content()
-    }
+    composition.setContent { scope.content() }
     return composition
 }
 
@@ -83,12 +80,11 @@ fun JMenuBar.setContent(
  * Composes the given composable into the Menu.
  *
  * The new composition can be logically "linked" to an existing one, by providing a
- * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow
- * through the two compositions as if they were not separate.
+ * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow through
+ * the two compositions as if they were not separate.
  *
- * @param parentComposition The parent composition reference to coordinate
- *        scheduling of composition updates.
- *        If null then default root composition will be used.
+ * @param parentComposition The parent composition reference to coordinate scheduling of composition
+ *   updates. If null then default root composition will be used.
  * @param content Composable content of the Menu.
  */
 fun Menu.setContent(
@@ -98,9 +94,7 @@ fun Menu.setContent(
     val applier = MenuItemApplier(this)
     val composition = Composition(applier, parentComposition)
     val scope = MenuScope(AwtMenuScope())
-    composition.setContent {
-        scope.content()
-    }
+    composition.setContent { scope.content() }
     return composition
 }
 
@@ -108,12 +102,11 @@ fun Menu.setContent(
  * Composes the given composable into the Menu.
  *
  * The new composition can be logically "linked" to an existing one, by providing a
- * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow
- * through the two compositions as if they were not separate.
+ * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow through
+ * the two compositions as if they were not separate.
  *
- * @param parentComposition The parent composition reference to coordinate
- *        scheduling of composition updates.
- *        If null then default root composition will be used.
+ * @param parentComposition The parent composition reference to coordinate scheduling of composition
+ *   updates. If null then default root composition will be used.
  * @param content Composable content of the Menu.
  */
 fun JMenu.setContent(
@@ -123,27 +116,22 @@ fun JMenu.setContent(
     val applier = JMenuItemApplier(this)
     val composition = Composition(applier, parentComposition)
     val scope = MenuScope(SwingMenuScope())
-    composition.setContent {
-        scope.content()
-    }
+    composition.setContent { scope.content() }
     return composition
 }
 
 // TODO(demin): consider making MenuBarScope/MenuScope as an interface
 //  after b/165812010 will be fixed
-/**
- * Receiver scope which is used by [JMenuBar.setContent] and [FrameWindowScope.MenuBar].
- */
+/** Receiver scope which is used by [JMenuBar.setContent] and [FrameWindowScope.MenuBar]. */
 class MenuBarScope internal constructor() {
     /**
      * Adds menu to the menu bar
      *
      * @param text text of the menu that will be shown on the menu bar
      * @param enabled is this menu item can be chosen
-     * @param mnemonic character that corresponds to some key on the keyboard.
-     * When this key and Alt modifier will be pressed - menu will be open.
-     * If the character is found within the item's text, the first occurrence
-     * of it will be underlined.
+     * @param mnemonic character that corresponds to some key on the keyboard. When this key and Alt
+     *   modifier will be pressed - menu will be open. If the character is found within the item's
+     *   text, the first occurrence of it will be underlined.
      * @param content content of the menu (sub menus, items, separators, etc)
      */
     @Composable
@@ -158,9 +146,7 @@ class MenuBarScope internal constructor() {
 
         DisposableEffect(Unit) {
             val composition = menu.setContent(compositionContext, content)
-            onDispose {
-                composition.dispose()
-            }
+            onDispose { composition.dispose() }
         }
 
         ComposeNode<JMenu, MutableListApplier<JComponent>>(
@@ -183,8 +169,7 @@ internal interface MenuScopeImpl {
         content: @Composable MenuScope.() -> Unit
     )
 
-    @Composable
-    fun Separator()
+    @Composable fun Separator()
 
     @Composable
     fun Item(
@@ -282,13 +267,7 @@ private class AwtMenuScope : MenuScopeImpl {
         val currentOnClick by rememberUpdatedState(onClick)
 
         ComposeNode<MenuItem, MenuItemApplier>(
-            factory = {
-                MenuItem().apply {
-                    addActionListener {
-                        currentOnClick()
-                    }
-                }
-            },
+            factory = { MenuItem().apply { addActionListener { currentOnClick() } } },
             update = {
                 set(text, MenuItem::setLabel)
                 set(enabled, MenuItem::setEnabled)
@@ -318,17 +297,13 @@ private class AwtMenuScope : MenuScopeImpl {
 
         val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
 
-        val checkedState = rememberStateChanger(
-            CheckboxMenuItem::setState,
-            CheckboxMenuItem::getState
-        )
+        val checkedState =
+            rememberStateChanger(CheckboxMenuItem::setState, CheckboxMenuItem::getState)
 
         ComposeNode<CheckboxMenuItem, MenuItemApplier>(
             factory = {
                 CheckboxMenuItem().apply {
-                    addItemListener {
-                        checkedState.fireChange(this, currentOnCheckedChange)
-                    }
+                    addItemListener { checkedState.fireChange(this, currentOnCheckedChange) }
                 }
             },
             update = {
@@ -404,13 +379,7 @@ private class SwingMenuScope : MenuScopeImpl {
         val awtIcon = rememberAwtIcon(icon)
 
         ComposeNode<JMenuItem, JMenuItemApplier>(
-            factory = {
-                JMenuItem().apply {
-                    addActionListener {
-                        currentOnClick()
-                    }
-                }
-            },
+            factory = { JMenuItem().apply { addActionListener { currentOnClick() } } },
             update = {
                 set(text, JMenuItem::setText)
                 set(awtIcon, JMenuItem::setIcon)
@@ -434,17 +403,13 @@ private class SwingMenuScope : MenuScopeImpl {
         val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
         val awtIcon = rememberAwtIcon(icon)
 
-        val checkedState = rememberStateChanger(
-            JCheckBoxMenuItem::setState,
-            JCheckBoxMenuItem::getState
-        )
+        val checkedState =
+            rememberStateChanger(JCheckBoxMenuItem::setState, JCheckBoxMenuItem::getState)
 
         ComposeNode<JCheckBoxMenuItem, JMenuItemApplier>(
             factory = {
                 JCheckBoxMenuItem().apply {
-                    addItemListener {
-                        checkedState.fireChange(this, currentOnCheckedChange)
-                    }
+                    addItemListener { checkedState.fireChange(this, currentOnCheckedChange) }
                 }
             },
             update = {
@@ -471,17 +436,16 @@ private class SwingMenuScope : MenuScopeImpl {
         val currentOnClick by rememberUpdatedState(onClick)
         val awtIcon = rememberAwtIcon(icon)
 
-        val selectedState = rememberStateChanger(
-            JRadioButtonMenuItem::setSelected,
-            JRadioButtonMenuItem::isSelected
-        )
+        val selectedState =
+            rememberStateChanger(
+                JRadioButtonMenuItem::setSelected,
+                JRadioButtonMenuItem::isSelected
+            )
 
         ComposeNode<JRadioButtonMenuItem, JMenuItemApplier>(
             factory = {
                 JRadioButtonMenuItem().apply {
-                    addItemListener {
-                        selectedState.fireChange(this) { currentOnClick() }
-                    }
+                    addItemListener { selectedState.fireChange(this) { currentOnClick() } }
                 }
             },
             update = {
@@ -498,19 +462,16 @@ private class SwingMenuScope : MenuScopeImpl {
 
 // we use `class MenuScope` and `interface MenuScopeImpl` instead of just `interface MenuScope`
 // because of b/165812010
-/**
- * Receiver scope which is used by [Menu.setContent], [MenuBarScope.Menu], [Tray]
- */
+/** Receiver scope which is used by [Menu.setContent], [MenuBarScope.Menu], [Tray] */
 class MenuScope internal constructor(private val impl: MenuScopeImpl) {
     /**
      * Adds sub menu to the menu
      *
      * @param text text of the menu that will be shown in the menu
      * @param enabled is this menu item can be chosen
-     * @param mnemonic character that corresponds to some key on the keyboard.
-     * When this key will be pressed - menu will be open.
-     * If the character is found within the item's text, the first occurrence
-     * of it will be underlined.
+     * @param mnemonic character that corresponds to some key on the keyboard. When this key will be
+     *   pressed - menu will be open. If the character is found within the item's text, the first
+     *   occurrence of it will be underlined.
      * @param content content of the menu (sub menus, items, separators, etc)
      */
     @Composable
@@ -519,18 +480,10 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
         enabled: Boolean = true,
         mnemonic: Char? = null,
         content: @Composable MenuScope.() -> Unit
-    ): Unit = impl.Menu(
-        text,
-        enabled,
-        mnemonic,
-        content
-    )
+    ): Unit = impl.Menu(text, enabled, mnemonic, content)
 
-    /**
-     * Adds separator to the menu
-     */
-    @Composable
-    fun Separator() = impl.Separator()
+    /** Adds separator to the menu */
+    @Composable fun Separator() = impl.Separator()
 
     /**
      * Adds item to the menu
@@ -538,12 +491,11 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * @param text text of the item that will be shown in the menu
      * @param icon icon of the item
      * @param enabled is this item item can be chosen
-     * @param mnemonic character that corresponds to some key on the keyboard.
-     * When this key will be pressed - [onClick] will be triggered.
-     * If the character is found within the item's text, the first occurrence
-     * of it will be underlined.
-     * @param shortcut key combination which triggers [onClick] action without
-     * navigating the menu hierarchy.
+     * @param mnemonic character that corresponds to some key on the keyboard. When this key will be
+     *   pressed - [onClick] will be triggered. If the character is found within the item's text,
+     *   the first occurrence of it will be underlined.
+     * @param shortcut key combination which triggers [onClick] action without navigating the menu
+     *   hierarchy.
      * @param onClick action that should be performed when the user clicks on the item
      */
     @Composable
@@ -563,14 +515,13 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * @param checked whether checkbox is checked or unchecked
      * @param icon icon of the item
      * @param enabled is this item item can be chosen
-     * @param mnemonic character that corresponds to some key on the keyboard.
-     * When this key will be pressed - [onCheckedChange] will be triggered.
-     * If the character is found within the item's text, the first occurrence
-     * of it will be underlined.
-     * @param shortcut key combination which triggers [onCheckedChange] action without
-     * navigating the menu hierarchy.
-     * @param onCheckedChange callback to be invoked when checkbox is being clicked,
-     * therefore the change of checked state in requested
+     * @param mnemonic character that corresponds to some key on the keyboard. When this key will be
+     *   pressed - [onCheckedChange] will be triggered. If the character is found within the item's
+     *   text, the first occurrence of it will be underlined.
+     * @param shortcut key combination which triggers [onCheckedChange] action without navigating
+     *   the menu hierarchy.
+     * @param onCheckedChange callback to be invoked when checkbox is being clicked, therefore the
+     *   change of checked state in requested
      */
     @Composable
     fun CheckboxItem(
@@ -581,9 +532,7 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
         mnemonic: Char? = null,
         shortcut: KeyShortcut? = null,
         onCheckedChange: (Boolean) -> Unit
-    ): Unit = impl.CheckboxItem(
-        text, checked, icon, enabled, mnemonic, shortcut, onCheckedChange
-    )
+    ): Unit = impl.CheckboxItem(text, checked, icon, enabled, mnemonic, shortcut, onCheckedChange)
 
     /**
      * Adds item with radio button to the menu
@@ -592,12 +541,11 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * @param selected boolean state for this button: either it is selected or not
      * @param icon icon of the item
      * @param enabled is this item item can be chosen
-     * @param mnemonic character that corresponds to some key on the keyboard.
-     * When this key will be pressed - [onClick] will be triggered.
-     * If the character is found within the item's text, the first occurrence
-     * of it will be underlined.
-     * @param shortcut key combination which triggers [onClick] action without
-     * navigating the menu hierarchy.
+     * @param mnemonic character that corresponds to some key on the keyboard. When this key will be
+     *   pressed - [onClick] will be triggered. If the character is found within the item's text,
+     *   the first occurrence of it will be underlined.
+     * @param shortcut key combination which triggers [onClick] action without navigating the menu
+     *   hierarchy.
      * @param onClick callback to be invoked when the radio button is being clicked
      */
     @Composable
@@ -609,14 +557,10 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
         mnemonic: Char? = null,
         shortcut: KeyShortcut? = null,
         onClick: () -> Unit
-    ): Unit = impl.RadioButtonItem(
-        text, selected, icon, enabled, mnemonic, shortcut, onClick
-    )
+    ): Unit = impl.RadioButtonItem(text, selected, icon, enabled, mnemonic, shortcut, onClick)
 }
 
-private class MutableListApplier<T>(
-    private val list: MutableList<T>
-) : AbstractApplier<T?>(null) {
+private class MutableListApplier<T>(private val list: MutableList<T>) : AbstractApplier<T?>(null) {
     override fun insertTopDown(index: Int, instance: T?) {
         list.add(index, instance!!)
     }
@@ -684,7 +628,9 @@ internal abstract class JComponentApplier(root: JComponent) : AbstractApplier<JC
         val current = current
 
         performMove(
-            from, to, count,
+            from,
+            to,
+            count,
             getItem = { current.getComponent(it) },
             removeItem = { current.remove(it) },
             insertItem = { item, idx -> current.add(item, idx) }
@@ -738,7 +684,9 @@ internal class MenuItemApplier(private val root: Menu) : Applier<MenuItem> {
         val menu = current.asMenu()
 
         performMove(
-            from, to, count,
+            from,
+            to,
+            count,
             getItem = { menu.getItem(it) },
             removeItem = { menu.remove(it) },
             insertItem = { item, idx -> menu.insert(item, idx) }
@@ -762,7 +710,9 @@ internal class MenuItemApplier(private val root: Menu) : Applier<MenuItem> {
 
 private fun JMenuBar.asMutableList(): MutableList<JComponent> {
     return object : AddRemoveMutableList<JComponent>() {
-        override val size: Int get() = this@asMutableList.menuCount
+        override val size: Int
+            get() = this@asMutableList.menuCount
+
         override fun get(index: Int) = this@asMutableList.getMenu(index)
 
         override fun performAdd(element: JComponent) {
@@ -789,26 +739,22 @@ private fun rememberAwtIcon(painter: Painter?): Icon? {
     val layoutDirection = LocalLayoutDirection.current
 
     return remember(painter, density, layoutDirection) {
-        painter
-            ?.toAwtImage(density, layoutDirection, DefaultIconSize)
-            ?.let(::ImageIcon)
+        painter?.toAwtImage(density, layoutDirection, DefaultIconSize)?.let(::ImageIcon)
     }
 }
 
 @Composable
-private fun <R, V> rememberStateChanger(
-    set: R.(V) -> Unit,
-    get: R.() -> V
-): ComposeState<R, V> = remember {
-    ComposeState(set, get)
-}
+private fun <R, V> rememberStateChanger(set: R.(V) -> Unit, get: R.() -> V): ComposeState<R, V> =
+    remember {
+        ComposeState(set, get)
+    }
 
 /**
  * Helper class to change state without firing a listener, and fire a listener without state change
  *
- * The purpose is to make Swing's state behave as it was attribute in stateless Compose widget.
- * For example, ComposeState don't fire `onCheckedChange` if we change `checkbox.checked`,
- * and don't change `checkbox.checked` if user clicks on checkbox.
+ * The purpose is to make Swing's state behave as it was attribute in stateless Compose widget. For
+ * example, ComposeState don't fire `onCheckedChange` if we change `checkbox.checked`, and don't
+ * change `checkbox.checked` if user clicks on checkbox.
  */
 private class ComposeState<R, V>(
     private val set: R.(V) -> Unit,

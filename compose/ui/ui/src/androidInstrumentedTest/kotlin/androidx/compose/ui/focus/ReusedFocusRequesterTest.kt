@@ -29,8 +29,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ReusedFocusRequesterTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun oneComponent() {
@@ -39,10 +38,10 @@ class ReusedFocusRequesterTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
 
@@ -63,16 +62,16 @@ class ReusedFocusRequesterTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState1 = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState1 = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState2 = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState2 = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
 
@@ -95,22 +94,22 @@ class ReusedFocusRequesterTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState1 = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState1 = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState2 = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState2 = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusState3 = it }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusState3 = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
 

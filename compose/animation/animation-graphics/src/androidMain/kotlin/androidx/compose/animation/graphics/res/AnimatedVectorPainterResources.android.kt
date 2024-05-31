@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.util.fastForEach
 
 /**
- * Creates and remembers a [Painter] to render an [AnimatedImageVector]. It renders the image
- * either at the start or the end of all the animations depending on the [atEnd]. Changes to
- * [atEnd] are animated.
+ * Creates and remembers a [Painter] to render an [AnimatedImageVector]. It renders the image either
+ * at the start or the end of all the animations depending on the [atEnd]. Changes to [atEnd] are
+ * animated.
  *
  * @param atEnd Whether the animated vector should be rendered at the end of all its animations.
  *
@@ -71,10 +71,8 @@ internal fun rememberAnimatedVectorPainter(
         val transition = updateTransition(atEnd, label = animatedImageVector.imageVector.name)
         val map = mutableMapOf<String, StateVectorConfig>()
         animatedImageVector.targets.fastForEach { target ->
-            val config = target.animator.createVectorConfig(
-                transition,
-                animatedImageVector.totalDuration
-            )
+            val config =
+                target.animator.createVectorConfig(transition, animatedImageVector.totalDuration)
             val currentConfig = map[target.name]
             if (currentConfig != null) {
                 currentConfig.merge(config)

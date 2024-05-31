@@ -20,18 +20,14 @@ import androidx.compose.foundation.text.selection.containsInclusive
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
-/**
- * Adds [this] and [right], and if an overflow occurs returns result of [defaultValue].
- */
+/** Adds [this] and [right], and if an overflow occurs returns result of [defaultValue]. */
 internal inline fun Int.addExactOrElse(right: Int, defaultValue: () -> Int): Int {
     val result = this + right
     // HD 2-12 Overflow iff both arguments have the opposite sign of the result
     return if (this xor result and (right xor result) < 0) defaultValue() else result
 }
 
-/**
- * Subtracts [right] from [this], and if an overflow occurs returns result of [defaultValue].
- */
+/** Subtracts [right] from [this], and if an overflow occurs returns result of [defaultValue]. */
 internal inline fun Int.subtractExactOrElse(right: Int, defaultValue: () -> Int): Int {
     val result = this - right
     // HD 2-12 Overflow iff the arguments have different signs and
@@ -51,8 +47,8 @@ internal fun Offset.findClosestRect(rect1: Rect, rect2: Rect): Int {
 }
 
 /**
- * Calculates the distance from this [Offset] to the nearest point on [rect].
- * Returns 0 if the offset is within [rect].
+ * Calculates the distance from this [Offset] to the nearest point on [rect]. Returns 0 if the
+ * offset is within [rect].
  */
 private fun Offset.distanceSquaredToClosestCornerFromOutside(rect: Rect): Float {
     if (rect.containsInclusive(this)) return 0f

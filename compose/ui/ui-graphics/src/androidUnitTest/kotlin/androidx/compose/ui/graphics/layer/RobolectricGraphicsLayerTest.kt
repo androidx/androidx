@@ -87,41 +87,34 @@ class RobolectricGraphicsLayerTest {
         lateinit var layer: GraphicsLayer
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = size / 2f
-                        )
-                        drawRect(
-                            Color.Blue,
-                            topLeft = Offset(size.width / 2f, 0f),
-                            size = size / 2f
-                        )
-                        drawRect(
-                            Color.Green,
-                            topLeft = Offset(0f, size.height / 2f),
-                            size = size / 2f
-                        )
-                        drawRect(
-                            Color.Black,
-                            topLeft = Offset(size.width / 2f, size.height / 2f),
-                            size = size / 2f
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record {
+                            drawRect(Color.Red, size = size / 2f)
+                            drawRect(
+                                Color.Blue,
+                                topLeft = Offset(size.width / 2f, 0f),
+                                size = size / 2f
+                            )
+                            drawRect(
+                                Color.Green,
+                                topLeft = Offset(0f, size.height / 2f),
+                                size = size / 2f
+                            )
+                            drawRect(
+                                Color.Black,
+                                topLeft = Offset(size.width / 2f, size.height / 2f),
+                                size = size / 2f
+                            )
+                        }
                     }
-                }
             },
             verify = {
                 val bitmap: ImageBitmap = layer.toImageBitmap()
                 assertNotNull(bitmap)
                 assertEquals(TEST_SIZE, IntSize(bitmap.width, bitmap.height))
-                bitmap.toPixelMap().verifyQuadrants(
-                    Color.Red,
-                    Color.Blue,
-                    Color.Green,
-                    Color.Black
-                )
+                bitmap.toPixelMap().verifyQuadrants(Color.Red, Color.Blue, Color.Green, Color.Black)
             }
         )
     }
@@ -131,12 +124,11 @@ class RobolectricGraphicsLayerTest {
         var layer: GraphicsLayer? = null
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
                     }
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -152,13 +144,12 @@ class RobolectricGraphicsLayerTest {
         var layer: GraphicsLayer? = null
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
+                        discardDisplayList()
                     }
-                    discardDisplayList()
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -179,9 +170,7 @@ class RobolectricGraphicsLayerTest {
             block = { graphicsContext ->
                 graphicsContext.createGraphicsLayer().apply {
                     assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(Color.Red)
-                    }
+                    record { drawRect(Color.Red) }
                     this.impl.discardDisplayList()
                 }
             }
@@ -192,16 +181,13 @@ class RobolectricGraphicsLayerTest {
     fun testRecordLayerWithSize() {
         graphicsLayerTest(
             block = { graphicsContext ->
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record(IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)) {
-                        drawRect(Color.Red)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)) { drawRect(Color.Red) }
                     }
-                }
                 drawLayer(layer)
             },
-            verify = {
-                it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black)
-            }
+            verify = { it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black) }
         )
     }
 
@@ -212,12 +198,11 @@ class RobolectricGraphicsLayerTest {
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        this.topLeft = topLeft
                     }
-                    this.topLeft = topLeft
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -235,14 +220,11 @@ class RobolectricGraphicsLayerTest {
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, -4f, -4f) {
-                            drawRect(Color.Red)
-                        }
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { inset(0f, 0f, -4f, -4f) { drawRect(Color.Red) } }
+                        this.topLeft = topLeft
                     }
-                    this.topLeft = topLeft
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -263,12 +245,11 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        alpha = 0.5f
                     }
-                    alpha = 0.5f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -292,16 +273,17 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width / 2, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                size = Size(this.size.width / 2, this.size.height / 2)
+                            )
+                        }
+                        scaleX = 2f
+                        pivotOffset = Offset.Zero
                     }
-                    scaleX = 2f
-                    pivotOffset = Offset.Zero
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -319,16 +301,17 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width / 2, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                size = Size(this.size.width / 2, this.size.height / 2)
+                            )
+                        }
+                        scaleY = 2f
+                        pivotOffset = Offset.Zero
                     }
-                    scaleY = 2f
-                    pivotOffset = Offset.Zero
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -346,15 +329,14 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(this.size.width / 4, this.size.height / 4) {
-                            drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(this.size.width / 4, this.size.height / 4) { drawRect(Color.Red) }
                         }
+                        scaleY = 2f
+                        scaleX = 2f
                     }
-                    scaleY = 2f
-                    scaleX = 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -372,14 +354,13 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        scaleY = 0.5f
+                        scaleX = 0.5f
+                        pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
                     }
-                    scaleY = 0.5f
-                    scaleX = 0.5f
-                    pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -397,12 +378,11 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red, size = this.size / 2f)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = this.size / 2f) }
+                        translationX = this.size.width / 2f
                     }
-                    translationX = this.size.width / 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -418,14 +398,15 @@ class RobolectricGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 var layerSize = Size.Zero
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        layerSize = this.size
-                        drawRect(Color.Red, size = this.size / 2f)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            layerSize = this.size
+                            drawRect(Color.Red, size = this.size / 2f)
+                        }
+                        topLeft = IntOffset(20, 30)
+                        setRectOutline()
                     }
-                    topLeft = IntOffset(20, 30)
-                    setRectOutline()
-                }
                 drawLayer(layer)
                 val outline = layer.outline
                 assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
@@ -438,14 +419,15 @@ class RobolectricGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 var layerSize = Size.Zero
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        layerSize = this.size
-                        drawRect(Color.Red, size = this.size / 2f)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            layerSize = this.size
+                            drawRect(Color.Red, size = this.size / 2f)
+                        }
+                        topLeft = IntOffset(20, 30)
+                        setRoundRectOutline()
                     }
-                    topLeft = IntOffset(20, 30)
-                    setRoundRectOutline()
-                }
                 drawLayer(layer)
                 val outline = layer.outline
                 assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
@@ -457,19 +439,12 @@ class RobolectricGraphicsLayerTest {
     fun testRecordOverwritesPreviousRecord() {
         graphicsLayerTest(
             block = { graphicsContext ->
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
-                    }
-                }
-                layer.record {
-                    drawRect(Color.Blue)
-                }
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply { record { drawRect(Color.Red) } }
+                layer.record { drawRect(Color.Blue) }
                 drawLayer(layer)
             },
-            verify = {
-                it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue)
-            }
+            verify = { it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue) }
         )
     }
 
@@ -480,12 +455,11 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red, size = this.size / 2f)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = this.size / 2f) }
+                        translationY = this.size.height / 2f
                     }
-                    translationY = this.size.height / 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -503,15 +477,13 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(Color.Red, size = Size(this.size.width, this.size.height / 2))
+                        }
+                        rotationX = 45f
                     }
-                    rotationX = 45f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -533,13 +505,12 @@ class RobolectricGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        pivotOffset = Offset(0f, this.size.height / 2f)
+                        rotationY = 45f
                     }
-                    pivotOffset = Offset(0f, this.size.height / 2f)
-                    rotationY = 45f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -562,19 +533,21 @@ class RobolectricGraphicsLayerTest {
         val rectSize = 100
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            topLeft = Offset(
-                                this.size.width / 2f - rectSize / 2f,
-                                this.size.height / 2 - rectSize / 2f
-                            ),
-                            Size(rectSize.toFloat(), rectSize.toFloat())
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                topLeft =
+                                    Offset(
+                                        this.size.width / 2f - rectSize / 2f,
+                                        this.size.height / 2 - rectSize / 2f
+                                    ),
+                                Size(rectSize.toFloat(), rectSize.toFloat())
+                            )
+                        }
+                        rotationZ = 45f
                     }
-                    rotationZ = 45f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -611,16 +584,11 @@ class RobolectricGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(100000f, 100000f)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = Size(100000f, 100000f)) }
+                        // Layer clipping is disabled by default
                     }
-                    // Layer clipping is disabled by default
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -639,15 +607,11 @@ class RobolectricGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(100000f, 100000f)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = Size(100000f, 100000f)) }
+                        clip = true
                     }
-                    clip = true
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -674,18 +638,19 @@ class RobolectricGraphicsLayerTest {
         val bgColor = Color.Black
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue)
+                            }
                         }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue)
-                        }
+                        alpha = 0.5f
+                        compositingStrategy = CompositingStrategy.Auto
                     }
-                    alpha = 0.5f
-                    compositingStrategy = CompositingStrategy.Auto
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -712,17 +677,18 @@ class RobolectricGraphicsLayerTest {
         val bgColor = Color.LightGray
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
+                            }
                         }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
-                        }
+                        compositingStrategy = CompositingStrategy.Offscreen
                     }
-                    compositingStrategy = CompositingStrategy.Offscreen
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -744,13 +710,12 @@ class RobolectricGraphicsLayerTest {
         val bgColor = Color.Gray
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        cameraDistance = 5.0f
+                        rotationY = 25f
                     }
-                    cameraDistance = 5.0f
-                    rotationY = 25f
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -772,12 +737,11 @@ class RobolectricGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        colorFilter = tint(Color.Blue)
                     }
-                    colorFilter = tint(Color.Blue)
-                }
                 drawLayer(layer!!)
             },
             verify = { pixelMap ->
@@ -798,21 +762,22 @@ class RobolectricGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val drawScopeSize = this.size
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    val topLeft = IntOffset(
-                        (drawScopeSize.width / 4).toInt(),
-                        (drawScopeSize.height / 4).toInt()
-                    )
-                    val layerSize = IntSize(
-                        (drawScopeSize.width / 2).toInt(),
-                        (drawScopeSize.height / 2).toInt()
-                    )
-                    record(layerSize) {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        val topLeft =
+                            IntOffset(
+                                (drawScopeSize.width / 4).toInt(),
+                                (drawScopeSize.height / 4).toInt()
+                            )
+                        val layerSize =
+                            IntSize(
+                                (drawScopeSize.width / 2).toInt(),
+                                (drawScopeSize.height / 2).toInt()
+                            )
+                        record(layerSize) { drawRect(Color.Red) }
+                        this.topLeft = topLeft
+                        this.blendMode = BlendMode.Xor
                     }
-                    this.topLeft = topLeft
-                    this.blendMode = BlendMode.Xor
-                }
                 drawRect(Color.Green)
                 drawLayer(layer!!)
                 // The layer should clear the original pixels in the destination rendered by the
@@ -853,13 +818,12 @@ class RobolectricGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
+                        clip = true
                     }
-                    setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
-                    clip = true
-                }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -873,12 +837,12 @@ class RobolectricGraphicsLayerTest {
                 with(pixmap) {
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            val expected = if (x in left until right &&
-                                y in top until bottom) {
-                                targetColor
-                            } else {
-                                bgColor
-                            }
+                            val expected =
+                                if (x in left until right && y in top until bottom) {
+                                    targetColor
+                                } else {
+                                    bgColor
+                                }
                             Assert.assertEquals(this[x, y], expected)
                         }
                     }
@@ -898,22 +862,23 @@ class RobolectricGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
-                    }
-                    setPathOutline(Path().apply {
-                        addRect(
-                            Rect(
-                                size.center.x.toFloat(),
-                                size.center.y.toFloat(),
-                                size.center.x + size.width.toFloat(),
-                                size.center.y + size.height.toFloat()
-                            )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setPathOutline(
+                            Path().apply {
+                                addRect(
+                                    Rect(
+                                        size.center.x.toFloat(),
+                                        size.center.y.toFloat(),
+                                        size.center.x + size.width.toFloat(),
+                                        size.center.y + size.height.toFloat()
+                                    )
+                                )
+                            }
                         )
-                    })
-                    clip = true
-                }
+                        clip = true
+                    }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -927,12 +892,12 @@ class RobolectricGraphicsLayerTest {
                 with(pixmap) {
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            val expected = if (x in left until right &&
-                                y in top until bottom) {
-                                targetColor
-                            } else {
-                                bgColor
-                            }
+                            val expected =
+                                if (x in left until right && y in top until bottom) {
+                                    targetColor
+                                } else {
+                                    bgColor
+                                }
                             Assert.assertEquals(this[x, y], expected)
                         }
                     }
@@ -953,17 +918,16 @@ class RobolectricGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setRoundRectOutline(
+                            this.size.center.toOffset(),
+                            (this.size / 2).toSize(),
+                            radius.toFloat()
+                        )
+                        clip = true
                     }
-                    setRoundRectOutline(
-                        this.size.center.toOffset(),
-                        (this.size / 2).toSize(),
-                        radius.toFloat()
-                    )
-                    clip = true
-                }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -982,9 +946,7 @@ class RobolectricGraphicsLayerTest {
                     val endY = bottom - radius - offset
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            if (
-                                x in startX until endX &&
-                                y in startY until endY) {
+                            if (x in startX until endX && y in startY until endY) {
                                 assertEquals(targetColor, this[x, y])
                             }
                         }
@@ -1029,28 +991,25 @@ class RobolectricGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val fullSize = size
-                val layerSize = Size(
-                    fullSize.width.roundToInt() - inset * 2,
-                    fullSize.height.roundToInt() - inset * 2
-                ).toIntSize()
+                val layerSize =
+                    Size(
+                            fullSize.width.roundToInt() - inset * 2,
+                            fullSize.height.roundToInt() - inset * 2
+                        )
+                        .toIntSize()
 
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record(size = layerSize) {
-                        inset(-inset) {
-                            drawRect(targetColor)
-                        }
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = layerSize) { inset(-inset) { drawRect(targetColor) } }
+                        // as no outline is provided yet, this command will enable clipToBounds
+                        clip = true
+                        // then with providing an outline we should disable clipToBounds and start
+                        // using clipToOutline instead
+                        setRectOutline(Offset(-inset, -inset), fullSize)
                     }
-                    // as no outline is provided yet, this command will enable clipToBounds
-                    clip = true
-                    // then with providing an outline we should disable clipToBounds and start
-                    // using clipToOutline instead
-                    setRectOutline(Offset(-inset, -inset), fullSize)
-                }
 
                 drawRect(Color.Black)
-                inset(inset) {
-                    drawLayer(layer)
-                }
+                inset(inset) { drawLayer(layer) }
             },
             verify = { pixmap ->
                 with(pixmap) {
@@ -1089,49 +1048,45 @@ class RobolectricGraphicsLayerTest {
         try {
             var container: ViewGroup? = null
             var contentView: View? = null
-            scenario = ActivityScenario.launch(ComponentActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    container = FrameLayout(it).apply {
-                        setBackgroundColor(Color.White.toArgb())
-                        clipToPadding = false
-                        clipChildren = false
-                    }
-                    val graphicsContext = GraphicsContext(container!!)
-                    val content = FrameLayout(it).apply {
-                        setLayoutParams(
-                            FrameLayout.LayoutParams(
-                                TEST_WIDTH,
-                                TEST_HEIGHT
-                            )
+            scenario =
+                ActivityScenario.launch(ComponentActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        container =
+                            FrameLayout(it).apply {
+                                setBackgroundColor(Color.White.toArgb())
+                                clipToPadding = false
+                                clipChildren = false
+                            }
+                        val graphicsContext = GraphicsContext(container!!)
+                        val content =
+                            FrameLayout(it).apply {
+                                setLayoutParams(FrameLayout.LayoutParams(TEST_WIDTH, TEST_HEIGHT))
+                                setBackgroundColor(Color.Black.toArgb())
+                                foreground = GraphicsContextHostDrawable(graphicsContext, block)
+                            }
+                        container!!.addView(content)
+                        contentView = content
+                        it.setContentView(
+                            container,
+                            ViewGroup.LayoutParams(TEST_WIDTH * 2, TEST_HEIGHT * 2)
                         )
-                        setBackgroundColor(Color.Black.toArgb())
-                        foreground = GraphicsContextHostDrawable(graphicsContext, block)
                     }
-                    container!!.addView(content)
-                    contentView = content
-                    it.setContentView(
-                        container,
-                        ViewGroup.LayoutParams(TEST_WIDTH * 2, TEST_HEIGHT * 2)
-                    )
-                }
             val resumed = CountDownLatch(1)
             var testActivity: Activity? = null
-            scenario.moveToState(Lifecycle.State.RESUMED)
-                .onActivity { activity ->
-                    testActivity = activity
-                    activity.runOnUiThread {
-                        resumed.countDown()
-                    }
-                }
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity { activity ->
+                testActivity = activity
+                activity.runOnUiThread { resumed.countDown() }
+            }
             assertTrue(resumed.await(3000, TimeUnit.MILLISECONDS))
 
             if (verify != null) {
-                val target = if (entireScene) {
-                    container!!
-                } else {
-                    contentView!!
-                }
+                val target =
+                    if (entireScene) {
+                        container!!
+                    } else {
+                        contentView!!
+                    }
                 val softwareRenderLatch = CountDownLatch(1)
                 testActivity!!.runOnUiThread {
                     val softwareBitmap = doSoftwareRender(target)
@@ -1148,11 +1103,7 @@ class RobolectricGraphicsLayerTest {
     }
 
     private fun doSoftwareRender(target: View): Bitmap {
-        val bitmap = Bitmap.createBitmap(
-            target.width,
-            target.height,
-            Bitmap.Config.ARGB_8888
-        )
+        val bitmap = Bitmap.createBitmap(target.width, target.height, Bitmap.Config.ARGB_8888)
         val softwareCanvas = Canvas(bitmap)
         target.draw(softwareCanvas)
         return bitmap

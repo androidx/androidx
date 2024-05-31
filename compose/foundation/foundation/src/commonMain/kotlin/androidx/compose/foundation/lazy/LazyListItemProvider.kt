@@ -45,32 +45,36 @@ internal fun rememberLazyListItemProviderLambda(
     val latestContent = rememberUpdatedState(content)
     return remember(state) {
         val scope = LazyItemScopeImpl()
-        val intervalContentState = derivedStateOf(referentialEqualityPolicy()) {
-            LazyListIntervalContent(latestContent.value)
-        }
-        val itemProviderState = derivedStateOf(referentialEqualityPolicy()) {
-            val intervalContent = intervalContentState.value
-            val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
-            LazyListItemProviderImpl(
-                state = state,
-                intervalContent = intervalContent,
-                itemScope = scope,
-                keyIndexMap = map
-            )
-        }
+        val intervalContentState =
+            derivedStateOf(referentialEqualityPolicy()) {
+                LazyListIntervalContent(latestContent.value)
+            }
+        val itemProviderState =
+            derivedStateOf(referentialEqualityPolicy()) {
+                val intervalContent = intervalContentState.value
+                val map = NearestRangeKeyIndexMap(state.nearestRange, intervalContent)
+                LazyListItemProviderImpl(
+                    state = state,
+                    intervalContent = intervalContent,
+                    itemScope = scope,
+                    keyIndexMap = map
+                )
+            }
         itemProviderState::value
     }
 }
 
 @ExperimentalFoundationApi
-private class LazyListItemProviderImpl constructor(
+private class LazyListItemProviderImpl
+constructor(
     private val state: LazyListState,
     private val intervalContent: LazyListIntervalContent,
     override val itemScope: LazyItemScopeImpl,
     override val keyIndexMap: LazyLayoutKeyIndexMap,
 ) : LazyListItemProvider {
 
-    override val itemCount: Int get() = intervalContent.itemCount
+    override val itemCount: Int
+        get() = intervalContent.itemCount
 
     @Composable
     override fun Item(index: Int, key: Any) {
@@ -86,7 +90,8 @@ private class LazyListItemProviderImpl constructor(
 
     override fun getContentType(index: Int): Any? = intervalContent.getContentType(index)
 
-    override val headerIndexes: List<Int> get() = intervalContent.headerIndexes
+    override val headerIndexes: List<Int>
+        get() = intervalContent.headerIndexes
 
     override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
 

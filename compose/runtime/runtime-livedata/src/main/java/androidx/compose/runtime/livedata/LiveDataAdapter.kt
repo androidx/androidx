@@ -28,26 +28,25 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 /**
- * Starts observing this [LiveData] and represents its values via [State]. Every time there would
- * be new value posted into the [LiveData] the returned [State] will be updated causing
- * recomposition of every [State.value] usage.
+ * Starts observing this [LiveData] and represents its values via [State]. Every time there would be
+ * new value posted into the [LiveData] the returned [State] will be updated causing recomposition
+ * of every [State.value] usage.
  *
  * The inner observer will automatically be removed when this composable disposes or the current
  * [LifecycleOwner] moves to the [Lifecycle.State.DESTROYED] state.
  *
  * @sample androidx.compose.runtime.livedata.samples.LiveDataSample
  */
-@Composable
-fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
+@Composable fun <T> LiveData<T>.observeAsState(): State<T?> = observeAsState(value)
 
 /**
- * Starts observing this [LiveData] and represents its values via [State]. Every time there would
- * be new value posted into the [LiveData] the returned [State] will be updated causing
- * recomposition of every [State.value] usage.
+ * Starts observing this [LiveData] and represents its values via [State]. Every time there would be
+ * new value posted into the [LiveData] the returned [State] will be updated causing recomposition
+ * of every [State.value] usage.
  *
  * The [initial] value will be used only if this LiveData is not already
- * [initialized][isInitialized]. Note that if [T] is a non-null type, it is your
- * responsibility to ensure that any value you set on this LiveData is also non-null.
+ * [initialized][isInitialized]. Note that if [T] is a non-null type, it is your responsibility to
+ * ensure that any value you set on this LiveData is also non-null.
  *
  * The inner observer will automatically be removed when this composable disposes or the current
  * [LifecycleOwner] moves to the [Lifecycle.State.DESTROYED] state.

@@ -37,32 +37,37 @@ class ModifierNodeElementTest {
             inputParameter: Boolean
         ) : ModifierNodeElement<Modifier.Node>() {
             var classProperty = 0
+
             override fun create() = object : Modifier.Node() {}
+
             override fun update(node: Modifier.Node) {}
+
             // We don't use equals or hashCode in this test, so bad implementations are okay.
             override fun hashCode() = 0
+
             override fun equals(other: Any?) = (this === other)
         }
 
-        val modifier = AElement(
-            string = "parameter 1",
-            int = 12345,
-            map = mapOf("key" to "value"),
-            inputParameter = true
-        ).apply {
-            classProperty = 42
-        }
+        val modifier =
+            AElement(
+                    string = "parameter 1",
+                    int = 12345,
+                    map = mapOf("key" to "value"),
+                    inputParameter = true
+                )
+                .apply { classProperty = 42 }
 
         assertEquals(
             "The modifier's inspectable value was not automatically populated as expected",
             expectedName = "AElement",
             expectedValue = null,
-            expectedProperties = listOf(
-                ValueElement("classProperty", 42),
-                ValueElement("int", 12345),
-                ValueElement("map", mapOf("key" to "value")),
-                ValueElement("string", "parameter 1"),
-            ),
+            expectedProperties =
+                listOf(
+                    ValueElement("classProperty", 42),
+                    ValueElement("int", 12345),
+                    ValueElement("map", mapOf("key" to "value")),
+                    ValueElement("string", "parameter 1"),
+                ),
             actual = modifier
         )
     }
@@ -75,17 +80,9 @@ class ModifierNodeElementTest {
         expectedProperties: List<ValueElement> = emptyList(),
         actual: InspectableValue
     ) {
-        assertEquals(
-            "$message (unexpected name)",
-            expectedName,
-            actual.nameFallback
-        )
+        assertEquals("$message (unexpected name)", expectedName, actual.nameFallback)
 
-        assertEquals(
-            "$message (unexpected value)",
-            expectedValue,
-            actual.valueOverride
-        )
+        assertEquals("$message (unexpected value)", expectedValue, actual.valueOverride)
 
         assertEquals(
             "$message (unexpected properties)",

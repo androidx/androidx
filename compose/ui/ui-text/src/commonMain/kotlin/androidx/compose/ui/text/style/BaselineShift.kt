@@ -22,46 +22,31 @@ import androidx.compose.ui.util.lerp
 
 /**
  * The amount by which the text is shifted up or down from current the baseline.
- * @constructor
- * @sample androidx.compose.ui.text.samples.BaselineShiftSample
- * @sample androidx.compose.ui.text.samples.BaselineShiftAnnotatedStringSample
  *
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
+ * @constructor
+ *
+ * @sample androidx.compose.ui.text.samples.BaselineShiftSample
+ *
+ * @sample androidx.compose.ui.text.samples.BaselineShiftAnnotatedStringSample
  */
 @Immutable
 @kotlin.jvm.JvmInline
 value class BaselineShift(val multiplier: Float) {
     companion object {
-        /**
-         * Default baseline shift for superscript.
-         */
-        @Stable
-        val Superscript = BaselineShift(0.5f)
+        /** Default baseline shift for superscript. */
+        @Stable val Superscript = BaselineShift(0.5f)
 
-        /**
-         * Default baseline shift for subscript
-         */
-        @Stable
-        val Subscript = BaselineShift(-0.5f)
+        /** Default baseline shift for subscript */
+        @Stable val Subscript = BaselineShift(-0.5f)
 
-        /**
-         * Constant for no baseline shift.
-         */
-        @Stable
-        val None = BaselineShift(0.0f)
+        /** Constant for no baseline shift. */
+        @Stable val None = BaselineShift(0.0f)
     }
 }
 
-/**
- * Linearly interpolate two [BaselineShift]s.
- */
+/** Linearly interpolate two [BaselineShift]s. */
 @Stable
 fun lerp(start: BaselineShift, stop: BaselineShift, fraction: Float): BaselineShift {
-    return BaselineShift(
-        lerp(
-            start.multiplier,
-            stop.multiplier,
-            fraction
-        )
-    )
+    return BaselineShift(lerp(start.multiplier, stop.multiplier, fraction))
 }

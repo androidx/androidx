@@ -34,9 +34,7 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
-class PagerSwipeEdgeTest(
-    val config: ParamConfig
-) : BasePagerTest(config) {
+class PagerSwipeEdgeTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
     fun swipePageTowardsEdge_shouldNotMove() {
@@ -94,20 +92,21 @@ class PagerSwipeEdgeTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                for (reverseLayout in TestReverseLayout) {
-                    for (layoutDirection in TestLayoutDirection) {
-                        add(
-                            ParamConfig(
-                                orientation = orientation,
-                                reverseLayout = reverseLayout,
-                                layoutDirection = layoutDirection
+        fun params() =
+            mutableListOf<ParamConfig>().apply {
+                for (orientation in TestOrientation) {
+                    for (reverseLayout in TestReverseLayout) {
+                        for (layoutDirection in TestLayoutDirection) {
+                            add(
+                                ParamConfig(
+                                    orientation = orientation,
+                                    reverseLayout = reverseLayout,
+                                    layoutDirection = layoutDirection
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }
-        }
     }
 }

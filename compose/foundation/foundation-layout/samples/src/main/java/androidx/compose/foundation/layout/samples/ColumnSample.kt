@@ -44,11 +44,7 @@ fun SimpleColumn() {
         Box(Modifier.width(40.dp).weight(1f).background(Color.Yellow))
         // Has weight and does not fill, the child will occupy at most half of the remaining height.
         // Therefore it will occupy 80.dp (its preferred height) if the assigned height is larger.
-        Box(
-            Modifier.size(40.dp, 80.dp)
-                .weight(1f, fill = false)
-                .background(Color.Green)
-        )
+        Box(Modifier.size(40.dp, 80.dp).weight(1f, fill = false).background(Color.Green))
     }
 }
 
@@ -62,25 +58,15 @@ fun SimpleAlignInColumn() {
         Box(Modifier.size(80.dp, 40.dp).background(Color.Magenta))
         // Alignment.Start, the child will be positioned so that its start edge is aligned with
         // the start edge of the horizontal axis.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .align(Alignment.Start)
-                .background(Color.Red)
-        )
+        Box(Modifier.size(80.dp, 40.dp).align(Alignment.Start).background(Color.Red))
         // Alignment.Center, the child will be positioned so that its center is in the middle of
         // the horizontal axis.
         Box(
-            Modifier.size(80.dp, 40.dp)
-                .align(Alignment.CenterHorizontally)
-                .background(Color.Yellow)
+            Modifier.size(80.dp, 40.dp).align(Alignment.CenterHorizontally).background(Color.Yellow)
         )
         // Alignment.End, the child will be positioned so that its end edge aligned to the end of
         // the horizontal axis.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .align(Alignment.End)
-                .background(Color.Green)
-        )
+        Box(Modifier.size(80.dp, 40.dp).align(Alignment.End).background(Color.Green))
     }
 }
 
@@ -90,21 +76,9 @@ fun SimpleRelativeToSiblings() {
     Column {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .alignBy { it.measuredWidth / 2 }
-                .background(Color.Blue)
-        )
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .alignBy { it.measuredWidth }
-                .background(Color.Magenta)
-        )
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .alignBy { 0 }
-                .background(Color.Red)
-        )
+        Box(Modifier.size(80.dp, 40.dp).alignBy { it.measuredWidth / 2 }.background(Color.Blue))
+        Box(Modifier.size(80.dp, 40.dp).alignBy { it.measuredWidth }.background(Color.Magenta))
+        Box(Modifier.size(80.dp, 40.dp).alignBy { 0 }.background(Color.Red))
     }
 }
 
@@ -124,10 +98,7 @@ fun SimpleRelativeToSiblingsInColumn() {
 
     @Composable
     fun RectangleWithStartEnd(modifier: Modifier = Modifier, color: Color, width: Dp, height: Dp) {
-        Layout(
-            content = { },
-            modifier = modifier.background(color = color)
-        ) { _, constraints ->
+        Layout(content = {}, modifier = modifier.background(color = color)) { _, constraints ->
             val widthPx = max(width.roundToPx(), constraints.minWidth)
             val heightPx = max(height.roundToPx(), constraints.minHeight)
             layout(widthPx, heightPx, mapOf(start to 0, end to widthPx)) {}
@@ -137,11 +108,7 @@ fun SimpleRelativeToSiblingsInColumn() {
     Column {
         // Center of the first rectangle is aligned to the right edge of the second rectangle and
         // left edge of the third one.
-        Box(
-            Modifier.size(80.dp, 40.dp)
-                .alignBy { it.measuredWidth / 2 }
-                .background(Color.Blue)
-        )
+        Box(Modifier.size(80.dp, 40.dp).alignBy { it.measuredWidth / 2 }.background(Color.Blue))
         RectangleWithStartEnd(
             Modifier.alignBy(end),
             color = Color.Magenta,

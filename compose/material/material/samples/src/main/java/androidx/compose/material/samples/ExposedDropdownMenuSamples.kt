@@ -44,21 +44,12 @@ fun ExposedDropdownMenuSample() {
         TextField(
             readOnly = true,
             value = selectedOptionText,
-            onValueChange = { },
+            onValueChange = {},
             label = { Text("Label") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
-            },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors()
         )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-            }
-        ) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { selectionOption ->
                 DropdownMenuItem(
                     onClick = {
@@ -88,23 +79,13 @@ fun EditableExposedDropdownMenuSample() {
             value = selectedOptionText,
             onValueChange = { selectedOptionText = it },
             label = { Text("Label") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
-            },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors()
         )
         // filter options based on text field value
-        val filteringOptions =
-            options.filter { it.contains(selectedOptionText, ignoreCase = true) }
+        val filteringOptions = options.filter { it.contains(selectedOptionText, ignoreCase = true) }
         if (filteringOptions.isNotEmpty()) {
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                }
-            ) {
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 filteringOptions.forEach { selectionOption ->
                     DropdownMenuItem(
                         onClick = {

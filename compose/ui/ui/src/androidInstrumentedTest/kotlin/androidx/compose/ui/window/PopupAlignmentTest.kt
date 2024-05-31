@@ -47,8 +47,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PopupAlignmentTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val testTag = "testedPopup"
     private val offset = IntOffset(10, 10)
@@ -295,10 +294,7 @@ class PopupAlignmentTest {
 
     // TODO(b/140215440): Some tests are calling the OnChildPosition method inside the Popup too
     //  many times
-    private fun createPopupWithAlignmentRule(
-        alignment: Alignment,
-        isRtl: Boolean = false
-    ) {
+    private fun createPopupWithAlignmentRule(alignment: Alignment, isRtl: Boolean = false) {
         val measureLatch = CountDownLatch(1)
 
         with(rule.density) {
@@ -312,10 +308,7 @@ class PopupAlignmentTest {
                 val composeView = LocalView.current
                 val positionArray = IntArray(2)
                 composeView.getLocationOnScreen(positionArray)
-                composeViewAbsolutePos = IntOffset(
-                    positionArray[0],
-                    positionArray[1]
-                )
+                composeViewAbsolutePos = IntOffset(positionArray[0], positionArray[1])
 
                 // Align the parent of the popup on the top left corner, this results in the global
                 // position of the parent to be (0, 0)
@@ -325,14 +318,16 @@ class PopupAlignmentTest {
                         SimpleContainer(width = parentWidthDp, height = parentHeightDp) {
                             PopupTestTag(testTag) {
                                 Popup(alignment = alignment, offset = offset) {
-                                    // This is called after the OnChildPosition method in Popup() which
+                                    // This is called after the OnChildPosition method in Popup()
+                                    // which
                                     // updates the popup to its final position
                                     SimpleContainer(
                                         width = popupWidthDp,
                                         height = popupHeightDp,
-                                        modifier = Modifier.onGloballyPositioned {
-                                            measureLatch.countDown()
-                                        },
+                                        modifier =
+                                            Modifier.onGloballyPositioned {
+                                                measureLatch.countDown()
+                                            },
                                         content = {}
                                     )
                                 }
@@ -355,24 +350,27 @@ class PopupAlignmentTest {
 
             // The layout is as large as possible for bounded constraints,
             // or wrap content otherwise.
-            val layoutWidth = if (constraints.hasBoundedWidth) {
-                constraints.maxWidth
-            } else {
-                placeable?.width ?: constraints.minWidth
-            }
-            val layoutHeight = if (constraints.hasBoundedHeight) {
-                constraints.maxHeight
-            } else {
-                placeable?.height ?: constraints.minHeight
-            }
+            val layoutWidth =
+                if (constraints.hasBoundedWidth) {
+                    constraints.maxWidth
+                } else {
+                    placeable?.width ?: constraints.minWidth
+                }
+            val layoutHeight =
+                if (constraints.hasBoundedHeight) {
+                    constraints.maxHeight
+                } else {
+                    placeable?.height ?: constraints.minHeight
+                }
 
             layout(layoutWidth, layoutHeight) {
                 if (placeable != null) {
-                    val position = Alignment.TopStart.align(
-                        IntSize(placeable.width, placeable.height),
-                        IntSize(layoutWidth, layoutHeight),
-                        layoutDirection
-                    )
+                    val position =
+                        Alignment.TopStart.align(
+                            IntSize(placeable.width, placeable.height),
+                            IntSize(layoutWidth, layoutHeight),
+                            layoutDirection
+                        )
                     placeable.placeRelative(position.x, position.y)
                 }
             }

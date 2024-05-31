@@ -40,14 +40,11 @@ import org.junit.runners.Parameterized
 class SelectionContainerBenchmark(private val childrenCount: Int) {
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "childrenCount={0}"
-        )
+        @Parameterized.Parameters(name = "childrenCount={0}")
         fun initParameters() = arrayOf(1, 10, 20).filterForCi { min() }
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
     private val caseFactory = { SelectionContainerTestCase(childrenCount) }
 
     @Test

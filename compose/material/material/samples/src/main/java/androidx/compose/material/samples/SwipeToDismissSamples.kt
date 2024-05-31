@@ -53,22 +53,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-private val items = listOf(
-    "Cupcake",
-    "Donut",
-    "Eclair",
-    "Froyo",
-    "Gingerbread",
-    "Honeycomb",
-    "Ice cream sandwich",
-    "Jelly bean",
-    "KitKat",
-    "Lollipop",
-    "Marshmallow",
-    "Nougat",
-    "Oreo",
-    "Pie"
-)
+private val items =
+    listOf(
+        "Cupcake",
+        "Donut",
+        "Eclair",
+        "Froyo",
+        "Gingerbread",
+        "Honeycomb",
+        "Ice cream sandwich",
+        "Jelly bean",
+        "KitKat",
+        "Lollipop",
+        "Marshmallow",
+        "Nougat",
+        "Oreo",
+        "Pie"
+    )
 
 @Sampled
 @Composable
@@ -83,36 +84,39 @@ fun SwipeToDismissListItems() {
     LazyColumn {
         items(items) { item ->
             var unread by remember { mutableStateOf(false) }
-            val dismissState = rememberDismissState(
-                confirmStateChange = {
-                    if (it == DismissedToEnd) unread = !unread
-                    it != DismissedToEnd
-                }
-            )
+            val dismissState =
+                rememberDismissState(
+                    confirmStateChange = {
+                        if (it == DismissedToEnd) unread = !unread
+                        it != DismissedToEnd
+                    }
+                )
             SwipeToDismiss(
                 state = dismissState,
                 modifier = Modifier.padding(vertical = 4.dp),
                 directions = setOf(StartToEnd, EndToStart),
                 background = {
                     val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-                    val color by animateColorAsState(
-                        when (dismissState.targetValue) {
-                            Default -> Color.LightGray
-                            DismissedToEnd -> Color.Green
-                            DismissedToStart -> Color.Red
+                    val color by
+                        animateColorAsState(
+                            when (dismissState.targetValue) {
+                                Default -> Color.LightGray
+                                DismissedToEnd -> Color.Green
+                                DismissedToStart -> Color.Red
+                            }
+                        )
+                    val alignment =
+                        when (direction) {
+                            StartToEnd -> Alignment.CenterStart
+                            EndToStart -> Alignment.CenterEnd
                         }
-                    )
-                    val alignment = when (direction) {
-                        StartToEnd -> Alignment.CenterStart
-                        EndToStart -> Alignment.CenterEnd
-                    }
-                    val icon = when (direction) {
-                        StartToEnd -> Icons.Default.Done
-                        EndToStart -> Icons.Default.Delete
-                    }
-                    val scale by animateFloatAsState(
-                        if (dismissState.targetValue == Default) 0.75f else 1f
-                    )
+                    val icon =
+                        when (direction) {
+                            StartToEnd -> Icons.Default.Done
+                            EndToStart -> Icons.Default.Delete
+                        }
+                    val scale by
+                        animateFloatAsState(if (dismissState.targetValue == Default) 0.75f else 1f)
 
                     Box(
                         Modifier.fillMaxSize().background(color).padding(horizontal = 20.dp),
@@ -127,9 +131,11 @@ fun SwipeToDismissListItems() {
                 },
                 dismissContent = {
                     Card(
-                        elevation = animateDpAsState(
-                            if (dismissState.dismissDirection != null) 4.dp else 0.dp
-                        ).value
+                        elevation =
+                            animateDpAsState(
+                                    if (dismissState.dismissDirection != null) 4.dp else 0.dp
+                                )
+                                .value
                     ) {
                         ListItem(
                             text = {

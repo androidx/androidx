@@ -21,17 +21,8 @@ import androidx.compose.ui.util.fastCbrt
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
 
-/**
- * Implementation of the Oklab color space. Oklab uses
- * a D65 white point.
- */
-internal class Oklab(
-    name: String,
-    id: Int
-) : ColorSpace(
-    name,
-    ColorModel.Lab, id
-) {
+/** Implementation of the Oklab color space. Oklab uses a D65 white point. */
+internal class Oklab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, id) {
 
     override val isWideGamut: Boolean
         get() = true
@@ -130,40 +121,50 @@ internal class Oklab(
 
     internal companion object {
         /**
-         * This is the matrix applied before the nonlinear transform for (D50) XYZ-to-Oklab.
-         * This combines the D50-to-D65 white point transform with the normal transform matrix
-         * because this is always done together in [fromXyz].
+         * This is the matrix applied before the nonlinear transform for (D50) XYZ-to-Oklab. This
+         * combines the D50-to-D65 white point transform with the normal transform matrix because
+         * this is always done together in [fromXyz].
          */
-        private val M1 = mul3x3(
-            floatArrayOf(
-                0.8189330101f, 0.0329845436f, 0.0482003018f,
-                0.3618667424f, 0.9293118715f, 0.2643662691f,
-                -0.1288597137f, 0.0361456387f, 0.6338517070f
-            ),
-            chromaticAdaptation(
-                matrix = Adaptation.Bradford.transform,
-                srcWhitePoint = Illuminant.D50.toXyz(),
-                dstWhitePoint = Illuminant.D65.toXyz()
+        private val M1 =
+            mul3x3(
+                floatArrayOf(
+                    0.8189330101f,
+                    0.0329845436f,
+                    0.0482003018f,
+                    0.3618667424f,
+                    0.9293118715f,
+                    0.2643662691f,
+                    -0.1288597137f,
+                    0.0361456387f,
+                    0.6338517070f
+                ),
+                chromaticAdaptation(
+                    matrix = Adaptation.Bradford.transform,
+                    srcWhitePoint = Illuminant.D50.toXyz(),
+                    dstWhitePoint = Illuminant.D65.toXyz()
+                )
             )
-        )
 
-        /**
-         * Matrix applied after the nonlinear transform.
-         */
-        private val M2 = floatArrayOf(
-            0.2104542553f, 1.9779984951f, 0.0259040371f,
-            0.7936177850f, -2.4285922050f, 0.7827717662f,
-            -0.0040720468f, 0.4505937099f, -0.8086757660f
-        )
+        /** Matrix applied after the nonlinear transform. */
+        private val M2 =
+            floatArrayOf(
+                0.2104542553f,
+                1.9779984951f,
+                0.0259040371f,
+                0.7936177850f,
+                -2.4285922050f,
+                0.7827717662f,
+                -0.0040720468f,
+                0.4505937099f,
+                -0.8086757660f
+            )
 
-        /**
-         * The inverse of the [M1] matrix, transforming back to XYZ (D50)
-         */
+        /** The inverse of the [M1] matrix, transforming back to XYZ (D50) */
         private val InverseM1 = inverse3x3(M1)
 
         /**
-         * The inverse of the [M2] matrix, doing the first linear transform in the
-         * Oklab-to-XYZ before doing the nonlinear transform.
+         * The inverse of the [M2] matrix, doing the first linear transform in the Oklab-to-XYZ
+         * before doing the nonlinear transform.
          */
         private val InverseM2 = inverse3x3(M2)
     }

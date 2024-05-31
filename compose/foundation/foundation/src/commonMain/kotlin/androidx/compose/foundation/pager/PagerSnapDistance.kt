@@ -20,8 +20,8 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.runtime.Stable
 
 /**
- * [PagerSnapDistance] defines the way the [Pager] will treat the distance between the current
- * page and the page where it will settle.
+ * [PagerSnapDistance] defines the way the [Pager] will treat the distance between the current page
+ * and the page where it will settle.
  */
 @Stable
 interface PagerSnapDistance {
@@ -31,15 +31,14 @@ interface PagerSnapDistance {
      *
      * @param startPage The current page right before the fling starts.
      * @param suggestedTargetPage The proposed target page where this fling will stop. This target
-     * will be the page that will be correctly positioned (snapped) after naturally decaying with
-     * [velocity] using a [DecayAnimationSpec].
+     *   will be the page that will be correctly positioned (snapped) after naturally decaying with
+     *   [velocity] using a [DecayAnimationSpec].
      * @param velocity The initial fling velocity.
      * @param pageSize The page size for this [Pager] in pixels.
      * @param pageSpacing The spacing used between pages in pixels.
-     *
      * @return An updated target page where to settle. Note that this value needs to be between 0
-     * and the total count of pages in this pager. If an invalid value is passed, the pager will
-     * coerce within the valid values.
+     *   and the total count of pages in this pager. If an invalid value is passed, the pager will
+     *   coerce within the valid values.
      */
     fun calculateTargetPage(
         startPage: Int,
@@ -52,6 +51,7 @@ interface PagerSnapDistance {
     companion object {
         /**
          * Limits the maximum number of pages that can be flung per fling gesture.
+         *
          * @param pages The maximum number of extra pages that can be flung at once.
          */
         fun atMost(pages: Int): PagerSnapDistance {
@@ -65,6 +65,7 @@ interface PagerSnapDistance {
 
 /**
  * Limits the maximum number of pages that can be flung per fling gesture.
+ *
  * @param pagesLimit The maximum number of extra pages that can be flung at once.
  */
 internal class PagerSnapDistanceMaxPages(private val pagesLimit: Int) : PagerSnapDistance {

@@ -20,4 +20,8 @@ package androidx.compose.material.anchoredDraggable
 
 import androidx.compose.material.ExperimentalMaterialApi
 
-internal enum class AnchoredDraggableTestValue { A, B, C }
+internal enum class AnchoredDraggableTestValue {
+    A,
+    B,
+    C
+}

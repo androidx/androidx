@@ -33,18 +33,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
-/**
- * The data class which holds the set of parameters of the text layout computation.
- */
-class TextLayoutInput private constructor(
-    /**
-     * The text used for computing text layout.
-     */
+/** The data class which holds the set of parameters of the text layout computation. */
+class TextLayoutInput
+private constructor(
+    /** The text used for computing text layout. */
     val text: AnnotatedString,
 
-    /**
-     * The text layout used for computing this text layout.
-     */
+    /** The text layout used for computing this text layout. */
     val style: TextStyle,
 
     /**
@@ -58,29 +53,19 @@ class TextLayoutInput private constructor(
      */
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
 
-    /**
-     * The maxLines param used for computing this text layout.
-     */
+    /** The maxLines param used for computing this text layout. */
     val maxLines: Int,
 
-    /**
-     * The maxLines param used for computing this text layout.
-     */
+    /** The maxLines param used for computing this text layout. */
     val softWrap: Boolean,
 
-    /**
-     * The overflow param used for computing this text layout
-     */
+    /** The overflow param used for computing this text layout */
     val overflow: TextOverflow,
 
-    /**
-     * The density param used for computing this text layout.
-     */
+    /** The density param used for computing this text layout. */
     val density: Density,
 
-    /**
-     * The layout direction used for computing this text layout.
-     */
+    /** The layout direction used for computing this text layout. */
     val layoutDirection: LayoutDirection,
 
     /**
@@ -90,22 +75,18 @@ class TextLayoutInput private constructor(
      *
      * @see fontFamilyResolver
      */
-
     @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader?,
 
-    /**
-     * The font resolver used for computing this text layout.
-     */
+    /** The font resolver used for computing this text layout. */
     val fontFamilyResolver: FontFamily.Resolver,
 
-    /**
-     * The minimum width provided while calculating this text layout.
-     */
+    /** The minimum width provided while calculating this text layout. */
     val constraints: Constraints
 ) {
 
     private var _developerSuppliedResourceLoader = resourceLoader
-    @Deprecated("Replaced with FontFamily.Resolver",
+    @Deprecated(
+        "Replaced with FontFamily.Resolver",
         replaceWith = ReplaceWith("fontFamilyResolver"),
     )
     @Suppress("DEPRECATION")
@@ -117,9 +98,12 @@ class TextLayoutInput private constructor(
 
     @Deprecated(
         "Font.ResourceLoader is replaced with FontFamily.Resolver",
-        replaceWith = ReplaceWith("TextLayoutInput(text, style, placeholders, " +
-            "maxLines, softWrap, overflow, density, layoutDirection, fontFamilyResolver, " +
-            "constraints")
+        replaceWith =
+            ReplaceWith(
+                "TextLayoutInput(text, style, placeholders, " +
+                    "maxLines, softWrap, overflow, density, layoutDirection, fontFamilyResolver, " +
+                    "constraints"
+            )
     )
     @Suppress("DEPRECATION")
     constructor(
@@ -172,10 +156,14 @@ class TextLayoutInput private constructor(
         constraints
     )
 
-    @Deprecated("Font.ResourceLoader is deprecated",
-        replaceWith = ReplaceWith("TextLayoutInput(text, style, placeholders," +
-            " maxLines, softWrap, overFlow, density, layoutDirection, fontFamilyResolver, " +
-            "constraints)")
+    @Deprecated(
+        "Font.ResourceLoader is deprecated",
+        replaceWith =
+            ReplaceWith(
+                "TextLayoutInput(text, style, placeholders," +
+                    " maxLines, softWrap, overFlow, density, layoutDirection, fontFamilyResolver, " +
+                    "constraints)"
+            )
     )
     // Unfortunately, there's no way to deprecate and add a parameter to a copy chain such that the
     // resolution is valid.
@@ -258,19 +246,14 @@ class TextLayoutInput private constructor(
 }
 
 @Suppress("DEPRECATION")
-private class DeprecatedBridgeFontResourceLoader private constructor(
-    private val fontFamilyResolver: FontFamily.Resolver
-) : Font.ResourceLoader {
+private class DeprecatedBridgeFontResourceLoader
+private constructor(private val fontFamilyResolver: FontFamily.Resolver) : Font.ResourceLoader {
     @Deprecated(
         "Replaced by FontFamily.Resolver, this method should not be called",
         ReplaceWith("FontFamily.Resolver.resolve(font, )"),
     )
     override fun load(font: Font): Any {
-        return fontFamilyResolver.resolve(
-            font.toFontFamily(),
-            font.weight,
-            font.style
-        ).value
+        return fontFamilyResolver.resolve(font.toFontFamily(), font.weight, font.style).value
     }
 
     companion object {
@@ -286,14 +269,16 @@ private class DeprecatedBridgeFontResourceLoader private constructor(
         // (via e.g. remember)
         var cache = mutableMapOf<FontFamily.Resolver, Font.ResourceLoader>()
         val lock: SynchronizedObject = createSynchronizedObject()
+
         fun from(fontFamilyResolver: FontFamily.Resolver): Font.ResourceLoader {
             synchronized(lock) {
                 // the same resolver to return the same ResourceLoader
-                cache[fontFamilyResolver]?.let { return it }
+                cache[fontFamilyResolver]?.let {
+                    return it
+                }
 
-                val deprecatedBridgeFontResourceLoader = DeprecatedBridgeFontResourceLoader(
-                    fontFamilyResolver
-                )
+                val deprecatedBridgeFontResourceLoader =
+                    DeprecatedBridgeFontResourceLoader(fontFamilyResolver)
                 cache[fontFamilyResolver] = deprecatedBridgeFontResourceLoader
                 return deprecatedBridgeFontResourceLoader
             }
@@ -301,13 +286,10 @@ private class DeprecatedBridgeFontResourceLoader private constructor(
     }
 }
 
-/**
- * The data class which holds text layout result.
- */
-class TextLayoutResult constructor(
-    /**
-     * The parameters used for computing this text layout result.
-     */
+/** The data class which holds text layout result. */
+class TextLayoutResult
+constructor(
+    /** The parameters used for computing this text layout result. */
     val layoutInput: TextLayoutInput,
 
     /**
@@ -317,53 +299,42 @@ class TextLayoutResult constructor(
      */
     val multiParagraph: MultiParagraph,
 
-    /**
-     * The amount of space required to paint this text in Int.
-     */
+    /** The amount of space required to paint this text in Int. */
     val size: IntSize
 ) {
-    /**
-     * The distance from the top to the alphabetic baseline of the first line.
-     */
+    /** The distance from the top to the alphabetic baseline of the first line. */
     val firstBaseline: Float = multiParagraph.firstBaseline
 
-    /**
-     * The distance from the top to the alphabetic baseline of the last line.
-     */
+    /** The distance from the top to the alphabetic baseline of the last line. */
     val lastBaseline: Float = multiParagraph.lastBaseline
 
-    /**
-     * Returns true if the text is too tall and couldn't fit with given height.
-     */
-    val didOverflowHeight: Boolean get() = multiParagraph.didExceedMaxLines ||
-        size.height < multiParagraph.height
+    /** Returns true if the text is too tall and couldn't fit with given height. */
+    val didOverflowHeight: Boolean
+        get() = multiParagraph.didExceedMaxLines || size.height < multiParagraph.height
+
+    /** Returns true if the text is too wide and couldn't fit with given width. */
+    val didOverflowWidth: Boolean
+        get() = size.width < multiParagraph.width
+
+    /** Returns true if either vertical overflow or horizontal overflow happens. */
+    val hasVisualOverflow: Boolean
+        get() = didOverflowWidth || didOverflowHeight
 
     /**
-     * Returns true if the text is too wide and couldn't fit with given width.
-     */
-    val didOverflowWidth: Boolean get() = size.width < multiParagraph.width
-
-    /**
-     * Returns true if either vertical overflow or horizontal overflow happens.
-     */
-    val hasVisualOverflow: Boolean get() = didOverflowWidth || didOverflowHeight
-
-    /**
-     * Returns a list of bounding boxes that is reserved for [TextLayoutInput.placeholders].
-     * Each [Rect] in this list corresponds to the [Placeholder] passed to
-     * [TextLayoutInput.placeholders] and it will have the height and width specified in the
-     * [Placeholder]. It's guaranteed that [TextLayoutInput.placeholders] and
-     * [TextLayoutResult.placeholderRects] will have same length and order.
+     * Returns a list of bounding boxes that is reserved for [TextLayoutInput.placeholders]. Each
+     * [Rect] in this list corresponds to the [Placeholder] passed to [TextLayoutInput.placeholders]
+     * and it will have the height and width specified in the [Placeholder]. It's guaranteed that
+     * [TextLayoutInput.placeholders] and [TextLayoutResult.placeholderRects] will have same length
+     * and order.
      *
      * @see TextLayoutInput.placeholders
      * @see Placeholder
      */
     val placeholderRects: List<Rect?> = multiParagraph.placeholderRects
 
-    /**
-     * Returns a number of lines of this text layout
-     */
-    val lineCount: Int get() = multiParagraph.lineCount
+    /** Returns a number of lines of this text layout */
+    val lineCount: Int
+        get() = multiParagraph.lineCount
 
     /**
      * Returns the start offset of the given line, inclusive.
@@ -385,8 +356,8 @@ class TextLayoutResult constructor(
     /**
      * Returns the end offset of the given line.
      *
-     * The end offset represents a position in text after the last character in the given line.
-     * For example, `getLineEnd(0)` will return 4 for the text below
+     * The end offset represents a position in text after the last character in the given line. For
+     * example, `getLineEnd(0)` will return 4 for the text below
      * <pre>
      * ┌────┐
      * │abcd│
@@ -399,8 +370,8 @@ class TextLayoutResult constructor(
      *
      * @param lineIndex the line number
      * @param visibleEnd if true, the returned line end will not count trailing whitespaces or
-     * linefeed characters. Otherwise, this function will return the logical line end. By default
-     * it's false.
+     *   linefeed characters. Otherwise, this function will return the logical line end. By default
+     *   it's false.
      * @return an exclusive end offset of the line.
      */
     fun getLineEnd(lineIndex: Int, visibleEnd: Boolean = false): Int =
@@ -455,8 +426,8 @@ class TextLayoutResult constructor(
     /**
      * Returns the line number on which the specified text offset appears.
      *
-     * If you ask for a position before 0, you get 0; if you ask for a position
-     * beyond the end of the text, you get the last line.
+     * If you ask for a position before 0, you get 0; if you ask for a position beyond the end of
+     * the text, you get the last line.
      *
      * @param offset a character offset
      * @return the 0 origin line number.
@@ -484,12 +455,12 @@ class TextLayoutResult constructor(
      * value as a distance from the right-most edge.
      *
      * [usePrimaryDirection] argument is taken into account only when the offset is in the BiDi
-     * directional transition point. [usePrimaryDirection] is true means use the primary
-     * direction run's coordinate, and use the secondary direction's run's coordinate if false.
+     * directional transition point. [usePrimaryDirection] is true means use the primary direction
+     * run's coordinate, and use the secondary direction's run's coordinate if false.
      *
      * @param offset a character offset
-     * @param usePrimaryDirection true for using the primary run's coordinate if the given
-     * offset is in the BiDi directional transition point.
+     * @param usePrimaryDirection true for using the primary run's coordinate if the given offset is
+     *   in the BiDi directional transition point.
      * @return the relative distance from the text starting edge.
      * @see MultiParagraph.getHorizontalPosition
      */
@@ -516,13 +487,12 @@ class TextLayoutResult constructor(
         multiParagraph.getBidiRunDirection(offset)
 
     /**
-     *  Returns the character offset closest to the given graphical position.
+     * Returns the character offset closest to the given graphical position.
      *
-     *  @param position a graphical position in this text layout
-     *  @return a character offset that is closest to the given graphical position.
+     * @param position a graphical position in this text layout
+     * @return a character offset that is closest to the given graphical position.
      */
-    fun getOffsetForPosition(position: Offset): Int =
-        multiParagraph.getOffsetForPosition(position)
+    fun getOffsetForPosition(position: Offset): Int = multiParagraph.getOffsetForPosition(position)
 
     /**
      * Returns the bounding box of the character for given character offset.

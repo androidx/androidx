@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AwaitEachGestureTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tag = "pointerInputTag"
 
@@ -55,29 +54,34 @@ class AwaitEachGestureTest {
         val inputLatch = CountDownLatch(1)
         rule.setContent {
             Box(
-                Modifier.testTag(tag).pointerInput(Unit) {
-                    try {
-                        var count = 0
-                        coroutineScope {
-                            awaitEachGesture {
-                                when (count++) {
-                                    0 -> Unit // continue
-                                    1 -> throw CancellationException("internal exception")
-                                    else -> {
-                                        // detectGestures will loop infinitely with nothing in the
-                                        // middle so wait for cancellation
-                                        cancel("really canceled")
+                Modifier.testTag(tag)
+                    .pointerInput(Unit) {
+                        try {
+                            var count = 0
+                            coroutineScope {
+                                awaitEachGesture {
+                                    when (count++) {
+                                        0 -> Unit // continue
+                                        1 -> throw CancellationException("internal exception")
+                                        else -> {
+                                            // detectGestures will loop infinitely with nothing in
+                                            // the
+                                            // middle so wait for cancellation
+                                            cancel("really canceled")
+                                        }
                                     }
                                 }
                             }
+                        } catch (cancellationException: CancellationException) {
+                            assertWithMessage(
+                                    "The internal exception shouldn't cancel detectGestures"
+                                )
+                                .that(cancellationException.message)
+                                .isEqualTo("really canceled")
                         }
-                    } catch (cancellationException: CancellationException) {
-                        assertWithMessage("The internal exception shouldn't cancel detectGestures")
-                            .that(cancellationException.message)
-                            .isEqualTo("really canceled")
+                        inputLatch.countDown()
                     }
-                    inputLatch.countDown()
-                }.size(10.dp)
+                    .size(10.dp)
             )
         }
         rule.waitForIdle()
@@ -91,14 +95,12 @@ class AwaitEachGestureTest {
         val tag = "input rect"
         rule.setContent {
             Box(
-                Modifier.fillMaxSize()
-                    .testTag(tag)
-                    .pointerInput(Unit) {
-                        awaitEachGesture {
-                            val event = awaitPointerEvent()
-                            events += event.type
-                        }
+                Modifier.fillMaxSize().testTag(tag).pointerInput(Unit) {
+                    awaitEachGesture {
+                        val event = awaitPointerEvent()
+                        events += event.type
                     }
+                }
             )
         }
 

@@ -18,9 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.AbstractApplier
 
-internal class UiApplier(
-    root: LayoutNode
-) : AbstractApplier<LayoutNode>(root) {
+internal class UiApplier(root: LayoutNode) : AbstractApplier<LayoutNode>(root) {
 
     override fun insertTopDown(index: Int, instance: LayoutNode) {
         // Ignored. Insert is performed in [insertBottomUp] to build the tree bottom-up to avoid

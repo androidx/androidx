@@ -17,8 +17,8 @@
 package androidx.compose.ui.focus
 
 /**
- * The focus state of a [FocusTargetNode]. Use [onFocusChanged] or [onFocusEvent] modifiers
- * to access [FocusState].
+ * The focus state of a [FocusTargetNode]. Use [onFocusChanged] or [onFocusEvent] modifiers to
+ * access [FocusState].
  *
  * @sample androidx.compose.ui.samples.FocusableSample
  */
@@ -40,17 +40,17 @@ interface FocusState {
     val hasFocus: Boolean
 
     /**
-     * Whether focus is captured or not. A focusable component is in a captured state when it
-     * wants to hold onto focus. (Eg. when a text field has an invalid phone number). When we are
-     * in a captured state, clicking on other focusable items does not clear focus from the
-     * currently focused item.
+     * Whether focus is captured or not. A focusable component is in a captured state when it wants
+     * to hold onto focus. (Eg. when a text field has an invalid phone number). When we are in a
+     * captured state, clicking on other focusable items does not clear focus from the currently
+     * focused item.
      *
-     * You can capture focus by calling [focusRequester.captureFocus()][captureFocus] and free
-     * focus by calling [focusRequester.freeFocus()][freeFocus].
+     * You can capture focus by calling [focusRequester.captureFocus()][captureFocus] and free focus
+     * by calling [focusRequester.freeFocus()][freeFocus].
      *
-     *  @return true if focus is captured, false otherwise.
+     * @return true if focus is captured, false otherwise.
      *
-     *  @sample androidx.compose.ui.samples.CaptureFocusSample
+     * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
     val isCaptured: Boolean
 }
@@ -64,32 +64,41 @@ internal enum class FocusStateImpl : FocusState {
     ActiveParent,
 
     /**
-     * The focusable component is currently active (has focus), and is in a state where
-     * it does not want to give up focus. (Eg. a text field with an invalid phone number).
+     * The focusable component is currently active (has focus), and is in a state where it does not
+     * want to give up focus. (Eg. a text field with an invalid phone number).
      */
     Captured,
 
     /**
-     * The focusable component does not receive any key events. (ie it is not active, nor are any
-     * of its descendants active).
+     * The focusable component does not receive any key events. (ie it is not active, nor are any of
+     * its descendants active).
      */
     Inactive;
 
     override val isFocused: Boolean
-        get() = when (this) {
-            Captured, Active -> true
-            ActiveParent, Inactive -> false
-        }
+        get() =
+            when (this) {
+                Captured,
+                Active -> true
+                ActiveParent,
+                Inactive -> false
+            }
 
     override val hasFocus: Boolean
-        get() = when (this) {
-            Active, ActiveParent, Captured -> true
-            Inactive -> false
-        }
+        get() =
+            when (this) {
+                Active,
+                ActiveParent,
+                Captured -> true
+                Inactive -> false
+            }
 
     override val isCaptured: Boolean
-        get() = when (this) {
-            Captured -> true
-            Active, ActiveParent, Inactive -> false
-        }
+        get() =
+            when (this) {
+                Captured -> true
+                Active,
+                ActiveParent,
+                Inactive -> false
+            }
 }

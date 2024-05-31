@@ -23,10 +23,13 @@ import com.android.tools.lint.detector.api.CURRENT_API
 class TestManifestIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(GradleDebugConfigurationDetector.ISSUE)
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=741505",
-        identifier = "androidx.compose.ui.test.manifest",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues
+        get() = listOf(GradleDebugConfigurationDetector.ISSUE)
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=741505",
+            identifier = "androidx.compose.ui.test.manifest",
+            vendorName = "Android Open Source Project",
+        )
 }

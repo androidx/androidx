@@ -41,20 +41,13 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
 
 @Composable
-fun NavGraph(
-    initialFavoriteRoute: String?,
-    theme: Theme,
-    onThemeChange: (theme: Theme) -> Unit
-) {
+fun NavGraph(initialFavoriteRoute: String?, theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
     val context = LocalContext.current
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     val userPreferencesRepository = remember { UserPreferencesRepository(context) }
     var favoriteRoute by rememberSaveable { mutableStateOf(initialFavoriteRoute) }
-    NavHost(
-        navController = navController,
-        startDestination = HomeRoute
-    ) {
+    NavHost(navController = navController, startDestination = HomeRoute) {
         composable(HomeRoute) {
             Home(
                 components = Components,
@@ -71,11 +64,8 @@ fun NavGraph(
             )
         }
         composable(
-            route = "$ComponentRoute/" +
-                "{$ComponentIdArgName}",
-            arguments = listOf(
-                navArgument(ComponentIdArgName) { type = NavType.IntType }
-            )
+            route = "$ComponentRoute/" + "{$ComponentIdArgName}",
+            arguments = listOf(navArgument(ComponentIdArgName) { type = NavType.IntType })
         ) { navBackStackEntry ->
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
@@ -97,13 +87,12 @@ fun NavGraph(
             )
         }
         composable(
-            route = "$ExampleRoute/" +
-                "{$ComponentIdArgName}/" +
-                "{$ExampleIndexArgName}",
-            arguments = listOf(
-                navArgument(ComponentIdArgName) { type = NavType.IntType },
-                navArgument(ExampleIndexArgName) { type = NavType.IntType }
-            )
+            route = "$ExampleRoute/" + "{$ComponentIdArgName}/" + "{$ExampleIndexArgName}",
+            arguments =
+                listOf(
+                    navArgument(ComponentIdArgName) { type = NavType.IntType },
+                    navArgument(ExampleIndexArgName) { type = NavType.IntType }
+                )
         ) { navBackStackEntry ->
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
@@ -143,8 +132,7 @@ private fun maybeNavigate(navController: NavHostController, route: String?) {
     }
     if (route.startsWith(ExampleRoute)) {
         // Navigate to the Component screen first so it's in the back stack as expected.
-        val componentRoute =
-            route.replace(ExampleRoute, ComponentRoute).substringBeforeLast("/")
+        val componentRoute = route.replace(ExampleRoute, ComponentRoute).substringBeforeLast("/")
         navController.navigate(componentRoute)
     }
     navController.navigate(route)

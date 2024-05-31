@@ -31,12 +31,13 @@ class LazyScheme(
     val anyParameters = scheme.anyParameters
     val parameters = scheme.parameters.map { LazyScheme(it, context, bindings) }
     val result = scheme.result?.let { LazyScheme(it, context, bindings) }
-    val closed: Boolean get() = target.token != null &&
-        (result == null || result.closed) && parameters.all { it.closed }
+    val closed: Boolean
+        get() =
+            target.token != null &&
+                (result == null || result.closed) &&
+                parameters.all { it.closed }
 
-    /**
-     * Create a [Scheme] from the current state of this.
-     */
+    /** Create a [Scheme] from the current state of this. */
     fun toScheme(): Scheme {
         val context: MutableMap<Value, Int> = mutableMapOf()
         var uniqueNumber = 0
@@ -54,14 +55,15 @@ class LazyScheme(
             scheme.parameters.forEach { mapValues(it) }
             scheme.result?.let { mapValues(it) }
         }
-        fun itemOf(binding: Binding) = binding.token?.let { Token(it) }
-            ?: context[binding.value]?.let { Open(it) } ?: Open(-1)
-        fun schemeOf(lazyScheme: LazyScheme): Scheme = Scheme(
-            itemOf(lazyScheme.target),
-            lazyScheme.parameters.map { schemeOf(it) },
-            lazyScheme.result?.let { schemeOf(it) },
-            lazyScheme.anyParameters
-        )
+        fun itemOf(binding: Binding) =
+            binding.token?.let { Token(it) } ?: context[binding.value]?.let { Open(it) } ?: Open(-1)
+        fun schemeOf(lazyScheme: LazyScheme): Scheme =
+            Scheme(
+                itemOf(lazyScheme.target),
+                lazyScheme.parameters.map { schemeOf(it) },
+                lazyScheme.result?.let { schemeOf(it) },
+                lazyScheme.anyParameters
+            )
         mapValues(this)
         return schemeOf(this)
     }
@@ -69,16 +71,15 @@ class LazyScheme(
     /**
      * Create a call binding for use when validating a call to the function this lazy scheme is for.
      */
-    fun toCallBindings(): CallBindings = CallBindings(
-        target,
-        parameters.map { it.toCallBindings() },
-        result = result?.toCallBindings(),
-        anyParameters
-    )
+    fun toCallBindings(): CallBindings =
+        CallBindings(
+            target,
+            parameters.map { it.toCallBindings() },
+            result = result?.toCallBindings(),
+            anyParameters
+        )
 
-    /**
-     * Call [callback] whenever the lazy changes.
-     */
+    /** Call [callback] whenever the lazy changes. */
     fun onChange(callback: () -> Unit): () -> Unit {
         var previousScheme = toScheme()
         return bindings.onChange {
@@ -90,26 +91,19 @@ class LazyScheme(
         }
     }
 
-    override fun toString(): String =
-        "[$targetStr$parametersStr$resultStr]"
+    override fun toString(): String = "[$targetStr$parametersStr$resultStr]"
 
-    private val targetStr get() =
-        target.token ?: target.value.index.toString()
+    private val targetStr
+        get() = target.token ?: target.value.index.toString()
 
-    private val parametersStr get() =
-        if (parameters.isNotEmpty()) ", ${parameters.joinToString(", ")}"
-        else ""
+    private val parametersStr
+        get() = if (parameters.isNotEmpty()) ", ${parameters.joinToString(", ")}" else ""
 
-    private val resultStr get() = result?.let { ":$it" } ?: ""
+    private val resultStr
+        get() = result?.let { ":$it" } ?: ""
 
     companion object {
-        fun open() = Open(-1).let { target ->
-            LazyScheme(
-                Scheme(
-                    target = target,
-                    result = Scheme(target)
-                )
-            )
-        }
+        fun open() =
+            Open(-1).let { target -> LazyScheme(Scheme(target = target, result = Scheme(target))) }
     }
 }

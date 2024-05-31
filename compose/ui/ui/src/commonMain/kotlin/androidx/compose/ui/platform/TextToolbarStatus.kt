@@ -16,16 +16,10 @@
 
 package androidx.compose.ui.platform
 
-/**
- * Status of the [TextToolbar].
- */
+/** Status of the [TextToolbar]. */
 enum class TextToolbarStatus {
-    /**
-     * The [TextToolbar] is shown.
-     */
+    /** The [TextToolbar] is shown. */
     Shown,
-    /**
-     * The [TextToolbar] is hidden.
-     */
+    /** The [TextToolbar] is hidden. */
     Hidden
 }

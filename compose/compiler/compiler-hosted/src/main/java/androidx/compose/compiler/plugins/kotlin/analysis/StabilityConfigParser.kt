@@ -37,9 +37,7 @@ interface StabilityConfigParser {
 
 private const val COMMENT_DELIMITER = "//"
 
-private class StabilityConfigParserImpl(
-    lines: List<String>
-) : StabilityConfigParser {
+private class StabilityConfigParserImpl(lines: List<String>) : StabilityConfigParser {
     override val stableTypeMatchers: Set<FqNameMatcher>
 
     init {
@@ -60,9 +58,7 @@ private class StabilityConfigParserImpl(
                 try {
                     matchers.add(FqNameMatcher(l))
                 } catch (exception: IllegalStateException) {
-                    error(
-                        errorMessage(line, index, exception.message ?: "")
-                    )
+                    error(errorMessage(line, index, exception.message ?: ""))
                 }
             }
         }
@@ -75,6 +71,7 @@ private class StabilityConfigParserImpl(
             Error parsing stability configuration file on line $lineNumber.
             $message
             $line
-        """.trimIndent()
+        """
+            .trimIndent()
     }
 }

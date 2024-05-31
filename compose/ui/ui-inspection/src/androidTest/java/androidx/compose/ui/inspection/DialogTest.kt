@@ -43,8 +43,7 @@ import org.junit.rules.RuleChain
 class DialogTest {
     private val rule = createAndroidComposeRule<DialogTestActivity>()
 
-    @get:Rule
-    val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
+    @get:Rule val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
 
     private lateinit var inspectorTester: InspectorTester
 
@@ -62,18 +61,16 @@ class DialogTest {
 
     @Test
     fun dialogLocation(): Unit = runBlocking {
-        inspectorTester.sendCommand(
-            GetUpdateSettingsCommand()
-        ).updateSettingsResponse
+        inspectorTester.sendCommand(GetUpdateSettingsCommand()).updateSettingsResponse
 
         val roots = WindowInspector.getGlobalWindowViews()
         assertThat(roots).hasSize(2)
         val appViewId = roots.first().uniqueDrawingId
         val dialogViewId = roots.last().uniqueDrawingId
-        val app = inspectorTester.sendCommand(GetComposablesCommand(appViewId))
-            .getComposablesResponse
-        val dialog = inspectorTester.sendCommand(GetComposablesCommand(dialogViewId))
-            .getComposablesResponse
+        val app =
+            inspectorTester.sendCommand(GetComposablesCommand(appViewId)).getComposablesResponse
+        val dialog =
+            inspectorTester.sendCommand(GetComposablesCommand(dialogViewId)).getComposablesResponse
         val appRoots = app.roots()
         val dialogRoots = dialog.roots()
         val dialogViewRoot = roots.last()
@@ -96,18 +93,18 @@ class DialogTest {
         return rootsList.flatMap { it.nodesList.convert(strings) }
     }
 
-    private fun List<ComposableNode>.convert(strings: Map<Int, String>): List<InspectorNode> =
-        map {
-            val node = MutableInspectorNode()
-            node.name = strings[it.name] ?: ""
-            node.box = IntRect(
+    private fun List<ComposableNode>.convert(strings: Map<Int, String>): List<InspectorNode> = map {
+        val node = MutableInspectorNode()
+        node.name = strings[it.name] ?: ""
+        node.box =
+            IntRect(
                 it.bounds.layout.x,
                 it.bounds.layout.y,
                 it.bounds.layout.x + it.bounds.layout.w,
                 it.bounds.layout.y + it.bounds.layout.h
             )
-            node.children.addAll(it.childrenList.convert(strings))
-            node.inlined = (it.flags and ComposableNode.Flags.INLINED_VALUE) != 0
-            node.build()
-        }
+        node.children.addAll(it.childrenList.convert(strings))
+        node.inlined = (it.flags and ComposableNode.Flags.INLINED_VALUE) != 0
+        node.build()
+    }
 }

@@ -19,8 +19,8 @@ package androidx.compose.animation.core
 import kotlin.math.hypot
 
 /**
- * This performs a spline interpolation in multiple dimensions
- * time is an array of all positions and y is a list of arrays each with the values at each point
+ * This performs a spline interpolation in multiple dimensions time is an array of all positions and
+ * y is a list of arrays each with the values at each point
  */
 @ExperimentalAnimationSpecApi
 internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: Float) {
@@ -87,9 +87,7 @@ internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: 
      */
     private fun makeFloatArray(a: Int, b: Int): Array<FloatArray> = Array(a) { FloatArray(b) }
 
-    /**
-     * get the value of the j'th spline at time t
-     */
+    /** get the value of the j'th spline at time t */
     fun getPos(t: Float, j: Int): Float {
         val n = timePoints.size
         if (isExtrapolate) {
@@ -182,10 +180,7 @@ internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: 
         }
     }
 
-    /**
-     * Get the differential of the value at time
-     * fill an array of slopes for each spline
-     */
+    /** Get the differential of the value at time fill an array of slopes for each spline */
     fun getSlope(time: Float, v: FloatArray) {
         var t = time
         val n = timePoints.size
@@ -276,42 +271,21 @@ internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: 
         return 0.0f // should never reach here
     }
 
-    /**
-     * Cubic Hermite spline
-     */
-    private fun interpolate(
-        h: Float,
-        x: Float,
-        y1: Float,
-        y2: Float,
-        t1: Float,
-        t2: Float
-    ): Float {
+    /** Cubic Hermite spline */
+    private fun interpolate(h: Float, x: Float, y1: Float, y2: Float, t1: Float, t2: Float): Float {
         val x2 = x * x
         val x3 = x2 * x
-        return (-2 * x3 * y2 +
-            3 * x2 * y2 +
-            2 * x3 * y1 -
-            3 * x2 * y1 +
-            y1 + h * t2 * x3 +
-            h * t1 * x3 -
-            h * t2 * x2 -
-            2 * h * t1 * x2 +
-            h * t1 * x)
+        return (-2 * x3 * y2 + 3 * x2 * y2 + 2 * x3 * y1 - 3 * x2 * y1 +
+            y1 +
+            h * t2 * x3 +
+            h * t1 * x3 - h * t2 * x2 - 2 * h * t1 * x2 + h * t1 * x)
     }
 
-    /**
-     * Cubic Hermite spline slope differentiated
-     */
+    /** Cubic Hermite spline slope differentiated */
     private fun diff(h: Float, x: Float, y1: Float, y2: Float, t1: Float, t2: Float): Float {
         val x2 = x * x
-        return (-6 * x2 * y2 +
-            6 * x * y2 +
-            6 * x2 * y1 -
-            6 * x * y1 +
+        return (-6 * x2 * y2 + 6 * x * y2 + 6 * x2 * y1 - 6 * x * y1 +
             3 * h * t2 * x2 +
-            3 * h * t1 * x2 -
-            2 * h * t2 * x -
-            4 * h * t1 * x + h * t1)
+            3 * h * t1 * x2 - 2 * h * t2 * x - 4 * h * t1 * x + h * t1)
     }
 }

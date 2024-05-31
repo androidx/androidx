@@ -33,9 +33,7 @@ import org.junit.runners.Parameterized
 class GapBufferBenchmark(val initText: InitialText) {
     companion object {
 
-        /**
-         * Helper class for describing the parameter in test result
-         */
+        /** Helper class for describing the parameter in test result */
         data class InitialText(val text: String, val name: String) {
             override fun toString(): String = name
         }
@@ -45,21 +43,16 @@ class GapBufferBenchmark(val initText: InitialText) {
 
         @JvmStatic
         @Parameterized.Parameters(name = "initText={0}")
-        fun initParameters(): List<InitialText> = listOf(
-            InitialText(longText, "Long Text"),
-            InitialText(shortText, "Short Text")
-        )
+        fun initParameters(): List<InitialText> =
+            listOf(InitialText(longText, "Long Text"), InitialText(shortText, "Short Text"))
     }
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun singleReplace() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled {
-                PartialGapBuffer(initText.text)
-            }
+            val buffer = runWithTimingDisabled { PartialGapBuffer(initText.text) }
 
             buffer.replace(5, 10, "Android")
         }
@@ -68,9 +61,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     @Test
     fun replace10timesContinued() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled {
-                PartialGapBuffer(initText.text)
-            }
+            val buffer = runWithTimingDisabled { PartialGapBuffer(initText.text) }
 
             for (i in 0 until 10) {
                 buffer.replace(5 + i, 10 + i, "Android")
@@ -81,9 +72,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     @Test
     fun replace10timesDiscontinued() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled {
-                PartialGapBuffer(initText.text)
-            }
+            val buffer = runWithTimingDisabled { PartialGapBuffer(initText.text) }
 
             for (i in 0 until 10) {
                 if (i % 2 == 0) {
@@ -99,9 +88,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     fun toStringAfterReplace() {
         benchmarkRule.measureRepeated {
             val buffer = runWithTimingDisabled {
-                PartialGapBuffer(initText.text).apply {
-                    replace(5, 10, "Android")
-                }
+                PartialGapBuffer(initText.text).apply { replace(5, 10, "Android") }
             }
 
             buffer.toString()

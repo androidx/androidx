@@ -36,8 +36,5 @@ fun <A : ComponentActivity> AndroidComposeTestRule<ActivityScenarioRule<A>, A>.f
         return activity!!
     }
 
-    return AndroidComposeTestCaseSetup(
-        testCase,
-        getActivity()
-    )
+    return AndroidComposeTestCaseSetup(testCase, getActivity())
 }

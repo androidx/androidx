@@ -48,12 +48,7 @@ fun SimpleRequiredSizeModifier() {
     // The result is a 50.dp x 50.dp red box centered in a 100.dp x 100.dp space.
     // Note that although a previous modifier asked it to be 100.dp x 100.dp, this
     // will not be respected. They would be respected if size was used instead of requiredSize.
-    Box(
-        Modifier
-            .requiredSize(100.dp, 100.dp)
-            .requiredSize(50.dp, 50.dp)
-            .background(Color.Red)
-    )
+    Box(Modifier.requiredSize(100.dp, 100.dp).requiredSize(50.dp, 50.dp).background(Color.Red))
 }
 
 @Sampled
@@ -63,8 +58,7 @@ fun SimpleRequiredWidthModifier() {
     // Note that although a previous modifier asked it to be 100.dp width, this
     // will not be respected. They would be respected if width was used instead of requiredWidth.
     Box(
-        Modifier
-            .requiredWidth(100.dp)
+        Modifier.requiredWidth(100.dp)
             .requiredWidth(50.dp)
             .aspectRatio(1f)
             .background(Color.Magenta)
@@ -78,44 +72,32 @@ fun SimpleRequiredHeightModifier() {
     // Note that although a previous modifier asked it to be 100.dp height, this
     // will not be respected. They would be respected if height was used instead of requiredHeight.
     Box(
-        Modifier
-            .requiredHeight(100.dp)
-            .requiredHeight(50.dp)
-            .aspectRatio(1f)
-            .background(Color.Blue)
+        Modifier.requiredHeight(100.dp).requiredHeight(50.dp).aspectRatio(1f).background(Color.Blue)
     )
 }
 
 @Sampled
 @Composable
 fun SimpleSizeModifier() {
-    Box {
-        Box(Modifier.size(100.dp, 100.dp).background(Color.Red))
-    }
+    Box { Box(Modifier.size(100.dp, 100.dp).background(Color.Red)) }
 }
 
 @Sampled
 @Composable
 fun SimpleSizeModifierWithDpSize() {
-    Box {
-        Box(Modifier.size(DpSize(100.dp, 100.dp)).background(Color.Red))
-    }
+    Box { Box(Modifier.size(DpSize(100.dp, 100.dp)).background(Color.Red)) }
 }
 
 @Sampled
 @Composable
 fun SimpleWidthModifier() {
-    Box {
-        Box(Modifier.width(100.dp).aspectRatio(1f).background(Color.Magenta))
-    }
+    Box { Box(Modifier.width(100.dp).aspectRatio(1f).background(Color.Magenta)) }
 }
 
 @Sampled
 @Composable
 fun SimpleHeightModifier() {
-    Box {
-        Box(Modifier.height(100.dp).aspectRatio(1f).background(Color.Blue))
-    }
+    Box { Box(Modifier.height(100.dp).aspectRatio(1f).background(Color.Blue)) }
 }
 
 @Sampled
@@ -152,11 +134,7 @@ fun SimpleFillHeightModifier() {
 fun FillHalfHeightModifier() {
     Box(Modifier.requiredSize(100.dp).background(Color.Red), contentAlignment = Alignment.Center) {
         // The inner Box will be (30.dp x 50.dp).
-        Box(
-            Modifier.requiredWidth(30.dp)
-                .fillMaxHeight(0.5f)
-                .background(color = Color.Magenta)
-        )
+        Box(Modifier.requiredWidth(30.dp).fillMaxHeight(0.5f).background(color = Color.Magenta))
     }
 }
 
@@ -173,11 +151,7 @@ fun SimpleFillModifier() {
 fun FillHalfSizeModifier() {
     Box(Modifier.requiredSize(100.dp).background(Color.Red), contentAlignment = Alignment.Center) {
         // The inner Box will be (50.dp x 50.dp).
-        Box(
-            Modifier.requiredWidth(30.dp)
-                .fillMaxSize(0.5f)
-                .background(color = Color.Magenta)
-        )
+        Box(Modifier.requiredWidth(30.dp).fillMaxSize(0.5f).background(color = Color.Magenta))
     }
 }
 
@@ -238,10 +212,7 @@ fun SimpleWrapContentHorizontallyAlignedModifier() {
 fun DefaultMinSizeSample() {
     @Composable
     fun DefaultMinBox(modifier: Modifier = Modifier) {
-        Box(
-            modifier.defaultMinSize(minWidth = 100.dp, minHeight = 100.dp)
-                .background(Color.Blue)
-        )
+        Box(modifier.defaultMinSize(minWidth = 100.dp, minHeight = 100.dp).background(Color.Blue))
     }
     // This will be a 100.dp x 100.dp blue box. Because we are not providing any min constraints
     // to the DefaultMinBox, defaultMinSize will apply its min constraints.

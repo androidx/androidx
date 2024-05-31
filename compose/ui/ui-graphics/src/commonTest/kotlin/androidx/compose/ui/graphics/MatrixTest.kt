@@ -75,25 +75,19 @@ class MatrixTest {
         val sy = 1.4f
         val sz = 1.1f
 
-        matrix.resetToPivotedTransform(
-            px, py,
-            tx, ty, tz,
-            rx, ry, rz,
-            sx, sy, sz
-        )
+        matrix.resetToPivotedTransform(px, py, tx, ty, tz, rx, ry, rz, sx, sy, sz)
 
         val matrix2 = Matrix()
         matrix2.translate(-px, -py)
-        matrix2 *= Matrix().apply {
-            translate(tx, ty, tz)
-            rotateX(rx)
-            rotateY(ry)
-            rotateZ(rz)
-            scale(sx, sy, sz)
-        }
-        matrix2 *= Matrix().apply {
-            translate(px, py)
-        }
+        matrix2 *=
+            Matrix().apply {
+                translate(tx, ty, tz)
+                rotateX(rx)
+                rotateY(ry)
+                rotateZ(rz)
+                scale(sx, sy, sz)
+            }
+        matrix2 *= Matrix().apply { translate(px, py) }
 
         assertMatricesNearlyEqual(matrix, matrix2)
     }

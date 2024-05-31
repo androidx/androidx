@@ -40,14 +40,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
-
 class SegmentedButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun all_unselected() {
@@ -110,17 +107,18 @@ class SegmentedButtonScreenshotTest {
                     SegmentedButton(
                         checked = index == 1,
                         onCheckedChange = {},
-                        icon = if (index == 1) {
-                            { SegmentedButtonDefaults.ActiveIcon() }
-                        } else {
-                            {
-                                Icon(
-                                    imageVector = Icons.Outlined.Favorite,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
-                                )
-                            }
-                        },
+                        icon =
+                            if (index == 1) {
+                                { SegmentedButtonDefaults.ActiveIcon() }
+                            } else {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Favorite,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(SegmentedButtonDefaults.IconSize)
+                                    )
+                                }
+                            },
                         shape = RectangleShape,
                     ) {
                         Text(item)
@@ -135,10 +133,11 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun stroke_zIndex() {
         rule.setMaterialContent(lightColorScheme()) {
-            val colors = SegmentedButtonDefaults.colors(
-                activeBorderColor = Color.Blue,
-                inactiveBorderColor = Color.Yellow
-            )
+            val colors =
+                SegmentedButtonDefaults.colors(
+                    activeBorderColor = Color.Blue,
+                    inactiveBorderColor = Color.Yellow
+                )
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
                     SegmentedButton(
@@ -159,10 +158,11 @@ class SegmentedButtonScreenshotTest {
     @Test
     fun button_shape() {
         rule.setMaterialContent(lightColorScheme()) {
-            val colors = SegmentedButtonDefaults.colors(
-                activeBorderColor = Color.Blue,
-                inactiveBorderColor = Color.Yellow
-            )
+            val colors =
+                SegmentedButtonDefaults.colors(
+                    activeBorderColor = Color.Blue,
+                    inactiveBorderColor = Color.Yellow
+                )
             MultiChoiceSegmentedButtonRow(modifier = Modifier.testTag(testTag)) {
                 values.forEachIndexed { index, item ->
                     val shape = SegmentedButtonDefaults.itemShape(index, values.size)
@@ -217,9 +217,7 @@ class SegmentedButtonScreenshotTest {
     }
 
     private fun assertButtonAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(testTag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, goldenName)
+        rule.onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
     }
 
     private val values = listOf("Day", "Month", "Week")

@@ -37,8 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class LocalToRootTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = SinglePointerInputRecorder()
 
@@ -57,12 +56,9 @@ class LocalToRootTest {
             }
         }
 
-        @Suppress("DEPRECATION")
-        rule.onNodeWithTag("viewport").performGesture { click(center) }
+        @Suppress("DEPRECATION") rule.onNodeWithTag("viewport").performGesture { click(center) }
 
         val expectedClickLocation = Offset(50f, 30f)
-        recorder.events.forEach {
-            assertThat(it.position).isEqualTo(expectedClickLocation)
-        }
+        recorder.events.forEach { assertThat(it.position).isEqualTo(expectedClickLocation) }
     }
 }

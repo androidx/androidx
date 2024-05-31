@@ -30,14 +30,11 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 28)
 class SmallListBaselineProfile {
 
-    @get:Rule
-    val baselineProfileRule = BaselineProfileRule()
+    @get:Rule val baselineProfileRule = BaselineProfileRule()
 
     @Test
     fun generateProfile() {
-        baselineProfileRule.collect(
-            packageName = PACKAGE_NAME
-        ) {
+        baselineProfileRule.collect(packageName = PACKAGE_NAME) {
             val intent = Intent()
             intent.apply {
                 setPackage(packageName)
@@ -46,17 +43,13 @@ class SmallListBaselineProfile {
                 putExtra("ITEM_COUNT", 200)
             }
             startActivityAndWait(intent)
-            val lazyColumn =
-                device.findObject(By.desc(CONTENT_DESCRIPTION))
+            val lazyColumn = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             lazyColumn.setGestureMargin(device.displayWidth / 5)
             for (i in 1..10) {
                 // From center we scroll 2/3 of it which is 1/3 of the screen.
                 lazyColumn.drag(Point(0, lazyColumn.visibleCenter.y / 3))
-                device.wait(
-                    Until.findObject(By.desc(COMPOSE_IDLE)),
-                    3000
-                )
+                device.wait(Until.findObject(By.desc(COMPOSE_IDLE)), 3000)
             }
         }
     }

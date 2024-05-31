@@ -22,19 +22,12 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.platform.ActualParagraphIntrinsics
 import androidx.compose.ui.unit.Density
 
-/**
- * Calculates and presents the intrinsic width and height of text.
- */
+/** Calculates and presents the intrinsic width and height of text. */
 interface ParagraphIntrinsics {
-    /**
-     * The width for text if all soft wrap opportunities were taken.
-     */
+    /** The width for text if all soft wrap opportunities were taken. */
     val minIntrinsicWidth: Float
 
-    /**
-     * Returns the smallest width beyond which increasing the width never
-     * decreases the height.
-     */
+    /** Returns the smallest width beyond which increasing the width never decreases the height. */
     val maxIntrinsicWidth: Float
 
     /**
@@ -50,18 +43,18 @@ interface ParagraphIntrinsics {
      *
      * Once true, this will never become false without recreating this [ParagraphIntrinsics].
      *
-     * It is discouraged, but safe, to continue to use this object after this becomes true. The
-     * only impact of using this object after [hasStaleResolvedFonts] becomes true is stale
-     * resolutions of async fonts for measurement and display.
+     * It is discouraged, but safe, to continue to use this object after this becomes true. The only
+     * impact of using this object after [hasStaleResolvedFonts] becomes true is stale resolutions
+     * of async fonts for measurement and display.
      */
     val hasStaleResolvedFonts: Boolean
         get() = false
 }
 
 /**
- *  Factory method to create a [ParagraphIntrinsics].
+ * Factory method to create a [ParagraphIntrinsics].
  *
- *  If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
+ * If the [style] does not contain any [androidx.compose.ui.text.style.TextDirection],
  * [androidx.compose.ui.text.style.TextDirection.Content] is used as the default value.
  *
  * @see ParagraphIntrinsics
@@ -69,8 +62,10 @@ interface ParagraphIntrinsics {
 @Suppress("DEPRECATION")
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead use FontFamily.Resolver",
-    ReplaceWith("ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
-        "fontFamilyResolver")
+    ReplaceWith(
+        "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
+            "fontFamilyResolver"
+    )
 )
 fun ParagraphIntrinsics(
     text: String,
@@ -79,14 +74,15 @@ fun ParagraphIntrinsics(
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     resourceLoader: Font.ResourceLoader
-): ParagraphIntrinsics = ActualParagraphIntrinsics(
-    text = text,
-    style = style,
-    spanStyles = spanStyles,
-    placeholders = placeholders,
-    density = density,
-    fontFamilyResolver = createFontFamilyResolver(resourceLoader)
-)
+): ParagraphIntrinsics =
+    ActualParagraphIntrinsics(
+        text = text,
+        style = style,
+        spanStyles = spanStyles,
+        placeholders = placeholders,
+        density = density,
+        fontFamilyResolver = createFontFamilyResolver(resourceLoader)
+    )
 
 fun ParagraphIntrinsics(
     text: String,
@@ -95,11 +91,12 @@ fun ParagraphIntrinsics(
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
-): ParagraphIntrinsics = ActualParagraphIntrinsics(
-    text = text,
-    style = style,
-    spanStyles = spanStyles,
-    placeholders = placeholders,
-    density = density,
-    fontFamilyResolver = fontFamilyResolver
-)
+): ParagraphIntrinsics =
+    ActualParagraphIntrinsics(
+        text = text,
+        style = style,
+        spanStyles = spanStyles,
+        placeholders = placeholders,
+        density = density,
+        fontFamilyResolver = fontFamilyResolver
+    )

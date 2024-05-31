@@ -29,15 +29,10 @@ object TestLambdas {
         val sum = a + fct(b) { it * it }
         sum - a
     }
-    val inlinedParameter = { o: IntOffset ->
-        o.x * 2
-    }
+    val inlinedParameter = { o: IntOffset -> o.x * 2 }
     val unnamed: (Int, Int) -> Float = { _, _ -> 0f }
 
-    /**
-     * This inline function will appear at a line numbers
-     * past the end of this file for JVMTI.
-     */
+    /** This inline function will appear at a line numbers past the end of this file for JVMTI. */
     private inline fun fct(n: Int, op: (Int) -> Int): Int {
         val a = op(n)
         val b = n * a + 3

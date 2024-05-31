@@ -21,21 +21,19 @@ import androidx.compose.ui.Modifier
 /**
  * Add this modifier to a component to make it focusable.
  *
- * Focus state is stored within this modifier. The bounds of this modifier reflect the bounds of
- * the focus box.
+ * Focus state is stored within this modifier. The bounds of this modifier reflect the bounds of the
+ * focus box.
  *
  * Note: This is a low level modifier. Before using this consider using
- * [Modifier.focusable()][androidx.compose.foundation.focusable]. It uses a [focusTarget] in
- * its implementation. [Modifier.focusable()][androidx.compose.foundation.focusable] adds semantics
- * that are needed for accessibility.
+ * [Modifier.focusable()][androidx.compose.foundation.focusable]. It uses a [focusTarget] in its
+ * implementation. [Modifier.focusable()][androidx.compose.foundation.focusable] adds semantics that
+ * are needed for accessibility.
  *
  * @sample androidx.compose.ui.samples.FocusableSampleUsingLowerLevelFocusTarget
  */
 fun Modifier.focusTarget(): Modifier = this then FocusTargetNode.FocusTargetElement
 
-/**
- * Add this modifier to a component to make it focusable.
- */
+/** Add this modifier to a component to make it focusable. */
 @Deprecated(
     "Replaced by focusTarget",
     ReplaceWith("focusTarget()", "androidx.compose.ui.focus.focusTarget")

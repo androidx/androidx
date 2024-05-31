@@ -36,8 +36,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 class SupportingPaneScaffoldBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun singlePane_firstPixel() {
@@ -51,9 +50,7 @@ class SupportingPaneScaffoldBenchmark {
     @Test
     fun dualPane_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel {
-            SupportingPaneScaffoldTestCase().apply {
-                currentScaffoldDirective = dualPaneDirective
-            }
+            SupportingPaneScaffoldTestCase().apply { currentScaffoldDirective = dualPaneDirective }
         }
     }
 
@@ -69,9 +66,7 @@ class SupportingPaneScaffoldBenchmark {
     @Test
     fun dualPane_firstCompose() {
         benchmarkRule.benchmarkFirstCompose {
-            SupportingPaneScaffoldTestCase().apply {
-                currentScaffoldDirective = dualPaneDirective
-            }
+            SupportingPaneScaffoldTestCase().apply { currentScaffoldDirective = dualPaneDirective }
         }
     }
 
@@ -80,18 +75,17 @@ class SupportingPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : SupportingPaneScaffoldTestCase() {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
-                                SupportingPaneScaffoldRole.Supporting
-                            } else {
-                                SupportingPaneScaffoldRole.Main
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
+                                    SupportingPaneScaffoldRole.Supporting
+                                } else {
+                                    SupportingPaneScaffoldRole.Main
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = singlePaneDirective
-                }
+                    .apply { currentScaffoldDirective = singlePaneDirective }
             },
             // For skipping state transitions
             assertOneRecomposition = false
@@ -103,18 +97,17 @@ class SupportingPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : SupportingPaneScaffoldTestCase() {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
-                                SupportingPaneScaffoldRole.Extra
-                            } else {
-                                SupportingPaneScaffoldRole.Main
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
+                                    SupportingPaneScaffoldRole.Extra
+                                } else {
+                                    SupportingPaneScaffoldRole.Main
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = dualPaneDirective
-                }
+                    .apply { currentScaffoldDirective = dualPaneDirective }
             },
             // For skipping state transitions
             assertOneRecomposition = false
@@ -126,18 +119,17 @@ class SupportingPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : SupportingPaneScaffoldTestCase(animated = true) {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
-                                SupportingPaneScaffoldRole.Supporting
-                            } else {
-                                SupportingPaneScaffoldRole.Main
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
+                                    SupportingPaneScaffoldRole.Supporting
+                                } else {
+                                    SupportingPaneScaffoldRole.Main
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = singlePaneDirective
-                }
+                    .apply { currentScaffoldDirective = singlePaneDirective }
             },
             // For skipping animations
             assertOneRecomposition = false
@@ -149,18 +141,17 @@ class SupportingPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : SupportingPaneScaffoldTestCase(animated = true) {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
-                                SupportingPaneScaffoldRole.Extra
-                            } else {
-                                SupportingPaneScaffoldRole.Main
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == SupportingPaneScaffoldRole.Main) {
+                                    SupportingPaneScaffoldRole.Extra
+                                } else {
+                                    SupportingPaneScaffoldRole.Main
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = dualPaneDirective
-                }
+                    .apply { currentScaffoldDirective = dualPaneDirective }
             },
             // For skipping animations
             assertOneRecomposition = false
@@ -169,22 +160,21 @@ class SupportingPaneScaffoldBenchmark {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal open class SupportingPaneScaffoldTestCase(
-    animated: Boolean = false
-) : ThreePaneScaffoldTestCase(animated) {
-    override var currentDestination by mutableStateOf(
-        ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0)
-    )
+internal open class SupportingPaneScaffoldTestCase(animated: Boolean = false) :
+    ThreePaneScaffoldTestCase(animated) {
+    override var currentDestination by
+        mutableStateOf(ThreePaneScaffoldDestinationItem(SupportingPaneScaffoldRole.Main, 0))
 
     @Composable
     override fun MeasuredContent() {
         SupportingPaneScaffold(
             directive = currentScaffoldDirective,
-            value = calculateThreePaneScaffoldValue(
-                maxHorizontalPartitions = currentScaffoldDirective.maxHorizontalPartitions,
-                adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
-                currentDestination = currentDestination
-            ),
+            value =
+                calculateThreePaneScaffoldValue(
+                    maxHorizontalPartitions = currentScaffoldDirective.maxHorizontalPartitions,
+                    adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
+                    currentDestination = currentDestination
+                ),
             mainPane = { TestPane(Color.Yellow) },
             supportingPane = { TestPane(Color.Red) },
             extraPane = { TestPane(Color.Blue) }

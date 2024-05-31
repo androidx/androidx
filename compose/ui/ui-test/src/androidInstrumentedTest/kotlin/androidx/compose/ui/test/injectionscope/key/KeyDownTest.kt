@@ -32,21 +32,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [KeyInjectionScope.keyDown] works
- */
+/** Tests if [KeyInjectionScope.keyDown] works */
 @MediumTest
 class KeyDownTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {
         // Set content to a simple text field.
-        rule.setContent {
-            TestTextField()
-        }
+        rule.setContent { TestTextField() }
         // Bring text field into focus by clicking on it.
         rule.onNodeWithTag(TestTextField.Tag).performClick()
     }
@@ -55,8 +50,8 @@ class KeyDownTest {
     fun doubleDown_throwsIllegalStateException() {
         rule.performKeyInput { keyDown(Key.Enter) }
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot send key down event, " +
-                "Key\\(${Key.Enter}\\) is already pressed down."
+            expectedMessage =
+                "Cannot send key down event, " + "Key\\(${Key.Enter}\\) is already pressed down."
         ) {
             rule.performKeyInput { keyDown(Key.Enter) }
         }

@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.util.fastCoerceIn
 
 /**
- * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
- * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
+ * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to a
+ * [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
  * [ColorSpace].
  */
 private val ColorToVector: (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D> =
@@ -37,21 +37,22 @@ private val ColorToVector: (colorSpace: ColorSpace) -> TwoWayConverter<Color, An
             },
             convertFromVector = { vector ->
                 Color(
-                    vector.v2.fastCoerceIn(0f, 1f), // L (red)
-                    vector.v3.fastCoerceIn(-0.5f, 0.5f), // a (blue)
-                    vector.v4.fastCoerceIn(-0.5f, 0.5f), // b (green)
-                    vector.v1.fastCoerceIn(0f, 1f), // alpha
-                    ColorSpaces.Oklab
-                ).convert(colorSpace)
+                        vector.v2.fastCoerceIn(0f, 1f), // L (red)
+                        vector.v3.fastCoerceIn(-0.5f, 0.5f), // a (blue)
+                        vector.v4.fastCoerceIn(-0.5f, 0.5f), // b (green)
+                        vector.v1.fastCoerceIn(0f, 1f), // alpha
+                        ColorSpaces.Oklab
+                    )
+                    .convert(colorSpace)
             }
         )
     }
 
 /**
- * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
- * a [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
+ * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to a
+ * [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
  * [ColorSpace].
  */
 val Color.Companion.VectorConverter:
-        (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D>
+    (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D>
     get() = ColorToVector

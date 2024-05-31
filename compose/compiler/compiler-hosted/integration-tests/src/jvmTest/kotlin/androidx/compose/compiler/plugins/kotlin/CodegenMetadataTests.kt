@@ -29,16 +29,17 @@ class CodegenMetadataTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     fun testBasicFunctionality() {
         val className = "Test_${uniqueNumber++}"
         val fileName = "$className.kt"
-        val loader = classLoader(
-            """
+        val loader =
+            classLoader(
+                """
             import kotlin.reflect.full.primaryConstructor
             import kotlin.reflect.jvm.isAccessible
             data class MyClass(val someBoolean: Boolean? = false)
             object Main { @JvmStatic fun main() { MyClass::class.java.kotlin.primaryConstructor!!.isAccessible = true } }
             """,
-            fileName,
-            false
-        )
+                fileName,
+                false
+            )
         val main = loader.loadClass("Main").methods.single { it.name == "main" }
         main.invoke(null)
     }
@@ -47,8 +48,9 @@ class CodegenMetadataTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     fun testDelegatedProperties() {
         val className = "Test_${uniqueNumber++}"
         val fileName = "$className.kt"
-        val loader = classLoader(
-            """
+        val loader =
+            classLoader(
+                """
             import androidx.compose.runtime.Composable
             import kotlin.reflect.KProperty
             import kotlinx.metadata.jvm.KotlinClassMetadata
@@ -84,9 +86,9 @@ class CodegenMetadataTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                 }
             }
             """,
-            fileName,
-            false
-        )
+                fileName,
+                false
+            )
         val main = loader.loadClass("Main").methods.single { it.name == "main" }
         val delegates = main.invoke(null)
 

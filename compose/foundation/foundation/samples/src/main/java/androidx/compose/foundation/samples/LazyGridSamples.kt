@@ -51,20 +51,11 @@ fun LazyVerticalGridSample() {
     val itemsList = (0..5).toList()
     val itemsIndexedList = listOf("A", "B", "C")
 
-    val itemModifier = Modifier
-        .border(1.dp, Color.Blue)
-        .height(80.dp)
-        .wrapContentSize()
+    val itemModifier = Modifier.border(1.dp, Color.Blue).height(80.dp).wrapContentSize()
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3)
-    ) {
-        items(itemsList) {
-            Text("Item is $it", itemModifier)
-        }
-        item {
-            Text("Single item", itemModifier)
-        }
+    LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+        items(itemsList) { Text("Item is $it", itemModifier) }
+        item { Text("Single item", itemModifier) }
         itemsIndexed(itemsIndexedList) { index, item ->
             Text("Item at index $index is $item", itemModifier)
         }
@@ -84,10 +75,7 @@ fun LazyVerticalGridSpanSample() {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     "This is section $index",
-                    Modifier
-                        .border(1.dp, Color.Gray)
-                        .height(80.dp)
-                        .wrapContentSize()
+                    Modifier.border(1.dp, Color.Gray).height(80.dp).wrapContentSize()
                 )
             }
             items(
@@ -95,13 +83,7 @@ fun LazyVerticalGridSpanSample() {
                 // not required as it is the default
                 span = { GridItemSpan(1) }
             ) {
-                Text(
-                    "Item $it",
-                    Modifier
-                        .border(1.dp, Color.Blue)
-                        .height(80.dp)
-                        .wrapContentSize()
-                )
+                Text("Item $it", Modifier.border(1.dp, Color.Blue).height(80.dp).wrapContentSize())
             }
         }
     }
@@ -113,23 +95,16 @@ fun LazyHorizontalGridSample() {
     val itemsList = (0..5).toList()
     val itemsIndexedList = listOf("A", "B", "C")
 
-    val itemModifier = Modifier
-        .border(1.dp, Color.Blue)
-        .width(80.dp)
-        .wrapContentSize()
+    val itemModifier = Modifier.border(1.dp, Color.Blue).width(80.dp).wrapContentSize()
 
     LazyHorizontalGrid(
         rows = GridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(itemsList) {
-            Text("Item is $it", itemModifier)
-        }
+        items(itemsList) { Text("Item is $it", itemModifier) }
 
-        item {
-            Text("Single item", itemModifier)
-        }
+        item { Text("Single item", itemModifier) }
 
         itemsIndexed(itemsIndexedList) { index, item ->
             Text("Item at index $index is $item", itemModifier)
@@ -150,10 +125,7 @@ fun LazyHorizontalGridSpanSample() {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
                     "This is section $index",
-                    Modifier
-                        .border(1.dp, Color.Gray)
-                        .width(80.dp)
-                        .wrapContentSize()
+                    Modifier.border(1.dp, Color.Gray).width(80.dp).wrapContentSize()
                 )
             }
             items(
@@ -161,13 +133,7 @@ fun LazyHorizontalGridSpanSample() {
                 // not required as it is the default
                 span = { GridItemSpan(1) }
             ) {
-                Text(
-                    "Item $it",
-                    Modifier
-                        .border(1.dp, Color.Blue)
-                        .width(80.dp)
-                        .wrapContentSize()
-                )
+                Text("Item $it", Modifier.border(1.dp, Color.Blue).width(80.dp).wrapContentSize())
             }
         }
     }
@@ -216,20 +182,12 @@ fun UsingGridLayoutInfoForSideEffectSample() {
 fun GridAnimateItemSample() {
     var list by remember { mutableStateOf(listOf("A", "B", "C")) }
     Column {
-        Button(onClick = { list = list + "D" }) {
-            Text("Add new item")
-        }
-        Button(onClick = { list = list.shuffled() }) {
-            Text("Shuffle")
-        }
+        Button(onClick = { list = list + "D" }) { Text("Add new item") }
+        Button(onClick = { list = list.shuffled() }) { Text("Shuffle") }
         LazyVerticalGrid(columns = GridCells.Fixed(1)) {
-            items(list, key = { it }) {
-                Text("Item $it", Modifier.animateItem())
-            }
+            items(list, key = { it }) { Text("Item $it", Modifier.animateItem()) }
         }
     }
 }
 
-@Composable
-private fun ScrollToTopButton(@Suppress("UNUSED_PARAMETER") gridState: LazyGridState) {
-}
+@Composable private fun ScrollToTopButton(@Suppress("UNUSED_PARAMETER") gridState: LazyGridState) {}

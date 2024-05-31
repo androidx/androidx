@@ -23,26 +23,20 @@ import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.nativeCanvas
 
-/**
- * The container we will use for [ViewLayer]s.
- */
+/** The container we will use for [ViewLayer]s. */
 internal class ViewLayerContainer(context: Context) : DrawChildContainer(context) {
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         // we draw our children as part of AndroidComposeView.dispatchDraw
     }
 
     /**
-     * We control our own child Views and we don't want the View system to force updating
-     * the display lists.
-     * We override hidden protected method from ViewGroup
+     * We control our own child Views and we don't want the View system to force updating the
+     * display lists. We override hidden protected method from ViewGroup
      */
-    protected fun dispatchGetDisplayList() {
-    }
+    protected fun dispatchGetDisplayList() {}
 }
 
-/**
- * The container we will use for [ViewLayer]s when [ViewLayer.shouldUseDispatchDraw] is true.
- */
+/** The container we will use for [ViewLayer]s when [ViewLayer.shouldUseDispatchDraw] is true. */
 internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
     private var isDrawing = false
 
@@ -91,8 +85,8 @@ internal open class DrawChildContainer(context: Context) : ViewGroup(context) {
     }
 
     /**
-     * We don't want to advertise children to the transition system. ViewLayers shouldn't be
-     * watched for add/remove for transitions purposes.
+     * We don't want to advertise children to the transition system. ViewLayers shouldn't be watched
+     * for add/remove for transitions purposes.
      */
     override fun getChildCount(): Int = if (isDrawing) super.getChildCount() else 0
 

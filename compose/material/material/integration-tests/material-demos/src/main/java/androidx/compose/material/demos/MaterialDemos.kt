@@ -37,95 +37,98 @@ import androidx.compose.material.samples.ScaffoldWithCoroutinesSnackbar
 import androidx.compose.material.samples.ScaffoldWithSimpleSnackbar
 import androidx.compose.material.samples.SimpleScaffoldWithTopBar
 
-val MaterialDemos = DemoCategory(
-    "Material",
-    listOf(
-        DemoCategory(
-            "AlertDialog",
-            listOf(
-                ComposableDemo("Default dialog") { AlertDialogSample() },
-                ComposableDemo("Custom buttons") { CustomAlertDialogSample() }
-            )
-        ),
-        ComposableDemo("App Bars") { AppBarDemo() },
-        ComposableDemo("Backdrop") { BackdropScaffoldSample() },
-        ComposableDemo("Badge") { BadgeDemo() },
-        ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
-        DemoCategory(
-            "Bottom Sheets",
-            listOf(
-                ComposableDemo("Standard Bottom Sheet") { BottomSheetScaffoldSample() },
-                ComposableDemo("Standard Bottom Sheet with Drawer") {
-                    BottomSheetScaffoldWithDrawerSample()
-                },
-                ComposableDemo("Modal Bottom Sheet") { ModalBottomSheetSample() },
-                ComposableDemo("Modal Bottom Sheet In Navigation") { BottomSheetNavDemo() },
-            )
-        ),
-        ComposableDemo("Buttons & FABs") { ButtonDemo() },
-        ComposableDemo("Chips") { ChipDemo() },
-        DemoCategory(
-            "Navigation drawer",
-            listOf(
-                ComposableDemo("Modal drawer") { ModalDrawerSample() },
-                ComposableDemo("Bottom drawer") { BottomDrawerSample() }
-            )
-        ),
-        ComposableDemo("Elevation") { ElevationDemo() },
-        ComposableDemo("Content alpha") { ContentAlphaSample() },
-        DemoCategory(
-            "ListItems",
-            listOf(
-                ComposableDemo("ListItems") { ListItemDemo() },
-                ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() }
-            )
-        ),
-        ComposableDemo("Material Theme") { MaterialThemeDemo() },
-        DemoCategory(
-            "Menus",
-            listOf(
-                ComposableDemo("Dropdown Menu positioning") { MenuDemo() },
-                ComposableDemo("ExposedDropdownMenu") { ExposedDropdownMenuDemo() }
-            )
-        ),
-        ComposableDemo("Navigation Rail") { NavigationRailDemo() },
-        DemoCategory(
-            "Playground",
-            listOf(
-                ComposableDemo("Color Picker") { ColorPickerDemo() },
-                ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
-            )
-        ),
-        ComposableDemo("Progress Indicators") { ProgressIndicatorDemo() },
-        DemoCategory(
-            "Scaffold",
-            listOf(
-                ComposableDemo("Scaffold with top bar") { SimpleScaffoldWithTopBar() },
-                ComposableDemo("Scaffold with docked FAB") { ScaffoldWithBottomBarAndCutout() },
-                ComposableDemo("Scaffold with snackbar") { ScaffoldWithSimpleSnackbar() }
-            )
-        ),
-        ComposableDemo("Selection Controls") { SelectionControlsDemo() },
-        ComposableDemo("Slider") { SliderDemo() },
-        ComposableDemo("Snackbar") { ScaffoldWithCoroutinesSnackbar() },
-        ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
-        ComposableDemo("Tabs") { TabDemo() },
-        DemoCategory(
-            "TextFields",
-            listOf(
-                ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
-                ComposableDemo("Multiple text fields") { TextFieldsDemo() },
-                ComposableDemo("Textfield decoration box") { DecorationBoxDemos() },
-                ComposableDemo("Alignment inside text fields") { VerticalAlignmentsInTextField() }
-            )
-        ),
-        DemoCategory(
-            "PullRefresh",
-            listOf(
-                ComposableDemo("PullRefresh") { PullRefreshSample() },
-                ComposableDemo("Custom PullRefresh") { CustomPullRefreshSample() },
-                ComposableDemo("Custom Indicator") { PullRefreshIndicatorTransformSample() }
+val MaterialDemos =
+    DemoCategory(
+        "Material",
+        listOf(
+            DemoCategory(
+                "AlertDialog",
+                listOf(
+                    ComposableDemo("Default dialog") { AlertDialogSample() },
+                    ComposableDemo("Custom buttons") { CustomAlertDialogSample() }
+                )
+            ),
+            ComposableDemo("App Bars") { AppBarDemo() },
+            ComposableDemo("Backdrop") { BackdropScaffoldSample() },
+            ComposableDemo("Badge") { BadgeDemo() },
+            ComposableDemo("Bottom Navigation") { BottomNavigationDemo() },
+            DemoCategory(
+                "Bottom Sheets",
+                listOf(
+                    ComposableDemo("Standard Bottom Sheet") { BottomSheetScaffoldSample() },
+                    ComposableDemo("Standard Bottom Sheet with Drawer") {
+                        BottomSheetScaffoldWithDrawerSample()
+                    },
+                    ComposableDemo("Modal Bottom Sheet") { ModalBottomSheetSample() },
+                    ComposableDemo("Modal Bottom Sheet In Navigation") { BottomSheetNavDemo() },
+                )
+            ),
+            ComposableDemo("Buttons & FABs") { ButtonDemo() },
+            ComposableDemo("Chips") { ChipDemo() },
+            DemoCategory(
+                "Navigation drawer",
+                listOf(
+                    ComposableDemo("Modal drawer") { ModalDrawerSample() },
+                    ComposableDemo("Bottom drawer") { BottomDrawerSample() }
+                )
+            ),
+            ComposableDemo("Elevation") { ElevationDemo() },
+            ComposableDemo("Content alpha") { ContentAlphaSample() },
+            DemoCategory(
+                "ListItems",
+                listOf(
+                    ComposableDemo("ListItems") { ListItemDemo() },
+                    ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() }
+                )
+            ),
+            ComposableDemo("Material Theme") { MaterialThemeDemo() },
+            DemoCategory(
+                "Menus",
+                listOf(
+                    ComposableDemo("Dropdown Menu positioning") { MenuDemo() },
+                    ComposableDemo("ExposedDropdownMenu") { ExposedDropdownMenuDemo() }
+                )
+            ),
+            ComposableDemo("Navigation Rail") { NavigationRailDemo() },
+            DemoCategory(
+                "Playground",
+                listOf(
+                    ComposableDemo("Color Picker") { ColorPickerDemo() },
+                    ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
+                )
+            ),
+            ComposableDemo("Progress Indicators") { ProgressIndicatorDemo() },
+            DemoCategory(
+                "Scaffold",
+                listOf(
+                    ComposableDemo("Scaffold with top bar") { SimpleScaffoldWithTopBar() },
+                    ComposableDemo("Scaffold with docked FAB") { ScaffoldWithBottomBarAndCutout() },
+                    ComposableDemo("Scaffold with snackbar") { ScaffoldWithSimpleSnackbar() }
+                )
+            ),
+            ComposableDemo("Selection Controls") { SelectionControlsDemo() },
+            ComposableDemo("Slider") { SliderDemo() },
+            ComposableDemo("Snackbar") { ScaffoldWithCoroutinesSnackbar() },
+            ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
+            ComposableDemo("Tabs") { TabDemo() },
+            DemoCategory(
+                "TextFields",
+                listOf(
+                    ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
+                    ComposableDemo("Multiple text fields") { TextFieldsDemo() },
+                    ComposableDemo("Textfield decoration box") { DecorationBoxDemos() },
+                    ComposableDemo("Alignment inside text fields") {
+                        VerticalAlignmentsInTextField()
+                    }
+                )
+            ),
+            DemoCategory(
+                "PullRefresh",
+                listOf(
+                    ComposableDemo("PullRefresh") { PullRefreshSample() },
+                    ComposableDemo("Custom PullRefresh") { CustomPullRefreshSample() },
+                    ComposableDemo("Custom Indicator") { PullRefreshIndicatorTransformSample() }
+                )
             )
         )
     )
-)

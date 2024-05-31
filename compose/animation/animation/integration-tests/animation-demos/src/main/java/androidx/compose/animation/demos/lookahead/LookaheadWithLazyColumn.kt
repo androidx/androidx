@@ -66,25 +66,20 @@ fun LookaheadWithLazyColumn() {
                 val index = it % 4
                 var expanded by rememberSaveable { mutableStateOf(false) }
                 AnimatedVisibility(
-                    remember { MutableTransitionState(false) }
-                        .apply { targetState = true },
+                    remember { MutableTransitionState(false) }.apply { targetState = true },
                     enter = slideInHorizontally { 20 } + fadeIn()
                 ) {
-                    Surface(shape = RoundedCornerShape(10.dp),
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
                         color = pastelColors[index],
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                expanded = !expanded
-                            }) {
+                        modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }
+                    ) {
                         LookaheadScope {
                             val title = remember {
                                 movableContentOf {
                                     Text(
                                         names[index],
-                                        Modifier
-                                            .padding(20.dp)
-                                            .animateBounds(Modifier)
+                                        Modifier.padding(20.dp).animateBounds(Modifier)
                                     )
                                 }
                             }
@@ -94,38 +89,37 @@ fun LookaheadWithLazyColumn() {
                                         Image(
                                             painter = painterResource(res[index]),
                                             contentDescription = null,
-                                            modifier = Modifier
-                                                .padding(10.dp)
-                                                .animateBounds(
-                                                    if (expanded)
-                                                        Modifier.fillMaxWidth()
-                                                    else
-                                                        Modifier.size(80.dp),
-                                                    spring(stiffness = Spring.StiffnessLow)
-                                                )
-                                                .clip(RoundedCornerShape(5.dp)),
-                                            contentScale = if (expanded) {
-                                                ContentScale.FillWidth
-                                            } else {
-                                                ContentScale.Crop
-                                            }
+                                            modifier =
+                                                Modifier.padding(10.dp)
+                                                    .animateBounds(
+                                                        if (expanded) Modifier.fillMaxWidth()
+                                                        else Modifier.size(80.dp),
+                                                        spring(stiffness = Spring.StiffnessLow)
+                                                    )
+                                                    .clip(RoundedCornerShape(5.dp)),
+                                            contentScale =
+                                                if (expanded) {
+                                                    ContentScale.FillWidth
+                                                } else {
+                                                    ContentScale.Crop
+                                                }
                                         )
                                     }
                                 } else {
                                     movableContentOf {
                                         Box(
-                                            modifier = Modifier
-                                                .padding(10.dp)
-                                                .animateBounds(
-                                                    if (expanded) Modifier
-                                                        .fillMaxWidth()
-                                                        .aspectRatio(1f)
-                                                    else Modifier.size(80.dp),
-                                                    spring(stiffness = Spring.StiffnessLow)
-                                                )
-                                                .background(
-                                                    Color.LightGray, RoundedCornerShape(5.dp)
-                                                ),
+                                            modifier =
+                                                Modifier.padding(10.dp)
+                                                    .animateBounds(
+                                                        if (expanded)
+                                                            Modifier.fillMaxWidth().aspectRatio(1f)
+                                                        else Modifier.size(80.dp),
+                                                        spring(stiffness = Spring.StiffnessLow)
+                                                    )
+                                                    .background(
+                                                        Color.LightGray,
+                                                        RoundedCornerShape(5.dp)
+                                                    ),
                                         )
                                     }
                                 }
@@ -150,8 +144,9 @@ fun LookaheadWithLazyColumn() {
 }
 
 val names = listOf("YT", "Pepper", "Waffle", "Who?")
-val res = listOf(
-    R.drawable.yt_profile,
-    R.drawable.pepper,
-    R.drawable.waffle,
-)
+val res =
+    listOf(
+        R.drawable.yt_profile,
+        R.drawable.pepper,
+        R.drawable.waffle,
+    )

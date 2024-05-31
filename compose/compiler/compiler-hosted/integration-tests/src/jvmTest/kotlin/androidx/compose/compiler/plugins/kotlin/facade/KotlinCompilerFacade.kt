@@ -52,23 +52,23 @@ class SourceFile(
     val path: String = ""
 ) {
     fun toKtFile(project: Project): KtFile {
-        val shortName = name.substring(name.lastIndexOf('/') + 1).let {
-            it.substring(it.lastIndexOf('\\') + 1)
-        }
+        val shortName =
+            name.substring(name.lastIndexOf('/') + 1).let { it.substring(it.lastIndexOf('\\') + 1) }
 
-        val virtualFile = object : LightVirtualFile(
-            shortName,
-            KotlinLanguage.INSTANCE,
-            StringUtilRt.convertLineSeparators(source)
-        ) {
-            override fun getPath(): String = "${this@SourceFile.path}/$name"
-        }
+        val virtualFile =
+            object :
+                LightVirtualFile(
+                    shortName,
+                    KotlinLanguage.INSTANCE,
+                    StringUtilRt.convertLineSeparators(source)
+                ) {
+                override fun getPath(): String = "${this@SourceFile.path}/$name"
+            }
 
         virtualFile.charset = StandardCharsets.UTF_8
         val factory = PsiFileFactory.getInstance(project) as PsiFileFactoryImpl
-        val ktFile = factory.trySetupPsiForFile(
-            virtualFile, KotlinLanguage.INSTANCE, true, false
-        ) as KtFile
+        val ktFile =
+            factory.trySetupPsiForFile(virtualFile, KotlinLanguage.INSTANCE, true, false) as KtFile
 
         if (!ignoreParseErrors) {
             try {
@@ -82,10 +82,7 @@ class SourceFile(
 }
 
 interface AnalysisResult {
-    data class Diagnostic(
-        val factoryName: String,
-        val textRanges: List<TextRange>
-    )
+    data class Diagnostic(val factoryName: String, val textRanges: List<TextRange>)
 
     val files: List<KtFile>
     val diagnostics: Map<String, List<Diagnostic>>
@@ -96,7 +93,9 @@ abstract class KotlinCompilerFacade(val environment: KotlinCoreEnvironment) {
         platformFiles: List<SourceFile>,
         commonFiles: List<SourceFile>
     ): AnalysisResult
+
     abstract fun compileToIr(files: List<SourceFile>): IrModuleFragment
+
     abstract fun compile(
         platformFiles: List<SourceFile>,
         commonFiles: List<SourceFile>
@@ -110,20 +109,27 @@ abstract class KotlinCompilerFacade(val environment: KotlinCoreEnvironment) {
             updateConfiguration: CompilerConfiguration.() -> Unit,
             registerExtensions: Project.(CompilerConfiguration) -> Unit,
         ): KotlinCompilerFacade {
-            val configuration = CompilerConfiguration().apply {
-                put(CommonConfigurationKeys.MODULE_NAME, TEST_MODULE_NAME)
-                put(JVMConfigurationKeys.IR, true)
-                put(JVMConfigurationKeys.VALIDATE_IR, true)
-                put(JVMConfigurationKeys.JVM_TARGET, JvmTarget.JVM_17)
-                put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, TestMessageCollector)
-                put(IrMessageLogger.IR_MESSAGE_LOGGER, IrMessageCollector(TestMessageCollector))
-                updateConfiguration()
-                put(CommonConfigurationKeys.USE_FIR, languageVersionSettings.languageVersion.usesK2)
-            }
+            val configuration =
+                CompilerConfiguration().apply {
+                    put(CommonConfigurationKeys.MODULE_NAME, TEST_MODULE_NAME)
+                    put(JVMConfigurationKeys.IR, true)
+                    put(JVMConfigurationKeys.VALIDATE_IR, true)
+                    put(JVMConfigurationKeys.JVM_TARGET, JvmTarget.JVM_17)
+                    put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, TestMessageCollector)
+                    put(IrMessageLogger.IR_MESSAGE_LOGGER, IrMessageCollector(TestMessageCollector))
+                    updateConfiguration()
+                    put(
+                        CommonConfigurationKeys.USE_FIR,
+                        languageVersionSettings.languageVersion.usesK2
+                    )
+                }
 
-            val environment = KotlinCoreEnvironment.createForTests(
-                disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES
-            )
+            val environment =
+                KotlinCoreEnvironment.createForTests(
+                    disposable,
+                    configuration,
+                    EnvironmentConfigFiles.JVM_CONFIG_FILES
+                )
 
             ComposePluginRegistrar.checkCompilerVersion(configuration)
 
@@ -148,10 +154,8 @@ private object TestMessageCollector : MessageCollector {
     ) {
         if (severity === CompilerMessageSeverity.ERROR) {
             throw AssertionError(
-                if (location == null)
-                    message
-                else
-                    "(${location.path}:${location.line}:${location.column}) $message"
+                if (location == null) message
+                else "(${location.path}:${location.line}:${location.column}) $message"
             )
         }
     }

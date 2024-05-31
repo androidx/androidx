@@ -69,42 +69,53 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
         mutableMapOf<TransitionComposeAnimation<*>, TransitionClock<*>>()
 
     /**
-     * Map of subscribed [AnimatedVisibilityComposeAnimation]s and corresponding [AnimatedVisibilityClock].
+     * Map of subscribed [AnimatedVisibilityComposeAnimation]s and corresponding
+     * [AnimatedVisibilityClock].
      */
     @VisibleForTesting
     internal val animatedVisibilityClocks =
         mutableMapOf<AnimatedVisibilityComposeAnimation, AnimatedVisibilityClock>()
 
-    /** Map of subscribed [AnimateXAsStateComposeAnimation]s and corresponding [AnimateXAsStateClock]s. */
+    /**
+     * Map of subscribed [AnimateXAsStateComposeAnimation]s and corresponding
+     * [AnimateXAsStateClock]s.
+     */
     @VisibleForTesting
     internal val animateXAsStateClocks =
         mutableMapOf<AnimateXAsStateComposeAnimation<*, *>, AnimateXAsStateClock<*, *>>()
 
-    /** Map of subscribed [InfiniteTransitionComposeAnimation]s and corresponding [InfiniteTransitionClock]s. */
+    /**
+     * Map of subscribed [InfiniteTransitionComposeAnimation]s and corresponding
+     * [InfiniteTransitionClock]s.
+     */
     @VisibleForTesting
     internal val infiniteTransitionClocks =
         mutableMapOf<InfiniteTransitionComposeAnimation, InfiniteTransitionClock>()
 
-    /** Map of subscribed [AnimatedContentComposeAnimation]s and corresponding [TransitionClock]s. */
+    /**
+     * Map of subscribed [AnimatedContentComposeAnimation]s and corresponding [TransitionClock]s.
+     */
     @VisibleForTesting
     internal val animatedContentClocks =
         mutableMapOf<AnimatedContentComposeAnimation<*>, TransitionClock<*>>()
 
     private val allClocksExceptInfinite: List<ComposeAnimationClock<*, *>>
-        get() = transitionClocks.values +
-            animatedVisibilityClocks.values +
-            animateXAsStateClocks.values +
-            animatedContentClocks.values
+        get() =
+            transitionClocks.values +
+                animatedVisibilityClocks.values +
+                animateXAsStateClocks.values +
+                animatedContentClocks.values
 
     /** All subscribed animations clocks. */
     private val allClocks: List<ComposeAnimationClock<*, *>>
-        get() = allClocksExceptInfinite +
-            infiniteTransitionClocks.values
+        get() = allClocksExceptInfinite + infiniteTransitionClocks.values
 
     private fun findClock(animation: ComposeAnimation): ComposeAnimationClock<*, *>? {
-        return transitionClocks[animation] ?: animatedVisibilityClocks[animation]
-        ?: animateXAsStateClocks[animation]
-        ?: infiniteTransitionClocks[animation] ?: animatedContentClocks[animation]
+        return transitionClocks[animation]
+            ?: animatedVisibilityClocks[animation]
+            ?: animateXAsStateClocks[animation]
+            ?: infiniteTransitionClocks[animation]
+            ?: animatedContentClocks[animation]
     }
 
     fun trackTransition(animation: Transition<*>) {
@@ -130,9 +141,7 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
             val composeAnimation = animation.parseAnimatedVisibility()
             onSeek()
             animatedVisibilityClocks[composeAnimation] =
-                AnimatedVisibilityClock(composeAnimation).apply {
-                    setClockTime(0L)
-                }
+                AnimatedVisibilityClock(composeAnimation).apply { setClockTime(0L) }
             notifySubscribe(composeAnimation)
         }
     }
@@ -177,28 +186,28 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
     fun trackInfiniteTransition(animation: AnimationSearch.InfiniteTransitionSearchInfo) {
         trackAnimation(animation.infiniteTransition) {
             animation.parse()?.let {
-                infiniteTransitionClocks[it] = InfiniteTransitionClock(it) {
-                    // Let InfiniteTransitionClock be aware about max duration of other animations.
-                    val otherClockMaxDuration =
-                        allClocksExceptInfinite.maxOfOrNull { clock -> clock.getMaxDuration() } ?: 0
-                    val infiniteMaxDurationPerIteration =
-                        infiniteTransitionClocks.values.maxOfOrNull { clock ->
-                            clock.getMaxDurationPerIteration()
-                        } ?: 0
-                    maxOf(otherClockMaxDuration, infiniteMaxDurationPerIteration)
-                }
+                infiniteTransitionClocks[it] =
+                    InfiniteTransitionClock(it) {
+                        // Let InfiniteTransitionClock be aware about max duration of other
+                        // animations.
+                        val otherClockMaxDuration =
+                            allClocksExceptInfinite.maxOfOrNull { clock -> clock.getMaxDuration() }
+                                ?: 0
+                        val infiniteMaxDurationPerIteration =
+                            infiniteTransitionClocks.values.maxOfOrNull { clock ->
+                                clock.getMaxDurationPerIteration()
+                            } ?: 0
+                        maxOf(otherClockMaxDuration, infiniteMaxDurationPerIteration)
+                    }
                 notifySubscribe(it)
             }
         }
     }
 
-    @VisibleForTesting
-    val trackedUnsupportedAnimations = linkedSetOf<UnsupportedComposeAnimation>()
+    @VisibleForTesting val trackedUnsupportedAnimations = linkedSetOf<UnsupportedComposeAnimation>()
 
     private fun trackUnsupported(animation: Any, label: String) {
-        trackAnimation(animation) {
-            createUnsupported(label)
-        }
+        trackAnimation(animation) { createUnsupported(label) }
     }
 
     private fun createUnsupported(label: String?) {
@@ -264,8 +273,8 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
     }
 
     /**
-     * Returns the [AnimatedVisibilityState] corresponding to the given
-     * [AnimatedVisibilityClock] object. Falls back to [AnimatedVisibilityState.Enter].
+     * Returns the [AnimatedVisibilityState] corresponding to the given [AnimatedVisibilityClock]
+     * object. Falls back to [AnimatedVisibilityState.Enter].
      *
      * Expected to be called via reflection from Android Studio.
      */
@@ -283,8 +292,8 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
     }
 
     /**
-     * Returns the longest duration (ms) per iteration among the animations being tracked. This
-     * can be different from [getMaxDuration], for instance, when there is one or more repeatable
+     * Returns the longest duration (ms) per iteration among the animations being tracked. This can
+     * be different from [getMaxDuration], for instance, when there is one or more repeatable
      * animations with multiple iterations.
      *
      * Expected to be called via reflection from Android Studio.
@@ -294,9 +303,9 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
     }
 
     /**
-     *  Returns a list of the given [ComposeAnimation]'s animated properties. The properties are
-     *  wrapped into a [ComposeAnimatedProperty] object containing the property label and the
-     *  corresponding value at the current time.
+     * Returns a list of the given [ComposeAnimation]'s animated properties. The properties are
+     * wrapped into a [ComposeAnimatedProperty] object containing the property label and the
+     * corresponding value at the current time.
      *
      * Expected to be called via reflection from Android Studio.
      */
@@ -306,8 +315,8 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
 
     /**
      * Returns a list of the given [ComposeAnimation]'s animated properties. The properties are
-     * wrapped into a [TransitionInfo] object containing the property label, start and time
-     * of animation and values of the animation.
+     * wrapped into a [TransitionInfo] object containing the property label, start and time of
+     * animation and values of the animation.
      *
      * Expected to be called via reflection from Android Studio.
      */
@@ -338,9 +347,7 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
         setAnimationsTimeCallback.invoke()
     }
 
-    /**
-     * Unsubscribes the currently tracked animations and clears all the caches.
-     */
+    /** Unsubscribes the currently tracked animations and clears all the caches. */
     fun dispose() {
         allClocks.forEach { notifyUnsubscribe(it.animation) }
         trackedUnsupportedAnimations.forEach { notifyUnsubscribe(it) }

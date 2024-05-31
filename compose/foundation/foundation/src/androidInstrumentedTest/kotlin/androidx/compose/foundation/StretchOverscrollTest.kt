@@ -49,8 +49,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 @RunWith(AndroidJUnit4::class)
 class StretchOverscrollTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule
     val animationScaleRule: AnimationDurationScaleRule =
@@ -223,8 +222,7 @@ class StretchOverscrollTest {
             WithTouchSlop(touchSlop = 0f) {
                 val overscroll = ScrollableDefaults.overscrollEffect()
                 Box(
-                    Modifier
-                        .testTag(OverscrollBox)
+                    Modifier.testTag(OverscrollBox)
                         .size(100.dp)
                         .scrollable(
                             state = state,
@@ -239,9 +237,7 @@ class StretchOverscrollTest {
     }
 }
 
-/**
- * Returns a default [ScrollableState] with a [scrollPosition] clamped between 0f and 1000f.
- */
+/** Returns a default [ScrollableState] with a [scrollPosition] clamped between 0f and 1000f. */
 private class TestScrollableState : ScrollableState {
     var scrollPosition by mutableStateOf(0f)
         private set

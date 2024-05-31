@@ -44,19 +44,18 @@ fun SoftwareKeyboardControllerDemo() {
 
         val focusRequester = remember { FocusRequester() }
 
-        val text = if (isHidden) {
-            "Click on TextField to show keyboard, even after hiding"
-        } else {
-            "Keyboard shown (input ignored)"
-        }
+        val text =
+            if (isHidden) {
+                "Click on TextField to show keyboard, even after hiding"
+            } else {
+                "Keyboard shown (input ignored)"
+            }
 
         BasicTextField(
             value = text,
             onValueChange = {},
             textStyle = TextStyle.Default.copy(fontSize = 18.sp),
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .height(200.dp)
+            modifier = Modifier.focusRequester(focusRequester).height(200.dp)
         )
 
         val keyboardController = LocalSoftwareKeyboardController.current

@@ -26,120 +26,81 @@ import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 
-/**
- * Constructs an [IntSize] from width and height [Int] values.
- */
-@Stable
-fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(width, height))
+/** Constructs an [IntSize] from width and height [Int] values. */
+@Stable fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(width, height))
 
-/**
- * A two-dimensional size class used for measuring in [Int] pixels.
- */
+/** A two-dimensional size class used for measuring in [Int] pixels. */
 @Immutable
 @kotlin.jvm.JvmInline
 value class IntSize internal constructor(@PublishedApi internal val packedValue: Long) {
-    /**
-     * The horizontal aspect of the size in [Int] pixels.
-     */
+    /** The horizontal aspect of the size in [Int] pixels. */
     @Stable
     val width: Int
         get() = unpackInt1(packedValue)
 
-    /**
-     * The vertical aspect of the size in [Int] pixels.
-     */
+    /** The vertical aspect of the size in [Int] pixels. */
     @Stable
     val height: Int
         get() = unpackInt2(packedValue)
 
-    @Stable
-    inline operator fun component1(): Int = width
+    @Stable inline operator fun component1(): Int = width
 
-    @Stable
-    inline operator fun component2(): Int = height
+    @Stable inline operator fun component2(): Int = height
 
-    /**
-     * Returns an IntSize scaled by multiplying [width] and [height] by [other]
-     */
+    /** Returns an IntSize scaled by multiplying [width] and [height] by [other] */
     @Stable
-    operator fun times(other: Int): IntSize = IntSize(
-        packInts(
-            unpackInt1(packedValue) * other,
-            unpackInt2(packedValue) * other
-        )
-    )
+    operator fun times(other: Int): IntSize =
+        IntSize(packInts(unpackInt1(packedValue) * other, unpackInt2(packedValue) * other))
 
-    /**
-     * Returns an IntSize scaled by dividing [width] and [height] by [other]
-     */
+    /** Returns an IntSize scaled by dividing [width] and [height] by [other] */
     @Stable
-    operator fun div(other: Int): IntSize = IntSize(
-        packInts(
-            unpackInt1(packedValue) / other,
-            unpackInt2(packedValue) / other
-        )
-    )
+    operator fun div(other: Int): IntSize =
+        IntSize(packInts(unpackInt1(packedValue) / other, unpackInt2(packedValue) / other))
 
-    @Stable
-    override fun toString(): String = "$width x $height"
+    @Stable override fun toString(): String = "$width x $height"
 
     companion object {
-        /**
-         * IntSize with a zero (0) width and height.
-         */
+        /** IntSize with a zero (0) width and height. */
         val Zero = IntSize(0L)
     }
 }
 
-/**
- * Returns an [IntSize] with [size]'s [IntSize.width] and [IntSize.height]
- * multiplied by [this].
- */
-@Stable
-inline operator fun Int.times(size: IntSize) = size * this
+/** Returns an [IntSize] with [size]'s [IntSize.width] and [IntSize.height] multiplied by [this]. */
+@Stable inline operator fun Int.times(size: IntSize) = size * this
 
-/**
- * Convert a [IntSize] to a [IntRect].
- */
+/** Convert a [IntSize] to a [IntRect]. */
 @Stable
 fun IntSize.toIntRect(): IntRect {
     return IntRect(IntOffset.Zero, this)
 }
 
 /**
- * Returns the [IntOffset] of the center of the rect from the point of [0, 0]
- * with this [IntSize].
+ * Returns the [IntOffset] of the center of the rect from the point of [0, 0] with this [IntSize].
  */
 @Stable
 val IntSize.center: IntOffset
-    get() = IntOffset(
-        // Divide X by 2 by moving it to the low bits, then place it back in the high bits
-        (packedValue shr 33 shl 32)
-        or
-        // Move Y to the high bits so we can preserve the sign when dividing by 2, then
-        // move Y back to the low bits and mask out the top 32 bits for X
-        ((packedValue shl 32 shr 33) and 0xffffffffL)
-    )
+    get() =
+        IntOffset(
+            // Divide X by 2 by moving it to the low bits, then place it back in the high bits
+            (packedValue shr 33 shl 32) or
+                // Move Y to the high bits so we can preserve the sign when dividing by 2, then
+                // move Y back to the low bits and mask out the top 32 bits for X
+                ((packedValue shl 32 shr 33) and 0xffffffffL)
+        )
 
 // temporary while PxSize is transitioned to Size
-@Stable
-fun IntSize.toSize() = Size(width.toFloat(), height.toFloat())
+@Stable fun IntSize.toSize() = Size(width.toFloat(), height.toFloat())
 
 /**
  * Convert a [Size] to an [IntSize]. This rounds the width and height values down to the nearest
  * integer.
  */
-@Stable
-fun Size.toIntSize(): IntSize = IntSize(packInts(this.width.toInt(), this.height.toInt()))
+@Stable fun Size.toIntSize(): IntSize = IntSize(packInts(this.width.toInt(), this.height.toInt()))
 
 /**
  * Convert a [Size] to an [IntSize]. This rounds [Size.width] and [Size.height] to the nearest
  * integer.
  */
 @Stable
-fun Size.roundToIntSize(): IntSize = IntSize(
-    packInts(
-        this.width.fastRoundToInt(),
-        this.height.fastRoundToInt()
-    )
-)
+fun Size.roundToIntSize(): IntSize =
+    IntSize(packInts(this.width.fastRoundToInt(), this.height.fastRoundToInt()))

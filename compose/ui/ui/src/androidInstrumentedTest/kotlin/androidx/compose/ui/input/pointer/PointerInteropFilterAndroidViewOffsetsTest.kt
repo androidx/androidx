@@ -53,8 +53,7 @@ class PointerInteropFilterAndroidViewOffsetsTest {
     private lateinit var five: View
     private val theHitListener: () -> Unit = mock()
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Before
     fun setup() {
@@ -69,46 +68,56 @@ class PointerInteropFilterAndroidViewOffsetsTest {
             // With all of the padding, "one" is at 10 x 50 relative to "five" and the tests
             // dispatch MotionEvents to "five".
 
-            val one = CustomView(activity).apply {
-                layoutParams = ViewGroup.LayoutParams(1, 1)
-                hitListener = theHitListener
-            }
+            val one =
+                CustomView(activity).apply {
+                    layoutParams = ViewGroup.LayoutParams(1, 1)
+                    hitListener = theHitListener
+                }
 
-            val two = FrameLayout(activity).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                setPadding(1, 11, 0, 0)
-                addView(one)
-            }
+            val two =
+                FrameLayout(activity).apply {
+                    layoutParams =
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    setPadding(1, 11, 0, 0)
+                    addView(one)
+                }
 
-            val four = ComposeView(activity).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                setPadding(3, 13, 0, 0)
-                setContent {
-                    with(LocalDensity.current) {
-                        // Box is "three"
-                        Box(
-                            Modifier.padding(start = (2f / density).dp, top = (12f / density).dp)
-                        ) {
-                            AndroidView({ two })
+            val four =
+                ComposeView(activity).apply {
+                    layoutParams =
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    setPadding(3, 13, 0, 0)
+                    setContent {
+                        with(LocalDensity.current) {
+                            // Box is "three"
+                            Box(
+                                Modifier.padding(
+                                    start = (2f / density).dp,
+                                    top = (12f / density).dp
+                                )
+                            ) {
+                                AndroidView({ two })
+                            }
                         }
                     }
                 }
-            }
 
-            five = FrameLayout(activity).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                setPadding(4, 14, 0, 0)
-                addView(four)
-            }
+            five =
+                FrameLayout(activity).apply {
+                    layoutParams =
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    setPadding(4, 14, 0, 0)
+                    addView(four)
+                }
 
             activity.setContentView(five)
         }

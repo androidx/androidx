@@ -35,9 +35,7 @@ import kotlin.coroutines.CoroutineContext
  * All instances of FontFamily.Resolver created by [createFontFamilyResolver] share the same
  * typeface caches.
  */
-fun createFontFamilyResolver(
-    context: Context
-): FontFamily.Resolver {
+fun createFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
         AndroidFontResolveInterceptor(context)
@@ -54,9 +52,9 @@ fun createFontFamilyResolver(
  *
  * Usages inside of Composition should use LocalFontFamilyResolver.current
  *
- * Any [kotlinx.coroutines.CoroutineExceptionHandler] provided will be called with
- * exceptions related to fallback font loading. These exceptions are not fatal, and indicate
- * that font fallback continued to the next font load.
+ * Any [kotlinx.coroutines.CoroutineExceptionHandler] provided will be called with exceptions
+ * related to fallback font loading. These exceptions are not fatal, and indicate that font fallback
+ * continued to the next font load.
  *
  * If no [kotlinx.coroutines.CoroutineExceptionHandler] is provided, a default implementation will
  * be added that ignores all exceptions.
@@ -75,10 +73,7 @@ fun createFontFamilyResolver(
         AndroidFontLoader(context),
         AndroidFontResolveInterceptor(context),
         GlobalTypefaceRequestCache,
-        FontListFontFamilyTypefaceAdapter(
-            GlobalAsyncTypefaceCache,
-            coroutineContext
-        )
+        FontListFontFamilyTypefaceAdapter(GlobalAsyncTypefaceCache, coroutineContext)
     )
 }
 
@@ -86,7 +81,6 @@ fun createFontFamilyResolver(
  * Create a FontFamily.resolver that does not share a cache with other FontFamily.Resolvers.
  *
  * This is primarily useful for testing or benchmarking.
- *
  */
 @InternalTextApi // exposed for benchmarking, not a stable API.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -94,9 +88,7 @@ fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         AndroidFontLoader(context),
         typefaceRequestCache = TypefaceRequestCache(),
-        fontListFontFamilyTypefaceAdapter = FontListFontFamilyTypefaceAdapter(
-            AsyncTypefaceCache()
-        )
+        fontListFontFamilyTypefaceAdapter = FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache())
     )
 }
 
@@ -111,8 +103,8 @@ fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {
  * @param fontWeight font weight to resolve in [fontFamily], will use closest match if not exact
  * @param fontStyle italic or upright text, to resolve in [fontFamily]
  * @param fontSynthesis allow font synthesis if [fontFamily] or [fontStyle] don't have an exact
- * match. This will allow "fake bold" (drawing with too wide a brush) and "fake italic" (drawing
- * then skewing) to be applied when no exact match is present for the weight and style.
+ *   match. This will allow "fake bold" (drawing with too wide a brush) and "fake italic" (drawing
+ *   then skewing) to be applied when no exact match is present for the weight and style.
  */
 fun FontFamily.Resolver.resolveAsTypeface(
     fontFamily: FontFamily? = null,

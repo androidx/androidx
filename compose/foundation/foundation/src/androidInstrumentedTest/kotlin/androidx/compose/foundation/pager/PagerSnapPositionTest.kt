@@ -35,51 +35,52 @@ import org.junit.Test
 class PagerSnapPositionTest : SingleParamBasePagerTest() {
 
     @Test
-    fun snapPosition_shouldNotInfluenceMaxScroll() = with(rule) {
-        val PageSize = object : PageSize {
-            override fun Density.calculateMainAxisPageSize(
-                availableSpace: Int,
-                pageSpacing: Int
-            ): Int {
-                return (availableSpace + pageSpacing) / 2
-            }
-        }
-        setContent {
-            ParameterizedPager(
-                modifier = Modifier.fillMaxSize(),
-                pageSize = PageSize,
-                orientation = it.orientation,
-                snapPosition = it.snapPosition.first
-            )
-        }
-
-        forEachParameter(ParamsToTest) { param ->
-            runBlocking { resetTestCase(DefaultPageCount - 2) }
-            val velocity = with(density) { 2 * MinFlingVelocityDp.roundToPx() }.toFloat()
-            val forwardDelta = (pageSize) * param.scrollForwardSign
-            onPager().performTouchInput {
-                with(param) {
-                    swipeWithVelocityAcrossMainAxis(velocity, forwardDelta.toFloat())
+    fun snapPosition_shouldNotInfluenceMaxScroll() =
+        with(rule) {
+            val PageSize =
+                object : PageSize {
+                    override fun Density.calculateMainAxisPageSize(
+                        availableSpace: Int,
+                        pageSpacing: Int
+                    ): Int {
+                        return (availableSpace + pageSpacing) / 2
+                    }
                 }
+            setContent {
+                ParameterizedPager(
+                    modifier = Modifier.fillMaxSize(),
+                    pageSize = PageSize,
+                    orientation = it.orientation,
+                    snapPosition = it.snapPosition.first
+                )
             }
 
-            runOnIdle {
-                assertThat(pagerState.canScrollForward).isFalse()
+            forEachParameter(ParamsToTest) { param ->
+                runBlocking { resetTestCase(DefaultPageCount - 2) }
+                val velocity = with(density) { 2 * MinFlingVelocityDp.roundToPx() }.toFloat()
+                val forwardDelta = (pageSize) * param.scrollForwardSign
+                onPager().performTouchInput {
+                    with(param) {
+                        swipeWithVelocityAcrossMainAxis(velocity, forwardDelta.toFloat())
+                    }
+                }
+
+                runOnIdle { assertThat(pagerState.canScrollForward).isFalse() }
             }
         }
-    }
 
     @Test
     fun pagerAtBounds_flingTowardsBound_doesNotMove() {
         rule.setContent {
             ParameterizedPager(
                 modifier = Modifier.fillMaxSize(),
-                pageSize = object : PageSize {
-                    override fun Density.calculateMainAxisPageSize(
-                        availableSpace: Int,
-                        pageSpacing: Int
-                    ) = ((availableSpace - 2 * pageSpacing) / 2.5).roundToInt()
-                },
+                pageSize =
+                    object : PageSize {
+                        override fun Density.calculateMainAxisPageSize(
+                            availableSpace: Int,
+                            pageSpacing: Int
+                        ) = ((availableSpace - 2 * pageSpacing) / 2.5).roundToInt()
+                    },
                 orientation = it.orientation,
                 snapPosition = it.snapPosition.first
             )
@@ -109,15 +110,14 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
             rule.waitForIdle()
 
             assertWithMessage("currentPageOffsetFraction should not have changed")
-                .that(pagerState.currentPageOffsetFraction).isEqualTo(fractionBeforeFirstSwipe)
+                .that(pagerState.currentPageOffsetFraction)
+                .isEqualTo(fractionBeforeFirstSwipe)
             assertThat(pagerState.currentPage).isEqualTo(pageBeforeFirstSwipe)
             assertThat(pagerState.canScrollForward).isTrue()
             assertThat(pagerState.canScrollBackward).isFalse()
 
             // Scroll to the end of the layout
-            rule.runOnUiThread {
-                runBlocking { pagerState.scrollToPage(DefaultPageCount - 1) }
-            }
+            rule.runOnUiThread { runBlocking { pagerState.scrollToPage(DefaultPageCount - 1) } }
             rule.waitForIdle()
 
             // When we are at the end of the layout, we should only be able to move backwards
@@ -138,7 +138,8 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
             rule.waitForIdle()
 
             assertWithMessage("currentPageOffsetFraction should not have changed")
-                .that(pagerState.currentPageOffsetFraction).isEqualTo(fractionBeforeSecondSwipe)
+                .that(pagerState.currentPageOffsetFraction)
+                .isEqualTo(fractionBeforeSecondSwipe)
             assertThat(pagerState.currentPage).isEqualTo(pageBeforeSecondSwipe)
             assertThat(pagerState.canScrollForward).isFalse()
             assertThat(pagerState.canScrollBackward).isTrue()
@@ -152,17 +153,18 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
     }
 
     companion object {
-        val ParamsToTest = mutableListOf<SingleParamConfig>().apply {
-            for (orientation in TestOrientation) {
-                for (snapPosition in TestSnapPosition) {
-                    add(
-                        SingleParamConfig(
-                            orientation = orientation,
-                            snapPosition = snapPosition
+        val ParamsToTest =
+            mutableListOf<SingleParamConfig>().apply {
+                for (orientation in TestOrientation) {
+                    for (snapPosition in TestSnapPosition) {
+                        add(
+                            SingleParamConfig(
+                                orientation = orientation,
+                                snapPosition = snapPosition
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }
     }
 }

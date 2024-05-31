@@ -46,8 +46,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // small enough to fit in narrow screen in pre-submit,
     // big enough that pointer movement can target a single char on center
@@ -56,10 +55,12 @@ class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
     private val testTag = "testTag"
     private val defaultText = "text"
 
-    private val zeroedOffsetMapping = object : OffsetMapping {
-        override fun originalToTransformed(offset: Int): Int = 0
-        override fun transformedToOriginal(offset: Int): Int = 0
-    }
+    private val zeroedOffsetMapping =
+        object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int = 0
+
+            override fun transformedToOriginal(offset: Int): Int = 0
+        }
 
     private fun runTest(
         text: String = defaultText,
@@ -73,9 +74,7 @@ class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
                 onValueChange = { textFieldValue.value = it },
                 visualTransformation = visualTransformation,
                 textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(testTag),
+                modifier = Modifier.fillMaxWidth().testTag(testTag),
             )
         }
         block(textFieldValue)
@@ -88,33 +87,36 @@ class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
     }
 
     @Test
-    fun longPressOnEmpty_doesNotShowCursor() = runTest(
-        text = "",
-    ) {
-        rule.onNodeWithTag(testTag).performTouchInput { longClick() }
-        assertCursorHandleShown(shown = false)
-    }
+    fun longPressOnEmpty_doesNotShowCursor() =
+        runTest(
+            text = "",
+        ) {
+            rule.onNodeWithTag(testTag).performTouchInput { longClick() }
+            assertCursorHandleShown(shown = false)
+        }
 
     @Test
-    fun longPressOnEmptyAfterVisualTransformation_doesNotShowCursor() = runTest(
-        visualTransformation = {
-            TransformedText(AnnotatedString(text = ""), zeroedOffsetMapping)
-        },
-    ) {
-        rule.onNodeWithTag(testTag).performTouchInput { longClick() }
-        assertCursorHandleShown(shown = false)
-    }
+    fun longPressOnEmptyAfterVisualTransformation_doesNotShowCursor() =
+        runTest(
+            visualTransformation = {
+                TransformedText(AnnotatedString(text = ""), zeroedOffsetMapping)
+            },
+        ) {
+            rule.onNodeWithTag(testTag).performTouchInput { longClick() }
+            assertCursorHandleShown(shown = false)
+        }
 
     @Test
-    fun longPressOnNonEmptyAfterVisualTransformation_showsCursor() = runTest(
-        text = "",
-        visualTransformation = {
-            TransformedText(AnnotatedString(text = defaultText), zeroedOffsetMapping)
-        },
-    ) {
-        rule.onNodeWithTag(testTag).performTouchInput { longClick() }
-        assertCursorHandleShown(shown = true)
-    }
+    fun longPressOnNonEmptyAfterVisualTransformation_showsCursor() =
+        runTest(
+            text = "",
+            visualTransformation = {
+                TransformedText(AnnotatedString(text = defaultText), zeroedOffsetMapping)
+            },
+        ) {
+            rule.onNodeWithTag(testTag).performTouchInput { longClick() }
+            assertCursorHandleShown(shown = true)
+        }
 
     private fun assertCursorHandleShown(shown: Boolean) {
         val cursorHandle = rule.onNode(isSelectionHandle(Handle.Cursor))

@@ -25,28 +25,29 @@ class ColorMatrixTest {
 
     private val tolerance = 0.0000001f
 
-    private val source = floatArrayOf(
-        0f,
-        1f,
-        2f,
-        3f,
-        4f,
-        5f,
-        6f,
-        7f,
-        8f,
-        9f,
-        10f,
-        11f,
-        12f,
-        13f,
-        14f,
-        15f,
-        16f,
-        17f,
-        18f,
-        19f
-    )
+    private val source =
+        floatArrayOf(
+            0f,
+            1f,
+            2f,
+            3f,
+            4f,
+            5f,
+            6f,
+            7f,
+            8f,
+            9f,
+            10f,
+            11f,
+            12f,
+            13f,
+            14f,
+            15f,
+            16f,
+            17f,
+            18f,
+            19f
+        )
 
     private var colorMatrix = ColorMatrix(source)
 
@@ -109,28 +110,29 @@ class ColorMatrixTest {
     fun testSet1() {
         var ret: FloatArray = colorMatrix.values
         preCompare(ret)
-        val fArray = floatArrayOf(
-            19f,
-            18f,
-            17f,
-            16f,
-            15f,
-            14f,
-            13f,
-            12f,
-            11f,
-            10f,
-            9f,
-            8f,
-            7f,
-            6f,
-            5f,
-            4f,
-            3f,
-            2f,
-            1f,
-            0f
-        )
+        val fArray =
+            floatArrayOf(
+                19f,
+                18f,
+                17f,
+                16f,
+                15f,
+                14f,
+                13f,
+                12f,
+                11f,
+                10f,
+                9f,
+                8f,
+                7f,
+                6f,
+                5f,
+                4f,
+                3f,
+                2f,
+                1f,
+                0f
+            )
         colorMatrix.set(ColorMatrix(fArray))
         ret = colorMatrix.values
         assertTrue(fArray.contentEquals(ret))
@@ -140,28 +142,29 @@ class ColorMatrixTest {
     fun testSet2() {
         var ret: FloatArray = colorMatrix.values
         preCompare(ret)
-        val fArray = floatArrayOf(
-            19f,
-            18f,
-            17f,
-            16f,
-            15f,
-            14f,
-            13f,
-            12f,
-            11f,
-            10f,
-            9f,
-            8f,
-            7f,
-            6f,
-            5f,
-            4f,
-            3f,
-            2f,
-            1f,
-            0f
-        )
+        val fArray =
+            floatArrayOf(
+                19f,
+                18f,
+                17f,
+                16f,
+                15f,
+                14f,
+                13f,
+                12f,
+                11f,
+                10f,
+                9f,
+                8f,
+                7f,
+                6f,
+                5f,
+                4f,
+                3f,
+                2f,
+                1f,
+                0f
+            )
         colorMatrix.set(ColorMatrix(fArray))
         ret = colorMatrix.values
         assertTrue(fArray.contentEquals(ret))
@@ -190,12 +193,29 @@ class ColorMatrixTest {
     fun testSetSaturation() {
         colorMatrix.setToSaturation(0.5f)
         val ret: FloatArray = colorMatrix.values
-        val expected = floatArrayOf(
-            0.6065f, 0.3575f, 0.036f, 0.0f, 0.0f,
-            0.1065f, 0.85749996f, 0.036f, 0.0f, 0.0f,
-            0.1065f, 0.3575f, 0.536f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f, 0.0f
-        )
+        val expected =
+            floatArrayOf(
+                0.6065f,
+                0.3575f,
+                0.036f,
+                0.0f,
+                0.0f,
+                0.1065f,
+                0.85749996f,
+                0.036f,
+                0.0f,
+                0.0f,
+                0.1065f,
+                0.3575f,
+                0.536f,
+                0.0f,
+                0.0f,
+                0.0f,
+                0.0f,
+                0.0f,
+                1.0f,
+                0.0f
+            )
         for (i in ret.indices) {
             assertEquals(
                 expected[i],
@@ -207,14 +227,12 @@ class ColorMatrixTest {
 
     @Test
     fun testSetScale() {
-        val values = ColorMatrix().apply {
-            setToScale(
-                redScale = 2f,
-                greenScale = 3f,
-                blueScale = 4f,
-                alphaScale = 5f
-            )
-        }.values
+        val values =
+            ColorMatrix()
+                .apply {
+                    setToScale(redScale = 2f, greenScale = 3f, blueScale = 4f, alphaScale = 5f)
+                }
+                .values
         assertEquals(20, values.size)
         assertEquals(2.0f, values[0], 0.0f)
         assertEquals(3.0f, values[6], 0.0f)
@@ -233,11 +251,28 @@ class ColorMatrixTest {
         colorMatrix.convertRgbToYuv()
         assertTrue(
             floatArrayOf(
-                0.299f, 0.587f, 0.114f, 0.0f, 0.0f,
-                -0.16874f, -0.33126f, 0.5f, 0.0f, 0.0f,
-                0.5f, -0.41869f, -0.08131f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 1.0f, 0.0f
-            ).contentEquals(colorMatrix.values)
+                    0.299f,
+                    0.587f,
+                    0.114f,
+                    0.0f,
+                    0.0f,
+                    -0.16874f,
+                    -0.33126f,
+                    0.5f,
+                    0.0f,
+                    0.0f,
+                    0.5f,
+                    -0.41869f,
+                    -0.08131f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f
+                )
+                .contentEquals(colorMatrix.values)
         )
     }
 
@@ -246,11 +281,28 @@ class ColorMatrixTest {
         colorMatrix.convertYuvToRgb()
         assertTrue(
             floatArrayOf(
-                1.0f, 0.0f, 1.402f, 0.0f, 0.0f,
-                1.0f, -0.34414f, -0.71414f, 0.0f, 0.0f,
-                1.0f, 1.772f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 1.0f, 0.0f
-            ).contentEquals(colorMatrix.values)
+                    1.0f,
+                    0.0f,
+                    1.402f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    -0.34414f,
+                    -0.71414f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    1.772f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    1.0f,
+                    0.0f
+                )
+                .contentEquals(colorMatrix.values)
         )
     }
 
@@ -275,60 +327,79 @@ class ColorMatrixTest {
 
     @Test
     fun testTimesAssign() {
-        val floatA = floatArrayOf(
-            0f,
-            1f,
-            2f,
-            3f,
-            4f,
-            5f,
-            6f,
-            7f,
-            8f,
-            9f,
-            9f,
-            8f,
-            7f,
-            6f,
-            5f,
-            4f,
-            3f,
-            2f,
-            1f,
-            0f
-        )
-        val floatB = floatArrayOf(
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f,
-            1f
-        )
+        val floatA =
+            floatArrayOf(
+                0f,
+                1f,
+                2f,
+                3f,
+                4f,
+                5f,
+                6f,
+                7f,
+                8f,
+                9f,
+                9f,
+                8f,
+                7f,
+                6f,
+                5f,
+                4f,
+                3f,
+                2f,
+                1f,
+                0f
+            )
+        val floatB =
+            floatArrayOf(
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f,
+                1f
+            )
         val matrix = ColorMatrix(floatA)
         matrix *= ColorMatrix(floatB)
         val ret: FloatArray = matrix.values
         assertTrue(
             floatArrayOf(
-                6.0f, 6.0f, 6.0f, 6.0f, 10f,
-                26.0f, 26.0f, 26.0f, 26.0f, 35.0f,
-                30.0f, 30.0f, 30.0f, 30.0f, 35.0f,
-                10.0f, 10.0f, 10.0f, 10.0f, 10.0f
-            ).contentEquals(ret)
+                    6.0f,
+                    6.0f,
+                    6.0f,
+                    6.0f,
+                    10f,
+                    26.0f,
+                    26.0f,
+                    26.0f,
+                    26.0f,
+                    35.0f,
+                    30.0f,
+                    30.0f,
+                    30.0f,
+                    30.0f,
+                    35.0f,
+                    10.0f,
+                    10.0f,
+                    10.0f,
+                    10.0f,
+                    10.0f
+                )
+                .contentEquals(ret)
         )
     }
 

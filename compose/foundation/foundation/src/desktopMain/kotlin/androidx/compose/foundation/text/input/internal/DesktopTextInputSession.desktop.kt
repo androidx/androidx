@@ -24,9 +24,7 @@ import androidx.compose.ui.text.input.ImeOptions
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-/**
- * Runs desktop-specific text input session logic.
- */
+/** Runs desktop-specific text input session logic. */
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
     layoutState: TextLayoutState,

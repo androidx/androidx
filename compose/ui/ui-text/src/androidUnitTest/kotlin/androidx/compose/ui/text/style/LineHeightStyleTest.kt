@@ -30,79 +30,45 @@ class LineHeightStyleTest {
 
     @Test
     fun equals_returns_false_for_different_alignment() {
-        val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.None
-        )
-        val otherLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Bottom,
-            trim = Trim.None
-        )
+        val lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.None)
+        val otherLineHeightStyle = LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.None)
         assertThat(lineHeightStyle.equals(otherLineHeightStyle)).isFalse()
     }
 
     @Test
     fun equals_returns_false_for_different_trim() {
-        val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.None
-        )
-        val otherLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.Both
-        )
+        val lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.None)
+        val otherLineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.Both)
         assertThat(lineHeightStyle.equals(otherLineHeightStyle)).isFalse()
     }
 
     @Test
     fun equals_returns_true_for_same_attributes() {
-        val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.FirstLineTop
-        )
-        val otherLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.FirstLineTop
-        )
+        val lineHeightStyle =
+            LineHeightStyle(alignment = Alignment.Center, trim = Trim.FirstLineTop)
+        val otherLineHeightStyle =
+            LineHeightStyle(alignment = Alignment.Center, trim = Trim.FirstLineTop)
         assertThat(lineHeightStyle.equals(otherLineHeightStyle)).isTrue()
     }
 
     @Test
     fun hashCode_is_different_for_different_alignment() {
-        val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.None
-        )
-        val otherLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Bottom,
-            trim = Trim.Both
-        )
+        val lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.None)
+        val otherLineHeightStyle = LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.Both)
         assertThat(lineHeightStyle.hashCode()).isNotEqualTo(otherLineHeightStyle.hashCode())
     }
 
     @Test
     fun hashCode_is_different_for_different_trim() {
-        val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.None
-        )
-        val otherLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.Both
-        )
+        val lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.None)
+        val otherLineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.Both)
         assertThat(lineHeightStyle.hashCode()).isNotEqualTo(otherLineHeightStyle.hashCode())
     }
 
     @Test
     fun hashCode_is_same_for_same_attributes() {
-        val lineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.Both
-        )
-        val otherLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.Both
-        )
+        val lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.Both)
+        val otherLineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.Both)
         assertThat(lineHeightStyle.hashCode()).isEqualTo(otherLineHeightStyle.hashCode())
     }
 }

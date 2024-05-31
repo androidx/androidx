@@ -60,13 +60,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @get:Rule
-    val composeImmRule = ComposeInputMethodManagerTestRule().apply {
-        setFactory { composeImm }
-    }
+    val composeImmRule = ComposeInputMethodManagerTestRule().apply { setFactory { composeImm } }
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
@@ -74,60 +71,71 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
     private val androidMatrix = android.graphics.Matrix()
     private val reportedCursorAnchorInfos = mutableListOf<CursorAnchorInfo>()
 
-    private val composeImm = object : ComposeInputMethodManager {
-        override fun updateCursorAnchorInfo(info: CursorAnchorInfo) {
-            reportedCursorAnchorInfos += info
-        }
+    private val composeImm =
+        object : ComposeInputMethodManager {
+            override fun updateCursorAnchorInfo(info: CursorAnchorInfo) {
+                reportedCursorAnchorInfos += info
+            }
 
-        override fun restartInput() {}
-        override fun showSoftInput() {}
-        override fun hideSoftInput() {}
-        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
-        override fun updateSelection(
-            selectionStart: Int,
-            selectionEnd: Int,
-            compositionStart: Int,
-            compositionEnd: Int
-        ) {
-        }
+            override fun restartInput() {}
 
-        override fun sendKeyEvent(event: KeyEvent) {}
-        override fun startStylusHandwriting() {}
-        override fun prepareStylusHandwritingDelegation() {}
-        override fun acceptStylusHandwritingDelegation() {}
-    }
+            override fun showSoftInput() {}
+
+            override fun hideSoftInput() {}
+
+            override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
+
+            override fun updateSelection(
+                selectionStart: Int,
+                selectionEnd: Int,
+                compositionStart: Int,
+                compositionEnd: Int
+            ) {}
+
+            override fun sendKeyEvent(event: KeyEvent) {}
+
+            override fun startStylusHandwriting() {}
+
+            override fun prepareStylusHandwritingDelegation() {}
+
+            override fun acceptStylusHandwritingDelegation() {}
+        }
 
     private lateinit var inputConnection: InputConnection
-    private val session = object : PlatformTextInputSession {
-        override val view = View(InstrumentationRegistry.getInstrumentation().context)
-        override suspend fun startInputMethod(
-            request: PlatformTextInputMethodRequest
-        ): Nothing {
-            inputConnection = request.createInputConnection(EditorInfo())
-            awaitCancellation()
+    private val session =
+        object : PlatformTextInputSession {
+            override val view = View(InstrumentationRegistry.getInstrumentation().context)
+
+            override suspend fun startInputMethod(
+                request: PlatformTextInputMethodRequest
+            ): Nothing {
+                inputConnection = request.createInputConnection(EditorInfo())
+                awaitCancellation()
+            }
         }
-    }
 
     private val layoutOffset = Offset(98f, 47f)
     private val coreNodeOffset = Offset(73f, 50f)
     private val coreNodeSize = IntSize(25, 51)
     private val decoratorNodeOffset = Offset(84f, 59f)
     private val decoratorNodeSize = IntSize(19, 66)
-    private val layoutState = TextLayoutState().apply {
-        textLayoutNodeCoordinates =
-            TestLayoutCoordinates(windowOffset = layoutOffset, isAttached = true)
-        coreNodeCoordinates = TestLayoutCoordinates(
-            windowOffset = coreNodeOffset,
-            size = coreNodeSize,
-            isAttached = true
-        )
-        decoratorNodeCoordinates =
-            TestLayoutCoordinates(
-                windowOffset = decoratorNodeOffset,
-                size = decoratorNodeSize,
-                isAttached = true
-            )
-    }
+    private val layoutState =
+        TextLayoutState().apply {
+            textLayoutNodeCoordinates =
+                TestLayoutCoordinates(windowOffset = layoutOffset, isAttached = true)
+            coreNodeCoordinates =
+                TestLayoutCoordinates(
+                    windowOffset = coreNodeOffset,
+                    size = coreNodeSize,
+                    isAttached = true
+                )
+            decoratorNodeCoordinates =
+                TestLayoutCoordinates(
+                    windowOffset = decoratorNodeOffset,
+                    size = decoratorNodeSize,
+                    isAttached = true
+                )
+        }
 
     @Test
     fun requestCursorUpdates_immediate() = runTest {
@@ -138,18 +146,17 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         inputConnection.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
 
         // Immediate update.
-        val expectedInfo = builder.build(
-            text = textFieldState.text,
-            selection = textFieldState.selection,
-            composition = textFieldState.composition,
-            textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(layoutOffset),
-            innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
-            decorationBoxBounds = Rect(
-                decoratorNodeOffset - layoutOffset,
-                decoratorNodeSize.toSize()
-            ),
-        )
+        val expectedInfo =
+            builder.build(
+                text = textFieldState.text,
+                selection = textFieldState.selection,
+                composition = textFieldState.composition,
+                textLayoutResult = layoutState.layoutResult!!,
+                matrix = getAndroidMatrix(layoutOffset),
+                innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
+                decorationBoxBounds =
+                    Rect(decoratorNodeOffset - layoutOffset, decoratorNodeSize.toSize()),
+            )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
         reportedCursorAnchorInfos.clear()
 
@@ -164,11 +171,12 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
     @Test
     fun requestCursorUpdates_immediate_beforeUpdateTextLayoutResult() = runTest {
         val textFieldState = TextFieldState("abc", initialSelection = TextRange(2))
-        val transformedState = TransformedTextFieldState(
-            textFieldState = textFieldState,
-            inputTransformation = null,
-            codepointTransformation = null
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = textFieldState,
+                inputTransformation = null,
+                codepointTransformation = null
+            )
 
         backgroundScope.launch(Dispatchers.Unconfined) {
             session.platformSpecificTextInputSession(
@@ -203,18 +211,18 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             TestLayoutCoordinates(windowOffset = newLayoutOffset, isAttached = true)
 
         // Monitoring update.
-        val expectedInfo = builder.build(
-            text = textFieldState.text,
-            selection = textFieldState.selection,
-            composition = textFieldState.composition,
-            textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(newLayoutOffset),
-            innerTextFieldBounds = Rect(coreNodeOffset - newLayoutOffset, coreNodeSize.toSize()),
-            decorationBoxBounds = Rect(
-                decoratorNodeOffset - newLayoutOffset,
-                decoratorNodeSize.toSize()
-            ),
-        )
+        val expectedInfo =
+            builder.build(
+                text = textFieldState.text,
+                selection = textFieldState.selection,
+                composition = textFieldState.composition,
+                textLayoutResult = layoutState.layoutResult!!,
+                matrix = getAndroidMatrix(newLayoutOffset),
+                innerTextFieldBounds =
+                    Rect(coreNodeOffset - newLayoutOffset, coreNodeSize.toSize()),
+                decorationBoxBounds =
+                    Rect(decoratorNodeOffset - newLayoutOffset, decoratorNodeSize.toSize()),
+            )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
     }
 
@@ -228,18 +236,17 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         )
 
         // Immediate update.
-        val expectedInfo = builder.build(
-            text = textFieldState.text,
-            selection = textFieldState.selection,
-            composition = textFieldState.composition,
-            textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(layoutOffset),
-            innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
-            decorationBoxBounds = Rect(
-                decoratorNodeOffset - layoutOffset,
-                decoratorNodeSize.toSize()
-            ),
-        )
+        val expectedInfo =
+            builder.build(
+                text = textFieldState.text,
+                selection = textFieldState.selection,
+                composition = textFieldState.composition,
+                textLayoutResult = layoutState.layoutResult!!,
+                matrix = getAndroidMatrix(layoutOffset),
+                innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
+                decorationBoxBounds =
+                    Rect(decoratorNodeOffset - layoutOffset, decoratorNodeSize.toSize()),
+            )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
         reportedCursorAnchorInfos.clear()
 
@@ -249,18 +256,18 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             TestLayoutCoordinates(windowOffset = newLayoutOffset, isAttached = true)
 
         // Monitoring update.
-        val expectedInfo2 = builder.build(
-            text = textFieldState.text,
-            selection = textFieldState.selection,
-            composition = textFieldState.composition,
-            textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(newLayoutOffset),
-            innerTextFieldBounds = Rect(coreNodeOffset - newLayoutOffset, coreNodeSize.toSize()),
-            decorationBoxBounds = Rect(
-                decoratorNodeOffset - newLayoutOffset,
-                decoratorNodeSize.toSize()
-            ),
-        )
+        val expectedInfo2 =
+            builder.build(
+                text = textFieldState.text,
+                selection = textFieldState.selection,
+                composition = textFieldState.composition,
+                textLayoutResult = layoutState.layoutResult!!,
+                matrix = getAndroidMatrix(newLayoutOffset),
+                innerTextFieldBounds =
+                    Rect(coreNodeOffset - newLayoutOffset, coreNodeSize.toSize()),
+                decorationBoxBounds =
+                    Rect(decoratorNodeOffset - newLayoutOffset, decoratorNodeSize.toSize()),
+            )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo2)
     }
 
@@ -274,18 +281,17 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         )
 
         // Immediate update.
-        val expectedInfo = builder.build(
-            text = textFieldState.text,
-            selection = textFieldState.selection,
-            composition = textFieldState.composition,
-            textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(layoutOffset),
-            innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
-            decorationBoxBounds = Rect(
-                decoratorNodeOffset - layoutOffset,
-                decoratorNodeSize.toSize()
-            ),
-        )
+        val expectedInfo =
+            builder.build(
+                text = textFieldState.text,
+                selection = textFieldState.selection,
+                composition = textFieldState.composition,
+                textLayoutResult = layoutState.layoutResult!!,
+                matrix = getAndroidMatrix(layoutOffset),
+                innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
+                decorationBoxBounds =
+                    Rect(decoratorNodeOffset - layoutOffset, decoratorNodeSize.toSize()),
+            )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
         reportedCursorAnchorInfos.clear()
 
@@ -305,9 +311,7 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             // Bootstrap the snapshot observation system.
             lateinit var handle: ObserverHandle
             try {
-                handle = Snapshot.registerGlobalWriteObserver {
-                    Snapshot.sendApplyNotifications()
-                }
+                handle = Snapshot.registerGlobalWriteObserver { Snapshot.sendApplyNotifications() }
                 testBody()
             } finally {
                 handle.dispose()
@@ -316,11 +320,12 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
     }
 
     private fun CoroutineScope.startFakeTextInputSession(textFieldState: TextFieldState) {
-        val transformedState = TransformedTextFieldState(
-            textFieldState = textFieldState,
-            inputTransformation = null,
-            codepointTransformation = null
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = textFieldState,
+                inputTransformation = null,
+                codepointTransformation = null
+            )
 
         launch(Dispatchers.Unconfined) {
             session.platformSpecificTextInputSession(
@@ -358,10 +363,14 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         override var isAttached: Boolean = false,
     ) : LayoutCoordinates {
         override fun get(alignmentLine: AlignmentLine): Int = AlignmentLine.Unspecified
+
         override fun windowToLocal(relativeToWindow: Offset): Offset =
             relativeToWindow - windowOffset
+
         override fun localToWindow(relativeToLocal: Offset): Offset = relativeToLocal + windowOffset
+
         override fun localToRoot(relativeToLocal: Offset): Offset = relativeToLocal
+
         override fun localPositionOf(
             sourceCoordinates: LayoutCoordinates,
             relativeToSource: Offset

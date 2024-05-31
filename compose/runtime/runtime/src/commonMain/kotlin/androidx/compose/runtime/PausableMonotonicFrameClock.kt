@@ -19,18 +19,17 @@ package androidx.compose.runtime
 /**
  * A [MonotonicFrameClock] wrapper that can be [pause]d and [resume]d.
  *
- * A paused clock will not dispatch [withFrameNanos] events until it is resumed.
- * Pausing a clock does **not** stop or change the frame times reported to [withFrameNanos] calls;
- * the clock times reported will always remain consistent with [frameClock].
+ * A paused clock will not dispatch [withFrameNanos] events until it is resumed. Pausing a clock
+ * does **not** stop or change the frame times reported to [withFrameNanos] calls; the clock times
+ * reported will always remain consistent with [frameClock].
  *
- * [PausableMonotonicFrameClock] should be used in cases where frames should not be produced
- * under some conditions, such as when a window hosting a UI is not currently visible.
- * As clock times are not altered from the source [frameClock], animations in progress may
- * be fully complete by the time the clock is resumed and a new frame is produced.
+ * [PausableMonotonicFrameClock] should be used in cases where frames should not be produced under
+ * some conditions, such as when a window hosting a UI is not currently visible. As clock times are
+ * not altered from the source [frameClock], animations in progress may be fully complete by the
+ * time the clock is resumed and a new frame is produced.
  */
-class PausableMonotonicFrameClock(
-    private val frameClock: MonotonicFrameClock
-) : MonotonicFrameClock {
+class PausableMonotonicFrameClock(private val frameClock: MonotonicFrameClock) :
+    MonotonicFrameClock {
     private val latch = Latch()
 
     /**
@@ -41,10 +40,10 @@ class PausableMonotonicFrameClock(
         get() = !latch.isOpen
 
     /**
-     * Pause the generation of frames. Pausing a clock that is already paused has no effect.
-     * While the clock is paused any calls to [withFrameNanos] will suspend until the clock is
-     * resumed before delegating to the wrapped [frameClock]'s [withFrameNanos] method.
-     * Call [resume] to resume generating frames.
+     * Pause the generation of frames. Pausing a clock that is already paused has no effect. While
+     * the clock is paused any calls to [withFrameNanos] will suspend until the clock is resumed
+     * before delegating to the wrapped [frameClock]'s [withFrameNanos] method. Call [resume] to
+     * resume generating frames.
      */
     fun pause() {
         latch.closeLatch()

@@ -43,11 +43,7 @@ class XmlVectorParserTest {
     @Test
     fun testParseXml() {
         val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
-        val asset = ImageVector.vectorResource(
-            null,
-            res,
-            R.drawable.test_compose_vector
-        )
+        val asset = ImageVector.vectorResource(null, res, R.drawable.test_compose_vector)
         val expectedSize = 24.dp
         assertEquals(expectedSize, asset.defaultWidth)
         assertEquals(expectedSize, asset.defaultHeight)
@@ -88,11 +84,7 @@ class XmlVectorParserTest {
     @Test
     fun testImplicitLineTo() {
         val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
-        val asset = ImageVector.vectorResource(
-            null,
-            res,
-            R.drawable.test_compose_vector2
-        )
+        val asset = ImageVector.vectorResource(null, res, R.drawable.test_compose_vector2)
 
         val node = asset.root.iterator().next() as VectorPath
         val path = node.pathData
@@ -113,11 +105,7 @@ class XmlVectorParserTest {
     @Test
     fun testGroupParsing() {
         val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
-        val asset = ImageVector.vectorResource(
-            null,
-            res,
-            R.drawable.test_compose_vector3
-        )
+        val asset = ImageVector.vectorResource(null, res, R.drawable.test_compose_vector3)
 
         val root = asset.root
         assertEquals(1, root.size)
@@ -257,16 +245,10 @@ class XmlVectorParserTest {
 
     private fun loadVector(id: Int, theme: Resources.Theme? = null): ImageVector {
         val res = InstrumentationRegistry.getInstrumentation().targetContext.resources
-        return ImageVector.vectorResource(
-            theme,
-            res,
-            id
-        )
+        return ImageVector.vectorResource(theme, res, id)
     }
 
-    /**
-     * Asserts that [this] is the expected type [T], and then returns [this] cast to [T].
-     */
+    /** Asserts that [this] is the expected type [T], and then returns [this] cast to [T]. */
     private inline fun <reified T : PathNode> PathNode.assertType(): T {
         assertTrue(
             "Expected type ${T::class.java.simpleName} but was actually " +
@@ -276,9 +258,7 @@ class XmlVectorParserTest {
         return this as T
     }
 
-    /**
-     * Asserts that [this] is the expected type [T], and then returns [this] cast to [T].
-     */
+    /** Asserts that [this] is the expected type [T], and then returns [this] cast to [T]. */
     private inline fun <reified T : VectorNode> VectorNode.assertType(): T {
         assertTrue(
             "Expected type ${T::class.java.simpleName} but was actually " +

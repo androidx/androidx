@@ -259,7 +259,8 @@ class ComposeCallLoweringTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
 
         @Composable
         fun Bar() {}
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -282,7 +283,8 @@ class ComposeCallLoweringTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                 content()
             }
         }
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 

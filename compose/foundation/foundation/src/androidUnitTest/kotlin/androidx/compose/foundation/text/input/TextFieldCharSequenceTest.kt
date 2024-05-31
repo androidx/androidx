@@ -80,41 +80,41 @@ class TextFieldCharSequenceTest {
 
     @Test
     fun equals_returns_true_for_same_instance() {
-        val textFieldValue = TextFieldCharSequence(
-            text = "a",
-            selection = TextRange(1),
-            composition = TextRange(2),
-            highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
-        )
+        val textFieldValue =
+            TextFieldCharSequence(
+                text = "a",
+                selection = TextRange(1),
+                composition = TextRange(2),
+                highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
+            )
 
         assertThat(textFieldValue).isEqualTo(textFieldValue)
     }
 
     @Test
     fun equals_returns_true_for_equivalent_object() {
-        val textFieldValue = TextFieldCharSequence(
-            text = "a",
-            selection = TextRange(1),
-            composition = TextRange(2),
-            highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
-        )
+        val textFieldValue =
+            TextFieldCharSequence(
+                text = "a",
+                selection = TextRange(1),
+                composition = TextRange(2),
+                highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
+            )
 
         assertThat(
-            TextFieldCharSequence(
-                textFieldValue,
-                textFieldValue.selection,
-                textFieldValue.composition,
-                textFieldValue.highlight
+                TextFieldCharSequence(
+                    textFieldValue,
+                    textFieldValue.selection,
+                    textFieldValue.composition,
+                    textFieldValue.highlight
+                )
             )
-        ).isEqualTo(textFieldValue)
+            .isEqualTo(textFieldValue)
     }
 
     @Test
     fun text_and_selection_parameter_constructor_has_null_composition_and_highlight() {
-        val textFieldValue = TextFieldCharSequence(
-            text = "a",
-            selection = TextRange(1)
-        )
+        val textFieldValue = TextFieldCharSequence(text = "a", selection = TextRange(1))
 
         assertThat(textFieldValue.composition).isNull()
         assertThat(textFieldValue.highlight).isNull()

@@ -53,8 +53,7 @@ import org.junit.runner.RunWith
 internal class SheetContentHostTest {
     private val bodyContentTag = "testBodyContent"
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
     @Test
     fun testOnSheetDismissedCalled_ManualDismiss() = runTest {
@@ -67,15 +66,14 @@ internal class SheetContentHostTest {
         composeTestRule.setBottomSheetContent(
             mutableStateOf(backStackEntry),
             sheetState,
-            onSheetShown = { },
+            onSheetShown = {},
             onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
         )
 
         assertThat(sheetState.currentValue == ModalBottomSheetValue.Expanded).isTrue()
         composeTestRule.onNodeWithTag(bodyContentTag).performClick()
         composeTestRule.runOnIdle {
-            assertWithMessage("Sheet is visible")
-                .that(sheetState.isVisible).isFalse()
+            assertWithMessage("Sheet is visible").that(sheetState.isVisible).isFalse()
             assertWithMessage("Back stack entry should be in the dismissed entries list")
                 .that(dismissedBackStackEntries)
                 .containsExactly(backStackEntry)
@@ -94,15 +92,14 @@ internal class SheetContentHostTest {
         composeTestRule.setBottomSheetContent(
             mutableStateOf(backStackEntry),
             sheetState,
-            onSheetShown = { },
+            onSheetShown = {},
             onSheetDismissed = { entry -> dismissedBackStackEntries.add(entry) }
         )
 
         assertThat(sheetState.currentValue == ModalBottomSheetValue.Expanded).isTrue()
         composeTestRule.onNodeWithTag(bodyContentTag).performClick()
         composeTestRule.runOnIdle {
-            assertWithMessage("Sheet is not visible")
-                .that(sheetState.isVisible).isFalse()
+            assertWithMessage("Sheet is not visible").that(sheetState.isVisible).isFalse()
             assertWithMessage("Back stack entry should be in the dismissed entries list")
                 .that(dismissedBackStackEntries)
                 .containsExactly(backStackEntry)
@@ -120,17 +117,14 @@ internal class SheetContentHostTest {
             backStackEntry = backStackEntryState,
             sheetState = sheetState,
             onSheetShown = { entry -> shownBackStackEntries.add(entry) },
-            onSheetDismissed = { }
+            onSheetDismissed = {}
         )
 
-        val backStackEntry = createBackStackEntry(sheetState) {
-            Box(Modifier.height(50.dp))
-        }
+        val backStackEntry = createBackStackEntry(sheetState) { Box(Modifier.height(50.dp)) }
         backStackEntryState.value = backStackEntry
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Sheet is visible")
-                .that(sheetState.isVisible).isTrue()
+            assertWithMessage("Sheet is visible").that(sheetState.isVisible).isTrue()
             assertWithMessage("Back stack entry should be in the shown entries list")
                 .that(shownBackStackEntries)
                 .containsExactly(backStackEntry)
@@ -148,17 +142,14 @@ internal class SheetContentHostTest {
             backStackEntry = backStackEntryState,
             sheetState = sheetState,
             onSheetShown = { entry -> shownBackStackEntries.add(entry) },
-            onSheetDismissed = { }
+            onSheetDismissed = {}
         )
 
-        val backStackEntry = createBackStackEntry(sheetState) {
-            Box(Modifier.fillMaxSize())
-        }
+        val backStackEntry = createBackStackEntry(sheetState) { Box(Modifier.fillMaxSize()) }
         backStackEntryState.value = backStackEntry
 
         composeTestRule.runOnIdle {
-            assertWithMessage("Sheet is visible")
-                .that(sheetState.isVisible).isTrue()
+            assertWithMessage("Sheet is visible").that(sheetState.isVisible).isTrue()
             assertWithMessage("Back stack entry should be in the shown entries list")
                 .that(shownBackStackEntries)
                 .containsExactly(backStackEntry)
@@ -187,21 +178,16 @@ internal class SheetContentHostTest {
                     )
                 },
                 sheetState = sheetState,
-                content = {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(bodyContentTag)
-                    )
-                }
+                content = { Box(Modifier.fillMaxSize().testTag(bodyContentTag)) }
             )
         }
     }
 
     private fun createBackStackEntry(
         sheetState: ModalBottomSheetState,
-        sheetContent:
-        @Composable ColumnScope.(NavBackStackEntry) -> Unit = { Text("Fake Sheet Content") }
+        sheetContent: @Composable ColumnScope.(NavBackStackEntry) -> Unit = {
+            Text("Fake Sheet Content")
+        }
     ): NavBackStackEntry {
         val navigatorState = TestNavigatorState()
         val navigator = BottomSheetNavigator(sheetState)

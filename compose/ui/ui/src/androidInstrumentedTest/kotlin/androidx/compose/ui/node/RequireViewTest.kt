@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RequireViewTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun requireView_returnsView() {
@@ -48,11 +47,7 @@ class RequireViewTest {
         lateinit var node: TestModifierNode
         rule.setContent {
             view = LocalView.current
-            Box(
-                Modifier
-                    .then(TestModifier(onNode = { node = it }))
-                    .size(1.dp)
-            )
+            Box(Modifier.then(TestModifier(onNode = { node = it })).size(1.dp))
         }
 
         rule.runOnIdle {
@@ -68,8 +63,7 @@ class RequireViewTest {
         lateinit var node: TestModifierNode
         rule.setContent {
             Box(
-                Modifier
-                    .then(if (attach) TestModifier(onNode = { node = it }) else Modifier)
+                Modifier.then(if (attach) TestModifier(onNode = { node = it }) else Modifier)
                     .size(1.dp)
             )
         }
@@ -77,25 +71,20 @@ class RequireViewTest {
         rule.waitForIdle()
         attach = false
 
-        rule.runOnIdle {
-            assertFailsWith<IllegalStateException> { node.requireView() }
-        }
+        rule.runOnIdle { assertFailsWith<IllegalStateException> { node.requireView() } }
     }
 
-    private data class TestModifier(
-        val onNode: (TestModifierNode) -> Unit
-    ) : ModifierNodeElement<TestModifierNode>() {
+    private data class TestModifier(val onNode: (TestModifierNode) -> Unit) :
+        ModifierNodeElement<TestModifierNode>() {
         override fun create(): TestModifierNode {
             return TestModifierNode(onNode)
         }
 
-        override fun update(node: TestModifierNode) {
-        }
+        override fun update(node: TestModifierNode) {}
     }
 
-    private class TestModifierNode(
-        private val onNode: (TestModifierNode) -> Unit
-    ) : Modifier.Node() {
+    private class TestModifierNode(private val onNode: (TestModifierNode) -> Unit) :
+        Modifier.Node() {
         override fun onAttach() {
             onNode(this)
         }

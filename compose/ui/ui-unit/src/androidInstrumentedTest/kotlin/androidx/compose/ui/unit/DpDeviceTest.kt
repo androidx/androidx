@@ -31,9 +31,8 @@ import org.junit.runner.RunWith
 class DpDeviceTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
 
     private lateinit var activity: Activity
 
@@ -46,9 +45,7 @@ class DpDeviceTest {
     fun dimensionCalculation() {
         val dm = activity.resources.displayMetrics
         val dp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, dm)
-        with(Density(activity)) {
-            assertEquals(dp10InPx, 10.dp.toPx(), 0.01f)
-        }
+        with(Density(activity)) { assertEquals(dp10InPx, 10.dp.toPx(), 0.01f) }
     }
 
     companion object {

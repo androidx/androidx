@@ -29,25 +29,29 @@ internal actual class PlatformFontFamilyTypefaceAdapter : FontFamilyTypefaceAdap
         onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,
         createDefaultTypeface: (TypefaceRequest) -> Any
     ): TypefaceResult? {
-        val result: Typeface = when (typefaceRequest.fontFamily) {
-            null, is DefaultFontFamily -> platformTypefaceResolver.createDefault(
-                typefaceRequest.fontWeight,
-                typefaceRequest.fontStyle
-            )
-            is GenericFontFamily -> platformTypefaceResolver.createNamed(
-                typefaceRequest.fontFamily,
-                typefaceRequest.fontWeight,
-                typefaceRequest.fontStyle
-            )
-            is LoadedFontFamily -> {
-                (typefaceRequest.fontFamily.typeface as AndroidTypeface).getNativeTypeface(
-                    typefaceRequest.fontWeight,
-                    typefaceRequest.fontStyle,
-                    typefaceRequest.fontSynthesis
-                )
+        val result: Typeface =
+            when (typefaceRequest.fontFamily) {
+                null,
+                is DefaultFontFamily ->
+                    platformTypefaceResolver.createDefault(
+                        typefaceRequest.fontWeight,
+                        typefaceRequest.fontStyle
+                    )
+                is GenericFontFamily ->
+                    platformTypefaceResolver.createNamed(
+                        typefaceRequest.fontFamily,
+                        typefaceRequest.fontWeight,
+                        typefaceRequest.fontStyle
+                    )
+                is LoadedFontFamily -> {
+                    (typefaceRequest.fontFamily.typeface as AndroidTypeface).getNativeTypeface(
+                        typefaceRequest.fontWeight,
+                        typefaceRequest.fontStyle,
+                        typefaceRequest.fontSynthesis
+                    )
+                }
+                else -> return null // exit to make result non-null
             }
-            else -> return null // exit to make result non-null
-        }
         return TypefaceResult.Immutable(result)
     }
 }

@@ -26,11 +26,12 @@ import java.awt.datatransfer.UnsupportedFlavorException
 import java.io.IOException
 
 internal actual class PlatformClipboardManager : ClipboardManager {
-    internal val systemClipboard = try {
-        Toolkit.getDefaultToolkit().getSystemClipboard()
-    } catch (e: java.awt.HeadlessException) {
-        null
-    }
+    internal val systemClipboard =
+        try {
+            Toolkit.getDefaultToolkit().getSystemClipboard()
+        } catch (e: java.awt.HeadlessException) {
+            null
+        }
 
     actual override fun getText(): AnnotatedString? {
         return systemClipboard?.let {
@@ -72,9 +73,7 @@ internal actual class PlatformClipboardManager : ClipboardManager {
 
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to
 // add more functionality in it.
-actual class ClipEntry(
-    internal val transferable: Transferable
-) {
+actual class ClipEntry(internal val transferable: Transferable) {
     @Throws(UnsupportedFlavorException::class, IOException::class)
     fun getTransferData(flavor: DataFlavor): Any? {
         return transferable.getTransferData(flavor)
@@ -86,9 +85,7 @@ actual class ClipEntry(
 
 // Defining this class not as a typealias but a wrapper gives us flexibility in the future to
 // add more functionality in it.
-actual class ClipMetadata(
-    internal val transferable: Transferable
-) {
+actual class ClipMetadata(internal val transferable: Transferable) {
     fun getTransferDataFlavors(): List<DataFlavor> {
         val dataFlavors = transferable.transferDataFlavors ?: return emptyList()
         return dataFlavors.filterNotNull()

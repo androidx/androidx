@@ -30,7 +30,12 @@ internal actual fun ActualLinearGradientShader(
 ): Shader {
     validateColorStops(colors, colorStops)
     return Shader.makeLinearGradient(
-        from.x, from.y, to.x, to.y, colors.toIntArray(), colorStops?.toFloatArray(),
+        from.x,
+        from.y,
+        to.x,
+        to.y,
+        colors.toIntArray(),
+        colorStops?.toFloatArray(),
         GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
     )
 }
@@ -72,27 +77,21 @@ internal actual fun ActualImageShader(
     tileModeX: TileMode,
     tileModeY: TileMode
 ): Shader {
-    return image.asSkiaBitmap().makeShader(
-        tileModeX.toSkiaTileMode(),
-        tileModeY.toSkiaTileMode()
-    )
+    return image.asSkiaBitmap().makeShader(tileModeX.toSkiaTileMode(), tileModeY.toSkiaTileMode())
 }
 
-private fun List<Color>.toIntArray(): IntArray =
-    IntArray(size) { i -> this[i].toArgb() }
+private fun List<Color>.toIntArray(): IntArray = IntArray(size) { i -> this[i].toArgb() }
 
 private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
     if (colorStops == null) {
         if (colors.size < 2) {
             throw IllegalArgumentException(
-                "colors must have length of at least 2 if colorStops " +
-                    "is omitted."
+                "colors must have length of at least 2 if colorStops " + "is omitted."
             )
         }
     } else if (colors.size != colorStops.size) {
         throw IllegalArgumentException(
-            "colors and colorStops arguments must have" +
-                " equal length."
+            "colors and colorStops arguments must have" + " equal length."
         )
     }
 }

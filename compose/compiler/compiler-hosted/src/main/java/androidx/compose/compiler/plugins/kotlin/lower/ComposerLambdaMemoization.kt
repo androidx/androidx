@@ -106,7 +106,8 @@ import org.jetbrains.kotlin.platform.jvm.isJvm
 private class CaptureCollector {
     val captures = mutableSetOf<IrValueDeclaration>()
     val capturedDeclarations = mutableSetOf<IrSymbolOwner>()
-    val hasCaptures: Boolean get() = captures.isNotEmpty() || capturedDeclarations.isNotEmpty()
+    val hasCaptures: Boolean
+        get() = captures.isNotEmpty() || capturedDeclarations.isNotEmpty()
 
     fun recordCapture(local: IrValueDeclaration) {
         captures.add(local)
@@ -119,6 +120,7 @@ private class CaptureCollector {
 
 private abstract class DeclarationContext {
     val localDeclarationCaptures = mutableMapOf<IrSymbolOwner, Set<IrValueDeclaration>>()
+
     fun recordLocalDeclaration(local: DeclarationContext) {
         localDeclarationCaptures[local.declaration] = local.captures
     }
@@ -128,10 +130,15 @@ private abstract class DeclarationContext {
     abstract val declaration: IrSymbolOwner
     abstract val captures: Set<IrValueDeclaration>
     abstract val functionContext: FunctionContext?
+
     abstract fun declareLocal(local: IrValueDeclaration?)
+
     abstract fun recordCapture(local: IrValueDeclaration?): Boolean
+
     abstract fun recordCapture(local: IrSymbolOwner?)
+
     abstract fun pushCollector(collector: CaptureCollector)
+
     abstract fun popCollector(collector: CaptureCollector)
 }
 
@@ -167,17 +174,28 @@ private fun List<DeclarationContext>.recordLocalCapture(
 }
 
 private class SymbolOwnerContext(override val declaration: IrSymbolOwner) : DeclarationContext() {
-    override val composable get() = false
-    override val functionContext: FunctionContext? get() = null
-    override val symbol get() = declaration.symbol
-    override val captures: Set<IrValueDeclaration> get() = emptySet()
+    override val composable
+        get() = false
+
+    override val functionContext: FunctionContext?
+        get() = null
+
+    override val symbol
+        get() = declaration.symbol
+
+    override val captures: Set<IrValueDeclaration>
+        get() = emptySet()
+
     override fun declareLocal(local: IrValueDeclaration?) {}
+
     override fun recordCapture(local: IrValueDeclaration?): Boolean {
         return false
     }
 
     override fun recordCapture(local: IrSymbolOwner?) {}
+
     override fun pushCollector(collector: CaptureCollector) {}
+
     override fun popCollector(collector: CaptureCollector) {}
 }
 
@@ -185,34 +203,45 @@ private class FunctionLocalSymbol(
     override val declaration: IrSymbolOwner,
     override val functionContext: FunctionContext
 ) : DeclarationContext() {
-    override val composable: Boolean get() = functionContext.composable
-    override val symbol: IrSymbol get() = declaration.symbol
-    override val captures: Set<IrValueDeclaration> get() = functionContext.captures
+    override val composable: Boolean
+        get() = functionContext.composable
+
+    override val symbol: IrSymbol
+        get() = declaration.symbol
+
+    override val captures: Set<IrValueDeclaration>
+        get() = functionContext.captures
+
     override fun declareLocal(local: IrValueDeclaration?) = functionContext.declareLocal(local)
+
     override fun recordCapture(local: IrValueDeclaration?) = functionContext.recordCapture(local)
+
     override fun recordCapture(local: IrSymbolOwner?) = functionContext.recordCapture(local)
+
     override fun pushCollector(collector: CaptureCollector) =
         functionContext.pushCollector(collector)
 
-    override fun popCollector(collector: CaptureCollector) =
-        functionContext.popCollector(collector)
+    override fun popCollector(collector: CaptureCollector) = functionContext.popCollector(collector)
 }
 
 private class FunctionContext(
     override val declaration: IrFunction,
     override val composable: Boolean,
 ) : DeclarationContext() {
-    override val symbol get() = declaration.symbol
-    override val functionContext: FunctionContext get() = this
+    override val symbol
+        get() = declaration.symbol
+
+    override val functionContext: FunctionContext
+        get() = this
+
     val locals = mutableSetOf<IrValueDeclaration>()
     override val captures: MutableSet<IrValueDeclaration> = mutableSetOf()
     var collectors = mutableListOf<CaptureCollector>()
-    val canRemember: Boolean get() = composable
+    val canRemember: Boolean
+        get() = composable
 
     init {
-        declaration.valueParameters.forEach {
-            declareLocal(it)
-        }
+        declaration.valueParameters.forEach { declareLocal(it) }
         declaration.dispatchReceiverParameter?.let { declareLocal(it) }
         declaration.extensionReceiverParameter?.let { declareLocal(it) }
     }
@@ -262,12 +291,16 @@ private class FunctionContext(
 
 private class ClassContext(override val declaration: IrClass) : DeclarationContext() {
     override val composable: Boolean = false
-    override val symbol get() = declaration.symbol
+    override val symbol
+        get() = declaration.symbol
+
     override val functionContext: FunctionContext? = null
     override val captures: MutableSet<IrValueDeclaration> = mutableSetOf()
     val thisParam: IrValueDeclaration? = declaration.thisReceiver!!
     var collectors = mutableListOf<CaptureCollector>()
+
     override fun declareLocal(local: IrValueDeclaration?) {}
+
     override fun recordCapture(local: IrValueDeclaration?): Boolean {
         val isThis = local == thisParam
         val isConstructorParam = (local?.parent as? IrConstructor)?.parent === declaration
@@ -284,6 +317,7 @@ private class ClassContext(override val declaration: IrClass) : DeclarationConte
     }
 
     override fun recordCapture(local: IrSymbolOwner?) {}
+
     override fun pushCollector(collector: CaptureCollector) {
         collectors.add(collector)
     }
@@ -300,15 +334,14 @@ class ComposerLambdaMemoization(
     metrics: ModuleMetrics,
     stabilityInferencer: StabilityInferencer,
     featureFlags: FeatureFlags,
-) : AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
-
+) :
+    AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
     ModuleLoweringPass {
 
     private val declarationContextStack = mutableListOf<DeclarationContext>()
 
     private val currentFunctionContext: FunctionContext?
-        get() =
-            declarationContextStack.peek()?.functionContext
+        get() = declarationContextStack.peek()?.functionContext
 
     private var composableSingletonsClass: IrClass? = null
     private var currentFile: IrFile? = null
@@ -354,41 +387,41 @@ class ComposerLambdaMemoization(
         val declaration = currentFile!!
         val filePath = declaration.fileEntry.name
         val fileName = filePath.split('/').last()
-        val current = context.irFactory.buildClass {
-            startOffset = SYNTHETIC_OFFSET
-            endOffset = SYNTHETIC_OFFSET
-            kind = ClassKind.OBJECT
-            visibility = DescriptorVisibilities.INTERNAL
-            val shortName = PackagePartClassUtils.getFilePartShortName(fileName)
-            // the name of the LiveLiterals class is per-file, so we use the same name that
-            // the kotlin file class lowering produces, prefixed with `LiveLiterals$`.
-            name = Name.identifier("ComposableSingletons${"$"}$shortName")
-        }.also {
-            it.createParameterDeclarations()
-
-            // store the full file path to the file that this class is associated with in an
-            // annotation on the class. This will be used by tooling to associate the keys
-            // inside of this class with actual PSI in the editor.
-            it.addConstructor {
-                isPrimary = true
-            }.also { constructor ->
-                constructor.body = DeclarationIrBuilder(context, it.symbol).irBlockBody {
-                    +irDelegatingConstructorCall(
-                        context
-                            .irBuiltIns
-                            .anyClass
-                            .owner
-                            .primaryConstructor!!
-                    )
-                    +IrInstanceInitializerCallImpl(
-                        startOffset = this.startOffset,
-                        endOffset = this.endOffset,
-                        classSymbol = it.symbol,
-                        type = it.defaultType
-                    )
+        val current =
+            context.irFactory
+                .buildClass {
+                    startOffset = SYNTHETIC_OFFSET
+                    endOffset = SYNTHETIC_OFFSET
+                    kind = ClassKind.OBJECT
+                    visibility = DescriptorVisibilities.INTERNAL
+                    val shortName = PackagePartClassUtils.getFilePartShortName(fileName)
+                    // the name of the LiveLiterals class is per-file, so we use the same name that
+                    // the kotlin file class lowering produces, prefixed with `LiveLiterals$`.
+                    name = Name.identifier("ComposableSingletons${"$"}$shortName")
                 }
-            }
-        }.markAsComposableSingletonClass()
+                .also {
+                    it.createParameterDeclarations()
+
+                    // store the full file path to the file that this class is associated with in an
+                    // annotation on the class. This will be used by tooling to associate the keys
+                    // inside of this class with actual PSI in the editor.
+                    it.addConstructor { isPrimary = true }
+                        .also { constructor ->
+                            constructor.body =
+                                DeclarationIrBuilder(context, it.symbol).irBlockBody {
+                                    +irDelegatingConstructorCall(
+                                        context.irBuiltIns.anyClass.owner.primaryConstructor!!
+                                    )
+                                    +IrInstanceInitializerCallImpl(
+                                        startOffset = this.startOffset,
+                                        endOffset = this.endOffset,
+                                        classSymbol = it.symbol,
+                                        type = it.defaultType
+                                    )
+                                }
+                        }
+                }
+                .markAsComposableSingletonClass()
         composableSingletonsClass = current
         return current
     }
@@ -421,8 +454,7 @@ class ComposerLambdaMemoization(
     }
 
     override fun visitDeclaration(declaration: IrDeclarationBase): IrStatement {
-        if (declaration is IrFunction)
-            return super.visitDeclaration(declaration)
+        if (declaration is IrFunction) return super.visitDeclaration(declaration)
 
         val functionContext = currentFunctionContext
         if (functionContext != null) {
@@ -450,9 +482,10 @@ class ComposerLambdaMemoization(
     }
 
     private val IrFunction.allowsComposableCalls: Boolean
-        get() = hasComposableAnnotation() ||
-            inlineLambdaInfo.preservesComposableScope(this) &&
-            declarationContextStack.peek()?.composable == true
+        get() =
+            hasComposableAnnotation() ||
+                inlineLambdaInfo.preservesComposableScope(this) &&
+                    declarationContextStack.peek()?.composable == true
 
     override fun visitFunction(declaration: IrFunction): IrStatement {
         val composable = declaration.allowsComposableCalls
@@ -539,11 +572,12 @@ class ComposerLambdaMemoization(
     ): IrExpression {
         // Get the local captures for local function ref, to make sure we invalidate memoized
         // reference if its capture is different.
-        val localCaptures = if (reference.symbol.owner.visibility == DescriptorVisibilities.LOCAL) {
-            declarationContextStack.recordLocalCapture(reference.symbol.owner)
-        } else {
-            null
-        }
+        val localCaptures =
+            if (reference.symbol.owner.visibility == DescriptorVisibilities.LOCAL) {
+                declarationContextStack.recordLocalCapture(reference.symbol.owner)
+            } else {
+                null
+            }
         val functionContext = currentFunctionContext ?: return expression
 
         // The syntax <expr>::<method>(<params>) and ::<function>(<params>) is reserved for
@@ -571,8 +605,7 @@ class ComposerLambdaMemoization(
 
             val hasReceiver = dispatchReceiver != null || extensionReceiver != null
             val receiverIsStable =
-                dispatchReceiver.isNullOrStable() &&
-                    extensionReceiver.isNullOrStable()
+                dispatchReceiver.isNullOrStable() && extensionReceiver.isNullOrStable()
 
             val captures = mutableListOf<IrValueDeclaration>()
             if (localCaptures != null) {
@@ -582,35 +615,32 @@ class ComposerLambdaMemoization(
             if (hasReceiver && (FeatureFlag.StrongSkipping.enabled || receiverIsStable)) {
                 // Save the receivers into a temporaries and memoize the function reference using
                 // the resulting temporaries
-                val builder = DeclarationIrBuilder(
-                    generatorContext = context,
-                    symbol = functionContext.symbol,
-                    startOffset = expression.startOffset,
-                    endOffset = expression.endOffset
-                )
-                return builder.irBlock(
-                    resultType = expression.type
-                ) {
-                    val tempDispatchReceiver = dispatchReceiver?.let {
-                        val tmp = irTemporary(it)
-                        captures.add(tmp)
-                        tmp
-                    }
-                    val tempExtensionReceiver = extensionReceiver?.let {
-                        val tmp = irTemporary(it)
-                        captures.add(tmp)
-                        tmp
-                    }
+                val builder =
+                    DeclarationIrBuilder(
+                        generatorContext = context,
+                        symbol = functionContext.symbol,
+                        startOffset = expression.startOffset,
+                        endOffset = expression.endOffset
+                    )
+                return builder.irBlock(resultType = expression.type) {
+                    val tempDispatchReceiver =
+                        dispatchReceiver?.let {
+                            val tmp = irTemporary(it)
+                            captures.add(tmp)
+                            tmp
+                        }
+                    val tempExtensionReceiver =
+                        extensionReceiver?.let {
+                            val tmp = irTemporary(it)
+                            captures.add(tmp)
+                            tmp
+                        }
 
                     // Patch reference receiver in place
                     reference.dispatchReceiver = tempDispatchReceiver?.let { irGet(it) }
                     reference.extensionReceiver = tempExtensionReceiver?.let { irGet(it) }
 
-                    +rememberExpression(
-                        functionContext,
-                        expression,
-                        captures
-                    )
+                    +rememberExpression(functionContext, expression, captures)
                 }
             } else if (dispatchReceiver == null && extensionReceiver == null) {
                 return rememberExpression(functionContext, expression, captures)
@@ -625,7 +655,7 @@ class ComposerLambdaMemoization(
         // We only need to make sure that remember is handled correctly around type operator
         if (
             expression.operator != IrTypeOperator.SAM_CONVERSION ||
-            currentFunctionContext?.canRemember != true
+                currentFunctionContext?.canRemember != true
         ) {
             return super.visitTypeOperator(expression)
         }
@@ -645,27 +675,27 @@ class ComposerLambdaMemoization(
         val newFunctionExpression = result as? IrFunctionExpression ?: return result
 
         // Construct new type operator call to wrap remember around.
-        val newArgument = when (val argument = expression.argument) {
-            is IrFunctionExpression -> newFunctionExpression
-            is IrTypeOperatorCall -> {
-                require(
-                    argument.operator == IrTypeOperator.IMPLICIT_CAST &&
-                        argument.argument == originalFunctionExpression
-                ) {
-                    "Only implicit cast is supported inside SAM conversion"
+        val newArgument =
+            when (val argument = expression.argument) {
+                is IrFunctionExpression -> newFunctionExpression
+                is IrTypeOperatorCall -> {
+                    require(
+                        argument.operator == IrTypeOperator.IMPLICIT_CAST &&
+                            argument.argument == originalFunctionExpression
+                    ) {
+                        "Only implicit cast is supported inside SAM conversion"
+                    }
+                    IrTypeOperatorCallImpl(
+                        argument.startOffset,
+                        argument.endOffset,
+                        argument.type,
+                        argument.operator,
+                        argument.typeOperand,
+                        newFunctionExpression
+                    )
                 }
-                IrTypeOperatorCallImpl(
-                    argument.startOffset,
-                    argument.endOffset,
-                    argument.type,
-                    argument.operator,
-                    argument.typeOperand,
-                    newFunctionExpression
-                )
+                else -> error("Unknown ")
             }
-
-            else -> error("Unknown ")
-        }
 
         val expressionToRemember =
             IrTypeOperatorCallImpl(
@@ -686,14 +716,14 @@ class ComposerLambdaMemoization(
     private fun visitNonComposableFunctionExpression(
         expression: IrFunctionExpression,
     ): IrExpression {
-        val functionContext = currentFunctionContext
-            ?: return super.visitFunctionExpression(expression)
+        val functionContext =
+            currentFunctionContext ?: return super.visitFunctionExpression(expression)
 
         if (
-        // Only memoize non-composable lambdas in a context we can use remember
+            // Only memoize non-composable lambdas in a context we can use remember
             !functionContext.canRemember ||
-            // Don't memoize inlined lambdas
-            inlineLambdaInfo.isInlineLambda(expression.function)
+                // Don't memoize inlined lambdas
+                inlineLambdaInfo.isInlineLambda(expression.function)
         ) {
             return super.visitFunctionExpression(expression)
         }
@@ -708,11 +738,7 @@ class ComposerLambdaMemoization(
         // If the ancestor converted this then return
         val functionExpression = result as? IrFunctionExpression ?: return result
 
-        return rememberExpression(
-            functionContext,
-            functionExpression,
-            collector.captures.toList()
-        )
+        return rememberExpression(functionContext, functionExpression, collector.captures.toList())
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
@@ -761,11 +787,7 @@ class ComposerLambdaMemoization(
 
         val wrapped = wrapFunctionExpression(declarationContext, functionExpression, collector)
 
-        metrics.recordLambda(
-            composable = true,
-            memoized = true,
-            singleton = !collector.hasCaptures
-        )
+        metrics.recordLambda(composable = true, memoized = true, singleton = !collector.hasCaptures)
 
         if (!collector.hasCaptures) {
             if (!context.platform.isJvm() && hasTypeParameter(expression.type)) {
@@ -796,54 +818,64 @@ class ComposerLambdaMemoization(
     ): IrExpression {
         val clazz = getOrCreateComposableSingletonsClass()
         val lambdaName = "lambda-${clazz.declarations.size}"
-        val lambdaProp = clazz.addProperty {
-            name = Name.identifier(lambdaName)
-            visibility = DescriptorVisibilities.INTERNAL
-        }.also { p ->
-            p.backingField = context.irFactory.buildField {
-                startOffset = SYNTHETIC_OFFSET
-                endOffset = SYNTHETIC_OFFSET
-                name = Name.identifier(lambdaName)
-                type = lambdaType
-                visibility = DescriptorVisibilities.INTERNAL
-                isStatic = context.platform.isJvm()
-            }.also { f ->
-                f.correspondingPropertySymbol = p.symbol
-                f.parent = clazz
-                f.initializer = DeclarationIrBuilder(context, clazz.symbol)
-                    .irExprBody(lambdaExpression.markIsTransformedLambda())
-            }
-            p.addGetter {
-                returnType = lambdaType
-                visibility = DescriptorVisibilities.INTERNAL
-                origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
-            }.also { fn ->
-                val thisParam = clazz.thisReceiver!!.copyTo(fn)
-                fn.parent = clazz
-                fn.dispatchReceiverParameter = thisParam
-                fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
-                    +irReturn(irGetField(irGet(thisParam), p.backingField!!))
+        val lambdaProp =
+            clazz
+                .addProperty {
+                    name = Name.identifier(lambdaName)
+                    visibility = DescriptorVisibilities.INTERNAL
                 }
-            }
-        }
+                .also { p ->
+                    p.backingField =
+                        context.irFactory
+                            .buildField {
+                                startOffset = SYNTHETIC_OFFSET
+                                endOffset = SYNTHETIC_OFFSET
+                                name = Name.identifier(lambdaName)
+                                type = lambdaType
+                                visibility = DescriptorVisibilities.INTERNAL
+                                isStatic = context.platform.isJvm()
+                            }
+                            .also { f ->
+                                f.correspondingPropertySymbol = p.symbol
+                                f.parent = clazz
+                                f.initializer =
+                                    DeclarationIrBuilder(context, clazz.symbol)
+                                        .irExprBody(lambdaExpression.markIsTransformedLambda())
+                            }
+                    p.addGetter {
+                            returnType = lambdaType
+                            visibility = DescriptorVisibilities.INTERNAL
+                            origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
+                        }
+                        .also { fn ->
+                            val thisParam = clazz.thisReceiver!!.copyTo(fn)
+                            fn.parent = clazz
+                            fn.dispatchReceiverParameter = thisParam
+                            fn.body =
+                                DeclarationIrBuilder(context, fn.symbol).irBlockBody {
+                                    +irReturn(irGetField(irGet(thisParam), p.backingField!!))
+                                }
+                        }
+                }
         return irCall(
-            lambdaProp.getter!!.symbol,
-            dispatchReceiver = IrGetObjectValueImpl(
-                startOffset = UNDEFINED_OFFSET,
-                endOffset = UNDEFINED_OFFSET,
-                type = clazz.defaultType,
-                symbol = clazz.symbol
+                lambdaProp.getter!!.symbol,
+                dispatchReceiver =
+                    IrGetObjectValueImpl(
+                        startOffset = UNDEFINED_OFFSET,
+                        endOffset = UNDEFINED_OFFSET,
+                        type = clazz.defaultType,
+                        symbol = clazz.symbol
+                    )
             )
-        ).markAsComposableSingleton()
+            .markAsComposableSingleton()
     }
 
     override fun visitFunctionExpression(expression: IrFunctionExpression): IrExpression {
-        val declarationContext = declarationContextStack.peek()
-            ?: return super.visitFunctionExpression(expression)
+        val declarationContext =
+            declarationContextStack.peek() ?: return super.visitFunctionExpression(expression)
         return if (expression.function.allowsComposableCalls)
             visitComposableFunctionExpression(expression, declarationContext)
-        else
-            visitNonComposableFunctionExpression(expression)
+        else visitNonComposableFunctionExpression(expression)
     }
 
     private fun startCollector(collector: CaptureCollector) {
@@ -877,66 +909,62 @@ class ComposerLambdaMemoization(
         val useComposableLambdaN = argumentCount > MAX_RESTART_ARGUMENT_COUNT
         val useComposableFactory = collector.hasCaptures && declarationContext.composable
         val rememberComposable = rememberComposableLambdaFunction ?: composableLambdaFunction
-        val requiresExplicitComposerParameter = useComposableFactory &&
-            rememberComposableLambdaFunction == null
+        val requiresExplicitComposerParameter =
+            useComposableFactory && rememberComposableLambdaFunction == null
         val restartFactorySymbol =
             if (useComposableFactory)
                 if (useComposableLambdaN)
                     rememberComposableLambdaNFunction ?: composableLambdaNFunction
                 else rememberComposable
-            else if (useComposableLambdaN)
-                composableLambdaInstanceNFunction
+            else if (useComposableLambdaN) composableLambdaInstanceNFunction
             else composableLambdaInstanceFunction
-        val irBuilder = DeclarationIrBuilder(
-            context,
-            symbol = declarationContext.symbol,
-            startOffset = expression.startOffset,
-            endOffset = expression.endOffset
-        )
+        val irBuilder =
+            DeclarationIrBuilder(
+                context,
+                symbol = declarationContext.symbol,
+                startOffset = expression.startOffset,
+                endOffset = expression.endOffset
+            )
 
         // FIXME: We should remove this call once we are sure that there is nothing relying on it.
         //        `IrPluginContextImpl` is K1 specific and `getDeclaration` doesn't do anything on
         //        the JVM backend where we produce lazy declarations for unbound symbols.
         (context as? IrPluginContextImpl)?.linker?.getDeclaration(restartFactorySymbol)
-        val composableLambdaExpression = irBuilder.irCall(restartFactorySymbol).apply {
-            var index = 0
+        val composableLambdaExpression =
+            irBuilder.irCall(restartFactorySymbol).apply {
+                var index = 0
 
-            // first parameter is the composer parameter if we are using the composable factory
-            if (requiresExplicitComposerParameter) {
-                putValueArgument(
-                    index++,
-                    irCurrentComposer()
-                )
-            }
+                // first parameter is the composer parameter if we are using the composable factory
+                if (requiresExplicitComposerParameter) {
+                    putValueArgument(index++, irCurrentComposer())
+                }
 
-            // key parameter
-            putValueArgument(
-                index++,
-                irBuilder.irInt(expression.function.sourceKey())
-            )
+                // key parameter
+                putValueArgument(index++, irBuilder.irInt(expression.function.sourceKey()))
 
-            // tracked parameter
-            // If the lambda has no captures, then kotlin will turn it into a singleton instance,
-            // which means that it will never change, thus does not need to be tracked.
-            val shouldBeTracked = collector.captures.isNotEmpty()
-            putValueArgument(index++, irBuilder.irBoolean(shouldBeTracked))
+                // tracked parameter
+                // If the lambda has no captures, then kotlin will turn it into a singleton
+                // instance,
+                // which means that it will never change, thus does not need to be tracked.
+                val shouldBeTracked = collector.captures.isNotEmpty()
+                putValueArgument(index++, irBuilder.irBoolean(shouldBeTracked))
 
-            // ComposableLambdaN requires the arity
-            if (useComposableLambdaN) {
-                // arity parameter
-                putValueArgument(index++, irBuilder.irInt(argumentCount))
-            }
-            if (index >= valueArgumentsCount) {
-                error(
-                    "function = ${
+                // ComposableLambdaN requires the arity
+                if (useComposableLambdaN) {
+                    // arity parameter
+                    putValueArgument(index++, irBuilder.irInt(argumentCount))
+                }
+                if (index >= valueArgumentsCount) {
+                    error(
+                        "function = ${
                         function.name.asString()
                     }, count = $valueArgumentsCount, index = $index"
-                )
-            }
+                    )
+                }
 
-            // block parameter
-            putValueArgument(index, expression.markIsTransformedLambda())
-        }
+                // block parameter
+                putValueArgument(index, expression.markIsTransformedLambda())
+            }
 
         return composableLambdaExpression.markHasTransformedLambda()
     }
@@ -949,21 +977,16 @@ class ComposerLambdaMemoization(
         val memoizeLambdasWithoutCaptures =
             // Kotlin/JS doesn't have an optimization for non-capturing lambdas
             // https://youtrack.jetbrains.com/issue/KT-49923
-            context.platform.isJs() || context.platform.isWasm() ||
+            context.platform.isJs() ||
+                context.platform.isWasm() ||
                 (
-                    // K2 uses invokedynamic for lambdas, which doesn't perform lambda optimization
-                    // on Android.
-                    context.platform.isJvm() &&
-                        context.languageVersionSettings.languageVersion.usesK2
-                )
+                // K2 uses invokedynamic for lambdas, which doesn't perform lambda optimization
+                // on Android.
+                context.platform.isJvm() && context.languageVersionSettings.languageVersion.usesK2)
 
         // If the function doesn't capture, Kotlin's default optimization is sufficient
         if (!memoizeLambdasWithoutCaptures && captures.isEmpty()) {
-            metrics.recordLambda(
-                composable = false,
-                memoized = true,
-                singleton = true
-            )
+            metrics.recordLambda(composable = false, memoized = true, singleton = true)
             return expression.markAsStatic(true)
         }
 
@@ -972,64 +995,58 @@ class ComposerLambdaMemoization(
         // or inlined lambdas.
         if (
             functionContext.declaration.hasAnnotation(ComposeFqNames.DontMemoize) ||
-            expression.hasDontMemoizeAnnotation ||
-            captures.any {
-                it.isVar() ||
-                    (!it.isStable() && !FeatureFlag.StrongSkipping.enabled) ||
-                    it.isInlinedLambda()
-            }
+                expression.hasDontMemoizeAnnotation ||
+                captures.any {
+                    it.isVar() ||
+                        (!it.isStable() && !FeatureFlag.StrongSkipping.enabled) ||
+                        it.isInlinedLambda()
+                }
         ) {
-            metrics.recordLambda(
-                composable = false,
-                memoized = false,
-                singleton = false
-            )
+            metrics.recordLambda(composable = false, memoized = false, singleton = false)
             return expression
         }
 
         val captureExpressions = captures.map { irGet(it) }
-        metrics.recordLambda(
-            composable = false,
-            memoized = true,
-            singleton = false
-        )
+        metrics.recordLambda(composable = false, memoized = true, singleton = false)
 
         return if (!FeatureFlag.IntrinsicRemember.enabled) {
-            // generate cache directly only if strong skipping is enabled without intrinsic remember
-            // otherwise, generated memoization won't benefit from capturing changed values
-            irCache(captureExpressions, expression)
-        } else {
-            irRemember(captureExpressions, expression)
-        }.patchDeclarationParents(functionContext.declaration)
+                // generate cache directly only if strong skipping is enabled without intrinsic
+                // remember
+                // otherwise, generated memoization won't benefit from capturing changed values
+                irCache(captureExpressions, expression)
+            } else {
+                irRemember(captureExpressions, expression)
+            }
+            .patchDeclarationParents(functionContext.declaration)
     }
 
     private fun irCache(
         captures: List<IrExpression>,
         expression: IrExpression,
     ): IrExpression {
-        val invalidExpr = captures
-            .map(::irChanged)
-            .reduceOrNull { acc, changed -> irBooleanOr(acc, changed) }
-            ?: irConst(false)
+        val invalidExpr =
+            captures.map(::irChanged).reduceOrNull { acc, changed -> irBooleanOr(acc, changed) }
+                ?: irConst(false)
 
-        val calculation = irLambdaExpression(
-            startOffset = UNDEFINED_OFFSET,
-            endOffset = UNDEFINED_OFFSET,
-            returnType = expression.type
-        ) { fn ->
-            fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
-                +irReturn(expression)
+        val calculation =
+            irLambdaExpression(
+                startOffset = UNDEFINED_OFFSET,
+                endOffset = UNDEFINED_OFFSET,
+                returnType = expression.type
+            ) { fn ->
+                fn.body =
+                    DeclarationIrBuilder(context, fn.symbol).irBlockBody { +irReturn(expression) }
             }
-        }
 
-        val cache = irCache(
-            irCurrentComposer(),
-            expression.startOffset,
-            expression.endOffset,
-            expression.type,
-            invalidExpr,
-            calculation
-        )
+        val cache =
+            irCache(
+                irCurrentComposer(),
+                expression.startOffset,
+                expression.endOffset,
+                expression.type,
+                invalidExpr,
+                calculation
+            )
 
         return if (useNonSkippingGroupOptimization) {
             cache
@@ -1042,18 +1059,12 @@ class ComposerLambdaMemoization(
             cacheTmpVar.wrap(
                 type = expression.type,
                 before = listOf(irStartReplaceGroup(irCurrentComposer(), irConst(key))),
-                after = listOf(
-                    irEndReplaceGroup(irCurrentComposer()),
-                    irGet(cacheTmpVar)
-                )
+                after = listOf(irEndReplaceGroup(irCurrentComposer()), irGet(cacheTmpVar))
             )
         }
     }
 
-    private fun irRemember(
-        captures: List<IrExpression>,
-        expression: IrExpression
-    ): IrExpression {
+    private fun irRemember(captures: List<IrExpression>, expression: IrExpression): IrExpression {
         val directRememberFunction = // Exclude the varargs version
             rememberFunctions.singleOrNull {
                 // captures + calculation arg
@@ -1061,75 +1072,82 @@ class ComposerLambdaMemoization(
                     // Exclude the varargs version
                     it.valueParameters.firstOrNull()?.varargElementType == null
             }
-        val rememberFunction = directRememberFunction
-            ?: rememberFunctions.single {
-                // Use the varargs version
-                it.valueParameters.firstOrNull()?.varargElementType != null
-            }
+        val rememberFunction =
+            directRememberFunction
+                ?: rememberFunctions.single {
+                    // Use the varargs version
+                    it.valueParameters.firstOrNull()?.varargElementType != null
+                }
 
         val rememberFunctionSymbol = referenceSimpleFunction(rememberFunction.symbol)
-        val irBuilder = DeclarationIrBuilder(
-            generatorContext = context,
-            symbol = currentFunctionContext!!.symbol,
-            startOffset = expression.startOffset,
-            endOffset = expression.endOffset
-        )
-
-        return irBuilder.irCall(
-            callee = rememberFunctionSymbol,
-            type = expression.type,
-            origin = ComposeMemoizedLambdaOrigin
-        ).apply {
-            // The result type type parameter is first, followed by the argument types
-            putTypeArgument(0, expression.type)
-            val lambdaArgumentIndex = if (directRememberFunction != null) {
-                // condition arguments are the first `arg.size` arguments
-                for (i in captures.indices) {
-                    putValueArgument(i, captures[i])
-                }
-                // The lambda is the last parameter
-                captures.size
-            } else {
-                val parameterType = rememberFunction.valueParameters[0].type
-                // Call to the vararg version
-                putValueArgument(
-                    0,
-                    IrVarargImpl(
-                        startOffset = UNDEFINED_OFFSET,
-                        endOffset = UNDEFINED_OFFSET,
-                        type = parameterType,
-                        varargElementType = context.irBuiltIns.anyType,
-                        elements = captures
-                    )
-                )
-                1
-            }
-
-            putValueArgument(
-                index = lambdaArgumentIndex,
-                valueArgument = irLambdaExpression(
-                    startOffset = expression.startOffset,
-                    endOffset = expression.endOffset,
-                    returnType = expression.type
-                ) { fn ->
-                    fn.body = DeclarationIrBuilder(context, fn.symbol).irBlockBody {
-                        +irReturn(expression)
-                    }
-                }
+        val irBuilder =
+            DeclarationIrBuilder(
+                generatorContext = context,
+                symbol = currentFunctionContext!!.symbol,
+                startOffset = expression.startOffset,
+                endOffset = expression.endOffset
             )
-        }
+
+        return irBuilder
+            .irCall(
+                callee = rememberFunctionSymbol,
+                type = expression.type,
+                origin = ComposeMemoizedLambdaOrigin
+            )
+            .apply {
+                // The result type type parameter is first, followed by the argument types
+                putTypeArgument(0, expression.type)
+                val lambdaArgumentIndex =
+                    if (directRememberFunction != null) {
+                        // condition arguments are the first `arg.size` arguments
+                        for (i in captures.indices) {
+                            putValueArgument(i, captures[i])
+                        }
+                        // The lambda is the last parameter
+                        captures.size
+                    } else {
+                        val parameterType = rememberFunction.valueParameters[0].type
+                        // Call to the vararg version
+                        putValueArgument(
+                            0,
+                            IrVarargImpl(
+                                startOffset = UNDEFINED_OFFSET,
+                                endOffset = UNDEFINED_OFFSET,
+                                type = parameterType,
+                                varargElementType = context.irBuiltIns.anyType,
+                                elements = captures
+                            )
+                        )
+                        1
+                    }
+
+                putValueArgument(
+                    index = lambdaArgumentIndex,
+                    valueArgument =
+                        irLambdaExpression(
+                            startOffset = expression.startOffset,
+                            endOffset = expression.endOffset,
+                            returnType = expression.type
+                        ) { fn ->
+                            fn.body =
+                                DeclarationIrBuilder(context, fn.symbol).irBlockBody {
+                                    +irReturn(expression)
+                                }
+                        }
+                )
+            }
     }
 
-    private fun irChanged(value: IrExpression): IrExpression = irChanged(
-        irCurrentComposer(),
-        value,
-        inferredStable = false,
-        compareInstanceForFunctionTypes = false,
-        compareInstanceForUnstableValues = FeatureFlag.StrongSkipping.enabled
-    )
+    private fun irChanged(value: IrExpression): IrExpression =
+        irChanged(
+            irCurrentComposer(),
+            value,
+            inferredStable = false,
+            compareInstanceForFunctionTypes = false,
+            compareInstanceForUnstableValues = FeatureFlag.StrongSkipping.enabled
+        )
 
-    private fun IrValueDeclaration.isVar(): Boolean =
-        (this as? IrVariable)?.isVar == true
+    private fun IrValueDeclaration.isVar(): Boolean = (this as? IrVariable)?.isVar == true
 
     private fun IrValueDeclaration.isStable(): Boolean =
         stabilityInferencer.stabilityOf(type).knownStable()
@@ -1149,11 +1167,7 @@ class ComposerLambdaMemoization(
         if (mark) {
             // Mark it so the ComposableCallTransformer will insert the correct code around this
             // call
-            context.irTrace.record(
-                ComposeWritableSlices.IS_STATIC_FUNCTION_EXPRESSION,
-                this,
-                true
-            )
+            context.irTrace.record(ComposeWritableSlices.IS_STATIC_FUNCTION_EXPRESSION, this, true)
         }
         return this
     }
@@ -1161,51 +1175,35 @@ class ComposerLambdaMemoization(
     private fun <T : IrAttributeContainer> T.markAsComposableSingleton(): T {
         // Mark it so the ComposableCallTransformer can insert the correct source information
         // around this call
-        context.irTrace.record(
-            ComposeWritableSlices.IS_COMPOSABLE_SINGLETON,
-            this,
-            true
-        )
+        context.irTrace.record(ComposeWritableSlices.IS_COMPOSABLE_SINGLETON, this, true)
         return this
     }
 
     private fun <T : IrAttributeContainer> T.markAsComposableSingletonClass(): T {
         // Mark it so the ComposableCallTransformer can insert the correct source information
         // around this call
-        context.irTrace.record(
-            ComposeWritableSlices.IS_COMPOSABLE_SINGLETON_CLASS,
-            this,
-            true
-        )
+        context.irTrace.record(ComposeWritableSlices.IS_COMPOSABLE_SINGLETON_CLASS, this, true)
         return this
     }
 
     private fun <T : IrAttributeContainer> T.markHasTransformedLambda(): T {
         // Mark so that the target annotation transformer can find the original lambda
-        context.irTrace.record(
-            ComposeWritableSlices.HAS_TRANSFORMED_LAMBDA,
-            this,
-            true
-        )
+        context.irTrace.record(ComposeWritableSlices.HAS_TRANSFORMED_LAMBDA, this, true)
         return this
     }
 
     private fun <T : IrAttributeContainer> T.markIsTransformedLambda(): T {
-        context.irTrace.record(
-            ComposeWritableSlices.IS_TRANSFORMED_LAMBDA,
-            this,
-            true
-        )
+        context.irTrace.record(ComposeWritableSlices.IS_TRANSFORMED_LAMBDA, this, true)
         return this
     }
 
     private val IrExpression.hasDontMemoizeAnnotation: Boolean
-        get() = (this as? IrFunctionExpression)?.function?.hasAnnotation(ComposeFqNames.DontMemoize)
-            ?: false
+        get() =
+            (this as? IrFunctionExpression)?.function?.hasAnnotation(ComposeFqNames.DontMemoize)
+                ?: false
 
     private fun IrExpression?.isNullOrStable() =
-        this == null ||
-            stabilityInferencer.stabilityOf(this).knownStable()
+        this == null || stabilityInferencer.stabilityOf(this).knownStable()
 }
 
 // This must match the highest value of FunctionXX which is current Function22

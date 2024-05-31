@@ -56,8 +56,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class ImageVectorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testProgrammaticAndXmlImageVectorsAreTheSame() {
@@ -81,23 +80,21 @@ class ImageVectorTest {
 
         rule.waitForIdle()
 
-        val programmaticBitmap = rule.onNodeWithTag(programmaticTestCase.testTag).captureToImage()
-            .asAndroidBitmap()
+        val programmaticBitmap =
+            rule.onNodeWithTag(programmaticTestCase.testTag).captureToImage().asAndroidBitmap()
 
         assertEquals(xmlBitmap.width, programmaticBitmap.width)
         assertEquals(xmlBitmap.height, programmaticBitmap.height)
 
-        val xmlPixelArray = with(xmlBitmap) {
-            IntArray(width * height).apply {
-                getPixels(this, 0, width, 0, 0, width, height)
+        val xmlPixelArray =
+            with(xmlBitmap) {
+                IntArray(width * height).apply { getPixels(this, 0, width, 0, 0, width, height) }
             }
-        }
 
-        val programmaticBitmapArray = with(programmaticBitmap) {
-            IntArray(width * height).apply {
-                getPixels(this, 0, width, 0, 0, width, height)
+        val programmaticBitmapArray =
+            with(programmaticBitmap) {
+                IntArray(width * height).apply { getPixels(this, 0, width, 0, 0, width, height) }
             }
-        }
 
         Assert.assertArrayEquals(xmlPixelArray, programmaticBitmapArray)
     }
@@ -110,9 +107,10 @@ class ImageVectorTest {
                 Box {
                     Image(
                         modifier = Modifier.testTag(testTag),
-                        painter = painterResource(
-                            androidx.compose.ui.graphics.benchmark.R.drawable.ic_auto_mirror
-                        ),
+                        painter =
+                            painterResource(
+                                androidx.compose.ui.graphics.benchmark.R.drawable.ic_auto_mirror
+                            ),
                         contentDescription = null
                     )
                 }
@@ -136,12 +134,11 @@ class ImageVectorTest {
         val testTag = "testTag"
         var insetRectSize: Int = 0
         rule.setContent {
-            with(LocalDensity.current) {
-                insetRectSize = (10f * this.density).roundToInt()
-            }
-            val imageVector = painterResource(
-                androidx.compose.ui.graphics.benchmark.R.drawable.ic_pathfill_sample
-            )
+            with(LocalDensity.current) { insetRectSize = (10f * this.density).roundToInt() }
+            val imageVector =
+                painterResource(
+                    androidx.compose.ui.graphics.benchmark.R.drawable.ic_pathfill_sample
+                )
             Image(imageVector, null, modifier = Modifier.testTag(testTag))
         }
 
@@ -154,27 +151,14 @@ class ImageVectorTest {
             assertEquals(Color.Blue.toArgb(), getPixel(width / 2, height / 2))
 
             assertEquals(Color.Red.toArgb(), getPixel(insetRectSize + 2, insetRectSize + 2))
+            assertEquals(Color.Red.toArgb(), getPixel(width - insetRectSize - 2, insetRectSize + 2))
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(
-                    width - insetRectSize - 2,
-                    insetRectSize + 2
-                )
+                getPixel(insetRectSize + 2, height - insetRectSize - 2)
             )
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(
-                    insetRectSize + 2,
-                    height - insetRectSize - 2
-                )
-            )
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(
-                    width - insetRectSize - 2,
-                    height -
-                        insetRectSize - 2
-                )
+                getPixel(width - insetRectSize - 2, height - insetRectSize - 2)
             )
         }
     }

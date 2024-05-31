@@ -20,8 +20,8 @@ import androidx.compose.compiler.plugins.kotlin.AbstractComposeDiagnosticsTest
 import org.junit.Test
 
 /**
- * We're strongly considering supporting try-catch-finally blocks in the future.
- * If/when we do support them, these tests should be deleted.
+ * We're strongly considering supporting try-catch-finally blocks in the future. If/when we do
+ * support them, these tests should be deleted.
  */
 class TryCatchComposableCheckerTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(useFir) {
     @Test

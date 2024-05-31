@@ -46,9 +46,7 @@ fun FocusInDialogDemo() {
     Column(Modifier.background(if (windowInfo.isWindowFocused) White else LightGray)) {
         Text("Click the button to show the dialog. Click outside the dialog to dismiss it.")
         Spacer(Modifier.requiredHeight(10.dp))
-        Button(onClick = { showDialog = true }) {
-            Text("Show Dialog")
-        }
+        Button(onClick = { showDialog = true }) { Text("Show Dialog") }
 
         Spacer(Modifier.requiredHeight(50.dp))
 

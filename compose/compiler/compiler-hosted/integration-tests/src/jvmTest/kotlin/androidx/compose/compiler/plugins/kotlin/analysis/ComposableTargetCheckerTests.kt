@@ -24,8 +24,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = false) {
     @Test
-    fun testExplicitTargetAnnotations() = check(
-        """
+    fun testExplicitTargetAnnotations() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -44,11 +45,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
           B()
         }
         """
-    )
+        )
 
     @Test
-    fun testInferredTargets() = check(
-        """
+    fun testInferredTargets() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -71,11 +73,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
         @ComposableTarget("N")
         fun N() { }
         """
-    )
+        )
 
     @Test
-    fun testInferBoundContainer() = check(
-        """
+    fun testInferBoundContainer() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -100,11 +103,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
         @ComposableTarget("N")
         fun N() {}
         """
-    )
+        )
 
     @Test
-    fun testInferGenericContainer() = check(
-        """
+    fun testInferGenericContainer() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -163,11 +167,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
         @ComposableTarget("M")
         fun M() {}
         """
-    )
+        )
 
     @Test
-    fun testReportExplicitFailure() = check(
-        """
+    fun testReportExplicitFailure() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -180,11 +185,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
         @ComposableTarget("M")
         fun M() {}
         """
-    )
+        )
 
     @Test
-    fun testReportDisagreementFailure() = check(
-        """
+    fun testReportDisagreementFailure() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -201,11 +207,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
         @ComposableTarget("M")
         fun M() {}
         """
-    )
+        )
 
     @Test
-    fun testGenericDisagreement() = check(
-        """
+    fun testGenericDisagreement() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -229,11 +236,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
             }
         }
         """
-    )
+        )
 
     @Test
-    fun testFunInterfaceInference() = check(
-        """
+    fun testFunInterfaceInference() =
+        check(
+            """
         import androidx.compose.runtime.*
 
         @Composable
@@ -296,11 +304,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
           <!COMPOSE_APPLIER_CALL_MISMATCH!>M<!>()
         }
         """
-    )
+        )
 
     @Test
-    fun testFileScopeTargetDeclaration() = check(
-        """
+    fun testFileScopeTargetDeclaration() =
+        check(
+            """
         @file:ComposableTarget("N")
 
         import androidx.compose.runtime.Composable
@@ -314,11 +323,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
             <!COMPOSE_APPLIER_CALL_MISMATCH!>M<!>()
         }
         """
-    )
+        )
 
     @Test
-    fun testTargetMarker() = check(
-        """
+    fun testTargetMarker() =
+        check(
+            """
         import androidx.compose.runtime.Composable
         import androidx.compose.runtime.ComposableTarget
         import androidx.compose.runtime.ComposableTargetMarker
@@ -342,11 +352,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
             <!COMPOSE_APPLIER_CALL_MISMATCH!>M<!>()
         }
         """
-    )
+        )
 
     @Test
-    fun testFileScopeTargetMarker() = check(
-        """
+    fun testFileScopeTargetMarker() =
+        check(
+            """
         @file: NComposable
 
         import androidx.compose.runtime.Composable
@@ -371,11 +382,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
             <!COMPOSE_APPLIER_CALL_MISMATCH!>M<!>()
         }
         """
-    )
+        )
 
     @Test
-    fun testUiTextAndInvalid() = check(
-        """
+    fun testUiTextAndInvalid() =
+        check(
+            """
         import androidx.compose.runtime.Composable
         import androidx.compose.runtime.ComposableTarget
         import androidx.compose.foundation.text.BasicText
@@ -389,11 +401,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
            <!COMPOSE_APPLIER_CALL_MISMATCH!>Invalid<!>()
         }
         """
-    )
+        )
 
     @Test
-    fun testOpenOverrideAttributesInheritTarget() = check(
-        """
+    fun testOpenOverrideAttributesInheritTarget() =
+        check(
+            """
         import androidx.compose.runtime.Composable
         import androidx.compose.runtime.ComposableTarget
 
@@ -416,11 +429,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
           }
         }
         """
-    )
+        )
 
     @Test
-    fun testOpenOverrideTargetsMustAgree() = check(
-        """
+    fun testOpenOverrideTargetsMustAgree() =
+        check(
+            """
         import androidx.compose.runtime.Composable
         import androidx.compose.runtime.ComposableTarget
 
@@ -441,11 +455,12 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
           }
         }
         """
-    )
+        )
 
     @Test
-    fun testOpenOverrideInferredToAgree() = check(
-        """
+    fun testOpenOverrideInferredToAgree() =
+        check(
+            """
         import androidx.compose.runtime.Composable
         import androidx.compose.runtime.ComposableTarget
 
@@ -461,5 +476,6 @@ class ComposableTargetCheckerTests : AbstractComposeDiagnosticsTest(useFir = fal
             N()
           }
         }
-        """)
+        """
+        )
 }

@@ -28,12 +28,11 @@ import androidx.compose.ui.input.key.key
 // it would end up being a function for any conceptual keyevent (selectall, cut, copy, paste)
 // TODO(b/1564937)
 internal actual fun isCopyKeyEvent(keyEvent: KeyEvent) =
-    keyEvent.key == MappedKeys.C && when (DesktopPlatform.Current) {
-        DesktopPlatform.MacOS -> keyEvent.isMetaPressed
-        else -> keyEvent.isCtrlPressed
-    } || keyEvent.key == MappedKeys.Copy
+    keyEvent.key == MappedKeys.C &&
+        when (DesktopPlatform.Current) {
+            DesktopPlatform.MacOS -> keyEvent.isMetaPressed
+            else -> keyEvent.isCtrlPressed
+        } || keyEvent.key == MappedKeys.Copy
 
-/**
- * Magnification is not supported on desktop.
- */
+/** Magnification is not supported on desktop. */
 internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier = this

@@ -252,11 +252,6 @@ class PopupPositionProviderTest {
         val popupSize = IntSize(40, 20)
 
         return AlignmentOffsetPositionProvider(alignment, offset)
-            .calculatePosition(
-                anchorBounds,
-                windowSize,
-                layoutDir,
-                popupSize
-            )
+            .calculatePosition(anchorBounds, windowSize, layoutDir, popupSize)
     }
 }

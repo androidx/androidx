@@ -41,8 +41,7 @@ class CoreTextFieldSoftWrapTest {
 
     private val fontFamily = TEST_FONT_FAMILY
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun textField_softWrapFalse_returnsSizeForMaxIntrinsicWidth() {
@@ -63,8 +62,8 @@ class CoreTextFieldSoftWrapTest {
                     textStyle = textStyle,
                     softWrap = false,
                     onTextLayout = { textLayout = it },
-                    modifier = Modifier.requiredWidth(composableWidth)
-                        .onGloballyPositioned {
+                    modifier =
+                        Modifier.requiredWidth(composableWidth).onGloballyPositioned {
                             width = it.size.width
                         }
                 )
@@ -100,8 +99,8 @@ class CoreTextFieldSoftWrapTest {
                     textStyle = textStyle,
                     softWrap = true,
                     onTextLayout = { textLayout = it },
-                    modifier = Modifier.requiredWidth(composableWidth)
-                        .onGloballyPositioned {
+                    modifier =
+                        Modifier.requiredWidth(composableWidth).onGloballyPositioned {
                             width = it.size.width
                         }
                 )

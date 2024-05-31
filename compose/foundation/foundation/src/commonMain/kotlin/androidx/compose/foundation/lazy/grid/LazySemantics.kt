@@ -34,16 +34,19 @@ internal fun rememberLazyGridSemanticState(
     remember(state, reverseScrolling) {
         object : LazyLayoutSemanticState {
             override val scrollOffset: Float
-                get() = estimatedLazyScrollOffset(
-                    state.firstVisibleItemIndex,
-                    state.firstVisibleItemScrollOffset
-                )
+                get() =
+                    estimatedLazyScrollOffset(
+                        state.firstVisibleItemIndex,
+                        state.firstVisibleItemScrollOffset
+                    )
+
             override val maxScrollOffset: Float
-                get() = estimatedLazyMaxScrollOffset(
-                    state.firstVisibleItemIndex,
-                    state.firstVisibleItemScrollOffset,
-                    state.canScrollForward
-                )
+                get() =
+                    estimatedLazyMaxScrollOffset(
+                        state.firstVisibleItemIndex,
+                        state.firstVisibleItemScrollOffset,
+                        state.canScrollForward
+                    )
 
             override suspend fun scrollToItem(index: Int) {
                 state.scrollToItem(index)
@@ -54,11 +57,13 @@ internal fun rememberLazyGridSemanticState(
                 CollectionInfo(rowCount = -1, columnCount = -1)
 
             override val viewport: Int
-                get() = if (state.layoutInfo.orientation == Orientation.Vertical) {
-                    state.layoutInfo.viewportSize.height
-                } else {
-                    state.layoutInfo.viewportSize.width
-                }
+                get() =
+                    if (state.layoutInfo.orientation == Orientation.Vertical) {
+                        state.layoutInfo.viewportSize.height
+                    } else {
+                        state.layoutInfo.viewportSize.width
+                    }
+
             override val contentPadding: Int
                 get() = state.layoutInfo.beforeContentPadding + state.layoutInfo.afterContentPadding
         }

@@ -31,12 +31,12 @@ import org.junit.Test
 
 class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     private fun composerParam(
-        @Language("kotlin")
-        source: String,
-        validator: (element: IrElement) -> Unit = { },
+        @Language("kotlin") source: String,
+        validator: (element: IrElement) -> Unit = {},
         dumpTree: Boolean = false
-    ) = verifyGoldenComposeIrTransform(
-        """
+    ) =
+        verifyGoldenComposeIrTransform(
+            """
             @file:OptIn(
               InternalComposeApi::class,
             )
@@ -48,29 +48,32 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
             import androidx.compose.runtime.NonRestartableComposable
 
             $source
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             package test
             fun used(x: Any?) {}
         """,
-        validator,
-        dumpTree
-    )
+            validator,
+            dumpTree
+        )
 
     @Test
-    fun testCallingProperties(): Unit = composerParam(
-        """
+    fun testCallingProperties(): Unit =
+        composerParam(
+            """
             val bar: Int @Composable get() { return 123 }
 
             @NonRestartableComposable @Composable fun Example() {
                 bar
             }
         """
-    )
+        )
 
     @Test
-    fun testAbstractComposable(): Unit = composerParam(
-        """
+    fun testAbstractComposable(): Unit =
+        composerParam(
+            """
             abstract class BaseFoo {
                 @NonRestartableComposable
                 @Composable
@@ -83,11 +86,12 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 override fun bar() {}
             }
         """
-    )
+        )
 
     @Test
-    fun testLocalClassAndObjectLiterals(): Unit = composerParam(
-        """
+    fun testLocalClassAndObjectLiterals(): Unit =
+        composerParam(
+            """
             @NonRestartableComposable
             @Composable
             fun Wat() {}
@@ -106,11 +110,12 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 Bar().baz()
             }
         """
-    )
+        )
 
     @Test
-    fun testVarargWithNoArgs(): Unit = composerParam(
-        """
+    fun testVarargWithNoArgs(): Unit =
+        composerParam(
+            """
             @Composable
             fun VarArgsFirst(vararg foo: Any?) {
                 println(foo)
@@ -121,12 +126,13 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 VarArgsFirst()
             }
             """
-    )
+        )
 
     // Regression test for b/286132194
     @Test
-    fun testStableVarargParams(): Unit = composerParam(
-        """
+    fun testStableVarargParams(): Unit =
+        composerParam(
+            """
             @Composable
             fun B(vararg values: Int) {
                 print(values)
@@ -138,11 +144,12 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 B(0, 1, 2, 3)
             }
         """
-    )
+        )
 
     @Test
-    fun testNonComposableCode(): Unit = composerParam(
-        """
+    fun testNonComposableCode(): Unit =
+        composerParam(
+            """
             fun A() {}
             val b: Int get() = 123
             fun C(x: Int) {
@@ -164,21 +171,23 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testCircularCall(): Unit = composerParam(
-        """
+    fun testCircularCall(): Unit =
+        composerParam(
+            """
             @NonRestartableComposable
             @Composable fun Example() {
                 Example()
             }
         """
-    )
+        )
 
     @Test
-    fun testInlineCall(): Unit = composerParam(
-        """
+    fun testInlineCall(): Unit =
+        composerParam(
+            """
             @Composable inline fun Example(content: @Composable () -> Unit) {
                 content()
             }
@@ -188,20 +197,22 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 Example {}
             }
         """
-    )
+        )
 
     @Test
-    fun testDexNaming(): Unit = composerParam(
-        """
+    fun testDexNaming(): Unit =
+        composerParam(
+            """
             val myProperty: () -> Unit @Composable get() {
                 return {  }
             }
         """
-    )
+        )
 
     @Test
-    fun testInnerClass(): Unit = composerParam(
-        """
+    fun testInnerClass(): Unit =
+        composerParam(
+            """
             interface A {
                 fun b() {}
             }
@@ -214,7 +225,7 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 }
             }
         """
-    )
+        )
 
     @Test
     fun testKeyCall() {
@@ -247,9 +258,10 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 element.accept(
                     object : IrElementVisitorVoid {
                         override fun visitSimpleFunction(declaration: IrSimpleFunction) {
-                            val composer = declaration.valueParameters.firstOrNull {
-                                it.name == ComposeNames.COMPOSER_PARAMETER
-                            }
+                            val composer =
+                                declaration.valueParameters.firstOrNull {
+                                    it.name == ComposeNames.COMPOSER_PARAMETER
+                                }
                             val oldComposer = currentComposer
                             if (composer != null) currentComposer = composer
                             super.visitSimpleFunction(declaration)
@@ -264,8 +276,8 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                             super.visitGetValue(expression)
                             val value = expression.symbol.owner
                             if (
-                                value is IrValueParameter && value.name ==
-                                ComposeNames.COMPOSER_PARAMETER
+                                value is IrValueParameter &&
+                                    value.name == ComposeNames.COMPOSER_PARAMETER
                             ) {
                                 assertEquals(
                                     "Composer unexpectedly captured",
@@ -337,8 +349,9 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
     }
 
     @Test
-    fun testUnstableDelegateCall() = composerParam(
-        """
+    fun testUnstableDelegateCall() =
+        composerParam(
+            """
                 import kotlin.reflect.KProperty
 
                 class Foo {
@@ -354,11 +367,12 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                     println(foo)
                 }
             """
-    )
+        )
 
     @Test
-    fun testStableDelegateCall() = composerParam(
-        """
+    fun testStableDelegateCall() =
+        composerParam(
+            """
             import kotlin.reflect.KProperty
 
             class Foo
@@ -372,11 +386,13 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 used(delegated)
             }
         """
-    )
+        )
 
     @Test
-    fun validateNoComposableFunctionSymbolCalls() = composerParam(
-        source = """
+    fun validateNoComposableFunctionSymbolCalls() =
+        composerParam(
+            source =
+                """
             fun abc0(l: @Composable () -> Unit) {
                 val hc = l.hashCode()
             }
@@ -391,31 +407,36 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
             ) {
                 val hc = l.hashCode()
             }
-        """.trimIndent(),
-        validator = {
-            val expectedArity = listOf(2, 3, 4, 15)
-            var i = 0 // to iterate over `hashCode` calls
-            it.acceptChildrenVoid(object : IrElementVisitorVoid {
-                override fun visitElement(element: IrElement) {
-                    element.acceptChildrenVoid(this)
-                }
+        """
+                    .trimIndent(),
+            validator = {
+                val expectedArity = listOf(2, 3, 4, 15)
+                var i = 0 // to iterate over `hashCode` calls
+                it.acceptChildrenVoid(
+                    object : IrElementVisitorVoid {
+                        override fun visitElement(element: IrElement) {
+                            element.acceptChildrenVoid(this)
+                        }
 
-                override fun visitCall(expression: IrCall) {
-                    if (expression.symbol.owner.name.asString() == "hashCode") {
-                        assertEquals(
-                            "kotlin.Function${expectedArity[i]}.hashCode",
-                            expression.symbol.owner.fqNameForIrSerialization.asString())
-                        i++
+                        override fun visitCall(expression: IrCall) {
+                            if (expression.symbol.owner.name.asString() == "hashCode") {
+                                assertEquals(
+                                    "kotlin.Function${expectedArity[i]}.hashCode",
+                                    expression.symbol.owner.fqNameForIrSerialization.asString()
+                                )
+                                i++
+                            }
+                        }
                     }
-                }
-            })
-        }
-    )
+                )
+            }
+        )
 
     @Test
     fun validateNoComposableFunctionReferencesInOverriddenSymbols() =
         verifyGoldenCrossModuleComposeIrTransform(
-            dependencySource = """
+            dependencySource =
+                """
             package dependency
 
             import androidx.compose.runtime.Composable
@@ -423,8 +444,10 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
             interface Content {
                 fun setContent(c: @Composable () -> Unit)
             }
-        """.trimIndent(),
-            source = """
+        """
+                    .trimIndent(),
+            source =
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -433,35 +456,43 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
             class ContentImpl : Content {
                 override fun setContent(c: @Composable () -> Unit) {}
             }
-        """.trimIndent(),
+        """
+                    .trimIndent(),
             validator = {
-                it.acceptChildrenVoid(object : IrElementVisitorVoid {
-                    override fun visitElement(element: IrElement) {
-                        element.acceptChildrenVoid(this)
-                    }
+                it.acceptChildrenVoid(
+                    object : IrElementVisitorVoid {
+                        override fun visitElement(element: IrElement) {
+                            element.acceptChildrenVoid(this)
+                        }
 
-                    private val targetFqName = "test.ContentImpl.setContent"
+                        private val targetFqName = "test.ContentImpl.setContent"
 
-                    override fun visitSimpleFunction(declaration: IrSimpleFunction) {
-                        if (declaration.fqNameForIrSerialization.asString() == targetFqName) {
-                            assertEquals(1, declaration.overriddenSymbols.size)
-                            val firstParameterOfOverridden =
-                                declaration.overriddenSymbols.first().owner.valueParameters.first()
-                                    .takeIf { it.name.asString() == "c" }!!
-                            assertEquals(
-                                "kotlin.Function2",
-                                firstParameterOfOverridden.type.classFqName?.asString()
-                            )
+                        override fun visitSimpleFunction(declaration: IrSimpleFunction) {
+                            if (declaration.fqNameForIrSerialization.asString() == targetFqName) {
+                                assertEquals(1, declaration.overriddenSymbols.size)
+                                val firstParameterOfOverridden =
+                                    declaration.overriddenSymbols
+                                        .first()
+                                        .owner
+                                        .valueParameters
+                                        .first()
+                                        .takeIf { it.name.asString() == "c" }!!
+                                assertEquals(
+                                    "kotlin.Function2",
+                                    firstParameterOfOverridden.type.classFqName?.asString()
+                                )
+                            }
                         }
                     }
-                })
+                )
             }
         )
 
     @Test
     fun validateNoComposableFunctionReferencesInCalleeOverriddenSymbols() =
         verifyGoldenCrossModuleComposeIrTransform(
-            dependencySource = """
+            dependencySource =
+                """
             package dependency
 
             import androidx.compose.runtime.Composable
@@ -472,8 +503,10 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
             class ContentImpl : Content {
                 override fun setContent(c: @Composable () -> Unit) {}
             }
-        """.trimIndent(),
-            source = """
+        """
+                    .trimIndent(),
+            source =
+                """
             package test
 
             import androidx.compose.runtime.Composable
@@ -485,41 +518,50 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
             fun Foo() {
                 ContentImpl().setContent()
             }
-        """.trimIndent(),
+        """
+                    .trimIndent(),
             validator = {
-                it.acceptChildrenVoid(object : IrElementVisitorVoid {
-                    override fun visitElement(element: IrElement) {
-                        element.acceptChildrenVoid(this)
-                    }
-
-                    private val targetFqName = "dependency.ContentImpl.setContent"
-
-                    override fun visitCall(expression: IrCall) {
-                        val callee = expression.symbol.owner
-                        if (callee.fqNameForIrSerialization.asString() == targetFqName) {
-                            val firstParameterOfOverridden =
-                                callee.overriddenSymbols.first().owner.valueParameters.first()
-                                    .takeIf { it.name.asString() == "c" }!!
-                            assertEquals(
-                                "kotlin.Function2",
-                                firstParameterOfOverridden.type.classFqName?.asString()
-                            )
+                it.acceptChildrenVoid(
+                    object : IrElementVisitorVoid {
+                        override fun visitElement(element: IrElement) {
+                            element.acceptChildrenVoid(this)
                         }
-                        super.visitCall(expression)
+
+                        private val targetFqName = "dependency.ContentImpl.setContent"
+
+                        override fun visitCall(expression: IrCall) {
+                            val callee = expression.symbol.owner
+                            if (callee.fqNameForIrSerialization.asString() == targetFqName) {
+                                val firstParameterOfOverridden =
+                                    callee.overriddenSymbols
+                                        .first()
+                                        .owner
+                                        .valueParameters
+                                        .first()
+                                        .takeIf { it.name.asString() == "c" }!!
+                                assertEquals(
+                                    "kotlin.Function2",
+                                    firstParameterOfOverridden.type.classFqName?.asString()
+                                )
+                            }
+                            super.visitCall(expression)
+                        }
                     }
-                })
+                )
             }
         )
 
     @Test
     fun composableCallInAnonymousObjectInitializer() =
         verifyGoldenComposeIrTransform(
-            extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Foo(): State<Int> = TODO()
             """,
-            source = """
+            source =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Test(inputs: List<Int>) {
@@ -544,7 +586,8 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
     @Test
     fun composableLocalFunctionInsideLocalClass() =
         verifyGoldenComposeIrTransform(
-            extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 abstract class C {
@@ -554,7 +597,8 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
 
                 @Composable fun Button(onClick: () -> Unit, content: @Composable () -> Unit) {}
             """,
-            source = """
+            source =
+                """
                 import androidx.compose.runtime.*
 
                 fun test() {
@@ -576,7 +620,8 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
     @Test
     fun composeValueClassDefaultParameter() =
         verifyGoldenComposeIrTransform(
-            extra = """
+            extra =
+                """
                 @JvmInline
                 value class Data(val string: String)
                 @JvmInline
@@ -584,7 +629,8 @@ class ComposerParamTransformTests(useFir: Boolean) : AbstractIrTransformTest(use
                 @JvmInline
                 value class IntData(val value: Int)
             """,
-            source = """
+            source =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Example(data: Data = Data(""), intData: IntData = IntData(0)) {}

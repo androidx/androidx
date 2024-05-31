@@ -80,15 +80,16 @@ open class BasePagerTest(private val config: ParamConfig) :
     lateinit var pagerState: PagerState
 
     fun TouchInjectionScope.swipeWithVelocityAcrossMainAxis(velocity: Float, delta: Float? = null) {
-        val end = if (delta == null) {
-            layoutEnd
-        } else {
-            if (vertical) {
-                layoutStart.copy(y = layoutStart.y + delta)
+        val end =
+            if (delta == null) {
+                layoutEnd
             } else {
-                layoutStart.copy(x = layoutStart.x + delta)
+                if (vertical) {
+                    layoutStart.copy(y = layoutStart.y + delta)
+                } else {
+                    layoutStart.copy(x = layoutStart.x + delta)
+                }
             }
-        }
         swipeWithVelocity(layoutStart, end, velocity)
     }
 
@@ -96,15 +97,16 @@ open class BasePagerTest(private val config: ParamConfig) :
         velocity: Float,
         delta: Float? = null
     ) {
-        val end = if (delta == null) {
-            layoutEnd
-        } else {
-            if (vertical) {
-                layoutStart.copy(x = layoutStart.x + delta)
+        val end =
+            if (delta == null) {
+                layoutEnd
             } else {
-                layoutStart.copy(y = layoutStart.y + delta)
+                if (vertical) {
+                    layoutStart.copy(x = layoutStart.x + delta)
+                } else {
+                    layoutStart.copy(y = layoutStart.y + delta)
+                }
             }
-        }
         swipeWithVelocity(layoutStart, end, velocity)
     }
 
@@ -138,15 +140,18 @@ open class BasePagerTest(private val config: ParamConfig) :
     ) {
 
         rule.setContent {
-            val state = if (prefetchScheduler == null) {
-                rememberPagerState(initialPage, initialPageOffsetFraction, pageCount)
-            } else {
-                remember {
-                    object : PagerState(initialPage, initialPageOffsetFraction, prefetchScheduler) {
-                        override val pageCount: Int get() = pageCount()
+            val state =
+                if (prefetchScheduler == null) {
+                    rememberPagerState(initialPage, initialPageOffsetFraction, pageCount)
+                } else {
+                    remember {
+                        object :
+                            PagerState(initialPage, initialPageOffsetFraction, prefetchScheduler) {
+                            override val pageCount: Int
+                                get() = pageCount()
+                        }
                     }
                 }
-            }
             pagerState = state
             composeView = LocalView.current
             focusManager = LocalFocusManager.current
@@ -154,24 +159,23 @@ open class BasePagerTest(private val config: ParamConfig) :
                 LocalLayoutDirection provides config.layoutDirection,
                 LocalOverscrollConfiguration provides null
             ) {
-                val resolvedFlingBehavior = flingBehavior ?: PagerDefaults.flingBehavior(
-                    state = state,
-                    pagerSnapDistance = snappingPage,
-                    snapPositionalThreshold = snapPositionalThreshold
-                )
+                val resolvedFlingBehavior =
+                    flingBehavior
+                        ?: PagerDefaults.flingBehavior(
+                            state = state,
+                            pagerSnapDistance = snappingPage,
+                            snapPositionalThreshold = snapPositionalThreshold
+                        )
 
                 scope = rememberCoroutineScope()
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .nestedScroll(nestedScrollConnection)
-                ) {
+                Box(modifier = Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
                     HorizontalOrVerticalPager(
                         state = state,
                         beyondViewportPageCount = beyondViewportPageCount,
-                        modifier = modifier
-                            .testTag(PagerTestTag)
-                            .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                        modifier =
+                            modifier.testTag(PagerTestTag).onSizeChanged {
+                                pagerSize = if (vertical) it.height else it.width
+                            },
                         pageSize = pageSize(),
                         userScrollEnabled = userScrollEnabled,
                         reverseLayout = reverseLayout,
@@ -190,27 +194,29 @@ open class BasePagerTest(private val config: ParamConfig) :
 
     @Composable
     internal fun Page(index: Int, initialFocusedItemIndex: Int = 0) {
-        val focusRequester = FocusRequester().also {
-            if (index == initialFocusedItemIndex) initialFocusedItem = it
-            focusRequesters[index] = it
-        }
-        Box(modifier = Modifier
-            .focusRequester(focusRequester)
-            .onPlaced {
-                placed.add(index)
-                pageSize = if (vertical) it.size.height else it.size.width
+        val focusRequester =
+            FocusRequester().also {
+                if (index == initialFocusedItemIndex) initialFocusedItem = it
+                focusRequesters[index] = it
             }
-            .fillMaxSize()
-            .background(Color.Blue)
-            .testTag("$index")
-            .onFocusChanged {
-                if (it.isFocused) {
-                    focused.add(index)
-                } else {
-                    focused.remove(index)
-                }
-            }
-            .focusable(),
+        Box(
+            modifier =
+                Modifier.focusRequester(focusRequester)
+                    .onPlaced {
+                        placed.add(index)
+                        pageSize = if (vertical) it.size.height else it.size.width
+                    }
+                    .fillMaxSize()
+                    .background(Color.Blue)
+                    .testTag("$index")
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            focused.add(index)
+                        } else {
+                            focused.remove(index)
+                        }
+                    }
+                    .focusable(),
             contentAlignment = Alignment.Center
         ) {
             BasicText(text = index.toString())
@@ -222,73 +228,76 @@ open class BasePagerTest(private val config: ParamConfig) :
     }
 
     internal val scrollForwardSign: Int
-        get() = if (vertical) {
-            if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                1
-            } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                -1
-            } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
-                1
+        get() =
+            if (vertical) {
+                if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    1
+                } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    -1
+                } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
+                    1
+                } else {
+                    -1
+                }
             } else {
-                -1
+                if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    -1
+                } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    1
+                } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
+                    1
+                } else {
+                    -1
+                }
             }
-        } else {
-            if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                -1
-            } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                1
-            } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
-                1
-            } else {
-                -1
-            }
-        }
 
     internal val TouchInjectionScope.layoutStart: Offset
-        get() = if (vertical) {
-            if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                topCenter
-            } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                bottomCenter
-            } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
-                topCenter
+        get() =
+            if (vertical) {
+                if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    topCenter
+                } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    bottomCenter
+                } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
+                    topCenter
+                } else {
+                    bottomCenter
+                }
             } else {
-                bottomCenter
+                if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    centerRight
+                } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    centerLeft
+                } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
+                    centerLeft
+                } else {
+                    centerRight
+                }
             }
-        } else {
-            if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                centerRight
-            } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                centerLeft
-            } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
-                centerLeft
-            } else {
-                centerRight
-            }
-        }
 
     internal val TouchInjectionScope.layoutEnd: Offset
-        get() = if (vertical) {
-            if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                bottomCenter
-            } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                topCenter
-            } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
-                bottomCenter
+        get() =
+            if (vertical) {
+                if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    bottomCenter
+                } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    topCenter
+                } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
+                    bottomCenter
+                } else {
+                    topCenter
+                }
             } else {
-                topCenter
+                if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    centerLeft
+                } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
+                    centerRight
+                } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
+                    centerRight
+                } else {
+                    centerLeft
+                }
             }
-        } else {
-            if (config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                centerLeft
-            } else if (!config.reverseLayout && config.layoutDirection == LayoutDirection.Rtl) {
-                centerRight
-            } else if (config.reverseLayout && config.layoutDirection == LayoutDirection.Ltr) {
-                centerRight
-            } else {
-                centerLeft
-            }
-        }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -348,20 +357,22 @@ open class BasePagerTest(private val config: ParamConfig) :
             config.mainAxisContentPadding.calculateLeftPadding(config.layoutDirection)
         val topContentPadding = config.mainAxisContentPadding.calculateTopPadding()
 
-        val (left, top) = with(rule.density) {
-            val spacings = config.pageSpacing.roundToPx()
-            val initialPageOffset = currentPageIndex * (pageSize + spacings)
+        val (left, top) =
+            with(rule.density) {
+                val spacings = config.pageSpacing.roundToPx()
+                val initialPageOffset = currentPageIndex * (pageSize + spacings)
 
-            val position = pageToVerifyPosition * (pageSize + spacings) - initialPageOffset
-            val positionWithOffset =
-                position + (pageSize + spacings) * pageOffset * scrollForwardSign
-            if (vertical) {
-                0.dp to positionWithOffset.toDp()
-            } else {
-                positionWithOffset.toDp() to 0.dp
+                val position = pageToVerifyPosition * (pageSize + spacings) - initialPageOffset
+                val positionWithOffset =
+                    position + (pageSize + spacings) * pageOffset * scrollForwardSign
+                if (vertical) {
+                    0.dp to positionWithOffset.toDp()
+                } else {
+                    positionWithOffset.toDp() to 0.dp
+                }
             }
-        }
-        rule.onNodeWithTag("$pageToVerifyPosition")
+        rule
+            .onNodeWithTag("$pageToVerifyPosition")
             .assertPositionInRootIsEqualTo(left + leftContentPadding, top + topContentPadding)
     }
 
@@ -407,26 +418,28 @@ internal const val DefaultAnimationRepetition = 2
 internal val TestOrientation = listOf(Orientation.Vertical, Orientation.Horizontal)
 
 @OptIn(ExperimentalFoundationApi::class)
-internal val AllOrientationsParams = mutableListOf<ParamConfig>().apply {
-    for (orientation in TestOrientation) {
-        add(ParamConfig(orientation = orientation))
+internal val AllOrientationsParams =
+    mutableListOf<ParamConfig>().apply {
+        for (orientation in TestOrientation) {
+            add(ParamConfig(orientation = orientation))
+        }
     }
-}
 internal val TestReverseLayout = listOf(false, true)
 internal val TestLayoutDirection = listOf(LayoutDirection.Rtl, LayoutDirection.Ltr)
 internal val TestPageSpacing = listOf(0.dp, 8.dp)
 
-internal val TestSnapPosition = listOf(
-    SnapPosition.Start to "Start",
-    SnapPosition.Center to "Center",
-    SnapPosition.End to "End"
-)
+internal val TestSnapPosition =
+    listOf(
+        SnapPosition.Start to "Start",
+        SnapPosition.Center to "Center",
+        SnapPosition.End to "End"
+    )
 
-internal fun testContentPaddings(orientation: Orientation) = listOf(
-    PaddingValues(0.dp),
-    if (orientation == Orientation.Vertical)
-        PaddingValues(vertical = 16.dp)
-    else PaddingValues(horizontal = 16.dp),
-    PaddingValues(start = 16.dp),
-    PaddingValues(end = 16.dp)
-)
+internal fun testContentPaddings(orientation: Orientation) =
+    listOf(
+        PaddingValues(0.dp),
+        if (orientation == Orientation.Vertical) PaddingValues(vertical = 16.dp)
+        else PaddingValues(horizontal = 16.dp),
+        PaddingValues(start = 16.dp),
+        PaddingValues(end = 16.dp)
+    )

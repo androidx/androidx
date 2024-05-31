@@ -57,7 +57,8 @@ class TextInputServiceAndroidOnStateUpdateTest {
         // we never want the event queue to run during these test cases, as it will cause errant
         // interactions based off an uncontrolled frame clock (causes flakes)
         val neverExecutor = Executor { println("not running $it") }
-        textInputService = TextInputServiceAndroid(
+        textInputService =
+            TextInputServiceAndroid(
                 view,
                 mock(),
                 inputMethodManager,
@@ -69,17 +70,14 @@ class TextInputServiceAndroidOnStateUpdateTest {
             onEditCommand = {},
             onImeActionPerformed = {}
         )
-        inputConnection = textInputService.createInputConnection(EditorInfo())
-            as RecordingInputConnection
+        inputConnection =
+            textInputService.createInputConnection(EditorInfo()) as RecordingInputConnection
     }
 
     @Test
     fun onUpdateState_resetInputCalled_whenOnlyTextChanged() {
         val newValue = TextFieldValue("b")
-        textInputService.updateState(
-            oldValue = TextFieldValue("a"),
-            newValue = newValue
-        )
+        textInputService.updateState(oldValue = TextFieldValue("a"), newValue = newValue)
 
         verify(inputMethodManager, times(1)).restartInput()
         verify(inputMethodManager, never()).updateSelection(any(), any(), any(), any())
@@ -127,10 +125,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         // We still need to call IMM.updateSelection in this case, for more info please check:
         // https://developer.android.com/reference/android/view/inputmethod/InputMethodManager#updateSelection(android.view.View,%20int,%20int,%20int,%20int)
         val value = TextFieldValue("a", TextRange(1), null)
-        textInputService.updateState(
-            oldValue = value,
-            newValue = value
-        )
+        textInputService.updateState(oldValue = value, newValue = value)
 
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, times(1)).updateSelection(any(), any(), any(), any())
@@ -143,10 +138,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
     fun onUpdateState_updateSelectionCalled_whenCompositionIsDifferentFromState() {
         // set the initial state, composition active on text, cursor in the middle
         val value1 = TextFieldValue("ab", TextRange(1), TextRange(0, 2))
-        textInputService.updateState(
-            oldValue = value1,
-            newValue = value1
-        )
+        textInputService.updateState(oldValue = value1, newValue = value1)
 
         reset(inputMethodManager)
 
@@ -154,15 +146,11 @@ class TextInputServiceAndroidOnStateUpdateTest {
         // change and old and new values are the same. However they will be different than the
         // last stored TextFieldValue in TextInputService which is value1
         val value2 = value1.copy(composition = null)
-        textInputService.updateState(
-            oldValue = value2,
-            newValue = value2
-        )
+        textInputService.updateState(oldValue = value2, newValue = value2)
 
         verify(inputMethodManager, never()).restartInput()
-        verify(inputMethodManager, times(1)).updateSelection(
-            eq(value2.selection.min), eq(value2.selection.max), eq(-1), eq(-1)
-        )
+        verify(inputMethodManager, times(1))
+            .updateSelection(eq(value2.selection.min), eq(value2.selection.max), eq(-1), eq(-1))
     }
 
     @Test
@@ -183,10 +171,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
     @Test
     fun onUpdateState_resetInputNotCalled_whenValuesAreSame() {
         val value = TextFieldValue("a")
-        textInputService.updateState(
-            oldValue = value,
-            newValue = value
-        )
+        textInputService.updateState(oldValue = value, newValue = value)
 
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, never()).updateSelection(any(), any(), any(), any())
@@ -198,17 +183,14 @@ class TextInputServiceAndroidOnStateUpdateTest {
     @Test
     fun onUpdateState_recreateInputConnection_createsWithCorrectValue() {
         val value = TextFieldValue("a")
-        textInputService.updateState(
-            oldValue = value,
-            newValue = value
-        )
+        textInputService.updateState(oldValue = value, newValue = value)
 
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, never()).updateSelection(any(), any(), any(), any())
 
         // recreate the connection
-        inputConnection = textInputService.createInputConnection(EditorInfo())
-            as RecordingInputConnection
+        inputConnection =
+            textInputService.createInputConnection(EditorInfo()) as RecordingInputConnection
 
         assertThat(inputConnection.mTextFieldValue).isEqualTo(value)
     }

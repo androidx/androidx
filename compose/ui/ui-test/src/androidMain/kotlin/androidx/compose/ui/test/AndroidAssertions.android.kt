@@ -65,10 +65,11 @@ internal actual fun SemanticsNodeInteraction.checkIsDisplayed(
 
 internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
     val composeView = (root as ViewRootForTest).view
-    val rootLocationInWindow = intArrayOf(0, 0).let {
-        composeView.getLocationInWindow(it)
-        Offset(it[0].toFloat(), it[1].toFloat())
-    }
+    val rootLocationInWindow =
+        intArrayOf(0, 0).let {
+            composeView.getLocationInWindow(it)
+            Offset(it[0].toFloat(), it[1].toFloat())
+        }
     return boundsInRoot.translate(rootLocationInWindow)
 }
 
@@ -95,25 +96,24 @@ internal actual fun SemanticsNode.isInScreenBounds(assertIsFullyVisible: Boolean
             nodeBoundsInWindow.bottom <= globalRootRect.bottom
     } else {
         // assertIsDisplayed only throws if the element is fully offscreen
-        !nodeBoundsInWindow.intersect(
-            Rect(
-                globalRootRect.left.toFloat(),
-                globalRootRect.top.toFloat(),
-                globalRootRect.right.toFloat(),
-                globalRootRect.bottom.toFloat()
+        !nodeBoundsInWindow
+            .intersect(
+                Rect(
+                    globalRootRect.left.toFloat(),
+                    globalRootRect.top.toFloat(),
+                    globalRootRect.right.toFloat(),
+                    globalRootRect.bottom.toFloat()
+                )
             )
-        ).isEmpty
+            .isEmpty
     }
 }
 
 /**
- * Executes [selector] on every parent of this [LayoutInfo] and returns the closest
- * [LayoutInfo] to return `true` from [selector] or null if [selector] returns false
- * for all ancestors.
+ * Executes [selector] on every parent of this [LayoutInfo] and returns the closest [LayoutInfo] to
+ * return `true` from [selector] or null if [selector] returns false for all ancestors.
  */
-private fun LayoutInfo.findClosestParentNode(
-    selector: (LayoutInfo) -> Boolean
-): LayoutInfo? {
+private fun LayoutInfo.findClosestParentNode(selector: (LayoutInfo) -> Boolean): LayoutInfo? {
     var currentParent = this.parentInfo
     while (currentParent != null) {
         if (selector(currentParent)) {

@@ -60,27 +60,30 @@ import androidx.compose.ui.unit.dp
  *
  * @sample androidx.compose.material.samples.ChipSample
  *
- * You can create an [outlined action chip](https://material.io/components/chips#action-chips)
- * using [ChipDefaults.outlinedChipColors] and [ChipDefaults.outlinedBorder]
+ * You can create an [outlined action chip](https://material.io/components/chips#action-chips) using
+ * [ChipDefaults.outlinedChipColors] and [ChipDefaults.outlinedBorder]
+ *
  * @sample androidx.compose.material.samples.OutlinedChipWithIconSample
  *
  * Action chips should appear in a set and can be horizontally scrollable
+ *
  * @sample androidx.compose.material.samples.ChipGroupSingleLineSample
  *
  * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
+ *
  * @sample androidx.compose.material.samples.ChipGroupReflowSample
  *
  * @param onClick called when the chip is clicked.
  * @param modifier Modifier to be applied to the chip
  * @param enabled When disabled, chip will not respond to user input. It will also appear visually
- * disabled and disabled to accessibility services.
+ *   disabled and disabled to accessibility services.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's
- * appearance or preview the chip in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param border Border to draw around the chip. Pass `null` here for no border.
- * @param colors [ChipColors] that will be used to resolve the background and content color for
- * this chip in different states. See [ChipDefaults.chipColors].
+ * @param colors [ChipColors] that will be used to resolve the background and content color for this
+ *   chip in different states. See [ChipDefaults.chipColors].
  * @param leadingIcon Optional icon at the start of the chip, preceding the content text.
  * @param content the content of this chip
  */
@@ -109,18 +112,14 @@ fun Chip(
         interactionSource = interactionSource,
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
-            ProvideTextStyle(
-                value = MaterialTheme.typography.body2
-            ) {
+            ProvideTextStyle(value = MaterialTheme.typography.body2) {
                 Row(
-                    Modifier
-                        .defaultMinSize(
-                            minHeight = ChipDefaults.MinHeight
-                        )
+                    Modifier.defaultMinSize(minHeight = ChipDefaults.MinHeight)
                         .padding(
-                            start = if (leadingIcon == null) {
-                                HorizontalPadding
-                            } else 0.dp,
+                            start =
+                                if (leadingIcon == null) {
+                                    HorizontalPadding
+                                } else 0.dp,
                             end = HorizontalPadding,
                         ),
                     horizontalArrangement = Arrangement.Start,
@@ -147,37 +146,39 @@ fun Chip(
  * <a href="https://material.io/components/chips#filter-chips" class="external"
  * target="_blank">Material Design filter chip</a>.
  *
- * Filter chips use tags or descriptive words to filter a collection.
- * They are a good alternative to toggle buttons or checkboxes.
+ * Filter chips use tags or descriptive words to filter a collection. They are a good alternative to
+ * toggle buttons or checkboxes.
  *
  * @sample androidx.compose.material.samples.FilterChipSample
  *
  * A filter chip with leading icon and selected icon looks like:
+ *
  * @sample androidx.compose.material.samples.FilterChipWithLeadingIconSample
  *
- * You can create an [outlined filter chip](https://material.io/components/chips#action-chips)
- * using [ChipDefaults.outlinedFilterChipColors] and [ChipDefaults.outlinedBorder]
+ * You can create an [outlined filter chip](https://material.io/components/chips#action-chips) using
+ * [ChipDefaults.outlinedFilterChipColors] and [ChipDefaults.outlinedBorder]
+ *
  * @sample androidx.compose.material.samples.OutlinedFilterChipSample
-
+ *
  * @param selected boolean state for this chip: either it is selected or not
  * @param onClick will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
- * @param enabled controls the enabled state of the chip. When `false`, this chip will not
- * be clickable
+ * @param enabled controls the enabled state of the chip. When `false`, this chip will not be
+ *   clickable
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's
- * appearance or preview the chip in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param shape defines the chip's shape as well as its shadow
  * @param border border to draw around the chip
  * @param colors [SelectableChipColors] that will be used to resolve the background and content
- * color for this chip in different states. See [ChipDefaults.filterChipColors].
+ *   color for this chip in different states. See [ChipDefaults.filterChipColors].
  * @param leadingIcon Optional icon at the start of the chip, preceding the content text.
  * @param selectedIcon Icon used to indicate a chip's selected state, it is commonly a
- * [Icons.Filled.Done]. By default, if a leading icon is also provided, the leading icon will be
- * obscured by a circle overlay and then the selected icon.
+ *   [Icons.Filled.Done]. By default, if a leading icon is also provided, the leading icon will be
+ *   obscured by a circle overlay and then the selected icon.
  * @param trailingIcon Optional icon at the end of the chip, following the content text. Filter
- * chips commonly do not display any trailing icon.
+ *   chips commonly do not display any trailing icon.
  * @param content the content of this chip
  */
 @ExperimentalMaterialApi
@@ -210,28 +211,23 @@ fun FilterChip(
         border = border,
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.value.alpha) {
-            ProvideTextStyle(
-                value = MaterialTheme.typography.body2
-            ) {
+            ProvideTextStyle(value = MaterialTheme.typography.body2) {
                 Row(
-                    Modifier
-                        .width(IntrinsicSize.Max)
-                        .defaultMinSize(
-                            minHeight = ChipDefaults.MinHeight
-                        )
+                    Modifier.width(IntrinsicSize.Max)
+                        .defaultMinSize(minHeight = ChipDefaults.MinHeight)
                         .padding(
                             start =
-                            if (leadingIcon != null || (selected && selectedIcon != null)) {
-                                0.dp
-                            } else {
-                                HorizontalPadding
-                            },
+                                if (leadingIcon != null || (selected && selectedIcon != null)) {
+                                    0.dp
+                                } else {
+                                    HorizontalPadding
+                                },
                             end =
-                            if (trailingIcon == null) {
-                                HorizontalPadding
-                            } else {
-                                0.dp
-                            }
+                                if (trailingIcon == null) {
+                                    HorizontalPadding
+                                } else {
+                                    0.dp
+                                }
                         ),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
@@ -240,10 +236,7 @@ fun FilterChip(
                         Spacer(Modifier.width(LeadingIconStartSpacing))
                         Box {
                             if (leadingIcon != null) {
-                                val leadingIconColor = colors.leadingIconColor(
-                                    enabled,
-                                    selected
-                                )
+                                val leadingIconColor = colors.leadingIconColor(enabled, selected)
                                 CompositionLocalProvider(
                                     LocalContentColor provides leadingIconColor.value,
                                     LocalContentAlpha provides leadingIconColor.value.alpha,
@@ -254,12 +247,13 @@ fun FilterChip(
                                 var overlayModifier: Modifier = Modifier
                                 var iconColor = contentColor.value
                                 if (leadingIcon != null) {
-                                    overlayModifier = Modifier
-                                        .requiredSize(SelectedIconContainerSize)
-                                        .background(
-                                            color = contentColor.value,
-                                            shape = CircleShape
-                                        ).clip(CircleShape)
+                                    overlayModifier =
+                                        Modifier.requiredSize(SelectedIconContainerSize)
+                                            .background(
+                                                color = contentColor.value,
+                                                shape = CircleShape
+                                            )
+                                            .clip(CircleShape)
 
                                     iconColor = colors.backgroundColor(enabled, selected).value
                                 }
@@ -296,8 +290,8 @@ fun FilterChip(
 /**
  * Represents the background and content colors used in a clickable chip in different states.
  *
- * See [ChipDefaults.chipColors] for the default colors used in a filled [Chip].
- * See [ChipDefaults.outlinedChipColors] for the default colors used in a outlined [Chip],
+ * See [ChipDefaults.chipColors] for the default colors used in a filled [Chip]. See
+ * [ChipDefaults.outlinedChipColors] for the default colors used in a outlined [Chip],
  */
 @Stable
 @ExperimentalMaterialApi
@@ -307,33 +301,30 @@ interface ChipColors {
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    fun backgroundColor(enabled: Boolean): State<Color>
+    @Composable fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
-     * Represents the content color for this chip, depending on [enabled], see [leadingIconContentColor].
+     * Represents the content color for this chip, depending on [enabled], see
+     * [leadingIconContentColor].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    fun contentColor(enabled: Boolean): State<Color>
+    @Composable fun contentColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the leading icon's content color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
      */
-    @Composable
-    fun leadingIconContentColor(enabled: Boolean): State<Color>
+    @Composable fun leadingIconContentColor(enabled: Boolean): State<Color>
 }
 
 // TODO(b/182821022): Add links choice and input chip colors.
 /**
  * Represents the background and content colors used in a selectable chip in different states.
- * [FilterChip], choice chip and input chip are types of selectable chips.
- * See [ChipDefaults.filterChipColors] for the default colors used in a filled [FilterChip].
- * See [ChipDefaults.outlinedFilterChipColors] for the default colors used in a outlined
- * [FilterChip].
+ * [FilterChip], choice chip and input chip are types of selectable chips. See
+ * [ChipDefaults.filterChipColors] for the default colors used in a filled [FilterChip]. See
+ * [ChipDefaults.outlinedFilterChipColors] for the default colors used in a outlined [FilterChip].
  */
 @ExperimentalMaterialApi
 interface SelectableChipColors {
@@ -343,8 +334,7 @@ interface SelectableChipColors {
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    fun backgroundColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable fun backgroundColor(enabled: Boolean, selected: Boolean): State<Color>
 
     /**
      * Represents the content color for this chip, depending on [enabled] and [selected].
@@ -352,8 +342,7 @@ interface SelectableChipColors {
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    fun contentColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable fun contentColor(enabled: Boolean, selected: Boolean): State<Color>
 
     /**
      * Represents the leading icon color for this chip, depending on [enabled] and [selected].
@@ -361,28 +350,25 @@ interface SelectableChipColors {
      * @param enabled whether the chip is enabled
      * @param selected whether the chip is selected
      */
-    @Composable
-    fun leadingIconColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable fun leadingIconColor(enabled: Boolean, selected: Boolean): State<Color>
 }
 
-/**
- * Contains the baseline values used by chips.
- */
+/** Contains the baseline values used by chips. */
 @ExperimentalMaterialApi
 object ChipDefaults {
     /**
-     * The min height applied for a chip.
-     * Note that you can override it by applying Modifier.height directly on a chip.
+     * The min height applied for a chip. Note that you can override it by applying Modifier.height
+     * directly on a chip.
      */
     val MinHeight = 32.dp
 
     /**
-     * Creates a [ChipColors] that represents the default background and content colors used in
-     * a filled [Chip].
+     * Creates a [ChipColors] that represents the default background and content colors used in a
+     * filled [Chip].
      *
      * @param backgroundColor the background color of this chip when enabled
      * @param contentColor the content color of this chip when enabled, there is a separate param
-     * for icon colors
+     *   for icon colors
      * @param leadingIconContentColor the color of this chip's start icon when enabled
      * @param disabledBackgroundColor the background color of this chip when not enabled
      * @param disabledContentColor the content color of this chip when not enabled
@@ -390,39 +376,41 @@ object ChipDefaults {
      */
     @Composable
     fun chipColors(
-        backgroundColor: Color = MaterialTheme.colors.onSurface.copy(alpha = SurfaceOverlayOpacity)
-            .compositeOver(MaterialTheme.colors.surface),
+        backgroundColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SurfaceOverlayOpacity)
+                .compositeOver(MaterialTheme.colors.surface),
         contentColor: Color = MaterialTheme.colors.onSurface.copy(alpha = ContentOpacity),
         leadingIconContentColor: Color = contentColor.copy(alpha = LeadingIconOpacity),
         disabledBackgroundColor: Color =
-            MaterialTheme.colors.onSurface.copy(
-                alpha = ContentAlpha.disabled * SurfaceOverlayOpacity
-            ).compositeOver(MaterialTheme.colors.surface),
-        disabledContentColor: Color = contentColor.copy(
-            alpha = ContentAlpha.disabled * ContentOpacity
-        ),
+            MaterialTheme.colors.onSurface
+                .copy(alpha = ContentAlpha.disabled * SurfaceOverlayOpacity)
+                .compositeOver(MaterialTheme.colors.surface),
+        disabledContentColor: Color =
+            contentColor.copy(alpha = ContentAlpha.disabled * ContentOpacity),
         disabledLeadingIconContentColor: Color =
             leadingIconContentColor.copy(alpha = ContentAlpha.disabled * LeadingIconOpacity),
-    ): ChipColors = DefaultChipColors(
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        leadingIconContentColor = leadingIconContentColor,
-        disabledBackgroundColor = disabledBackgroundColor,
-        disabledContentColor = disabledContentColor,
-        disabledLeadingIconContentColor = disabledLeadingIconContentColor,
-    )
+    ): ChipColors =
+        DefaultChipColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            leadingIconContentColor = leadingIconContentColor,
+            disabledBackgroundColor = disabledBackgroundColor,
+            disabledContentColor = disabledContentColor,
+            disabledLeadingIconContentColor = disabledLeadingIconContentColor,
+        )
 
     /**
-     * Creates a [ChipColors] that represents the default background and content colors used in
-     * an outlined [Chip].
+     * Creates a [ChipColors] that represents the default background and content colors used in an
+     * outlined [Chip].
      *
      * @param backgroundColor the background color of this chip when enabled
      * @param contentColor the content color of this chip when enabled, there is a separate param
-     * for icon colors
-     * @para leadingIconContentColor the color of this chip's start icon when enabled
+     *   for icon colors
      * @param disabledBackgroundColor the background color of this chip when not enabled
      * @param disabledContentColor the content color of this chip when not enabled
      * @param disabledLeadingIconContentColor the color of this chip's start icon when not enabled
+     * @para leadingIconContentColor the color of this chip's start icon when enabled
      */
     @Composable
     fun outlinedChipColors(
@@ -430,19 +418,19 @@ object ChipDefaults {
         contentColor: Color = MaterialTheme.colors.onSurface.copy(alpha = ContentOpacity),
         leadingIconContentColor: Color = contentColor.copy(alpha = LeadingIconOpacity),
         disabledBackgroundColor: Color = backgroundColor,
-        disabledContentColor: Color = contentColor.copy(
-            alpha = ContentAlpha.disabled * ContentOpacity
-        ),
+        disabledContentColor: Color =
+            contentColor.copy(alpha = ContentAlpha.disabled * ContentOpacity),
         disabledLeadingIconContentColor: Color =
             leadingIconContentColor.copy(alpha = ContentAlpha.disabled * LeadingIconOpacity),
-    ): ChipColors = chipColors(
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        leadingIconContentColor = leadingIconContentColor,
-        disabledBackgroundColor = disabledBackgroundColor,
-        disabledContentColor = disabledContentColor,
-        disabledLeadingIconContentColor = disabledLeadingIconContentColor
-    )
+    ): ChipColors =
+        chipColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            leadingIconContentColor = leadingIconContentColor,
+            disabledBackgroundColor = disabledBackgroundColor,
+            disabledContentColor = disabledContentColor,
+            disabledLeadingIconContentColor = disabledLeadingIconContentColor
+        )
 
     /**
      * Creates a [SelectableChipColors] that represents the default background and content colors
@@ -460,44 +448,48 @@ object ChipDefaults {
      */
     @Composable
     fun filterChipColors(
-        backgroundColor: Color = MaterialTheme.colors.onSurface.copy(alpha = SurfaceOverlayOpacity)
-            .compositeOver(MaterialTheme.colors.surface),
+        backgroundColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SurfaceOverlayOpacity)
+                .compositeOver(MaterialTheme.colors.surface),
         contentColor: Color = MaterialTheme.colors.onSurface.copy(alpha = ContentOpacity),
         leadingIconColor: Color = contentColor.copy(LeadingIconOpacity),
         disabledBackgroundColor: Color =
-            MaterialTheme.colors.onSurface.copy(
-                alpha = ContentAlpha.disabled * SurfaceOverlayOpacity
-            ).compositeOver(MaterialTheme.colors.surface),
-        disabledContentColor: Color = contentColor.copy(
-            alpha = ContentAlpha.disabled * ContentOpacity
-        ),
-        disabledLeadingIconColor: Color = leadingIconColor.copy(
-            alpha = ContentAlpha.disabled * LeadingIconOpacity
-        ),
-        selectedBackgroundColor: Color = MaterialTheme.colors.onSurface.copy(
-            alpha = SurfaceOverlayOpacity
-        ).compositeOver(backgroundColor),
-        selectedContentColor: Color = MaterialTheme.colors.onSurface.copy(
-            alpha = SelectedOverlayOpacity
-        ).compositeOver(contentColor),
-        selectedLeadingIconColor: Color = MaterialTheme.colors.onSurface.copy(
-            alpha = SelectedOverlayOpacity
-        ).compositeOver(leadingIconColor)
-    ): SelectableChipColors = DefaultSelectableChipColors(
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        leadingIconColor = leadingIconColor,
-        disabledBackgroundColor = disabledBackgroundColor,
-        disabledContentColor = disabledContentColor,
-        disabledLeadingIconColor = disabledLeadingIconColor,
-        selectedBackgroundColor = selectedBackgroundColor,
-        selectedContentColor = selectedContentColor,
-        selectedLeadingIconColor = selectedLeadingIconColor
-    )
+            MaterialTheme.colors.onSurface
+                .copy(alpha = ContentAlpha.disabled * SurfaceOverlayOpacity)
+                .compositeOver(MaterialTheme.colors.surface),
+        disabledContentColor: Color =
+            contentColor.copy(alpha = ContentAlpha.disabled * ContentOpacity),
+        disabledLeadingIconColor: Color =
+            leadingIconColor.copy(alpha = ContentAlpha.disabled * LeadingIconOpacity),
+        selectedBackgroundColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SurfaceOverlayOpacity)
+                .compositeOver(backgroundColor),
+        selectedContentColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SelectedOverlayOpacity)
+                .compositeOver(contentColor),
+        selectedLeadingIconColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SelectedOverlayOpacity)
+                .compositeOver(leadingIconColor)
+    ): SelectableChipColors =
+        DefaultSelectableChipColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            leadingIconColor = leadingIconColor,
+            disabledBackgroundColor = disabledBackgroundColor,
+            disabledContentColor = disabledContentColor,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            selectedBackgroundColor = selectedBackgroundColor,
+            selectedContentColor = selectedContentColor,
+            selectedLeadingIconColor = selectedLeadingIconColor
+        )
 
     /**
-     * Creates a [ChipColors] that represents the default background and content colors used in
-     * a selectable outlined [FilterChip].
+     * Creates a [ChipColors] that represents the default background and content colors used in a
+     * selectable outlined [FilterChip].
      *
      * @param backgroundColor the background color of this chip when enabled
      * @param contentColor the content color of this chip when enabled
@@ -515,76 +507,64 @@ object ChipDefaults {
         contentColor: Color = MaterialTheme.colors.onSurface.copy(ContentOpacity),
         leadingIconColor: Color = contentColor.copy(LeadingIconOpacity),
         disabledBackgroundColor: Color = backgroundColor,
-        disabledContentColor: Color = contentColor.copy(
-            alpha = ContentAlpha.disabled * ContentOpacity
-        ),
-        disabledLeadingIconColor: Color = leadingIconColor.copy(
-            alpha = ContentAlpha.disabled * LeadingIconOpacity
-        ),
-        selectedBackgroundColor: Color = MaterialTheme.colors.onSurface.copy(
-            alpha = SelectedOverlayOpacity
-        ).compositeOver(backgroundColor),
-        selectedContentColor: Color = MaterialTheme.colors.onSurface.copy(
-            alpha = SelectedOverlayOpacity
-        ).compositeOver(contentColor),
-        selectedLeadingIconColor: Color = MaterialTheme.colors.onSurface.copy(
-            alpha = SelectedOverlayOpacity
-        ).compositeOver(leadingIconColor)
-    ): SelectableChipColors = DefaultSelectableChipColors(
-        backgroundColor = backgroundColor,
-        contentColor = contentColor,
-        leadingIconColor = leadingIconColor,
-        disabledBackgroundColor = disabledBackgroundColor,
-        disabledContentColor = disabledContentColor,
-        disabledLeadingIconColor = disabledLeadingIconColor,
-        selectedBackgroundColor = selectedBackgroundColor,
-        selectedContentColor = selectedContentColor,
-        selectedLeadingIconColor = selectedLeadingIconColor
-    )
-
-    /**
-     * The border used by all types of outlined chips
-     */
-    val outlinedBorder: BorderStroke
-        @Composable
-        get() = BorderStroke(
-            OutlinedBorderSize, MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
+        disabledContentColor: Color =
+            contentColor.copy(alpha = ContentAlpha.disabled * ContentOpacity),
+        disabledLeadingIconColor: Color =
+            leadingIconColor.copy(alpha = ContentAlpha.disabled * LeadingIconOpacity),
+        selectedBackgroundColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SelectedOverlayOpacity)
+                .compositeOver(backgroundColor),
+        selectedContentColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SelectedOverlayOpacity)
+                .compositeOver(contentColor),
+        selectedLeadingIconColor: Color =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SelectedOverlayOpacity)
+                .compositeOver(leadingIconColor)
+    ): SelectableChipColors =
+        DefaultSelectableChipColors(
+            backgroundColor = backgroundColor,
+            contentColor = contentColor,
+            leadingIconColor = leadingIconColor,
+            disabledBackgroundColor = disabledBackgroundColor,
+            disabledContentColor = disabledContentColor,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            selectedBackgroundColor = selectedBackgroundColor,
+            selectedContentColor = selectedContentColor,
+            selectedLeadingIconColor = selectedLeadingIconColor
         )
 
-    /**
-     * The color opacity used for chip's leading icon color
-     */
+    /** The border used by all types of outlined chips */
+    val outlinedBorder: BorderStroke
+        @Composable
+        get() =
+            BorderStroke(
+                OutlinedBorderSize,
+                MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
+            )
+
+    /** The color opacity used for chip's leading icon color */
     const val LeadingIconOpacity = 0.54f
 
-    /**
-     * The color opacity used for chip's content color
-     */
+    /** The color opacity used for chip's content color */
     const val ContentOpacity = 0.87f
 
-    /**
-     * The color opacity used for the outlined chip's border color
-     */
+    /** The color opacity used for the outlined chip's border color */
     const val OutlinedBorderOpacity = 0.12f
 
-    /**
-     * The outlined chip's border size
-     */
+    /** The outlined chip's border size */
     val OutlinedBorderSize = 1.dp
 
-    /**
-     * The size of a chip's leading icon
-     */
+    /** The size of a chip's leading icon */
     val LeadingIconSize = 20.dp
 
-    /**
-     * The size of a standalone selected icon
-     */
+    /** The size of a standalone selected icon */
     val SelectedIconSize = 18.dp
 }
 
-/**
- * Default [ChipColors] implementation.
- */
+/** Default [ChipColors] implementation. */
 @ExperimentalMaterialApi
 @Immutable
 private class DefaultChipColors(
@@ -641,9 +621,7 @@ private class DefaultChipColors(
     }
 }
 
-/**
- * Default [SelectableChipColors] implementation.
- */
+/** Default [SelectableChipColors] implementation. */
 @ExperimentalMaterialApi
 @Immutable
 private class DefaultSelectableChipColors(
@@ -660,31 +638,34 @@ private class DefaultSelectableChipColors(
 ) : SelectableChipColors {
     @Composable
     override fun backgroundColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
-            !enabled -> disabledBackgroundColor
-            !selected -> backgroundColor
-            else -> selectedBackgroundColor
-        }
+        val target =
+            when {
+                !enabled -> disabledBackgroundColor
+                !selected -> backgroundColor
+                else -> selectedBackgroundColor
+            }
         return rememberUpdatedState(target)
     }
 
     @Composable
     override fun contentColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
-            !enabled -> disabledContentColor
-            !selected -> contentColor
-            else -> selectedContentColor
-        }
+        val target =
+            when {
+                !enabled -> disabledContentColor
+                !selected -> contentColor
+                else -> selectedContentColor
+            }
         return rememberUpdatedState(target)
     }
 
     @Composable
     override fun leadingIconColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target = when {
-            !enabled -> disabledLeadingIconColor
-            !selected -> leadingIconColor
-            else -> selectedLeadingIconColor
-        }
+        val target =
+            when {
+                !enabled -> disabledLeadingIconColor
+                !selected -> leadingIconColor
+                else -> selectedLeadingIconColor
+            }
         return rememberUpdatedState(target)
     }
 
@@ -723,35 +704,24 @@ private class DefaultSelectableChipColors(
 }
 
 /**
- * The content padding used by a chip.
- * Used as start padding when there's leading icon, used as eng padding when there's no
- * trailing icon.
+ * The content padding used by a chip. Used as start padding when there's leading icon, used as eng
+ * padding when there's no trailing icon.
  */
 private val HorizontalPadding = 12.dp
 
-/**
- * The size of the spacing before the leading icon when they used inside a chip.
- */
+/** The size of the spacing before the leading icon when they used inside a chip. */
 private val LeadingIconStartSpacing = 4.dp
 
-/**
- * The size of the spacing between the leading icon and a text inside a chip.
- */
+/** The size of the spacing between the leading icon and a text inside a chip. */
 private val LeadingIconEndSpacing = 8.dp
 
-/**
- * The size of the horizontal spacing before and after the trailing icon inside an InputChip.
- */
+/** The size of the horizontal spacing before and after the trailing icon inside an InputChip. */
 private val TrailingIconSpacing = 8.dp
 
-/**
- * The color opacity used for chip's surface overlay.
- */
+/** The color opacity used for chip's surface overlay. */
 private const val SurfaceOverlayOpacity = 0.12f
 
-/**
- * The color opacity used for a selected chip's leading icon overlay.
- */
+/** The color opacity used for a selected chip's leading icon overlay. */
 private const val SelectedOverlayOpacity = 0.16f
 
 /**

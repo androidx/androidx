@@ -33,8 +33,7 @@ import kotlinx.coroutines.CompletableDeferred
 class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     private val callbackLock = Object()
     private var loadCallback: ((AndroidFont) -> Unit)? = null
-    @Volatile
-    private var asyncLoadCallback: ((AndroidFont) -> Unit)? = null
+    @Volatile private var asyncLoadCallback: ((AndroidFont) -> Unit)? = null
     private val requests =
         mutableMapOf<AsyncFauxFont, MutableList<CompletableDeferred<Typeface?>>>()
     internal val completedAsyncRequests = mutableListOf<AsyncFauxFont>()
@@ -44,48 +43,44 @@ class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     internal val optionalAsyncRequests = mutableListOf<Font>()
 
     override fun loadBlocking(context: Context, font: AndroidFont): Typeface? {
-        val result = when (font) {
-            is OptionalFauxFont -> {
-                optionalRequests.add(font)
-                font.typeface
+        val result =
+            when (font) {
+                is OptionalFauxFont -> {
+                    optionalRequests.add(font)
+                    font.typeface
+                }
+                is BlockingFauxFont -> {
+                    blockingRequests.add(font)
+                    font.typeface
+                }
+                else -> error("unsupported load() font")
             }
-            is BlockingFauxFont -> {
-                blockingRequests.add(font)
-                font.typeface
-            }
-            else -> error("unsupported load() font")
-        }
         loadCallback?.invoke(font)
         return result
     }
 
     override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
-        val result = when (font) {
-            is OptionalFauxFont -> {
-                optionalAsyncRequests.add(font)
-                synchronized(callbackLock) {
-                    asyncLoadCallback?.invoke(font)
+        val result =
+            when (font) {
+                is OptionalFauxFont -> {
+                    optionalAsyncRequests.add(font)
+                    synchronized(callbackLock) { asyncLoadCallback?.invoke(font) }
+                    font.typeface
                 }
-                font.typeface
-            }
-            is BlockingFauxFont -> {
-                blockingAsyncRequests.add(font)
-                synchronized(callbackLock) {
-                    asyncLoadCallback?.invoke(font)
+                is BlockingFauxFont -> {
+                    blockingAsyncRequests.add(font)
+                    synchronized(callbackLock) { asyncLoadCallback?.invoke(font) }
+                    font.typeface
                 }
-                font.typeface
-            }
-            is AsyncFauxFont -> {
-                val deferred = CompletableDeferred<Typeface?>()
-                val list = requests.getOrPut(font) { mutableListOf() }
-                list.add(deferred)
-                synchronized(callbackLock) {
-                    asyncLoadCallback?.invoke(font)
+                is AsyncFauxFont -> {
+                    val deferred = CompletableDeferred<Typeface?>()
+                    val list = requests.getOrPut(font) { mutableListOf() }
+                    list.add(deferred)
+                    synchronized(callbackLock) { asyncLoadCallback?.invoke(font) }
+                    deferred.await()
                 }
-                deferred.await()
+                else -> null
             }
-            else -> null
-        }
         return result
     }
 
@@ -104,9 +99,7 @@ class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     }
 
     fun pendingRequestsFor(font: AsyncFauxFont): List<Font> {
-        return requests
-            .getOrPut(font) { mutableListOf() }
-            .map { font }
+        return requests.getOrPut(font) { mutableListOf() }.map { font }
     }
 
     fun completedRequests(): List<Font> {
@@ -126,9 +119,7 @@ class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     }
 
     fun onAsyncLoad(function: (AndroidFont) -> Unit) {
-        synchronized(callbackLock) {
-            asyncLoadCallback = function
-        }
+        synchronized(callbackLock) { asyncLoadCallback = function }
     }
 }
 

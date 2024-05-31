@@ -62,29 +62,26 @@ fun Component(
         onBackClick = onBackClick
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .padding(horizontal = ComponentPadding),
+            modifier = Modifier.padding(horizontal = ComponentPadding),
             contentPadding = paddingValues
         ) {
             item {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = ComponentIconVerticalPadding)
+                    modifier =
+                        Modifier.fillMaxWidth().padding(vertical = ComponentIconVerticalPadding)
                 ) {
                     Image(
                         painter = painterResource(id = component.icon),
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(ComponentIconSize)
-                            .align(Alignment.Center),
-                        colorFilter = if (component.tintIcon) {
-                            ColorFilter.tint(
-                                LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
-                            )
-                        } else {
-                            null
-                        }
+                        modifier = Modifier.size(ComponentIconSize).align(Alignment.Center),
+                        colorFilter =
+                            if (component.tintIcon) {
+                                ColorFilter.tint(
+                                    LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
+                                )
+                            } else {
+                                null
+                            }
                     )
                 }
             }
@@ -94,10 +91,7 @@ fun Component(
                     style = MaterialTheme.typography.body1
                 )
                 Spacer(modifier = Modifier.height(ComponentPadding))
-                Text(
-                    text = component.description,
-                    style = MaterialTheme.typography.body2
-                )
+                Text(text = component.description, style = MaterialTheme.typography.body2)
                 Spacer(modifier = Modifier.height(ComponentDescriptionPadding))
             }
             item {
@@ -109,10 +103,7 @@ fun Component(
             }
             if (component.examples.isNotEmpty()) {
                 items(component.examples) { example ->
-                    ExampleItem(
-                        example = example,
-                        onClick = onExampleClick
-                    )
+                    ExampleItem(example = example, onClick = onExampleClick)
                     Spacer(modifier = Modifier.height(ComponentPadding))
                 }
             } else {

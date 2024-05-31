@@ -28,8 +28,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ProduceStateTests {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testProducingState() {
@@ -37,15 +36,16 @@ class ProduceStateTests {
         val emitter = Channel<Int>(Channel.BUFFERED)
 
         rule.setContent {
-            val state by produceState(0, emitter) {
-                for (item in emitter) {
-                    value = item
+            val state by
+                produceState(0, emitter) {
+                    for (item in emitter) {
+                        value = item
+                    }
                 }
-            }
 
             DisposableEffect(state) {
                 observedResult = state
-                onDispose { }
+                onDispose {}
             }
         }
 

@@ -25,9 +25,7 @@ import javax.swing.SwingUtilities.isEventDispatchThread
 import org.jetbrains.skiko.ClipComponent
 import org.jetbrains.skiko.GraphicsApi
 
-/**
- * ComposePanel is a panel for building UI using Compose for Desktop.
- */
+/** ComposePanel is a panel for building UI using Compose for Desktop. */
 class ComposePanel : JLayeredPane() {
     init {
         check(isEventDispatchThread()) {
@@ -69,10 +67,7 @@ class ComposePanel : JLayeredPane() {
     private fun initContent() {
         if (layer != null && content != null) {
             layer!!.setContent {
-                CompositionLocalProvider(
-                    LocalLayerContainer provides this,
-                    content = content!!
-                )
+                CompositionLocalProvider(LocalLayerContainer provides this, content = content!!)
             }
         }
     }
@@ -98,9 +93,7 @@ class ComposePanel : JLayeredPane() {
 
         // After [super.addNotify] is called we can safely initialize the layer and composable
         // content.
-        layer = ComposeLayer().apply {
-            component.setSize(width, height)
-        }
+        layer = ComposeLayer().apply { component.setSize(width, height) }
         initContent()
         super.add(layer!!.component, Integer.valueOf(1))
     }

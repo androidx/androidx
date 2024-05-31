@@ -119,10 +119,7 @@ class BackspaceCommandTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun test_delete_with_composition_zwj_emoji() {
-        val eb = EditingBuffer(
-            "$ZWJ_EMOJI$ZWJ_EMOJI",
-            TextRange(ZWJ_EMOJI.length)
-        )
+        val eb = EditingBuffer("$ZWJ_EMOJI$ZWJ_EMOJI", TextRange(ZWJ_EMOJI.length))
 
         BackspaceCommand().applyTo(eb)
 

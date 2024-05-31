@@ -60,28 +60,25 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
             value = textFieldValue.value,
             onValueChange = { textFieldValue.value = it },
             textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(pointerAreaTag),
+            modifier = Modifier.fillMaxWidth().testTag(pointerAreaTag),
         )
     }
 
     @Before
     fun setupAsserter() {
-        asserter = TextField1SelectionAsserter(
-            textContent = textContent,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { textFieldValue.value }
-        )
+        asserter =
+            TextField1SelectionAsserter(
+                textContent = textContent,
+                rule = rule,
+                textToolbar = textToolbar,
+                hapticFeedback = hapticFeedback,
+                getActual = { textFieldValue.value }
+            )
     }
 
     @Test
     fun whenTouchHandle_magnifierReplacesToolbar() {
-        performTouchGesture {
-            longClick(characterPosition(13))
-        }
+        performTouchGesture { longClick(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -171,9 +168,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
         rule.waitForIdle()
         asserter.applyAndAssert { textContent = content }
 
-        performTouchGesture {
-            longClick(characterPosition(content.lastIndex))
-        }
+        performTouchGesture { longClick(characterPosition(content.lastIndex)) }
 
         asserter.applyAndAssert {
             selection = 0 to content.length
@@ -201,13 +196,14 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
     }
 
     private fun HandlePressedScope.moveHandleToCharacter(characterOffset: Int) {
-        val destinationPosition = characterBox(characterOffset).run {
-            when (fetchHandleInfo().handle) {
-                Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
-                Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
-                Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+        val destinationPosition =
+            characterBox(characterOffset).run {
+                when (fetchHandleInfo().handle) {
+                    Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
+                    Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
+                    Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+                }
             }
-        }
         moveHandleTo(destinationPosition)
     }
 

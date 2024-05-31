@@ -20,8 +20,8 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 /**
- * Iterates through a [List] using the index and calls [action] for each item.
- * This does not allocate an iterator like [Iterable.forEach].
+ * Iterates through a [List] using the index and calls [action] for each item. This does not
+ * allocate an iterator like [Iterable.forEach].
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -38,8 +38,8 @@ inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 }
 
 /**
- * Iterates through a [List] in reverse order using the index and calls [action] for each item.
- * This does not allocate an iterator like [Iterable.forEach].
+ * Iterates through a [List] in reverse order using the index and calls [action] for each item. This
+ * does not allocate an iterator like [Iterable.forEach].
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -56,8 +56,8 @@ inline fun <T> List<T>.fastForEachReversed(action: (T) -> Unit) {
 }
 
 /**
- * Iterates through a [List] using the index and calls [action] for each item.
- * This does not allocate an iterator like [Iterable.forEachIndexed].
+ * Iterates through a [List] using the index and calls [action] for each item. This does not
+ * allocate an iterator like [Iterable.forEachIndexed].
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -131,15 +131,13 @@ inline fun <T> List<T>.fastFirstOrNull(predicate: (T) -> Boolean): T? {
 inline fun <T> List<T>.fastSumBy(selector: (T) -> Int): Int {
     contract { callsInPlace(selector) }
     var sum = 0
-    fastForEach { element ->
-        sum += selector(element)
-    }
+    fastForEach { element -> sum += selector(element) }
     return sum
 }
 
 /**
- * Returns a list containing the results of applying the given [transform] function
- * to each element in the original collection.
+ * Returns a list containing the results of applying the given [transform] function to each element
+ * in the original collection.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -150,16 +148,14 @@ inline fun <T> List<T>.fastSumBy(selector: (T) -> Int): Int {
 inline fun <T, R> List<T>.fastMap(transform: (T) -> R): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
-    fastForEach {
-        target += transform(it)
-    }
+    fastForEach { target += transform(it) }
     return target
 }
 
 // TODO: should be fastMaxByOrNull to match stdlib
 /**
- * Returns the first element yielding the largest value of the given function or `null` if there
- * are no elements.
+ * Returns the first element yielding the largest value of the given function or `null` if there are
+ * no elements.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -184,8 +180,8 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxBy(selector: (T) -> R): T? {
 }
 
 /**
- * Applies the given [transform] function to each element of the original collection
- * and appends the results to the given [destination].
+ * Applies the given [transform] function to each element of the original collection and appends the
+ * results to the given [destination].
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -198,9 +194,7 @@ inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     transform: (T) -> R
 ): C {
     contract { callsInPlace(transform) }
-    fastForEach { item ->
-        destination.add(transform(item))
-    }
+    fastForEach { item -> destination.add(transform(item)) }
     return destination
 }
 
@@ -234,15 +228,13 @@ inline fun <T> List<T>.fastLastOrNull(predicate: (T) -> Boolean): T? {
 inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
     contract { callsInPlace(predicate) }
     val target = ArrayList<T>(size)
-    fastForEach {
-        if (predicate(it)) target += (it)
-    }
+    fastForEach { if (predicate(it)) target += (it) }
     return target
 }
 
 /**
- * Accumulates value starting with [initial] value and applying [operation] from left to right
- * to current accumulator value and each element.
+ * Accumulates value starting with [initial] value and applying [operation] from left to right to
+ * current accumulator value and each element.
  *
  * Returns the specified [initial] value if the collection is empty.
  *
@@ -255,15 +247,13 @@ inline fun <T> List<T>.fastFilter(predicate: (T) -> Boolean): List<T> {
 inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
     contract { callsInPlace(operation) }
     var accumulator = initial
-    fastForEach { e ->
-        accumulator = operation(accumulator, e)
-    }
+    fastForEach { e -> accumulator = operation(accumulator, e) }
     return accumulator
 }
 
 /**
- * Returns a list containing the results of applying the given [transform] function
- * to each element in the original collection.
+ * Returns a list containing the results of applying the given [transform] function to each element
+ * in the original collection.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -271,20 +261,16 @@ inline fun <T, R> List<T>.fastFold(initial: R, operation: (acc: R, T) -> R): R {
  */
 @OptIn(ExperimentalContracts::class)
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-inline fun <T, R> List<T>.fastMapIndexed(
-    transform: (index: Int, T) -> R
-): List<R> {
+inline fun <T, R> List<T>.fastMapIndexed(transform: (index: Int, T) -> R): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
-    fastForEachIndexed { index, e ->
-        target += transform(index, e)
-    }
+    fastForEachIndexed { index, e -> target += transform(index, e) }
     return target
 }
 
 /**
- * Returns a list containing the results of applying the given [transform] function
- * to each element in the original collection.
+ * Returns a list containing the results of applying the given [transform] function to each element
+ * in the original collection.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -292,14 +278,10 @@ inline fun <T, R> List<T>.fastMapIndexed(
  */
 @OptIn(ExperimentalContracts::class)
 @Suppress("BanInlineOptIn") // Treat Kotlin Contracts as non-experimental.
-inline fun <T, R> List<T>.fastMapIndexedNotNull(
-    transform: (index: Int, T) -> R?
-): List<R> {
+inline fun <T, R> List<T>.fastMapIndexedNotNull(transform: (index: Int, T) -> R?): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
-    fastForEachIndexed { index, e ->
-        transform(index, e)?.let { target += it }
-    }
+    fastForEachIndexed { index, e -> transform(index, e)?.let { target += it } }
     return target
 }
 
@@ -325,8 +307,8 @@ inline fun <T, R : Comparable<R>> List<T>.fastMaxOfOrNull(selector: (T) -> R): R
 }
 
 /**
- * Returns a list containing the results of applying the given [transform] function
- * to each pair of two adjacent elements in this collection.
+ * Returns a list containing the results of applying the given [transform] function to each pair of
+ * two adjacent elements in this collection.
  *
  * The returned list is empty if this collection contains less than two elements.
  *
@@ -351,8 +333,8 @@ inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
 }
 
 /**
- * Accumulates value starting with the first element and applying [operation] from left to right
- * to current accumulator value and each element.
+ * Accumulates value starting with the first element and applying [operation] from left to right to
+ * current accumulator value and each element.
  *
  * Throws an exception if this collection is empty. If the collection can be empty in an expected
  * way, please use [reduceOrNull] instead. It returns `null` when its receiver is empty.
@@ -361,9 +343,8 @@ inline fun <T, R> List<T>.fastZipWithNext(transform: (T, T) -> R): List<R> {
  * access in an efficient way, and this method may actually be a lot slower. Only use for
  * collections that are created by code we control and are known to support random access.
  *
- * @param [operation] function that takes current accumulator value and an element,
- * and calculates the next accumulator value.
- *
+ * @param [operation] function that takes current accumulator value and an element, and calculates
+ *   the next accumulator value.
  * @throws UnsupportedOperationException if this collection is empty
  */
 @Suppress("BanInlineOptIn")
@@ -379,9 +360,9 @@ inline fun <S, T : S> List<T>.fastReduce(operation: (acc: S, T) -> S): S {
 }
 
 /**
- * Returns a list of values built from the elements of `this` collection and the [other] collection with the same index
- * using the provided [transform] function applied to each pair of elements.
- * The returned list has length of the shortest collection.
+ * Returns a list of values built from the elements of `this` collection and the [other] collection
+ * with the same index using the provided [transform] function applied to each pair of elements. The
+ * returned list has length of the shortest collection.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -389,10 +370,7 @@ inline fun <S, T : S> List<T>.fastReduce(operation: (acc: S, T) -> S): S {
  */
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
-inline fun <T, R, V> List<T>.fastZip(
-    other: List<R>,
-    transform: (a: T, b: R) -> V
-): List<V> {
+inline fun <T, R, V> List<T>.fastZip(other: List<R>, transform: (a: T, b: R) -> V): List<V> {
     contract { callsInPlace(transform) }
     val minSize = minOf(size, other.size)
     val target = ArrayList<V>(minSize)
@@ -403,8 +381,8 @@ inline fun <T, R, V> List<T>.fastZip(
 }
 
 /**
- * Returns a list containing the results of applying the given [transform] function
- * to each element in the original collection.
+ * Returns a list containing the results of applying the given [transform] function to each element
+ * in the original collection.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -415,9 +393,7 @@ inline fun <T, R, V> List<T>.fastZip(
 inline fun <T, R> List<T>.fastMapNotNull(transform: (T) -> R?): List<R> {
     contract { callsInPlace(transform) }
     val target = ArrayList<R>(size)
-    fastForEach { e ->
-        transform(e)?.let { target += it }
-    }
+    fastForEach { e -> transform(e)?.let { target += it } }
     return target
 }
 
@@ -446,8 +422,8 @@ fun <T> List<T>.fastJoinToString(
 }
 
 /**
- * Returns a list containing only elements from the given collection
- * having distinct keys returned by the given [selector] function.
+ * Returns a list containing only elements from the given collection having distinct keys returned
+ * by the given [selector] function.
  *
  * The elements in the resulting list are in the same order as they were in the source collection.
  *
@@ -469,8 +445,8 @@ inline fun <T, K> List<T>.fastDistinctBy(selector: (T) -> K): List<T> {
 }
 
 /**
- * Returns the first element yielding the largest value of the given function or `null` if there
- * are no elements.
+ * Returns the first element yielding the largest value of the given function or `null` if there are
+ * no elements.
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -523,9 +499,7 @@ inline fun <T, R> List<T>.fastFlatMap(transform: (T) -> Iterable<R>): List<R> {
  */
 fun <T : Any> List<T?>.fastFilterNotNull(): List<T> {
     val target = ArrayList<T>(size)
-    fastForEach {
-        if ((it) != null) target += (it)
-    }
+    fastForEach { if ((it) != null) target += (it) }
     return target
 }
 
@@ -547,12 +521,12 @@ inline fun <T> List<T>.fastFirst(predicate: (T) -> Boolean): T {
 }
 
 /**
- * Appends the string from all the elements separated using [separator] and using the given
- * [prefix] and [postfix] if supplied.
+ * Appends the string from all the elements separated using [separator] and using the given [prefix]
+ * and [postfix] if supplied.
  *
- * If the collection could be huge, you can specify a non-negative value of [limit], in which
- * case only the first [limit] elements will be appended, followed by the [truncated] string
- * (which defaults to "...").
+ * If the collection could be huge, you can specify a non-negative value of [limit], in which case
+ * only the first [limit] elements will be appended, followed by the [truncated] string (which
+ * defaults to "...").
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -581,9 +555,7 @@ private fun <T, A : Appendable> List<T>.fastJoinTo(
     return buffer
 }
 
-/**
- * Copied from Appendable.kt
- */
+/** Copied from Appendable.kt */
 private fun <T> Appendable.appendElement(element: T, transform: ((T) -> CharSequence)?) {
     when {
         transform != null -> append(transform(element))

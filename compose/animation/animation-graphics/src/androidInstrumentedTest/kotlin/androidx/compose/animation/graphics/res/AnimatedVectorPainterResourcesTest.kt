@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnimatedVectorPainterResourcesTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun vectorConfig() {
@@ -44,10 +43,8 @@ class AnimatedVectorPainterResourcesTest {
         var checked = false
         rule.setContent {
             val avd = AnimatedImageVector.animatedVectorResource(R.drawable.avd_complex)
-            rememberAnimatedVectorPainter(
-                animatedImageVector = avd,
-                atEnd = isAtEnd.value
-            ) { _, map ->
+            rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = isAtEnd.value) { _, map
+                ->
                 if (!checked) {
                     assertThat(map).containsKey("background")
                     val config = map["background"] as VectorConfig
@@ -70,10 +67,8 @@ class AnimatedVectorPainterResourcesTest {
         var checked = false
         rule.setContent {
             val avd = AnimatedImageVector.animatedVectorResource(R.drawable.target_duplicated)
-            rememberAnimatedVectorPainter(
-                animatedImageVector = avd,
-                atEnd = isAtEnd.value
-            ) { _, map ->
+            rememberAnimatedVectorPainter(animatedImageVector = avd, atEnd = isAtEnd.value) { _, map
+                ->
                 if (!checked) {
                     assertThat(map).containsKey("line_01")
                     val config = map["line_01"] as VectorConfig

@@ -21,23 +21,18 @@ import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.Companion.FullLine
 
 /**
- * Span defines a number of lanes (columns in vertical grid/rows in horizontal grid) for
- * staggered grid items.
- * Two variations of span are supported:
- *   - item taking a single lane ([SingleLane]);
- *   - item all lanes in line ([FullLine]).
- * By default, staggered grid uses [SingleLane] for all items.
+ * Span defines a number of lanes (columns in vertical grid/rows in horizontal grid) for staggered
+ * grid items. Two variations of span are supported:
+ * - item taking a single lane ([SingleLane]);
+ * - item all lanes in line ([FullLine]). By default, staggered grid uses [SingleLane] for all
+ *   items.
  */
 class StaggeredGridItemSpan private constructor(internal val value: Int) {
     companion object {
-        /**
-         * Force item to occupy whole line in cross axis.
-         */
+        /** Force item to occupy whole line in cross axis. */
         val FullLine = StaggeredGridItemSpan(0)
 
-        /**
-         * Force item to use a single lane.
-         */
+        /** Force item to use a single lane. */
         val SingleLane = StaggeredGridItemSpan(1)
     }
 }

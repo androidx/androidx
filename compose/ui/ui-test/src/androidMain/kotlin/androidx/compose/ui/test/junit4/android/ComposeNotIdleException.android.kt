@@ -16,7 +16,5 @@
 
 package androidx.compose.ui.test.junit4.android
 
-/**
- * Thrown in cases where Compose can't get idle in Espresso's defined time limit.
- */
+/** Thrown in cases where Compose can't get idle in Espresso's defined time limit. */
 class ComposeNotIdleException(message: String?, cause: Throwable?) : Exception(message, cause)

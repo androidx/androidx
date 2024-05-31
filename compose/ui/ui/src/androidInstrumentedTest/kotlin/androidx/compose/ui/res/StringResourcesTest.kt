@@ -46,8 +46,7 @@ class StringResourcesTest {
     // Constant used for formatting string in test.
     private val FormatValue = 100
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun stringResource_not_localized_defaultLocale() {
@@ -70,8 +69,7 @@ class StringResourcesTest {
     @Test
     fun stringResource_localized_defaultLocale() {
         rule.setContent {
-            assertThat(stringResource(R.string.localized))
-                .isEqualTo(DefaultLocalizedText)
+            assertThat(stringResource(R.string.localized)).isEqualTo(DefaultLocalizedText)
         }
     }
 
@@ -81,8 +79,7 @@ class StringResourcesTest {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.Locales(LocaleList(Locale("es-ES")))
             ) {
-                assertThat(stringResource(R.string.localized))
-                    .isEqualTo(SpanishLocalizedText)
+                assertThat(stringResource(R.string.localized)).isEqualTo(SpanishLocalizedText)
             }
         }
     }

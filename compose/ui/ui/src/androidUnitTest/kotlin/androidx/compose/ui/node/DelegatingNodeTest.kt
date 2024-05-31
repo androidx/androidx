@@ -33,8 +33,7 @@ class DelegatingNodeTest {
 
     @Test
     fun testKindSetIncludesDelegates() {
-        assertThat(DelegatedWrapper { DrawMod() }.kindSet)
-            .isEqualTo(Nodes.Any or Nodes.Draw)
+        assertThat(DelegatedWrapper { DrawMod() }.kindSet).isEqualTo(Nodes.Any or Nodes.Draw)
     }
 
     @Test
@@ -60,8 +59,9 @@ class DelegatingNodeTest {
         assert(chain.has(Nodes.Semantics))
 
         assert(a.kindSet == Nodes.Any or Nodes.Draw)
-        assert(a.aggregateChildKindSet ==
-            Nodes.Any or Nodes.Draw or Nodes.Layout or Nodes.Semantics)
+        assert(
+            a.aggregateChildKindSet == Nodes.Any or Nodes.Draw or Nodes.Layout or Nodes.Semantics
+        )
 
         assert(b.kindSet == Nodes.Any or Nodes.Layout)
         assert(b.aggregateChildKindSet == Nodes.Any or Nodes.Layout or Nodes.Semantics)
@@ -82,13 +82,15 @@ class DelegatingNodeTest {
     fun testNestedDelegatesHaveNodePointersCorrectlyUpdated() {
         val d = DrawMod()
         val c = DrawMod()
-        val b = object : DelegatingNode() {
-            val c = delegate(c)
-        }
-        val a = object : DelegatingNode() {
-            val b = delegate(b)
-            val d = delegate(d)
-        }
+        val b =
+            object : DelegatingNode() {
+                val c = delegate(c)
+            }
+        val a =
+            object : DelegatingNode() {
+                val b = delegate(b)
+                val d = delegate(d)
+            }
 
         assert(a.node === a)
         assert(b.node === a)
@@ -106,12 +108,14 @@ class DelegatingNodeTest {
 
     @Test
     fun testAsKindReturnsSelf() {
-        val node = object : DrawModifierNode, DelegatingNode() {
-            val wrapped = delegate(DrawMod())
-            override fun ContentDrawScope.draw() {
-                with(wrapped) { draw() }
+        val node =
+            object : DrawModifierNode, DelegatingNode() {
+                val wrapped = delegate(DrawMod())
+
+                override fun ContentDrawScope.draw() {
+                    with(wrapped) { draw() }
+                }
             }
-        }
         assert(node.isKind(Nodes.Draw))
         assert(node.asKind(Nodes.Draw) is DrawModifierNode)
         assert(node.asKind(Nodes.Draw) === node)
@@ -119,10 +123,11 @@ class DelegatingNodeTest {
 
     @Test
     fun testAsKindMultipleDelegatesReturnsLast() {
-        val node = object : DelegatingNode() {
-            val first = delegate(DrawMod())
-            val second = delegate(DrawMod())
-        }
+        val node =
+            object : DelegatingNode() {
+                val first = delegate(DrawMod())
+                val second = delegate(DrawMod())
+            }
         assert(node.isKind(Nodes.Draw))
         assert(node.asKind(Nodes.Draw) is DrawModifierNode)
         assert(node.asKind(Nodes.Draw) === node.second)
@@ -130,42 +135,46 @@ class DelegatingNodeTest {
 
     @Test
     fun testDispatchForMultipleDelegatesSameKind() {
-        val node = object : DelegatingNode() {
-            val first = delegate(DelegatedWrapper { DrawMod("first") })
-            val second = delegate(DrawMod("second"))
-        }
+        val node =
+            object : DelegatingNode() {
+                val first = delegate(DelegatedWrapper { DrawMod("first") })
+                val second = delegate(DrawMod("second"))
+            }
         assertDispatchOrder(node, Nodes.Draw, node.first.wrapped, node.second)
     }
 
     @Test
     fun testDispatchForSelfOnlyDispatchesToSelf() {
-        val node = object : DrawModifierNode, DelegatingNode() {
-            val wrapped = delegate(DrawMod())
-            override fun ContentDrawScope.draw() {
-                with(wrapped) { draw() }
+        val node =
+            object : DrawModifierNode, DelegatingNode() {
+                val wrapped = delegate(DrawMod())
+
+                override fun ContentDrawScope.draw() {
+                    with(wrapped) { draw() }
+                }
             }
-        }
         assertDispatchOrder(node, Nodes.Draw, node)
     }
 
     @Test
     fun testDispatchNestedSelfStops() {
-        val node = object : DelegatingNode() {
-            val first = delegate(DrawMod())
-            val second = delegate(DrawMod())
-            val third = delegate(object : DrawModifierNode, DelegatingNode() {
+        val node =
+            object : DelegatingNode() {
                 val first = delegate(DrawMod())
                 val second = delegate(DrawMod())
-                override fun ContentDrawScope.draw() {
-                    with(first) { draw() }
-                }
-            })
-        }
-        assertDispatchOrder(node, Nodes.Draw,
-            node.first,
-            node.second,
-            node.third
-        )
+                val third =
+                    delegate(
+                        object : DrawModifierNode, DelegatingNode() {
+                            val first = delegate(DrawMod())
+                            val second = delegate(DrawMod())
+
+                            override fun ContentDrawScope.draw() {
+                                with(first) { draw() }
+                            }
+                        }
+                    )
+            }
+        assertDispatchOrder(node, Nodes.Draw, node.first, node.second, node.third)
     }
 
     @Test
@@ -202,12 +211,14 @@ class DelegatingNodeTest {
         val recorder = Recorder()
         x.visitSubtree(Nodes.Draw, recorder)
         assertThat(recorder.recorded)
-            .isEqualTo(listOf(
-                a.wrapped,
-                b,
-                d,
-                c.wrapped,
-            ))
+            .isEqualTo(
+                listOf(
+                    a.wrapped,
+                    b,
+                    d,
+                    c.wrapped,
+                )
+            )
     }
 
     @Test
@@ -217,22 +228,18 @@ class DelegatingNodeTest {
         val b = DrawMod("b")
         val c = DelegatedWrapper { DrawMod("c") }
         val d = DrawMod("d")
-        layout(a) {
-            layout(b) {
-                layout(c) {
-                    layout(d, x)
-                }
-            }
-        }
+        layout(a) { layout(b) { layout(c) { layout(d, x) } } }
         val recorder = Recorder()
         x.visitAncestors(Nodes.Draw, block = recorder)
         assertThat(recorder.recorded)
-            .isEqualTo(listOf(
-                d,
-                c.wrapped,
-                b,
-                a.wrapped,
-            ))
+            .isEqualTo(
+                listOf(
+                    d,
+                    c.wrapped,
+                    b,
+                    a.wrapped,
+                )
+            )
     }
 
     @Test
@@ -346,8 +353,9 @@ class DelegatingNodeTest {
         assert(a.kindSet == Nodes.Any or Nodes.Layout)
         assert(b.kindSet == Nodes.Any or Nodes.Semantics)
         assert(c.kindSet == Nodes.Any or Nodes.Draw)
-        assert(a.aggregateChildKindSet ==
-            Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout)
+        assert(
+            a.aggregateChildKindSet == Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout
+        )
         assert(b.aggregateChildKindSet == Nodes.Any or Nodes.Draw or Nodes.Semantics)
         assert(c.aggregateChildKindSet == Nodes.Any or Nodes.Draw)
 
@@ -412,8 +420,9 @@ class DelegatingNodeTest {
         assert(chain.has(Nodes.Semantics))
         assert(chain.has(Nodes.Layout))
         assert(node.kindSet == Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout)
-        assert(node.aggregateChildKindSet ==
-            Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout)
+        assert(
+            node.aggregateChildKindSet == Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout
+        )
 
         node.undelegateUnprotected(draw)
         assert(!chain.has(Nodes.Draw))
@@ -464,8 +473,9 @@ class DelegatingNodeTest {
         assert(chain.has(Nodes.Semantics))
         assert(chain.has(Nodes.Layout))
         assert(node.kindSet == Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout)
-        assert(node.aggregateChildKindSet ==
-            Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout)
+        assert(
+            node.aggregateChildKindSet == Nodes.Any or Nodes.Draw or Nodes.Semantics or Nodes.Layout
+        )
 
         sem.undelegateUnprotected(lm)
         assert(chain.has(Nodes.Draw))
@@ -517,11 +527,12 @@ class DelegatingNodeTest {
 
     @Test
     fun testInvalidateInsertedNode() {
-        val node = object : DelegatingNode() {
-            val draw = delegate(DrawMod())
-            val layout = delegate(LayoutMod())
-            val semantics = delegate(SemanticsMod())
-        }
+        val node =
+            object : DelegatingNode() {
+                val draw = delegate(DrawMod())
+                val layout = delegate(LayoutMod())
+                val semantics = delegate(SemanticsMod())
+            }
         val chain = layout(node)
         chain.clearInvalidations()
 
@@ -534,13 +545,10 @@ class DelegatingNodeTest {
 
     @Test
     fun testNestedNodeInvalidation() {
-        val node = object : DelegatingNode() {
-            val wrapped = delegate(
-                DelegatedWrapper {
-                    DelegatedWrapper { DrawMod() }
-                }
-            )
-        }
+        val node =
+            object : DelegatingNode() {
+                val wrapped = delegate(DelegatedWrapper { DelegatedWrapper { DrawMod() } })
+            }
         val chain = layout(node)
         chain.clearInvalidations()
 
@@ -553,9 +561,10 @@ class DelegatingNodeTest {
 
     @Test
     fun testDelegateUndelegateCausesInvalidationsForDelegateKindsOnly() {
-        val node = object : DelegatingNode() {
-            val semantics = delegate(SemanticsMod())
-        }
+        val node =
+            object : DelegatingNode() {
+                val semantics = delegate(SemanticsMod())
+            }
         val chain = layout(node)
         chain.clearInvalidations()
 
@@ -666,15 +675,16 @@ class DelegatingNodeTest {
     @Test
     fun testDelegateInAttachUndelegateInDetach() {
         val b = DrawMod()
-        val a = object : DelegatingNode() {
-            override fun onAttach() {
-                delegate(b)
-            }
+        val a =
+            object : DelegatingNode() {
+                override fun onAttach() {
+                    delegate(b)
+                }
 
-            override fun onDetach() {
-                undelegate(b)
+                override fun onDetach() {
+                    undelegate(b)
+                }
             }
-        }
 
         // not attached yet or delegated yet
         assert(!a.isAttached)
@@ -716,11 +726,12 @@ class DelegatingNodeTest {
     @Test
     fun testDelegateInAttach() {
         val b = DrawMod()
-        val a = object : DelegatingNode() {
-            override fun onAttach() {
-                delegate(b)
+        val a =
+            object : DelegatingNode() {
+                override fun onAttach() {
+                    delegate(b)
+                }
             }
-        }
 
         // not attached yet or delegated yet
         assert(!a.isAttached)
@@ -807,15 +818,18 @@ internal fun layout(
 
 internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
     override fun create(): Modifier.Node = node
+
     override fun update(node: Modifier.Node) {}
 }
 
 class Recorder : (Any) -> Unit {
     val recorded = mutableListOf<Any>()
+
     override fun invoke(p1: Any) {
         recorded.add(p1)
     }
 }
+
 internal class LayoutScopeImpl(val layout: LayoutNode) : LayoutScope {
     override fun layout(vararg modifiers: Modifier.Node, block: LayoutScope.() -> Unit) {
         val ln = LayoutNode()
@@ -828,8 +842,10 @@ internal class LayoutScopeImpl(val layout: LayoutNode) : LayoutScope {
         LayoutScopeImpl(ln).block()
     }
 }
+
 interface LayoutScope {
     fun layout(vararg modifiers: Modifier.Node) = layout(*modifiers) {}
+
     fun layout(vararg modifiers: Modifier.Node, block: LayoutScope.() -> Unit)
 }
 
@@ -839,21 +855,21 @@ internal inline fun <reified T> assertDispatchOrder(
     vararg expected: T
 ) {
     val dispatches = mutableListOf<T>()
-    node.dispatchForKind(kind) {
-        dispatches.add(it)
-    }
+    node.dispatchForKind(kind) { dispatches.add(it) }
     assertThat(dispatches.toTypedArray()).isEqualTo(expected)
 }
 
 class DrawMod(val id: String = "") : DrawModifierNode, Modifier.Node() {
     override fun ContentDrawScope.draw() {}
+
     override fun toString(): String {
         return "DrawMod($id)"
     }
 }
 
 class SemanticsMod(val id: String = "") : SemanticsModifierNode, Modifier.Node() {
-    override fun SemanticsPropertyReceiver.applySemantics() { }
+    override fun SemanticsPropertyReceiver.applySemantics() {}
+
     override fun toString(): String {
         return "SemanticsMod($id)"
     }
@@ -865,10 +881,9 @@ class LayoutMod(val id: String = "") : LayoutModifierNode, Modifier.Node() {
         constraints: Constraints
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
-        return layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
-        }
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
+
     override fun toString(): String {
         return "LayoutMod($id)"
     }
@@ -876,6 +891,7 @@ class LayoutMod(val id: String = "") : LayoutModifierNode, Modifier.Node() {
 
 class DelegatedWrapper<T : Modifier.Node>(fn: () -> T) : DelegatingNode() {
     val wrapped = delegate(fn())
+
     override fun toString(): String = "Wrapped<$wrapped>"
 }
 
@@ -883,9 +899,7 @@ internal inline fun <reified T> Modifier.Node.asKind(kind: NodeKind<T>): T? {
     if (!isKind(kind)) return null
     if (this is T) return this
     if (this is DelegatingNode) {
-        forEachDelegateBreadthFirst {
-            if (it is T) return it
-        }
+        forEachDelegateBreadthFirst { if (it is T) return it }
     }
     return null
 }

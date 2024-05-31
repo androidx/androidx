@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 
 sealed class Screen {
     object List : Screen()
+
     data class Details(val item: Int) : Screen()
 }
 
@@ -60,16 +61,13 @@ sealed class Screen {
 @Composable
 @Preview
 fun ListToDetailsDemo() {
-    var state by remember {
-        mutableStateOf<Screen>(Screen.List)
-    }
-    val images = listOf(
-        R.drawable.pepper,
-        R.drawable.waffle,
-        R.drawable.yt_profile
-    )
+    var state by remember { mutableStateOf<Screen>(Screen.List) }
+    val images = listOf(R.drawable.pepper, R.drawable.waffle, R.drawable.yt_profile)
     SharedTransitionLayout(modifier = Modifier.fillMaxSize()) {
-        AnimatedContent(state, label = "", contentKey = { it.javaClass },
+        AnimatedContent(
+            state,
+            label = "",
+            contentKey = { it.javaClass },
             transitionSpec = {
                 if (initialState == Screen.List) {
                     slideInHorizontally { -it } + fadeIn() togetherWith
@@ -78,33 +76,37 @@ fun ListToDetailsDemo() {
                     slideInHorizontally { it } + fadeIn() togetherWith
                         slideOutHorizontally { -it } + fadeOut()
                 }
-            }) {
+            }
+        ) {
             when (it) {
                 Screen.List -> {
                     LazyColumn {
                         items(50) { item ->
-                            Row(modifier = Modifier
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
-                                    state = Screen.Details(item)
-                                }
-                                .fillMaxWidth()) {
+                            Row(
+                                modifier =
+                                    Modifier.clickable(
+                                            interactionSource =
+                                                remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            state = Screen.Details(item)
+                                        }
+                                        .fillMaxWidth()
+                            ) {
                                 Image(
                                     painter = painterResource(images[item % 3]),
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .then(
-                                            if (item % 3 < 2) {
-                                                Modifier.sharedElement(
-                                                    rememberSharedContentState(
-                                                        key = "item-image$item"
-                                                    ),
-                                                    this@AnimatedContent,
-                                                )
-                                            } else Modifier
-                                        ),
+                                    modifier =
+                                        Modifier.size(100.dp)
+                                            .then(
+                                                if (item % 3 < 2) {
+                                                    Modifier.sharedElement(
+                                                        rememberSharedContentState(
+                                                            key = "item-image$item"
+                                                        ),
+                                                        this@AnimatedContent,
+                                                    )
+                                                } else Modifier
+                                            ),
                                     contentScale = ContentScale.Crop,
                                     contentDescription = null
                                 )
@@ -114,36 +116,33 @@ fun ListToDetailsDemo() {
                         }
                     }
                 }
-
                 is Screen.Details -> {
                     val item = it.item
-                    Column(modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            state = Screen.List
-                        }) {
+                    Column(
+                        modifier =
+                            Modifier.fillMaxSize().clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                state = Screen.List
+                            }
+                    ) {
                         Image(
                             painter = painterResource(images[item % 3]),
-                            modifier = Modifier
-                                .then(
-                                    if (item % 3 < 2) {
-                                        Modifier.sharedElement(
-                                            rememberSharedContentState(key = "item-image$item"),
-                                            this@AnimatedContent,
-                                        )
-                                    } else Modifier
-                                )
-                                .fillMaxWidth(),
+                            modifier =
+                                Modifier.then(
+                                        if (item % 3 < 2) {
+                                            Modifier.sharedElement(
+                                                rememberSharedContentState(key = "item-image$item"),
+                                                this@AnimatedContent,
+                                            )
+                                        } else Modifier
+                                    )
+                                    .fillMaxWidth(),
                             contentScale = ContentScale.Crop,
                             contentDescription = null
                         )
-                        Text(
-                            "Item $item",
-                            fontSize = 23.sp
-                        )
+                        Text("Item $item", fontSize = 23.sp)
                     }
                 }
             }

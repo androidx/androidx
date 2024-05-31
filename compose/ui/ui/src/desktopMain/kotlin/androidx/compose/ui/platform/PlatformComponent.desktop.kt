@@ -31,6 +31,7 @@ internal actual interface PlatformComponentWithCursor {
 internal actual object DummyPlatformComponent : PlatformComponent {
     override var componentCursor: Cursor = Cursor(Cursor.CROSSHAIR_CURSOR)
     var enabledInput: InputMethodRequests? = null
+
     override fun enableInput(inputMethodRequests: InputMethodRequests) {
         enabledInput = inputMethodRequests
     }

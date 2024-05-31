@@ -28,15 +28,16 @@ import kotlin.test.fail
 import org.junit.Assert.assertArrayEquals
 
 /**
- * Creates a path from the specified shape, using the EvenOdd fill type to match SVG.
- * The returned path has its origin set to 0,0 for convenience.
+ * Creates a path from the specified shape, using the EvenOdd fill type to match SVG. The returned
+ * path has its origin set to 0,0 for convenience.
  */
-internal fun createSvgPath(svgShape: SvgShape) = Path().apply {
-    addSvg(svgShape.pathData)
-    val bounds = getBounds()
-    translate(Offset(-bounds.left, -bounds.top))
-    fillType = PathFillType.EvenOdd
-}
+internal fun createSvgPath(svgShape: SvgShape) =
+    Path().apply {
+        addSvg(svgShape.pathData)
+        val bounds = getBounds()
+        translate(Offset(-bounds.left, -bounds.top))
+        fillType = PathFillType.EvenOdd
+    }
 
 /* ktlint-disable max-line-length */
 internal enum class SvgShape(val pathData: String) {
@@ -56,17 +57,19 @@ internal enum class SvgShape(val pathData: String) {
         "M648.094,783.362C721.785,623.533 869.168,623.533 942.86,703.447C1016.55,783.362 1016.55,943.19 942.86,1103.02C891.275,1222.89 758.631,1342.76 648.094,1422.68C537.557,1342.76 404.913,1222.89 353.329,1103.02C279.638,943.19 279.638,783.362 353.329,703.447C427.021,623.533 574.403,623.533 648.094,783.362Z"
     ),
 }
+
 /* ktlint-enable max-line-length */
 
-private fun valueCountForType(type: PathSegment.Type) = when (type) {
-    PathSegment.Type.Move -> 2
-    PathSegment.Type.Line -> 4
-    PathSegment.Type.Quadratic -> 6
-    PathSegment.Type.Conic -> 8
-    PathSegment.Type.Cubic -> 8
-    PathSegment.Type.Close -> 0
-    PathSegment.Type.Done -> 0
-}
+private fun valueCountForType(type: PathSegment.Type) =
+    when (type) {
+        PathSegment.Type.Move -> 2
+        PathSegment.Type.Line -> 4
+        PathSegment.Type.Quadratic -> 6
+        PathSegment.Type.Conic -> 8
+        PathSegment.Type.Cubic -> 8
+        PathSegment.Type.Close -> 0
+        PathSegment.Type.Done -> 0
+    }
 
 internal fun assertPathEquals(
     expected: Path,
@@ -103,9 +106,9 @@ internal fun assertPointEquals(expected: Offset, actual: FloatArray, offset: Int
 }
 
 /**
- * Compares two bitmaps and fails the test if they are different. The two bitmaps
- * are considered different if more than [errorCount] pixels differ by more than
- * [threshold] in any of the RGB channels.
+ * Compares two bitmaps and fails the test if they are different. The two bitmaps are considered
+ * different if more than [errorCount] pixels differ by more than [threshold] in any of the RGB
+ * channels.
  */
 internal fun compareBitmaps(bitmap1: Bitmap, bitmap2: Bitmap, errorCount: Int, threshold: Int = 1) {
     assertEquals(bitmap1.width, bitmap2.width)
@@ -125,10 +128,7 @@ internal fun compareBitmaps(bitmap1: Bitmap, bitmap2: Bitmap, errorCount: Int, t
             val (r1, g1, b1, _) = p1[index]
             val (r2, g2, b2, _) = p2[index]
 
-            if (abs(r1 - r2) > threshold ||
-                abs(g1 - g2) > threshold ||
-                abs(b1 - b2) > threshold
-            ) {
+            if (abs(r1 - r2) > threshold || abs(g1 - g2) > threshold || abs(b1 - b2) > threshold) {
                 count++
             }
         }

@@ -20,9 +20,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.DelegatableNode
 
-/**
- * Platform specific internal API to bring a rectangle into view.
- */
+/** Platform specific internal API to bring a rectangle into view. */
 internal actual fun DelegatableNode.defaultBringIntoViewParent(): BringIntoViewParent =
     NoopBringIntoViewParent
 

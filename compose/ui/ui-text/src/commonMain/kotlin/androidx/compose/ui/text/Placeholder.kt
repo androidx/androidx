@@ -26,11 +26,11 @@ import androidx.compose.ui.unit.isUnspecified
  * paragraph.
  *
  * @param width the width of the placeholder, it must be specified in sp or em.
- * [TextUnit.Unspecified] is not allowed.
+ *   [TextUnit.Unspecified] is not allowed.
  * @param height the height of the placeholder, it must be specified in sp or em.
- * [TextUnit.Unspecified] is not allowed.
+ *   [TextUnit.Unspecified] is not allowed.
  * @param placeholderVerticalAlign the vertical alignment of the placeholder within the text line.
- * Check [PlaceholderVerticalAlign] for more information.
+ *   Check [PlaceholderVerticalAlign] for more information.
  * @throws IllegalArgumentException if [TextUnit.Unspecified] is passed to [width] or [height].
  */
 @Immutable
@@ -80,14 +80,15 @@ class Placeholder(
             ")"
     }
 }
+
 /**
  * The settings used to specify how a placeholder is vertically aligned within a text line.
+ *
  * @see Placeholder
  */
 @kotlin.jvm.JvmInline
-value class PlaceholderVerticalAlign internal constructor(
-    @Suppress("unused") private val value: Int
-) {
+value class PlaceholderVerticalAlign
+internal constructor(@Suppress("unused") private val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -112,24 +113,24 @@ value class PlaceholderVerticalAlign internal constructor(
         /** Align the center of the placeholder with the center of the entire line. */
         val Center = PlaceholderVerticalAlign(4)
         /**
-         *  Align the top of the placeholder with the top of the proceeding text.
-         *  It is different from the [Top] when there are texts with different font size, font or other
-         *  styles in the same line. This option will use the proceeding text's top instead of the
-         *  whole line's top.
+         * Align the top of the placeholder with the top of the proceeding text. It is different
+         * from the [Top] when there are texts with different font size, font or other styles in the
+         * same line. This option will use the proceeding text's top instead of the whole line's
+         * top.
          */
         val TextTop = PlaceholderVerticalAlign(5)
         /**
-         * Align the bottom of the placeholder with the bottom of the proceeding text.
-         * It is different from the [TextBottom] when there are texts with different font size, font or
-         * other styles in the same line. This option will use the proceeding text's bottom instead of
-         * the whole line's bottom.
+         * Align the bottom of the placeholder with the bottom of the proceeding text. It is
+         * different from the [TextBottom] when there are texts with different font size, font or
+         * other styles in the same line. This option will use the proceeding text's bottom instead
+         * of the whole line's bottom.
          */
         val TextBottom = PlaceholderVerticalAlign(6)
         /**
-         * Align the center of the placeholder with the center of the proceeding text.
-         * It is different from the [Center] when there are texts with different font size, font or
-         * other styles in the same line. This option will use the proceeding text's center instead of
-         * the whole line's center.
+         * Align the center of the placeholder with the center of the proceeding text. It is
+         * different from the [Center] when there are texts with different font size, font or other
+         * styles in the same line. This option will use the proceeding text's center instead of the
+         * whole line's center.
          */
         val TextCenter = PlaceholderVerticalAlign(7)
     }

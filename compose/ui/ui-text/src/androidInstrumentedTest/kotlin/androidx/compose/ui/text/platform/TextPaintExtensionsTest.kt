@@ -80,10 +80,7 @@ class TextPaintExtensionsTest {
 
     @Test
     fun textGeometricTransform_shouldBeAppliedTo_scaleSkew() {
-        val textGeometricTransform = TextGeometricTransform(
-            scaleX = 1.5f,
-            skewX = 1f
-        )
+        val textGeometricTransform = TextGeometricTransform(scaleX = 1.5f, skewX = 1f)
         val spanStyle = SpanStyle(textGeometricTransform = textGeometricTransform)
         val tp = AndroidTextPaint(0, density.density)
         val originalSkew = tp.textSkewX
@@ -194,12 +191,13 @@ class TextPaintExtensionsTest {
         val fontStyle = FontStyle.Italic
         val fontSynthesis = FontSynthesis.Style
 
-        val spanStyle = SpanStyle(
-            fontFamily = fontFamily,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis
-        )
+        val spanStyle =
+            SpanStyle(
+                fontFamily = fontFamily,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis
+            )
 
         val tp = AndroidTextPaint(0, density.density)
         tp.typeface = Typeface.DEFAULT
@@ -209,17 +207,18 @@ class TextPaintExtensionsTest {
         var calledFontStyle: FontStyle? = null
         var calledFontSynthesis: FontSynthesis? = null
 
-        val notApplied = tp.applySpanStyle(
-            spanStyle,
-            { family, weight, style, synthesis ->
-                calledFontFamily = family
-                calledFontWeight = weight
-                calledFontStyle = style
-                calledFontSynthesis = synthesis
-                Typeface.MONOSPACE
-            },
-            density
-        )
+        val notApplied =
+            tp.applySpanStyle(
+                spanStyle,
+                { family, weight, style, synthesis ->
+                    calledFontFamily = family
+                    calledFontWeight = weight
+                    calledFontStyle = style
+                    calledFontSynthesis = synthesis
+                    Typeface.MONOSPACE
+                },
+                density
+            )
 
         assertThat(tp.typeface).isEqualTo(Typeface.MONOSPACE)
         assertThat(calledFontFamily).isEqualTo(fontFamily)
@@ -360,8 +359,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.setTextMotion(textMotion)
 
-        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG)
-            .isEqualTo(TextPaint.LINEAR_TEXT_FLAG)
+        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(TextPaint.LINEAR_TEXT_FLAG)
         assertThat(tp.flags and TextPaint.SUBPIXEL_TEXT_FLAG)
             .isEqualTo(TextPaint.SUBPIXEL_TEXT_FLAG)
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_OFF)
@@ -373,8 +371,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.setTextMotion(textMotion)
 
-        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG)
-            .isEqualTo(0)
+        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)
         assertThat(tp.flags and TextPaint.SUBPIXEL_TEXT_FLAG)
             .isEqualTo(TextPaint.SUBPIXEL_TEXT_FLAG)
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_ON)
@@ -386,8 +383,7 @@ class TextPaintExtensionsTest {
         val tp = AndroidTextPaint(0, density.density)
         tp.setTextMotion(textMotion)
 
-        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG)
-            .isEqualTo(0)
+        assertThat(tp.flags and TextPaint.LINEAR_TEXT_FLAG).isEqualTo(0)
         assertThat(tp.flags and TextPaint.SUBPIXEL_TEXT_FLAG)
             .isEqualTo(TextPaint.SUBPIXEL_TEXT_FLAG)
         assertThat(tp.hinting).isEqualTo(TextPaint.HINTING_OFF)

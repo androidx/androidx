@@ -20,5 +20,6 @@ import androidx.compose.ui.text.AnnotatedString
 
 internal expect class PlatformClipboardManager() : ClipboardManager {
     override fun getText(): AnnotatedString?
+
     override fun setText(annotatedString: AnnotatedString)
 }

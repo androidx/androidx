@@ -20,8 +20,8 @@ package androidx.compose.runtime.saveable
  * The [Saver] implementation which allows to represent your [Original] class as a list of
  * [Saveable] values.
  *
- * What types can be saved is defined by [SaveableStateRegistry], by default everything which can
- * be stored in the Bundle class can be saved.
+ * What types can be saved is defined by [SaveableStateRegistry], by default everything which can be
+ * stored in the Bundle class can be saved.
  *
  * You can use it as a parameter for [rememberSaveable].
  *
@@ -30,16 +30,18 @@ package androidx.compose.runtime.saveable
 fun <Original, Saveable> listSaver(
     save: SaverScope.(value: Original) -> List<Saveable>,
     restore: (list: List<Saveable>) -> Original?
-): Saver<Original, Any> = @Suppress("UNCHECKED_CAST") Saver(
-    save = {
-        val list = save(it)
-        for (index in list.indices) {
-            val item = list[index]
-            if (item != null) {
-                require(canBeSaved(item)) { "item can't be saved" }
+): Saver<Original, Any> =
+    @Suppress("UNCHECKED_CAST")
+    Saver(
+        save = {
+            val list = save(it)
+            for (index in list.indices) {
+                val item = list[index]
+                if (item != null) {
+                    require(canBeSaved(item)) { "item can't be saved" }
+                }
             }
-        }
-        if (list.isNotEmpty()) ArrayList(list) else null
-    },
-    restore = restore as (Any) -> Original?
-)
+            if (list.isNotEmpty()) ArrayList(list) else null
+        },
+        restore = restore as (Any) -> Original?
+    )

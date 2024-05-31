@@ -28,15 +28,16 @@ import kotlinx.coroutines.CancellationException
  * alternative [animationSpec] can be provided to replace the default [spring].
  *
  * This is a convenient method for Float animation. If there's a need to access more info related to
- * the animation such as start time, target, etc, consider using [AnimationState.animateTo].
- * To animate non-[Float] data types, consider the [animate] overload/variant for generic types.
+ * the animation such as start time, target, etc, consider using [AnimationState.animateTo]. To
+ * animate non-[Float] data types, consider the [animate] overload/variant for generic types.
  *
  * @param initialVelocity The velocity to use for the animation. 0f by default.
  * @param animationSpec The animation configuration that will be used. [spring] by default.
  * @param block Will be invoked on every frame with the current value and velocity of the animation
- * for that frame.
+ *   for that frame.
  *
  * @sample androidx.compose.animation.core.samples.suspendAnimateFloatVariant
+ *
  * @see AnimationState.animateTo
  */
 suspend fun animate(
@@ -46,14 +47,7 @@ suspend fun animate(
     animationSpec: AnimationSpec<Float> = spring(),
     block: (value: Float, velocity: Float) -> Unit
 ) {
-    animate(
-        Float.VectorConverter,
-        initialValue,
-        targetValue,
-        initialVelocity,
-        animationSpec,
-        block
-    )
+    animate(Float.VectorConverter, initialValue, targetValue, initialVelocity, animationSpec, block)
 }
 
 /**
@@ -64,11 +58,9 @@ suspend fun animate(
  * the animation such as start time, target, etc, consider using [AnimationState.animateDecay].
  *
  * @param animationSpec Defines the decay animation that will be used for this animation. Some
- * options for this [animationSpec] include:
- * [splineBasedDecay][androidx.compose.animation.splineBasedDecay] and [exponentialDecay].
- *
+ *   options for this [animationSpec] include:
+ *   [splineBasedDecay][androidx.compose.animation.splineBasedDecay] and [exponentialDecay].
  * @param block Will be invoked on each animation frame with up-to-date value and velocity.
- *
  * @see AnimationState.animateDecay
  */
 suspend fun animateDecay(
@@ -104,15 +96,17 @@ suspend fun <T, V : AnimationVector> animate(
     animationSpec: AnimationSpec<T> = spring(),
     block: (value: T, velocity: T) -> Unit
 ) {
-    val initialVelocityVector = initialVelocity?.let { typeConverter.convertToVector(it) }
-        ?: typeConverter.convertToVector(initialValue).newInstance()
-    val anim = TargetBasedAnimation(
-        animationSpec = animationSpec,
-        initialValue = initialValue,
-        targetValue = targetValue,
-        typeConverter = typeConverter,
-        initialVelocityVector = initialVelocityVector
-    )
+    val initialVelocityVector =
+        initialVelocity?.let { typeConverter.convertToVector(it) }
+            ?: typeConverter.convertToVector(initialValue).newInstance()
+    val anim =
+        TargetBasedAnimation(
+            animationSpec = animationSpec,
+            initialValue = initialValue,
+            targetValue = targetValue,
+            typeConverter = typeConverter,
+            initialVelocityVector = initialVelocityVector
+        )
     AnimationState(typeConverter, initialValue, initialVelocityVector).animate(anim) {
         block(value, typeConverter.convertFromVector(velocityVector))
     }
@@ -121,25 +115,22 @@ suspend fun <T, V : AnimationVector> animate(
 /**
  * Target based animation that takes the value and velocity from the [AnimationState] as the
  * starting condition, and animate to the [targetValue], using the [animationSpec]. During the
- * animation, the given [AnimationState] will be updated with the up-to-date value/velocity,
- * frame time, etc.
+ * animation, the given [AnimationState] will be updated with the up-to-date value/velocity, frame
+ * time, etc.
  *
  * @param targetValue The target value that the animation will animate to.
- *
  * @param animationSpec The animation configuration that will be used. [spring] by default.
- *
  * @param sequentialAnimation Indicates whether the animation should use the
- * [AnimationState.lastFrameTimeNanos] as the starting time (if true), or start in a new frame. By
- * default, [sequentialAnimation] is false, to start the animation in a few frame. In cases where
- * an on-going animation is interrupted and a new animation is started to carry over the
- * momentum, using the interruption time (captured in [AnimationState.lastFrameTimeNanos]) creates
- * a smoother animation.
- *
+ *   [AnimationState.lastFrameTimeNanos] as the starting time (if true), or start in a new frame. By
+ *   default, [sequentialAnimation] is false, to start the animation in a few frame. In cases where
+ *   an on-going animation is interrupted and a new animation is started to carry over the momentum,
+ *   using the interruption time (captured in [AnimationState.lastFrameTimeNanos]) creates a
+ *   smoother animation.
  * @param block Will be invoked on every frame, and the [AnimationScope] will be checked against
- * cancellation before the animation continues. To cancel the animation from the [block], simply
- * call [AnimationScope.cancelAnimation].  After [AnimationScope.cancelAnimation] is called, [block]
- * will not be invoked again. The animation loop will exit after the [block] returns. All the
- * animation related info can be accessed via [AnimationScope].
+ *   cancellation before the animation continues. To cancel the animation from the [block], simply
+ *   call [AnimationScope.cancelAnimation]. After [AnimationScope.cancelAnimation] is called,
+ *   [block] will not be invoked again. The animation loop will exit after the [block] returns. All
+ *   the animation related info can be accessed via [AnimationScope].
  *
  * @sample androidx.compose.animation.core.samples.animateToOnAnimationState
  */
@@ -149,13 +140,14 @@ suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
     sequentialAnimation: Boolean = false,
     block: AnimationScope<T, V>.() -> Unit = {}
 ) {
-    val anim = TargetBasedAnimation(
-        animationSpec = animationSpec,
-        initialValue = value,
-        targetValue = targetValue,
-        typeConverter = typeConverter,
-        initialVelocityVector = velocityVector
-    )
+    val anim =
+        TargetBasedAnimation(
+            animationSpec = animationSpec,
+            initialValue = value,
+            targetValue = targetValue,
+            typeConverter = typeConverter,
+            initialVelocityVector = velocityVector
+        )
     animate(
         anim,
         if (sequentialAnimation) lastFrameTimeNanos else AnimationConstants.UnspecifiedTime,
@@ -166,37 +158,37 @@ suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
 /**
  * Decay animation that slows down from the current velocity and value captured in [AnimationState]
  * until the velocity reaches 0. During the animation, the given [AnimationState] will be updated
- * with the up-to-date value/velocity, frame time, etc. This is often used to animate the result
- * of a fling gesture.
+ * with the up-to-date value/velocity, frame time, etc. This is often used to animate the result of
+ * a fling gesture.
  *
  * @param animationSpec Defines the decay animation that will be used for this animation. Some
- * options for [animationSpec] include:
- * [splineBasedDecay][androidx.compose.animation.splineBasedDecay] and [exponentialDecay].
- *
+ *   options for [animationSpec] include:
+ *   [splineBasedDecay][androidx.compose.animation.splineBasedDecay] and [exponentialDecay].
  * @param sequentialAnimation Indicates whether the animation should use the
- * [AnimationState.lastFrameTimeNanos] as the starting time (if true), or start in a new frame. By
- * default, [sequentialAnimation] is false, to start the animation in a few frame. In cases where
- * an on-going animation is interrupted and a new animation is started to carry over the
- * momentum, using the interruption time (captured in [AnimationState.lastFrameTimeNanos]) creates
- * a smoother animation.
- *
+ *   [AnimationState.lastFrameTimeNanos] as the starting time (if true), or start in a new frame. By
+ *   default, [sequentialAnimation] is false, to start the animation in a few frame. In cases where
+ *   an on-going animation is interrupted and a new animation is started to carry over the momentum,
+ *   using the interruption time (captured in [AnimationState.lastFrameTimeNanos]) creates a
+ *   smoother animation.
  * @param block will be invoked on every frame during the animation, and the [AnimationScope] will
- * be checked against cancellation before the animation continues. To cancel the animation from the
- * [block], simply call [AnimationScope.cancelAnimation].  After [AnimationScope.cancelAnimation] is
- * called, [block] will not be invoked again. The animation loop will exit after the [block]
- * returns. All the animation related info can be accessed via [AnimationScope].
+ *   be checked against cancellation before the animation continues. To cancel the animation from
+ *   the [block], simply call [AnimationScope.cancelAnimation]. After
+ *   [AnimationScope.cancelAnimation] is called, [block] will not be invoked again. The animation
+ *   loop will exit after the [block] returns. All the animation related info can be accessed via
+ *   [AnimationScope].
  */
 suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateDecay(
     animationSpec: DecayAnimationSpec<T>,
     sequentialAnimation: Boolean = false,
     block: AnimationScope<T, V>.() -> Unit = {}
 ) {
-    val anim = DecayAnimation<T, V>(
-        animationSpec = animationSpec,
-        initialValue = value,
-        initialVelocityVector = velocityVector,
-        typeConverter = typeConverter
-    )
+    val anim =
+        DecayAnimation<T, V>(
+            animationSpec = animationSpec,
+            initialValue = value,
+            initialVelocityVector = velocityVector,
+            typeConverter = typeConverter
+        )
     animate(
         anim,
         if (sequentialAnimation) lastFrameTimeNanos else AnimationConstants.UnspecifiedTime,
@@ -205,22 +197,21 @@ suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateDecay(
 }
 
 /**
- * This animation function runs the animation defined in the given [animation] from start to
- * finish. During the animation, the [AnimationState] will be updated with the up-to-date
- * value/velocity, frame time, etc.
+ * This animation function runs the animation defined in the given [animation] from start to finish.
+ * During the animation, the [AnimationState] will be updated with the up-to-date value/velocity,
+ * frame time, etc.
  *
- * For [Animation]s that use [AnimationSpec], consider using these more convenient APIs:
- * [animate], [AnimationState.animateTo], [animateDecay], [AnimationState.animateDecay].
+ * For [Animation]s that use [AnimationSpec], consider using these more convenient APIs: [animate],
+ * [AnimationState.animateTo], [animateDecay], [AnimationState.animateDecay].
  *
  * @param startTimeNanos If provided, it will be used as the time that the animation was started. By
- * default, [startTimeNanos] is [AnimationConstants.UnspecifiedTime], meaning the animation will
- * start in the next frame.
- *
+ *   default, [startTimeNanos] is [AnimationConstants.UnspecifiedTime], meaning the animation will
+ *   start in the next frame.
  * @param block Will be invoked on every frame, and the [AnimationScope] will be checked against
- * cancellation before the animation continues. To cancel the animation from the [block], simply
- * call [AnimationScope.cancelAnimation].  After [AnimationScope.cancelAnimation] is called, [block]
- * will not be invoked again. The animation loop will exit after the [block] returns. All the
- * animation related info can be accessed via [AnimationScope].
+ *   cancellation before the animation continues. To cancel the animation from the [block], simply
+ *   call [AnimationScope.cancelAnimation]. After [AnimationScope.cancelAnimation] is called,
+ *   [block] will not be invoked again. The animation loop will exit after the [block] returns. All
+ *   the animation related info can be accessed via [AnimationScope].
  */
 // TODO: This method uses AnimationState and Animation at the same time, it's potentially confusing
 //  as to which is the source of truth for initial value/velocity. Consider letting [Animation] have
@@ -237,40 +228,50 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
         if (startTimeNanos == AnimationConstants.UnspecifiedTime) {
             val durationScale = coroutineContext.durationScale
             animation.callWithFrameNanos {
-                lateInitScope = AnimationScope(
-                    initialValue = initialValue,
-                    typeConverter = animation.typeConverter,
-                    initialVelocityVector = initialVelocityVector,
-                    lastFrameTimeNanos = it,
-                    targetValue = animation.targetValue,
-                    startTimeNanos = it,
-                    isRunning = true,
-                    onCancel = { isRunning = false }
-                ).apply {
-                    // First frame
-                    doAnimationFrameWithScale(it, durationScale, animation, this@animate, block)
-                }
+                lateInitScope =
+                    AnimationScope(
+                            initialValue = initialValue,
+                            typeConverter = animation.typeConverter,
+                            initialVelocityVector = initialVelocityVector,
+                            lastFrameTimeNanos = it,
+                            targetValue = animation.targetValue,
+                            startTimeNanos = it,
+                            isRunning = true,
+                            onCancel = { isRunning = false }
+                        )
+                        .apply {
+                            // First frame
+                            doAnimationFrameWithScale(
+                                it,
+                                durationScale,
+                                animation,
+                                this@animate,
+                                block
+                            )
+                        }
             }
         } else {
-            lateInitScope = AnimationScope(
-                initialValue = initialValue,
-                typeConverter = animation.typeConverter,
-                initialVelocityVector = initialVelocityVector,
-                lastFrameTimeNanos = startTimeNanos,
-                targetValue = animation.targetValue,
-                startTimeNanos = startTimeNanos,
-                isRunning = true,
-                onCancel = { isRunning = false }
-            ).apply {
-                // First frame
-                doAnimationFrameWithScale(
-                    startTimeNanos,
-                    coroutineContext.durationScale,
-                    animation,
-                    this@animate,
-                    block
-                )
-            }
+            lateInitScope =
+                AnimationScope(
+                        initialValue = initialValue,
+                        typeConverter = animation.typeConverter,
+                        initialVelocityVector = initialVelocityVector,
+                        lastFrameTimeNanos = startTimeNanos,
+                        targetValue = animation.targetValue,
+                        startTimeNanos = startTimeNanos,
+                        isRunning = true,
+                        onCancel = { isRunning = false }
+                    )
+                    .apply {
+                        // First frame
+                        doAnimationFrameWithScale(
+                            startTimeNanos,
+                            coroutineContext.durationScale,
+                            animation,
+                            this@animate,
+                            block
+                        )
+                    }
         }
         // Subsequent frames
         while (lateInitScope!!.isRunning) {
@@ -291,8 +292,8 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
 }
 
 /**
- * Calls the [finite][withFrameNanos] or [infinite][withInfiniteAnimationFrameNanos]
- * variant of `withFrameNanos`, depending on the value of [Animation.isInfinite].
+ * Calls the [finite][withFrameNanos] or [infinite][withInfiniteAnimationFrameNanos] variant of
+ * `withFrameNanos`, depending on the value of [Animation.isInfinite].
  */
 private suspend fun <R, T, V : AnimationVector> Animation<T, V>.callWithFrameNanos(
     onFrame: (frameTimeNanos: Long) -> R
@@ -300,9 +301,7 @@ private suspend fun <R, T, V : AnimationVector> Animation<T, V>.callWithFrameNan
     return if (isInfinite) {
         withInfiniteAnimationFrameNanos(onFrame)
     } else {
-        withFrameNanos {
-            onFrame.invoke(it / AnimationDebugDurationScale)
-        }
+        withFrameNanos { onFrame.invoke(it / AnimationDebugDurationScale) }
     }
 }
 

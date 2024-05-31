@@ -63,13 +63,8 @@ fun BrushAnimatingSpanDemo() {
     var highlightWordCount by remember { mutableIntStateOf(15) }
     var postWordCount by remember { mutableIntStateOf(5) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Column {
-
             Text("Pre Word Count")
             Slider(
                 value = preWordCount.toFloat(),
@@ -101,33 +96,37 @@ fun BrushAnimatingSpanDemo() {
                 animatable = animatable,
                 animatable2 = animatable2
             )
-            Button(onClick = {
-                coroutineScope.launch {
-                    animatable.snapTo(0f)
-                    animatable2.snapTo(0f)
-                    launch {
-                        animatable2.animateTo(
-                            1f,
-                            tween(highlightWordCount * 100, easing = LinearEasing)
-                        )
-                    }
-                    delay(300)
-                    launch {
-                        animatable.animateTo(
-                            1f,
-                            tween(highlightWordCount * 100, easing = LinearEasing)
-                        )
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        animatable.snapTo(0f)
+                        animatable2.snapTo(0f)
+                        launch {
+                            animatable2.animateTo(
+                                1f,
+                                tween(highlightWordCount * 100, easing = LinearEasing)
+                            )
+                        }
+                        delay(300)
+                        launch {
+                            animatable.animateTo(
+                                1f,
+                                tween(highlightWordCount * 100, easing = LinearEasing)
+                            )
+                        }
                     }
                 }
-            }) {
+            ) {
                 Text("Go")
             }
-            Button(onClick = {
-                coroutineScope.launch {
-                    animatable.snapTo(0f)
-                    animatable2.snapTo(0f)
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        animatable.snapTo(0f)
+                        animatable2.snapTo(0f)
+                    }
                 }
-            }) {
+            ) {
                 Text("Reset")
             }
         }
@@ -142,40 +141,37 @@ fun BrushAnimatingSpanText(
     animatable: Animatable<Float, AnimationVector1D>,
     animatable2: Animatable<Float, AnimationVector1D>
 ) {
-    val (text, start, end) = remember(preWordCount, highlightWordCount, postWordCount) {
-        var start = 0
-        var end = 0
-        val text = buildAnnotatedString {
-            append(loremIpsum(wordCount = preWordCount))
-            start = length
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                append(loremIpsum(wordCount = highlightWordCount))
+    val (text, start, end) =
+        remember(preWordCount, highlightWordCount, postWordCount) {
+            var start = 0
+            var end = 0
+            val text = buildAnnotatedString {
+                append(loremIpsum(wordCount = preWordCount))
+                start = length
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(loremIpsum(wordCount = highlightWordCount))
+                }
+                end = length
+                append(loremIpsum(wordCount = postWordCount))
             }
-            end = length
-            append(loremIpsum(wordCount = postWordCount))
+            Triple(text, start, end)
         }
-        Triple(text, start, end)
-    }
 
     val textLayoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val finalText = remember(text, start, end, textLayoutResult.value?.layoutInput?.text?.text) {
-        calculateAnnotatedString(
-            text,
-            start,
-            end,
-            textLayoutResult.value,
-            animatable,
-            animatable2
-        )
-    }
+    val finalText =
+        remember(text, start, end, textLayoutResult.value?.layoutInput?.text?.text) {
+            calculateAnnotatedString(
+                text,
+                start,
+                end,
+                textLayoutResult.value,
+                animatable,
+                animatable2
+            )
+        }
 
-    Text(
-        text = finalText,
-        fontSize = 20.sp,
-        onTextLayout = {
-            textLayoutResult.value = it
-        })
+    Text(text = finalText, fontSize = 20.sp, onTextLayout = { textLayoutResult.value = it })
 }
 
 fun calculateAnnotatedString(
@@ -194,83 +190,94 @@ fun calculateAnnotatedString(
     val lastLineRight = textLayoutResult.getBoundingBox(end).right
 
     if (startLine == endLine) {
-        lines += Segment(
-            leftPosition = firstLineLeft,
-            rightPosition = lastLineRight,
-            leftOffset = start,
-            rightOffset = end
-        )
+        lines +=
+            Segment(
+                leftPosition = firstLineLeft,
+                rightPosition = lastLineRight,
+                leftOffset = start,
+                rightOffset = end
+            )
     } else {
         for (i in (startLine..endLine)) {
-            lines += when (i) {
-                startLine -> {
-                    Segment(
-                        leftPosition = firstLineLeft,
-                        rightPosition = textLayoutResult.getLineRight(i),
-                        leftOffset = start,
-                        rightOffset = textLayoutResult.getLineEnd(i)
-                    )
-                }
-
-                endLine -> {
-                    Segment(
-                        leftPosition = textLayoutResult.getLineLeft(i),
-                        rightPosition = lastLineRight,
-                        leftOffset = textLayoutResult.getLineStart(i),
-                        rightOffset = end
-                    )
-                }
-
-                else -> {
-                    Segment(
-                        leftPosition = textLayoutResult.getLineLeft(i),
-                        rightPosition = textLayoutResult.getLineRight(i),
-                        leftOffset = textLayoutResult.getLineStart(i),
-                        rightOffset = textLayoutResult.getLineEnd(i)
-                    )
-                }
-            }
-        }
-    }
-
-    val brushSpans = (lines).mapIndexed { index, segment ->
-        AnnotatedString.Range(
-            item = SpanStyle(
-                brush = object : ShaderBrush() {
-                    override fun createShader(size: Size): Shader {
-                        val animationValue = animatable.value
-                        val animationValue2 = animatable2.value
-                        return LinearGradientShader(
-                            from = Offset(
-                                x = segment.leftPosition - lines.allLeftWidth(index),
-                                y = 0f
-                            ),
-                            to = Offset(
-                                x = segment.rightPosition + lines.allRightWidth(index),
-                                y = 0f
-                            ),
-                            colors = listOf(
-                                Color.Blue,
-                                Color.Blue,
-                                Color.Gray,
-                                Color.Black,
-                                Color.Black
-                            ),
-                            colorStops = listOf(
-                                0f,
-                                animationValue,
-                                (animationValue + animationValue2) / 2,
-                                animationValue2,
-                                1f
-                            )
+            lines +=
+                when (i) {
+                    startLine -> {
+                        Segment(
+                            leftPosition = firstLineLeft,
+                            rightPosition = textLayoutResult.getLineRight(i),
+                            leftOffset = start,
+                            rightOffset = textLayoutResult.getLineEnd(i)
+                        )
+                    }
+                    endLine -> {
+                        Segment(
+                            leftPosition = textLayoutResult.getLineLeft(i),
+                            rightPosition = lastLineRight,
+                            leftOffset = textLayoutResult.getLineStart(i),
+                            rightOffset = end
+                        )
+                    }
+                    else -> {
+                        Segment(
+                            leftPosition = textLayoutResult.getLineLeft(i),
+                            rightPosition = textLayoutResult.getLineRight(i),
+                            leftOffset = textLayoutResult.getLineStart(i),
+                            rightOffset = textLayoutResult.getLineEnd(i)
                         )
                     }
                 }
-            ),
-            start = segment.leftOffset,
-            end = segment.rightOffset
-        )
+        }
     }
+
+    val brushSpans =
+        (lines).mapIndexed { index, segment ->
+            AnnotatedString.Range(
+                item =
+                    SpanStyle(
+                        brush =
+                            object : ShaderBrush() {
+                                override fun createShader(size: Size): Shader {
+                                    val animationValue = animatable.value
+                                    val animationValue2 = animatable2.value
+                                    return LinearGradientShader(
+                                        from =
+                                            Offset(
+                                                x =
+                                                    segment.leftPosition -
+                                                        lines.allLeftWidth(index),
+                                                y = 0f
+                                            ),
+                                        to =
+                                            Offset(
+                                                x =
+                                                    segment.rightPosition +
+                                                        lines.allRightWidth(index),
+                                                y = 0f
+                                            ),
+                                        colors =
+                                            listOf(
+                                                Color.Blue,
+                                                Color.Blue,
+                                                Color.Gray,
+                                                Color.Black,
+                                                Color.Black
+                                            ),
+                                        colorStops =
+                                            listOf(
+                                                0f,
+                                                animationValue,
+                                                (animationValue + animationValue2) / 2,
+                                                animationValue2,
+                                                1f
+                                            )
+                                    )
+                                }
+                            }
+                    ),
+                start = segment.leftOffset,
+                end = segment.rightOffset
+            )
+        }
     return AnnotatedString(
         text.text,
         paragraphStyles = text.paragraphStyles,

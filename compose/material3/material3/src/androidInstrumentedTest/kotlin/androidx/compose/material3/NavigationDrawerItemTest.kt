@@ -54,8 +54,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavigationDrawerItemTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val DrawerItemTag = "drawer_item_tag"
 
@@ -73,7 +72,8 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag(DrawerItemTag)
+        rule
+            .onNodeWithTag(DrawerItemTag)
             .assertWidthIsEqualTo(264.dp)
             .assertHeightIsEqualTo(NavigationDrawerTokens.ActiveIndicatorHeight)
     }
@@ -110,12 +110,8 @@ class NavigationDrawerItemTest {
                             modifier = Modifier.testTag("icon")
                         )
                     },
-                    label = {
-                        Text("Label")
-                    },
-                    badge = {
-                        Text("Badge")
-                    },
+                    label = { Text("Label") },
+                    badge = { Text("Badge") },
                     selected = true,
                     onClick = {},
                     modifier = Modifier.testTag(DrawerItemTag)
@@ -123,7 +119,8 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             // should be 16dp padding from the start
             .assertLeftPositionInRootIsEqualTo(16.dp)
 
@@ -137,9 +134,7 @@ class NavigationDrawerItemTest {
             rule.onRoot().getBoundsInRoot().right -
                 rule.onNodeWithText("Badge", useUnmergedTree = true).getBoundsInRoot().right
         // 24 at the end
-        badgePadding.assertIsEqualTo(
-            expected = 24.dp,
-            subject = "badge padding ")
+        badgePadding.assertIsEqualTo(expected = 24.dp, subject = "badge padding ")
     }
 
     @Test
@@ -147,9 +142,7 @@ class NavigationDrawerItemTest {
         rule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.width(264.dp)) {
                 NavigationDrawerItem(
-                    label = {
-                        Text("Label")
-                    },
+                    label = { Text("Label") },
                     selected = true,
                     onClick = {},
                     modifier = Modifier.testTag(DrawerItemTag)
@@ -157,7 +150,8 @@ class NavigationDrawerItemTest {
             }
         }
 
-        rule.onNodeWithText("Label", useUnmergedTree = true)
+        rule
+            .onNodeWithText("Label", useUnmergedTree = true)
             // should be 16dp padding from the start
             .assertLeftPositionInRootIsEqualTo(16.dp)
     }
@@ -169,36 +163,29 @@ class NavigationDrawerItemTest {
                 drawerContent = {
                     NavigationDrawerItem(
                         modifier = Modifier.testTag("selected_item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null)
-                        },
-                        label = {
-                            Text("ItemText")
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        label = { Text("ItemText") },
                         selected = true,
                         onClick = {}
                     )
                     NavigationDrawerItem(
                         modifier = Modifier.testTag("unselected_item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null)
-                        },
-                        label = {
-                            Text("ItemText")
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null) },
+                        label = { Text("ItemText") },
                         selected = false,
                         onClick = {}
                     )
                 }
-            ) {
-            }
+            ) {}
         }
 
-        rule.onNodeWithTag("selected_item")
+        rule
+            .onNodeWithTag("selected_item")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertHasClickAction()
-        rule.onNodeWithTag("unselected_item")
+        rule
+            .onNodeWithTag("unselected_item")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsNotSelected()
             .assertHasClickAction()

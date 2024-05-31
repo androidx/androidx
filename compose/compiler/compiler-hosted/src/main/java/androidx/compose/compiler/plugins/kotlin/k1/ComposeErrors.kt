@@ -34,48 +34,23 @@ import org.jetbrains.kotlin.types.KotlinType
 object ComposeErrors {
 
     // error goes on the composable call in a non-composable function
-    @JvmField
-    val COMPOSABLE_INVOCATION =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    @JvmField val COMPOSABLE_INVOCATION = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     // error goes on the non-composable function with composable calls
-    @JvmField
-    val COMPOSABLE_EXPECTED =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    @JvmField val COMPOSABLE_EXPECTED = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     @JvmField
     val COMPOSABLE_FUNCTION_REFERENCE =
-        DiagnosticFactory0.create<KtCallableReferenceExpression>(
-            Severity.ERROR
-        )
+        DiagnosticFactory0.create<KtCallableReferenceExpression>(Severity.ERROR)
 
     @JvmField
-    val COMPOSABLE_PROPERTY_BACKING_FIELD =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    val COMPOSABLE_PROPERTY_BACKING_FIELD = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
-    @JvmField
-    val COMPOSABLE_VAR =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    @JvmField val COMPOSABLE_VAR = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
-    @JvmField
-    val COMPOSABLE_SUSPEND_FUN =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    @JvmField val COMPOSABLE_SUSPEND_FUN = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
-    @JvmField
-    val COMPOSABLE_FUN_MAIN =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    @JvmField val COMPOSABLE_FUN_MAIN = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     @JvmField
     val CAPTURED_COMPOSABLE_INVOCATION =
@@ -90,72 +65,51 @@ object ComposeErrors {
             ValueParameterDescriptor, // unmarked
             ValueParameterDescriptor, // marked
             CallableDescriptor
-            >(
+        >(
             Severity.ERROR
         )
 
     @JvmField
-    val NONREADONLY_CALL_IN_READONLY_COMPOSABLE = DiagnosticFactory0.create<PsiElement>(
-        Severity.ERROR
-    )
+    val NONREADONLY_CALL_IN_READONLY_COMPOSABLE =
+        DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     // This error matches Kotlin's CONFLICTING_OVERLOADS error, except that it renders the
     // annotations with the descriptor. This is important to use for errors where the
     // only difference is whether or not it is annotated with @Composable or not.
     @JvmField
     val CONFLICTING_OVERLOADS: DiagnosticFactory1<PsiElement, Collection<DeclarationDescriptor>> =
-        DiagnosticFactory1.create(
-            Severity.ERROR,
-            DECLARATION_SIGNATURE_OR_DEFAULT
-        )
+        DiagnosticFactory1.create(Severity.ERROR, DECLARATION_SIGNATURE_OR_DEFAULT)
 
     @JvmField
-    val ILLEGAL_TRY_CATCH_AROUND_COMPOSABLE =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    val ILLEGAL_TRY_CATCH_AROUND_COMPOSABLE = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     // This error matches Kotlin's TYPE_MISMATCH error, except that it renders the annotations
     // with the types. This is important to use for type mismatch errors where the only
     // difference is whether or not it is annotated with @Composable or not.
     @JvmField
     val TYPE_MISMATCH =
-        DiagnosticFactory2.create<KtExpression, KotlinType, KotlinType>(
-            Severity.ERROR
-        )
+        DiagnosticFactory2.create<KtExpression, KotlinType, KotlinType>(Severity.ERROR)
 
     @JvmField
     val COMPOSE_APPLIER_CALL_MISMATCH =
-        DiagnosticFactory2.create<PsiElement, String, String>(
-            Severity.WARNING
-        )
+        DiagnosticFactory2.create<PsiElement, String, String>(Severity.WARNING)
 
     @JvmField
     val COMPOSE_APPLIER_PARAMETER_MISMATCH =
-        DiagnosticFactory2.create<PsiElement, String, String>(
-            Severity.WARNING
-        )
+        DiagnosticFactory2.create<PsiElement, String, String>(Severity.WARNING)
 
     @JvmField
     val COMPOSE_APPLIER_DECLARATION_MISMATCH =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.WARNING
-        )
+        DiagnosticFactory0.create<PsiElement>(Severity.WARNING)
 
-    @JvmField
-    val COMPOSE_INVALID_DELEGATE =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+    @JvmField val COMPOSE_INVALID_DELEGATE = DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     @JvmField
     val NAMED_ARGUMENTS_NOT_ALLOWED = DiagnosticFactory0.create<PsiElement>(Severity.WARNING)
 
     @JvmField
     val MISMATCHED_COMPOSABLE_IN_EXPECT_ACTUAL =
-        DiagnosticFactory0.create<PsiElement>(
-            Severity.ERROR
-        )
+        DiagnosticFactory0.create<PsiElement>(Severity.ERROR)
 
     @JvmField
     val REDUNDANT_COMPOSABLE_ANNOTATION = DiagnosticFactory0.create<PsiElement>(Severity.WARNING)

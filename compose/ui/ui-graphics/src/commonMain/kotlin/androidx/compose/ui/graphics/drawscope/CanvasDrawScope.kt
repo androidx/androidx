@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * Implementation of [DrawScope] that issues drawing commands
- * into the specified canvas and bounds via [CanvasDrawScope.draw]
+ * Implementation of [DrawScope] that issues drawing commands into the specified canvas and bounds
+ * via [CanvasDrawScope.draw]
  */
 class CanvasDrawScope : DrawScope {
 
@@ -62,46 +62,52 @@ class CanvasDrawScope : DrawScope {
     override val fontScale: Float
         get() = drawParams.density.fontScale
 
-    override val drawContext = object : DrawContext {
-        override var canvas: Canvas
-            get() = drawParams.canvas
-            set(value) { drawParams.canvas = value }
+    override val drawContext =
+        object : DrawContext {
+            override var canvas: Canvas
+                get() = drawParams.canvas
+                set(value) {
+                    drawParams.canvas = value
+                }
 
-        override var size: Size
-            get() = drawParams.size
-            set(value) {
-                drawParams.size = value
-            }
+            override var size: Size
+                get() = drawParams.size
+                set(value) {
+                    drawParams.size = value
+                }
 
-        override val transform: DrawTransform = asDrawTransform()
+            override val transform: DrawTransform = asDrawTransform()
 
-        override var layoutDirection: LayoutDirection
-            get() = drawParams.layoutDirection
-            set(value) { drawParams.layoutDirection = value }
-        override var density: Density
-            get() = drawParams.density
-            set(value) { drawParams.density = value }
+            override var layoutDirection: LayoutDirection
+                get() = drawParams.layoutDirection
+                set(value) {
+                    drawParams.layoutDirection = value
+                }
 
-        override var graphicsLayer: GraphicsLayer? = null
-    }
+            override var density: Density
+                get() = drawParams.density
+                set(value) {
+                    drawParams.density = value
+                }
+
+            override var graphicsLayer: GraphicsLayer? = null
+        }
 
     /**
-     * Internal [Paint] used only for drawing filled in shapes with a color or gradient
-     * This is lazily allocated on the first drawing command that uses the [Fill] [DrawStyle]
-     * and re-used across subsequent calls
+     * Internal [Paint] used only for drawing filled in shapes with a color or gradient This is
+     * lazily allocated on the first drawing command that uses the [Fill] [DrawStyle] and re-used
+     * across subsequent calls
      */
     private var fillPaint: Paint? = null
 
     /**
-     * Internal [Paint] used only for drawing stroked shapes with a color or gradient
-     * This is lazily allocated on the first drawing command that uses the [Stroke] [DrawStyle]
-     * and re-used across subsequent calls
+     * Internal [Paint] used only for drawing stroked shapes with a color or gradient This is lazily
+     * allocated on the first drawing command that uses the [Stroke] [DrawStyle] and re-used across
+     * subsequent calls
      */
     private var strokePaint: Paint? = null
 
-    /**
-     * @see [DrawScope.drawLine]
-     */
+    /** @see [DrawScope.drawLine] */
     override fun drawLine(
         brush: Brush,
         start: Offset,
@@ -112,25 +118,24 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawLine(
-        start,
-        end,
-        configureStrokePaint(
-            brush,
-            strokeWidth,
-            Stroke.DefaultMiter,
-            cap,
-            StrokeJoin.Miter,
-            pathEffect,
-            alpha,
-            colorFilter,
-            blendMode
+    ) =
+        drawParams.canvas.drawLine(
+            start,
+            end,
+            configureStrokePaint(
+                brush,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.Miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
-    )
 
-    /**
-     * @see [DrawScope.drawLine]
-     */
+    /** @see [DrawScope.drawLine] */
     override fun drawLine(
         color: Color,
         start: Offset,
@@ -141,25 +146,24 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawLine(
-        start,
-        end,
-        configureStrokePaint(
-            color,
-            strokeWidth,
-            Stroke.DefaultMiter,
-            cap,
-            StrokeJoin.Miter,
-            pathEffect,
-            alpha,
-            colorFilter,
-            blendMode
+    ) =
+        drawParams.canvas.drawLine(
+            start,
+            end,
+            configureStrokePaint(
+                color,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.Miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
-    )
 
-    /**
-     * @see [DrawScope.drawRect]
-     */
+    /** @see [DrawScope.drawRect] */
     override fun drawRect(
         brush: Brush,
         topLeft: Offset,
@@ -168,17 +172,16 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawRect(
-        left = topLeft.x,
-        top = topLeft.y,
-        right = topLeft.x + size.width,
-        bottom = topLeft.y + size.height,
-        paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawRect(
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
+            paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawRect]
-     */
+    /** @see [DrawScope.drawRect] */
     override fun drawRect(
         color: Color,
         topLeft: Offset,
@@ -187,17 +190,16 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawRect(
-        left = topLeft.x,
-        top = topLeft.y,
-        right = topLeft.x + size.width,
-        bottom = topLeft.y + size.height,
-        paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawRect(
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
+            paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawImage]
-     */
+    /** @see [DrawScope.drawImage] */
     override fun drawImage(
         image: ImageBitmap,
         topLeft: Offset,
@@ -205,23 +207,23 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawImage(
-        image,
-        topLeft,
-        configurePaint(null, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawImage(
+            image,
+            topLeft,
+            configurePaint(null, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawImage]
-     */
+    /** @see [DrawScope.drawImage] */
     @Deprecated(
         "Prefer usage of drawImage that consumes an optional FilterQuality parameter",
-        replaceWith = ReplaceWith(
-            "drawImage(image, srcOffset, srcSize, dstOffset, dstSize, alpha, style," +
-                " colorFilter, blendMode, FilterQuality.Low)",
-            "androidx.compose.ui.graphics.drawscope",
-            "androidx.compose.ui.graphics.FilterQuality"
-        ),
+        replaceWith =
+            ReplaceWith(
+                "drawImage(image, srcOffset, srcSize, dstOffset, dstSize, alpha, style," +
+                    " colorFilter, blendMode, FilterQuality.Low)",
+                "androidx.compose.ui.graphics.drawscope",
+                "androidx.compose.ui.graphics.FilterQuality"
+            ),
         level = DeprecationLevel.HIDDEN
     )
     override fun drawImage(
@@ -234,18 +236,17 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawImageRect(
-        image,
-        srcOffset,
-        srcSize,
-        dstOffset,
-        dstSize,
-        configurePaint(null, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawImageRect(
+            image,
+            srcOffset,
+            srcSize,
+            dstOffset,
+            dstSize,
+            configurePaint(null, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawImage]
-     */
+    /** @see [DrawScope.drawImage] */
     override fun drawImage(
         image: ImageBitmap,
         srcOffset: IntOffset,
@@ -257,18 +258,17 @@ class CanvasDrawScope : DrawScope {
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
         filterQuality: FilterQuality
-    ) = drawParams.canvas.drawImageRect(
-        image,
-        srcOffset,
-        srcSize,
-        dstOffset,
-        dstSize,
-        configurePaint(null, style, alpha, colorFilter, blendMode, filterQuality)
-    )
+    ) =
+        drawParams.canvas.drawImageRect(
+            image,
+            srcOffset,
+            srcSize,
+            dstOffset,
+            dstSize,
+            configurePaint(null, style, alpha, colorFilter, blendMode, filterQuality)
+        )
 
-    /**
-     * @see [DrawScope.drawRoundRect]
-     */
+    /** @see [DrawScope.drawRoundRect] */
     override fun drawRoundRect(
         brush: Brush,
         topLeft: Offset,
@@ -278,19 +278,18 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawRoundRect(
-        topLeft.x,
-        topLeft.y,
-        topLeft.x + size.width,
-        topLeft.y + size.height,
-        cornerRadius.x,
-        cornerRadius.y,
-        configurePaint(brush, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawRoundRect(
+            topLeft.x,
+            topLeft.y,
+            topLeft.x + size.width,
+            topLeft.y + size.height,
+            cornerRadius.x,
+            cornerRadius.y,
+            configurePaint(brush, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawRoundRect]
-     */
+    /** @see [DrawScope.drawRoundRect] */
     override fun drawRoundRect(
         color: Color,
         topLeft: Offset,
@@ -300,19 +299,18 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawRoundRect(
-        topLeft.x,
-        topLeft.y,
-        topLeft.x + size.width,
-        topLeft.y + size.height,
-        cornerRadius.x,
-        cornerRadius.y,
-        configurePaint(color, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawRoundRect(
+            topLeft.x,
+            topLeft.y,
+            topLeft.x + size.width,
+            topLeft.y + size.height,
+            cornerRadius.x,
+            cornerRadius.y,
+            configurePaint(color, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawCircle]
-     */
+    /** @see [DrawScope.drawCircle] */
     override fun drawCircle(
         brush: Brush,
         radius: Float,
@@ -321,15 +319,14 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawCircle(
-        center,
-        radius,
-        configurePaint(brush, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawCircle(
+            center,
+            radius,
+            configurePaint(brush, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawCircle]
-     */
+    /** @see [DrawScope.drawCircle] */
     override fun drawCircle(
         color: Color,
         radius: Float,
@@ -338,15 +335,14 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawCircle(
-        center,
-        radius,
-        configurePaint(color, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawCircle(
+            center,
+            radius,
+            configurePaint(color, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawOval]
-     */
+    /** @see [DrawScope.drawOval] */
     override fun drawOval(
         brush: Brush,
         topLeft: Offset,
@@ -355,17 +351,16 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawOval(
-        left = topLeft.x,
-        top = topLeft.y,
-        right = topLeft.x + size.width,
-        bottom = topLeft.y + size.height,
-        paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawOval(
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
+            paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawOval]
-     */
+    /** @see [DrawScope.drawOval] */
     override fun drawOval(
         color: Color,
         topLeft: Offset,
@@ -374,17 +369,16 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawOval(
-        left = topLeft.x,
-        top = topLeft.y,
-        right = topLeft.x + size.width,
-        bottom = topLeft.y + size.height,
-        paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawOval(
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
+            paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawArc]
-     */
+    /** @see [DrawScope.drawArc] */
     override fun drawArc(
         brush: Brush,
         startAngle: Float,
@@ -396,20 +390,19 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawArc(
-        left = topLeft.x,
-        top = topLeft.y,
-        right = topLeft.x + size.width,
-        bottom = topLeft.y + size.height,
-        startAngle = startAngle,
-        sweepAngle = sweepAngle,
-        useCenter = useCenter,
-        paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawArc(
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
+            startAngle = startAngle,
+            sweepAngle = sweepAngle,
+            useCenter = useCenter,
+            paint = configurePaint(brush, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawArc]
-     */
+    /** @see [DrawScope.drawArc] */
     override fun drawArc(
         color: Color,
         startAngle: Float,
@@ -421,20 +414,19 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawArc(
-        left = topLeft.x,
-        top = topLeft.y,
-        right = topLeft.x + size.width,
-        bottom = topLeft.y + size.height,
-        startAngle = startAngle,
-        sweepAngle = sweepAngle,
-        useCenter = useCenter,
-        paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawArc(
+            left = topLeft.x,
+            top = topLeft.y,
+            right = topLeft.x + size.width,
+            bottom = topLeft.y + size.height,
+            startAngle = startAngle,
+            sweepAngle = sweepAngle,
+            useCenter = useCenter,
+            paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawPath]
-     */
+    /** @see [DrawScope.drawPath] */
     override fun drawPath(
         path: Path,
         color: Color,
@@ -442,14 +434,13 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawPath(
-        path,
-        configurePaint(color, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawPath(
+            path,
+            configurePaint(color, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawPath]
-     */
+    /** @see [DrawScope.drawPath] */
     override fun drawPath(
         path: Path,
         brush: Brush,
@@ -457,14 +448,13 @@ class CanvasDrawScope : DrawScope {
         style: DrawStyle,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawPath(
-        path,
-        configurePaint(brush, style, alpha, colorFilter, blendMode)
-    )
+    ) =
+        drawParams.canvas.drawPath(
+            path,
+            configurePaint(brush, style, alpha, colorFilter, blendMode)
+        )
 
-    /**
-     * @see [DrawScope.drawPoints]
-     */
+    /** @see [DrawScope.drawPoints] */
     override fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
@@ -475,25 +465,24 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawPoints(
-        pointMode,
-        points,
-        configureStrokePaint(
-            color,
-            strokeWidth,
-            Stroke.DefaultMiter,
-            cap,
-            StrokeJoin.Miter,
-            pathEffect,
-            alpha,
-            colorFilter,
-            blendMode
+    ) =
+        drawParams.canvas.drawPoints(
+            pointMode,
+            points,
+            configureStrokePaint(
+                color,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.Miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
-    )
 
-    /**
-     * @see [DrawScope.drawPoints]
-     */
+    /** @see [DrawScope.drawPoints] */
     override fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
@@ -504,32 +493,33 @@ class CanvasDrawScope : DrawScope {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float,
         colorFilter: ColorFilter?,
         blendMode: BlendMode
-    ) = drawParams.canvas.drawPoints(
-        pointMode,
-        points,
-        configureStrokePaint(
-            brush,
-            strokeWidth,
-            Stroke.DefaultMiter,
-            cap,
-            StrokeJoin.Miter,
-            pathEffect,
-            alpha,
-            colorFilter,
-            blendMode
+    ) =
+        drawParams.canvas.drawPoints(
+            pointMode,
+            points,
+            configureStrokePaint(
+                brush,
+                strokeWidth,
+                Stroke.DefaultMiter,
+                cap,
+                StrokeJoin.Miter,
+                pathEffect,
+                alpha,
+                colorFilter,
+                blendMode
+            )
         )
-    )
 
     /**
      * Draws into the provided [Canvas] with the commands specified in the lambda with this
      * [DrawScope] as a receiver
      *
      * @param density [Density] used to assist in conversions of density independent pixels to raw
-     * pixels to draw
+     *   pixels to draw
      * @param layoutDirection [LayoutDirection] of the layout being drawn in.
      * @param canvas target canvas to render into
-     * @param size bounds relative to the current canvas translation in which the [DrawScope]
-     * should draw within
+     * @param size bounds relative to the current canvas translation in which the [DrawScope] should
+     *   draw within
      * @param block lambda that is called to issue drawing commands on this [DrawScope]
      */
     inline fun draw(
@@ -562,51 +552,45 @@ class CanvasDrawScope : DrawScope {
     }
 
     /**
-     * Internal published APIs used to support inline scoped extension methods
-     * on DrawScope directly, without exposing the underlying stateful APIs
-     * to conduct the transformations themselves as inline methods require
-     * all methods called within them to be public
+     * Internal published APIs used to support inline scoped extension methods on DrawScope
+     * directly, without exposing the underlying stateful APIs to conduct the transformations
+     * themselves as inline methods require all methods called within them to be public
      */
 
     /**
-     * Helper method to instantiate the paint object on first usage otherwise
-     * return the previously allocated Paint used for drawing filled regions
+     * Helper method to instantiate the paint object on first usage otherwise return the previously
+     * allocated Paint used for drawing filled regions
      */
     private fun obtainFillPaint(): Paint =
-        fillPaint ?: Paint().apply { style = PaintingStyle.Fill }.also {
-            fillPaint = it
-        }
+        fillPaint ?: Paint().apply { style = PaintingStyle.Fill }.also { fillPaint = it }
 
     /**
-     * Helper method to instantiate the paint object on first usage otherwise
-     * return the previously allocated Paint used for drawing strokes
+     * Helper method to instantiate the paint object on first usage otherwise return the previously
+     * allocated Paint used for drawing strokes
      */
     private fun obtainStrokePaint(): Paint =
-        strokePaint ?: Paint().apply { style = PaintingStyle.Stroke }.also {
-            strokePaint = it
-        }
+        strokePaint ?: Paint().apply { style = PaintingStyle.Stroke }.also { strokePaint = it }
 
     /**
-     * Selects the appropriate [Paint] object based on the style
-     * and applies the underlying [DrawStyle] parameters
+     * Selects the appropriate [Paint] object based on the style and applies the underlying
+     * [DrawStyle] parameters
      */
     private fun selectPaint(drawStyle: DrawStyle): Paint =
         when (drawStyle) {
             Fill -> obtainFillPaint()
             is Stroke ->
-                obtainStrokePaint()
-                    .apply {
-                        if (strokeWidth != drawStyle.width) strokeWidth = drawStyle.width
-                        if (strokeCap != drawStyle.cap) strokeCap = drawStyle.cap
-                        if (strokeMiterLimit != drawStyle.miter) strokeMiterLimit = drawStyle.miter
-                        if (strokeJoin != drawStyle.join) strokeJoin = drawStyle.join
-                        if (pathEffect != drawStyle.pathEffect) pathEffect = drawStyle.pathEffect
-                    }
+                obtainStrokePaint().apply {
+                    if (strokeWidth != drawStyle.width) strokeWidth = drawStyle.width
+                    if (strokeCap != drawStyle.cap) strokeCap = drawStyle.cap
+                    if (strokeMiterLimit != drawStyle.miter) strokeMiterLimit = drawStyle.miter
+                    if (strokeJoin != drawStyle.join) strokeJoin = drawStyle.join
+                    if (pathEffect != drawStyle.pathEffect) pathEffect = drawStyle.pathEffect
+                }
         }
 
     /**
-     * Helper method to configure the corresponding [Brush] along with other properties
-     * on the corresponding paint specified by [DrawStyle]
+     * Helper method to configure the corresponding [Brush] along with other properties on the
+     * corresponding paint specified by [DrawStyle]
      */
     private fun configurePaint(
         brush: Brush?,
@@ -615,22 +599,23 @@ class CanvasDrawScope : DrawScope {
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
         filterQuality: FilterQuality = DefaultFilterQuality
-    ): Paint = selectPaint(style).apply {
-        if (brush != null) {
-            brush.applyTo(size, this, alpha)
-        } else {
-            if (this.shader != null) this.shader = null
-            if (this.color != Color.Black) this.color = Color.Black
-            if (this.alpha != alpha) this.alpha = alpha
+    ): Paint =
+        selectPaint(style).apply {
+            if (brush != null) {
+                brush.applyTo(size, this, alpha)
+            } else {
+                if (this.shader != null) this.shader = null
+                if (this.color != Color.Black) this.color = Color.Black
+                if (this.alpha != alpha) this.alpha = alpha
+            }
+            if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
+            if (this.blendMode != blendMode) this.blendMode = blendMode
+            if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
         }
-        if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
-        if (this.blendMode != blendMode) this.blendMode = blendMode
-        if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
-    }
 
     /**
-     * Helper method to configure the corresponding [Color] along with other properties
-     * on the corresponding paint specified by [DrawStyle]
+     * Helper method to configure the corresponding [Color] along with other properties on the
+     * corresponding paint specified by [DrawStyle]
      */
     private fun configurePaint(
         color: Color,
@@ -639,16 +624,17 @@ class CanvasDrawScope : DrawScope {
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
         filterQuality: FilterQuality = DefaultFilterQuality
-    ): Paint = selectPaint(style).apply {
-        // Modulate the color alpha directly
-        // instead of configuring a separate alpha parameter
-        val targetColor = color.modulate(alpha)
-        if (this.color != targetColor) this.color = targetColor
-        if (this.shader != null) this.shader = null
-        if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
-        if (this.blendMode != blendMode) this.blendMode = blendMode
-        if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
-    }
+    ): Paint =
+        selectPaint(style).apply {
+            // Modulate the color alpha directly
+            // instead of configuring a separate alpha parameter
+            val targetColor = color.modulate(alpha)
+            if (this.color != targetColor) this.color = targetColor
+            if (this.shader != null) this.shader = null
+            if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
+            if (this.blendMode != blendMode) this.blendMode = blendMode
+            if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
+        }
 
     private fun configureStrokePaint(
         color: Color,
@@ -689,25 +675,24 @@ class CanvasDrawScope : DrawScope {
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
         filterQuality: FilterQuality = DefaultFilterQuality
-    ) = obtainStrokePaint().apply {
-        if (brush != null) {
-            brush.applyTo(size, this, alpha)
-        } else if (this.alpha != alpha) {
-            this.alpha = alpha
+    ) =
+        obtainStrokePaint().apply {
+            if (brush != null) {
+                brush.applyTo(size, this, alpha)
+            } else if (this.alpha != alpha) {
+                this.alpha = alpha
+            }
+            if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
+            if (this.blendMode != blendMode) this.blendMode = blendMode
+            if (this.strokeWidth != strokeWidth) this.strokeWidth = strokeWidth
+            if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
+            if (this.strokeCap != cap) this.strokeCap = cap
+            if (this.strokeJoin != join) this.strokeJoin = join
+            if (this.pathEffect != pathEffect) this.pathEffect = pathEffect
+            if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
         }
-        if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
-        if (this.blendMode != blendMode) this.blendMode = blendMode
-        if (this.strokeWidth != strokeWidth) this.strokeWidth = strokeWidth
-        if (this.strokeMiterLimit != miter) this.strokeMiterLimit = miter
-        if (this.strokeCap != cap) this.strokeCap = cap
-        if (this.strokeJoin != join) this.strokeJoin = join
-        if (this.pathEffect != pathEffect) this.pathEffect = pathEffect
-        if (this.filterQuality != filterQuality) this.filterQuality = filterQuality
-    }
 
-    /**
-     * Returns a [Color] modulated with the given alpha value
-     */
+    /** Returns a [Color] modulated with the given alpha value */
     private fun Color.modulate(alpha: Float): Color =
         if (alpha != 1.0f) {
             copy(alpha = this.alpha * alpha)
@@ -716,12 +701,12 @@ class CanvasDrawScope : DrawScope {
         }
 
     /**
-     * Internal parameters to represent the current CanvasDrawScope
-     * used to reduce the size of the inline draw call to avoid
-     * bloat of additional assignment calls for each parameter
+     * Internal parameters to represent the current CanvasDrawScope used to reduce the size of the
+     * inline draw call to avoid bloat of additional assignment calls for each parameter
      * individually
      */
-    @PublishedApi internal data class DrawParams(
+    @PublishedApi
+    internal data class DrawParams(
         var density: Density = DefaultDensity,
         var layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         var canvas: Canvas = EmptyCanvas(),
@@ -729,62 +714,61 @@ class CanvasDrawScope : DrawScope {
     )
 }
 
-/**
- * Convenience method for creating a [DrawTransform] from the current [DrawContext]
- */
-private fun DrawContext.asDrawTransform(): DrawTransform = object : DrawTransform {
-    override val size: Size
-        get() = this@asDrawTransform.size
+/** Convenience method for creating a [DrawTransform] from the current [DrawContext] */
+private fun DrawContext.asDrawTransform(): DrawTransform =
+    object : DrawTransform {
+        override val size: Size
+            get() = this@asDrawTransform.size
 
-    override val center: Offset
-        get() = size.center
+        override val center: Offset
+            get() = size.center
 
-    override fun inset(left: Float, top: Float, right: Float, bottom: Float) {
-        this@asDrawTransform.canvas.let {
-            val updatedSize = Size(size.width - (left + right), size.height - (top + bottom))
-            requirePrecondition(updatedSize.width >= 0 && updatedSize.height >= 0) {
-                "Width and height must be greater than or equal to zero"
+        override fun inset(left: Float, top: Float, right: Float, bottom: Float) {
+            this@asDrawTransform.canvas.let {
+                val updatedSize = Size(size.width - (left + right), size.height - (top + bottom))
+                requirePrecondition(updatedSize.width >= 0 && updatedSize.height >= 0) {
+                    "Width and height must be greater than or equal to zero"
+                }
+                this@asDrawTransform.size = updatedSize
+                it.translate(left, top)
             }
-            this@asDrawTransform.size = updatedSize
-            it.translate(left, top)
+        }
+
+        override fun clipRect(
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
+            clipOp: ClipOp
+        ) {
+            this@asDrawTransform.canvas.clipRect(left, top, right, bottom, clipOp)
+        }
+
+        override fun clipPath(path: Path, clipOp: ClipOp) {
+            this@asDrawTransform.canvas.clipPath(path, clipOp)
+        }
+
+        override fun translate(left: Float, top: Float) {
+            this@asDrawTransform.canvas.translate(left, top)
+        }
+
+        override fun rotate(degrees: Float, pivot: Offset) {
+            this@asDrawTransform.canvas.apply {
+                translate(pivot.x, pivot.y)
+                rotate(degrees)
+                translate(-pivot.x, -pivot.y)
+            }
+        }
+
+        override fun scale(scaleX: Float, scaleY: Float, pivot: Offset) {
+            this@asDrawTransform.canvas.apply {
+                translate(pivot.x, pivot.y)
+                scale(scaleX, scaleY)
+                translate(-pivot.x, -pivot.y)
+            }
+        }
+
+        override fun transform(matrix: Matrix) {
+            this@asDrawTransform.canvas.concat(matrix)
         }
     }
-
-    override fun clipRect(
-        left: Float,
-        top: Float,
-        right: Float,
-        bottom: Float,
-        clipOp: ClipOp
-    ) {
-        this@asDrawTransform.canvas.clipRect(left, top, right, bottom, clipOp)
-    }
-
-    override fun clipPath(path: Path, clipOp: ClipOp) {
-        this@asDrawTransform.canvas.clipPath(path, clipOp)
-    }
-
-    override fun translate(left: Float, top: Float) {
-        this@asDrawTransform.canvas.translate(left, top)
-    }
-
-    override fun rotate(degrees: Float, pivot: Offset) {
-        this@asDrawTransform.canvas.apply {
-            translate(pivot.x, pivot.y)
-            rotate(degrees)
-            translate(-pivot.x, -pivot.y)
-        }
-    }
-
-    override fun scale(scaleX: Float, scaleY: Float, pivot: Offset) {
-        this@asDrawTransform.canvas.apply {
-            translate(pivot.x, pivot.y)
-            scale(scaleX, scaleY)
-            translate(-pivot.x, -pivot.y)
-        }
-    }
-
-    override fun transform(matrix: Matrix) {
-        this@asDrawTransform.canvas.concat(matrix)
-    }
-}

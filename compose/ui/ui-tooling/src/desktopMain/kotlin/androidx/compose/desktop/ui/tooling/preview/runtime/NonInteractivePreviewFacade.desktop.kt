@@ -23,8 +23,8 @@ import androidx.compose.ui.platform.TestComposeWindow
 import androidx.compose.ui.unit.Density
 
 /**
- * This class is used by Compose Desktop Intellij plugin
- * for the non-interactive preview functionality.
+ * This class is used by Compose Desktop Intellij plugin for the non-interactive preview
+ * functionality.
  *
  * The class is used via reflection.
  *
@@ -34,12 +34,12 @@ import androidx.compose.ui.unit.Density
  * 3. When an updated preview is requested, the Intellij plugin requests a fresh build from Gradle
  *    and pulls an updated preview configuration from the build;
  * 4. The IDE plugin manages a separate preview host process;
- * 5. The IDE plugin requests a new frame from the preview host process, when needed (either when
- *    a user requests it explicitly or by resizing the preview tool window);
- * 6. When the preview process receives a preview request, it renders a new frame using this
- *    facade in an isolated classloader via reflection. The classloader is persisted between
- *    requests to minimize render time. Currently it is reused only if there are no changes in a
- *    preview classpath (a requested preview function or a requested frame size may differ).
+ * 5. The IDE plugin requests a new frame from the preview host process, when needed (either when a
+ *    user requests it explicitly or by resizing the preview tool window);
+ * 6. When the preview process receives a preview request, it renders a new frame using this facade
+ *    in an isolated classloader via reflection. The classloader is persisted between requests to
+ *    minimize render time. Currently it is reused only if there are no changes in a preview
+ *    classpath (a requested preview function or a requested frame size may differ).
  * 7. A rendered frame is sent back to the IDE plugin and is shown in the IDE as an image.
  */
 @Suppress("DEPRECATION", "unused")

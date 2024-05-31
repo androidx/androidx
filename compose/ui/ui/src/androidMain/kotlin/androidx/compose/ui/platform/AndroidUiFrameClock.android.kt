@@ -21,25 +21,23 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-class AndroidUiFrameClock internal constructor(
+class AndroidUiFrameClock
+internal constructor(
     val choreographer: Choreographer,
     private val dispatcher: AndroidUiDispatcher?
 ) : androidx.compose.runtime.MonotonicFrameClock {
 
-    constructor(
-        choreographer: Choreographer
-    ) : this(choreographer, null)
+    constructor(choreographer: Choreographer) : this(choreographer, null)
 
-    override suspend fun <R> withFrameNanos(
-        onFrame: (Long) -> R
-    ): R {
-        val uiDispatcher = dispatcher
-            ?: coroutineContext[ContinuationInterceptor] as? AndroidUiDispatcher
+    override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
+        val uiDispatcher =
+            dispatcher ?: coroutineContext[ContinuationInterceptor] as? AndroidUiDispatcher
         return suspendCancellableCoroutine { co ->
             // Important: this callback won't throw, and AndroidUiDispatcher counts on it.
-            val callback = Choreographer.FrameCallback { frameTimeNanos ->
-                co.resumeWith(runCatching { onFrame(frameTimeNanos) })
-            }
+            val callback =
+                Choreographer.FrameCallback { frameTimeNanos ->
+                    co.resumeWith(runCatching { onFrame(frameTimeNanos) })
+                }
 
             // If we're on an AndroidUiDispatcher then we post callback to happen *after*
             // the greedy trampoline dispatch is complete.

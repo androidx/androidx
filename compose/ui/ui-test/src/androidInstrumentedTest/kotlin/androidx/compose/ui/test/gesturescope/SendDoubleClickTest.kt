@@ -59,16 +59,13 @@ class SendDoubleClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recordedDoubleClicks = mutableListOf<Offset>()
-    private val expectedClickPosition =
-        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
+    private val expectedClickPosition = config.position ?: Offset(defaultSize / 2, defaultSize / 2)
 
     // The delay plus 2 clicks
-    private val expectedDurationMillis =
-        (config.delayMillis ?: 145L) + (2 * eventPeriodMillis)
+    private val expectedDurationMillis = (config.delayMillis ?: 145L) + (2 * eventPeriodMillis)
 
     private fun recordDoubleClick(position: Offset) {
         recordedDoubleClicks.add(position)
@@ -80,8 +77,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
         val recorder = SinglePointerInputRecorder()
         rule.setContent {
             ClickableTestBox(
-                Modifier
-                    .pointerInput(Unit) { detectTapGestures(onDoubleTap = ::recordDoubleClick) }
+                Modifier.pointerInput(Unit) { detectTapGestures(onDoubleTap = ::recordDoubleClick) }
                     .then(recorder)
             )
         }

@@ -16,23 +16,22 @@
 
 package androidx.compose.ui.graphics.vector.compat
 
-/**
- * Constants used to resolve VectorDrawable attributes during xml inflation
- */
+/** Constants used to resolve VectorDrawable attributes during xml inflation */
 internal object AndroidVectorResources {
 
     // Resources ID generated in the latest R.java for framework.
-    val STYLEABLE_VECTOR_DRAWABLE_TYPE_ARRAY = intArrayOf(
-        android.R.attr.name,
-        android.R.attr.tint,
-        android.R.attr.height,
-        android.R.attr.width,
-        android.R.attr.alpha,
-        android.R.attr.autoMirrored,
-        android.R.attr.tintMode,
-        android.R.attr.viewportWidth,
-        android.R.attr.viewportHeight
-    )
+    val STYLEABLE_VECTOR_DRAWABLE_TYPE_ARRAY =
+        intArrayOf(
+            android.R.attr.name,
+            android.R.attr.tint,
+            android.R.attr.height,
+            android.R.attr.width,
+            android.R.attr.alpha,
+            android.R.attr.autoMirrored,
+            android.R.attr.tintMode,
+            android.R.attr.viewportWidth,
+            android.R.attr.viewportHeight
+        )
     val STYLEABLE_VECTOR_DRAWABLE_ALPHA = 4
     val STYLEABLE_VECTOR_DRAWABLE_AUTO_MIRRORED = 5
     val STYLEABLE_VECTOR_DRAWABLE_HEIGHT = 2
@@ -42,16 +41,17 @@ internal object AndroidVectorResources {
     val STYLEABLE_VECTOR_DRAWABLE_VIEWPORT_HEIGHT = 8
     val STYLEABLE_VECTOR_DRAWABLE_VIEWPORT_WIDTH = 7
     val STYLEABLE_VECTOR_DRAWABLE_WIDTH = 3
-    val STYLEABLE_VECTOR_DRAWABLE_GROUP = intArrayOf(
-        android.R.attr.name,
-        android.R.attr.pivotX,
-        android.R.attr.pivotY,
-        android.R.attr.scaleX,
-        android.R.attr.scaleY,
-        android.R.attr.rotation,
-        android.R.attr.translateX,
-        android.R.attr.translateY
-    )
+    val STYLEABLE_VECTOR_DRAWABLE_GROUP =
+        intArrayOf(
+            android.R.attr.name,
+            android.R.attr.pivotX,
+            android.R.attr.pivotY,
+            android.R.attr.scaleX,
+            android.R.attr.scaleY,
+            android.R.attr.rotation,
+            android.R.attr.translateX,
+            android.R.attr.translateY
+        )
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_NAME = 0
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_PIVOT_X = 1
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_PIVOT_Y = 2
@@ -60,23 +60,25 @@ internal object AndroidVectorResources {
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_SCALE_Y = 4
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_TRANSLATE_X = 6
     val STYLEABLE_VECTOR_DRAWABLE_GROUP_TRANSLATE_Y = 7
-    val STYLEABLE_VECTOR_DRAWABLE_PATH = intArrayOf(
-        android.R.attr.name,
-        android.R.attr.fillColor,
-        android.R.attr.pathData,
-        android.R.attr.strokeColor,
-        android.R.attr.strokeWidth,
-        android.R.attr.trimPathStart,
-        android.R.attr.trimPathEnd,
-        android.R.attr.trimPathOffset,
-        android.R.attr.strokeLineCap,
-        android.R.attr.strokeLineJoin,
-        android.R.attr.strokeMiterLimit,
-        android.R.attr.strokeAlpha,
-        android.R.attr.fillAlpha,
-        // android.R.attr.fillType is in API level 24+ use hardcoded value to extract the attribute if it exists
-        0x101051E
-    )
+    val STYLEABLE_VECTOR_DRAWABLE_PATH =
+        intArrayOf(
+            android.R.attr.name,
+            android.R.attr.fillColor,
+            android.R.attr.pathData,
+            android.R.attr.strokeColor,
+            android.R.attr.strokeWidth,
+            android.R.attr.trimPathStart,
+            android.R.attr.trimPathEnd,
+            android.R.attr.trimPathOffset,
+            android.R.attr.strokeLineCap,
+            android.R.attr.strokeLineJoin,
+            android.R.attr.strokeMiterLimit,
+            android.R.attr.strokeAlpha,
+            android.R.attr.fillAlpha,
+            // android.R.attr.fillType is in API level 24+ use hardcoded value to extract the
+            // attribute if it exists
+            0x101051E
+        )
     val STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_ALPHA = 12
     val STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_COLOR = 1
     val STYLEABLE_VECTOR_DRAWABLE_PATH_NAME = 0

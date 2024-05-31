@@ -75,7 +75,7 @@ open class DurableKeyTransformer(
     stabilityInferencer: StabilityInferencer,
     metrics: ModuleMetrics,
     featureFlags: FeatureFlags,
-    ) :
+) :
     AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
     ModuleLoweringPass {
 
@@ -91,16 +91,16 @@ open class DurableKeyTransformer(
 
     protected fun <T> root(keys: MutableSet<String>, block: () -> T): T =
         keyVisitor.root(keys, block)
+
     protected fun <T> enter(key: String, block: () -> T) = keyVisitor.enter(key, block)
+
     protected fun <T> siblings(key: String, block: () -> T) = keyVisitor.siblings(key, block)
+
     protected fun <T> siblings(block: () -> T) = keyVisitor.siblings(block)
 
     protected fun Name.asJvmFriendlyString(): String {
         return if (!isSpecial) identifier
-        else asString()
-            .replace('<', '$')
-            .replace('>', '$')
-            .replace(' ', '-')
+        else asString().replace('<', '$').replace('>', '$').replace(' ', '-')
     }
 
     override fun visitClass(declaration: IrClass): IrStatement {
@@ -126,17 +126,11 @@ open class DurableKeyTransformer(
     }
 
     override fun visitTry(aTry: IrTry): IrExpression {
-        aTry.tryResult = enter("try") {
-            aTry.tryResult.transform(this, null)
-        }
+        aTry.tryResult = enter("try") { aTry.tryResult.transform(this, null) }
         siblings {
-            aTry.catches.forEach {
-                it.result = enter("catch") { it.result.transform(this, null) }
-            }
+            aTry.catches.forEach { it.result = enter("catch") { it.result.transform(this, null) } }
         }
-        aTry.finallyExpression = enter("finally") {
-            aTry.finallyExpression?.transform(this, null)
-        }
+        aTry.finallyExpression = enter("finally") { aTry.finallyExpression?.transform(this, null) }
         return aTry
     }
 
@@ -152,19 +146,15 @@ open class DurableKeyTransformer(
         val name = owner.name.asJvmFriendlyString()
 
         return enter("call-$name") {
-            expression.dispatchReceiver = enter("\$this") {
-                expression.dispatchReceiver?.transform(this, null)
-            }
-            expression.extensionReceiver = enter("\$\$this") {
-                expression.extensionReceiver?.transform(this, null)
-            }
+            expression.dispatchReceiver =
+                enter("\$this") { expression.dispatchReceiver?.transform(this, null) }
+            expression.extensionReceiver =
+                enter("\$\$this") { expression.extensionReceiver?.transform(this, null) }
 
             for (i in 0 until expression.valueArgumentsCount) {
                 val arg = expression.getValueArgument(i)
                 if (arg != null) {
-                    enter("arg-$i") {
-                        expression.putValueArgument(i, arg.transform(this, null))
-                    }
+                    enter("arg-$i") { expression.putValueArgument(i, arg.transform(this, null)) }
                 }
             }
             expression
@@ -176,19 +166,15 @@ open class DurableKeyTransformer(
         val name = owner.name.asJvmFriendlyString()
 
         return enter("call-$name") {
-            expression.dispatchReceiver = enter("\$this") {
-                expression.dispatchReceiver?.transform(this, null)
-            }
-            expression.extensionReceiver = enter("\$\$this") {
-                expression.extensionReceiver?.transform(this, null)
-            }
+            expression.dispatchReceiver =
+                enter("\$this") { expression.dispatchReceiver?.transform(this, null) }
+            expression.extensionReceiver =
+                enter("\$\$this") { expression.extensionReceiver?.transform(this, null) }
 
             for (i in 0 until expression.valueArgumentsCount) {
                 val arg = expression.getValueArgument(i)
                 if (arg != null) {
-                    enter("arg-$i") {
-                        expression.putValueArgument(i, arg.transform(this, null))
-                    }
+                    enter("arg-$i") { expression.putValueArgument(i, arg.transform(this, null)) }
                 }
             }
             expression
@@ -205,19 +191,15 @@ open class DurableKeyTransformer(
         val name = owner.name.asJvmFriendlyString()
 
         return enter("call-$name") {
-            expression.dispatchReceiver = enter("\$this") {
-                expression.dispatchReceiver?.transform(this, null)
-            }
-            expression.extensionReceiver = enter("\$\$this") {
-                expression.extensionReceiver?.transform(this, null)
-            }
+            expression.dispatchReceiver =
+                enter("\$this") { expression.dispatchReceiver?.transform(this, null) }
+            expression.extensionReceiver =
+                enter("\$\$this") { expression.extensionReceiver?.transform(this, null) }
 
             for (i in 0 until expression.valueArgumentsCount) {
                 val arg = expression.getValueArgument(i)
                 if (arg != null) {
-                    enter("arg-$i") {
-                        expression.putValueArgument(i, arg.transform(this, null))
-                    }
+                    enter("arg-$i") { expression.putValueArgument(i, arg.transform(this, null)) }
                 }
             }
             expression
@@ -229,19 +211,15 @@ open class DurableKeyTransformer(
         val name = owner.name.asJvmFriendlyString()
 
         return enter("call-$name") {
-            expression.dispatchReceiver = enter("\$this") {
-                expression.dispatchReceiver?.transform(this, null)
-            }
-            expression.extensionReceiver = enter("\$\$this") {
-                expression.extensionReceiver?.transform(this, null)
-            }
+            expression.dispatchReceiver =
+                enter("\$this") { expression.dispatchReceiver?.transform(this, null) }
+            expression.extensionReceiver =
+                enter("\$\$this") { expression.extensionReceiver?.transform(this, null) }
 
             for (i in 0 until expression.valueArgumentsCount) {
                 val arg = expression.getValueArgument(i)
                 if (arg != null) {
-                    enter("arg-$i") {
-                        expression.putValueArgument(i, arg.transform(this, null))
-                    }
+                    enter("arg-$i") { expression.putValueArgument(i, arg.transform(this, null)) }
                 }
             }
             expression
@@ -258,9 +236,8 @@ open class DurableKeyTransformer(
         if (expression !is IrVarargImpl) return expression
         return enter("vararg") {
             expression.elements.forEachIndexed { i, arg ->
-                expression.elements[i] = enter("$i") {
-                    arg.transform(this, null) as IrVarargElement
-                }
+                expression.elements[i] =
+                    enter("$i") { arg.transform(this, null) as IrVarargElement }
             }
             expression
         }
@@ -299,15 +276,17 @@ open class DurableKeyTransformer(
             // in these cases, the compiler relies on a certain structure for the condition
             // expression, so we only touch the body
             IrStatementOrigin.WHILE_LOOP,
-            IrStatementOrigin.FOR_LOOP_INNER_WHILE -> enter("loop") {
-                loop.body = enter("body") { loop.body?.transform(this, null) }
-                loop
-            }
-            else -> enter("loop") {
-                loop.condition = enter("cond") { loop.condition.transform(this, null) }
-                loop.body = enter("body") { loop.body?.transform(this, null) }
-                loop
-            }
+            IrStatementOrigin.FOR_LOOP_INNER_WHILE ->
+                enter("loop") {
+                    loop.body = enter("body") { loop.body?.transform(this, null) }
+                    loop
+                }
+            else ->
+                enter("loop") {
+                    loop.condition = enter("cond") { loop.condition.transform(this, null) }
+                    loop.body = enter("body") { loop.body?.transform(this, null) }
+                    loop
+                }
         }
     }
 
@@ -316,9 +295,7 @@ open class DurableKeyTransformer(
         return enter("str") {
             siblings {
                 expression.arguments.forEachIndexed { index, expr ->
-                    expression.arguments[index] = enter("$index") {
-                        expr.transform(this, null)
-                    }
+                    expression.arguments[index] = enter("$index") { expr.transform(this, null) }
                 }
                 expression
             }
@@ -340,14 +317,8 @@ open class DurableKeyTransformer(
                 expression.branches[1] = expression.branches[1].transform(this, null)
                 expression
             }
-
-            IrStatementOrigin.IF -> siblings("if") {
-                super.visitWhen(expression)
-            }
-
-            else -> siblings("when") {
-                super.visitWhen(expression)
-            }
+            IrStatementOrigin.IF -> siblings("if") { super.visitWhen(expression) }
+            else -> siblings("when") { super.visitWhen(expression) }
         }
     }
 
@@ -364,9 +335,7 @@ open class DurableKeyTransformer(
             // the condition of an else branch is a constant boolean but we don't want
             // to convert it into a live literal, so we don't transform it
             condition = branch.condition,
-            result = enter("else") {
-                branch.result.transform(this, null)
-            }
+            result = enter("else") { branch.result.transform(this, null) }
         )
     }
 
@@ -374,21 +343,15 @@ open class DurableKeyTransformer(
         return IrBranchImpl(
             startOffset = branch.startOffset,
             endOffset = branch.endOffset,
-            condition = enter("cond") {
-                branch.condition.transform(this, null)
-            },
+            condition = enter("cond") { branch.condition.transform(this, null) },
             // only translate the result, as the branch is a constant boolean but we don't want
             // to convert it into a live literal
-            result = enter("branch") {
-                branch.result.transform(this, null)
-            }
+            result = enter("branch") { branch.result.transform(this, null) }
         )
     }
 
     override fun visitComposite(expression: IrComposite): IrExpression {
-        return siblings {
-            super.visitComposite(expression)
-        }
+        return siblings { super.visitComposite(expression) }
     }
 
     override fun visitBlock(expression: IrBlock): IrExpression {
@@ -401,14 +364,12 @@ open class DurableKeyTransformer(
                     expression.statements[1].transform(this, null) as IrStatement
                 expression
             }
-//            IrStatementOrigin.SAFE_CALL
-//            IrStatementOrigin.WHEN
-//            IrStatementOrigin.IF
-//            IrStatementOrigin.ELVIS
-//            IrStatementOrigin.ARGUMENTS_REORDERING_FOR_CALL
-            else -> siblings {
-                super.visitBlock(expression)
-            }
+            //            IrStatementOrigin.SAFE_CALL
+            //            IrStatementOrigin.WHEN
+            //            IrStatementOrigin.IF
+            //            IrStatementOrigin.ELVIS
+            //            IrStatementOrigin.ARGUMENTS_REORDERING_FOR_CALL
+            else -> siblings { super.visitBlock(expression) }
         }
     }
 
@@ -431,9 +392,7 @@ open class DurableKeyTransformer(
     }
 
     override fun visitBlockBody(body: IrBlockBody): IrBody {
-        return siblings {
-            super.visitBlockBody(body)
-        }
+        return siblings { super.visitBlockBody(body) }
     }
 
     override fun visitVariable(declaration: IrVariable): IrStatement {
@@ -454,12 +413,8 @@ open class DurableKeyTransformer(
             // safe operation. We should figure out a way to do this for "static" expressions
             // though such as `val foo = 16.dp`.
             declaration.backingField = backingField?.transform(this, null) as? IrField
-            declaration.getter = enter("get") {
-                getter?.transform(this, null) as? IrSimpleFunction
-            }
-            declaration.setter = enter("set") {
-                setter?.transform(this, null) as? IrSimpleFunction
-            }
+            declaration.getter = enter("get") { getter?.transform(this, null) as? IrSimpleFunction }
+            declaration.setter = enter("set") { setter?.transform(this, null) as? IrSimpleFunction }
             declaration
         }
     }

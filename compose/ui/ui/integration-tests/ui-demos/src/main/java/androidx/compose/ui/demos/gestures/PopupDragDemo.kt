@@ -43,14 +43,10 @@ fun PopupDragDemo() {
 
     Column {
         Text("That is a pop up with a dragGestureFilter on it.  You can drag it around!")
-        Popup(
-            alignment = Alignment.TopStart,
-            offset = offset.value.round()
-        ) {
+        Popup(alignment = Alignment.TopStart, offset = offset.value.round()) {
             Box {
                 Box(
-                    Modifier
-                        .pointerInput(Unit) {
+                    Modifier.pointerInput(Unit) {
                             detectDragGestures { _, dragAmount ->
                                 offset.value = offset.value + dragAmount
                             }
@@ -59,10 +55,7 @@ fun PopupDragDemo() {
                         .background(Color.Green, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "This is a popup!",
-                        textAlign = TextAlign.Center
-                    )
+                    Text(text = "This is a popup!", textAlign = TextAlign.Center)
                 }
             }
         }

@@ -512,8 +512,9 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
     }
 
     @Test
-    fun testRecursiveLocalFunction() = validateBytecode(
-        """
+    fun testRecursiveLocalFunction() =
+        validateBytecode(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Surface(content: @Composable () -> Unit) {}
@@ -526,18 +527,19 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
                 }
             }
         """,
-        validate = {
-            assertFalse(
-                it.contains("ComposableSingletons"),
-                message = "ComposableSingletons class should not be generated"
-            )
-        }
-    )
+            validate = {
+                assertFalse(
+                    it.contains("ComposableSingletons"),
+                    message = "ComposableSingletons class should not be generated"
+                )
+            }
+        )
 
     // regression test for https://youtrack.jetbrains.com/issue/KT-65791
     @Test
-    fun testCrossinlineCapture() = testCompile(
-        """
+    fun testCrossinlineCapture() =
+        testCompile(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -570,7 +572,7 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
                 )
             }
         """
-    )
+        )
 
     @Test
     fun composeValueClassDefaultParameter() =
@@ -587,15 +589,15 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
             """,
             validate = {
                 // select Example function body
-                val func = Regex("public final static Example[\\s\\S]*?LOCALVARIABLE")
-                    .findAll(it)
-                    .single()
+                val func =
+                    Regex("public final static Example[\\s\\S]*?LOCALVARIABLE").findAll(it).single()
                 assertFalse(message = "Function body should not contain a not-null check.") {
                     func.value.contains("Intrinsics.checkNotNullParameter")
                 }
-                val stub = Regex("public final static synthetic Example[\\s\\S]*?LOCALVARIABLE")
-                    .findAll(it)
-                    .single()
+                val stub =
+                    Regex("public final static synthetic Example[\\s\\S]*?LOCALVARIABLE")
+                        .findAll(it)
+                        .single()
                 assertTrue(message = "Function stub should contain a not-null check.") {
                     stub.value.contains("Intrinsics.checkNotNullParameter")
                 }
@@ -603,8 +605,10 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
         )
 
     @Test // regression test for 336571300
-    fun test_groupAroundIfComposeCallInIfConditionWithShortCircuit() = testCompile(
-        source = """
+    fun test_groupAroundIfComposeCallInIfConditionWithShortCircuit() =
+        testCompile(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -620,11 +624,12 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
             @Composable
             fun ReceiveValue(value: Int) { }
         """
-    )
+        )
 
     @Test
-    fun testDefaultParametersInVirtualFunctions() = validateBytecode(
-        """
+    fun testDefaultParametersInVirtualFunctions() =
+        validateBytecode(
+            """
             import androidx.compose.runtime.*
 
             interface Test {
@@ -646,13 +651,13 @@ class ComposeBytecodeCodegenTest(useFir: Boolean) : AbstractCodegenTest(useFir) 
                 test.bar(0)
             }
         """,
-        validate = {
-            assertTrue(
-                it.contains(
-                    "INVOKESTATIC test/Test%ComposeDefaultImpls.foo%default (ILtest/Test;Landroidx/compose/runtime/Composer;II)V"
-                ),
-                "default static functions should be generated in ComposeDefaultsImpl class"
-            )
-        }
-    )
+            validate = {
+                assertTrue(
+                    it.contains(
+                        "INVOKESTATIC test/Test%ComposeDefaultImpls.foo%default (ILtest/Test;Landroidx/compose/runtime/Composer;II)V"
+                    ),
+                    "default static functions should be generated in ComposeDefaultsImpl class"
+                )
+            }
+        )
 }

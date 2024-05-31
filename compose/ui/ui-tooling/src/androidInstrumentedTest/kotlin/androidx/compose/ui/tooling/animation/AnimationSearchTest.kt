@@ -56,8 +56,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnimationSearchTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun targetBasedIsAddedAndTracked() {
@@ -73,9 +72,7 @@ class AnimationSearchTest {
 
     @Test
     fun targetBasedIsFound() {
-        animationIsFound(AnimationSearch.TargetBasedSearch {}) {
-            TargetBasedAnimationPreview()
-        }
+        animationIsFound(AnimationSearch.TargetBasedSearch {}) { TargetBasedAnimationPreview() }
     }
 
     @Test
@@ -99,9 +96,7 @@ class AnimationSearchTest {
 
     @Test
     fun decayBasedIsFound() {
-        animationIsFound(AnimationSearch.DecaySearch {}) {
-            DecayAnimationPreview()
-        }
+        animationIsFound(AnimationSearch.DecaySearch {}) { DecayAnimationPreview() }
     }
 
     @Test
@@ -144,7 +139,7 @@ class AnimationSearchTest {
 
     @Test
     fun multipleInfiniteTransitionIsAdded() {
-        val search = AnimationSearch.InfiniteTransitionSearch { }
+        val search = AnimationSearch.InfiniteTransitionSearch {}
         rule.addAnimations(search) {
             rememberInfiniteTransition()
             rememberInfiniteTransition()
@@ -183,9 +178,7 @@ class AnimationSearchTest {
 
     @Test
     fun animatedXAsStateIsFound() {
-        animationIsFound(AnimationSearch.AnimateXAsStateSearch {}) {
-            AnimateAsStatePreview()
-        }
+        animationIsFound(AnimationSearch.AnimateXAsStateSearch {}) { AnimateAsStatePreview() }
     }
 
     @Test
@@ -266,9 +259,7 @@ class AnimationSearchTest {
 
     @Test
     fun transitionIsFound() {
-        animationIsFound(AnimationSearch.TransitionSearch {}) {
-            TransitionPreview()
-        }
+        animationIsFound(AnimationSearch.TransitionSearch {}) { TransitionPreview() }
     }
 
     @Test
@@ -328,9 +319,7 @@ class AnimationSearchTest {
 
     @Test
     fun crossFadeIsFound() {
-        animationIsFound(AnimationSearch.TransitionSearch {}) {
-            CrossFadePreview()
-        }
+        animationIsFound(AnimationSearch.TransitionSearch {}) { CrossFadePreview() }
     }
 
     @Test
@@ -400,9 +389,7 @@ class AnimationSearchTest {
 
     @Test
     fun animatedContentIsFound() {
-        animationIsFound(AnimationSearch.AnimatedContentSearch {}) {
-            AnimatedContentPreview()
-        }
+        animationIsFound(AnimationSearch.AnimatedContentSearch {}) { AnimatedContentPreview() }
     }
 
     @Test

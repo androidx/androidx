@@ -96,12 +96,10 @@ private fun calculateOffsetByPage(event: PointerEvent, bounds: IntSize): Offset 
 }
 
 private val PointerEvent.scrollAmount
-    get() =
-        (mouseEvent as? MouseWheelEvent)?.scrollAmount?.toFloat() ?: 1f
+    get() = (mouseEvent as? MouseWheelEvent)?.scrollAmount?.toFloat() ?: 1f
 
 private val PointerEvent.shouldScrollByPage
-    get() =
-        (mouseEvent as? MouseWheelEvent)?.scrollType == MouseWheelEvent.WHEEL_BLOCK_SCROLL
+    get() = (mouseEvent as? MouseWheelEvent)?.scrollType == MouseWheelEvent.WHEEL_BLOCK_SCROLL
 
 private val PointerEvent.totalScrollDelta
     get() = this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }

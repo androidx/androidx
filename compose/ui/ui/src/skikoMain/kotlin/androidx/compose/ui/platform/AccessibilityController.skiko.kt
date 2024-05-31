@@ -27,16 +27,13 @@ internal interface AccessibilityController {
     fun onSemanticsChange()
 
     /**
-     * Action to trigger when the position and/or size of the
-     * [layoutNode] was changed to update semantic tree.
+     * Action to trigger when the position and/or size of the [layoutNode] was changed to update
+     * semantic tree.
      *
      * @see androidx.compose.ui.node.Owner.onLayoutChange
      */
     fun onLayoutChange(layoutNode: LayoutNode)
 
-    /**
-     * Start a background job to sync semantic nodes with their
-     * platform-specific counterparts.
-     */
+    /** Start a background job to sync semantic nodes with their platform-specific counterparts. */
     suspend fun syncLoop()
 }

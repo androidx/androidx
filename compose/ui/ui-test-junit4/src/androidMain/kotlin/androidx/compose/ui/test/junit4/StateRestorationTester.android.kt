@@ -56,21 +56,15 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
     }
 
     /**
-     * Saves all the state stored via [savedInstanceState] or [rememberSaveable],
-     * disposes current composition, and composes again the content passed to [setContent].
-     * Allows to test how your component behaves when the state restoration is happening.
-     * Note that the state stored via regular state() or remember() will be lost.
+     * Saves all the state stored via [savedInstanceState] or [rememberSaveable], disposes current
+     * composition, and composes again the content passed to [setContent]. Allows to test how your
+     * component behaves when the state restoration is happening. Note that the state stored via
+     * regular state() or remember() will be lost.
      */
     fun emulateSavedInstanceStateRestore() {
-        val registry = checkNotNull(registry) {
-            "setContent should be called first!"
-        }
-        composeTestRule.runOnIdle {
-            registry.saveStateAndDisposeChildren()
-        }
-        composeTestRule.runOnIdle {
-            registry.emitChildrenWithRestoredState()
-        }
+        val registry = checkNotNull(registry) { "setContent should be called first!" }
+        composeTestRule.runOnIdle { registry.saveStateAndDisposeChildren() }
+        composeTestRule.runOnIdle { registry.emitChildrenWithRestoredState() }
         composeTestRule.runOnIdle {
             // we just wait for the children to be emitted
         }
@@ -78,10 +72,11 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
 
     @Composable
     private fun InjectRestorationRegistry(content: @Composable (RestorationRegistry) -> Unit) {
-        val original = requireNotNull(LocalSaveableStateRegistry.current) {
-            "StateRestorationTester requires composeTestRule.setContent() to provide " +
-                "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
-        }
+        val original =
+            requireNotNull(LocalSaveableStateRegistry.current) {
+                "StateRestorationTester requires composeTestRule.setContent() to provide " +
+                    "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
+            }
         val restorationRegistry = remember { RestorationRegistry(original) }
         CompositionLocalProvider(LocalSaveableStateRegistry provides restorationRegistry) {
             if (restorationRegistry.shouldEmitChildren) {
@@ -95,6 +90,7 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
 
         var shouldEmitChildren by mutableStateOf(true)
             private set
+
         private var currentRegistry: SaveableStateRegistry = original
         private var savedMap: Map<String, List<Any?>> = emptyMap()
 
@@ -104,10 +100,11 @@ class StateRestorationTester(private val composeTestRule: ComposeContentTestRule
         }
 
         fun emitChildrenWithRestoredState() {
-            currentRegistry = SaveableStateRegistry(
-                restoredValues = savedMap,
-                canBeSaved = { original.canBeSaved(it) }
-            )
+            currentRegistry =
+                SaveableStateRegistry(
+                    restoredValues = savedMap,
+                    canBeSaved = { original.canBeSaved(it) }
+                )
             shouldEmitChildren = true
         }
 

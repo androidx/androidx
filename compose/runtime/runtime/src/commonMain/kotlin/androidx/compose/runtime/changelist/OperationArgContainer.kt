@@ -16,17 +16,11 @@
 
 package androidx.compose.runtime.changelist
 
-/**
- * A container of parameters assigned to the arguments of an [Operation].
- */
+/** A container of parameters assigned to the arguments of an [Operation]. */
 internal interface OperationArgContainer {
-    /**
-     * Returns the assigned value of [parameter] for the current operation.
-     */
+    /** Returns the assigned value of [parameter] for the current operation. */
     fun getInt(parameter: Operation.IntParameter): Int
 
-    /**
-     * Returns the assigned value of [parameter] for the current operation.
-     */
+    /** Returns the assigned value of [parameter] for the current operation. */
     fun <T> getObject(parameter: Operation.ObjectParameter<T>): T
 }

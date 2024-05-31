@@ -72,53 +72,52 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
  * [AnimatedContent] is a container that automatically animates its content when [targetState]
- * changes. Its [content] for different target states is defined in a mapping between a target
- * state and a composable function.
+ * changes. Its [content] for different target states is defined in a mapping between a target state
+ * and a composable function.
  *
- * **IMPORTANT**: The targetState parameter for the [content] lambda should *always* be
- * taken into account in deciding what composable function to return as the content for that state.
- * This is critical to ensure a successful lookup of all the incoming and outgoing content during
- * content transform.
+ * **IMPORTANT**: The targetState parameter for the [content] lambda should *always* be taken into
+ * account in deciding what composable function to return as the content for that state. This is
+ * critical to ensure a successful lookup of all the incoming and outgoing content during content
+ * transform.
  *
- * When [targetState] changes, content for both new and previous targetState will be
- * looked up through the [content] lambda. They will go through a [ContentTransform] so that
- * the new target content can be animated in while the initial content animates out. Meanwhile the
- * container will animate its size as needed to accommodate the new content, unless
- * [SizeTransform] is set to `null`. Once the [ContentTransform] is finished, the
- * outgoing content will be disposed.
+ * When [targetState] changes, content for both new and previous targetState will be looked up
+ * through the [content] lambda. They will go through a [ContentTransform] so that the new target
+ * content can be animated in while the initial content animates out. Meanwhile the container will
+ * animate its size as needed to accommodate the new content, unless [SizeTransform] is set to
+ * `null`. Once the [ContentTransform] is finished, the outgoing content will be disposed.
  *
  * If [targetState] is expected to mutate frequently and not all mutations should be treated as
  * target state change, consider defining a mapping between [targetState] and a key in [contentKey].
- * As a result, transitions will be triggered when the resulting key changes. In other words,
- * there will be no animation when switching between [targetState]s that share the same same key.
- * By default, the key will be the same as the targetState object.
+ * As a result, transitions will be triggered when the resulting key changes. In other words, there
+ * will be no animation when switching between [targetState]s that share the same same key. By
+ * default, the key will be the same as the targetState object.
  *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
- * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to
- * animate any size change of the content. This behavior can be customized using [transitionSpec].
- * If desired, different [ContentTransform]s can be defined for different pairs of initial content
- * and target content.
+ * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to animate
+ * any size change of the content. This behavior can be customized using [transitionSpec]. If
+ * desired, different [ContentTransform]s can be defined for different pairs of initial content and
+ * target content.
  *
- * [AnimatedContent] displays only the content for [targetState] when not animating. However,
- * during the transient content transform, there will be more than one set of content present in
- * the [AnimatedContent] container. It may be sometimes desired to define the positional
- * relationship among the different content and the overlap. This can be achieved by defining
- * [contentAlignment] and [zOrder][ContentTransform.targetContentZIndex]. By default,
- * [contentAlignment] aligns all content to [Alignment.TopStart], and the `zIndex` for all
- * the content is 0f. __Note__: The target content will always be placed last, therefore it will be
- * on top of all the other content unless zIndex is specified.
+ * [AnimatedContent] displays only the content for [targetState] when not animating. However, during
+ * the transient content transform, there will be more than one set of content present in the
+ * [AnimatedContent] container. It may be sometimes desired to define the positional relationship
+ * among the different content and the overlap. This can be achieved by defining [contentAlignment]
+ * and [zOrder][ContentTransform.targetContentZIndex]. By default, [contentAlignment] aligns all
+ * content to [Alignment.TopStart], and the `zIndex` for all the content is 0f. __Note__: The target
+ * content will always be placed last, therefore it will be on top of all the other content unless
+ * zIndex is specified.
  *
- * Different content in [AnimatedContent] will have access to their own
- * [AnimatedContentScope]. This allows content to define more local enter/exit transitions
- * via [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These
- * custom enter/exit animations will be triggered as the content enters/leaves the container.
+ * Different content in [AnimatedContent] will have access to their own [AnimatedContentScope]. This
+ * allows content to define more local enter/exit transitions via
+ * [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These custom
+ * enter/exit animations will be triggered as the content enters/leaves the container.
  *
  * [label] is an optional parameter to differentiate from other animations in Android Studio.
  *
  * @sample androidx.compose.animation.samples.SimpleAnimatedContentSample
  *
- * Below is an example of customizing [transitionSpec] to imply a spatial relationship between
- * the content for different states:
+ * Below is an example of customizing [transitionSpec] to imply a spatial relationship between the
+ * content for different states:
  *
  * @sample androidx.compose.animation.samples.AnimateIncrementDecrementSample
  *
@@ -131,7 +130,7 @@ fun <S> AnimatedContent(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
         (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
             .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
@@ -153,32 +152,29 @@ fun <S> AnimatedContent(
  * [ContentTransform] defines how the target content (i.e. content associated with target state)
  * enters [AnimatedContent] and how the initial content disappears.
  *
- * [targetContentEnter] defines the enter transition for the content associated with the new
- * target state. It can be a combination of [fadeIn], [slideIn]/[slideInHorizontally]
+ * [targetContentEnter] defines the enter transition for the content associated with the new target
+ * state. It can be a combination of [fadeIn], [slideIn]/[slideInHorizontally]
  * /[slideInVertically]/[AnimatedContentTransitionScope.slideIntoContainer], and expand. Similarly,
  * [initialContentExit] supports a combination of [ExitTransition] for animating out the initial
- * content (i.e. outgoing content). If the initial content and target content are of different
- * size, the [sizeTransform] will be triggered unless it's explicitly set to `null`.
+ * content (i.e. outgoing content). If the initial content and target content are of different size,
+ * the [sizeTransform] will be triggered unless it's explicitly set to `null`.
  * [AnimatedContentTransitionScope.slideIntoContainer] and
- * [AnimatedContentTransitionScope.slideOutOfContainer] can
- * provide container-size-aware sliding in from the edge of the container, or sliding out to the
- * edge of the container.
+ * [AnimatedContentTransitionScope.slideOutOfContainer] can provide container-size-aware sliding in
+ * from the edge of the container, or sliding out to the edge of the container.
  *
- * [ContentTransform] supports the zIndex definition when the content enters the
- * [AnimatedContent] container via [targetContentZIndex]. By default, all content has a `0f`
- * zIndex. Among content with the same zIndex, the incoming target content will be on top, as it
- * will be placed last. However, this may not always be desired. zIndex can be specified to change
- * that order. The content with higher zIndex guarantee to be placed on top of content with lower
- * zIndex.
+ * [ContentTransform] supports the zIndex definition when the content enters the [AnimatedContent]
+ * container via [targetContentZIndex]. By default, all content has a `0f` zIndex. Among content
+ * with the same zIndex, the incoming target content will be on top, as it will be placed last.
+ * However, this may not always be desired. zIndex can be specified to change that order. The
+ * content with higher zIndex guarantee to be placed on top of content with lower zIndex.
  *
- * [sizeTransform] manages the expanding and shrinking of the container if there is any size
- * change as new content enters the [AnimatedContent] and old content leaves. Unlike
- * [AnimatedVisibility], for [AnimatedContent] it is generally
- * more predictable to manage the size of the container using [SizeTransform] than influencing the
- * size using [expandIn]/[expandHorizontally]/[shrinkOut], etc for each content.
- * By default, [spring] will be used to animate any size change, and [AnimatedContent] will be
- * clipped to the animated size. Both can be customized by supplying a different [SizeTransform].
- * If no size animation is desired, [sizeTransform] can be set to `null`.
+ * [sizeTransform] manages the expanding and shrinking of the container if there is any size change
+ * as new content enters the [AnimatedContent] and old content leaves. Unlike [AnimatedVisibility],
+ * for [AnimatedContent] it is generally more predictable to manage the size of the container using
+ * [SizeTransform] than influencing the size using [expandIn]/[expandHorizontally]/[shrinkOut], etc
+ * for each content. By default, [spring] will be used to animate any size change, and
+ * [AnimatedContent] will be clipped to the animated size. Both can be customized by supplying a
+ * different [SizeTransform]. If no size animation is desired, [sizeTransform] can be set to `null`.
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  *
@@ -195,17 +191,17 @@ class ContentTransform(
 ) {
     /**
      * This describes the zIndex of the new target content as it enters the container. It defaults
-     * to 0f. Content with higher zIndex will be drawn over lower `zIndex`ed content. Among
-     * content with the same index, the target content will be placed on top.
+     * to 0f. Content with higher zIndex will be drawn over lower `zIndex`ed content. Among content
+     * with the same index, the target content will be placed on top.
      */
     var targetContentZIndex by mutableFloatStateOf(targetContentZIndex)
 
     /**
      * [sizeTransform] manages the expanding and shrinking of the container if there is any size
-     * change as new content enters the [AnimatedContent] and old content leaves.
-     * By default, [spring] will be used to animate any size change, and [AnimatedContent] will be
-     * clipped to the animated size. Both can be customized by supplying a different [SizeTransform].
-     * If no size animation is desired, [sizeTransform] can be set to `null`.
+     * change as new content enters the [AnimatedContent] and old content leaves. By default,
+     * [spring] will be used to animate any size change, and [AnimatedContent] will be clipped to
+     * the animated size. Both can be customized by supplying a different [SizeTransform]. If no
+     * size animation is desired, [sizeTransform] can be set to `null`.
      */
     var sizeTransform: SizeTransform? = sizeTransform
         internal set
@@ -238,9 +234,7 @@ fun SizeTransform(
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  */
 interface SizeTransform {
-    /**
-     * Whether the content should be clipped using the animated size.
-     */
+    /** Whether the content should be clipped using the animated size. */
     val clip: Boolean
 
     /**
@@ -250,9 +244,7 @@ interface SizeTransform {
     fun createAnimationSpec(initialSize: IntSize, targetSize: IntSize): FiniteAnimationSpec<IntSize>
 }
 
-/**
- * Private implementation of SizeTransform interface.
- */
+/** Private implementation of SizeTransform interface. */
 private class SizeTransformImpl(
     override val clip: Boolean = true,
     val sizeAnimationSpec:
@@ -266,8 +258,7 @@ private class SizeTransformImpl(
 
 /**
  * This creates a [ContentTransform] using the provided [EnterTransition] and [exit], where the
- * enter and exit transition will be running simultaneously.
- * For example:
+ * enter and exit transition will be running simultaneously. For example:
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  */
@@ -275,14 +266,14 @@ infix fun EnterTransition.togetherWith(exit: ExitTransition) = ContentTransform(
 
 @ExperimentalAnimationApi
 @Deprecated(
-    "Infix fun EnterTransition.with(ExitTransition) has been renamed to" +
-        " togetherWith", ReplaceWith("togetherWith(exit)")
+    "Infix fun EnterTransition.with(ExitTransition) has been renamed to" + " togetherWith",
+    ReplaceWith("togetherWith(exit)")
 )
 infix fun EnterTransition.with(exit: ExitTransition) = ContentTransform(this, exit)
 
 /**
- * [AnimatedContentTransitionScope] provides functions that are convenient and only applicable in the
- * context of [AnimatedContent], such as [slideIntoContainer] and [slideOutOfContainer].
+ * [AnimatedContentTransitionScope] provides functions that are convenient and only applicable in
+ * the context of [AnimatedContent], such as [slideIntoContainer] and [slideOutOfContainer].
  */
 sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
     /**
@@ -323,14 +314,14 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
 
     /**
      * This defines a horizontal/vertical slide-in that is specific to [AnimatedContent] from the
-     * edge of the container. The offset amount is dynamically calculated based on the current
-     * size of the [AnimatedContent] and its content alignment. This offset (may be positive or
-     * negative based on the direction of the slide) is then passed to [initialOffset]. By default,
+     * edge of the container. The offset amount is dynamically calculated based on the current size
+     * of the [AnimatedContent] and its content alignment. This offset (may be positive or negative
+     * based on the direction of the slide) is then passed to [initialOffset]. By default,
      * [initialOffset] will be using the offset calculated from the system to slide the content in.
      * [slideIntoContainer] is a convenient alternative to [slideInHorizontally] and
-     * [slideInVertically] when the incoming and outgoing content
-     * differ in size. Otherwise, it would be equivalent to [slideInHorizontally] and
-     * [slideInVertically] with an offset of the full width/height.
+     * [slideInVertically] when the incoming and outgoing content differ in size. Otherwise, it
+     * would be equivalent to [slideInHorizontally] and [slideInVertically] with an offset of the
+     * full width/height.
      *
      * [towards] specifies the slide direction. Content can be slided into the container towards
      * [SlideDirection.Left], [SlideDirection.Right], [SlideDirection.Up] and [SlideDirection.Down].
@@ -345,21 +336,20 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      */
     fun slideIntoContainer(
         towards: SlideDirection,
-        animationSpec: FiniteAnimationSpec<IntOffset> = spring(
-            visibilityThreshold = IntOffset.VisibilityThreshold
-        ),
+        animationSpec: FiniteAnimationSpec<IntOffset> =
+            spring(visibilityThreshold = IntOffset.VisibilityThreshold),
         initialOffset: (offsetForFullSlide: Int) -> Int = { it }
     ): EnterTransition
 
     /**
      * This defines a horizontal/vertical exit transition to completely slide out of the
      * [AnimatedContent] container. The offset amount is dynamically calculated based on the current
-     * size of the [AnimatedContent] and the new target size. This offset gets passed
-     * to [targetOffset] lambda. By default, [targetOffset] uses this offset as is, but it can be
-     * customized to slide a distance based on the offset. [slideOutOfContainer] is a
-     * convenient alternative to [slideOutHorizontally] and [slideOutVertically] when the incoming
-     * and outgoing content differ in size. Otherwise, it would be equivalent to
-     * [slideOutHorizontally] and [slideOutVertically] with an offset of the full width/height.
+     * size of the [AnimatedContent] and the new target size. This offset gets passed to
+     * [targetOffset] lambda. By default, [targetOffset] uses this offset as is, but it can be
+     * customized to slide a distance based on the offset. [slideOutOfContainer] is a convenient
+     * alternative to [slideOutHorizontally] and [slideOutVertically] when the incoming and outgoing
+     * content differ in size. Otherwise, it would be equivalent to [slideOutHorizontally] and
+     * [slideOutVertically] with an offset of the full width/height.
      *
      * [towards] specifies the slide direction. Content can be slided out of the container towards
      * [SlideDirection.Left], [SlideDirection.Right], [SlideDirection.Up] and [SlideDirection.Down].
@@ -374,9 +364,8 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      */
     fun slideOutOfContainer(
         towards: SlideDirection,
-        animationSpec: FiniteAnimationSpec<IntOffset> = spring(
-            visibilityThreshold = IntOffset.VisibilityThreshold
-        ),
+        animationSpec: FiniteAnimationSpec<IntOffset> =
+            spring(visibilityThreshold = IntOffset.VisibilityThreshold),
         targetOffset: (offsetForFullSlide: Int) -> Int = { it }
     ): ExitTransition
 
@@ -396,56 +385,48 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
     val ExitTransition.Companion.KeepUntilTransitionsFinished: ExitTransition
         get() = KeepUntilTransitionsFinished
 
-    /**
-     * This returns the [Alignment] specified on [AnimatedContent].
-     */
+    /** This returns the [Alignment] specified on [AnimatedContent]. */
     val contentAlignment: Alignment
 }
 
-internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
+internal class AnimatedContentTransitionScopeImpl<S>
+internal constructor(
     internal val transition: Transition<S>,
     override var contentAlignment: Alignment,
     internal var layoutDirection: LayoutDirection
 ) : AnimatedContentTransitionScope<S> {
-    /**
-     * Initial state of a Transition Segment. This is the state that transition starts from.
-     */
+    /** Initial state of a Transition Segment. This is the state that transition starts from. */
     override val initialState: S
-        @Suppress("UnknownNullness")
-        get() = transition.segment.initialState
+        @Suppress("UnknownNullness") get() = transition.segment.initialState
 
-    /**
-     * Target state of a Transition Segment. This is the state that transition will end on.
-     */
+    /** Target state of a Transition Segment. This is the state that transition will end on. */
     override val targetState: S
-        @Suppress("UnknownNullness")
-        get() = transition.segment.targetState
+        @Suppress("UnknownNullness") get() = transition.segment.targetState
 
     /**
      * Customizes the [SizeTransform] of a given [ContentTransform]. For example:
      *
      * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
      */
-    override infix fun ContentTransform.using(sizeTransform: SizeTransform?) = this.apply {
-        this.sizeTransform = sizeTransform
-    }
+    override infix fun ContentTransform.using(sizeTransform: SizeTransform?) =
+        this.apply { this.sizeTransform = sizeTransform }
 
     /**
      * This defines a horizontal/vertical slide-in that is specific to [AnimatedContent] from the
-     * edge of the container. The offset amount is dynamically calculated based on the current
-     * size of the [AnimatedContent] and its content alignment. This offset (may be positive or
-     * negative based on the direction of the slide) is then passed to [initialOffset]. By default,
+     * edge of the container. The offset amount is dynamically calculated based on the current size
+     * of the [AnimatedContent] and its content alignment. This offset (may be positive or negative
+     * based on the direction of the slide) is then passed to [initialOffset]. By default,
      * [initialOffset] will be using the offset calculated from the system to slide the content in.
      * [slideIntoContainer] is a convenient alternative to [slideInHorizontally] and
-     * [slideInVertically] when the incoming and outgoing content
-     * differ in size. Otherwise, it would be equivalent to [slideInHorizontally] and
-     * [slideInVertically] with an offset of the full width/height.
+     * [slideInVertically] when the incoming and outgoing content differ in size. Otherwise, it
+     * would be equivalent to [slideInHorizontally] and [slideInVertically] with an offset of the
+     * full width/height.
      *
      * [towards] specifies the slide direction. Content can be slided into the container towards
      * [AnimatedContentTransitionScope.SlideDirection.Left],
      * [AnimatedContentTransitionScope.SlideDirection.Right],
-     * [AnimatedContentTransitionScope.SlideDirection.Up]
-     * and [AnimatedContentTransitionScope.SlideDirection.Down].
+     * [AnimatedContentTransitionScope.SlideDirection.Up] and
+     * [AnimatedContentTransitionScope.SlideDirection.Down].
      *
      * [animationSpec] defines the animation that will be used to animate the slide-in.
      *
@@ -461,37 +442,40 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
         initialOffset: (offsetForFullSlide: Int) -> Int
     ): EnterTransition =
         when {
-            towards.isLeft -> slideInHorizontally(animationSpec) {
-                initialOffset.invoke(
-                    currentSize.width - calculateOffset(IntSize(it, it), currentSize).x
-                )
-            }
-
-            towards.isRight -> slideInHorizontally(animationSpec) {
-                initialOffset.invoke(-calculateOffset(IntSize(it, it), currentSize).x - it)
-            }
-
-            towards == Up -> slideInVertically(animationSpec) {
-                initialOffset.invoke(
-                    currentSize.height - calculateOffset(IntSize(it, it), currentSize).y
-                )
-            }
-
-            towards == Down -> slideInVertically(animationSpec) {
-                initialOffset.invoke(-calculateOffset(IntSize(it, it), currentSize).y - it)
-            }
-
+            towards.isLeft ->
+                slideInHorizontally(animationSpec) {
+                    initialOffset.invoke(
+                        currentSize.width - calculateOffset(IntSize(it, it), currentSize).x
+                    )
+                }
+            towards.isRight ->
+                slideInHorizontally(animationSpec) {
+                    initialOffset.invoke(-calculateOffset(IntSize(it, it), currentSize).x - it)
+                }
+            towards == Up ->
+                slideInVertically(animationSpec) {
+                    initialOffset.invoke(
+                        currentSize.height - calculateOffset(IntSize(it, it), currentSize).y
+                    )
+                }
+            towards == Down ->
+                slideInVertically(animationSpec) {
+                    initialOffset.invoke(-calculateOffset(IntSize(it, it), currentSize).y - it)
+                }
             else -> EnterTransition.None
         }
 
     private val AnimatedContentTransitionScope.SlideDirection.isLeft: Boolean
         get() {
-            return this == Left || this == Start && layoutDirection == LayoutDirection.Ltr ||
+            return this == Left ||
+                this == Start && layoutDirection == LayoutDirection.Ltr ||
                 this == End && layoutDirection == LayoutDirection.Rtl
         }
+
     private val AnimatedContentTransitionScope.SlideDirection.isRight: Boolean
         get() {
-            return this == Right || this == Start && layoutDirection == LayoutDirection.Rtl ||
+            return this == Right ||
+                this == Start && layoutDirection == LayoutDirection.Rtl ||
                 this == End && layoutDirection == LayoutDirection.Ltr
         }
 
@@ -502,18 +486,18 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
     /**
      * This defines a horizontal/vertical exit transition to completely slide out of the
      * [AnimatedContent] container. The offset amount is dynamically calculated based on the current
-     * size of the [AnimatedContent] and the new target size. This offset gets passed
-     * to [targetOffset] lambda. By default, [targetOffset] uses this offset as is, but it can be
-     * customized to slide a distance based on the offset. [slideOutOfContainer] is a
-     * convenient alternative to [slideOutHorizontally] and [slideOutVertically] when the incoming
-     * and outgoing content differ in size. Otherwise, it would be equivalent to
-     * [slideOutHorizontally] and [slideOutVertically] with an offset of the full width/height.
+     * size of the [AnimatedContent] and the new target size. This offset gets passed to
+     * [targetOffset] lambda. By default, [targetOffset] uses this offset as is, but it can be
+     * customized to slide a distance based on the offset. [slideOutOfContainer] is a convenient
+     * alternative to [slideOutHorizontally] and [slideOutVertically] when the incoming and outgoing
+     * content differ in size. Otherwise, it would be equivalent to [slideOutHorizontally] and
+     * [slideOutVertically] with an offset of the full width/height.
      *
      * [towards] specifies the slide direction. Content can be slided out of the container towards
      * [AnimatedContentTransitionScope.SlideDirection.Left],
      * [AnimatedContentTransitionScope.SlideDirection.Right],
-     * [AnimatedContentTransitionScope.SlideDirection.Up]
-     * and [AnimatedContentTransitionScope.SlideDirection.Down].
+     * [AnimatedContentTransitionScope.SlideDirection.Up] and
+     * [AnimatedContentTransitionScope.SlideDirection.Down].
      *
      * [animationSpec] defines the animation that will be used to animate the slide-out.
      *
@@ -530,30 +514,30 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
     ): ExitTransition {
         return when {
             // Note: targetSize could be 0 for empty composables
-            towards.isLeft -> slideOutHorizontally(animationSpec) {
-                val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
-                targetOffset.invoke(-calculateOffset(IntSize(it, it), targetSize).x - it)
-            }
-
-            towards.isRight -> slideOutHorizontally(animationSpec) {
-                val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
-                targetOffset.invoke(
-                    -calculateOffset(IntSize(it, it), targetSize).x + targetSize.width
-                )
-            }
-
-            towards == Up -> slideOutVertically(animationSpec) {
-                val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
-                targetOffset.invoke(-calculateOffset(IntSize(it, it), targetSize).y - it)
-            }
-
-            towards == Down -> slideOutVertically(animationSpec) {
-                val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
-                targetOffset.invoke(
-                    -calculateOffset(IntSize(it, it), targetSize).y + targetSize.height
-                )
-            }
-
+            towards.isLeft ->
+                slideOutHorizontally(animationSpec) {
+                    val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
+                    targetOffset.invoke(-calculateOffset(IntSize(it, it), targetSize).x - it)
+                }
+            towards.isRight ->
+                slideOutHorizontally(animationSpec) {
+                    val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
+                    targetOffset.invoke(
+                        -calculateOffset(IntSize(it, it), targetSize).x + targetSize.width
+                    )
+                }
+            towards == Up ->
+                slideOutVertically(animationSpec) {
+                    val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
+                    targetOffset.invoke(-calculateOffset(IntSize(it, it), targetSize).y - it)
+                }
+            towards == Down ->
+                slideOutVertically(animationSpec) {
+                    val targetSize = targetSizeMap[transition.targetState]?.value ?: IntSize.Zero
+                    targetOffset.invoke(
+                        -calculateOffset(IntSize(it, it), targetSize).y + targetSize.height
+                    )
+                }
             else -> ExitTransition.None
         }
     }
@@ -569,9 +553,7 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
 
     @Suppress("ComposableModifierFactory", "ModifierFactoryExtensionFunction")
     @Composable
-    internal fun createSizeAnimationModifier(
-        contentTransform: ContentTransform
-    ): Modifier {
+    internal fun createSizeAnimationModifier(contentTransform: ContentTransform): Modifier {
         var shouldAnimateSize by remember(this) { mutableStateOf(false) }
         val sizeTransform = rememberUpdatedState(contentTransform.sizeTransform)
         if (transition.currentState == transition.targetState) {
@@ -600,6 +582,7 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
         // isTarget is read during measure. It is necessary to make this a MutableState
         // such that when the target changes, measure is triggered
         var isTarget by mutableStateOf(isTarget)
+
         override fun Density.modifyParentData(parentData: Any?): Any {
             return this@ChildData
         }
@@ -614,15 +597,16 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
             constraints: Constraints
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
-            val size = sizeAnimation.animate(
-                transitionSpec = {
-                    val initial = targetSizeMap[initialState]?.value ?: IntSize.Zero
-                    val target = targetSizeMap[targetState]?.value ?: IntSize.Zero
-                    sizeTransform.value?.createAnimationSpec(initial, target) ?: spring()
+            val size =
+                sizeAnimation.animate(
+                    transitionSpec = {
+                        val initial = targetSizeMap[initialState]?.value ?: IntSize.Zero
+                        val target = targetSizeMap[targetState]?.value ?: IntSize.Zero
+                        sizeTransform.value?.createAnimationSpec(initial, target) ?: spring()
+                    }
+                ) {
+                    targetSizeMap[it]?.value ?: IntSize.Zero
                 }
-            ) {
-                targetSizeMap[it]?.value ?: IntSize.Zero
-            }
             animatedSize = size
             val measuredSize: IntSize
             if (isLookingAhead) {
@@ -631,9 +615,12 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
                 measuredSize = size.value
             }
             return layout(measuredSize.width, measuredSize.height) {
-                val offset = contentAlignment.align(
-                    IntSize(placeable.width, placeable.height), measuredSize, LayoutDirection.Ltr
-                )
+                val offset =
+                    contentAlignment.align(
+                        IntSize(placeable.width, placeable.height),
+                        measuredSize,
+                        LayoutDirection.Ltr
+                    )
                 placeable.place(offset)
             }
         }
@@ -646,53 +633,52 @@ internal class AnimatedContentTransitionScopeImpl<S> internal constructor(
  * transition, or to add more enter/exit transition for the content.
  */
 sealed interface AnimatedContentScope : AnimatedVisibilityScope
-private class AnimatedContentScopeImpl internal constructor(
-    animatedVisibilityScope: AnimatedVisibilityScope
-) : AnimatedContentScope, AnimatedVisibilityScope by animatedVisibilityScope
+
+private class AnimatedContentScopeImpl
+internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
+    AnimatedContentScope, AnimatedVisibilityScope by animatedVisibilityScope
 
 /**
  * [AnimatedContent] is a container that automatically animates its content when
  * [Transition.targetState] changes. Its [content] for different target states is defined in a
  * mapping between a target state and a composable function.
  *
- * **IMPORTANT**: The targetState parameter for the [content] lambda should *always* be
- * taken into account in deciding what composable function to return as the content for that state.
- * This is critical to ensure a successful lookup of all the incoming and outgoing content during
- * content transform.
+ * **IMPORTANT**: The targetState parameter for the [content] lambda should *always* be taken into
+ * account in deciding what composable function to return as the content for that state. This is
+ * critical to ensure a successful lookup of all the incoming and outgoing content during content
+ * transform.
  *
  * When [Transition.targetState] changes, content for both new and previous targetState will be
- * looked up through the [content] lambda. They will go through a [ContentTransform] so that
- * the new target content can be animated in while the initial content animates out. Meanwhile the
- * container will animate its size as needed to accommodate the new content, unless
- * [SizeTransform] is set to `null`. Once the [ContentTransform] is finished, the
- * outgoing content will be disposed.
+ * looked up through the [content] lambda. They will go through a [ContentTransform] so that the new
+ * target content can be animated in while the initial content animates out. Meanwhile the container
+ * will animate its size as needed to accommodate the new content, unless [SizeTransform] is set to
+ * `null`. Once the [ContentTransform] is finished, the outgoing content will be disposed.
  *
  * If [Transition.targetState] is expected to mutate frequently and not all mutations should be
- * treated as target state change, consider defining a mapping between [Transition.targetState]
- * and a key in [contentKey]. As a result, transitions will be triggered when the resulting key
- * changes. In other words, there will be no animation when switching between
- * [Transition.targetState]s that share the same same key. By default, the key will be the same as
- * the targetState object.
+ * treated as target state change, consider defining a mapping between [Transition.targetState] and
+ * a key in [contentKey]. As a result, transitions will be triggered when the resulting key changes.
+ * In other words, there will be no animation when switching between [Transition.targetState]s that
+ * share the same same key. By default, the key will be the same as the targetState object.
  *
  * By default, the [ContentTransform] will be a delayed [fadeIn] of the target content and a delayed
- * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to
- * animate any size change of the content. This behavior can be customized using [transitionSpec].
- * If desired, different [ContentTransform]s can be defined for different pairs of initial content
- * and target content.
+ * [scaleIn] [togetherWith] a [fadeOut] of the initial content, using a [SizeTransform] to animate
+ * any size change of the content. This behavior can be customized using [transitionSpec]. If
+ * desired, different [ContentTransform]s can be defined for different pairs of initial content and
+ * target content.
  *
  * [AnimatedContent] displays only the content for [Transition.targetState] when not animating.
  * However, during the transient content transform, there will be more than one sets of content
  * present in the [AnimatedContent] container. It may be sometimes desired to define the positional
  * relationship among different content and the style of overlap. This can be achieved by defining
  * [contentAlignment] and [zOrder][ContentTransform.targetContentZIndex]. By default,
- * [contentAlignment] aligns all content to [Alignment.TopStart], and the `zIndex` for all
- * the content is 0f. __Note__: The target content will always be placed last, therefore it will be
- * on top of all the other content unless zIndex is specified.
+ * [contentAlignment] aligns all content to [Alignment.TopStart], and the `zIndex` for all the
+ * content is 0f. __Note__: The target content will always be placed last, therefore it will be on
+ * top of all the other content unless zIndex is specified.
  *
- * Different content in [AnimatedContent] will have access to their own
- * [AnimatedContentScope]. This allows content to define more local enter/exit transitions
- * via [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These
- * custom enter/exit animations will be triggered as the content enters/leaves the container.
+ * Different content in [AnimatedContent] will have access to their own [AnimatedContentScope]. This
+ * allows content to define more local enter/exit transitions via
+ * [AnimatedContentScope.animateEnterExit] and [AnimatedContentScope.transition]. These custom
+ * enter/exit animations will be triggered as the content enters/leaves the container.
  *
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
  *
@@ -705,7 +691,7 @@ fun <S> Transition<S>.AnimatedContent(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
         (fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-            scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
+                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)))
             .togetherWith(fadeOut(animationSpec = tween(90)))
     },
     contentAlignment: Alignment = Alignment.TopStart,
@@ -713,9 +699,10 @@ fun <S> Transition<S>.AnimatedContent(
     content: @Composable() AnimatedContentScope.(targetState: S) -> Unit
 ) {
     val layoutDirection = LocalLayoutDirection.current
-    val rootScope = remember(this) {
-        AnimatedContentTransitionScopeImpl(this, contentAlignment, layoutDirection)
-    }
+    val rootScope =
+        remember(this) {
+            AnimatedContentTransitionScopeImpl(this, contentAlignment, layoutDirection)
+        }
     // TODO: remove screen as soon as they are animated out
     val currentlyVisible = remember(this) { mutableStateListOf(currentState) }
     val contentMap = remember(this) { mutableScatterMapOf<S, @Composable() () -> Unit>() }
@@ -776,14 +763,14 @@ fun <S> Transition<S>.AnimatedContent(
                     { it == stateForContent },
                     enter = specOnEnter.targetContentEnter,
                     exit = exit,
-                    modifier = Modifier
-                        .layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            layout(placeable.width, placeable.height) {
-                                placeable.place(0, 0, zIndex = specOnEnter.targetContentZIndex)
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) {
+                                    placeable.place(0, 0, zIndex = specOnEnter.targetContentZIndex)
+                                }
                             }
-                        }
-                        .then(childData.apply { isTarget = stateForContent == targetState }),
+                            .then(childData.apply { isTarget = stateForContent == targetState }),
                     shouldDisposeBlock = { currentState, targetState ->
                         currentState == EnterExitState.PostExit &&
                             targetState == EnterExitState.PostExit &&
@@ -799,9 +786,7 @@ fun <S> Transition<S>.AnimatedContent(
                     }
                     rootScope.targetSizeMap[stateForContent] =
                         (this as AnimatedVisibilityScopeImpl).targetSize
-                    with(remember { AnimatedContentScopeImpl(this) }) {
-                        content(stateForContent)
-                    }
+                    with(remember { AnimatedContentScopeImpl(this) }) { content(stateForContent) }
                 }
             }
         }
@@ -811,11 +796,7 @@ fun <S> Transition<S>.AnimatedContent(
     Layout(
         modifier = modifier.then(sizeModifier),
         content = {
-            currentlyVisible.fastForEach {
-                key(contentKey(it)) {
-                    contentMap[it]?.invoke()
-                }
-            }
+            currentlyVisible.fastForEach { key(contentKey(it)) { contentMap[it]?.invoke() } }
         },
         measurePolicy = remember { AnimatedContentMeasurePolicy(rootScope) }
     )
@@ -831,12 +812,14 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
         var targetSize = IntSize.Zero
         // Measure the target composable first (but place it on top unless zIndex is specified)
         measurables.fastForEachIndexed { index, measurable ->
-            if ((measurable.parentData as? AnimatedContentTransitionScopeImpl.ChildData)
+            if (
+                (measurable.parentData as? AnimatedContentTransitionScopeImpl.ChildData)
                     ?.isTarget == true
             ) {
-                placeables[index] = measurable.measure(constraints).also {
-                    targetSize = IntSize(it.width, it.height)
-                }
+                placeables[index] =
+                    measurable.measure(constraints).also {
+                        targetSize = IntSize(it.width, it.height)
+                    }
             }
         }
         // Measure the non-target composables after target, since these have no impact on
@@ -846,16 +829,18 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
                 placeables[index] = measurable.measure(constraints)
             }
         }
-        val maxWidth: Int = if (isLookingAhead) {
-            targetSize.width
-        } else {
-            placeables.maxByOrNull { it?.width ?: 0 }?.width ?: 0
-        }
-        val maxHeight = if (isLookingAhead) {
-            targetSize.height
-        } else {
-            placeables.maxByOrNull { it?.height ?: 0 }?.height ?: 0
-        }
+        val maxWidth: Int =
+            if (isLookingAhead) {
+                targetSize.width
+            } else {
+                placeables.maxByOrNull { it?.width ?: 0 }?.width ?: 0
+            }
+        val maxHeight =
+            if (isLookingAhead) {
+                targetSize.height
+            } else {
+                placeables.maxByOrNull { it?.height ?: 0 }?.height ?: 0
+            }
         if (!isLookingAhead) {
             // update currently measured size only during approach
             rootScope.measuredSize = IntSize(maxWidth, maxHeight)
@@ -865,11 +850,12 @@ private class AnimatedContentMeasurePolicy(val rootScope: AnimatedContentTransit
         return layout(maxWidth, maxHeight) {
             placeables.forEach { placeable ->
                 placeable?.let {
-                    val offset = rootScope.contentAlignment.align(
-                        IntSize(it.width, it.height),
-                        IntSize(maxWidth, maxHeight),
-                        LayoutDirection.Ltr
-                    )
+                    val offset =
+                        rootScope.contentAlignment.align(
+                            IntSize(it.width, it.height),
+                            IntSize(maxWidth, maxHeight),
+                            LayoutDirection.Ltr
+                        )
                     it.place(offset.x, offset.y)
                 }
             }

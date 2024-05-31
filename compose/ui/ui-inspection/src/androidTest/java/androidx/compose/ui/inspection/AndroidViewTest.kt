@@ -32,24 +32,26 @@ import org.junit.Test
 
 @LargeTest
 class AndroidViewTest {
-    @get:Rule
-    val rule = ComposeInspectionRule(AndroidViewTestActivity::class)
+    @get:Rule val rule = ComposeInspectionRule(AndroidViewTestActivity::class)
 
     @Test
     fun androidView(): Unit = runBlocking {
-        val app = rule.inspectorTester.sendCommand(
-            GetComposablesCommand(rule.rootId, skipSystemComposables = false)
-        ).getComposablesResponse
+        val app =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId, skipSystemComposables = false))
+                .getComposablesResponse
         val strings = app.stringsList.toMap()
-        val composeNode = app.rootsList.flatMap { it.nodesList }.flatMap { it.flatten() }.filter {
-            it.viewId != 0L
-        }.single()
+        val composeNode =
+            app.rootsList
+                .flatMap { it.nodesList }
+                .flatMap { it.flatten() }
+                .filter { it.viewId != 0L }
+                .single()
         assertThat(strings[composeNode.name]).isEqualTo("ComposeNode")
         val androidViewsHandler = rule.rootsForTest.single().view.childAt(0)
         val viewFactoryHolder = androidViewsHandler.childAt(0)
         assertThat(composeNode.viewId).isEqualTo(viewFactoryHolder.uniqueDrawingId)
     }
 
-    private fun View.childAt(index: Int): View =
-        (this as ViewGroup).getChildAt(index)
+    private fun View.childAt(index: Int): View = (this as ViewGroup).getChildAt(index)
 }

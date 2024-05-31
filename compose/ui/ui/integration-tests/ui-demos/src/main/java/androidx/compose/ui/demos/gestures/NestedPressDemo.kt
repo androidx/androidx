@@ -34,9 +34,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
-/**
- * Demonstration of how various press/tap gesture interact together in a nested fashion.
- */
+/** Demonstration of how various press/tap gesture interact together in a nested fashion. */
 @Composable
 fun NestedPressingDemo() {
     Column {
@@ -69,36 +67,28 @@ private fun PressableContainer(
     val currentColor = remember { mutableStateOf(defaultColor) }
     val pressed = remember { mutableStateOf(false) }
 
-    val onStart: (Any) -> Unit = {
-        pressed.value = true
-    }
+    val onStart: (Any) -> Unit = { pressed.value = true }
 
-    val onStop: () -> Unit = {
-        pressed.value = false
-    }
+    val onStop: () -> Unit = { pressed.value = false }
 
     val onLongPress = { _: Offset ->
         pressed.value = false
         currentColor.value = defaultColor
     }
 
-    val onTap: (Offset) -> Unit = {
-        currentColor.value = currentColor.value.next()
-    }
+    val onTap: (Offset) -> Unit = { currentColor.value = currentColor.value.next() }
 
-    val onDoubleTap = { _: Offset ->
-        currentColor.value = currentColor.value.prev()
-    }
+    val onDoubleTap = { _: Offset -> currentColor.value = currentColor.value.prev() }
 
-    val color = if (pressed.value) {
-        pressedColor.compositeOver(currentColor.value)
-    } else {
-        currentColor.value
-    }
+    val color =
+        if (pressed.value) {
+            pressedColor.compositeOver(currentColor.value)
+        } else {
+            currentColor.value
+        }
 
     val gestureDetectors =
-        Modifier
-            .pointerInput(Unit) {
+        Modifier.pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
                         onStart.invoke(it)
@@ -121,5 +111,7 @@ private fun PressableContainer(
             .background(color)
             .border(BorderStroke(2.dp, BorderColor))
             .padding(2.dp)
-    ) { content() }
+    ) {
+        content()
+    }
 }

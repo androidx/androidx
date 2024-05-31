@@ -29,11 +29,13 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
 
-    private val InteractionSourceStub: TestFile = bytecodeStub(
-        filename = "InteractionSource.kt",
-        filepath = "androidx/compose/foundation/interaction",
-        checksum = 0xac2a176d,
-        source = """
+    private val InteractionSourceStub: TestFile =
+        bytecodeStub(
+            filename = "InteractionSource.kt",
+            filepath = "androidx/compose/foundation/interaction",
+            checksum = 0xac2a176d,
+            source =
+                """
         package androidx.compose.foundation.interaction
 
         interface InteractionSource
@@ -44,13 +46,13 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
 
         private class MutableInteractionSourceImpl : MutableInteractionSource
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuNST8xLKcrPTKnQS87PLcgvTtVL
         yy/NS0ksyczP08vMK0ktSkwGsYWEPRGc4PzSouRU7xIubi6WktTiEiHmeO8S
         JQYtBgD0QcfwZQAAAA==
         """,
-        """
+            """
         androidx/compose/foundation/interaction/InteractionSource.class:
         H4sIAAAAAAAA/52OP0/DMBDF3znQtOFfCq1UvgRuKxbUiQUpUhESSCyZ3MRF
         bhIbxW7VsZ+LAXXmQyGcdGBg4yw9/+5Ouve+vj8+AdxiSLgTOq+Nyrc8M9W7
@@ -60,7 +62,7 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
         KIarVi8x8P/EHz/2r5MiSBAm6CboIfKIkwSnOEtBFue4SMEsYov+D8H/p5CF
         AQAA
         """,
-        """
+            """
         androidx/compose/foundation/interaction/InteractionSourceKt.class:
         H4sIAAAAAAAA/61R308TQRD+5gpXevwqAtoWRbAv8OJR4xvGqBCSi7UmakhM
         n7a9lWx7t0vu9hoe+yf5ZqIJ6bN/lHG2kPDQkJDAPsx8M/vNN7szf//9vgTw
@@ -73,7 +75,7 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
         8gSrP6ek52x99sACdq5x2Q0Mu1P7DC/YtzhbZbm1LkoRHkVYj7CBzQiP8SRC
         DfUuKEcDW114OeZzPP0PDZ9NFzMDAAA=
         """,
-        """
+            """
         androidx/compose/foundation/interaction/MutableInteractionSource.class:
         H4sIAAAAAAAA/6VQvU7DMBi8L4E2DX8tBCgvQdqKBXUBBqRIRUggsWRyExe5
         SW3UOFXHPhcD6sxDIb6EgYEOlRh8Pp/1ne/8+fX+AeAK54QbodO5UekyTMzs
@@ -83,7 +85,7 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
         ky+qUBziVmtja/eiwUWww8UbVX/mpzUGOOO9zzr/HrwYboRWBD/CHvaZ4iDC
         IY5iUIE2OjGcAscFTr4BtDhpnA4CAAA=
         """,
-        """
+            """
         androidx/compose/foundation/interaction/MutableInteractionSourceImpl.class:
         H4sIAAAAAAAA/61Sy04bMRQ91yEPpqEEyiO0ULa0i06KugOhFhDSSGkrFZQN
         K2fGUJMZG814EMt8S/+AFRILFLHsR6FeT5C66JIufHTOuQ9dX/v34909gE/Y
@@ -95,19 +97,21 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
         /AjTm/vtM75mFVYaqL+/RXDDROANY6MyA6wztqcJeMHMxzcqXMPb6gMS5jj2
         8hS1CPMROhEWsMgUryIsYfkUVGAFqxwv0C7QLdD6A/UGq929AgAA
         """
-    )
+        )
 
     override fun getDetector(): Detector = UnrememberedMutableInteractionSourceDetector()
 
-    override fun getIssues(): MutableList<Issue> = mutableListOf(
-        UnrememberedMutableInteractionSourceDetector.UnrememberedMutableInteractionSource
-    )
+    override fun getIssues(): MutableList<Issue> =
+        mutableListOf(
+            UnrememberedMutableInteractionSourceDetector.UnrememberedMutableInteractionSource
+        )
 
     @Test
     fun notRemembered() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.foundation.interaction.*
@@ -156,10 +160,10 @@ class UnrememberedMutableInteractionSourceDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            InteractionSourceStub,
-            Stubs.Composable,
-        )
+                ),
+                InteractionSourceStub,
+                Stubs.Composable,
+            )
             .run()
             .expect(
                 """
@@ -194,9 +198,10 @@ src/test/{.kt:46: Error: Creating a MutableInteractionSource during composition 
 
     @Test
     fun rememberedInsideComposableBody() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.foundation.interaction.*
@@ -238,20 +243,21 @@ src/test/{.kt:46: Error: Creating a MutableInteractionSource during composition 
                     }
                 }
             """
-            ),
-            InteractionSourceStub,
-            Stubs.Composable,
-            Stubs.Remember
-        )
+                ),
+                InteractionSourceStub,
+                Stubs.Composable,
+                Stubs.Remember
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.foundation.interaction.*
@@ -307,10 +313,10 @@ src/test/{.kt:46: Error: Creating a MutableInteractionSource during composition 
                     }
                 }
             """
-            ),
-            InteractionSourceStub,
-            Stubs.Composable
-        )
+                ),
+                InteractionSourceStub,
+                Stubs.Composable
+            )
             .run()
             .expectClean()
     }

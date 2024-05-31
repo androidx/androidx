@@ -18,9 +18,7 @@ package androidx.compose.ui.graphics
 
 import android.graphics.PathDashPathEffect
 
-/**
- * Obtain a reference to the Android PathEffect type
- */
+/** Obtain a reference to the Android PathEffect type */
 internal class AndroidPathEffect(val nativePathEffect: android.graphics.PathEffect) : PathEffect
 
 fun PathEffect.asAndroidPathEffect(): android.graphics.PathEffect =

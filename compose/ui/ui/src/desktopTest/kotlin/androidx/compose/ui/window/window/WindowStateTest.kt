@@ -70,9 +70,7 @@ class WindowStateTest {
 
         launchApplication {
             if (isOpen) {
-                Window(onCloseRequest = { isOpen = false }) {
-                    window = this.window
-                }
+                Window(onCloseRequest = { isOpen = false }) { window = this.window }
             }
         }
 
@@ -91,9 +89,7 @@ class WindowStateTest {
 
         launchApplication {
             if (isOpen) {
-                Window(onCloseRequest = { isOpen = false }) {
-                    window = this.window
-                }
+                Window(onCloseRequest = { isOpen = false }) { window = this.window }
             }
         }
 
@@ -118,9 +114,7 @@ class WindowStateTest {
                     parentWindow = this.window
 
                     if (isChildOpen) {
-                        Window(onCloseRequest = {}) {
-                            childWindow = this.window
-                        }
+                        Window(onCloseRequest = {}) { childWindow = this.window }
                     }
                 }
             }
@@ -145,72 +139,66 @@ class WindowStateTest {
     }
 
     @Test
-    fun `set size and position before show`() = runApplicationTest(useDelay = isLinux) {
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(242.dp, 242.dp)
-        )
+    fun `set size and position before show`() =
+        runApplicationTest(useDelay = isLinux) {
+            val state =
+                WindowState(
+                    size = DpSize(200.dp, 200.dp),
+                    position = WindowPosition(242.dp, 242.dp)
+                )
 
-        var window: ComposeWindow? = null
+            var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
+            launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
+
+            awaitIdle()
+            assertThat(window?.size).isEqualTo(Dimension(200, 200))
+            assertThat(window?.location).isEqualTo(Point(242, 242))
+
+            exitApplication()
         }
-
-        awaitIdle()
-        assertThat(window?.size).isEqualTo(Dimension(200, 200))
-        assertThat(window?.location).isEqualTo(Point(242, 242))
-
-        exitApplication()
-    }
 
     @Test
-    fun `change position after show`() = runApplicationTest(useDelay = isLinux) {
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(200.dp, 200.dp)
-        )
-        var window: ComposeWindow? = null
+    fun `change position after show`() =
+        runApplicationTest(useDelay = isLinux) {
+            val state =
+                WindowState(
+                    size = DpSize(200.dp, 200.dp),
+                    position = WindowPosition(200.dp, 200.dp)
+                )
+            var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
+            launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
+
+            awaitIdle()
+
+            state.position = WindowPosition(242.dp, (242).dp)
+            awaitIdle()
+            assertThat(window?.location).isEqualTo(Point(242, 242))
+
+            exitApplication()
         }
-
-        awaitIdle()
-
-        state.position = WindowPosition(242.dp, (242).dp)
-        awaitIdle()
-        assertThat(window?.location).isEqualTo(Point(242, 242))
-
-        exitApplication()
-    }
 
     @Test
-    fun `change size after show`() = runApplicationTest(useDelay = isLinux) {
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(200.dp, 200.dp)
-        )
-        var window: ComposeWindow? = null
+    fun `change size after show`() =
+        runApplicationTest(useDelay = isLinux) {
+            val state =
+                WindowState(
+                    size = DpSize(200.dp, 200.dp),
+                    position = WindowPosition(200.dp, 200.dp)
+                )
+            var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
+            launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
+
+            awaitIdle()
+
+            state.size = DpSize(250.dp, 200.dp)
+            awaitIdle()
+            assertThat(window?.size).isEqualTo(Dimension(250, 200))
+
+            exitApplication()
         }
-
-        awaitIdle()
-
-        state.size = DpSize(250.dp, 200.dp)
-        awaitIdle()
-        assertThat(window?.size).isEqualTo(Dimension(250, 200))
-
-        exitApplication()
-    }
 
     @Test
     fun `center window`() = runApplicationTest {
@@ -219,17 +207,11 @@ class WindowStateTest {
         fun JFrame.screenCenter() = graphicsConfiguration.bounds.center()
         infix fun Point.maxDistance(other: Point) = max(abs(x - other.x), abs(y - other.y))
 
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(Alignment.Center)
-        )
+        val state =
+            WindowState(size = DpSize(200.dp, 200.dp), position = WindowPosition(Alignment.Center))
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
         assertThat(window!!.center() maxDistance window!!.screenCenter() < 250)
@@ -238,45 +220,39 @@ class WindowStateTest {
     }
 
     @Test
-    fun `remember position after reattach`() = runApplicationTest(useDelay = isLinux) {
-        val state = WindowState(size = DpSize(200.dp, 200.dp))
-        var window1: ComposeWindow? = null
-        var window2: ComposeWindow? = null
-        var isWindow1 by mutableStateOf(true)
+    fun `remember position after reattach`() =
+        runApplicationTest(useDelay = isLinux) {
+            val state = WindowState(size = DpSize(200.dp, 200.dp))
+            var window1: ComposeWindow? = null
+            var window2: ComposeWindow? = null
+            var isWindow1 by mutableStateOf(true)
 
-        launchApplication {
-            if (isWindow1) {
-                Window(onCloseRequest = {}, state) {
-                    window1 = this.window
-                }
-            } else {
-                Window(onCloseRequest = {}, state) {
-                    window2 = this.window
+            launchApplication {
+                if (isWindow1) {
+                    Window(onCloseRequest = {}, state) { window1 = this.window }
+                } else {
+                    Window(onCloseRequest = {}, state) { window2 = this.window }
                 }
             }
+
+            awaitIdle()
+
+            state.position = WindowPosition(242.dp, 242.dp)
+            awaitIdle()
+            assertThat(window1?.location == Point(242, 242))
+
+            isWindow1 = false
+            awaitIdle()
+            assertThat(window2?.location == Point(242, 242))
+
+            exitApplication()
         }
-
-        awaitIdle()
-
-        state.position = WindowPosition(242.dp, 242.dp)
-        awaitIdle()
-        assertThat(window1?.location == Point(242, 242))
-
-        isWindow1 = false
-        awaitIdle()
-        assertThat(window2?.location == Point(242, 242))
-
-        exitApplication()
-    }
 
     @Test
     fun `state position should be specified after attach`() = runApplicationTest {
         val state = WindowState(size = DpSize(200.dp, 200.dp))
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) {} }
 
         assertThat(state.position.isSpecified).isFalse()
 
@@ -287,67 +263,58 @@ class WindowStateTest {
     }
 
     @Test
-    fun `enter fullscreen`() = runApplicationTest(useDelay = isLinux) {
-        // TODO(demin): fix macOs. We disabled it because it is not deterministic.
-        //  If we set in skiko SkiaLayer.setFullscreen(true) then isFullscreen still returns false
-        assumeTrue(isWindows || isLinux)
+    fun `enter fullscreen`() =
+        runApplicationTest(useDelay = isLinux) {
+            // TODO(demin): fix macOs. We disabled it because it is not deterministic.
+            //  If we set in skiko SkiaLayer.setFullscreen(true) then isFullscreen still returns
+            // false
+            assumeTrue(isWindows || isLinux)
 
-        val state = WindowState(size = DpSize(200.dp, 200.dp))
-        var window: ComposeWindow? = null
+            val state = WindowState(size = DpSize(200.dp, 200.dp))
+            var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
+            launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
+
+            awaitIdle()
+
+            state.placement = WindowPlacement.Fullscreen
+            awaitIdle()
+            assertThat(window?.placement).isEqualTo(WindowPlacement.Fullscreen)
+
+            state.placement = WindowPlacement.Floating
+            awaitIdle()
+            assertThat(window?.placement).isEqualTo(WindowPlacement.Floating)
+
+            exitApplication()
         }
-
-        awaitIdle()
-
-        state.placement = WindowPlacement.Fullscreen
-        awaitIdle()
-        assertThat(window?.placement).isEqualTo(WindowPlacement.Fullscreen)
-
-        state.placement = WindowPlacement.Floating
-        awaitIdle()
-        assertThat(window?.placement).isEqualTo(WindowPlacement.Floating)
-
-        exitApplication()
-    }
 
     @Test
-    fun maximize() = runApplicationTest(useDelay = isLinux) {
-        val state = WindowState(size = DpSize(200.dp, 200.dp))
-        var window: ComposeWindow? = null
+    fun maximize() =
+        runApplicationTest(useDelay = isLinux) {
+            val state = WindowState(size = DpSize(200.dp, 200.dp))
+            var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
+            launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
+
+            awaitIdle()
+
+            state.placement = WindowPlacement.Maximized
+            awaitIdle()
+            assertThat(window?.placement).isEqualTo(WindowPlacement.Maximized)
+
+            state.placement = WindowPlacement.Floating
+            awaitIdle()
+            assertThat(window?.placement).isEqualTo(WindowPlacement.Floating)
+
+            exitApplication()
         }
-
-        awaitIdle()
-
-        state.placement = WindowPlacement.Maximized
-        awaitIdle()
-        assertThat(window?.placement).isEqualTo(WindowPlacement.Maximized)
-
-        state.placement = WindowPlacement.Floating
-        awaitIdle()
-        assertThat(window?.placement).isEqualTo(WindowPlacement.Floating)
-
-        exitApplication()
-    }
 
     @Test
     fun minimize() = runApplicationTest {
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
 
@@ -370,11 +337,7 @@ class WindowStateTest {
         val state = WindowState(size = DpSize(200.dp, 200.dp))
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
 
@@ -390,30 +353,25 @@ class WindowStateTest {
     @Test
     fun `restore size and position after maximize`() = runApplicationTest {
         // Swing/macOs can't re-change isMaximized in a deterministic way:
-//        fun main() = runBlocking(Dispatchers.Swing) {
-//            val window = ComposeWindow()
-//            window.size = Dimension(200, 200)
-//            window.isVisible = true
-//            window.isMaximized = true
-//            delay(100)
-//            window.isMaximized = false  // we cannot do that on macOs (window is still animating)
-//            delay(1000)
-//            println(window.isMaximized) // prints true
-//        }
-//        Swing/Linux has animations and sometimes adds an offset to the size/position
+        //        fun main() = runBlocking(Dispatchers.Swing) {
+        //            val window = ComposeWindow()
+        //            window.size = Dimension(200, 200)
+        //            window.isVisible = true
+        //            window.isMaximized = true
+        //            delay(100)
+        //            window.isMaximized = false  // we cannot do that on macOs (window is still
+        // animating)
+        //            delay(1000)
+        //            println(window.isMaximized) // prints true
+        //        }
+        //        Swing/Linux has animations and sometimes adds an offset to the size/position
         assumeTrue(isWindows)
 
-        val state = WindowState(
-            size = DpSize(201.dp, 203.dp),
-            position = WindowPosition(196.dp, 257.dp)
-        )
+        val state =
+            WindowState(size = DpSize(201.dp, 203.dp), position = WindowPosition(196.dp, 257.dp))
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
         assertThat(window?.size).isEqualTo(Dimension(201, 203))
@@ -436,20 +394,14 @@ class WindowStateTest {
 
     @Test
     fun `restore size and position after fullscreen`() = runApplicationTest {
-//        Swing/Linux has animations and sometimes adds an offset to the size/position
+        //        Swing/Linux has animations and sometimes adds an offset to the size/position
         assumeTrue(isWindows)
 
-        val state = WindowState(
-            size = DpSize(201.dp, 203.dp),
-            position = WindowPosition(196.dp, 257.dp)
-        )
+        val state =
+            WindowState(size = DpSize(201.dp, 203.dp), position = WindowPosition(196.dp, 257.dp))
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
         assertThat(window?.size).isEqualTo(Dimension(201, 203))
@@ -471,52 +423,47 @@ class WindowStateTest {
     }
 
     @Test
-    fun `maximize window before show`() = runApplicationTest(useDelay = isLinux) {
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(Alignment.Center),
-            placement = WindowPlacement.Maximized,
-        )
-        var window: ComposeWindow? = null
+    fun `maximize window before show`() =
+        runApplicationTest(useDelay = isLinux) {
+            val state =
+                WindowState(
+                    size = DpSize(200.dp, 200.dp),
+                    position = WindowPosition(Alignment.Center),
+                    placement = WindowPlacement.Maximized,
+                )
+            var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
+            launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
+
+            awaitIdle()
+            assertThat(window?.placement).isEqualTo(WindowPlacement.Maximized)
+
+            exitApplication()
         }
-
-        awaitIdle()
-        assertThat(window?.placement).isEqualTo(WindowPlacement.Maximized)
-
-        exitApplication()
-    }
 
     @Test
     fun `minimize window before show`() = runApplicationTest {
         // Linux/macos doesn't support this:
-//        fun main() = runBlocking(Dispatchers.Swing) {
-//            val window = ComposeWindow()
-//            window.size = Dimension(200, 200)
-//            window.isMinimized = true
-//            window.isVisible = true
-//            delay(2000)
-//            println(window.isMinimized) // prints false
-//        }
+        //        fun main() = runBlocking(Dispatchers.Swing) {
+        //            val window = ComposeWindow()
+        //            window.size = Dimension(200, 200)
+        //            window.isMinimized = true
+        //            window.isVisible = true
+        //            delay(2000)
+        //            println(window.isMinimized) // prints false
+        //        }
         // TODO(demin): can we minimize after window.isVisible?
         assumeTrue(isWindows)
 
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(Alignment.Center),
-            isMinimized = true
-        )
+        val state =
+            WindowState(
+                size = DpSize(200.dp, 200.dp),
+                position = WindowPosition(Alignment.Center),
+                isMinimized = true
+            )
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
         assertThat(window?.isMinimized).isTrue()
@@ -530,18 +477,15 @@ class WindowStateTest {
         //  showing the window)
         assumeTrue(isLinux || isWindows)
 
-        val state = WindowState(
-            size = DpSize(200.dp, 200.dp),
-            position = WindowPosition(Alignment.Center),
-            placement = WindowPlacement.Fullscreen,
-        )
+        val state =
+            WindowState(
+                size = DpSize(200.dp, 200.dp),
+                position = WindowPosition(Alignment.Center),
+                placement = WindowPlacement.Fullscreen,
+            )
         var window: ComposeWindow? = null
 
-        launchApplication {
-            Window(onCloseRequest = {}, state) {
-                window = this.window
-            }
-        }
+        launchApplication { Window(onCloseRequest = {}, state) { window = this.window } }
 
         awaitIdle()
         assertThat(window?.placement).isEqualTo(WindowPlacement.Fullscreen)
@@ -552,12 +496,13 @@ class WindowStateTest {
     @Test
     fun `save state`() = runApplicationTest {
         val initialState = WindowState()
-        val newState = WindowState(
-            placement = WindowPlacement.Maximized,
-            size = DpSize(42.dp, 42.dp),
-            position = WindowPosition(3.dp, 3.dp),
-            isMinimized = true,
-        )
+        val newState =
+            WindowState(
+                placement = WindowPlacement.Maximized,
+                size = DpSize(42.dp, 42.dp),
+                position = WindowPosition(3.dp, 3.dp),
+                isMinimized = true,
+            )
 
         var isOpen by mutableStateOf(true)
         var index by mutableStateOf(0)
@@ -606,119 +551,93 @@ class WindowStateTest {
     }
 
     @Test
-    fun `set window height by its content`() = runApplicationTest(useDelay = isLinux) {
-        lateinit var window: ComposeWindow
-        val state = WindowState(size = DpSize(300.dp, Dp.Unspecified))
+    fun `set window height by its content`() =
+        runApplicationTest(useDelay = isLinux) {
+            lateinit var window: ComposeWindow
+            val state = WindowState(size = DpSize(300.dp, Dp.Unspecified))
 
-        launchApplication {
-            Window(
-                onCloseRequest = ::exitApplication,
-                state = state
-            ) {
-                window = this.window
+            launchApplication {
+                Window(onCloseRequest = ::exitApplication, state = state) {
+                    window = this.window
 
-                Box(
-                    Modifier
-                        .width(400.dp)
-                        .height(200.dp)
-                )
+                    Box(Modifier.width(400.dp).height(200.dp))
+                }
             }
+
+            awaitIdle()
+            assertThat(window.width).isEqualTo(300)
+            assertThat(window.contentSize.height).isEqualTo(200)
+            assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
+
+            exitApplication()
         }
-
-        awaitIdle()
-        assertThat(window.width).isEqualTo(300)
-        assertThat(window.contentSize.height).isEqualTo(200)
-        assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
-
-        exitApplication()
-    }
 
     @Test
-    fun `set window width by its content`() = runApplicationTest(useDelay = isLinux) {
-        lateinit var window: ComposeWindow
-        val state = WindowState(size = DpSize(Dp.Unspecified, 300.dp))
+    fun `set window width by its content`() =
+        runApplicationTest(useDelay = isLinux) {
+            lateinit var window: ComposeWindow
+            val state = WindowState(size = DpSize(Dp.Unspecified, 300.dp))
 
-        launchApplication {
-            Window(
-                onCloseRequest = ::exitApplication,
-                state = state
-            ) {
-                window = this.window
+            launchApplication {
+                Window(onCloseRequest = ::exitApplication, state = state) {
+                    window = this.window
 
-                Box(
-                    Modifier
-                        .width(400.dp)
-                        .height(200.dp)
-                )
+                    Box(Modifier.width(400.dp).height(200.dp))
+                }
             }
+
+            awaitIdle()
+            assertThat(window.height).isEqualTo(300)
+            assertThat(window.contentSize.width).isEqualTo(400)
+            assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
+
+            exitApplication()
         }
-
-        awaitIdle()
-        assertThat(window.height).isEqualTo(300)
-        assertThat(window.contentSize.width).isEqualTo(400)
-        assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
-
-        exitApplication()
-    }
 
     @Test
-    fun `set window size by its content`() = runApplicationTest(useDelay = isLinux) {
-        lateinit var window: ComposeWindow
-        val state = WindowState(size = DpSize(Dp.Unspecified, Dp.Unspecified))
+    fun `set window size by its content`() =
+        runApplicationTest(useDelay = isLinux) {
+            lateinit var window: ComposeWindow
+            val state = WindowState(size = DpSize(Dp.Unspecified, Dp.Unspecified))
 
-        launchApplication {
-            Window(
-                onCloseRequest = ::exitApplication,
-                state = state
-            ) {
-                window = this.window
+            launchApplication {
+                Window(onCloseRequest = ::exitApplication, state = state) {
+                    window = this.window
 
-                Box(
-                    Modifier
-                        .width(400.dp)
-                        .height(200.dp)
-                )
+                    Box(Modifier.width(400.dp).height(200.dp))
+                }
             }
+
+            awaitIdle()
+            assertThat(window.contentSize).isEqualTo(Dimension(400, 200))
+            assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
+
+            exitApplication()
         }
-
-        awaitIdle()
-        assertThat(window.contentSize).isEqualTo(Dimension(400, 200))
-        assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
-
-        exitApplication()
-    }
 
     @Test
-    fun `set window size by its content when window is on the screen`() = runApplicationTest(
-        useDelay = isLinux
-    ) {
-        lateinit var window: ComposeWindow
-        val state = WindowState(size = DpSize(100.dp, 100.dp))
+    fun `set window size by its content when window is on the screen`() =
+        runApplicationTest(useDelay = isLinux) {
+            lateinit var window: ComposeWindow
+            val state = WindowState(size = DpSize(100.dp, 100.dp))
 
-        launchApplication {
-            Window(
-                onCloseRequest = ::exitApplication,
-                state = state
-            ) {
-                window = this.window
+            launchApplication {
+                Window(onCloseRequest = ::exitApplication, state = state) {
+                    window = this.window
 
-                Box(
-                    Modifier
-                        .width(400.dp)
-                        .height(200.dp)
-                )
+                    Box(Modifier.width(400.dp).height(200.dp))
+                }
             }
+
+            awaitIdle()
+
+            state.size = DpSize(Dp.Unspecified, Dp.Unspecified)
+            awaitIdle()
+            assertThat(window.contentSize).isEqualTo(Dimension(400, 200))
+            assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
+
+            exitApplication()
         }
-
-        awaitIdle()
-
-        state.size = DpSize(Dp.Unspecified, Dp.Unspecified)
-        awaitIdle()
-        assertThat(window.contentSize).isEqualTo(Dimension(400, 200))
-        assertThat(state.size).isEqualTo(DpSize(window.size.width.dp, window.size.height.dp))
-
-        exitApplication()
-    }
 
     @Test
     fun `change visible`() = runApplicationTest {
@@ -727,9 +646,7 @@ class WindowStateTest {
         var visible by mutableStateOf(false)
 
         launchApplication {
-            Window(onCloseRequest = ::exitApplication, visible = visible) {
-                window = this.window
-            }
+            Window(onCloseRequest = ::exitApplication, visible = visible) { window = this.window }
         }
 
         awaitIdle()
@@ -750,11 +667,7 @@ class WindowStateTest {
 
         launchApplication {
             Window(onCloseRequest = ::exitApplication, visible = false) {
-                LaunchedEffect(Unit) {
-                    sendChannel.consumeEach {
-                        receivedNumbers.add(it)
-                    }
-                }
+                LaunchedEffect(Unit) { sendChannel.consumeEach { receivedNumbers.add(it) } }
             }
         }
 
@@ -777,11 +690,7 @@ class WindowStateTest {
 
         launchApplication {
             Window(onCloseRequest = ::exitApplication, visible = false, undecorated = true) {
-                LaunchedEffect(Unit) {
-                    sendChannel.consumeEach {
-                        receivedNumbers.add(it)
-                    }
-                }
+                LaunchedEffect(Unit) { sendChannel.consumeEach { receivedNumbers.add(it) } }
             }
         }
 
@@ -797,8 +706,9 @@ class WindowStateTest {
     }
 
     private val Window.contentSize
-        get() = Dimension(
-            size.width - insets.left - insets.right,
-            size.height - insets.top - insets.bottom,
-        )
+        get() =
+            Dimension(
+                size.width - insets.left - insets.right,
+                size.height - insets.top - insets.bottom,
+            )
 }

@@ -28,32 +28,27 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import com.google.common.truth.Truth
 
-/**
- * Scope for testing pointer icon is acting as expected.
- */
+/** Scope for testing pointer icon is acting as expected. */
 class PointerIconTestScope(val rule: ComposeContentTestRule) {
     private lateinit var view: View
 
     /**
      * Set the content on the rule.
      *
-     * Required to call this in your test if you are using
-     * [PointerIconTestScope.assertIcon].
+     * Required to call this in your test if you are using [PointerIconTestScope.assertIcon].
      */
     fun setContent(contentBlock: @Composable () -> Unit) {
         rule.setContent {
             view = LocalView.current
             // If nothing sets the pointer icon, then it can end up null in assertIcon.
             // Instead, let's just always have the top level icon be default.
-            Box(Modifier.pointerHoverIcon(PointerIcon.Default)) {
-                contentBlock()
-            }
+            Box(Modifier.pointerHoverIcon(PointerIcon.Default)) { contentBlock() }
         }
     }
 
     /**
-     * See the `TYPE_*` constants in [android.view.PointerIcon],
-     * such as [android.view.PointerIcon.TYPE_DEFAULT].
+     * See the `TYPE_*` constants in [android.view.PointerIcon], such as
+     * [android.view.PointerIcon.TYPE_DEFAULT].
      */
     @RequiresApi(Build.VERSION_CODES.N)
     fun assertIcon(iconType: Int) {

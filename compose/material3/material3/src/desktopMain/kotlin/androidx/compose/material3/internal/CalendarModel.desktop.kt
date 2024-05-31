@@ -18,9 +18,7 @@ package androidx.compose.material3.internal
 
 import androidx.compose.material3.CalendarLocale
 
-/**
- * Returns a [CalendarModel] to be used by the date picker.
- */
+/** Returns a [CalendarModel] to be used by the date picker. */
 internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel =
     LegacyCalendarModelImpl(locale)
 

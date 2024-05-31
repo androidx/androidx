@@ -36,8 +36,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DesktopAlertDialogTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun alignedToCenter_inPureWindow() {
@@ -52,13 +51,14 @@ class DesktopAlertDialogTest {
                     title = { Text("AlerDialog") },
                     text = { Text("Apply?") },
                     confirmButton = { Button(onClick = {}) { Text("Apply") } },
-                    modifier = Modifier.size(dialogSize.width.dp, dialogSize.height.dp)
-                        .onGloballyPositioned { location = it.positionInRoot() }
+                    modifier =
+                        Modifier.size(dialogSize.width.dp, dialogSize.height.dp)
+                            .onGloballyPositioned { location = it.positionInRoot() }
                 )
             }
         }
         rule.runOnIdle {
-           assertThat(location).isEqualTo(calculateCenterPosition(rootSize, dialogSize))
+            assertThat(location).isEqualTo(calculateCenterPosition(rootSize, dialogSize))
         }
     }
 

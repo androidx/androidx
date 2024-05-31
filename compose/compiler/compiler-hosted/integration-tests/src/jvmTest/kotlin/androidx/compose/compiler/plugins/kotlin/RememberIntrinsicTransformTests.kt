@@ -33,26 +33,27 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
     }
 
     private fun comparisonPropagation(
-        @Language("kotlin")
-        unchecked: String,
-        @Language("kotlin")
-        checked: String,
+        @Language("kotlin") unchecked: String,
+        @Language("kotlin") checked: String,
         dumpTree: Boolean = false
-    ) = verifyGoldenComposeIrTransform(
-        """
+    ) =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.remember
 
             $checked
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             import androidx.compose.runtime.Composable
 
             $unchecked
             fun used(x: Any?) {}
-        """.trimIndent(),
-        dumpTree = dumpTree
-    )
+        """
+                .trimIndent(),
+            dumpTree = dumpTree
+        )
 
     @Test
     // The intent of this test is incorrect. If a slot is conditional it requires a group
@@ -69,9 +70,10 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
     //
     // Without intrinsic remember, the slots are deleted from the slot table when
     // the "remember" group is removed but at the cost of a group to track the slot.
-    fun testElidedRememberInsideIfDeoptsRememberAfterIf(): Unit = comparisonPropagation(
-        "",
-        """
+    fun testElidedRememberInsideIfDeoptsRememberAfterIf(): Unit =
+        comparisonPropagation(
+            "",
+            """
             import androidx.compose.runtime.NonRestartableComposable
 
             @Composable
@@ -81,13 +83,14 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val b = remember { 2 }
             }
         """
-    )
+        )
 
     @Test
-    fun testMultipleParamInputs(): Unit = comparisonPropagation(
-        """
+    fun testMultipleParamInputs(): Unit =
+        comparisonPropagation(
+            """
         """,
-        """
+            """
             @Composable
             fun <T> loadResourceInternal(
                 key: String,
@@ -100,16 +103,17 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 return deferred > 10
             }
         """
-    )
+        )
 
     @Test
-    fun testRestartableParameterInputsStableUnstableUncertain(): Unit = comparisonPropagation(
-        """
+    fun testRestartableParameterInputsStableUnstableUncertain(): Unit =
+        comparisonPropagation(
+            """
             class KnownStable
             class KnownUnstable(var x: Int)
             interface Uncertain
         """,
-        """
+            """
             @Composable
             fun test1(x: KnownStable) {
                 remember(x) { 1 }
@@ -123,16 +127,17 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 remember(x) { 1 }
             }
         """
-    )
+        )
 
     @Test
-    fun testNonRestartableParameterInputsStableUnstableUncertain(): Unit = comparisonPropagation(
-        """
+    fun testNonRestartableParameterInputsStableUnstableUncertain(): Unit =
+        comparisonPropagation(
+            """
             class KnownStable
             class KnownUnstable(var x: Int)
             interface Uncertain
         """,
-        """
+            """
             import androidx.compose.runtime.NonRestartableComposable
 
             @Composable
@@ -151,26 +156,28 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 remember(x) { 1 }
             }
         """
-    )
+        )
 
     @Test
-    fun testPassedArgs(): Unit = comparisonPropagation(
-        """
+    fun testPassedArgs(): Unit =
+        comparisonPropagation(
+            """
             class Foo(val a: Int, val b: Int)
         """,
-        """
+            """
             @Composable
             fun rememberFoo(a: Int, b: Int) = remember(a, b) { Foo(a, b) }
         """
-    )
+        )
 
     @Test
-    fun testNoArgs(): Unit = comparisonPropagation(
-        """
+    fun testNoArgs(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             @Composable fun A(){}
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val foo = remember { Foo() }
@@ -179,15 +186,16 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val bam = remember { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testNonArgs(): Unit = comparisonPropagation(
-        """
+    fun testNonArgs(): Unit =
+        comparisonPropagation(
+            """
             class Foo(val a: Int, val b: Int)
             fun someInt(): Int = 123
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val a = someInt()
@@ -195,79 +203,84 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val foo = remember(a, b) { Foo(a, b) }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableCallInArgument(): Unit = comparisonPropagation(
-        """
+    fun testComposableCallInArgument(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             @Composable fun CInt(): Int { return 123 }
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val foo = remember(CInt()) { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testCompositionLocalCallBeforeRemember(): Unit = comparisonPropagation(
-        """
+    fun testCompositionLocalCallBeforeRemember(): Unit =
+        comparisonPropagation(
+            """
             import androidx.compose.runtime.compositionLocalOf
 
             class Foo
             class Bar
             val compositionLocalBar = compositionLocalOf<Bar> { Bar() }
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val bar = compositionLocalBar.current
                 val foo = remember(bar) { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testCompositionLocalCallAsInput(): Unit = comparisonPropagation(
-        """
+    fun testCompositionLocalCallAsInput(): Unit =
+        comparisonPropagation(
+            """
             import androidx.compose.runtime.compositionLocalOf
 
             class Foo
             class Bar
             val compositionLocalBar = compositionLocalOf<Bar> { Bar() }
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val foo = remember(compositionLocalBar.current) { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableCallBeforeRemember(): Unit = comparisonPropagation(
-        """
+    fun testComposableCallBeforeRemember(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             @Composable fun A() { }
         """,
-        """
+            """
             @Composable
             fun Test() {
                 A()
                 val foo = remember { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberInsideOfIf(): Unit = comparisonPropagation(
-        """
+    fun testRememberInsideOfIf(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             @Composable fun A() {}
         """,
-        """
+            """
             @Composable
             fun Test(condition: Boolean) {
                 A()
@@ -276,15 +289,16 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberInsideOfIfWithComposableCallBefore(): Unit = comparisonPropagation(
-        """
+    fun testRememberInsideOfIfWithComposableCallBefore(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             @Composable fun A() {}
         """,
-        """
+            """
             @Composable
             fun Test(condition: Boolean) {
                 if (condition) {
@@ -293,14 +307,15 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberInsideOfWhileWithOnlyRemembers(): Unit = comparisonPropagation(
-        """
+    fun testRememberInsideOfWhileWithOnlyRemembers(): Unit =
+        comparisonPropagation(
+            """
             class Foo
         """,
-        """
+            """
             @Composable
             fun Test(items: List<Int>) {
                 for (item in items) {
@@ -310,15 +325,16 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberInsideOfWhileWithCallsAfter(): Unit = comparisonPropagation(
-        """
+    fun testRememberInsideOfWhileWithCallsAfter(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             @Composable fun A() {}
         """,
-        """
+            """
             @Composable
             fun Test(items: List<Int>) {
                 for (item in items) {
@@ -329,72 +345,77 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testZeroArgRemember(): Unit = comparisonPropagation(
-        """
+    fun testZeroArgRemember(): Unit =
+        comparisonPropagation(
+            """
             class Foo
         """,
-        """
+            """
             @Composable
             fun Test(items: List<Int>) {
                 val foo = remember { Foo() }
                 used(items)
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberWithNArgs(): Unit = comparisonPropagation(
-        """
+    fun testRememberWithNArgs(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             class Bar
         """,
-        """
+            """
             @Composable
             fun Test(a: Int, b: Int, c: Bar, d: Boolean) {
                 val foo = remember(a, b, c, d) { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testVarargWithSpread(): Unit = comparisonPropagation(
-        """
+    fun testVarargWithSpread(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             class Bar
         """,
-        """
+            """
             @Composable
             fun Test(items: Array<Bar>) {
                 val foo = remember(*items) { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberWithInlineClassInput(): Unit = comparisonPropagation(
-        """
+    fun testRememberWithInlineClassInput(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             inline class InlineInt(val value: Int)
         """,
-        """
+            """
             @Composable
             fun Test(inlineInt: InlineInt) {
                 val a = InlineInt(123)
                 val foo = remember(inlineInt, a) { Foo() }
             }
         """
-    )
+        )
 
     @Test
-    fun testMultipleRememberCallsInARow(): Unit = comparisonPropagation(
-        """
+    fun testMultipleRememberCallsInARow(): Unit =
+        comparisonPropagation(
+            """
             class Foo(val a: Int, val b: Int)
             fun someInt(): Int = 123
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val a = someInt()
@@ -405,95 +426,103 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val bar = remember(c, d) { Foo(c, d) }
             }
         """
-    )
+        )
 
     @Test
-    fun testParamAndNonParamInputsInRestartableFunction(): Unit = comparisonPropagation(
-        """
+    fun testParamAndNonParamInputsInRestartableFunction(): Unit =
+        comparisonPropagation(
+            """
             class Foo(val a: Int, val b: Int)
             fun someInt(): Int = 123
         """,
-        """
+            """
             @Composable
             fun Test(a: Int) {
                 val b = someInt()
                 val foo = remember(a, b) { Foo(a, b) }
             }
         """
-    )
+        )
 
     @Test
-    fun testParamAndNonParamInputsInDirectFunction(): Unit = comparisonPropagation(
-        """
+    fun testParamAndNonParamInputsInDirectFunction(): Unit =
+        comparisonPropagation(
+            """
             class Foo(val a: Int, val b: Int)
             fun someInt(): Int = 123
         """,
-        """
+            """
             @Composable
             fun Test(a: Int): Foo {
                 val b = someInt()
                 return remember(a, b) { Foo(a, b) }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberMemoizedLambda(): Unit = comparisonPropagation(
-        "",
-        """
+    fun testRememberMemoizedLambda(): Unit =
+        comparisonPropagation(
+            "",
+            """
             @Composable
             fun Test(a: Int) {
                 used { a }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberFunctionReference(): Unit = comparisonPropagation(
-        """
+    fun testRememberFunctionReference(): Unit =
+        comparisonPropagation(
+            """
             fun effect(): Int = 0
         """,
-        """
+            """
             @Composable
             fun Test(a: Int) {
                 used(remember(a, ::effect))
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberAdaptedFunctionReference(): Unit = comparisonPropagation(
-        """
+    fun testRememberAdaptedFunctionReference(): Unit =
+        comparisonPropagation(
+            """
             fun effect(a: Int = 0): Int = a
         """,
-        """
+            """
             @Composable
             fun Test(a: Int) {
                 used(remember(a, ::effect))
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberPropertyReference(): Unit = comparisonPropagation(
-        """
+    fun testRememberPropertyReference(): Unit =
+        comparisonPropagation(
+            """
             class A(val value: Int)
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             @Composable
             fun Test(a: A) {
                 used(remember(a, a::value))
             }
         """
-    )
+        )
 
     @Test
-    fun testOptimizationFailsIfDefaultsGroupIsUsed(): Unit = comparisonPropagation(
-        """
+    fun testOptimizationFailsIfDefaultsGroupIsUsed(): Unit =
+        comparisonPropagation(
+            """
             class Foo
             fun someInt(): Int = 123
         """,
-        """
+            """
             @Composable
             fun Test(a: Int = someInt()) {
                 val foo = remember { Foo() }
@@ -501,26 +530,28 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 used(a)
             }
         """
-    )
+        )
 
     @Test
-    fun testIntrinsicRememberOfDefaultParameters_Simple() = comparisonPropagation(
-        """""",
-        """
+    fun testIntrinsicRememberOfDefaultParameters_Simple() =
+        comparisonPropagation(
+            """""",
+            """
             @Composable
             fun Test(a: Int = remember { 0 }) {
                 used(a)
             }
         """
-    )
+        )
 
     @Test
-    fun testIntrinsicRememberOfDefaultParameters_AfterComposable() = comparisonPropagation(
-        """
+    fun testIntrinsicRememberOfDefaultParameters_AfterComposable() =
+        comparisonPropagation(
+            """
             @Composable
             fun SomeComposable() = 0
         """,
-        """
+            """
             @Composable
             fun Test(a: Int = remember { 0 }, b: Int = SomeComposable(), c: Int = remember { 0 }) {
                 used(a)
@@ -528,18 +559,19 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 used(c)
             }
         """
-    )
+        )
 
     @Test
-    fun testIntrinsicRememberOfLambdaInIfBlock() = comparisonPropagation(
-        // Simulation of Scrim in BackdropScaffold
-        """
+    fun testIntrinsicRememberOfLambdaInIfBlock() =
+        comparisonPropagation(
+            // Simulation of Scrim in BackdropScaffold
+            """
             class Modifier
             fun Modifier.pointerInput(key1: Any?, block: () -> Unit) = this
             fun detectTapGestures(block: () -> Unit) {}
             @Composable fun someComposableValue(): Int = 1
         """,
-        """
+            """
         @Composable
         fun Test(a: Boolean, visible: Boolean, onDismiss: () -> Unit) {
             if (a) {
@@ -555,11 +587,13 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
             }
         }
         """
-    )
+        )
 
     @Test
-    fun testRememberAfterStaticDefaultParameters() = comparisonPropagation(
-        unchecked = """
+    fun testRememberAfterStaticDefaultParameters() =
+        comparisonPropagation(
+            unchecked =
+                """
             import androidx.compose.runtime.*
 
             enum class Foo {
@@ -574,18 +608,21 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
             @Composable
             fun used(a: Any) { }
             """,
-        checked = """
+            checked =
+                """
             @Composable
             fun Test(a: Int = 1, b: Foo = Foo.B, c: Int = swizzle(1, 2) ) {
                 val s = remember(a, b, c) { Any() }
                 used(s)
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberAfterNonStaticDefaultParameters() = comparisonPropagation(
-        unchecked = """
+    fun testRememberAfterNonStaticDefaultParameters() =
+        comparisonPropagation(
+            unchecked =
+                """
             import androidx.compose.runtime.*
 
             enum class Foo {
@@ -599,18 +636,21 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
             @Composable
             fun used(a: Any) { }
             """,
-        checked = """
+            checked =
+                """
             @Composable
             fun Test(a: Int = 1, b: Foo = Foo.B, c: Int = swizzle(1, 2) ) {
                 val s = remember(a, b, c) { Any() }
                 used(s)
             }
         """
-    )
+        )
 
     @Test
-    fun testForEarlyExit() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testForEarlyExit() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -621,17 +661,20 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 Text("Text ${'$'}{value.value}, ${'$'}{value2.value}")
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
             fun Text(value: String) { }
         """
-    )
+        )
 
     @Test
-    fun testVarargsIntrinsicRemember() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testVarargsIntrinsicRemember() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -642,17 +685,20 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
             fun Text(value: String) { }
         """
-    )
+        )
 
     @Test // regression test for b/267586102
-    fun testRememberInALoop() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberInALoop() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             val content: @Composable (a: SomeUnstableClass) -> Unit = {
@@ -662,17 +708,20 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val a = remember { 1 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             val count = 0
             class SomeUnstableClass(val a: Any = "abc")
         """
-    )
+        )
 
     @Test // Regression test for b/267586102 to ensure the fix doesn't insert unnecessary groups
-    fun testRememberInALoop_NoTrailingRemember() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberInALoop_NoTrailingRemember() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             val content: @Composable (a: SomeUnstableClass) -> Unit = {
@@ -681,17 +730,20 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 val count = 0
                 class SomeUnstableClass(val a: Any = "abc")
             """
-    )
+        )
 
     @Test
-    fun testRememberWithUnstableUnused_InInlineLambda() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberWithUnstableUnused_InInlineLambda() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -700,16 +752,19 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable inline fun InlineWrapper(block: @Composable () -> Unit) {}
             """,
-    )
+        )
 
     @Test
-    fun testRememberWithUnstable_InInlineLambda() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberWithUnstable_InInlineLambda() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -719,16 +774,19 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable inline fun InlineWrapper(block: @Composable () -> Unit) {}
             """,
-    )
+        )
 
     @Test
-    fun testRememberWithUnstable_inLambda() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberWithUnstable_inLambda() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -737,16 +795,19 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Wrapper(block: @Composable () -> Unit) {}
             """,
-    )
+        )
 
     @Test
-    fun testRememberExpressionMeta() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberExpressionMeta() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String) {
@@ -754,11 +815,13 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 Test(a)
             }
         """,
-    )
+        )
 
     @Test
-    fun testMemoizationWStableCapture() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testMemoizationWStableCapture() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -767,16 +830,19 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Wrapper(block: () -> Unit) {}
             """,
-    )
+        )
 
     @Test
-    fun testMemoizationWUnstableCapture() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testMemoizationWUnstableCapture() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -785,17 +851,17 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Wrapper(block: () -> Unit) {}
             """,
-    )
+        )
 }
 
-class RememberIntrinsicTransformTestsStrongSkipping(
-    useFir: Boolean
-) : AbstractIrTransformTest(useFir) {
+class RememberIntrinsicTransformTestsStrongSkipping(useFir: Boolean) :
+    AbstractIrTransformTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
         put(
@@ -809,8 +875,10 @@ class RememberIntrinsicTransformTestsStrongSkipping(
     }
 
     @Test
-    fun testMemoizationWStableCapture() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testMemoizationWStableCapture() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -819,16 +887,19 @@ class RememberIntrinsicTransformTestsStrongSkipping(
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Wrapper(block: () -> Unit) {}
             """,
-    )
+        )
 
     @Test
-    fun testMemoizationWUnstableCapture() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testMemoizationWUnstableCapture() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -837,16 +908,19 @@ class RememberIntrinsicTransformTestsStrongSkipping(
                 }
             }
         """,
-        extra = """
+            extra =
+                """
                 import androidx.compose.runtime.*
 
                 @Composable fun Wrapper(block: () -> Unit) {}
             """,
-    )
+        )
 
     @Test
-    fun testRememberWithUnstableParam() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberWithUnstableParam() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(param: String, unstable: List<*>) {
@@ -855,16 +929,19 @@ class RememberIntrinsicTransformTestsStrongSkipping(
                 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testRememberWithDefaultParams() = verifyGoldenComposeIrTransform(
-        extra = """
+    fun testRememberWithDefaultParams() =
+        verifyGoldenComposeIrTransform(
+            extra =
+                """
             import androidx.compose.runtime.*
 
             val LocalColor = compositionLocalOf { 0 }
         """,
-        source = """
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Icon(
@@ -874,11 +951,13 @@ class RememberIntrinsicTransformTestsStrongSkipping(
                 val remembered = remember(param, defaultParam) { TODO() }
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberMethodReference() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberMethodReference() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Icon(
@@ -887,5 +966,5 @@ class RememberIntrinsicTransformTestsStrongSkipping(
                 val remembered = remember(param::toString) { TODO() }
             }
         """
-    )
+        )
 }

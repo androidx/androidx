@@ -43,9 +43,8 @@ fun Modifier.systemGestureExclusion() =
     }
 
 /**
- * Excludes a rectangle within the local layout coordinates from the system gesture.
- * After layout, [exclusion] is called to determine the [Rect] to exclude from the system
- * gesture area.
+ * Excludes a rectangle within the local layout coordinates from the system gesture. After layout,
+ * [exclusion] is called to determine the [Rect] to exclude from the system gesture area.
  *
  * The [LayoutCoordinates] of the [Modifier]'s location in the layout is passed as passed as
  * [exclusion]'s parameter.
@@ -66,9 +65,8 @@ private inline fun excludeFromSystemGestureQ(
 ): Modifier = ExcludeFromSystemGestureElement(exclusion)
 
 @RequiresApi(Build.VERSION_CODES.Q)
-private class ExcludeFromSystemGestureElement(
-    val exclusion: ((LayoutCoordinates) -> Rect)?
-) : ModifierNodeElement<ExcludeFromSystemGestureNode>() {
+private class ExcludeFromSystemGestureElement(val exclusion: ((LayoutCoordinates) -> Rect)?) :
+    ModifierNodeElement<ExcludeFromSystemGestureNode>() {
     @SuppressLint("NewApi")
     override fun create(): ExcludeFromSystemGestureNode {
         return ExcludeFromSystemGestureNode(exclusion)
@@ -96,14 +94,14 @@ private class ExcludeFromSystemGestureElement(
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-private class ExcludeFromSystemGestureNode(
-    rect: ((LayoutCoordinates) -> Rect)?
-) : RectListNode(rect) {
+private class ExcludeFromSystemGestureNode(rect: ((LayoutCoordinates) -> Rect)?) :
+    RectListNode(rect) {
     override fun currentRects(): MutableVector<android.graphics.Rect> {
         val rects = mutableVectorOf<android.graphics.Rect>()
         rects.addAll(view.systemGestureExclusionRects)
         return rects
     }
+
     override fun updateRects(rects: MutableVector<android.graphics.Rect>) {
         view.systemGestureExclusionRects = rects.asMutableList()
     }

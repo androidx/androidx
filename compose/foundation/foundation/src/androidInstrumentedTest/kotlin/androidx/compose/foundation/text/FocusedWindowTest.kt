@@ -30,12 +30,11 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
  * calls replaced with "rule.setContent".
  */
 interface FocusedWindowTest {
-    fun ComposeContentTestRule.setTextFieldTestContent(
-        content: @Composable () -> Unit
-    ) {
-        val focusedWindowInfo = object : WindowInfo {
-            override val isWindowFocused = true
-        }
+    fun ComposeContentTestRule.setTextFieldTestContent(content: @Composable () -> Unit) {
+        val focusedWindowInfo =
+            object : WindowInfo {
+                override val isWindowFocused = true
+            }
         this.setContent {
             CompositionLocalProvider(LocalWindowInfo provides focusedWindowInfo, content)
         }

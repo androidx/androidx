@@ -34,18 +34,10 @@ internal class TextActionModeCallback(
         requireNotNull(menu) { "onCreateActionMode requires a non-null menu" }
         requireNotNull(mode) { "onCreateActionMode requires a non-null mode" }
 
-        onCopyRequested?.let {
-            addMenuItem(menu, MenuItemOption.Copy)
-        }
-        onPasteRequested?.let {
-            addMenuItem(menu, MenuItemOption.Paste)
-        }
-        onCutRequested?.let {
-            addMenuItem(menu, MenuItemOption.Cut)
-        }
-        onSelectAllRequested?.let {
-            addMenuItem(menu, MenuItemOption.SelectAll)
-        }
+        onCopyRequested?.let { addMenuItem(menu, MenuItemOption.Copy) }
+        onPasteRequested?.let { addMenuItem(menu, MenuItemOption.Paste) }
+        onCutRequested?.let { addMenuItem(menu, MenuItemOption.Cut) }
+        onSelectAllRequested?.let { addMenuItem(menu, MenuItemOption.SelectAll) }
         return true
     }
 
@@ -82,15 +74,12 @@ internal class TextActionModeCallback(
     }
 
     internal fun addMenuItem(menu: Menu, item: MenuItemOption) {
-        menu.add(0, item.id, item.order, item.titleResource)
+        menu
+            .add(0, item.id, item.order, item.titleResource)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
     }
 
-    private fun addOrRemoveMenuItem(
-        menu: Menu,
-        item: MenuItemOption,
-        callback: (() -> Unit)?
-    ) {
+    private fun addOrRemoveMenuItem(menu: Menu, item: MenuItemOption, callback: (() -> Unit)?) {
         when {
             callback != null && menu.findItem(item.id) == null -> addMenuItem(menu, item)
             callback == null && menu.findItem(item.id) != null -> menu.removeItem(item.id)
@@ -105,15 +94,14 @@ internal enum class MenuItemOption(val id: Int) {
     SelectAll(3);
 
     val titleResource: Int
-        get() = when (this) {
-            Copy -> android.R.string.copy
-            Paste -> android.R.string.paste
-            Cut -> android.R.string.cut
-            SelectAll -> android.R.string.selectAll
-        }
+        get() =
+            when (this) {
+                Copy -> android.R.string.copy
+                Paste -> android.R.string.paste
+                Cut -> android.R.string.cut
+                SelectAll -> android.R.string.selectAll
+            }
 
-    /**
-     * This item will be shown before all items that have order greater than this value.
-     */
+    /** This item will be shown before all items that have order greater than this value. */
     val order = id
 }

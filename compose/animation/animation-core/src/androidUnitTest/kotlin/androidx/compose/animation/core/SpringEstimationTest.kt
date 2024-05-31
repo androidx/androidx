@@ -35,11 +35,13 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         @Parameterized.Parameters
         fun data(): List<Array<out Any>> {
             return mutableListOf<Array<out Any>>().apply {
-                (1..100 step 2).map { it * it }.forEach { m ->
-                    (1..1000 step 20).map { it * it }.forEach { k ->
-                        add(arrayOf(m.toDouble(), k.toDouble()))
+                (1..100 step 2)
+                    .map { it * it }
+                    .forEach { m ->
+                        (1..1000 step 20)
+                            .map { it * it }
+                            .forEach { k -> add(arrayOf(m.toDouble(), k.toDouble())) }
                     }
-                }
                 // Additional edge cases to test for
                 add(arrayOf(10_000.0, 1.0))
             }
@@ -57,9 +59,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         testCases.parallelStream().forEach {
             val res = runTestCase(it)
             if (!res.pass) {
-                synchronized(failedTestCaseResults) {
-                    failedTestCaseResults.add(res)
-                }
+                synchronized(failedTestCaseResults) { failedTestCaseResults.add(res) }
             }
         }
 
@@ -81,22 +81,24 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         springSimulation.dampingRatio = testCase.dampingRatio.toFloat()
         springSimulation.stiffness = testCase.stiffness.toFloat()
 
-        val endTime = estimateAnimationDurationMillis(
-            mass = testCase.mass,
-            springConstant = testCase.springConstant,
-            dampingCoefficient = testCase.dampingCoefficient,
-            initialDisplacement = testCase.initialDisplacement,
-            initialVelocity = testCase.initialVelocity,
-            delta = 1.0
-        )
+        val endTime =
+            estimateAnimationDurationMillis(
+                mass = testCase.mass,
+                springConstant = testCase.springConstant,
+                dampingCoefficient = testCase.dampingCoefficient,
+                initialDisplacement = testCase.initialDisplacement,
+                initialVelocity = testCase.initialVelocity,
+                delta = 1.0
+            )
 
-        val alternateEndTime = estimateAnimationDurationMillis(
-            stiffness = testCase.stiffness,
-            dampingRatio = testCase.dampingRatio,
-            initialDisplacement = testCase.initialDisplacement,
-            initialVelocity = testCase.initialVelocity,
-            delta = 1.0
-        )
+        val alternateEndTime =
+            estimateAnimationDurationMillis(
+                stiffness = testCase.stiffness,
+                dampingRatio = testCase.dampingRatio,
+                initialDisplacement = testCase.initialDisplacement,
+                initialVelocity = testCase.initialVelocity,
+                delta = 1.0
+            )
 
         // Test that the alternate implementation gives the same answer within 1ms.
         if (abs(endTime - alternateEndTime) > 1) {
@@ -107,47 +109,46 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             )
         }
 
-        if (endTime == Long.MAX_VALUE)
-            return TestCaseResult(false, testCase, "End time +infinity")
+        if (endTime == Long.MAX_VALUE) return TestCaseResult(false, testCase, "End time +infinity")
 
-        val simTwoFramesAfter = springSimulation.updateValues(
-            lastDisplacement = testCase.initialDisplacement.toFloat(),
-            lastVelocity = testCase.initialVelocity.toFloat(),
-            timeElapsed = endTime + TwoFrames60fpsMillis
-        )
-        val simTwoFramesBefore = springSimulation.updateValues(
-            lastDisplacement = testCase.initialDisplacement.toFloat(),
-            lastVelocity = testCase.initialVelocity.toFloat(),
-            timeElapsed = max(endTime - TwoFrames60fpsMillis, 0L)
-        )
-        val simAtTime = springSimulation.updateValues(
-            lastDisplacement = testCase.initialDisplacement.toFloat(),
-            lastVelocity = testCase.initialVelocity.toFloat(),
-            timeElapsed = endTime
-        )
+        val simTwoFramesAfter =
+            springSimulation.updateValues(
+                lastDisplacement = testCase.initialDisplacement.toFloat(),
+                lastVelocity = testCase.initialVelocity.toFloat(),
+                timeElapsed = endTime + TwoFrames60fpsMillis
+            )
+        val simTwoFramesBefore =
+            springSimulation.updateValues(
+                lastDisplacement = testCase.initialDisplacement.toFloat(),
+                lastVelocity = testCase.initialVelocity.toFloat(),
+                timeElapsed = max(endTime - TwoFrames60fpsMillis, 0L)
+            )
+        val simAtTime =
+            springSimulation.updateValues(
+                lastDisplacement = testCase.initialDisplacement.toFloat(),
+                lastVelocity = testCase.initialVelocity.toFloat(),
+                timeElapsed = endTime
+            )
 
-        val pass = if (testCase.dampingRatio >= 1.0) {
-            // The primary success criterion is that two frames before the settling time, the
-            // function x(t) is greater than the threshold and two frames after.
+        val pass =
+            if (testCase.dampingRatio >= 1.0) {
+                // The primary success criterion is that two frames before the settling time, the
+                // function x(t) is greater than the threshold and two frames after.
 
-            // A secondary criterion is added to account for scenarios where the settling time is
-            // close to the inflection point in over/critically-damped cases, and therefore the
-            // before and after times are both below the threshold.
-            (
-                (
-                    abs(simTwoFramesBefore.value) >= 0.999 &&
-                        abs(simTwoFramesAfter.value) <= 1.001
-                    ) || (
-                    abs(simAtTime.value) >= 0.999 &&
+                // A secondary criterion is added to account for scenarios where the settling time
+                // is
+                // close to the inflection point in over/critically-damped cases, and therefore the
+                // before and after times are both below the threshold.
+                ((abs(simTwoFramesBefore.value) >= 0.999 &&
+                    abs(simTwoFramesAfter.value) <= 1.001) ||
+                    (abs(simAtTime.value) >= 0.999 &&
                         abs(simTwoFramesBefore.value) < abs(simAtTime.value) &&
-                        abs(simTwoFramesAfter.value) < abs(simAtTime.value)
-                    )
-                )
-        } else {
-            // In the under-damped scenario, x(t) varies heavily due to oscillations, therefore
-            // the over/critically damped conditions may fail erroneously.
-            abs(simTwoFramesAfter.value) < 1.00
-        }
+                        abs(simTwoFramesAfter.value) < abs(simAtTime.value)))
+            } else {
+                // In the under-damped scenario, x(t) varies heavily due to oscillations, therefore
+                // the over/critically damped conditions may fail erroneously.
+                abs(simTwoFramesAfter.value) < 1.00
+            }
 
         return TestCaseResult(pass, testCase)
     }
@@ -160,18 +161,15 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             for (v0 in -200_000..200_000 step 100_000) {
                 for (p0 in -10_000..10_000 step 100) {
                     if (!(v0 == 0 && p0 == 0)) {
-                        val testCase = TestCase(
-                            mass = m,
-                            springConstant = k,
-                            dampingCoefficient = c.toDouble(),
-                            initialVelocity = v0.toDouble(),
-                            initialDisplacement = p0.toDouble()
-                        )
-                        synchronized(testCases) {
-                            testCases.add(
-                                testCase
+                        val testCase =
+                            TestCase(
+                                mass = m,
+                                springConstant = k,
+                                dampingCoefficient = c.toDouble(),
+                                initialVelocity = v0.toDouble(),
+                                initialDisplacement = p0.toDouble()
                             )
-                        }
+                        synchronized(testCases) { testCases.add(testCase) }
                     }
                 }
             }
@@ -185,19 +183,16 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         for (v0 in -200_000..200_000 step 10_000) {
             for (p0 in -10_000..10_000 step 100) {
                 if (!(v0 == 0 && p0 == 0)) {
-                    val testCase = TestCase(
-                        mass = m,
-                        springConstant = k,
-                        dampingCoefficient = c,
-                        initialVelocity = v0.toDouble(),
-                        initialDisplacement = p0.toDouble()
-                    )
-
-                    synchronized(testCases) {
-                        testCases.add(
-                            testCase
+                    val testCase =
+                        TestCase(
+                            mass = m,
+                            springConstant = k,
+                            dampingCoefficient = c,
+                            initialVelocity = v0.toDouble(),
+                            initialDisplacement = p0.toDouble()
                         )
-                    }
+
+                    synchronized(testCases) { testCases.add(testCase) }
                 }
             }
         }
@@ -216,6 +211,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                 val criticalDamping = 2.0 * sqrt(springConstant * mass)
                 return dampingCoefficient / criticalDamping
             }
+
         val stiffness: Double
             get() {
                 return springConstant / mass

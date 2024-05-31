@@ -56,20 +56,20 @@ import kotlinx.coroutines.delay
 @Preview
 @Composable
 fun LookaheadWithPopularBoxWithConstraintsUsage() {
-    val padding by produceState(initialValue = 0.dp) {
-        while (true) {
-            delay(2000)
-            if (value == 0.dp) {
-                value = 100.dp
-            } else {
-                value = 0.dp
+    val padding by
+        produceState(initialValue = 0.dp) {
+            while (true) {
+                delay(2000)
+                if (value == 0.dp) {
+                    value = 100.dp
+                } else {
+                    value = 0.dp
+                }
             }
         }
-    }
     LookaheadScope {
         Box(
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .animateBounds(Modifier.padding(padding))
                 .background(pastelColors[3])
         ) {
@@ -85,9 +85,7 @@ fun DetailsContent() {
         BoxWithConstraints {
             Surface {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
+                    modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
                 ) {
                     Header(this@BoxWithConstraints.maxHeight)
                     Content(this@BoxWithConstraints.maxHeight)
@@ -134,9 +132,7 @@ fun Property(label: String, value: String) {
 fun Header(containerHeight: Dp) {
     val height by animateDpAsState(containerHeight)
     Image(
-        modifier = Modifier
-            .heightIn(max = height / 2)
-            .fillMaxWidth(),
+        modifier = Modifier.heightIn(max = height / 2).fillMaxWidth(),
         painter = painterResource(id = R.drawable.android),
         contentScale = ContentScale.Crop,
         contentDescription = null

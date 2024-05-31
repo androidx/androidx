@@ -20,5 +20,4 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
 internal actual val is24HourFormat: Boolean
-    @Composable
-    @ReadOnlyComposable get() = false
+    @Composable @ReadOnlyComposable get() = false

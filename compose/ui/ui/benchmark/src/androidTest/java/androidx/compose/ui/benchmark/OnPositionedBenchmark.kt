@@ -39,19 +39,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class OnPositionedBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun deepHierarchyOnPositioned_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout({
-            DeepHierarchyOnPositionedTestCase()
-        })
+        benchmarkRule.toggleStateBenchmarkLayout({ DeepHierarchyOnPositionedTestCase() })
     }
 }
 
-private class DeepHierarchyOnPositionedTestCase :
-    ComposeTestCase, ToggleableTestCase {
+private class DeepHierarchyOnPositionedTestCase : ComposeTestCase, ToggleableTestCase {
 
     private lateinit var state: MutableState<Dp>
 
@@ -69,15 +65,13 @@ private class DeepHierarchyOnPositionedTestCase :
     @Composable
     private fun StaticChildren(count: Int) {
         if (count > 0) {
-            val modifier = if (count == 1) {
-                Modifier.onGloballyPositioned { it.size }
-            } else {
-                Modifier
-            }
-            Box(
-                Modifier.size(100.dp).then(modifier),
-                contentAlignment = Alignment.Center
-            ) {
+            val modifier =
+                if (count == 1) {
+                    Modifier.onGloballyPositioned { it.size }
+                } else {
+                    Modifier
+                }
+            Box(Modifier.size(100.dp).then(modifier), contentAlignment = Alignment.Center) {
                 StaticChildren(count - 1)
             }
         }

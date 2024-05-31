@@ -18,23 +18,23 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.intellij.lang.annotations.Language
 
-abstract class AbstractControlFlowTransformTests(
-    useFir: Boolean
-) : AbstractIrTransformTest(useFir) {
+abstract class AbstractControlFlowTransformTests(useFir: Boolean) :
+    AbstractIrTransformTest(useFir) {
     protected fun controlFlow(
-        @Language("kotlin")
-        source: String,
+        @Language("kotlin") source: String,
         dumpTree: Boolean = false,
-    ) = verifyGoldenComposeIrTransform(
-        """
+    ) =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.ReadOnlyComposable
             import androidx.compose.runtime.key
             import androidx.compose.runtime.NonRestartableComposable
 
             $source
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             import androidx.compose.runtime.Composable
 
             inline class InlineClass(val value: Int)
@@ -57,7 +57,8 @@ abstract class AbstractControlFlowTransformTests(
             var a = 1
             var b = 2
             var c = 3
-        """.trimIndent(),
-        dumpTree = dumpTree,
-    )
+        """
+                .trimIndent(),
+            dumpTree = dumpTree,
+        )
 }

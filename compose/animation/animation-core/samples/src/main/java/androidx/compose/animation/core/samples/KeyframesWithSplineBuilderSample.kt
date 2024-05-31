@@ -84,16 +84,19 @@ fun PeriodicKeyframesWithSplines() {
         animate(
             initialValue = 0f,
             targetValue = 0f,
-            animationSpec = infiniteRepeatable(
-                // With a periodicBias of 0.5f it creates a similar animation to a sinusoidal curve
-                // so the transition as the animation repeats is completely seamless
-                animation = keyframesWithSpline(periodicBias = 0.5f) {
-                    durationMillis = 2000
+            animationSpec =
+                infiniteRepeatable(
+                    // With a periodicBias of 0.5f it creates a similar animation to a sinusoidal
+                    // curve
+                    // so the transition as the animation repeats is completely seamless
+                    animation =
+                        keyframesWithSpline(periodicBias = 0.5f) {
+                            durationMillis = 2000
 
-                    1f at 1000 using LinearEasing
-                },
-                repeatMode = RepeatMode.Restart
-            )
+                            1f at 1000 using LinearEasing
+                        },
+                    repeatMode = RepeatMode.Restart
+                )
         ) { value, _ ->
             alpha = value
         }
@@ -101,9 +104,7 @@ fun PeriodicKeyframesWithSplines() {
     Image(
         imageVector = Icons.Filled.Favorite,
         contentDescription = null,
-        modifier = Modifier
-            .size(150.dp)
-            .graphicsLayer { this.alpha = alpha },
+        modifier = Modifier.size(150.dp).graphicsLayer { this.alpha = alpha },
         colorFilter = ColorFilter.tint(Color.Red)
     )
 }

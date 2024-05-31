@@ -56,11 +56,8 @@ class DesktopGraphicsLayerTest {
         var layer: GraphicsLayer? = null
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
-                    }
-                }
+                layer =
+                    graphicsContext.createGraphicsLayer().apply { record { drawRect(Color.Red) } }
                 drawLayer(layer!!)
             },
             verify = {
@@ -75,18 +72,15 @@ class DesktopGraphicsLayerTest {
     fun testRecordWithSize() {
         graphicsLayerTest(
             block = { graphicsContext ->
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record(
-                        size = IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)
-                    ) {
-                        drawRect(Color.Red)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)) {
+                            drawRect(Color.Red)
+                        }
                     }
-                }
                 drawLayer(layer)
             },
-            verify = {
-                it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black)
-            }
+            verify = { it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black) }
         )
     }
 
@@ -97,12 +91,11 @@ class DesktopGraphicsLayerTest {
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        this.topLeft = topLeft
                     }
-                    this.topLeft = topLeft
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -120,14 +113,11 @@ class DesktopGraphicsLayerTest {
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, -4f, -4f) {
-                            drawRect(Color.Red)
-                        }
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { inset(0f, 0f, -4f, -4f) { drawRect(Color.Red) } }
+                        this.topLeft = topLeft
                     }
-                    this.topLeft = topLeft
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -148,16 +138,17 @@ class DesktopGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width / 2, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                size = Size(this.size.width / 2, this.size.height / 2)
+                            )
+                        }
+                        scaleX = 2f
+                        pivotOffset = Offset.Zero
                     }
-                    scaleX = 2f
-                    pivotOffset = Offset.Zero
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -175,16 +166,17 @@ class DesktopGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width / 2, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                size = Size(this.size.width / 2, this.size.height / 2)
+                            )
+                        }
+                        scaleY = 2f
+                        pivotOffset = Offset.Zero
                     }
-                    scaleY = 2f
-                    pivotOffset = Offset.Zero
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -202,15 +194,14 @@ class DesktopGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(this.size.width / 4, this.size.height / 4) {
-                            drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(this.size.width / 4, this.size.height / 4) { drawRect(Color.Red) }
                         }
+                        scaleY = 2f
+                        scaleX = 2f
                     }
-                    scaleY = 2f
-                    scaleX = 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -228,14 +219,13 @@ class DesktopGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        scaleY = 0.5f
+                        scaleX = 0.5f
+                        pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
                     }
-                    scaleY = 0.5f
-                    scaleX = 0.5f
-                    pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -253,12 +243,11 @@ class DesktopGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red, size = this.size / 2f)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = this.size / 2f) }
+                        translationX = this.size.width / 2f
                     }
-                    translationX = this.size.width / 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -274,14 +263,15 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 var layerSize = Size.Zero
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        layerSize = this.size
-                        drawRect(Color.Red, size = this.size / 2f)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            layerSize = this.size
+                            drawRect(Color.Red, size = this.size / 2f)
+                        }
+                        topLeft = IntOffset(20, 30)
+                        setRectOutline()
                     }
-                    topLeft = IntOffset(20, 30)
-                    setRectOutline()
-                }
                 drawLayer(layer)
                 val outline = layer.outline
                 assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
@@ -294,14 +284,15 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 var layerSize = Size.Zero
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        layerSize = this.size
-                        drawRect(Color.Red, size = this.size / 2f)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            layerSize = this.size
+                            drawRect(Color.Red, size = this.size / 2f)
+                        }
+                        topLeft = IntOffset(20, 30)
+                        setRoundRectOutline()
                     }
-                    topLeft = IntOffset(20, 30)
-                    setRoundRectOutline()
-                }
                 drawLayer(layer)
                 val outline = layer.outline
                 assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
@@ -316,12 +307,11 @@ class DesktopGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red, size = this.size / 2f)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = this.size / 2f) }
+                        translationY = this.size.height / 2f
                     }
-                    translationY = this.size.height / 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -337,15 +327,11 @@ class DesktopGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(100000f, 100000f)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = Size(100000f, 100000f)) }
+                        // Layer clipping is disabled by default
                     }
-                    // Layer clipping is disabled by default
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -364,15 +350,11 @@ class DesktopGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(100000f, 100000f)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = Size(100000f, 100000f)) }
+                        clip = true
                     }
-                    clip = true
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -403,26 +385,21 @@ class DesktopGraphicsLayerTest {
         val targetColor = Color.White
         graphicsLayerTest(
             block = { graphicsContext ->
-                val halfSize = IntSize(
-                    (this.size.width / 2f).toInt(),
-                    (this.size.height / 2f).toInt()
-                )
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
 
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record(halfSize) {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        shadowElevation = 10f
                     }
-                    shadowElevation = 10f
-                }
                 drawRect(targetColor)
 
                 left = (this.size.width / 4f).toInt()
                 top = (this.size.width / 4f).toInt()
                 right = left + halfSize.width
                 bottom = top + halfSize.height
-                translate(this.size.width / 4, this.size.height / 4) {
-                    drawLayer(layer!!)
-                }
+                translate(this.size.width / 4, this.size.height / 4) { drawLayer(layer!!) }
             },
             verify = { pixmap ->
                 var shadowPixelCount = 0
@@ -450,38 +427,33 @@ class DesktopGraphicsLayerTest {
         val targetColor = Color.White
         graphicsLayerTest(
             block = { graphicsContext ->
-                val halfSize = IntSize(
-                    (this.size.width / 2f).toInt(),
-                    (this.size.height / 2f).toInt()
-                )
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
 
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record(halfSize) {
-                        drawRect(targetColor)
-                    }
-                    setPathOutline(
-                        Path().apply {
-                            addRect(
-                                Rect(
-                                    0f,
-                                    0f,
-                                    halfSize.width.toFloat(),
-                                    halfSize.height.toFloat()
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        setPathOutline(
+                            Path().apply {
+                                addRect(
+                                    Rect(
+                                        0f,
+                                        0f,
+                                        halfSize.width.toFloat(),
+                                        halfSize.height.toFloat()
+                                    )
                                 )
-                            )
-                        }
-                    )
-                    shadowElevation = 10f
-                }
+                            }
+                        )
+                        shadowElevation = 10f
+                    }
                 drawRect(targetColor)
 
                 left = (this.size.width / 4f).toInt()
                 top = (this.size.width / 4f).toInt()
                 right = left + halfSize.width
                 bottom = top + halfSize.height
-                translate(this.size.width / 4, this.size.height / 4) {
-                    drawLayer(layer!!)
-                }
+                translate(this.size.width / 4, this.size.height / 4) { drawLayer(layer!!) }
             },
             verify = { pixmap ->
                 var shadowPixelCount = 0
@@ -510,28 +482,23 @@ class DesktopGraphicsLayerTest {
         val radius = 50f
         graphicsLayerTest(
             block = { graphicsContext ->
-                val halfSize = IntSize(
-                    (this.size.width / 2f).toInt(),
-                    (this.size.height / 2f).toInt()
-                )
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
 
                 left = (this.size.width / 4f).toInt()
                 top = (this.size.width / 4f).toInt()
                 right = left + halfSize.width
                 bottom = top + halfSize.height
 
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record(halfSize) {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        setRoundRectOutline(Offset.Zero, halfSize.toSize(), radius)
+                        shadowElevation = 20f
                     }
-                    setRoundRectOutline(Offset.Zero, halfSize.toSize(), radius)
-                    shadowElevation = 20f
-                }
 
                 drawRect(targetColor)
-                translate(left.toFloat(), top.toFloat()) {
-                    drawLayer(layer!!)
-                }
+                translate(left.toFloat(), top.toFloat()) { drawLayer(layer!!) }
             },
             verify = { pixmap ->
                 fun PixelMap.hasShadowPixels(
@@ -599,18 +566,19 @@ class DesktopGraphicsLayerTest {
         val bgColor = Color.Black
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    compositingStrategy = CompositingStrategy.Auto
-                    alpha = 0.5f
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
-                        }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        compositingStrategy = CompositingStrategy.Auto
+                        alpha = 0.5f
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue)
+                            }
                         }
                     }
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -637,17 +605,18 @@ class DesktopGraphicsLayerTest {
         val bgColor = Color.LightGray
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    compositingStrategy = CompositingStrategy.Offscreen
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
-                        }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        compositingStrategy = CompositingStrategy.Offscreen
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
+                            }
                         }
                     }
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -669,18 +638,19 @@ class DesktopGraphicsLayerTest {
         val bgColor = Color.Black
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    compositingStrategy = CompositingStrategy.ModulateAlpha
-                    alpha = 0.5f
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
-                        }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
+                        alpha = 0.5f
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue)
+                            }
                         }
                     }
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -708,13 +678,11 @@ class DesktopGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
-                    }.apply {
-                        colorFilter = ColorFilter.tint(Color.Blue)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                            .apply { colorFilter = ColorFilter.tint(Color.Blue) }
                     }
-                }
                 drawLayer(layer!!)
             },
             verify = { pixelMap ->
@@ -735,21 +703,22 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val drawScopeSize = this.size
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    val topLeft = IntOffset(
-                        (drawScopeSize.width / 4).toInt(),
-                        (drawScopeSize.height / 4).toInt()
-                    )
-                    val layerSize = IntSize(
-                        (drawScopeSize.width / 2).toInt(),
-                        (drawScopeSize.height / 2).toInt()
-                    )
-                    record(layerSize) {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        val topLeft =
+                            IntOffset(
+                                (drawScopeSize.width / 4).toInt(),
+                                (drawScopeSize.height / 4).toInt()
+                            )
+                        val layerSize =
+                            IntSize(
+                                (drawScopeSize.width / 2).toInt(),
+                                (drawScopeSize.height / 2).toInt()
+                            )
+                        record(layerSize) { drawRect(Color.Red) }
+                        this.topLeft = topLeft
+                        this.blendMode = BlendMode.Xor
                     }
-                    this.topLeft = topLeft
-                    this.blendMode = BlendMode.Xor
-                }
                 drawRect(Color.Green)
                 drawLayer(layer!!)
                 // The layer should clear the original pixels in the destination rendered by the
@@ -790,13 +759,12 @@ class DesktopGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
+                        clip = true
                     }
-                    setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
-                    clip = true
-                }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -810,12 +778,12 @@ class DesktopGraphicsLayerTest {
                 with(pixmap) {
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            val expected = if (x in left until right &&
-                                y in top until bottom) {
-                                targetColor
-                            } else {
-                                bgColor
-                            }
+                            val expected =
+                                if (x in left until right && y in top until bottom) {
+                                    targetColor
+                                } else {
+                                    bgColor
+                                }
                             Assert.assertEquals(this[x, y], expected)
                         }
                     }
@@ -835,22 +803,23 @@ class DesktopGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
-                    }
-                    setPathOutline(Path().apply {
-                        addRect(
-                            Rect(
-                                size.center.x.toFloat(),
-                                size.center.y.toFloat(),
-                                size.center.x + size.width.toFloat(),
-                                size.center.y + size.height.toFloat()
-                            )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setPathOutline(
+                            Path().apply {
+                                addRect(
+                                    Rect(
+                                        size.center.x.toFloat(),
+                                        size.center.y.toFloat(),
+                                        size.center.x + size.width.toFloat(),
+                                        size.center.y + size.height.toFloat()
+                                    )
+                                )
+                            }
                         )
-                    })
-                    clip = true
-                }
+                        clip = true
+                    }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -864,12 +833,12 @@ class DesktopGraphicsLayerTest {
                 with(pixmap) {
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            val expected = if (x in left until right &&
-                                y in top until bottom) {
-                                targetColor
-                            } else {
-                                bgColor
-                            }
+                            val expected =
+                                if (x in left until right && y in top until bottom) {
+                                    targetColor
+                                } else {
+                                    bgColor
+                                }
                             Assert.assertEquals(this[x, y], expected)
                         }
                     }
@@ -890,17 +859,16 @@ class DesktopGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setRoundRectOutline(
+                            this.size.center.toOffset(),
+                            (this.size / 2).toSize(),
+                            radius.toFloat()
+                        )
+                        clip = true
                     }
-                    setRoundRectOutline(
-                        this.size.center.toOffset(),
-                        (this.size / 2).toSize(),
-                        radius.toFloat()
-                    )
-                    clip = true
-                }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -919,9 +887,7 @@ class DesktopGraphicsLayerTest {
                     val endY = bottom - radius - offset
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            if (
-                                x in startX until endX &&
-                                y in startY until endY) {
+                            if (x in startX until endX && y in startY until endY) {
                                 Assert.assertEquals(targetColor, this[x, y])
                             }
                         }
@@ -942,28 +908,25 @@ class DesktopGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val fullSize = size
-                val layerSize = Size(
-                    fullSize.width.roundToInt() - inset * 2,
-                    fullSize.height.roundToInt() - inset * 2
-                ).toIntSize()
+                val layerSize =
+                    Size(
+                            fullSize.width.roundToInt() - inset * 2,
+                            fullSize.height.roundToInt() - inset * 2
+                        )
+                        .toIntSize()
 
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record(size = layerSize) {
-                        inset(-inset) {
-                            drawRect(targetColor)
-                        }
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = layerSize) { inset(-inset) { drawRect(targetColor) } }
+                        // as no outline is provided yet, this command will enable clipToBounds
+                        clip = true
+                        // then with providing an outline we should disable clipToBounds and start
+                        // using clipToOutline instead
+                        setRectOutline(Offset(-inset, -inset), fullSize)
                     }
-                    // as no outline is provided yet, this command will enable clipToBounds
-                    clip = true
-                    // then with providing an outline we should disable clipToBounds and start
-                    // using clipToOutline instead
-                    setRectOutline(Offset(-inset, -inset), fullSize)
-                }
 
                 drawRect(Color.Black)
-                inset(inset) {
-                    drawLayer(layer)
-                }
+                inset(inset) { drawLayer(layer) }
             },
             verify = { pixmap ->
                 with(pixmap) {
@@ -1002,10 +965,11 @@ class DesktopGraphicsLayerTest {
                 }
             }
             surface.flushAndSubmit(true)
-            val area = IRect.makeWH(
-                if (entireScene) TEST_WIDTH * 2 else TEST_WIDTH,
-                if (entireScene) TEST_HEIGHT * 2 else TEST_HEIGHT
-            )
+            val area =
+                IRect.makeWH(
+                    if (entireScene) TEST_WIDTH * 2 else TEST_WIDTH,
+                    if (entireScene) TEST_HEIGHT * 2 else TEST_HEIGHT
+                )
             val imageBitmap = surface.makeImageSnapshot(area)!!.toComposeImageBitmap()
             verify?.invoke(imageBitmap.toPixelMap())
         } finally {
@@ -1029,9 +993,7 @@ class DesktopGraphicsLayerTest {
         assertPixelColor(bottomRight, right, bottom) { "$right, $bottom is incorrect color" }
     }
 
-    /**
-     * Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected].
-     */
+    /** Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected]. */
     private fun PixelMap.assertPixelColor(
         expected: Color,
         x: Int,

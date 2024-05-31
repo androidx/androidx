@@ -31,34 +31,33 @@ fun SnapLayoutInfoProvider(
     scrollState: ScrollState,
     itemSize: () -> Float,
     layoutSize: () -> Float
-) = object : SnapLayoutInfoProvider {
+) =
+    object : SnapLayoutInfoProvider {
 
-    override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
-        val calculatedItemSize = itemSize.invoke()
-        return (decayOffset.absoluteValue - calculatedItemSize)
-            .coerceAtLeast(0.0f) * calculatedItemSize.sign
+        override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
+            val calculatedItemSize = itemSize.invoke()
+            return (decayOffset.absoluteValue - calculatedItemSize).coerceAtLeast(0.0f) *
+                calculatedItemSize.sign
+        }
+
+        fun nextFullItemCenter(layoutCenter: Float): Float {
+            val intItemSize = itemSize().roundToInt()
+            return floor((layoutCenter + itemSize()) / itemSize().roundToInt()) * intItemSize
+        }
+
+        fun previousFullItemCenter(layoutCenter: Float): Float {
+            val intItemSize = itemSize().roundToInt()
+            return ceil((layoutCenter - itemSize()) / itemSize().roundToInt()) * intItemSize
+        }
+
+        override fun calculateSnapOffset(velocity: Float): Float {
+            val layoutCenter = layoutSize() / 2f + scrollState.value + itemSize() / 2f
+            val lowerBound = nextFullItemCenter(layoutCenter) - layoutCenter
+            val upperBound = previousFullItemCenter(layoutCenter) - layoutCenter
+
+            return calculateFinalOffset(velocity, upperBound, lowerBound)
+        }
     }
-
-    fun nextFullItemCenter(layoutCenter: Float): Float {
-        val intItemSize = itemSize().roundToInt()
-        return floor((layoutCenter + itemSize()) / itemSize().roundToInt()) *
-            intItemSize
-    }
-
-    fun previousFullItemCenter(layoutCenter: Float): Float {
-        val intItemSize = itemSize().roundToInt()
-        return ceil((layoutCenter - itemSize()) / itemSize().roundToInt()) *
-            intItemSize
-    }
-
-    override fun calculateSnapOffset(velocity: Float): Float {
-        val layoutCenter = layoutSize() / 2f + scrollState.value + itemSize() / 2f
-        val lowerBound = nextFullItemCenter(layoutCenter) - layoutCenter
-        val upperBound = previousFullItemCenter(layoutCenter) - layoutCenter
-
-        return calculateFinalOffset(velocity, upperBound, lowerBound)
-    }
-}
 
 internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound: Float): Float {
 
@@ -66,19 +65,19 @@ internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound
         return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
     }
 
-    val finalDistance = when (sign(velocity)) {
-        0f -> {
-            if (abs(upperBound) <= abs(lowerBound)) {
-                upperBound
-            } else {
-                lowerBound
+    val finalDistance =
+        when (sign(velocity)) {
+            0f -> {
+                if (abs(upperBound) <= abs(lowerBound)) {
+                    upperBound
+                } else {
+                    lowerBound
+                }
             }
+            1f -> upperBound
+            -1f -> lowerBound
+            else -> 0f
         }
-
-        1f -> upperBound
-        -1f -> lowerBound
-        else -> 0f
-    }
 
     return if (finalDistance.isValidDistance()) {
         finalDistance

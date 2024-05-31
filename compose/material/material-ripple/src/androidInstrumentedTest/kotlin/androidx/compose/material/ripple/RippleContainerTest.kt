@@ -50,15 +50,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test for [RippleContainer]
- */
+/** Test for [RippleContainer] */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RippleContainerTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun cachesViews() {
@@ -203,8 +200,7 @@ class RippleContainerTest {
                 androidComposeView = LocalView.current as ViewGroup
                 Column {
                     Box(
-                        Modifier
-                            .wrapContentSize(align = Alignment.Center)
+                        Modifier.wrapContentSize(align = Alignment.Center)
                             .size(40.dp)
                             .indication(
                                 interactionSource = interactionSource1,
@@ -212,8 +208,7 @@ class RippleContainerTest {
                             )
                     )
                     Box(
-                        Modifier
-                            .wrapContentSize(align = Alignment.Center)
+                        Modifier.wrapContentSize(align = Alignment.Center)
                             .size(40.dp)
                             .indication(
                                 interactionSource = interactionSource2,
@@ -234,9 +229,7 @@ class RippleContainerTest {
             requestLayoutTrackingFrameLayout.requestLayoutCalled = false
 
             // Emit press on first ripple
-            scope!!.launch {
-                interactionSource1.emit(PressInteraction.Press(Offset.Zero))
-            }
+            scope!!.launch { interactionSource1.emit(PressInteraction.Press(Offset.Zero)) }
         }
 
         rule.runOnIdle {
@@ -245,17 +238,13 @@ class RippleContainerTest {
             val children = androidComposeView!!.children
             val rippleContainer = children.filterIsInstance<RippleContainer>().singleOrNull()
             Truth.assertThat(rippleContainer).isNotNull()
-            val rippleHostView = rippleContainer!!
-                .children
-                .filterIsInstance<RippleHostView>()
-                .singleOrNull()
+            val rippleHostView =
+                rippleContainer!!.children.filterIsInstance<RippleHostView>().singleOrNull()
             Truth.assertThat(rippleHostView).isNotNull()
             Truth.assertThat(requestLayoutTrackingFrameLayout.requestLayoutCalled).isFalse()
 
             // Emit press on second ripple
-            scope!!.launch {
-                interactionSource2.emit(PressInteraction.Press(Offset.Zero))
-            }
+            scope!!.launch { interactionSource2.emit(PressInteraction.Press(Offset.Zero)) }
         }
 
         rule.runOnIdle {
@@ -264,9 +253,8 @@ class RippleContainerTest {
             val children = androidComposeView!!.children
             val rippleContainer = children.filterIsInstance<RippleContainer>().singleOrNull()
             Truth.assertThat(rippleContainer).isNotNull()
-            val rippleHostViews = rippleContainer!!
-                .children
-                .filterIsInstance<RippleHostView>().toList()
+            val rippleHostViews =
+                rippleContainer!!.children.filterIsInstance<RippleHostView>().toList()
             Truth.assertThat(rippleHostViews.size).isEqualTo(2)
             Truth.assertThat(requestLayoutTrackingFrameLayout.requestLayoutCalled).isFalse()
         }
@@ -274,8 +262,7 @@ class RippleContainerTest {
 }
 
 private class TestRippleHostKey : RippleHostKey {
-    override fun onResetRippleHostView() {
-    }
+    override fun onResetRippleHostView() {}
 }
 
 private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(context) {

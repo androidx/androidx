@@ -83,8 +83,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayoutCoordinatesHelperTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun positionInParent_noOffset() {
@@ -99,12 +98,11 @@ class LayoutCoordinatesHelperTest {
                 }
             ) {
                 Box(
-                    Modifier.size(10.dp)
-                        .align(Alignment.Start)
-                        .onGloballyPositioned { coordinates ->
-                            childCoordinates = coordinates
-                            latch.countDown()
-                        }
+                    Modifier.size(10.dp).align(Alignment.Start).onGloballyPositioned { coordinates
+                        ->
+                        childCoordinates = coordinates
+                        latch.countDown()
+                    }
                 )
             }
         }
@@ -125,11 +123,11 @@ class LayoutCoordinatesHelperTest {
             with(LocalDensity.current) {
                 Box(Modifier.width(40.toDp()), contentAlignment = Alignment.Center) {
                     Column(
-                        Modifier.width(20.toDp())
-                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
-                                parentCoordinates = coordinates
-                                latch.countDown()
-                            }
+                        Modifier.width(20.toDp()).onGloballyPositioned {
+                            coordinates: LayoutCoordinates ->
+                            parentCoordinates = coordinates
+                            latch.countDown()
+                        }
                     ) {
                         Box(
                             Modifier.size(10.toDp())
@@ -159,10 +157,14 @@ class LayoutCoordinatesHelperTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity.provides(Density(1f))) {
                 Box(Modifier.offset(200.dp, 100.dp).size(300.dp)) {
-                    Box(Modifier.onPlaced {
-                        offset = it.placementInParent()
-                        positionInRoot = it.positionInRoot()
-                    }.align(alignment = alignment).size(100.dp))
+                    Box(
+                        Modifier.onPlaced {
+                                offset = it.placementInParent()
+                                positionInRoot = it.positionInRoot()
+                            }
+                            .align(alignment = alignment)
+                            .size(100.dp)
+                    )
                 }
             }
         }
@@ -192,18 +194,25 @@ class LayoutCoordinatesHelperTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity.provides(Density(1f))) {
                 Box(Modifier.offset(200.dp, 100.dp).size(300.dp)) {
-                    Box(Modifier.align(alignment = alignment)
-                        .offset { additionalOffset }.onPlaced {
-                            assertEquals(additionalOffset, it.placementInParent())
-                            invocations[0] = invocations[0] + 1
-                        }.clickable { }.onPlaced {
-                            assertEquals(additionalOffset, it.placementInParent())
-                            invocations[1] = invocations[1] + 1
-                        }.testTag("Test").onPlaced {
-                            assertEquals(additionalOffset, it.placementInParent())
-                            invocations[2] = invocations[2] + 1
-                        }
-                        .size(100.dp))
+                    Box(
+                        Modifier.align(alignment = alignment)
+                            .offset { additionalOffset }
+                            .onPlaced {
+                                assertEquals(additionalOffset, it.placementInParent())
+                                invocations[0] = invocations[0] + 1
+                            }
+                            .clickable {}
+                            .onPlaced {
+                                assertEquals(additionalOffset, it.placementInParent())
+                                invocations[1] = invocations[1] + 1
+                            }
+                            .testTag("Test")
+                            .onPlaced {
+                                assertEquals(additionalOffset, it.placementInParent())
+                                invocations[2] = invocations[2] + 1
+                            }
+                            .size(100.dp)
+                    )
                 }
             }
         }
@@ -215,9 +224,7 @@ class LayoutCoordinatesHelperTest {
             assertThat(invocations).containsExactlyElementsIn(listOf(2, 2, 2))
             additionalOffset = IntOffset(0, 10)
         }
-        rule.runOnIdle {
-            assertThat(invocations).containsExactlyElementsIn(listOf(3, 3, 3))
-        }
+        rule.runOnIdle { assertThat(invocations).containsExactlyElementsIn(listOf(3, 3, 3)) }
     }
 
     @Test
@@ -227,55 +234,35 @@ class LayoutCoordinatesHelperTest {
         val targetOffset = mutableStateOf(Offset.Zero)
         rule.setContent {
             CompositionLocalProvider(LocalDensity.provides(Density(1f))) {
-                Box(
-                    Modifier
-                        .size(200.dp)
-                ) {
+                Box(Modifier.size(200.dp)) {
                     Box(
-                        modifier = Modifier
-                            .animatePlacement(targetOffset) { alignment }
-                            .align(alignment)
-                            .size(20.dp)
-                            .background(Color.Red)
+                        modifier =
+                            Modifier.animatePlacement(targetOffset) { alignment }
+                                .align(alignment)
+                                .size(20.dp)
+                                .background(Color.Red)
                     )
                 }
             }
         }
 
         rule.runOnIdle {
-            assertEquals(
-                calculateExpectedIntOffset(alignment),
-                targetOffset.value
-            )
+            assertEquals(calculateExpectedIntOffset(alignment), targetOffset.value)
             alignment = Alignment.Center
         }
         rule.runOnIdle {
-            assertEquals(
-                calculateExpectedIntOffset(alignment),
-                targetOffset.value
-            )
+            assertEquals(calculateExpectedIntOffset(alignment), targetOffset.value)
             alignment = Alignment.BottomEnd
         }
         rule.runOnIdle {
-            assertEquals(
-                calculateExpectedIntOffset(alignment),
-                targetOffset.value
-            )
+            assertEquals(calculateExpectedIntOffset(alignment), targetOffset.value)
             alignment = Alignment.TopCenter
         }
         rule.runOnIdle {
-            assertEquals(
-                calculateExpectedIntOffset(alignment),
-                targetOffset.value
-            )
+            assertEquals(calculateExpectedIntOffset(alignment), targetOffset.value)
             alignment = Alignment.TopEnd
         }
-        rule.runOnIdle {
-            assertEquals(
-                calculateExpectedIntOffset(alignment),
-                targetOffset.value
-            )
-        }
+        rule.runOnIdle { assertEquals(calculateExpectedIntOffset(alignment), targetOffset.value) }
     }
 
     private fun Modifier.animatePlacement(
@@ -283,29 +270,20 @@ class LayoutCoordinatesHelperTest {
         alignment: () -> Alignment
     ): Modifier = composed {
         val scope = rememberCoroutineScope()
-        var animatable by remember {
-            mutableStateOf<Animatable<Offset, AnimationVector2D>?>(
-                null
-            )
-        }
-        this
-            .layout { measurable, constraints ->
+        var animatable by remember { mutableStateOf<Animatable<Offset, AnimationVector2D>?>(null) }
+        this.layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(
-                        0, 0
-                    )
-                }
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
             .onPlaced { coordinates ->
                 targetOffset.value = coordinates.positionInParent()
                 assertEquals(calculateExpectedIntOffset(alignment()), targetOffset.value)
                 // Animate to the new target offset when alignment changes.
                 val anim =
-                    animatable ?: Animatable(
-                        targetOffset.value,
-                        Offset.VectorConverter
-                    ).also { animatable = it }
+                    animatable
+                        ?: Animatable(targetOffset.value, Offset.VectorConverter).also {
+                            animatable = it
+                        }
                 if (anim.targetValue != targetOffset.value) {
                     scope.launch {
                         anim.animateTo(
@@ -319,105 +297,100 @@ class LayoutCoordinatesHelperTest {
                 val placeable = measurable.measure(constraints)
                 layout(placeable.width, placeable.height) {
                     placeable.place(
-                        animatable?.let {
-                            (it.value - targetOffset.value).round()
-                        } ?: IntOffset.Zero
+                        animatable?.let { (it.value - targetOffset.value).round() }
+                            ?: IntOffset.Zero
                     )
                 }
             }
     }
 
     private fun calculateExpectedIntOffset(alignment: Alignment) =
-        alignment.align(
-            IntSize(20, 20), IntSize(200, 200), LayoutDirection.Ltr
-        ).toOffset()
+        alignment.align(IntSize(20, 20), IntSize(200, 200), LayoutDirection.Ltr).toOffset()
 
     @Test
     fun onPlacedModifierWithLayoutModifier() {
         lateinit var coords: LayoutCoordinates
 
-        val modifier = object : OnPlacedModifier, LayoutModifier {
-            override fun MeasureScope.measure(
-                measurable: Measurable,
-                constraints: Constraints
-            ): MeasureResult {
-                val p = measurable.measure(Constraints.fixed(50, 50))
-                return layout(50, 50) {
-                    // coords should already be set by the time we are running this.
-                    assertThat(coords.size).isEqualTo(IntSize(50, 50))
-                    p.place(0, 0)
+        val modifier =
+            object : OnPlacedModifier, LayoutModifier {
+                override fun MeasureScope.measure(
+                    measurable: Measurable,
+                    constraints: Constraints
+                ): MeasureResult {
+                    val p = measurable.measure(Constraints.fixed(50, 50))
+                    return layout(50, 50) {
+                        // coords should already be set by the time we are running this.
+                        assertThat(coords.size).isEqualTo(IntSize(50, 50))
+                        p.place(0, 0)
+                    }
+                }
+
+                override fun onPlaced(coordinates: LayoutCoordinates) {
+                    coords = coordinates
                 }
             }
 
-            override fun onPlaced(coordinates: LayoutCoordinates) {
-                coords = coordinates
-            }
-        }
+        rule.setContent { Box(Modifier.fillMaxSize().then(modifier)) }
 
-        rule.setContent {
-            Box(Modifier.fillMaxSize().then(modifier))
-        }
-
-        rule.runOnIdle {
-            assertThat(coords.size).isEqualTo(IntSize(50, 50))
-        }
+        rule.runOnIdle { assertThat(coords.size).isEqualTo(IntSize(50, 50)) }
     }
 
     @Test
     fun onBoxPlaced_failing() {
         var coordinates: LayoutCoordinates? = null
-        rule.setContent {
-            Box(Modifier.onPlaced { coordinates = it })
-        }
-        rule.runOnIdle {
-            assertThat(coordinates).isNotNull()
-        }
+        rule.setContent { Box(Modifier.onPlaced { coordinates = it }) }
+        rule.runOnIdle { assertThat(coordinates).isNotNull() }
     }
 
     @Test(expected = UnsupportedOperationException::class)
     fun defaultTransformFromThrows() {
-        val layoutCoordinates = object : LayoutCoordinates {
-            override val size: IntSize
-                get() = TODO("Not yet implemented")
-            override val providedAlignmentLines: Set<AlignmentLine>
-                get() = TODO("Not yet implemented")
-            override val parentLayoutCoordinates: LayoutCoordinates?
-                get() = TODO("Not yet implemented")
-            override val parentCoordinates: LayoutCoordinates?
-                get() = TODO("Not yet implemented")
-            override val isAttached: Boolean
-                get() = TODO("Not yet implemented")
+        val layoutCoordinates =
+            object : LayoutCoordinates {
+                override val size: IntSize
+                    get() = TODO("Not yet implemented")
 
-            override fun windowToLocal(relativeToWindow: Offset): Offset {
-                TODO("Not yet implemented")
-            }
+                override val providedAlignmentLines: Set<AlignmentLine>
+                    get() = TODO("Not yet implemented")
 
-            override fun localToWindow(relativeToLocal: Offset): Offset {
-                TODO("Not yet implemented")
-            }
+                override val parentLayoutCoordinates: LayoutCoordinates?
+                    get() = TODO("Not yet implemented")
 
-            override fun localToRoot(relativeToLocal: Offset): Offset {
-                TODO("Not yet implemented")
-            }
+                override val parentCoordinates: LayoutCoordinates?
+                    get() = TODO("Not yet implemented")
 
-            override fun localPositionOf(
-                sourceCoordinates: LayoutCoordinates,
-                relativeToSource: Offset
-            ): Offset {
-                TODO("Not yet implemented")
-            }
+                override val isAttached: Boolean
+                    get() = TODO("Not yet implemented")
 
-            override fun localBoundingBoxOf(
-                sourceCoordinates: LayoutCoordinates,
-                clipBounds: Boolean
-            ): Rect {
-                TODO("Not yet implemented")
-            }
+                override fun windowToLocal(relativeToWindow: Offset): Offset {
+                    TODO("Not yet implemented")
+                }
 
-            override fun get(alignmentLine: AlignmentLine): Int {
-                TODO("Not yet implemented")
+                override fun localToWindow(relativeToLocal: Offset): Offset {
+                    TODO("Not yet implemented")
+                }
+
+                override fun localToRoot(relativeToLocal: Offset): Offset {
+                    TODO("Not yet implemented")
+                }
+
+                override fun localPositionOf(
+                    sourceCoordinates: LayoutCoordinates,
+                    relativeToSource: Offset
+                ): Offset {
+                    TODO("Not yet implemented")
+                }
+
+                override fun localBoundingBoxOf(
+                    sourceCoordinates: LayoutCoordinates,
+                    clipBounds: Boolean
+                ): Rect {
+                    TODO("Not yet implemented")
+                }
+
+                override fun get(alignmentLine: AlignmentLine): Int {
+                    TODO("Not yet implemented")
+                }
             }
-        }
         val matrix = Matrix()
         // This should throw UnsupoportedOperationException
         layoutCoordinates.transformFrom(layoutCoordinates, matrix)

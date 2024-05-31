@@ -45,6 +45,7 @@ private class FrameExperimentView(context: Context, val mode: FrameMode) : View(
             invalidate()
         }
     }
+
     var remainingFrames = 0
 
     fun work(durationMs: Long = FRAME_ADDED_WORK_MS, label: String = "Added item work") {
@@ -52,8 +53,7 @@ private class FrameExperimentView(context: Context, val mode: FrameMode) : View(
 
         // spin!
         val endTime = System.nanoTime() + durationMs * 1_000_000
-        @Suppress("ControlFlowWithEmptyBody")
-        while (System.nanoTime() < endTime) {}
+        @Suppress("ControlFlowWithEmptyBody") while (System.nanoTime() < endTime) {}
 
         Trace.endSection()
     }
@@ -70,20 +70,17 @@ private class FrameExperimentView(context: Context, val mode: FrameMode) : View(
         work(durationMs = FRAME_BASELINE_WORK_MS, "Baseline work frame $remainingFrames")
 
         // small rect to reduce flicker
-        canvas.drawRect(
-            0f, 0f, 200f, 200f,
-            if (remainingFrames % 2 == 0) paintA else paintB
-        )
+        canvas.drawRect(0f, 0f, 200f, 200f, if (remainingFrames % 2 == 0) paintA else paintB)
 
         if (remainingFrames >= 1) {
             remainingFrames--
             invalidate()
 
-            if (mode == FrameMode.PrefetchEveryFrame ||
-                (mode == FrameMode.PrefetchSomeFrames && remainingFrames % 5 == 0)) {
-                this.post {
-                    work()
-                }
+            if (
+                mode == FrameMode.PrefetchEveryFrame ||
+                    (mode == FrameMode.PrefetchSomeFrames && remainingFrames % 5 == 0)
+            ) {
+                this.post { work() }
             }
         }
     }
@@ -96,9 +93,7 @@ class FrameExperimentActivity : ComponentActivity() {
         val frameModeId = intent.getIntExtra(EXTRA_FRAME_MODE, defaultMode.id)
         val frameMode = FrameMode.values().first { it.id == frameModeId }
 
-        setContentView(
-            FrameExperimentView(this, frameMode)
-        )
+        setContentView(FrameExperimentView(this, frameMode))
     }
 
     companion object {

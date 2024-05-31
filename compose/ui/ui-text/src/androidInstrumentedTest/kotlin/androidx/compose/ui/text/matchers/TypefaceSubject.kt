@@ -33,53 +33,54 @@ private const val FONT_SIZE = 10f
 /**
  * Truth extension for Typeface.
  *
- * Checks if a given [Typeface] has a given [FontWeight] and [FontStyle]. Since [Typeface] does
- * not contain the required information before API 28, it uses the set of specific fonts to infer
- * which type of font was loaded. Check [DEFINED_CHARACTERS] and [FontTestData] for the set of
- * fonts designed for this class.
+ * Checks if a given [Typeface] has a given [FontWeight] and [FontStyle]. Since [Typeface] does not
+ * contain the required information before API 28, it uses the set of specific fonts to infer which
+ * type of font was loaded. Check [DEFINED_CHARACTERS] and [FontTestData] for the set of fonts
+ * designed for this class.
  *
  * Each font contains [a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r] characters and [wide,narrow] glyph
- * types. Each font file includes one character that is represented with wide glyph, and others
- * with narrow. This is used in the tests in order to differentiate the font that is loaded for
- * a specific weight/style in the FontFamily.
+ * types. Each font file includes one character that is represented with wide glyph, and others with
+ * narrow. This is used in the tests in order to differentiate the font that is loaded for a
+ * specific weight/style in the FontFamily.
  *
  * The size difference between wide and narrow glyph is 3 (wide = 3 * narrow).
- *
  * - 200 italic has "a" with wide glyph
  * - 200 regular has "b" with wide glyph
  * - ...
  * - 900 italic has "q" with wide glyph
  * - 900 regular has "r" with wide glyph
  */
-internal class TypefaceSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: Typeface?
-) : Subject(failureMetadata, subject) {
+internal class TypefaceSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: Typeface?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<TypefaceSubject?, Typeface?> =
-            Factory { failureMetadata, subject -> TypefaceSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                TypefaceSubject(failureMetadata, subject)
+            }
 
-        internal val DEFINED_CHARACTERS = arrayOf(
-            CharacterInfo('a', FontWeight.W100, FontStyle.Italic),
-            CharacterInfo('b', FontWeight.W100, FontStyle.Normal),
-            CharacterInfo('c', FontWeight.W200, FontStyle.Italic),
-            CharacterInfo('d', FontWeight.W200, FontStyle.Normal),
-            CharacterInfo('e', FontWeight.W300, FontStyle.Italic),
-            CharacterInfo('f', FontWeight.W300, FontStyle.Normal),
-            CharacterInfo('g', FontWeight.W400, FontStyle.Italic),
-            CharacterInfo('h', FontWeight.W400, FontStyle.Normal),
-            CharacterInfo('i', FontWeight.W500, FontStyle.Italic),
-            CharacterInfo('j', FontWeight.W500, FontStyle.Normal),
-            CharacterInfo('k', FontWeight.W600, FontStyle.Italic),
-            CharacterInfo('l', FontWeight.W600, FontStyle.Normal),
-            CharacterInfo('m', FontWeight.W700, FontStyle.Italic),
-            CharacterInfo('n', FontWeight.W700, FontStyle.Normal),
-            CharacterInfo('o', FontWeight.W800, FontStyle.Italic),
-            CharacterInfo('p', FontWeight.W800, FontStyle.Normal),
-            CharacterInfo('q', FontWeight.W900, FontStyle.Italic),
-            CharacterInfo('r', FontWeight.W900, FontStyle.Normal)
-        )
+        internal val DEFINED_CHARACTERS =
+            arrayOf(
+                CharacterInfo('a', FontWeight.W100, FontStyle.Italic),
+                CharacterInfo('b', FontWeight.W100, FontStyle.Normal),
+                CharacterInfo('c', FontWeight.W200, FontStyle.Italic),
+                CharacterInfo('d', FontWeight.W200, FontStyle.Normal),
+                CharacterInfo('e', FontWeight.W300, FontStyle.Italic),
+                CharacterInfo('f', FontWeight.W300, FontStyle.Normal),
+                CharacterInfo('g', FontWeight.W400, FontStyle.Italic),
+                CharacterInfo('h', FontWeight.W400, FontStyle.Normal),
+                CharacterInfo('i', FontWeight.W500, FontStyle.Italic),
+                CharacterInfo('j', FontWeight.W500, FontStyle.Normal),
+                CharacterInfo('k', FontWeight.W600, FontStyle.Italic),
+                CharacterInfo('l', FontWeight.W600, FontStyle.Normal),
+                CharacterInfo('m', FontWeight.W700, FontStyle.Italic),
+                CharacterInfo('n', FontWeight.W700, FontStyle.Normal),
+                CharacterInfo('o', FontWeight.W800, FontStyle.Italic),
+                CharacterInfo('p', FontWeight.W800, FontStyle.Normal),
+                CharacterInfo('q', FontWeight.W900, FontStyle.Italic),
+                CharacterInfo('r', FontWeight.W900, FontStyle.Normal)
+            )
     }
 
     private fun getPaint(typeface: Typeface): TextPaint {
@@ -106,21 +107,22 @@ internal class TypefaceSubject private constructor(
     fun isTypefaceOf(fontWeight: FontWeight, fontStyle: FontStyle) {
         check("isNotNull()").that(subject).isNotNull()
         val typeface = subject as Typeface
-        val charInfo = DEFINED_CHARACTERS.find {
-            it.fontWeight == fontWeight && it.fontStyle == fontStyle
-        }!!
+        val charInfo =
+            DEFINED_CHARACTERS.find { it.fontWeight == fontWeight && it.fontStyle == fontStyle }!!
 
         val isSelectedFont = isSelectedFont(typeface, charInfo.character)
 
         if (Build.VERSION.SDK_INT >= 28) {
             check("sameTypeface($isSelectedFont, $fontWeight, $fontStyle)")
-                .that(isSelectedFont && typeface.weight == fontWeight.weight).isTrue()
+                .that(isSelectedFont && typeface.weight == fontWeight.weight)
+                .isTrue()
             // cannot check typeface.isItalic == (fontStyle == FontStyle.Italic) since it is for
             // fake italic, and for cases where synthesis is disable this does not give correct
             // signal
         } else {
             check("sameTypeface($isSelectedFont, $fontWeight, $fontStyle)")
-                .that(isSelectedFont).isTrue()
+                .that(isSelectedFont)
+                .isTrue()
         }
     }
 
@@ -147,21 +149,24 @@ internal class TypefaceSubject private constructor(
 
         val platformTypefaceStyle = getAndroidTypefaceStyle(fontWeight, fontStyle)
         if (Build.VERSION.SDK_INT >= 28) {
-            check("weight == ($fontWeight)")
-                .that(typeface.weight).isEqualTo(fontWeight.weight)
+            check("weight == ($fontWeight)").that(typeface.weight).isEqualTo(fontWeight.weight)
             check("isItalic == ($fontStyle)")
-                .that(typeface.isItalic).isEqualTo(fontStyle == FontStyle.Italic)
+                .that(typeface.isItalic)
+                .isEqualTo(fontStyle == FontStyle.Italic)
             check("style == ($fontWeight, $fontStyle)")
-                .that(typeface.style).isEqualTo(platformTypefaceStyle)
+                .that(typeface.style)
+                .isEqualTo(platformTypefaceStyle)
         } else {
-            val expectBold = platformTypefaceStyle == Typeface.BOLD ||
-                platformTypefaceStyle == Typeface.BOLD_ITALIC
+            val expectBold =
+                platformTypefaceStyle == Typeface.BOLD ||
+                    platformTypefaceStyle == Typeface.BOLD_ITALIC
             check("isItalic == ($fontWeight)")
-                .that(typeface.isItalic).isEqualTo(fontStyle == FontStyle.Italic)
+                .that(typeface.isItalic)
+                .isEqualTo(fontStyle == FontStyle.Italic)
             check("style == ($fontWeight, $fontStyle)")
-                .that(typeface.style).isEqualTo(platformTypefaceStyle)
-            check("isBold == ($fontWeight)")
-                .that(typeface.isBold).isEqualTo(expectBold)
+                .that(typeface.style)
+                .isEqualTo(platformTypefaceStyle)
+            check("isBold == ($fontWeight)").that(typeface.isBold).isEqualTo(expectBold)
         }
     }
 }
@@ -190,10 +195,11 @@ private fun toString(typeface: Typeface): String {
     }
 }
 
-private fun Int.toTypefaceStyleString(): String = when (this) {
-    Typeface.NORMAL -> "NORMAL"
-    Typeface.BOLD -> "BOLD"
-    Typeface.BOLD_ITALIC -> "BOLD_ITALIC"
-    Typeface.ITALIC -> "ITALIC"
-    else -> "Unknown($this)"
-}
+private fun Int.toTypefaceStyleString(): String =
+    when (this) {
+        Typeface.NORMAL -> "NORMAL"
+        Typeface.BOLD -> "BOLD"
+        Typeface.BOLD_ITALIC -> "BOLD_ITALIC"
+        Typeface.ITALIC -> "ITALIC"
+        else -> "Unknown($this)"
+    }

@@ -19,21 +19,18 @@ package androidx.compose.ui.focus
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.node.DelegatableNode
 
-/**
- * This modifier node can be used to create a modifier that makes a component focusable.
- */
+/** This modifier node can be used to create a modifier that makes a component focusable. */
 sealed interface FocusTargetModifierNode : DelegatableNode {
     /**
      * The [FocusState] associated with this [FocusTargetModifierNode]. When you implement a
      * [FocusTargetModifierNode], instead of implementing [FocusEventModifierNode], you can get the
      * state by accessing this variable.
      */
-    @ExperimentalComposeUiApi
-    val focusState: FocusState
+    @ExperimentalComposeUiApi val focusState: FocusState
 }
 
 /**
- * This modifier node can be used to create a modifier that makes a component focusable.
- * Use a different instance of [FocusTargetModifierNode] for each focusable component.
+ * This modifier node can be used to create a modifier that makes a component focusable. Use a
+ * different instance of [FocusTargetModifierNode] for each focusable component.
  */
 fun FocusTargetModifierNode(): FocusTargetModifierNode = FocusTargetNode()

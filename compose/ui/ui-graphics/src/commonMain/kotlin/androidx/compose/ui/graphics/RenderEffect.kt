@@ -21,19 +21,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 
 /**
- * Intermediate rendering step used to render drawing commands with a corresponding
- * visual effect. A [RenderEffect] can be configured on a [GraphicsLayerScope]
- * and will be applied when drawn.
+ * Intermediate rendering step used to render drawing commands with a corresponding visual effect. A
+ * [RenderEffect] can be configured on a [GraphicsLayerScope] and will be applied when drawn.
  */
 @Immutable
 expect sealed class RenderEffect() {
 
     /**
-     * Capability query to determine if the particular platform supports the [RenderEffect]. Not
-     * all platforms support all render effects.
+     * Capability query to determine if the particular platform supports the [RenderEffect]. Not all
+     * platforms support all render effects.
      *
-     * Note RenderEffect is only supported on Android 12 and above.
-     * Attempts to use RenderEffect on older Android versions will be ignored.
+     * Note RenderEffect is only supported on Android 12 and above. Attempts to use RenderEffect on
+     * older Android versions will be ignored.
      */
     open fun isSupported(): Boolean
 }
@@ -47,9 +46,10 @@ fun BlurEffect(radiusX: Float, radiusY: Float, edgeTreatment: TileMode = TileMod
     BlurEffect(null, radiusX, radiusY, edgeTreatment)
 
 /**
- * [RenderEffect] that will blur the contents of an optional input [RenderEffect]. If no
- * input [RenderEffect] is provided, the drawing commands on the [GraphicsLayerScope] this
- * [RenderEffect] is configured on will be blurred.
+ * [RenderEffect] that will blur the contents of an optional input [RenderEffect]. If no input
+ * [RenderEffect] is provided, the drawing commands on the [GraphicsLayerScope] this [RenderEffect]
+ * is configured on will be blurred.
+ *
  * @param renderEffect Optional input [RenderEffect] to be blurred
  * @param radiusX Blur radius in the horizontal direction
  * @param radiusY Blur radius in the vertical direction
@@ -71,11 +71,7 @@ expect class BlurEffect(
 fun OffsetEffect(offsetX: Float, offsetY: Float) = OffsetEffect(null, Offset(offsetX, offsetY))
 
 /**
- * [RenderEffect] used to translate either the given [RenderEffect] or the content of
- * the [GraphicsLayerScope] it is configured on.
+ * [RenderEffect] used to translate either the given [RenderEffect] or the content of the
+ * [GraphicsLayerScope] it is configured on.
  */
-@Immutable
-expect class OffsetEffect(
-    renderEffect: RenderEffect?,
-    offset: Offset
-) : RenderEffect
+@Immutable expect class OffsetEffect(renderEffect: RenderEffect?, offset: Offset) : RenderEffect

@@ -37,13 +37,12 @@ internal abstract class AbstractMainTestClock(
     }
 
     override fun advanceTimeBy(milliseconds: Long, ignoreFrameDuration: Boolean) {
-        val actualDelay = if (ignoreFrameDuration) {
-            milliseconds
-        } else {
-            ceil(
-                milliseconds.toDouble() / frameDelayMillis
-            ).toLong() * frameDelayMillis
-        }
+        val actualDelay =
+            if (ignoreFrameDuration) {
+                milliseconds
+            } else {
+                ceil(milliseconds.toDouble() / frameDelayMillis).toLong() * frameDelayMillis
+            }
         advanceDispatcher(actualDelay)
     }
 

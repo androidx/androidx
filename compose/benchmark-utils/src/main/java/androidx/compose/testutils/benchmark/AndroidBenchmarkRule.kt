@@ -29,9 +29,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/**
- * Rule to be used to run Android benchmarks.
- */
+/** Rule to be used to run Android benchmarks. */
 class AndroidBenchmarkRule : TestRule {
 
     @Suppress("DEPRECATION")
@@ -41,9 +39,7 @@ class AndroidBenchmarkRule : TestRule {
     val benchmarkRule = BenchmarkRule()
 
     override fun apply(base: Statement, description: Description?): Statement {
-        return benchmarkRule.apply(
-            activityTestRule.apply(base, description), description!!
-        )
+        return benchmarkRule.apply(activityTestRule.apply(base, description), description!!)
     }
 
     /**
@@ -57,8 +53,7 @@ class AndroidBenchmarkRule : TestRule {
      */
     fun <T : AndroidTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
-        @WorkerThread
-        block: AndroidTestCaseRunner<T>.() -> Unit
+        @WorkerThread block: AndroidTestCaseRunner<T>.() -> Unit
     ) {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Cannot invoke runBenchmarkFor from the main thread"
@@ -67,30 +62,18 @@ class AndroidBenchmarkRule : TestRule {
             "Expected ${AndroidTestCase::class.simpleName}!"
         }
         lateinit var runner: AndroidTestCaseRunner<T>
-        runOnUiThread {
-            runner = AndroidTestCaseRunner(
-                givenTestCase,
-                activityTestRule.activity
-            )
-        }
+        runOnUiThread { runner = AndroidTestCaseRunner(givenTestCase, activityTestRule.activity) }
 
         block(runner)
     }
 
-    /**
-     * Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread].
-     */
+    /** Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread]. */
     @WorkerThread
-    fun measureRepeatedOnUiThread(
-        @UiThread
-        block: BenchmarkRule.Scope.() -> Unit
-    ) {
+    fun measureRepeatedOnUiThread(@UiThread block: BenchmarkRule.Scope.() -> Unit) {
         benchmarkRule.measureRepeatedOnMainThread(block)
     }
 
-    /**
-     * Convenience proxy for `ActivityTestRule.runOnUiThread`
-     */
+    /** Convenience proxy for `ActivityTestRule.runOnUiThread` */
     fun runOnUiThread(block: () -> Unit) {
         activityTestRule.runOnUiThread(block)
     }

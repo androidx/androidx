@@ -35,11 +35,15 @@ import org.jetbrains.kotlin.types.typeUtil.replaceAnnotations
 private fun makeComposableAnnotation(module: ModuleDescriptor): AnnotationDescriptor =
     object : AnnotationDescriptor {
         override val type: KotlinType
-            get() = module.findClassAcrossModuleDependencies(
-                ComposeClassIds.Composable
-            )!!.defaultType
-        override val allValueArguments: Map<Name, ConstantValue<*>> get() = emptyMap()
-        override val source: SourceElement get() = SourceElement.NO_SOURCE
+            get() =
+                module.findClassAcrossModuleDependencies(ComposeClassIds.Composable)!!.defaultType
+
+        override val allValueArguments: Map<Name, ConstantValue<*>>
+            get() = emptyMap()
+
+        override val source: SourceElement
+            get() = SourceElement.NO_SOURCE
+
         override fun toString() = "[@Composable]"
     }
 
@@ -60,19 +64,21 @@ fun AnonymousFunctionDescriptor.annotateAsComposable(module: ModuleDescriptor) =
 
 fun KotlinType.hasComposableAnnotation(): Boolean =
     !isSpecialType && annotations.findAnnotation(ComposeFqNames.Composable) != null
+
 fun Annotated.hasComposableAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.Composable) != null
+
 fun Annotated.hasReadonlyComposableAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.ReadOnlyComposable) != null
+
 fun Annotated.hasDisallowComposableCallsAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.DisallowComposableCalls) != null
+
 fun Annotated.compositionTarget(): String? =
     annotations.map { it.compositionTarget() }.firstOrNull { it != null }
 
 fun Annotated.hasCompositionTargetMarker(): Boolean =
-    annotations.findAnnotation(
-        ComposeFqNames.ComposableTargetMarker
-    ) != null
+    annotations.findAnnotation(ComposeFqNames.ComposableTargetMarker) != null
 
 fun AnnotationDescriptor.compositionTarget(): String? =
     if (fqName == ComposeFqNames.ComposableTarget)
@@ -80,20 +86,17 @@ fun AnnotationDescriptor.compositionTarget(): String? =
     else if (annotationClass?.hasCompositionTargetMarker() == true) this.fqName.toString() else null
 
 fun Annotated.compositionScheme(): String? =
-    annotations.findAnnotation(
-        ComposeFqNames.ComposableInferredTarget
-    )?.allValueArguments?.let {
+    annotations.findAnnotation(ComposeFqNames.ComposableInferredTarget)?.allValueArguments?.let {
         it[ComposeFqNames.ComposableInferredTargetSchemeArgument]?.value as? String
     }
 
 fun Annotated.compositionOpenTarget(): Int? =
-    annotations.findAnnotation(
-        ComposeFqNames.ComposableOpenTarget
-    )?.allValueArguments?.let {
+    annotations.findAnnotation(ComposeFqNames.ComposableOpenTarget)?.allValueArguments?.let {
         it[ComposeFqNames.ComposableOpenTargetIndexArgument]?.value as Int
     }
 
-internal val KotlinType.isSpecialType: Boolean get() =
-    this === TypeUtils.NO_EXPECTED_TYPE || this === TypeUtils.UNIT_EXPECTED_TYPE
+internal val KotlinType.isSpecialType: Boolean
+    get() = this === TypeUtils.NO_EXPECTED_TYPE || this === TypeUtils.UNIT_EXPECTED_TYPE
 
-val AnnotationDescriptor.isComposableAnnotation: Boolean get() = fqName == ComposeFqNames.Composable
+val AnnotationDescriptor.isComposableAnnotation: Boolean
+    get() = fqName == ComposeFqNames.Composable

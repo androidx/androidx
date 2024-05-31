@@ -37,13 +37,12 @@ import javax.swing.SwingUtilities
 val NoOpUpdate: Component.() -> Unit = {}
 
 /**
- * Composes an AWT/Swing component obtained from [factory]. The [factory]
- * block will be called to obtain the [Component] to be composed.
+ * Composes an AWT/Swing component obtained from [factory]. The [factory] block will be called to
+ * obtain the [Component] to be composed.
  *
- * The Swing component is placed on
- * top of the Compose layer (that means that Compose content can't overlap or clip it).
- * This can be changed in the future, when the better interop with Swing will be implemented. See related issues:
- * https://github.com/JetBrains/compose-jb/issues/1521
+ * The Swing component is placed on top of the Compose layer (that means that Compose content can't
+ * overlap or clip it). This can be changed in the future, when the better interop with Swing will
+ * be implemented. See related issues: https://github.com/JetBrains/compose-jb/issues/1521
  * https://github.com/JetBrains/compose-jb/issues/1202
  * https://github.com/JetBrains/compose-jb/issues/1449
  *
@@ -69,30 +68,30 @@ public fun <T : Component> SwingPanel(
 
     Layout(
         content = {},
-        modifier = modifier.onGloballyPositioned { childCoordinates ->
-            val coordinates = childCoordinates.parentCoordinates!!
-            val location = coordinates.localToWindow(Offset.Zero).round()
-            val size = coordinates.size
-            componentInfo.layout.setBounds(
-                (location.x / density).toInt(),
-                (location.y / density).toInt(),
-                (size.width / density).toInt(),
-                (size.height / density).toInt()
-            )
-            componentInfo.layout.validate()
-            componentInfo.layout.repaint()
-        },
-        measurePolicy = { _, _ ->
-            layout(0, 0) {}
-        }
+        modifier =
+            modifier.onGloballyPositioned { childCoordinates ->
+                val coordinates = childCoordinates.parentCoordinates!!
+                val location = coordinates.localToWindow(Offset.Zero).round()
+                val size = coordinates.size
+                componentInfo.layout.setBounds(
+                    (location.x / density).toInt(),
+                    (location.y / density).toInt(),
+                    (size.width / density).toInt(),
+                    (size.height / density).toInt()
+                )
+                componentInfo.layout.validate()
+                componentInfo.layout.repaint()
+            },
+        measurePolicy = { _, _ -> layout(0, 0) {} }
     )
 
     DisposableEffect(factory) {
         componentInfo.factory = factory()
-        componentInfo.layout = JPanel().apply {
-            setLayout(BorderLayout(0, 0))
-            add(componentInfo.factory)
-        }
+        componentInfo.layout =
+            JPanel().apply {
+                setLayout(BorderLayout(0, 0))
+                add(componentInfo.factory)
+            }
         componentInfo.updater = Updater(componentInfo.factory, update)
         container.add(componentInfo.layout)
         onDispose {
@@ -122,15 +121,10 @@ private class ComponentInfo<T : Component> {
     lateinit var updater: Updater<T>
 }
 
-private class Updater<T : Component>(
-    private val component: T,
-    update: (T) -> Unit
-) {
+private class Updater<T : Component>(private val component: T, update: (T) -> Unit) {
     private var isDisposed = false
     private val isUpdateScheduled = AtomicBoolean()
-    private val snapshotObserver = SnapshotStateObserver { command ->
-        command()
-    }
+    private val snapshotObserver = SnapshotStateObserver { command -> command() }
 
     private val scheduleUpdate = { _: T ->
         if (!isUpdateScheduled.getAndSet(true)) {
@@ -154,9 +148,7 @@ private class Updater<T : Component>(
     private fun performUpdate() {
         // don't replace scheduleUpdate by lambda reference,
         // scheduleUpdate should always be the same instance
-        snapshotObserver.observeReads(component, scheduleUpdate) {
-            update(component)
-        }
+        snapshotObserver.observeReads(component, scheduleUpdate) { update(component) }
     }
 
     init {

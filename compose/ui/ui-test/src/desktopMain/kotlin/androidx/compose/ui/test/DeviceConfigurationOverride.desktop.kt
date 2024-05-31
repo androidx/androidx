@@ -26,10 +26,7 @@ import androidx.compose.ui.unit.LayoutDirection
 actual fun DeviceConfigurationOverride.Companion.ForcedSize(
     size: DpSize
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
-    DensityForcedSize(
-        size = size,
-        content = contentUnderTest
-    )
+    DensityForcedSize(size = size, content = contentUnderTest)
 }
 
 actual fun DeviceConfigurationOverride.Companion.FontScale(

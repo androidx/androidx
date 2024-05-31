@@ -43,73 +43,40 @@ import kotlin.random.Random
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AnimateBoundsModifierDemo() {
-    var height by remember {
-        mutableIntStateOf(200)
-    }
-    var left by remember {
-        mutableIntStateOf(0)
-    }
-    var top by remember {
-        mutableIntStateOf(0)
-    }
-    var right by remember {
-        mutableIntStateOf(0)
-    }
-    var bottom by remember {
-        mutableIntStateOf(0)
-    }
-    var weight by remember {
-        mutableFloatStateOf(2f)
-    }
+    var height by remember { mutableIntStateOf(200) }
+    var left by remember { mutableIntStateOf(0) }
+    var top by remember { mutableIntStateOf(0) }
+    var right by remember { mutableIntStateOf(0) }
+    var bottom by remember { mutableIntStateOf(0) }
+    var weight by remember { mutableFloatStateOf(2f) }
 
     LookaheadScope {
         Column(
-            Modifier
-                .fillMaxSize()
-                .clickable {
-                    height = Random.nextInt(10, 300)
-                    weight = Random
-                        .nextDouble(0.5, 4.5)
-                        .toFloat()
+            Modifier.fillMaxSize().clickable {
+                height = Random.nextInt(10, 300)
+                weight = Random.nextDouble(0.5, 4.5).toFloat()
 
-                    left = Random.nextInt(0, 200)
-                    top = Random.nextInt(0, 100)
-                    right = Random.nextInt(0, 200)
-                    bottom = Random.nextInt(0, 100)
-                }
+                left = Random.nextInt(0, 200)
+                top = Random.nextInt(0, 100)
+                right = Random.nextInt(0, 200)
+                bottom = Random.nextInt(0, 100)
+            }
         ) {
-            Box(
-                Modifier
-                    .fillMaxHeight(0.5f)
-                    .fillMaxSize()
-            ) {
+            Box(Modifier.fillMaxHeight(0.5f).fillMaxSize()) {
                 Box(
-                    Modifier
-                        .background(Color.Gray)
-                        .animateBounds(
-                            Modifier.padding(left.dp, top.dp, right.dp, bottom.dp)
-                        )
+                    Modifier.background(Color.Gray)
+                        .animateBounds(Modifier.padding(left.dp, top.dp, right.dp, bottom.dp))
                         .background(Color.Red)
                         .fillMaxSize()
                 )
             }
             Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    Modifier
-                        .animateBounds(
-                            Modifier
-                                .weight(weight)
-                                .height(height.dp)
-                        )
+                    Modifier.animateBounds(Modifier.weight(weight).height(height.dp))
                         .background(Color(0xffa2d2ff), RoundedCornerShape(5.dp))
                 )
                 Box(
-                    Modifier
-                        .animateBounds(
-                            Modifier
-                                .weight(1f)
-                                .height(height.dp)
-                        )
+                    Modifier.animateBounds(Modifier.weight(1f).height(height.dp))
                         .background(Color(0xfffff3b0))
                 )
             }

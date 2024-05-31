@@ -74,8 +74,9 @@ object ComposableFunctionChecker : FirFunctionChecker() {
         }
 
         // Disallow composable setValue operators
-        if (declaration.isOperator &&
-            declaration.nameOrSpecialName == OperatorNameConventions.SET_VALUE
+        if (
+            declaration.isOperator &&
+                declaration.nameOrSpecialName == OperatorNameConventions.SET_VALUE
         ) {
             reporter.reportOn(declaration.source, ComposeErrors.COMPOSE_INVALID_DELEGATE, context)
         }

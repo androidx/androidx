@@ -32,16 +32,13 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusAggregationTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun nonFocusableItem() {
         // Arrange.
         lateinit var focusState: FocusState
-        rule.setFocusableContent {
-            Box(Modifier.onFocusChanged { focusState = it })
-        }
+        rule.setFocusableContent { Box(Modifier.onFocusChanged { focusState = it }) }
 
         // Assert.
         rule.runOnIdle {
@@ -58,8 +55,7 @@ class FocusAggregationTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusRequester(focusRequester)
+                Modifier.focusRequester(focusRequester)
                     .onFocusChanged { focusState = it }
                     .focusable()
             )
@@ -80,8 +76,7 @@ class FocusAggregationTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusRequester(focusRequester)
+                Modifier.focusRequester(focusRequester)
                     .onFocusChanged { focusState = it }
                     .focusable()
             )
@@ -102,11 +97,7 @@ class FocusAggregationTest {
     fun parentOfNonFocusableItem() {
         // Arrange.
         lateinit var focusState: FocusState
-        rule.setFocusableContent {
-            Box(Modifier.onFocusChanged { focusState = it }) {
-                Box {}
-            }
-        }
+        rule.setFocusableContent { Box(Modifier.onFocusChanged { focusState = it }) { Box {} } }
 
         // Assert.
         rule.runOnIdle {
@@ -121,9 +112,7 @@ class FocusAggregationTest {
         // Arrange.
         lateinit var focusState: FocusState
         rule.setFocusableContent {
-            Box(Modifier.onFocusChanged { focusState = it }) {
-                Box(Modifier.focusable())
-            }
+            Box(Modifier.onFocusChanged { focusState = it }) { Box(Modifier.focusable()) }
         }
 
         // Assert.

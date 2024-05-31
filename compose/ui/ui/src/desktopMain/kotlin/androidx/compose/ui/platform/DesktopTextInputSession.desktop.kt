@@ -31,21 +31,20 @@ internal class DesktopTextInputSession(
 
     private val innerSessionMutex = SessionMutex<Nothing?>()
 
-    override suspend fun startInputMethod(
-        request: PlatformTextInputMethodRequest
-    ): Nothing = innerSessionMutex.withSessionCancellingPrevious(
-        // This session has no data, just init/dispose tasks.
-        sessionInitializer = { null }
-    ) {
-        @Suppress("RemoveExplicitTypeArguments")
-        (suspendCancellableCoroutine<Nothing> { continuation ->
-            inputComponent.enableInput(request.inputMethodRequests)
-            component.addInputMethodListener(request.inputMethodListener)
+    override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing =
+        innerSessionMutex.withSessionCancellingPrevious(
+            // This session has no data, just init/dispose tasks.
+            sessionInitializer = { null }
+        ) {
+            @Suppress("RemoveExplicitTypeArguments")
+            (suspendCancellableCoroutine<Nothing> { continuation ->
+                inputComponent.enableInput(request.inputMethodRequests)
+                component.addInputMethodListener(request.inputMethodListener)
 
-            continuation.invokeOnCancellation {
-                component.removeInputMethodListener(request.inputMethodListener)
-                inputComponent.disableInput(request.inputMethodRequests)
-            }
-        })
-    }
+                continuation.invokeOnCancellation {
+                    component.removeInputMethodListener(request.inputMethodListener)
+                    inputComponent.disableInput(request.inputMethodRequests)
+                }
+            })
+        }
 }

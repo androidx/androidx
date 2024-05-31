@@ -33,8 +33,8 @@ private val rootFqName = FqName(root)
 private val internalRootFqName = FqName(internalRoot)
 
 object ComposeClassIds {
-    private fun classIdFor(cname: String) =
-        ClassId(rootFqName, Name.identifier(cname))
+    private fun classIdFor(cname: String) = ClassId(rootFqName, Name.identifier(cname))
+
     internal fun internalClassIdFor(cname: String) =
         ClassId(internalRootFqName, Name.identifier(cname))
 
@@ -57,31 +57,24 @@ object ComposeClassIds {
 }
 
 object ComposeCallableIds {
-    private fun topLevelCallableId(name: String) =
-        CallableId(rootFqName, Name.identifier(name))
+    private fun topLevelCallableId(name: String) = CallableId(rootFqName, Name.identifier(name))
+
     internal fun internalTopLevelCallableId(name: String) =
         CallableId(internalRootFqName, Name.identifier(name))
 
     val cache = topLevelCallableId("cache")
     val composableLambda = internalTopLevelCallableId("composableLambda")
-    val composableLambdaInstance =
-        internalTopLevelCallableId("composableLambdaInstance")
+    val composableLambdaInstance = internalTopLevelCallableId("composableLambdaInstance")
     val composableLambdaN = internalTopLevelCallableId("composableLambdaN")
-    val composableLambdaNInstance =
-        internalTopLevelCallableId("composableLambdaNInstance")
+    val composableLambdaNInstance = internalTopLevelCallableId("composableLambdaNInstance")
     val currentComposer = topLevelCallableId("currentComposer")
-    val isLiveLiteralsEnabled =
-        internalTopLevelCallableId("isLiveLiteralsEnabled")
-    val isTraceInProgress =
-        topLevelCallableId(ComposeNames.IS_TRACE_IN_PROGRESS)
+    val isLiveLiteralsEnabled = internalTopLevelCallableId("isLiveLiteralsEnabled")
+    val isTraceInProgress = topLevelCallableId(ComposeNames.IS_TRACE_IN_PROGRESS)
     val liveLiteral = internalTopLevelCallableId("liveLiteral")
     val remember = topLevelCallableId("remember")
-    val sourceInformation =
-        topLevelCallableId(ComposeNames.SOURCEINFORMATION)
-    val sourceInformationMarkerEnd =
-        topLevelCallableId(ComposeNames.SOURCEINFORMATIONMARKEREND)
-    val sourceInformationMarkerStart =
-        topLevelCallableId(ComposeNames.SOURCEINFORMATIONMARKERSTART)
+    val sourceInformation = topLevelCallableId(ComposeNames.SOURCEINFORMATION)
+    val sourceInformationMarkerEnd = topLevelCallableId(ComposeNames.SOURCEINFORMATIONMARKEREND)
+    val sourceInformationMarkerStart = topLevelCallableId(ComposeNames.SOURCEINFORMATIONMARKERSTART)
     val traceEventEnd = topLevelCallableId(ComposeNames.TRACE_EVENT_END)
     val traceEventStart = topLevelCallableId(ComposeNames.TRACE_EVENT_START)
     val updateChangedFlags = topLevelCallableId(ComposeNames.UPDATE_CHANGED_FLAGS)
@@ -93,7 +86,9 @@ object ComposeCallableIds {
 
 object ComposeFqNames {
     internal fun fqNameFor(cname: String) = FqName("$root.$cname")
+
     private fun internalFqNameFor(cname: String) = FqName("$internalRoot.$cname")
+
     private fun composablesFqNameFor(cname: String) = fqNameFor("ComposablesKt.$cname")
 
     val InternalPackage = internalRootFqName
@@ -117,8 +112,7 @@ object ComposeFqNames {
     val composableLambdaType = ComposeClassIds.ComposableLambda.asSingleFqName()
     val composableLambda = ComposeCallableIds.composableLambda.asSingleFqName()
     val rememberComposableLambda = ComposeCallableIds.rememberComposableLambda.asSingleFqName()
-    val composableLambdaFullName =
-        internalFqNameFor("ComposableLambdaKt.composableLambda")
+    val composableLambdaFullName = internalFqNameFor("ComposableLambdaKt.composableLambda")
     val remember = ComposeCallableIds.remember.asSingleFqName()
     val cache = ComposeCallableIds.cache.asSingleFqName()
     val key = fqNameFor("key")
@@ -129,8 +123,7 @@ object ComposeFqNames {
     val StabilityInferred = ComposeClassIds.StabilityInferred.asSingleFqName()
 }
 
-fun IrType.hasComposableAnnotation(): Boolean =
-    hasAnnotation(ComposeFqNames.Composable)
+fun IrType.hasComposableAnnotation(): Boolean = hasAnnotation(ComposeFqNames.Composable)
 
 fun IrAnnotationContainer.hasComposableAnnotation(): Boolean =
     hasAnnotation(ComposeFqNames.Composable)

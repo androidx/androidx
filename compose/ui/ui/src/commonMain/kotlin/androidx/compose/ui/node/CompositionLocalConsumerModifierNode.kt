@@ -43,18 +43,18 @@ interface CompositionLocalConsumerModifierNode : DelegatableNode
  * Compose. Modifiers are not able to recompose in the same way that a Composable can, and therefore
  * can't receive updates arbitrarily for a CompositionLocal.
  *
- * Because CompositionLocals may change arbitrarily, it is strongly recommended to ensure that
- * the composition local is observed instead of being read once. If you call [currentValueOf]
- * inside of a modifier callback like [LayoutModifierNode.measure] or [DrawModifierNode.draw],
- * then Compose will track the CompositionLocal read. This happens automatically, because these
- * Compose UI phases take place in a snapshot observer that tracks which states are read. If the
- * value of the CompositionLocal changes, and it was read inside of the measure or draw phase,
- * then that phase will automatically be invalidated.
+ * Because CompositionLocals may change arbitrarily, it is strongly recommended to ensure that the
+ * composition local is observed instead of being read once. If you call [currentValueOf] inside of
+ * a modifier callback like [LayoutModifierNode.measure] or [DrawModifierNode.draw], then Compose
+ * will track the CompositionLocal read. This happens automatically, because these Compose UI phases
+ * take place in a snapshot observer that tracks which states are read. If the value of the
+ * CompositionLocal changes, and it was read inside of the measure or draw phase, then that phase
+ * will automatically be invalidated.
  *
- * For all other reads of a CompositionLocal, this function will **not** notify you when the
- * value of the local changes. [Modifier.Node] classes that also implement [ObserverModifierNode]
- * may observe CompositionLocals arbitrarily by performing the lookup in an [observeReads] block.
- * To continue observing values of the CompositionLocal, it must be read again in an [observeReads]
+ * For all other reads of a CompositionLocal, this function will **not** notify you when the value
+ * of the local changes. [Modifier.Node] classes that also implement [ObserverModifierNode] may
+ * observe CompositionLocals arbitrarily by performing the lookup in an [observeReads] block. To
+ * continue observing values of the CompositionLocal, it must be read again in an [observeReads]
  * block during or after the [ObserverModifierNode.onObservedReadsChanged] callback is invoked. See
  * below for an example of how to implement this observation pattern.
  *
@@ -65,9 +65,9 @@ interface CompositionLocalConsumerModifierNode : DelegatableNode
  * [detached][Modifier.Node.onDetach].
  *
  * @param local The CompositionLocal to get the current value of
- * @return The value provided by the nearest [CompositionLocalProvider] component that
- * invokes, directly or indirectly, the composable function that this modifier is attached to.
- * If [local] was never provided, its default value will be returned instead.
+ * @return The value provided by the nearest [CompositionLocalProvider] component that invokes,
+ *   directly or indirectly, the composable function that this modifier is attached to. If [local]
+ *   was never provided, its default value will be returned instead.
  */
 fun <T> CompositionLocalConsumerModifierNode.currentValueOf(local: CompositionLocal<T>): T {
     checkPrecondition(node.isAttached) {

@@ -37,10 +37,7 @@ fun SimpleFab() {
 
 @Composable
 fun SimpleExtendedFabNoIcon() {
-    ExtendedFloatingActionButton(
-        text = { Text("EXTENDED") },
-        onClick = {}
-    )
+    ExtendedFloatingActionButton(text = { Text("EXTENDED") }, onClick = {})
 }
 
 @Sampled

@@ -27,8 +27,5 @@ import androidx.compose.ui.unit.dp
 @Sampled
 @Composable
 fun RotateSample() {
-    Box(
-        Modifier.rotate(45f)
-            .size(100.dp, 100.dp)
-    )
+    Box(Modifier.rotate(45f).size(100.dp, 100.dp))
 }

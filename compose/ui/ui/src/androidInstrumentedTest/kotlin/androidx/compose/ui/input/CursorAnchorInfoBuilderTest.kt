@@ -280,10 +280,13 @@ class CursorAnchorInfoBuilderTest {
     fun testInsertionMarkerWithVisualTransformation() {
         val fontSize = 10.sp
         val textFieldValue = TextFieldValue("abcde", selection = TextRange(2))
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int) = if (offset < 2) offset else offset + 3
-            override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
-        }
+        val offsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int) =
+                    if (offset < 2) offset else offset + 3
+
+                override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
+            }
         val textLayoutResult = getTextLayoutResult("ab---cde", fontSize = fontSize)
 
         val cursorAnchorInfo =
@@ -445,10 +448,12 @@ class CursorAnchorInfoBuilderTest {
         val text = "abcd"
         // Composition is on "bc"
         val composition = TextRange(2, 4)
-        val offsetMapping = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int) = 2 * offset
-            override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
-        }
+        val offsetMapping =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int) = 2 * offset
+
+                override fun transformedToOriginal(offset: Int) = throw NotImplementedError()
+            }
         val transformedText = "a-b-c-d-"
         val textFieldValue = TextFieldValue(text, composition = composition)
         val width = transformedText.length * fontSizeInPx

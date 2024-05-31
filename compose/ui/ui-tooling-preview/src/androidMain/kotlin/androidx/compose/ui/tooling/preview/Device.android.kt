@@ -18,9 +18,7 @@ package androidx.compose.ui.tooling.preview
 
 import androidx.annotation.StringDef
 
-/**
- * List with the pre-defined devices available to be used in the preview.
- */
+/** List with the pre-defined devices available to be used in the preview. */
 object Devices {
     const val DEFAULT = ""
 
@@ -56,17 +54,25 @@ object Devices {
 
     const val AUTOMOTIVE_1024p = "id:automotive_1024p_landscape"
 
-    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND] from the " +
-        "wear:wear-tooling-preview library instead")
+    @Deprecated(
+        "Use [androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND] from the " +
+            "wear:wear-tooling-preview library instead"
+    )
     const val WEAR_OS_LARGE_ROUND = "id:wearos_large_round"
-    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND] from the " +
-        "wear:wear-tooling-preview library instead")
+    @Deprecated(
+        "Use [androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND] from the " +
+            "wear:wear-tooling-preview library instead"
+    )
     const val WEAR_OS_SMALL_ROUND = "id:wearos_small_round"
-    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.SQUARE] from the " +
-        "wear:wear-tooling-preview library instead")
+    @Deprecated(
+        "Use [androidx.wear.tooling.preview.devices.WearDevices.SQUARE] from the " +
+            "wear:wear-tooling-preview library instead"
+    )
     const val WEAR_OS_SQUARE = "id:wearos_square"
-    @Deprecated("Use [androidx.wear.tooling.preview.devices.WearDevices.RECT] from the " +
-        "wear:wear-tooling-preview library instead")
+    @Deprecated(
+        "Use [androidx.wear.tooling.preview.devices.WearDevices.RECT] from the " +
+            "wear:wear-tooling-preview library instead"
+    )
     const val WEAR_OS_RECT = "id:wearos_rect"
 
     // Reference devices
@@ -82,60 +88,54 @@ object Devices {
     const val TV_1080p = "spec:shape=Normal,width=1920,height=1080,unit=dp,dpi=420"
 }
 
-/**
- * Annotation for defining the [Preview] device to use.
- */
+/** Annotation for defining the [Preview] device to use. */
 @Retention(AnnotationRetention.SOURCE)
 @Suppress("DEPRECATION")
 @StringDef(
     open = true,
-    value = [
-        Devices.DEFAULT,
-
-        Devices.NEXUS_7,
-        Devices.NEXUS_7_2013,
-        Devices.NEXUS_5,
-        Devices.NEXUS_6,
-        Devices.NEXUS_9,
-        Devices.NEXUS_10,
-        Devices.NEXUS_5X,
-        Devices.NEXUS_6P,
-        Devices.PIXEL_C,
-        Devices.PIXEL,
-        Devices.PIXEL_XL,
-        Devices.PIXEL_2,
-        Devices.PIXEL_2_XL,
-        Devices.PIXEL_3,
-        Devices.PIXEL_3_XL,
-        Devices.PIXEL_3A,
-        Devices.PIXEL_3A_XL,
-        Devices.PIXEL_4,
-        Devices.PIXEL_4_XL,
-        Devices.PIXEL_4A,
-        Devices.PIXEL_5,
-        Devices.PIXEL_6,
-        Devices.PIXEL_6_PRO,
-        Devices.PIXEL_6A,
-        Devices.PIXEL_7,
-        Devices.PIXEL_7_PRO,
-        Devices.PIXEL_7A,
-        Devices.PIXEL_FOLD,
-        Devices.PIXEL_TABLET,
-
-        Devices.AUTOMOTIVE_1024p,
-
-        Devices.WEAR_OS_LARGE_ROUND,
-        Devices.WEAR_OS_SMALL_ROUND,
-        Devices.WEAR_OS_SQUARE,
-        Devices.WEAR_OS_RECT,
-
-        Devices.PHONE,
-        Devices.FOLDABLE,
-        Devices.TABLET,
-        Devices.DESKTOP,
-
-        Devices.TV_720p,
-        Devices.TV_1080p,
-    ]
+    value =
+        [
+            Devices.DEFAULT,
+            Devices.NEXUS_7,
+            Devices.NEXUS_7_2013,
+            Devices.NEXUS_5,
+            Devices.NEXUS_6,
+            Devices.NEXUS_9,
+            Devices.NEXUS_10,
+            Devices.NEXUS_5X,
+            Devices.NEXUS_6P,
+            Devices.PIXEL_C,
+            Devices.PIXEL,
+            Devices.PIXEL_XL,
+            Devices.PIXEL_2,
+            Devices.PIXEL_2_XL,
+            Devices.PIXEL_3,
+            Devices.PIXEL_3_XL,
+            Devices.PIXEL_3A,
+            Devices.PIXEL_3A_XL,
+            Devices.PIXEL_4,
+            Devices.PIXEL_4_XL,
+            Devices.PIXEL_4A,
+            Devices.PIXEL_5,
+            Devices.PIXEL_6,
+            Devices.PIXEL_6_PRO,
+            Devices.PIXEL_6A,
+            Devices.PIXEL_7,
+            Devices.PIXEL_7_PRO,
+            Devices.PIXEL_7A,
+            Devices.PIXEL_FOLD,
+            Devices.PIXEL_TABLET,
+            Devices.AUTOMOTIVE_1024p,
+            Devices.WEAR_OS_LARGE_ROUND,
+            Devices.WEAR_OS_SMALL_ROUND,
+            Devices.WEAR_OS_SQUARE,
+            Devices.WEAR_OS_RECT,
+            Devices.PHONE,
+            Devices.FOLDABLE,
+            Devices.TABLET,
+            Devices.DESKTOP,
+            Devices.TV_720p,
+            Devices.TV_1080p,
+        ]
 )
 internal annotation class Device

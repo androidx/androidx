@@ -30,94 +30,92 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.plugins.RxJavaPlugins
 
 /**
- * Subscribes to this [Observable] and represents its values via [State]. Every time there would
- * be new value posted into the [Observable] the returned [State] will be updated causing
- * recomposition of every [State.value] usage.
+ * Subscribes to this [Observable] and represents its values via [State]. Every time there would be
+ * new value posted into the [Observable] the returned [State] will be updated causing recomposition
+ * of every [State.value] usage.
  *
  * The internal observer will be automatically disposed when this composable disposes.
  *
- * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
- * used. To handle the error in a more meaningful way you can use operators like
- * [Observable.onErrorReturn] or [Observable.onErrorResumeNext].
+ * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be used. To
+ * handle the error in a more meaningful way you can use operators like [Observable.onErrorReturn]
+ * or [Observable.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.ObservableSample
  *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
- * with the real one once we receive it from the stream
+ *   with the real one once we receive it from the stream
  */
 @Composable
 fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
- * Subscribes to this [Flowable] and represents its values via [State]. Every time there would
- * be new value posted into the [Flowable] the returned [State] will be updated causing
- * recomposition of every [State.value] usage.
+ * Subscribes to this [Flowable] and represents its values via [State]. Every time there would be
+ * new value posted into the [Flowable] the returned [State] will be updated causing recomposition
+ * of every [State.value] usage.
  *
  * The internal observer will be automatically disposed when this composable disposes.
  *
- * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
- * used. To handle the error in a more meaningful way you can use operators like
- * [Flowable.onErrorReturn] or [Flowable.onErrorResumeNext].
+ * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be used. To
+ * handle the error in a more meaningful way you can use operators like [Flowable.onErrorReturn] or
+ * [Flowable.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.FlowableSample
  *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
- * with the real one once we receive it from the stream
+ *   with the real one once we receive it from the stream
  */
 @Composable
 fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
     asState(initial) { subscribe(it) }
 
 /**
- * Subscribes to this [Single] and represents its value via [State]. Once the value would be
- * posted into the [Single] the returned [State] will be updated causing recomposition of
- * every [State.value] usage.
+ * Subscribes to this [Single] and represents its value via [State]. Once the value would be posted
+ * into the [Single] the returned [State] will be updated causing recomposition of every
+ * [State.value] usage.
  *
  * The internal observer will be automatically disposed when this composable disposes.
  *
- * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
- * used. To handle the error in a more meaningful way you can use operators like
- * [Single.onErrorReturn] or [Single.onErrorResumeNext].
+ * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be used. To
+ * handle the error in a more meaningful way you can use operators like [Single.onErrorReturn] or
+ * [Single.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.SingleSample
  *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
- * with the real one once we receive it from the stream
+ *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> =
-    asState(initial) { subscribe(it) }
+fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> = asState(initial) { subscribe(it) }
 
 /**
- * Subscribes to this [Maybe] and represents its value via [State]. Once the value would be
- * posted into the [Maybe] the returned [State] will be updated causing recomposition of
- * every [State.value] usage.
+ * Subscribes to this [Maybe] and represents its value via [State]. Once the value would be posted
+ * into the [Maybe] the returned [State] will be updated causing recomposition of every
+ * [State.value] usage.
  *
  * The internal observer will be automatically disposed when this composable disposes.
  *
- * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
- * used. To handle the error in a more meaningful way you can use operators like
- * [Maybe.onErrorComplete], [Maybe.onErrorReturn] or [Maybe.onErrorResumeNext].
+ * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be used. To
+ * handle the error in a more meaningful way you can use operators like [Maybe.onErrorComplete],
+ * [Maybe.onErrorReturn] or [Maybe.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.MaybeSample
  *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
- * with the real one once we receive it from the stream
+ *   with the real one once we receive it from the stream
  */
 @Composable
-fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> =
-    asState(initial) { subscribe(it) }
+fun <R, T : R> Maybe<T>.subscribeAsState(initial: R): State<R> = asState(initial) { subscribe(it) }
 
 /**
  * Subscribes to this [Completable] and represents its completed state via [State]. Once the
- * [Completable] will be completed the returned [State] will be updated with `true` value
- * causing recomposition of every [State.value] usage.
+ * [Completable] will be completed the returned [State] will be updated with `true` value causing
+ * recomposition of every [State.value] usage.
  *
  * The internal observer will be automatically disposed when this composable disposes.
  *
- * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be
- * used. To handle the error in a more meaningful way you can use operators like
+ * Note that errors are not handled and the default [RxJavaPlugins.onError] logic will be used. To
+ * handle the error in a more meaningful way you can use operators like
  * [Completable.onErrorComplete] or [Completable.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.CompletableSample
@@ -133,9 +131,7 @@ private inline fun <T, S> S.asState(
 ): State<T> {
     val state = remember { mutableStateOf(initial) }
     DisposableEffect(this) {
-        val disposable = subscribe {
-            state.value = it
-        }
+        val disposable = subscribe { state.value = it }
         onDispose { disposable.dispose() }
     }
     return state

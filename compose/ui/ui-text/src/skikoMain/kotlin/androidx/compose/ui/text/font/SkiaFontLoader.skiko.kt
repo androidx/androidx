@@ -25,9 +25,7 @@ import androidx.compose.ui.text.platform.FontLoadResult
 import androidx.compose.ui.text.platform.PlatformFont
 import org.jetbrains.skia.paragraph.FontCollection
 
-internal class SkiaFontLoader(
-    private val fontCache: FontCache = FontCache()
-) : PlatformFontLoader {
+internal class SkiaFontLoader(private val fontCache: FontCache = FontCache()) : PlatformFontLoader {
 
     val fontCollection: FontCollection
         get() = fontCache.fonts
@@ -45,9 +43,7 @@ internal class SkiaFontLoader(
             Blocking -> fontCache.load(font)
             OptionalLocal -> kotlin.runCatching { fontCache.load(font) }.getOrNull()
             Async -> throw UnsupportedOperationException("Unsupported Async font load path")
-            else -> throw IllegalArgumentException(
-                "Unknown loading type ${font.loadingStrategy}"
-            )
+            else -> throw IllegalArgumentException("Unknown loading type ${font.loadingStrategy}")
         }
     }
 

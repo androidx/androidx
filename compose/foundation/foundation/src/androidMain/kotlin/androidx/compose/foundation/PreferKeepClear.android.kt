@@ -43,11 +43,10 @@ fun Modifier.preferKeepClear() =
 
 /**
  * Mark a rectangle within the local layout coordinates preferring to stay clear of floating
- * windows.
- * After layout, [rectProvider] is called to determine the [Rect] to mark as keep clear.
+ * windows. After layout, [rectProvider] is called to determine the [Rect] to mark as keep clear.
  *
- * The [LayoutCoordinates] of the [Modifier]'s location in the layout is passed as
- * [rectProvider]'s parameter.
+ * The [LayoutCoordinates] of the [Modifier]'s location in the layout is passed as [rectProvider]'s
+ * parameter.
  *
  * This Modifier only has an effect on SDK 33 and above.
  *
@@ -62,14 +61,12 @@ fun Modifier.preferKeepClear(rectProvider: (LayoutCoordinates) -> Rect) =
 
 @Suppress("NOTHING_TO_INLINE", "ComposableModifierFactory", "ModifierFactoryExtensionFunction")
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private inline fun preferKeepClearT(
-    noinline rect: ((LayoutCoordinates) -> Rect)?
-): Modifier = PreferKeepClearElement(rect)
+private inline fun preferKeepClearT(noinline rect: ((LayoutCoordinates) -> Rect)?): Modifier =
+    PreferKeepClearElement(rect)
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private class PreferKeepClearElement(
-    val clearRect: ((LayoutCoordinates) -> Rect)?
-) : ModifierNodeElement<PreferKeepClearNode>() {
+private class PreferKeepClearElement(val clearRect: ((LayoutCoordinates) -> Rect)?) :
+    ModifierNodeElement<PreferKeepClearNode>() {
     override fun create(): PreferKeepClearNode {
         return PreferKeepClearNode(clearRect)
     }
@@ -96,9 +93,7 @@ private class PreferKeepClearElement(
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private class PreferKeepClearNode(
-    rect: ((LayoutCoordinates) -> Rect)?
-) : RectListNode(rect) {
+private class PreferKeepClearNode(rect: ((LayoutCoordinates) -> Rect)?) : RectListNode(rect) {
     override fun currentRects(): MutableVector<android.graphics.Rect> {
         val rects = mutableVectorOf<android.graphics.Rect>()
         rects.addAll(view.preferKeepClearRects)

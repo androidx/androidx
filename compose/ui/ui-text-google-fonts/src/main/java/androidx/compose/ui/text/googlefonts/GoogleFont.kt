@@ -85,9 +85,8 @@ fun Font(
  *
  * @param name Name of a font on Google fonts, such as "Roboto" or "Open Sans"
  * @param bestEffort If besteffort is true and your query specifies a valid family name but the
- * requested width/weight/italic value is not supported Google Fonts will return the best match it
- * can find within the family. If false, exact matches will be returned only.
- *
+ *   requested width/weight/italic value is not supported Google Fonts will return the best match it
+ *   can find within the family. If false, exact matches will be returned only.
  * @throws IllegalArgumentException if name is empty
  */
 // contains Google in name because this function provides integration with fonts.google.com
@@ -104,7 +103,8 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
      */
     // contains Google in name because this function provides integration with fonts.google.com
     @Suppress("MentionsGoogle")
-    class Provider private constructor(
+    class Provider
+    private constructor(
         internal val providerAuthority: String,
         internal val providerPackage: String,
         internal val certificates: List<List<ByteArray>>?,
@@ -124,11 +124,11 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
          *
          * @param providerAuthority The authority of the Font Provider to be used for the request.
          * @param providerPackage The package for the Font Provider to be used for the request. This
-         * is used to verify the identity of the provider.
+         *   is used to verify the identity of the provider.
          * @param certificates The list of sets of hashes for the certificates the provider should
-         * be signed with. This is used to verify the identity of the provider. Each set in the
-         * list represents one collection of signature hashes. Refer to your font provider's
-         * documentation for these values.
+         *   be signed with. This is used to verify the identity of the provider. Each set in the
+         *   list represents one collection of signature hashes. Refer to your font provider's
+         *   documentation for these values.
          */
         constructor(
             providerAuthority: String,
@@ -149,11 +149,11 @@ class GoogleFont(val name: String, val bestEffort: Boolean = true) {
          *
          * @param providerAuthority The authority of the Font Provider to be used for the request.
          * @param providerPackage The package for the Font Provider to be used for the request. This
-         * is used to verify the identity of the provider.
+         *   is used to verify the identity of the provider.
          * @param certificates A resource array with the list of sets of hashes for the certificates
-         * the provider should be signed with. This is used to verify the identity of the provider.
-         * Each set in the list represents one collection of signature hashes. Refer to your
-         * font provider's documentation for these values.
+         *   the provider should be signed with. This is used to verify the identity of the
+         *   provider. Each set in the list represents one collection of signature hashes. Refer to
+         *   your font provider's documentation for these values.
          */
         constructor(
             providerAuthority: String,
@@ -198,7 +198,8 @@ fun GoogleFont.Provider.isAvailableOnDevice(
     @Suppress("ContextFirst") context: Context, // extension function
 ): Boolean = checkAvailable(context.packageManager, context.resources)
 
-internal data class GoogleFontImpl constructor(
+internal data class GoogleFontImpl
+constructor(
     val name: String,
     private val fontProvider: GoogleFont.Provider,
     override val weight: FontWeight,
@@ -207,17 +208,13 @@ internal data class GoogleFontImpl constructor(
 ) : AndroidFont(FontLoadingStrategy.Async, GoogleFontTypefaceLoader, FontVariation.Settings()) {
     fun toFontRequest(): FontRequest {
         // note: name is not encoded or quoted per spec
-        val query = "name=$name&weight=${weight.weight}" +
-            "&italic=${style.toQueryParam()}&besteffort=${bestEffortQueryParam()}"
+        val query =
+            "name=$name&weight=${weight.weight}" +
+                "&italic=${style.toQueryParam()}&besteffort=${bestEffortQueryParam()}"
 
         val certs = fontProvider.certificates
         return if (certs != null) {
-            FontRequest(
-                fontProvider.providerAuthority,
-                fontProvider.providerPackage,
-                query,
-                certs
-            )
+            FontRequest(fontProvider.providerAuthority, fontProvider.providerPackage, query, certs)
         } else {
             FontRequest(
                 fontProvider.providerAuthority,
@@ -231,7 +228,9 @@ internal data class GoogleFontImpl constructor(
     private fun bestEffortQueryParam() = if (bestEffort) "true" else "false"
 
     private fun FontStyle.toQueryParam(): Int = if (this == FontStyle.Italic) 1 else 0
+
     private fun String.encode() = URLEncoder.encode(this, "UTF-8")
+
     fun toTypefaceStyle(): Int {
         val isItalic = style == FontStyle.Italic
         val isBold = weight >= FontWeight.Bold
@@ -275,6 +274,7 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
     override fun loadBlocking(context: Context, font: AndroidFont): Typeface? {
         error("GoogleFont only support async loading: $font")
     }
+
     override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
         return awaitLoad(context, font, DefaultFontsContractCompatLoader)
     }
@@ -289,20 +289,23 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
         val typefaceStyle = font.toTypefaceStyle()
 
         return suspendCancellableCoroutine { continuation ->
-            val callback = object : FontRequestCallback() {
-                override fun onTypefaceRetrieved(typeface: Typeface?) {
-                    // this is entered from any thread
-                    continuation.resume(typeface)
-                }
+            val callback =
+                object : FontRequestCallback() {
+                    override fun onTypefaceRetrieved(typeface: Typeface?) {
+                        // this is entered from any thread
+                        continuation.resume(typeface)
+                    }
 
-                override fun onTypefaceRequestFailed(reason: Int) {
-                    // this is entered from any thread
-                    continuation.cancel(
-                        IllegalStateException("Failed to load $font (reason=$reason, " +
-                            "${reasonToString(reason)})")
-                    )
+                    override fun onTypefaceRequestFailed(reason: Int) {
+                        // this is entered from any thread
+                        continuation.cancel(
+                            IllegalStateException(
+                                "Failed to load $font (reason=$reason, " +
+                                    "${reasonToString(reason)})"
+                            )
+                        )
+                    }
                 }
-            }
 
             loader.requestFont(
                 context = context,
@@ -320,9 +323,7 @@ internal object GoogleFontTypefaceLoader : AndroidFont.TypefaceLoader {
     }
 }
 
-/**
- * To allow mocking for tests
- */
+/** To allow mocking for tests */
 internal interface FontsContractCompatLoader {
     fun requestFont(
         context: Context,
@@ -333,9 +334,7 @@ internal interface FontsContractCompatLoader {
     )
 }
 
-/**
- * Actual implementation of requestFont using androidx.core
- */
+/** Actual implementation of requestFont using androidx.core */
 private object DefaultFontsContractCompatLoader : FontsContractCompatLoader {
     override fun requestFont(
         context: Context,
@@ -359,17 +358,19 @@ private object DefaultFontsContractCompatLoader : FontsContractCompatLoader {
 private fun reasonToString(@FontRequestFailReason reasonCode: Int): String {
     return when (reasonCode) {
         FAIL_REASON_PROVIDER_NOT_FOUND -> "The requested provider was not found on this device."
-        FAIL_REASON_WRONG_CERTIFICATES -> "The given provider cannot be authenticated with the " +
-            "certificates given."
-        FAIL_REASON_FONT_LOAD_ERROR -> "Generic error loading font, for example variation " +
-            "settings were not parsable"
-        FAIL_REASON_FONT_NOT_FOUND -> "Font not found, please check availability on " +
-            "GoogleFont.Provider.AllFontsList: https://fonts.gstatic.com/s/a/directory.xml"
-        FAIL_REASON_FONT_UNAVAILABLE -> "The provider found the queried font, but it is " +
-            "currently unavailable."
+        FAIL_REASON_WRONG_CERTIFICATES ->
+            "The given provider cannot be authenticated with the " + "certificates given."
+        FAIL_REASON_FONT_LOAD_ERROR ->
+            "Generic error loading font, for example variation " + "settings were not parsable"
+        FAIL_REASON_FONT_NOT_FOUND ->
+            "Font not found, please check availability on " +
+                "GoogleFont.Provider.AllFontsList: https://fonts.gstatic.com/s/a/directory.xml"
+        FAIL_REASON_FONT_UNAVAILABLE ->
+            "The provider found the queried font, but it is " + "currently unavailable."
         FAIL_REASON_MALFORMED_QUERY -> "The given query was not supported by this provider."
-        FAIL_REASON_SECURITY_VIOLATION -> "Font was not loaded due to security issues. This " +
-            "usually means the font was attempted to load in a restricted context"
+        FAIL_REASON_SECURITY_VIOLATION ->
+            "Font was not loaded due to security issues. This " +
+                "usually means the font was attempted to load in a restricted context"
         else -> "Unknown error code"
     }
 }

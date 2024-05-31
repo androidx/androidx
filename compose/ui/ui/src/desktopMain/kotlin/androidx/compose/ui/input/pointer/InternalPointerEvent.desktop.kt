@@ -21,7 +21,8 @@ import androidx.compose.ui.node.InternalCoreApi
 import java.awt.event.MouseEvent
 
 @OptIn(InternalCoreApi::class)
-internal actual class InternalPointerEvent constructor(
+internal actual class InternalPointerEvent
+constructor(
     val type: PointerEventType,
     actual val changes: LongSparseArray<PointerInputChange>,
     val buttons: PointerButtons,

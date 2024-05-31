@@ -51,18 +51,19 @@ import kotlin.math.roundToInt
  *
  * Badges can be icon only or contain short text.
  *
- * ![Badge image](https://developer.android.com/images/reference/androidx/compose/material3/badge.png)
+ * ![Badge
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/badge.png)
  *
- * A common use case is to display a badge with navigation bar items.
- * For more information, see [Navigation Bar](https://m3.material.io/components/navigation-bar/overview)
+ * A common use case is to display a badge with navigation bar items. For more information, see
+ * [Navigation Bar](https://m3.material.io/components/navigation-bar/overview)
  *
  * A simple icon with badge example looks like:
+ *
  * @sample androidx.compose.material3.samples.NavigationBarItemWithBadge
  *
  * @param badge the badge to be displayed - typically a [Badge]
  * @param modifier the [Modifier] to be applied to this BadgedBox
  * @param content the anchor to which this badge will be positioned
- *
  */
 @Composable
 fun BadgedBox(
@@ -84,13 +85,10 @@ fun BadgedBox(
                 contentAlignment = Alignment.Center,
                 content = content
             )
-            Box(
-                modifier = Modifier.layoutId("badge"),
-                content = badge
-            )
+            Box(modifier = Modifier.layoutId("badge"), content = badge)
         },
-        modifier = modifier
-            .onGloballyPositioned { coordinates ->
+        modifier =
+            modifier.onGloballyPositioned { coordinates ->
                 val windowBoundsRect = coordinates.boundsInWindow()
                 layoutAbsoluteLeft = windowBoundsRect.left
                 layoutAbsoluteTop = windowBoundsRect.top
@@ -103,12 +101,15 @@ fun BadgedBox(
                 }
             }
     ) { measurables, constraints ->
-
-        val badgePlaceable = measurables.fastFirst { it.layoutId == "badge" }.measure(
-            // Measure with loose constraints for height as we don't want the text to take up more
-            // space than it needs.
-            constraints.copy(minHeight = 0)
-        )
+        val badgePlaceable =
+            measurables
+                .fastFirst { it.layoutId == "badge" }
+                .measure(
+                    // Measure with loose constraints for height as we don't want the text to take
+                    // up more
+                    // space than it needs.
+                    constraints.copy(minHeight = 0)
+                )
 
         val anchorPlaceable = measurables.fastFirst { it.layoutId == "anchor" }.measure(constraints)
 
@@ -122,10 +123,7 @@ fun BadgedBox(
             totalHeight,
             // Provide custom baselines based only on the anchor content to avoid default baseline
             // calculations from including by any badge content.
-            mapOf(
-                FirstBaseline to firstBaseline,
-                LastBaseline to lastBaseline
-            )
+            mapOf(FirstBaseline to firstBaseline, LastBaseline to lastBaseline)
         ) {
             // Use the width of the badge to infer whether it has any content (based on radius used
             // in [Badge]) and determine its horizontal offset.
@@ -145,8 +143,7 @@ fun BadgedBox(
             val badgeAbsoluteRight = layoutAbsoluteLeft + badgeX + badgePlaceable.width.toFloat()
             val badgeGreatGrandParentHorizontalDiff =
                 greatGrandParentAbsoluteRight - badgeAbsoluteRight
-            val badgeGreatGrandParentVerticalDiff =
-                badgeAbsoluteTop - greatGrandParentAbsoluteTop
+            val badgeGreatGrandParentVerticalDiff = badgeAbsoluteTop - greatGrandParentAbsoluteTop
             // Adjust badgeX and badgeY if the desired placement would cause it to clip.
             if (badgeGreatGrandParentHorizontalDiff < 0) {
                 badgeX += badgeGreatGrandParentHorizontalDiff.roundToInt()
@@ -165,7 +162,8 @@ fun BadgedBox(
  *
  * Badges can be icon only or contain short text.
  *
- * ![Badge image](https://developer.android.com/images/reference/androidx/compose/material3/badge.png)
+ * ![Badge
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/badge.png)
  *
  * See [BadgedBox] for a top level layout that will properly place the badge relative to content
  * such as text or an icon.
@@ -173,8 +171,8 @@ fun BadgedBox(
  * @param modifier the [Modifier] to be applied to this badge
  * @param containerColor the color used for the background of this badge
  * @param contentColor the preferred color for content inside this badge. Defaults to either the
- * matching content color for [containerColor], or to the current [LocalContentColor] if
- * [containerColor] is not a color from the theme.
+ *   matching content color for [containerColor], or to the current [LocalContentColor] if
+ *   [containerColor] is not a color from the theme.
  * @param content optional content to be rendered inside this badge
  */
 @Composable
@@ -185,24 +183,24 @@ fun Badge(
     content: @Composable (RowScope.() -> Unit)? = null,
 ) {
     val size = if (content != null) BadgeTokens.LargeSize else BadgeTokens.Size
-    val shape = if (content != null) {
-        BadgeTokens.LargeShape.value
-    } else {
-        BadgeTokens.Shape.value
-    }
+    val shape =
+        if (content != null) {
+            BadgeTokens.LargeShape.value
+        } else {
+            BadgeTokens.Shape.value
+        }
 
     // Draw badge container.
     Row(
-        modifier = modifier
-            .defaultMinSize(minWidth = size, minHeight = size)
-            .background(
-                color = containerColor,
-                shape = shape
-            )
-            .then(
-                if (content != null)
-                    Modifier.padding(horizontal = BadgeWithContentHorizontalPadding) else Modifier
-            ),
+        modifier =
+            modifier
+                .defaultMinSize(minWidth = size, minHeight = size)
+                .background(color = containerColor, shape = shape)
+                .then(
+                    if (content != null)
+                        Modifier.padding(horizontal = BadgeWithContentHorizontalPadding)
+                    else Modifier
+                ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -221,7 +219,8 @@ fun Badge(
 /** Default values used for [Badge] implementations. */
 object BadgeDefaults {
     /** Default container color for a badge. */
-    val containerColor: Color @Composable get() = BadgeTokens.Color.value
+    val containerColor: Color
+        @Composable get() = BadgeTokens.Color.value
 }
 
 /*@VisibleForTesting*/

@@ -43,21 +43,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CreateVectorPainterBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun recreateContent() {
-        benchmarkRule.toggleStateBenchmarkDraw({
-            RecreateVectorPainterTestCase()
-        }, assertOneRecomposition = false)
+        benchmarkRule.toggleStateBenchmarkDraw(
+            { RecreateVectorPainterTestCase() },
+            assertOneRecomposition = false
+        )
     }
 
     @Test
     fun renderVectorWithDifferentSizes() {
-        benchmarkRule.toggleStateBenchmarkDraw({
-            ResizeVectorPainter()
-        }, assertOneRecomposition = false)
+        benchmarkRule.toggleStateBenchmarkDraw(
+            { ResizeVectorPainter() },
+            assertOneRecomposition = false
+        )
     }
 }
 

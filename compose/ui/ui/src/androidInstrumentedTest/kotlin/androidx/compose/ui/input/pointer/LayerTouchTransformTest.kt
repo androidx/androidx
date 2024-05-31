@@ -57,8 +57,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayerTouchTransformTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testTransformTouchEventConsumed() {
@@ -66,23 +65,18 @@ class LayerTouchTransformTest {
         var latch = CountDownLatch(1)
         rule.setContent {
             val pressed = remember { mutableStateOf(false) }
-            val onStart: (Offset) -> Unit = {
-                pressed.value = true
-            }
+            val onStart: (Offset) -> Unit = { pressed.value = true }
 
-            val onStop = {
-                pressed.value = false
-            }
+            val onStop = { pressed.value = false }
 
-            val color = if (pressed.value) {
-                Color.Red
-            } else {
-                Color.Blue
-            }
+            val color =
+                if (pressed.value) {
+                    Color.Red
+                } else {
+                    Color.Blue
+                }
 
-            val background = Modifier.drawBehind {
-                drawRect(Color.Gray)
-            }
+            val background = Modifier.drawBehind { drawRect(Color.Gray) }
 
             val latchDrawModifier = Modifier.drawBehind { latch.countDown() }
 
@@ -93,33 +87,31 @@ class LayerTouchTransformTest {
                 val offsetX = 270f.toDp()
                 val offsetY = 120f.toDp()
                 Box(Modifier.testTag(testTag)) {
-                    SimpleLayout(
-                        modifier = Modifier.fillMaxSize().offset(offsetX, offsetY)
-                    ) {
+                    SimpleLayout(modifier = Modifier.fillMaxSize().offset(offsetX, offsetY)) {
                         SimpleLayout(modifier = background.then(Modifier.size(containerDp))) {
                             SimpleLayout(
-                                modifier = Modifier
-                                    .graphicsLayer(
-                                        scaleX = 2.0f,
-                                        scaleY = 0.5f,
-                                        translationX = 50.0f,
-                                        translationY = 30.0f,
-                                        rotationZ = 45.0f,
-                                        transformOrigin = TransformOrigin(1.0f, 1.0f)
-                                    ).drawBehind {
-                                        drawRect(color)
-                                    }
-                                    .then(latchDrawModifier)
-                                    .size(boxDp)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onPress = {
-                                                onStart.invoke(it)
-                                                val success = tryAwaitRelease()
-                                                if (success) onStop.invoke() else onStop.invoke()
-                                            }
+                                modifier =
+                                    Modifier.graphicsLayer(
+                                            scaleX = 2.0f,
+                                            scaleY = 0.5f,
+                                            translationX = 50.0f,
+                                            translationY = 30.0f,
+                                            rotationZ = 45.0f,
+                                            transformOrigin = TransformOrigin(1.0f, 1.0f)
                                         )
-                                    }
+                                        .drawBehind { drawRect(color) }
+                                        .then(latchDrawModifier)
+                                        .size(boxDp)
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onPress = {
+                                                    onStart.invoke(it)
+                                                    val success = tryAwaitRelease()
+                                                    if (success) onStop.invoke()
+                                                    else onStop.invoke()
+                                                }
+                                            )
+                                        }
                             )
                         }
                     }
@@ -144,10 +136,7 @@ class LayerTouchTransformTest {
         node.captureToImage().asAndroidBitmap().apply {
             Assert.assertEquals(
                 Color.Red.toArgb(),
-                getPixel(
-                    mappedPosition.x.toInt(),
-                    mappedPosition.y.toInt()
-                )
+                getPixel(mappedPosition.x.toInt(), mappedPosition.y.toInt())
             )
         }
     }
@@ -155,10 +144,7 @@ class LayerTouchTransformTest {
 
 @Composable
 fun SimpleLayout(modifier: Modifier, content: @Composable () -> Unit = {}) {
-    Layout(
-        content,
-        modifier
-    ) { measurables, constraints ->
+    Layout(content, modifier) { measurables, constraints ->
         val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val placeables = measurables.map { it.measure(childConstraints) }
         var containerWidth = constraints.minWidth
@@ -167,10 +153,6 @@ fun SimpleLayout(modifier: Modifier, content: @Composable () -> Unit = {}) {
             containerWidth = max(containerWidth, it.width)
             containerHeight = max(containerHeight, it.height)
         }
-        layout(containerWidth, containerHeight) {
-            placeables.forEach {
-                it.placeRelative(0, 0)
-            }
-        }
+        layout(containerWidth, containerHeight) { placeables.forEach { it.placeRelative(0, 0) } }
     }
 }

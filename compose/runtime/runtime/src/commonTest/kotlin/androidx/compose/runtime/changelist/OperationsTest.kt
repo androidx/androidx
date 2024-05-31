@@ -50,8 +50,9 @@ class OperationsTest {
     fun testPush_withNoBlock_writesOperationWithNoArgs() {
         stack.push(NoArgsOperation)
         assertStackState(
-            message = "OpStack was not in the expected state " +
-                "after pushing an operation with no arguments",
+            message =
+                "OpStack was not in the expected state " +
+                    "after pushing an operation with no arguments",
             stack = stack,
             expectedOperations = listOf(NoArgsOperation)
         )
@@ -129,9 +130,8 @@ class OperationsTest {
         }
         assertStackState(
             stack = stack,
-            expectedOperations = listOf(
-                OneObjectOperation, TwoObjectsOperation, ThreeObjectsOperation
-            ),
+            expectedOperations =
+                listOf(OneObjectOperation, TwoObjectsOperation, ThreeObjectsOperation),
             expectedObjArgs = listOf(null, "Hello", "World", Unit, "Another string", 123.456)
         )
     }
@@ -192,18 +192,24 @@ class OperationsTest {
         }
 
         assertStackState(
-            message = "Stack was not in the expected state after pushing " +
-                "$itemsToForceResize operations, requiring that the stack resize all " +
-                "of its internal arrays.",
+            message =
+                "Stack was not in the expected state after pushing " +
+                    "$itemsToForceResize operations, requiring that the stack resize all " +
+                    "of its internal arrays.",
             stack = stack,
-            expectedOperations = List(itemsToForceResize) { TwoIntsOperation } +
-                List(itemsToForceResize) { TwoObjectsOperation },
-            expectedIntArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf(it * 10 + 1, it * 10 + 2) }
-                .take(itemsToForceResize * TwoIntsOperation.ints).toList(),
-            expectedObjArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf("op $it, obj 1", "op $it, obj 2") }
-                .take(itemsToForceResize * TwoObjectsOperation.objects).toList()
+            expectedOperations =
+                List(itemsToForceResize) { TwoIntsOperation } +
+                    List(itemsToForceResize) { TwoObjectsOperation },
+            expectedIntArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf(it * 10 + 1, it * 10 + 2) }
+                    .take(itemsToForceResize * TwoIntsOperation.ints)
+                    .toList(),
+            expectedObjArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf("op $it, obj 1", "op $it, obj 2") }
+                    .take(itemsToForceResize * TwoObjectsOperation.objects)
+                    .toList()
         )
     }
 
@@ -220,8 +226,9 @@ class OperationsTest {
             )
         } catch (e: IllegalStateException) {
             assertTrue(
-                message = "The thrown exception does not appear to have reported the expected " +
-                    "error (its message is '${e.message}')",
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
                 actual = e.message.orEmpty().contains("Not all arguments were provided")
             )
         }
@@ -240,8 +247,9 @@ class OperationsTest {
             )
         } catch (e: IllegalStateException) {
             assertTrue(
-                message = "The thrown exception does not appear to have reported the expected " +
-                    "error (its message is '${e.message}')",
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
                 actual = e.message.orEmpty().contains("Not all arguments were provided")
             )
         }
@@ -258,8 +266,9 @@ class OperationsTest {
             fail("Pushing an operation should fail if an argument is set twice")
         } catch (e: IllegalStateException) {
             assertTrue(
-                message = "The thrown exception does not appear to have reported the expected " +
-                    "error (its message is '${e.message}')",
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
                 actual = e.message.orEmpty().contains("Already pushed argument")
             )
         }
@@ -276,8 +285,9 @@ class OperationsTest {
             fail("Pushing an operation should fail if an argument is set twice")
         } catch (e: IllegalStateException) {
             assertTrue(
-                message = "The thrown exception does not appear to have reported the expected " +
-                    "error (its message is '${e.message}')",
+                message =
+                    "The thrown exception does not appear to have reported the expected " +
+                        "error (its message is '${e.message}')",
                 actual = e.message.orEmpty().contains("Already pushed argument")
             )
         }
@@ -356,18 +366,22 @@ class OperationsTest {
             message = "Source stack did not initialize to the expected state",
             stack = stack,
             expectedOperations = List(40) { ThreeObjectsOperation },
-            expectedObjArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf("${it}A", "${it}B", "${it}C") }
-                .take(40 * ThreeObjectsOperation.objects).toList()
+            expectedObjArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf("${it}A", "${it}B", "${it}C") }
+                    .take(40 * ThreeObjectsOperation.objects)
+                    .toList()
         )
 
         assertStackState(
             message = "Destination stack did not initialize to the expected state",
             stack = destinationStack,
             expectedOperations = List(20) { ThreeIntsOperation },
-            expectedIntArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf(it * 10, it * 20, it * 30) }
-                .take(20 * ThreeIntsOperation.ints).toList()
+            expectedIntArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf(it * 10, it * 20, it * 30) }
+                    .take(20 * ThreeIntsOperation.ints)
+                    .toList()
         )
 
         stack.popInto(destinationStack)
@@ -376,18 +390,22 @@ class OperationsTest {
             message = "The last pushed operation was not removed from the source stack as expected",
             stack = stack,
             expectedOperations = List(39) { ThreeObjectsOperation },
-            expectedObjArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf("${it}A", "${it}B", "${it}C") }
-                .take(39 * ThreeObjectsOperation.objects).toList()
+            expectedObjArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf("${it}A", "${it}B", "${it}C") }
+                    .take(39 * ThreeObjectsOperation.objects)
+                    .toList()
         )
 
         assertStackState(
             message = "The popped item was not added to the destination stack as expected",
             stack = destinationStack,
             expectedOperations = List(20) { ThreeIntsOperation } + ThreeObjectsOperation,
-            expectedIntArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf(it * 10, it * 20, it * 30) }
-                .take(20 * ThreeIntsOperation.ints).toList(),
+            expectedIntArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf(it * 10, it * 20, it * 30) }
+                    .take(20 * ThreeIntsOperation.ints)
+                    .toList(),
             expectedObjArgs = listOf("39A", "39B", "39C")
         )
     }
@@ -411,12 +429,16 @@ class OperationsTest {
             message = "Stack was not seeded into the expected state",
             stack = stack,
             expectedOperations = List(operationCount) { MixedOperation },
-            expectedIntArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf(it, -it) }
-                .take(operationCount * MixedOperation.ints).toList(),
-            expectedObjArgs = generateSequence(0) { it + 1 }
-                .flatMap { sequenceOf("obj1:$it", "obj2:$it") }
-                .take(operationCount * MixedOperation.objects).toList(),
+            expectedIntArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf(it, -it) }
+                    .take(operationCount * MixedOperation.ints)
+                    .toList(),
+            expectedObjArgs =
+                generateSequence(0) { it + 1 }
+                    .flatMap { sequenceOf("obj1:$it", "obj2:$it") }
+                    .take(operationCount * MixedOperation.objects)
+                    .toList(),
         )
 
         stack.clear()
@@ -435,9 +457,7 @@ class OperationsTest {
         val capturedObjects = mutableListOf<Any?>()
         stack.drain {
             capturedOperations += operation
-            repeat(operation.ints) { offset ->
-                capturedInts += getInt(IntParameter(offset))
-            }
+            repeat(operation.ints) { offset -> capturedInts += getInt(IntParameter(offset)) }
             repeat(operation.objects) { offset ->
                 capturedObjects += getObject(ObjectParameter<Any?>(offset))
             }
@@ -445,10 +465,14 @@ class OperationsTest {
 
         assertEquals(
             message = "The stack's operations were not received in the expected order.",
-            expected = listOf<Operation>(
-                MixedOperation, NoArgsOperation, TwoIntsOperation,
-                ThreeObjectsOperation, NoArgsOperation
-            ),
+            expected =
+                listOf<Operation>(
+                    MixedOperation,
+                    NoArgsOperation,
+                    TwoIntsOperation,
+                    ThreeObjectsOperation,
+                    NoArgsOperation
+                ),
             actual = capturedOperations
         )
 
@@ -464,10 +488,7 @@ class OperationsTest {
             actual = capturedObjects
         )
 
-        assertStackState(
-            message = "Stack should be empty after calling drain()",
-            stack = stack
-        )
+        assertStackState(message = "Stack should be empty after calling drain()", stack = stack)
     }
 
     @Test
@@ -479,9 +500,7 @@ class OperationsTest {
         val capturedObjects = mutableListOf<Any?>()
         stack.forEach {
             capturedOperations += operation
-            repeat(operation.ints) { offset ->
-                capturedInts += getInt(IntParameter(offset))
-            }
+            repeat(operation.ints) { offset -> capturedInts += getInt(IntParameter(offset)) }
             repeat(operation.objects) { offset ->
                 capturedObjects += getObject(ObjectParameter<Any?>(offset))
             }
@@ -489,10 +508,14 @@ class OperationsTest {
 
         assertEquals(
             message = "The stack's operations were not received in the expected order.",
-            expected = listOf<Operation>(
-                MixedOperation, NoArgsOperation, TwoIntsOperation,
-                ThreeObjectsOperation, NoArgsOperation
-            ),
+            expected =
+                listOf<Operation>(
+                    MixedOperation,
+                    NoArgsOperation,
+                    TwoIntsOperation,
+                    ThreeObjectsOperation,
+                    NoArgsOperation
+                ),
             actual = capturedOperations
         )
 
@@ -547,17 +570,18 @@ class OperationsTest {
         }
     }
 
-    private fun assertStackInVariousOperationState(
-        message: String = "",
-        stack: Operations
-    ) {
+    private fun assertStackInVariousOperationState(message: String = "", stack: Operations) {
         assertStackState(
             message = message,
             stack = stack,
-            expectedOperations = listOf(
-                MixedOperation, NoArgsOperation, TwoIntsOperation,
-                ThreeObjectsOperation, NoArgsOperation
-            ),
+            expectedOperations =
+                listOf(
+                    MixedOperation,
+                    NoArgsOperation,
+                    TwoIntsOperation,
+                    ThreeObjectsOperation,
+                    NoArgsOperation
+                ),
             expectedIntArgs = listOf(999, -1, 0xABCDEF, 0x123456),
             expectedObjArgs = listOf("String 1", "String 2", 1.0, Unit, null)
         )
@@ -576,39 +600,45 @@ class OperationsTest {
         val isEmpty = stack.isEmpty()
         val isNotEmpty = stack.isNotEmpty()
         if (size != expectedOperations.size) {
-            errors += "Stack did not report correct size " +
-                "(expected ${expectedOperations.size}, was $size)"
+            errors +=
+                "Stack did not report correct size " +
+                    "(expected ${expectedOperations.size}, was $size)"
         }
 
         if (isEmpty != expectedOperations.isEmpty()) {
-            errors += "isEmpty() did not return expected value " +
-                "(expected ${expectedOperations.isEmpty()}, was $isEmpty)"
+            errors +=
+                "isEmpty() did not return expected value " +
+                    "(expected ${expectedOperations.isEmpty()}, was $isEmpty)"
         }
 
         if (isNotEmpty != expectedOperations.isNotEmpty()) {
-            errors += "isNotEmpty() did not return expected value " +
-                "(expected ${expectedOperations.isNotEmpty()}, was $isNotEmpty)"
+            errors +=
+                "isNotEmpty() did not return expected value " +
+                    "(expected ${expectedOperations.isNotEmpty()}, was $isNotEmpty)"
         }
 
         val actualOpCodes = stack.opCodes
         if (!actualOpCodes.asIterable().startsWith(expectedOperations)) {
-            errors += "opCodes array did not match expected operations " +
-                "(expected [${expectedOperations.joinToString()}], was " +
-                "[${actualOpCodes.joinToString()}])"
+            errors +=
+                "opCodes array did not match expected operations " +
+                    "(expected [${expectedOperations.joinToString()}], was " +
+                    "[${actualOpCodes.joinToString()}])"
         }
 
         val actualIntArgs = stack.intArgs
         if (!actualIntArgs.asIterable().startsWith(expectedIntArgs)) {
-            errors += "intArgs array did not match expected operations " +
-                "(expected [${expectedIntArgs.joinToString()}], was " +
-                "[${actualIntArgs.joinToString()}])"
+            errors +=
+                "intArgs array did not match expected operations " +
+                    "(expected [${expectedIntArgs.joinToString()}], was " +
+                    "[${actualIntArgs.joinToString()}])"
         }
 
         val actualObjectArgs = stack.objectArgs
         if (!actualObjectArgs.asIterable().startsWith(expectedObjArgs, null)) {
-            errors += "objectArgs array did not match expected operations " +
-                "(expected [${expectedObjArgs.joinToString()}], was " +
-                "[${actualObjectArgs.joinToString()}])"
+            errors +=
+                "objectArgs array did not match expected operations " +
+                    "(expected [${expectedObjArgs.joinToString()}], was " +
+                    "[${actualObjectArgs.joinToString()}])"
         }
 
         if (errors.isNotEmpty()) {
@@ -620,9 +650,7 @@ class OperationsTest {
         }
     }
 
-    private fun <T> Iterable<T>.startsWith(
-        other: Iterable<T>
-    ): Boolean {
+    private fun <T> Iterable<T>.startsWith(other: Iterable<T>): Boolean {
         val thisIterator = iterator()
         val otherIterator = other.iterator()
 
@@ -635,10 +663,7 @@ class OperationsTest {
         return true
     }
 
-    private fun <T> Iterable<T>.startsWith(
-        other: Iterable<T>,
-        endFill: T
-    ): Boolean {
+    private fun <T> Iterable<T>.startsWith(other: Iterable<T>, endFill: T): Boolean {
         val thisIterator = iterator()
         val otherIterator = other.iterator()
 
@@ -657,17 +682,26 @@ class OperationsTest {
         return true
     }
 
-    private val Operations.opCodes: Array<Operation?> get() = readPropertyReflectively("opCodes")
-    private val Operations.intArgs: IntArray get() = readPropertyReflectively("intArgs")
-    private val Operations.objectArgs: Array<Any?> get() = readPropertyReflectively("objectArgs")
+    private val Operations.opCodes: Array<Operation?>
+        get() = readPropertyReflectively("opCodes")
+
+    private val Operations.intArgs: IntArray
+        get() = readPropertyReflectively("intArgs")
+
+    private val Operations.objectArgs: Array<Any?>
+        get() = readPropertyReflectively("objectArgs")
 
     private inline fun <reified T : Any, reified R> T.readPropertyReflectively(
         propertyName: String
     ): R {
-        val property = this::class.declaredMembers.mapNotNull {
-            @Suppress("UNCHECKED_CAST")
-            it as? KProperty1<T, R>
-        }.single { it.name == propertyName }
+        val property =
+            this::class
+                .declaredMembers
+                .mapNotNull {
+                    @Suppress("UNCHECKED_CAST")
+                    it as? KProperty1<T, R>
+                }
+                .single { it.name == propertyName }
 
         property.isAccessible = true
         return property.get(this)

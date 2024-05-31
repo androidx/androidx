@@ -41,10 +41,10 @@ fun HoverableSample() {
 
     // the color will change depending on the presence of a hover
     Box(
-        modifier = Modifier
-            .size(128.dp)
-            .background(if (isHovered) Color.Red else Color.Blue)
-            .hoverable(interactionSource = interactionSource),
+        modifier =
+            Modifier.size(128.dp)
+                .background(if (isHovered) Color.Red else Color.Blue)
+                .hoverable(interactionSource = interactionSource),
         contentAlignment = Alignment.Center
     ) {
         Text(if (isHovered) "Hovered" else "Unhovered")

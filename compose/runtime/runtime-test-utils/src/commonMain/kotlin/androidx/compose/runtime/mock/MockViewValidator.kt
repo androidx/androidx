@@ -21,11 +21,11 @@ import kotlin.test.assertTrue
 
 interface MockViewValidator {
     val view: View
+
     fun next(): Boolean
 }
 
-class MockViewListValidator(private val views: List<View>) :
-    MockViewValidator {
+class MockViewListValidator(private val views: List<View>) : MockViewValidator {
     override lateinit var view: View
 
     override fun next(): Boolean {
@@ -76,14 +76,19 @@ fun <T> MockViewValidator.Repeated(of: Iterable<T>, block: MockViewValidator.(va
 }
 
 fun MockViewValidator.Linear() = view("linear", null)
+
 fun MockViewValidator.Linear(block: MockViewValidator.() -> Unit) = view("linear", block)
+
 inline fun MockViewValidator.InlineLinear(block: MockViewValidator.() -> Unit) =
     inlineView("linear", block)
+
 fun MockViewValidator.box(block: MockViewValidator.() -> Unit) = view("box", block)
+
 fun MockViewValidator.Text(value: String) {
     view("text")
     assertEquals(value, view.attributes["text"])
 }
+
 fun MockViewValidator.Edit(value: String) {
     view("edit")
     assertEquals(value, view.attributes["value"])

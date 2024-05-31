@@ -37,29 +37,22 @@ import kotlin.math.min
 @Composable
 fun TailFollowingTextFieldDemo() {
     Column {
-        val hstate = rememberSaveable {
-            mutableStateOf("abc def ghi jkl mno pqr stu vwx yz")
-        }
+        val hstate = rememberSaveable { mutableStateOf("abc def ghi jkl mno pqr stu vwx yz") }
         HorizontalTailFollowingTextField(
             value = hstate.value,
             onValueChange = { hstate.value = it },
-            modifier = Modifier
-                .then(demoTextFieldModifiers)
-                .fillMaxWidth()
-                .clipToBounds()
+            modifier = Modifier.then(demoTextFieldModifiers).fillMaxWidth().clipToBounds()
         )
 
-        val vstate = rememberSaveable {
-            mutableStateOf("a\nb\nc\nd\ne\nf\ng\nh")
-        }
+        val vstate = rememberSaveable { mutableStateOf("a\nb\nc\nd\ne\nf\ng\nh") }
         VerticalTailFollowintTextField(
             value = vstate.value,
             onValueChange = { vstate.value = it },
-            modifier = Modifier
-                .then(demoTextFieldModifiers)
-                .fillMaxWidth()
-                .requiredHeight(120.dp)
-                .clipToBounds()
+            modifier =
+                Modifier.then(demoTextFieldModifiers)
+                    .fillMaxWidth()
+                    .requiredHeight(120.dp)
+                    .clipToBounds()
         )
     }
 }
@@ -72,31 +65,26 @@ private fun HorizontalTailFollowingTextField(
     textStyle: TextStyle = TextStyle(fontSize = fontSize8)
 ) {
     Layout(
-        content = @Composable {
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                textStyle = textStyle
-            )
-        },
+        content =
+            @Composable {
+                BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
+            },
         modifier = modifier
     ) { measurable, constraints ->
-
-        val p = measurable[0].measure(
-            Constraints(
-                minWidth = 0,
-                maxWidth = Constraints.Infinity,
-                minHeight = constraints.minHeight,
-                maxHeight = constraints.maxHeight
+        val p =
+            measurable[0].measure(
+                Constraints(
+                    minWidth = 0,
+                    maxWidth = Constraints.Infinity,
+                    minHeight = constraints.minHeight,
+                    maxHeight = constraints.maxHeight
+                )
             )
-        )
 
         val width = constraints.constrainWidth(p.width)
         val xOffset = min(0, constraints.maxWidth - p.width)
 
-        layout(width, p.height) {
-            p.placeRelative(xOffset, 0)
-        }
+        layout(width, p.height) { p.placeRelative(xOffset, 0) }
     }
 }
 
@@ -108,30 +96,25 @@ private fun VerticalTailFollowintTextField(
     textStyle: TextStyle = TextStyle(fontSize = fontSize8)
 ) {
     Layout(
-        content = @Composable {
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                textStyle = textStyle
-            )
-        },
+        content =
+            @Composable {
+                BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
+            },
         modifier = modifier
     ) { measurable, constraints ->
-
-        val p = measurable[0].measure(
-            Constraints(
-                minWidth = constraints.minWidth,
-                maxWidth = constraints.maxWidth,
-                minHeight = 0,
-                maxHeight = Constraints.Infinity
+        val p =
+            measurable[0].measure(
+                Constraints(
+                    minWidth = constraints.minWidth,
+                    maxWidth = constraints.maxWidth,
+                    minHeight = 0,
+                    maxHeight = Constraints.Infinity
+                )
             )
-        )
 
         val height = min(p.height, constraints.maxHeight)
         val yOffset = min(0, constraints.maxHeight - p.height)
 
-        layout(p.width, height) {
-            p.placeRelative(0, yOffset)
-        }
+        layout(p.width, height) { p.placeRelative(0, yOffset) }
     }
 }

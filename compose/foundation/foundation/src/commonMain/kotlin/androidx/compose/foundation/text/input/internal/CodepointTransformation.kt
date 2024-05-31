@@ -24,8 +24,8 @@ import androidx.compose.runtime.Stable
  * Visual transformation interface for input fields.
  *
  * This interface is responsible for 1-to-1 mapping of every codepoint in input state to another
- * codepoint before text is rendered. Visual transformation is useful when the underlying source
- * of input needs to remain but rendered content should look different, e.g. password obscuring.
+ * codepoint before text is rendered. Visual transformation is useful when the underlying source of
+ * input needs to remain but rendered content should look different, e.g. password obscuring.
  */
 @Stable
 internal fun interface CodepointTransformation {

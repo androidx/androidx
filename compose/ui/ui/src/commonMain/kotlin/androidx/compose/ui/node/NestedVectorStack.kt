@@ -30,9 +30,7 @@ internal class NestedVectorStack<T> {
     }
 
     fun pop(): T {
-        check(size > 0) {
-            "Cannot call pop() on an empty stack. Guard with a call to isNotEmpty()"
-        }
+        check(size > 0) { "Cannot call pop() on an empty stack. Guard with a call to isNotEmpty()" }
         val indexOfVector = size - 1
         val indexOfItem = currentIndexes[indexOfVector]
         val vector = vectors[indexOfVector]!!

@@ -42,82 +42,63 @@ internal class ImeOptionsData(
     val name: String,
 )
 
-private val ImeOptionsList = listOf(
-    ImeOptionsData(
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
+private val ImeOptionsList =
+    listOf(
+        ImeOptionsData(
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            name = "singleLine/Text"
         ),
-        name = "singleLine/Text"
-    ),
-    ImeOptionsData(
-        singleLine = false,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
+        ImeOptionsData(
+            singleLine = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            name = "multiLine/Text"
         ),
-        name = "multiLine/Text"
-    ),
-    ImeOptionsData(
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Search
+        ImeOptionsData(
+            singleLine = true,
+            keyboardOptions =
+                KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
+            name = "singleLine/Text/Search"
         ),
-        name = "singleLine/Text/Search"
-    ),
-    ImeOptionsData(
-        singleLine = false,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Search
+        ImeOptionsData(
+            singleLine = false,
+            keyboardOptions =
+                KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Search),
+            name = "multiLine/Text/Search"
         ),
-        name = "multiLine/Text/Search"
-    ),
-    ImeOptionsData(
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number
+        ImeOptionsData(
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            name = "singleLine/Number"
         ),
-        name = "singleLine/Number"
-    ),
-    ImeOptionsData(
-        singleLine = false,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number
+        ImeOptionsData(
+            singleLine = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            name = "multiLine/Number"
         ),
-        name = "multiLine/Number"
-    ),
-    ImeOptionsData(
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Send
+        ImeOptionsData(
+            singleLine = true,
+            keyboardOptions =
+                KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Send),
+            name = "singleLine/Number/Send"
         ),
-        name = "singleLine/Number/Send"
-    ),
-    ImeOptionsData(
-        singleLine = false,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Send
+        ImeOptionsData(
+            singleLine = false,
+            keyboardOptions =
+                KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Send),
+            name = "multiLine/Number/Send"
         ),
-        name = "multiLine/Number/Send"
-    ),
-    ImeOptionsData(
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Decimal
+        ImeOptionsData(
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            name = "singleLine/Decimal"
         ),
-        name = "singleLine/Decimal"
-    ),
-    ImeOptionsData(
-        singleLine = false,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Decimal
-        ),
-        name = "multiLine/Decimal"
+        ImeOptionsData(
+            singleLine = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            name = "multiLine/Decimal"
+        )
     )
-)
 
 @Preview
 @Composable
@@ -134,9 +115,8 @@ fun ImeSingleLineDemo() {
 @Composable
 private fun MyTextField(data: ImeOptionsData) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    val state = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
-    }
+    val state =
+        rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     BasicTextField(
         modifier = demoTextFieldModifiers.defaultMinSize(100.dp),
         value = state.value,

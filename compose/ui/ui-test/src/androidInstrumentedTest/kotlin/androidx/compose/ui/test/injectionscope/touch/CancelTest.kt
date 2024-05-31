@@ -32,9 +32,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [TouchInjectionScope.cancel] works
- */
+/** Tests if [TouchInjectionScope.cancel] works */
 @MediumTest
 class CancelTest {
     companion object {
@@ -42,17 +40,14 @@ class CancelTest {
         private val downPosition2 = Offset(20f, 20f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Test
@@ -94,26 +89,20 @@ class CancelTest {
 
     @Test
     fun cancel_withoutDown() {
-        expectError<IllegalStateException> {
-            rule.performTouchInput { cancel() }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { cancel() } }
     }
 
     @Test
     fun cancel_afterUp() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { up() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { cancel() }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { cancel() } }
     }
 
     @Test
     fun cancel_afterCancel() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { cancel() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { cancel() }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { cancel() } }
     }
 }

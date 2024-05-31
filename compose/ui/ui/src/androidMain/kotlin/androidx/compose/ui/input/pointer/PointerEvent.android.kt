@@ -24,24 +24,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
 
 internal actual typealias NativePointerButtons = Int
+
 internal actual typealias NativePointerKeyboardModifiers = Int
 
-/**
- * Describes a pointer input change event that has occurred at a particular point in time.
- */
-actual class PointerEvent internal actual constructor(
-    /**
-     * The changes.
-     */
+/** Describes a pointer input change event that has occurred at a particular point in time. */
+actual class PointerEvent
+internal actual constructor(
+    /** The changes. */
     actual val changes: List<PointerInputChange>,
     internal val internalPointerEvent: InternalPointerEvent?
 ) {
     internal val motionEvent: MotionEvent?
         get() = internalPointerEvent?.motionEvent
 
-    /**
-     * @param changes The changes.
-     */
+    /** @param changes The changes. */
     actual constructor(changes: List<PointerInputChange>) : this(changes, null)
 
     actual val buttons = PointerButtons(motionEvent?.buttonState ?: 0)
@@ -64,7 +60,6 @@ actual class PointerEvent internal actual constructor(
                 MotionEvent.ACTION_HOVER_ENTER -> PointerEventType.Enter
                 MotionEvent.ACTION_HOVER_EXIT -> PointerEventType.Exit
                 ACTION_SCROLL -> PointerEventType.Scroll
-
                 else -> PointerEventType.Unknown
             }
         }
@@ -85,35 +80,34 @@ actual class PointerEvent internal actual constructor(
 
     // only because PointerEvent was a data class
     @OptIn(ExperimentalComposeUiApi::class)
-    fun copy(
-        changes: List<PointerInputChange>,
-        motionEvent: MotionEvent?
-    ): PointerEvent = when (motionEvent) {
-        null -> PointerEvent(changes, null)
-        this.motionEvent -> PointerEvent(changes, internalPointerEvent)
-        else -> {
-            val changesArray = LongSparseArray<PointerInputChange>(changes.size)
-            val pointerEventData = ArrayList<PointerInputEventData>(changes.size)
-            changes.fastForEach { change ->
-                changesArray.put(change.id.value, change)
-                pointerEventData += PointerInputEventData(
-                    change.id,
-                    change.uptimeMillis,
-                    change.position,
-                    change.position,
-                    change.pressed,
-                    change.pressure,
-                    change.type,
-                    this.internalPointerEvent?.activeHoverEvent(change.id) == true
-                )
-            }
+    fun copy(changes: List<PointerInputChange>, motionEvent: MotionEvent?): PointerEvent =
+        when (motionEvent) {
+            null -> PointerEvent(changes, null)
+            this.motionEvent -> PointerEvent(changes, internalPointerEvent)
+            else -> {
+                val changesArray = LongSparseArray<PointerInputChange>(changes.size)
+                val pointerEventData = ArrayList<PointerInputEventData>(changes.size)
+                changes.fastForEach { change ->
+                    changesArray.put(change.id.value, change)
+                    pointerEventData +=
+                        PointerInputEventData(
+                            change.id,
+                            change.uptimeMillis,
+                            change.position,
+                            change.position,
+                            change.pressed,
+                            change.pressure,
+                            change.type,
+                            this.internalPointerEvent?.activeHoverEvent(change.id) == true
+                        )
+                }
 
-            val pointerInputEvent =
-                PointerInputEvent(motionEvent.eventTime, pointerEventData, motionEvent)
-            val event = InternalPointerEvent(changesArray, pointerInputEvent)
-            PointerEvent(changes, event)
+                val pointerInputEvent =
+                    PointerInputEvent(motionEvent.eventTime, pointerEventData, motionEvent)
+                val event = InternalPointerEvent(changesArray, pointerInputEvent)
+                PointerEvent(changes, event)
+            }
         }
-    }
 }
 
 internal actual fun EmptyPointerKeyboardModifiers() = PointerKeyboardModifiers(0)
@@ -122,8 +116,8 @@ actual val PointerButtons.isPrimaryPressed: Boolean
     get() = packedValue and (MotionEvent.BUTTON_PRIMARY or MotionEvent.BUTTON_STYLUS_PRIMARY) != 0
 
 actual val PointerButtons.isSecondaryPressed: Boolean
-    get() = packedValue and
-        (MotionEvent.BUTTON_SECONDARY or MotionEvent.BUTTON_STYLUS_SECONDARY) != 0
+    get() =
+        packedValue and (MotionEvent.BUTTON_SECONDARY or MotionEvent.BUTTON_STYLUS_SECONDARY) != 0
 
 actual val PointerButtons.isTertiaryPressed: Boolean
     get() = packedValue and MotionEvent.BUTTON_TERTIARY != 0
@@ -138,7 +132,9 @@ actual fun PointerButtons.isPressed(buttonIndex: Int): Boolean =
     when (buttonIndex) {
         0 -> isPrimaryPressed
         1 -> isSecondaryPressed
-        2, 3, 4 -> packedValue and (1 shl buttonIndex) != 0
+        2,
+        3,
+        4 -> packedValue and (1 shl buttonIndex) != 0
         else -> packedValue and (1 shl (buttonIndex + 2)) != 0
     }
 

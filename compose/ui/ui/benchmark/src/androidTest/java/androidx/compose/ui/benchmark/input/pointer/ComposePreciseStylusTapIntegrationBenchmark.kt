@@ -46,22 +46,17 @@ import org.junit.runner.RunWith
  * real device.
  *
  * The intent is to measure the speed of all parts necessary for a normal stylus tap and move
- * starting from [MotionEvent]s getting dispatched to a particular view.  The test therefore
- * includes hit testing and dispatch.
+ * starting from [MotionEvent]s getting dispatched to a particular view. The test therefore includes
+ * hit testing and dispatch.
  *
  * This is intended to be a more through benchmark of [ComposeTapIntegrationBenchmark] and a stylus
  * version of [ComposePreciseFingerTapIntegrationBenchmark].
  *
- * The hierarchy is set up to look like:
- * rootView
- *   -> Column
- *     -> Text (with click listener)
- *     -> Text (with click listener)
- *     -> Text (with click listener)
- *     -> ...
+ * The hierarchy is set up to look like: rootView -> Column -> Text (with click listener) -> Text
+ * (with click listener) -> Text (with click listener) -> ...
  *
- * MotionEvents are dispatched to rootView as an ACTION_DOWN, an ACTION_MOVE, and finally
- * an ACTION_UP.  The validity of the test is verified inside the click listener with
+ * MotionEvents are dispatched to rootView as an ACTION_DOWN, an ACTION_MOVE, and finally an
+ * ACTION_UP. The validity of the test is verified inside the click listener with
  * com.google.common.truth.Truth.assertThat and by counting the clicks in the click listener and
  * later verifying that they count is sufficiently high.
  */
@@ -69,8 +64,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComposePreciseStylusTapIntegrationBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun clickOnLateItem() {
@@ -114,83 +108,86 @@ class ComposePreciseStylusTapIntegrationBenchmark {
 
             // Precise Stylus MotionEvents (Down, Move, Up)
             // Based on real MotionEvents pulled from a device.
-            val stylusDownMotionEvent = android.view.MotionEvent.obtain(
-                346709L,
-                346709L,
-                android.view.MotionEvent.ACTION_DOWN,
-                1,
-                arrayOf(
-                    PointerProperties(0).apply {
-                        toolType = android.view.MotionEvent.TOOL_TYPE_STYLUS
-                    }
-                ),
-                arrayOf(
-                    PointerCoords(xDown, yDown).apply {
-                        pressure = 0.18339439f
-                        size = 0.0f
-                    }
-                ),
-                0,
-                0,
-                1.000625f,
-                1.0003906f,
-                7,
-                0x0, // Edge Flags value of 0.
-                0x5002, // Source of the event value of 20482
-                0x2 // Motion Event Flags value of 2
-            )
+            val stylusDownMotionEvent =
+                android.view.MotionEvent.obtain(
+                    346709L,
+                    346709L,
+                    android.view.MotionEvent.ACTION_DOWN,
+                    1,
+                    arrayOf(
+                        PointerProperties(0).apply {
+                            toolType = android.view.MotionEvent.TOOL_TYPE_STYLUS
+                        }
+                    ),
+                    arrayOf(
+                        PointerCoords(xDown, yDown).apply {
+                            pressure = 0.18339439f
+                            size = 0.0f
+                        }
+                    ),
+                    0,
+                    0,
+                    1.000625f,
+                    1.0003906f,
+                    7,
+                    0x0, // Edge Flags value of 0.
+                    0x5002, // Source of the event value of 20482
+                    0x2 // Motion Event Flags value of 2
+                )
 
-            val stylusMoveMotionEvent = android.view.MotionEvent.obtain(
-                346709L,
-                347222L,
-                android.view.MotionEvent.ACTION_MOVE,
-                1,
-                arrayOf(
-                    PointerProperties(0).apply {
-                        toolType = android.view.MotionEvent.TOOL_TYPE_STYLUS
-                    }
-                ),
-                arrayOf(
-                    PointerCoords(xMove, yMove).apply {
-                        pressure = 0.2947497f
-                        size = 0.0f
-                    }
-                ),
-                0,
-                0,
-                1.000625f,
-                1.0003906f,
-                7,
-                0x0, // Edge Flags value of 0.
-                0x5002, // Source of the event value of 20482
-                0x2 // Motion Event Flags value of 2
-            )
+            val stylusMoveMotionEvent =
+                android.view.MotionEvent.obtain(
+                    346709L,
+                    347222L,
+                    android.view.MotionEvent.ACTION_MOVE,
+                    1,
+                    arrayOf(
+                        PointerProperties(0).apply {
+                            toolType = android.view.MotionEvent.TOOL_TYPE_STYLUS
+                        }
+                    ),
+                    arrayOf(
+                        PointerCoords(xMove, yMove).apply {
+                            pressure = 0.2947497f
+                            size = 0.0f
+                        }
+                    ),
+                    0,
+                    0,
+                    1.000625f,
+                    1.0003906f,
+                    7,
+                    0x0, // Edge Flags value of 0.
+                    0x5002, // Source of the event value of 20482
+                    0x2 // Motion Event Flags value of 2
+                )
 
-            val stylusUpMotionEvent = android.view.MotionEvent.obtain(
-                346709L,
-                347227L,
-                android.view.MotionEvent.ACTION_UP,
-                1,
-                arrayOf(
-                    PointerProperties(0).apply {
-                        toolType = android.view.MotionEvent.TOOL_TYPE_STYLUS
-                    }
-                ),
-                arrayOf(
-                    PointerCoords(xUp, yUp).apply {
-                        pressure = 0.2947497f
-                        size = 0.0f
-                    }
-                ),
-                0,
-                0,
-                1.000625f,
-                1.0003906f,
-                7,
-                0x0, // Edge Flags value of 0.
-                0x5002, // Source of the event value of 20482
-                0x2 // Motion Event Flags value of 2
-            )
+            val stylusUpMotionEvent =
+                android.view.MotionEvent.obtain(
+                    346709L,
+                    347227L,
+                    android.view.MotionEvent.ACTION_UP,
+                    1,
+                    arrayOf(
+                        PointerProperties(0).apply {
+                            toolType = android.view.MotionEvent.TOOL_TYPE_STYLUS
+                        }
+                    ),
+                    arrayOf(
+                        PointerCoords(xUp, yUp).apply {
+                            pressure = 0.2947497f
+                            size = 0.0f
+                        }
+                    ),
+                    0,
+                    0,
+                    1.000625f,
+                    1.0003906f,
+                    7,
+                    0x0, // Edge Flags value of 0.
+                    0x5002, // Source of the event value of 20482
+                    0x2 // Motion Event Flags value of 2
+                )
 
             benchmarkRule.measureRepeatedOnUiThread {
                 rootView.dispatchTouchEvent(stylusDownMotionEvent)
@@ -211,47 +208,43 @@ class ComposePreciseStylusTapIntegrationBenchmark {
 
         @Composable
         override fun Content() {
-            with(LocalDensity.current) {
-                itemHeightDp = ItemHeightPx.toDp()
-            }
+            with(LocalDensity.current) { itemHeightDp = ItemHeightPx.toDp() }
 
             EmailList(NumItems)
         }
 
         @Composable
         fun EmailList(count: Int) {
-            Column {
-                repeat(count) { i ->
-                    Email("$i")
-                }
-            }
+            Column { repeat(count) { i -> Email("$i") } }
         }
 
         @Composable
         fun Email(label: String) {
             BasicText(
                 text = label,
-                modifier = Modifier
-                    .pointerInput(label) {
-                        coroutineScope {
-                            awaitPointerEventScope {
-                                while (coroutineContext.isActive) {
-                                    val down = awaitFirstDown()
-                                    down.consume()
+                modifier =
+                    Modifier.pointerInput(label) {
+                            coroutineScope {
+                                awaitPointerEventScope {
+                                    while (coroutineContext.isActive) {
+                                        val down = awaitFirstDown()
+                                        down.consume()
 
-                                    val upOrCancel: PointerInputChange? = waitForUpOrCancellation()
-                                    upOrCancel?.consume()
-                                    assertThat(label).isEqualTo(expectedLabel)
-                                    actualClickCount++
+                                        val upOrCancel: PointerInputChange? =
+                                            waitForUpOrCancellation()
+                                        upOrCancel?.consume()
+                                        assertThat(label).isEqualTo(expectedLabel)
+                                        actualClickCount++
+                                    }
                                 }
                             }
                         }
-                    }
-                    .fillMaxWidth()
-                    .requiredHeight(itemHeightDp)
+                        .fillMaxWidth()
+                        .requiredHeight(itemHeightDp)
             )
         }
     }
+
     companion object {
         private const val MOVE_AMOUNT_PX = 30f
     }

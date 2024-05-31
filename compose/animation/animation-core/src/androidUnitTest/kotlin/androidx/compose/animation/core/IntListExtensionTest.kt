@@ -40,23 +40,13 @@ class IntListExtensionTest {
 
         // toIndex is exclusive, fails with size + 1
         assertThrows(IndexOutOfBoundsException::class.java) {
-            l.binarySearch(
-                element = 3,
-                toIndex = l.size + 1
-            )
+            l.binarySearch(element = 3, toIndex = l.size + 1)
         }
         assertThrows(IndexOutOfBoundsException::class.java) {
-            l.binarySearch(
-                element = 3,
-                fromIndex = -1
-            )
+            l.binarySearch(element = 3, fromIndex = -1)
         }
         assertThrows(IllegalArgumentException::class.java) {
-            l.binarySearch(
-                element = 3,
-                fromIndex = 1,
-                toIndex = 0
-            )
+            l.binarySearch(element = 3, fromIndex = 1, toIndex = 0)
         }
     }
 }

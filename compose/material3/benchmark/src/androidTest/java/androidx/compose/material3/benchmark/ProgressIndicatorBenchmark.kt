@@ -43,8 +43,7 @@ class ProgressIndicatorBenchmark(private val type: ProgressIndicatorType) {
         fun parameters() = ProgressIndicatorType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { ProgressIndicatorTestCase(type) }
 
@@ -61,9 +60,9 @@ class ProgressIndicatorBenchmark(private val type: ProgressIndicatorType) {
         )
     }
 }
-internal class ProgressIndicatorTestCase(
-    private val type: ProgressIndicatorType
-) : LayeredComposeTestCase(), ToggleableTestCase {
+
+internal class ProgressIndicatorTestCase(private val type: ProgressIndicatorType) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var state: MutableFloatState
 
     @Composable
@@ -71,18 +70,14 @@ internal class ProgressIndicatorTestCase(
         state = remember { mutableFloatStateOf(0f) }
 
         when (type) {
-            ProgressIndicatorType.Linear ->
-                LinearProgressIndicator(progress = { state.value })
-            ProgressIndicatorType.Circular ->
-                CircularProgressIndicator(progress = { state.value })
+            ProgressIndicatorType.Linear -> LinearProgressIndicator(progress = { state.value })
+            ProgressIndicatorType.Circular -> CircularProgressIndicator(progress = { state.value })
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {
@@ -91,5 +86,6 @@ internal class ProgressIndicatorTestCase(
 }
 
 enum class ProgressIndicatorType {
-    Linear, Circular
+    Linear,
+    Circular
 }

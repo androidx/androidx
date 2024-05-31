@@ -40,14 +40,13 @@ fun AnnotatedStringConstructorSample() {
     AnnotatedString(
         text = "Hello World",
         // make "Hello" italic.
-        spanStyles = listOf(
-            AnnotatedString.Range(SpanStyle(fontStyle = FontStyle.Italic), 0, 5)
-        ),
+        spanStyles = listOf(AnnotatedString.Range(SpanStyle(fontStyle = FontStyle.Italic), 0, 5)),
         // create two paragraphs with different alignment and indent settings.
-        paragraphStyles = listOf(
-            AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 6),
-            AnnotatedString.Range(ParagraphStyle(textIndent = TextIndent(5.sp)), 6, 11)
-        )
+        paragraphStyles =
+            listOf(
+                AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 6),
+                AnnotatedString.Range(ParagraphStyle(textIndent = TextIndent(5.sp)), 6, 11)
+            )
     )
 }
 
@@ -145,14 +144,10 @@ fun AnnotatedStringBuilderLambdaSample() {
     // create an AnnotatedString using the lambda builder
     buildAnnotatedString {
         // append "Hello" with red text color
-        withStyle(SpanStyle(color = Color.Red)) {
-            append("Hello")
-        }
+        withStyle(SpanStyle(color = Color.Red)) { append("Hello") }
         append(" ")
         // append "Hello" with blue text color
-        withStyle(SpanStyle(color = Color.Blue)) {
-            append("World!")
-        }
+        withStyle(SpanStyle(color = Color.Blue)) { append("World!") }
     }
 }
 
@@ -196,13 +191,14 @@ fun AnnotatedStringWithHoveredLinkStylingSample() {
     BasicText(
         buildAnnotatedString {
             append("Build better apps faster with ")
-            val link = LinkAnnotation.Url(
-                "https://developer.android.com/jetpack/compose",
-                TextLinkStyles(
-                    style = SpanStyle(color = Color.Blue),
-                    hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+            val link =
+                LinkAnnotation.Url(
+                    "https://developer.android.com/jetpack/compose",
+                    TextLinkStyles(
+                        style = SpanStyle(color = Color.Blue),
+                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+                    )
                 )
-            )
             withLink(link) { append("Jetpack Compose") }
         }
     )
@@ -217,14 +213,15 @@ fun AnnotatedStringWithListenerSample() {
     BasicText(
         buildAnnotatedString {
             append("Build better apps faster with ")
-            val link = LinkAnnotation.Url(
-                "https://developer.android.com/jetpack/compose",
-                TextLinkStyles(SpanStyle(color = Color.Blue))
-            ) {
-                val url = (it as LinkAnnotation.Url).url
-                // log some metrics
-                uriHandler.openUri(url)
-            }
+            val link =
+                LinkAnnotation.Url(
+                    "https://developer.android.com/jetpack/compose",
+                    TextLinkStyles(SpanStyle(color = Color.Blue))
+                ) {
+                    val url = (it as LinkAnnotation.Url).url
+                    // log some metrics
+                    uriHandler.openUri(url)
+                }
             withLink(link) { append("Jetpack Compose") }
         }
     )

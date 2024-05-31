@@ -67,9 +67,8 @@ internal class UndecoratedWindowResizer(
                 Modifier,
                 measurePolicy = { measurables, constraints ->
                     val b = borderThickness.roundToPx()
-                    fun Measurable.measureSide(width: Int, height: Int) = measure(
-                        Constraints.fixed(width.coerceAtLeast(0), height.coerceAtLeast(0))
-                    )
+                    fun Measurable.measureSide(width: Int, height: Int) =
+                        measure(Constraints.fixed(width.coerceAtLeast(0), height.coerceAtLeast(0)))
 
                     val left = measurables[0].measureSide(b, constraints.maxHeight - 2 * b)
                     val right = measurables[1].measureSide(b, constraints.maxHeight - 2 * b)
@@ -94,42 +93,44 @@ internal class UndecoratedWindowResizer(
         }
     }
 
-    private fun Modifier.resizeOnDrag(sides: Int) = pointerInput(Unit) {
-        var isResizing = false
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent()
-                val change = event.changes.first()
-                val changedToPressed = !change.previousPressed && change.pressed
+    private fun Modifier.resizeOnDrag(sides: Int) =
+        pointerInput(Unit) {
+            var isResizing = false
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.first()
+                    val changedToPressed = !change.previousPressed && change.pressed
 
-                if (event.buttons.isPrimaryPressed && changedToPressed) {
-                    initialPointPos = MouseInfo.getPointerInfo().location
-                    initialWindowPos = Point(window.x, window.y)
-                    initialWindowSize = Dimension(window.width, window.height)
-                    isResizing = true
-                }
+                    if (event.buttons.isPrimaryPressed && changedToPressed) {
+                        initialPointPos = MouseInfo.getPointerInfo().location
+                        initialWindowPos = Point(window.x, window.y)
+                        initialWindowSize = Dimension(window.width, window.height)
+                        isResizing = true
+                    }
 
-                if (!event.buttons.isPrimaryPressed) {
-                    isResizing = false
-                }
+                    if (!event.buttons.isPrimaryPressed) {
+                        isResizing = false
+                    }
 
-                if (event.type == PointerEventType.Move) {
-                    if (isResizing) {
-                        resize(sides)
+                    if (event.type == PointerEventType.Move) {
+                        if (isResizing) {
+                            resize(sides)
+                        }
                     }
                 }
             }
         }
-    }
 
     @Composable
-    private fun Side(cursorId: Int, sides: Int) = Layout(
-        {},
-        Modifier.cursor(cursorId).resizeOnDrag(sides),
-        measurePolicy = { _, constraints ->
-            layout(constraints.maxWidth, constraints.maxHeight) {}
-        }
-    )
+    private fun Side(cursorId: Int, sides: Int) =
+        Layout(
+            {},
+            Modifier.cursor(cursorId).resizeOnDrag(sides),
+            measurePolicy = { _, constraints ->
+                layout(constraints.maxWidth, constraints.maxHeight) {}
+            }
+        )
 
     @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.cursor(awtCursorId: Int) =

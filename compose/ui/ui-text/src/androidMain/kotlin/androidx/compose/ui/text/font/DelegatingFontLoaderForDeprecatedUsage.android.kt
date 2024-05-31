@@ -22,7 +22,6 @@ import android.content.Context
  * Bridge between subclasses of Font.ResourceLoader and the new FontFamily.Resolver API.
  *
  * To use add as a CompositionLocal replacing the default FontFamily.Resolver:
- *
  * ```
  * LocalFontFamilyResolver provides createFontFamilyResolver(myFontResourceLoader, context)
  * ```
@@ -37,8 +36,9 @@ import android.content.Context
  * A FontFamily.Resolver created this way will not share caches with other FontFamily.Resolvers.
  */
 @Suppress("DEPRECATION")
-@Deprecated("This exists to bridge existing Font.ResourceLoader subclasses to be used as a" +
-    "FontFamily.ResourceLoader during upgrade.",
+@Deprecated(
+    "This exists to bridge existing Font.ResourceLoader subclasses to be used as a" +
+        "FontFamily.ResourceLoader during upgrade.",
     replaceWith = ReplaceWith("createFontFamilyResolver()"),
 )
 fun createFontFamilyResolver(
@@ -51,8 +51,8 @@ fun createFontFamilyResolver(
 }
 
 @Suppress("DEPRECATION")
-@Deprecated("This exists to bridge existing Font.ResourceLoader APIs, and should be " +
-    "removed with them",
+@Deprecated(
+    "This exists to bridge existing Font.ResourceLoader APIs, and should be " + "removed with them",
     replaceWith = ReplaceWith("createFontFamilyResolver()"),
 )
 internal actual fun createFontFamilyResolver(
@@ -70,9 +70,8 @@ internal actual fun createFontFamilyResolver(
  * [FontFamily.Resolver] using [createFontFamilyResolver] (Font.ResourceLoader, Context).
  */
 @Suppress("DEPRECATION")
-internal class DelegatingFontLoaderForDeprecatedUsage(
-    internal val loader: Font.ResourceLoader
-) : PlatformFontLoader {
+internal class DelegatingFontLoaderForDeprecatedUsage(internal val loader: Font.ResourceLoader) :
+    PlatformFontLoader {
 
     // never consider these reusable for caching
     override val cacheKey: Any = Any()

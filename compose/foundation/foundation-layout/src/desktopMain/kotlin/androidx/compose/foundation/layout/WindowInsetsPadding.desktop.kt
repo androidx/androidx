@@ -54,9 +54,7 @@ actual fun Modifier.statusBarsPadding() =
     }
 
 actual fun Modifier.imePadding() =
-    windowInsetsPadding(debugInspectorInfo { name = "imePadding" }) {
-        WindowInsets.ime
-    }
+    windowInsetsPadding(debugInspectorInfo { name = "imePadding" }) { WindowInsets.ime }
 
 actual fun Modifier.navigationBarsPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "navigationBarsPadding" }) {
@@ -69,9 +67,7 @@ actual fun Modifier.captionBarPadding() =
     }
 
 actual fun Modifier.waterfallPadding() =
-    windowInsetsPadding(debugInspectorInfo { name = "waterfallPadding" }) {
-        WindowInsets.waterfall
-    }
+    windowInsetsPadding(debugInspectorInfo { name = "waterfallPadding" }) { WindowInsets.waterfall }
 
 actual fun Modifier.systemGesturesPadding() =
     windowInsetsPadding(debugInspectorInfo { name = "systemGesturesPadding" }) {
@@ -88,7 +84,8 @@ actual fun Modifier.mandatorySystemGesturesPadding() =
 private inline fun Modifier.windowInsetsPadding(
     noinline inspectorInfo: InspectorInfo.() -> Unit,
     crossinline insetsCalculation: @Composable () -> WindowInsets
-): Modifier = composed(inspectorInfo) {
-    val insets = insetsCalculation()
-    InsetsPaddingModifier(insets)
-}
+): Modifier =
+    composed(inspectorInfo) {
+        val insets = insetsCalculation()
+        InsetsPaddingModifier(insets)
+    }

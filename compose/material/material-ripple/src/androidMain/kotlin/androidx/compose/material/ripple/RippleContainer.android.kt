@@ -40,24 +40,18 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
      */
     private val MaxRippleHosts = 5
 
-    /**
-     * [RippleHostView]s that will be assigned to [RippleHostKey]s when
-     * necessary.
-     */
+    /** [RippleHostView]s that will be assigned to [RippleHostKey]s when necessary. */
     private val rippleHosts = mutableListOf<RippleHostView>()
 
     /**
-     * [RippleHostView]s that are not currently assigned to any
-     * [RippleHostKey], so they can be reused without needing to allocate new
-     * instances.
+     * [RippleHostView]s that are not currently assigned to any [RippleHostKey], so they can be
+     * reused without needing to allocate new instances.
      */
     private val unusedRippleHosts = mutableListOf<RippleHostView>()
 
     private val rippleHostMap = RippleHostMap()
 
-    /**
-     * Index of the next host that will be assigned to a ripple
-     */
+    /** Index of the next host that will be assigned to a ripple */
     private var nextHostIndex = 0
 
     init {
@@ -93,8 +87,8 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
     }
 
     /**
-     * @return a [RippleHostView] for [this] [RippleHostKey]. This result will
-     * be cached if possible, to allow re-using the same [RippleHostView].
+     * @return a [RippleHostView] for [this] [RippleHostKey]. This result will be cached if
+     *   possible, to allow re-using the same [RippleHostView].
      */
     fun RippleHostKey.getRippleHostView(): RippleHostView {
         val existingRippleHostView = rippleHostMap[this]
@@ -108,32 +102,33 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
         if (rippleHostView == null) {
             // If the next host is larger than the current index, we haven't reached maximum
             // capacity yet and so we need to allocate a new RippleHostView
-            rippleHostView = if (nextHostIndex > rippleHosts.lastIndex) {
-                RippleHostView(context).also {
-                    // Add this host to the view hierarchy
-                    addView(it)
-                    // And add it to the list of hosts
-                    rippleHosts += it
-                }
-            } else {
-                // Otherwise we are looping through the current hosts and re-using an existing,
-                // un-disposed host
-                val host = rippleHosts[nextHostIndex]
+            rippleHostView =
+                if (nextHostIndex > rippleHosts.lastIndex) {
+                    RippleHostView(context).also {
+                        // Add this host to the view hierarchy
+                        addView(it)
+                        // And add it to the list of hosts
+                        rippleHosts += it
+                    }
+                } else {
+                    // Otherwise we are looping through the current hosts and re-using an existing,
+                    // un-disposed host
+                    val host = rippleHosts[nextHostIndex]
 
-                // Since this host was re-used, and not in the unused host list, it may still be
-                // linked to an instance
-                val existingInstance = rippleHostMap[host]
+                    // Since this host was re-used, and not in the unused host list, it may still be
+                    // linked to an instance
+                    val existingInstance = rippleHostMap[host]
 
-                // TODO: possible future optimization
-                //  Consider checking to see if the existing ripple is still drawing, and if so,
-                //  create a new RippleHostView one instead of reassigning
-                if (existingInstance != null) {
-                    existingInstance.onResetRippleHostView()
-                    rippleHostMap.remove(existingInstance)
-                    host.disposeRipple()
+                    // TODO: possible future optimization
+                    //  Consider checking to see if the existing ripple is still drawing, and if so,
+                    //  create a new RippleHostView one instead of reassigning
+                    if (existingInstance != null) {
+                        existingInstance.onResetRippleHostView()
+                        rippleHostMap.remove(existingInstance)
+                        host.disposeRipple()
+                    }
+                    host
                 }
-                host
-            }
 
             // Update the index for the next host - loop around if we reach the maximum capacity
             if (nextHostIndex < MaxRippleHosts - 1) {
@@ -149,8 +144,8 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
     }
 
     /**
-     * Unassigns the current [RippleHostView] from [this] [RippleHostKey] and
-     * resets its state, so it can be used by another [RippleHostKey].
+     * Unassigns the current [RippleHostView] from [this] [RippleHostKey] and resets its state, so
+     * it can be used by another [RippleHostKey].
      */
     fun RippleHostKey.disposeRippleIfNeeded() {
         onResetRippleHostView()
@@ -165,19 +160,12 @@ internal class RippleContainer(context: Context) : ViewGroup(context) {
     }
 }
 
-/**
- * Simple bidirectional map for [RippleHostKey] : [RippleHostView].
- */
+/** Simple bidirectional map for [RippleHostKey] : [RippleHostView]. */
 private class RippleHostMap {
-    private val indicationToHostMap =
-        mutableMapOf<RippleHostKey, RippleHostView>()
-    private val hostToIndicationMap =
-        mutableMapOf<RippleHostView, RippleHostKey>()
+    private val indicationToHostMap = mutableMapOf<RippleHostKey, RippleHostView>()
+    private val hostToIndicationMap = mutableMapOf<RippleHostView, RippleHostKey>()
 
-    operator fun set(
-        indicationInstance: RippleHostKey,
-        rippleHostView: RippleHostView
-    ) {
+    operator fun set(indicationInstance: RippleHostKey, rippleHostView: RippleHostView) {
         indicationToHostMap[indicationInstance] = rippleHostView
         hostToIndicationMap[rippleHostView] = indicationInstance
     }

@@ -39,24 +39,20 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "fontFamily={0} fontWeight={1}")
-        fun initParameters() = cartesian(
-            arrayOf(
-                FontFamily.Default,
-                FontFamily.SansSerif,
-                FontFamily.Serif,
-                FontFamily.Cursive,
-                FontFamily.Monospace
-            ),
-            arrayOf(
-                100,
-                400,
-                700
-            ).map { FontWeight(it) }.toTypedArray()
-        )
+        fun initParameters() =
+            cartesian(
+                arrayOf(
+                    FontFamily.Default,
+                    FontFamily.SansSerif,
+                    FontFamily.Serif,
+                    FontFamily.Cursive,
+                    FontFamily.Monospace
+                ),
+                arrayOf(100, 400, 700).map { FontWeight(it) }.toTypedArray()
+            )
     }
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     private val context: Context = InstrumentationRegistry.getInstrumentation().context
 
@@ -64,9 +60,7 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
     @Test
     fun forceUncached() {
         benchmarkRule.measureRepeated {
-            val fontFamilyResolver = runWithTimingDisabled {
-                emptyCacheFontFamilyResolver(context)
-            }
+            val fontFamilyResolver = runWithTimingDisabled { emptyCacheFontFamilyResolver(context) }
             fontFamilyResolver.resolve(fontFamily, fontWeight)
         }
     }
@@ -74,9 +68,7 @@ class PlatformFontLookup(val fontFamily: FontFamily, val fontWeight: FontWeight)
     @Test
     fun cached() {
         benchmarkRule.measureRepeated {
-            val fontFamilyResolver = runWithTimingDisabled {
-                createFontFamilyResolver(context)
-            }
+            val fontFamilyResolver = runWithTimingDisabled { createFontFamilyResolver(context) }
             fontFamilyResolver.resolve(fontFamily, fontWeight)
         }
     }

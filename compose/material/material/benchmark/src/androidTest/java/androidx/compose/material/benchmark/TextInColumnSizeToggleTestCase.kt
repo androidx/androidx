@@ -33,9 +33,8 @@ import androidx.compose.ui.unit.sp
  *
  * Note: Each rectangle has its own model so changes should always affect only the first one.
  */
-class TextInColumnSizeToggleTestCase(
-    private val numberOfTexts: Int
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class TextInColumnSizeToggleTestCase(private val numberOfTexts: Int) :
+    LayeredComposeTestCase(), ToggleableTestCase {
 
     private val fontSize = mutableStateOf(20.sp)
 
@@ -54,18 +53,15 @@ class TextInColumnSizeToggleTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            Surface {
-                content()
-            }
-        }
+        MaterialTheme { Surface { content() } }
     }
 
     override fun toggleState() {
-        fontSize.value = if (fontSize.value == 20.sp) {
-            15.sp
-        } else {
-            20.sp
-        }
+        fontSize.value =
+            if (fontSize.value == 20.sp) {
+                15.sp
+            } else {
+                20.sp
+            }
     }
 }

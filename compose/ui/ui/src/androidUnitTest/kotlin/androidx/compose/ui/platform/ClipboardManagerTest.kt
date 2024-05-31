@@ -41,17 +41,17 @@ class ClipboardManagerTest {
     }
 }
 
-fun FakeClipboardManager(
-    initialText: String? = null
-) = object : ClipboardManager {
-    private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
-    override fun setText(annotatedString: AnnotatedString) {
-        currentText = annotatedString
+fun FakeClipboardManager(initialText: String? = null) =
+    object : ClipboardManager {
+        private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
+
+        override fun setText(annotatedString: AnnotatedString) {
+            currentText = annotatedString
+        }
+
+        override fun getText(): AnnotatedString? = currentText
+
+        override fun getClip(): ClipEntry? = null
+
+        override fun setClip(clipEntry: ClipEntry?) = Unit
     }
-
-    override fun getText(): AnnotatedString? = currentText
-
-    override fun getClip(): ClipEntry? = null
-
-    override fun setClip(clipEntry: ClipEntry?) = Unit
-}

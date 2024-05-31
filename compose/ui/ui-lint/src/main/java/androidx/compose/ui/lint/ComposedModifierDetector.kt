@@ -39,8 +39,8 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
  * [Detector] that checks calls to Modifier.composed to make sure they actually reference a
- * Composable function inside - otherwise there is no reason to use Modifier.composed, and since
- * the resulting Modifier is not skippable, it will cause worse performance.
+ * Composable function inside - otherwise there is no reason to use Modifier.composed, and since the
+ * resulting Modifier is not skippable, it will cause worse performance.
  */
 class ComposedModifierDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> = listOf(Names.Ui.Composed.shortName)
@@ -48,35 +48,34 @@ class ComposedModifierDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(Names.Ui.PackageName)) return
 
-        val factoryLambda = node.valueArguments.find {
-            node.getParameterForArgument(it)?.name == "factory"
-        } ?: return
+        val factoryLambda =
+            node.valueArguments.find { node.getParameterForArgument(it)?.name == "factory" }
+                ?: return
 
         var hasComposableCall = false
-        factoryLambda.accept(object : AbstractUastVisitor() {
-            /**
-             * Visit function calls to see if the functions are composable
-             */
-            override fun visitCallExpression(
-                node: UCallExpression
-            ): Boolean = (node.tryResolve() as? PsiMethod).hasComposableCall()
+        factoryLambda.accept(
+            object : AbstractUastVisitor() {
+                /** Visit function calls to see if the functions are composable */
+                override fun visitCallExpression(node: UCallExpression): Boolean =
+                    (node.tryResolve() as? PsiMethod).hasComposableCall()
 
-            /**
-             * Visit any simple name reference expressions and see if they resolve to a
-             * composable function - for example if referencing a property with a composable
-             * getter, such as CompositionLocal.current.
-             */
-            override fun visitSimpleNameReferenceExpression(
-                node: USimpleNameReferenceExpression
-            ): Boolean = (node.tryResolve() as? PsiMethod).hasComposableCall()
+                /**
+                 * Visit any simple name reference expressions and see if they resolve to a
+                 * composable function - for example if referencing a property with a composable
+                 * getter, such as CompositionLocal.current.
+                 */
+                override fun visitSimpleNameReferenceExpression(
+                    node: USimpleNameReferenceExpression
+                ): Boolean = (node.tryResolve() as? PsiMethod).hasComposableCall()
 
-            private fun PsiMethod?.hasComposableCall(): Boolean {
-                if (this?.isComposable == true) {
-                    hasComposableCall = true
+                private fun PsiMethod?.hasComposableCall(): Boolean {
+                    if (this?.isComposable == true) {
+                        hasComposableCall = true
+                    }
+                    return hasComposableCall
                 }
-                return hasComposableCall
             }
-        })
+        )
 
         if (!hasComposableCall) {
             context.report(
@@ -89,20 +88,23 @@ class ComposedModifierDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val UnnecessaryComposedModifier = Issue.create(
-            "UnnecessaryComposedModifier",
-            "Modifier.composed should only be used for modifiers that invoke @Composable functions",
-            "`Modifier.composed` allows invoking @Composable functions when creating a `Modifier`" +
-                " instance - for example, using `remember` to have instance-specific state, " +
-                "allowing the same `Modifier` object to be safely used in multiple places. Using " +
-                "`Modifier.composed` without calling any @Composable functions inside is " +
-                "unnecessary, and since the Modifier is no longer skippable, this can cause a lot" +
-                " of extra work inside the composed body, leading to worse performance.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                ComposedModifierDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val UnnecessaryComposedModifier =
+            Issue.create(
+                "UnnecessaryComposedModifier",
+                "Modifier.composed should only be used for modifiers that invoke @Composable functions",
+                "`Modifier.composed` allows invoking @Composable functions when creating a `Modifier`" +
+                    " instance - for example, using `remember` to have instance-specific state, " +
+                    "allowing the same `Modifier` object to be safely used in multiple places. Using " +
+                    "`Modifier.composed` without calling any @Composable functions inside is " +
+                    "unnecessary, and since the Modifier is no longer skippable, this can cause a lot" +
+                    " of extra work inside the composed body, leading to worse performance.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    ComposedModifierDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

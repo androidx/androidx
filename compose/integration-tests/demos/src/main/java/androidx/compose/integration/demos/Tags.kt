@@ -16,9 +16,7 @@
 
 package androidx.compose.integration.demos
 
-/**
- * Tags used for testing
- */
+/** Tags used for testing */
 object Tags {
     const val AppBarTitle = "AppBarTitle"
     const val FilterButton = "FilterButton"

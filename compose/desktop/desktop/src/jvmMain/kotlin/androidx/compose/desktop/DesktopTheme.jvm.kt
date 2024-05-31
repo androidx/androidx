@@ -28,10 +28,11 @@ import androidx.compose.ui.unit.dp
 
 @Deprecated(
     "Use MaterialTheme",
-    replaceWith = ReplaceWith(
-        "MaterialTheme(colors, typography, shapes, content)",
-        "androidx.compose.material.MaterialTheme"
-    )
+    replaceWith =
+        ReplaceWith(
+            "MaterialTheme(colors, typography, shapes, content)",
+            "androidx.compose.material.MaterialTheme"
+        )
 )
 @Suppress("DEPRECATION")
 @Composable
@@ -40,37 +41,30 @@ fun DesktopMaterialTheme(
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit
-) = MaterialTheme(
-    colors,
-    typography,
-    shapes
-) {
-    DesktopTheme(content = content)
-}
+) = MaterialTheme(colors, typography, shapes) { DesktopTheme(content = content) }
 
 @Deprecated(
     "Use CompositionLocalProvider(LocalScrollbarStyle provides scrollbar)",
-    replaceWith = ReplaceWith(
-        "CompositionLocalProvider(\n" +
-            "    LocalScrollbarStyle provides scrollbar,\n" +
-            "    content = content\n" +
-            ")",
-        "androidx.compose.runtime.CompositionLocalProvider",
-        "androidx.compose.foundation.LocalScrollbarStyle"
-    )
+    replaceWith =
+        ReplaceWith(
+            "CompositionLocalProvider(\n" +
+                "    LocalScrollbarStyle provides scrollbar,\n" +
+                "    content = content\n" +
+                ")",
+            "androidx.compose.runtime.CompositionLocalProvider",
+            "androidx.compose.foundation.LocalScrollbarStyle"
+        )
 )
 @Composable
 fun DesktopTheme(
-    scrollbar: ScrollbarStyle = ScrollbarStyle(
-        minimalHeight = 16.dp,
-        thickness = 8.dp,
-        shape = MaterialTheme.shapes.small,
-        hoverDurationMillis = 300,
-        unhoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
-        hoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.50f)
-    ),
+    scrollbar: ScrollbarStyle =
+        ScrollbarStyle(
+            minimalHeight = 16.dp,
+            thickness = 8.dp,
+            shape = MaterialTheme.shapes.small,
+            hoverDurationMillis = 300,
+            unhoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.12f),
+            hoverColor = MaterialTheme.colors.onSurface.copy(alpha = 0.50f)
+        ),
     content: @Composable () -> Unit
-) = CompositionLocalProvider(
-    LocalScrollbarStyle provides scrollbar,
-    content = content
-)
+) = CompositionLocalProvider(LocalScrollbarStyle provides scrollbar, content = content)

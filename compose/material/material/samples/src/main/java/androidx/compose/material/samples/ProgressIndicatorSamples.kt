@@ -39,21 +39,16 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LinearProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LinearProgressIndicator(progress = animatedProgress)
         Spacer(Modifier.requiredHeight(30.dp))
-        OutlinedButton(
-            onClick = {
-                if (progress < 1f) progress += 0.1f
-            }
-        ) {
-            Text("Increase")
-        }
+        OutlinedButton(onClick = { if (progress < 1f) progress += 0.1f }) { Text("Increase") }
     }
 }
 
@@ -61,20 +56,15 @@ fun LinearProgressIndicatorSample() {
 @Composable
 fun CircularProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(progress = animatedProgress)
         Spacer(Modifier.requiredHeight(30.dp))
-        OutlinedButton(
-            onClick = {
-                if (progress < 1f) progress += 0.1f
-            }
-        ) {
-            Text("Increase")
-        }
+        OutlinedButton(onClick = { if (progress < 1f) progress += 0.1f }) { Text("Increase") }
     }
 }

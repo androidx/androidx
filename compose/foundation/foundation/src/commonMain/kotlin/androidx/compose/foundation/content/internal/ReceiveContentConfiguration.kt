@@ -37,9 +37,7 @@ internal abstract class ReceiveContentConfiguration {
     companion object {
         operator fun invoke(
             receiveContentListener: ReceiveContentListener
-        ): ReceiveContentConfiguration = ReceiveContentConfigurationImpl(
-            receiveContentListener
-        )
+        ): ReceiveContentConfiguration = ReceiveContentConfigurationImpl(receiveContentListener)
     }
 }
 
@@ -53,23 +51,23 @@ internal val ModifierLocalReceiveContent = modifierLocalOf<ReceiveContentConfigu
  * In a [ModifierLocalModifierNode], reads the current [ReceiveContentConfiguration] that's supplied
  * by [ModifierLocalReceiveContent] if the node is currently attached.
  */
-internal fun ModifierLocalModifierNode.getReceiveContentConfiguration() = if (node.isAttached) {
-    ModifierLocalReceiveContent.current
-} else {
-    null
-}
+internal fun ModifierLocalModifierNode.getReceiveContentConfiguration() =
+    if (node.isAttached) {
+        ModifierLocalReceiveContent.current
+    } else {
+        null
+    }
 
 /**
  * Combines the current [ReceiveContentNode]'s [ReceiveContentConfiguration] with the parent
  * [ReceiveContentNode]s'. It also counts the drag and drop enter/exit calls to merge drag and drop
  * areas of parent/children [ReceiveContentListener]s. Unlike regular drop targets, ReceiveContent
- * does not call onExit when the dragging item moves from parent node to child node since they
- * share the same boundaries.
+ * does not call onExit when the dragging item moves from parent node to child node since they share
+ * the same boundaries.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class DynamicReceiveContentConfiguration(
-    val receiveContentNode: ReceiveContentNode
-) : ReceiveContentConfiguration() {
+internal class DynamicReceiveContentConfiguration(val receiveContentNode: ReceiveContentNode) :
+    ReceiveContentConfiguration() {
 
     /**
      * A getter that returns the closest [contentReceiver] modifier configuration if this node is
@@ -80,84 +78,81 @@ internal class DynamicReceiveContentConfiguration(
         return receiveContentNode.getReceiveContentConfiguration()?.receiveContentListener
     }
 
-    override val receiveContentListener: ReceiveContentListener = object : ReceiveContentListener {
-        /**
-         * ---------
-         * | A     |
-         * |   |---|
-         * |   | B |
-         * ---------
-         *
-         * DragAndDrop's own callbacks do not work well with nested content. Simply, when B is
-         * nested in A, and the dragging item moves from (A\B) to (A∩B), A receives an exit event
-         * and B receives an enter event. From ReceiveContent's chaining perspective, anything
-         * that gets dropped on B is also dropped on A. Hence, A should not receive an exit event
-         * when the item moves over B.
-         *
-         * This variable counts the difference between number of times enter and exit are called,
-         * but not just on this node. ReceiveContent chaining makes sure that every enter event
-         * that B receives is also delegated A. For example;
-         *
-         * - Dragging item moves onto A.
-         *   - A receives an enter event from DragAndDrop system. Enter=1, Exit=0
-         * - Dragging item moves onto B.
-         *   - A receives an exit event from DragAndDrop system. Enter=1, Exit=1.
-         *   - B receives an enter event from DragAndDrop system.
-         *     - B delegates this to A.
-         *     - A receives an enter event from B. Enter=2, Exit=1
-         *
-         * In conclusion, nodeEnterCount would be 1, meaning that this node is still hovered.
-         */
-        private var nodeEnterCount: Int = 0
+    override val receiveContentListener: ReceiveContentListener =
+        object : ReceiveContentListener {
+            /**
+             * ---------
+             * | A | | |---| | | B |
+             * ---------
+             * DragAndDrop's own callbacks do not work well with nested content. Simply, when B is
+             * nested in A, and the dragging item moves from (A\B) to (A∩B), A receives an exit
+             * event and B receives an enter event. From ReceiveContent's chaining perspective,
+             * anything that gets dropped on B is also dropped on A. Hence, A should not receive an
+             * exit event when the item moves over B.
+             *
+             * This variable counts the difference between number of times enter and exit are
+             * called, but not just on this node. ReceiveContent chaining makes sure that every
+             * enter event that B receives is also delegated A. For example;
+             * - Dragging item moves onto A.
+             *     - A receives an enter event from DragAndDrop system. Enter=1, Exit=0
+             * - Dragging item moves onto B.
+             *     - A receives an exit event from DragAndDrop system. Enter=1, Exit=1.
+             *     - B receives an enter event from DragAndDrop system.
+             *         - B delegates this to A.
+             *         - A receives an enter event from B. Enter=2, Exit=1
+             *
+             * In conclusion, nodeEnterCount would be 1, meaning that this node is still hovered.
+             */
+            private var nodeEnterCount: Int = 0
 
-        override fun onDragStart() {
-            // no need to call parent on this because all nodes are going to receive
-            // onStart at the same time from DragAndDrop system.
-            nodeEnterCount = 0
-            receiveContentNode.receiveContentListener.onDragStart()
-        }
-
-        override fun onDragEnd() {
-            // no need to call parent on this because all nodes are going to receive
-            // onEnd at the same time from DragAndDrop system.
-            receiveContentNode.receiveContentListener.onDragEnd()
-            nodeEnterCount = 0
-        }
-
-        override fun onDragEnter() {
-            nodeEnterCount++
-            if (nodeEnterCount == 1) {
-                // enter became 1 from 0. Trigger the callback.
-                receiveContentNode.receiveContentListener.onDragEnter()
+            override fun onDragStart() {
+                // no need to call parent on this because all nodes are going to receive
+                // onStart at the same time from DragAndDrop system.
+                nodeEnterCount = 0
+                receiveContentNode.receiveContentListener.onDragStart()
             }
-            // We need to call enter on parent because they will receive onExit from their
-            // own DragAndDropTarget.
-            getParentReceiveContentListener()?.onDragEnter()
-        }
 
-        override fun onDragExit() {
-            val previous = nodeEnterCount
-            nodeEnterCount = (nodeEnterCount - 1).coerceAtLeast(0)
-            if (nodeEnterCount == 0 && previous > 0) {
-                receiveContentNode.receiveContentListener.onDragExit()
+            override fun onDragEnd() {
+                // no need to call parent on this because all nodes are going to receive
+                // onEnd at the same time from DragAndDrop system.
+                receiveContentNode.receiveContentListener.onDragEnd()
+                nodeEnterCount = 0
             }
-            // We need to call exit on parent because they also received an enter from us.
-            getParentReceiveContentListener()?.onDragExit()
+
+            override fun onDragEnter() {
+                nodeEnterCount++
+                if (nodeEnterCount == 1) {
+                    // enter became 1 from 0. Trigger the callback.
+                    receiveContentNode.receiveContentListener.onDragEnter()
+                }
+                // We need to call enter on parent because they will receive onExit from their
+                // own DragAndDropTarget.
+                getParentReceiveContentListener()?.onDragEnter()
+            }
+
+            override fun onDragExit() {
+                val previous = nodeEnterCount
+                nodeEnterCount = (nodeEnterCount - 1).coerceAtLeast(0)
+                if (nodeEnterCount == 0 && previous > 0) {
+                    receiveContentNode.receiveContentListener.onDragExit()
+                }
+                // We need to call exit on parent because they also received an enter from us.
+                getParentReceiveContentListener()?.onDragExit()
+            }
+
+            override fun onReceive(transferableContent: TransferableContent): TransferableContent? {
+                // first let this node do whatever it wants. If it consumes everything, we can end
+                // the chain here.
+                val remaining =
+                    receiveContentNode.receiveContentListener.onReceive(transferableContent)
+                        ?: return null
+
+                // Check whether we have a parent node. If not, we can return the remaining here.
+                val parentReceiveContentListener =
+                    getParentReceiveContentListener() ?: return remaining
+
+                // Delegate the rest to the parent node to continue the chain.
+                return parentReceiveContentListener.onReceive(remaining)
+            }
         }
-
-        override fun onReceive(transferableContent: TransferableContent): TransferableContent? {
-            // first let this node do whatever it wants. If it consumes everything, we can end
-            // the chain here.
-            val remaining = receiveContentNode
-                .receiveContentListener
-                .onReceive(transferableContent) ?: return null
-
-            // Check whether we have a parent node. If not, we can return the remaining here.
-            val parentReceiveContentListener = getParentReceiveContentListener()
-                ?: return remaining
-
-            // Delegate the rest to the parent node to continue the chain.
-            return parentReceiveContentListener.onReceive(remaining)
-        }
-    }
 }

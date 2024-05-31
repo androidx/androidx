@@ -48,11 +48,9 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     private val testTag = "SearchBar"
 
@@ -175,10 +173,11 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 },
                 expanded = expanded,
                 onExpandedChange = onExpandedChange,
-                colors = SearchBarDefaults.colors(
-                    containerColor = Color.Yellow,
-                    dividerColor = Color.Green,
-                ),
+                colors =
+                    SearchBarDefaults.colors(
+                        containerColor = Color.Yellow,
+                        dividerColor = Color.Green,
+                    ),
                 content = { Text("Content") },
             )
         }
@@ -239,41 +238,31 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @Test
     fun searchBar_predictiveBack_progress0() {
-        rule.setMaterialContent(lightColorScheme()) {
-            SearchBarPredictiveBack(progress = 0f)
-        }
+        rule.setMaterialContent(lightColorScheme()) { SearchBarPredictiveBack(progress = 0f) }
         assertAgainstGolden("searchBar_predictiveBack_progress0")
     }
 
     @Test
     fun searchBar_predictiveBack_progress25() {
-        rule.setMaterialContent(lightColorScheme()) {
-            SearchBarPredictiveBack(progress = 0.25f)
-        }
+        rule.setMaterialContent(lightColorScheme()) { SearchBarPredictiveBack(progress = 0.25f) }
         assertAgainstGolden("searchBar_predictiveBack_progress25")
     }
 
     @Test
     fun searchBar_predictiveBack_progress50() {
-        rule.setMaterialContent(lightColorScheme()) {
-            SearchBarPredictiveBack(progress = 0.50f)
-        }
+        rule.setMaterialContent(lightColorScheme()) { SearchBarPredictiveBack(progress = 0.50f) }
         assertAgainstGolden("searchBar_predictiveBack_progress50")
     }
 
     @Test
     fun searchBar_predictiveBack_progress75() {
-        rule.setMaterialContent(lightColorScheme()) {
-            SearchBarPredictiveBack(progress = 0.75f)
-        }
+        rule.setMaterialContent(lightColorScheme()) { SearchBarPredictiveBack(progress = 0.75f) }
         assertAgainstGolden("searchBar_predictiveBack_progress75")
     }
 
     @Test
     fun searchBar_predictiveBack_progress100() {
-        rule.setMaterialContent(lightColorScheme()) {
-            SearchBarPredictiveBack(progress = 1f)
-        }
+        rule.setMaterialContent(lightColorScheme()) { SearchBarPredictiveBack(progress = 1f) }
         assertAgainstGolden("searchBar_predictiveBack_progress100")
     }
 
@@ -409,10 +398,11 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 },
                 expanded = true,
                 onExpandedChange = {},
-                colors = SearchBarDefaults.colors(
-                    containerColor = Color.Yellow,
-                    dividerColor = Color.Green,
-                ),
+                colors =
+                    SearchBarDefaults.colors(
+                        containerColor = Color.Yellow,
+                        dividerColor = Color.Green,
+                    ),
                 content = { Text("Content") },
             )
         }
@@ -467,18 +457,17 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(testTag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, goldenName)
+        rule.onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
     }
 
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     class ColorSchemeWrapper(val name: String, val colorScheme: ColorScheme) {

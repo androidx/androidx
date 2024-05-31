@@ -24,26 +24,17 @@ import androidx.compose.ui.text.style.TextDecoration
 @Sampled
 @Composable
 fun TextDecorationLineThroughSample() {
-    Text(
-        text = "Demo Text",
-        textDecoration = TextDecoration.LineThrough
-    )
+    Text(text = "Demo Text", textDecoration = TextDecoration.LineThrough)
 }
 
 @Sampled
 @Composable
 fun TextDecorationUnderlineSample() {
-    Text(
-        text = "Demo Text",
-        textDecoration = TextDecoration.Underline
-    )
+    Text(text = "Demo Text", textDecoration = TextDecoration.Underline)
 }
 
 @Sampled
 @Composable
 fun TextDecorationCombinedSample() {
-    Text(
-        text = "Demo Text",
-        textDecoration = TextDecoration.Underline + TextDecoration.LineThrough
-    )
+    Text(text = "Demo Text", textDecoration = TextDecoration.Underline + TextDecoration.LineThrough)
 }

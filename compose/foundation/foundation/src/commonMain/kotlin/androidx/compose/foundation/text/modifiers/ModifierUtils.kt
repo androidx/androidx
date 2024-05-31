@@ -19,15 +19,13 @@ package androidx.compose.foundation.text.modifiers
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 
-internal fun Constraints.maxWidthForTextLayout(
-    softWrap: Boolean,
-    overflow: TextOverflow
-): Int {
+internal fun Constraints.maxWidthForTextLayout(softWrap: Boolean, overflow: TextOverflow): Int {
     val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
-    val maxWidth = if (widthMatters && hasBoundedWidth) {
-        maxWidth
-    } else {
-        Constraints.Infinity
-    }
+    val maxWidth =
+        if (widthMatters && hasBoundedWidth) {
+            maxWidth
+        } else {
+            Constraints.Infinity
+        }
     return maxWidth
 }

@@ -42,9 +42,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests [longClick] with arguments. Verifies that the click is in the middle
- * of the component, that the gesture has a duration of 600 milliseconds and that all input
- * events were on the same location.
+ * Tests [longClick] with arguments. Verifies that the click is in the middle of the component, that
+ * the gesture has a duration of 600 milliseconds and that all input events were on the same
+ * location.
  */
 @MediumTest
 @RunWith(Parameterized::class)
@@ -68,12 +68,10 @@ class SendLongClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recordedLongClicks = mutableListOf<Offset>()
-    private val expectedClickPosition =
-        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
+    private val expectedClickPosition = config.position ?: Offset(defaultSize / 2, defaultSize / 2)
     private val expectedDuration = config.durationMillis ?: 600L
 
     private fun recordLongPress(position: Offset) {
@@ -87,8 +85,7 @@ class SendLongClickTest(private val config: TestConfig) {
         rule.setContent {
             Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                 ClickableTestBox(
-                    Modifier
-                        .pointerInput(Unit) {
+                    Modifier.pointerInput(Unit) {
                             detectTapGestures(onLongPress = ::recordLongPress)
                         }
                         .then(recorder)

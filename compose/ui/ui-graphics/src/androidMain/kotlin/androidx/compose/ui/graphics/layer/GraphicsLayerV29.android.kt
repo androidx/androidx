@@ -41,9 +41,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 
-/**
- * GraphicsLayer implementation for Android Q+ that uses the public RenderNode API
- */
+/** GraphicsLayer implementation for Android Q+ that uses the public RenderNode API */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class GraphicsLayerV29(
     private val canvasHolder: CanvasHolder = CanvasHolder(),
@@ -91,6 +89,7 @@ internal class GraphicsLayerV29(
                 renderNode.pivotY = value.y
             }
         }
+
     override var scaleX: Float = 1f
         set(value) {
             field = value
@@ -108,6 +107,7 @@ internal class GraphicsLayerV29(
             field = value
             renderNode.translationX = value
         }
+
     override var translationY: Float = 0f
         set(value) {
             field = value
@@ -125,26 +125,31 @@ internal class GraphicsLayerV29(
             field = value
             renderNode.ambientShadowColor = value.toArgb()
         }
+
     override var spotShadowColor: Color = Color.Black
         set(value) {
             field = value
             renderNode.spotShadowColor = value.toArgb()
         }
+
     override var rotationX: Float = 0f
         set(value) {
             field = value
             renderNode.rotationX = value
         }
+
     override var rotationY: Float = 0f
         set(value) {
             field = value
             renderNode.rotationY = value
         }
+
     override var rotationZ: Float = 0f
         set(value) {
             field = value
             renderNode.rotationZ = value
         }
+
     override var cameraDistance: Float = DefaultCameraDistance
         set(value) {
             field = value

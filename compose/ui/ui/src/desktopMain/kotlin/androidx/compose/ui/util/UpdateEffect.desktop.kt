@@ -26,8 +26,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import kotlinx.coroutines.channels.Channel
 
 /**
- * When [UpdateEffect] enters the composition it will call [update] and will capture all state
- * which is used in this function.
+ * When [UpdateEffect] enters the composition it will call [update] and will capture all state which
+ * is used in this function.
  *
  * When any state is changed, [update] will be called again on the next recomposition.
  *
@@ -45,9 +45,7 @@ internal fun UpdateEffect(update: () -> Unit) {
     }
 
     DisposableEffect(Unit) {
-        val snapshotObserver = SnapshotStateObserver { command ->
-            command()
-        }
+        val snapshotObserver = SnapshotStateObserver { command -> command() }
         snapshotObserver.start()
 
         fun performUpdate() {

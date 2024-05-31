@@ -36,31 +36,30 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @OptIn(InternalTestApi::class)
 class GraphicsLayerTest {
-    @get:Rule
-    val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/platform")
+    @get:Rule val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/platform")
 
     @Test
     fun scale() {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         scaleX = 2f,
                         scaleY = 0.5f,
                         transformOrigin = TransformOrigin(0f, 0f)
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Red)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Red)
             )
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 10f,
                         translationY = 20f,
                         scaleX = 2f,
                         scaleY = 0.5f
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Blue)
             )
         }
         screenshotRule.snap(window.surface)
@@ -71,24 +70,20 @@ class GraphicsLayerTest {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 10f,
                         rotationZ = 90f,
                         scaleX = 2f,
                         scaleY = 0.5f,
                         transformOrigin = TransformOrigin(0f, 0f)
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Red)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Red)
             )
             Box(
-                Modifier
-                    .graphicsLayer(
-                        translationX = 10f,
-                        translationY = 20f,
-                        rotationZ = 45f
-                    )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+                Modifier.graphicsLayer(translationX = 10f, translationY = 20f, rotationZ = 45f)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Blue)
             )
         }
         screenshotRule.snap(window.surface)
@@ -100,18 +95,18 @@ class GraphicsLayerTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .graphicsLayer(rotationX = 45f)
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+                Modifier.graphicsLayer(rotationX = 45f)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Blue)
             )
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 20f,
                         transformOrigin = TransformOrigin(0f, 0f),
                         rotationX = 45f
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Blue)
             )
         }
         screenshotRule.snap(window.surface)
@@ -122,18 +117,18 @@ class GraphicsLayerTest {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
             Box(
-                Modifier
-                    .graphicsLayer(rotationY = 45f)
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+                Modifier.graphicsLayer(rotationY = 45f)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Blue)
             )
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 20f,
                         transformOrigin = TransformOrigin(0f, 0f),
                         rotationY = 45f
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Blue)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Blue)
             )
         }
         screenshotRule.snap(window.surface)
@@ -144,14 +139,14 @@ class GraphicsLayerTest {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
             Box(
-                Modifier
-                    .graphicsLayer(rotationZ = 45f, translationX = 10f)
-                    .requiredSize(20f.dp, 20f.dp).background(Color.Green)
+                Modifier.graphicsLayer(rotationZ = 45f, translationX = 10f)
+                    .requiredSize(20f.dp, 20f.dp)
+                    .background(Color.Green)
             ) {
                 Box(
-                    Modifier
-                        .graphicsLayer(rotationZ = 45f)
-                        .requiredSize(20f.dp, 20f.dp).background(Color.Blue)
+                    Modifier.graphicsLayer(rotationZ = 45f)
+                        .requiredSize(20f.dp, 20f.dp)
+                        .background(Color.Blue)
                 )
             }
         }
@@ -163,64 +158,52 @@ class GraphicsLayerTest {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 10f,
                         translationY = 10f,
                         transformOrigin = TransformOrigin(0f, 0f),
                         clip = false
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Red)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Red)
             ) {
                 Box(
-                    Modifier
-                        .graphicsLayer(
-                            transformOrigin = TransformOrigin(0f, 0f),
-                            clip = false
-                        )
+                    Modifier.graphicsLayer(transformOrigin = TransformOrigin(0f, 0f), clip = false)
                         .requiredSize(20f.dp, 2f.dp)
                         .background(Color.Blue)
                 )
             }
 
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 10f,
                         translationY = 30f,
                         transformOrigin = TransformOrigin(0f, 0f),
                         clip = true
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Red)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Red)
             ) {
                 Box(
-                    Modifier
-                        .graphicsLayer(
-                            transformOrigin = TransformOrigin(0f, 0f),
-                            clip = false
-                        )
+                    Modifier.graphicsLayer(transformOrigin = TransformOrigin(0f, 0f), clip = false)
                         .requiredSize(20f.dp, 2f.dp)
                         .background(Color.Blue)
                 )
             }
 
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 30f,
                         translationY = 10f,
                         transformOrigin = TransformOrigin(0f, 0f),
                         clip = true,
                         shape = RoundedCornerShape(5.dp)
                     )
-                    .requiredSize(10f.dp, 10f.dp).background(Color.Red)
+                    .requiredSize(10f.dp, 10f.dp)
+                    .background(Color.Red)
             ) {
                 Box(
-                    Modifier
-                        .graphicsLayer(
-                            transformOrigin = TransformOrigin(0f, 0f),
-                            clip = false
-                        )
+                    Modifier.graphicsLayer(transformOrigin = TransformOrigin(0f, 0f), clip = false)
                         .requiredSize(20f.dp, 2f.dp)
                         .background(Color.Blue)
                 )
@@ -234,8 +217,7 @@ class GraphicsLayerTest {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
             Box(
-                Modifier
-                    .padding(start = 5.dp)
+                Modifier.padding(start = 5.dp)
                     .graphicsLayer(
                         translationX = -5f,
                         translationY = 5f,
@@ -247,33 +229,24 @@ class GraphicsLayerTest {
             ) {
                 // This box will be clipped (because if we use alpha, we draw into
                 // intermediate buffer)
-                Box(
-                    Modifier
-                        .requiredSize(30f.dp, 30f.dp)
-                        .background(Color.Blue)
-                )
+                Box(Modifier.requiredSize(30f.dp, 30f.dp).background(Color.Blue))
             }
 
             Box(
-                Modifier
-                    .padding(start = 15.dp)
+                Modifier.padding(start = 15.dp)
                     .graphicsLayer(alpha = 0.5f)
                     .requiredSize(15f.dp, 15f.dp)
                     .background(Color.Red)
             ) {
                 Box(
-                    Modifier
-                        .graphicsLayer(alpha = 0.5f)
+                    Modifier.graphicsLayer(alpha = 0.5f)
                         .requiredSize(10f.dp, 10f.dp)
                         .background(Color.Blue)
                 )
             }
 
             Box(
-                Modifier
-                    .graphicsLayer(
-                        alpha = 0f
-                    )
+                Modifier.graphicsLayer(alpha = 0f)
                     .requiredSize(10f.dp, 10f.dp)
                     .background(Color.Blue)
             )
@@ -285,36 +258,21 @@ class GraphicsLayerTest {
     fun elevation() {
         val window = TestComposeWindow(width = 40, height = 40)
         window.setContent {
+            Box(Modifier.graphicsLayer(shadowElevation = 5f).requiredSize(20f.dp, 20f.dp))
             Box(
-                Modifier
-                    .graphicsLayer(shadowElevation = 5f)
-                    .requiredSize(20f.dp, 20f.dp)
-            )
-            Box(
-                Modifier
-                    .graphicsLayer(translationX = 20f, shadowElevation = 5f)
+                Modifier.graphicsLayer(translationX = 20f, shadowElevation = 5f)
                     .requiredSize(20f.dp, 20f.dp)
             ) {
-                Box(
-                    Modifier
-                        .requiredSize(20f.dp, 20f.dp)
-                        .background(Color.Blue)
-                )
+                Box(Modifier.requiredSize(20f.dp, 20f.dp).background(Color.Blue))
             }
             Box(
-                Modifier
-                    .graphicsLayer(translationY = 20f, alpha = 0.8f, shadowElevation = 5f)
+                Modifier.graphicsLayer(translationY = 20f, alpha = 0.8f, shadowElevation = 5f)
                     .requiredSize(20f.dp, 20f.dp)
             ) {
-                Box(
-                    Modifier
-                        .requiredSize(20f.dp, 20f.dp)
-                        .background(Color.Red)
-                )
+                Box(Modifier.requiredSize(20f.dp, 20f.dp).background(Color.Red))
             }
             Box(
-                Modifier
-                    .graphicsLayer(
+                Modifier.graphicsLayer(
                         translationX = 20f,
                         translationY = 20f,
                         shadowElevation = 5f,

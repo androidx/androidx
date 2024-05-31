@@ -57,14 +57,12 @@ internal class ParagraphLayoutCache(
     /**
      * Density is an interface which makes it behave like a provider, rather than a final class.
      * Whenever Density changes, the object itself may remain the same, making the below density
-     * variable mutate internally. This value holds the last seen density whenever Compose sends
-     * us a Density may have changed notification via layout or draw phase.
+     * variable mutate internally. This value holds the last seen density whenever Compose sends us
+     * a Density may have changed notification via layout or draw phase.
      */
     private var lastDensity: InlineDensity = InlineDensity.Unspecified
 
-    /**
-     * Density that text layout is performed in
-     */
+    /** Density that text layout is performed in */
     internal var density: Density? = null
         set(value) {
             val localField = field
@@ -82,57 +80,37 @@ internal class ParagraphLayoutCache(
             }
         }
 
-    /**
-     * Read to set up a snapshot observer observe changes to fonts.
-     */
+    /** Read to set up a snapshot observer observe changes to fonts. */
     internal val observeFontChanges: Unit
         get() {
             paragraphIntrinsics?.hasStaleResolvedFonts
         }
 
-    /**
-     * The last computed paragraph
-     */
+    /** The last computed paragraph */
     internal var paragraph: Paragraph? = null
 
-    /**
-     * The text did overflow
-     */
+    /** The text did overflow */
     internal var didOverflow: Boolean = false
 
-    /**
-     * The last computed layout size (as would have been reported in TextLayoutResult)
-     */
+    /** The last computed layout size (as would have been reported in TextLayoutResult) */
     internal var layoutSize: IntSize = IntSize(0, 0)
 
-    /**
-     * Convert min max lines into actual constraints
-     */
+    /** Convert min max lines into actual constraints */
     private var mMinLinesConstrainer: MinLinesConstrainer? = null
 
-    /**
-     * [ParagraphIntrinsics] will be initialized lazily
-     */
+    /** [ParagraphIntrinsics] will be initialized lazily */
     private var paragraphIntrinsics: ParagraphIntrinsics? = null
 
-    /**
-     * [LayoutDirection] used to compute [ParagraphIntrinsics]
-     */
+    /** [LayoutDirection] used to compute [ParagraphIntrinsics] */
     private var intrinsicsLayoutDirection: LayoutDirection? = null
 
-    /**
-     * Constraints passed to last layout.
-     */
+    /** Constraints passed to last layout. */
     private var prevConstraints: Constraints = Constraints.fixed(0, 0)
 
-    /**
-     * Input width for the last call to [intrinsicHeight]
-     */
+    /** Input width for the last call to [intrinsicHeight] */
     private var cachedIntrinsicHeightInputWidth: Int = -1
 
-    /**
-     * Output height for last call to [intrinsicHeight] at [cachedIntrinsicHeightInputWidth]
-     */
+    /** Output height for last call to [intrinsicHeight] at [cachedIntrinsicHeightInputWidth] */
     private var cachedIntrinsicHeight: Int = -1
 
     /**
@@ -140,81 +118,71 @@ internal class ParagraphLayoutCache(
      *
      * @return true if constraints caused a text layout invalidation
      */
-    fun layoutWithConstraints(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Boolean {
-        val finalConstraints = if (minLines > 1) {
-            val localMin = MinLinesConstrainer.from(
-                mMinLinesConstrainer,
-                layoutDirection,
-                style,
-                density!!,
-                fontFamilyResolver
-            ).also {
-                mMinLinesConstrainer = it
+    fun layoutWithConstraints(constraints: Constraints, layoutDirection: LayoutDirection): Boolean {
+        val finalConstraints =
+            if (minLines > 1) {
+                val localMin =
+                    MinLinesConstrainer.from(
+                            mMinLinesConstrainer,
+                            layoutDirection,
+                            style,
+                            density!!,
+                            fontFamilyResolver
+                        )
+                        .also { mMinLinesConstrainer = it }
+                localMin.coerceMinLines(inConstraints = constraints, minLines = minLines)
+            } else {
+                constraints
             }
-            localMin.coerceMinLines(
-                inConstraints = constraints,
-                minLines = minLines
-            )
-        } else {
-            constraints
-        }
         if (!newLayoutWillBeDifferent(finalConstraints, layoutDirection)) {
             if (finalConstraints != prevConstraints) {
                 // ensure size and overflow is still accurate
                 val localParagraph = paragraph!!
                 val layoutWidth = min(localParagraph.maxIntrinsicWidth, localParagraph.width)
-                val localSize = finalConstraints.constrain(
-                    IntSize(
-                        layoutWidth.ceilToIntPx(),
-                        localParagraph.height.ceilToIntPx()
+                val localSize =
+                    finalConstraints.constrain(
+                        IntSize(layoutWidth.ceilToIntPx(), localParagraph.height.ceilToIntPx())
                     )
-                )
                 layoutSize = localSize
-                didOverflow = overflow != TextOverflow.Visible &&
-                    (localSize.width < localParagraph.width ||
-                        localSize.height < localParagraph.height)
+                didOverflow =
+                    overflow != TextOverflow.Visible &&
+                        (localSize.width < localParagraph.width ||
+                            localSize.height < localParagraph.height)
                 prevConstraints = finalConstraints
             }
             return false
         }
-        paragraph = layoutText(finalConstraints, layoutDirection).also {
-            prevConstraints = finalConstraints
-            val localSize = finalConstraints.constrain(
-                IntSize(
-                    it.width.ceilToIntPx(),
-                    it.height.ceilToIntPx()
-                )
-            )
-            layoutSize = localSize
-            didOverflow = overflow != TextOverflow.Visible &&
-                (localSize.width < it.width || localSize.height < it.height)
-        }
+        paragraph =
+            layoutText(finalConstraints, layoutDirection).also {
+                prevConstraints = finalConstraints
+                val localSize =
+                    finalConstraints.constrain(
+                        IntSize(it.width.ceilToIntPx(), it.height.ceilToIntPx())
+                    )
+                layoutSize = localSize
+                didOverflow =
+                    overflow != TextOverflow.Visible &&
+                        (localSize.width < it.width || localSize.height < it.height)
+            }
         return true
     }
 
-    /**
-     * The natural height of text at [width] in [layoutDirection]
-     */
+    /** The natural height of text at [width] in [layoutDirection] */
     fun intrinsicHeight(width: Int, layoutDirection: LayoutDirection): Int {
         val localWidth = cachedIntrinsicHeightInputWidth
         val localHeght = cachedIntrinsicHeight
         if (width == localWidth && localWidth != -1) return localHeght
-        val result = layoutText(
-            Constraints(0, width, 0, Constraints.Infinity),
-            layoutDirection
-        ).height.ceilToIntPx()
+        val result =
+            layoutText(Constraints(0, width, 0, Constraints.Infinity), layoutDirection)
+                .height
+                .ceilToIntPx()
 
         cachedIntrinsicHeightInputWidth = width
         cachedIntrinsicHeight = result
         return result
     }
 
-    /**
-     * Call when any parameters change, invalidation is a result of calling this method.
-     */
+    /** Call when any parameters change, invalidation is a result of calling this method. */
     fun update(
         text: String,
         style: TextStyle,
@@ -241,21 +209,22 @@ internal class ParagraphLayoutCache(
      */
     private fun setLayoutDirection(layoutDirection: LayoutDirection): ParagraphIntrinsics {
         val localIntrinsics = paragraphIntrinsics
-        val intrinsics = if (
-            localIntrinsics == null ||
-            layoutDirection != intrinsicsLayoutDirection ||
-            localIntrinsics.hasStaleResolvedFonts
-        ) {
-            intrinsicsLayoutDirection = layoutDirection
-            ParagraphIntrinsics(
-                text = text,
-                style = resolveDefaults(style, layoutDirection),
-                density = density!!,
-                fontFamilyResolver = fontFamilyResolver
-            )
-        } else {
-            localIntrinsics
-        }
+        val intrinsics =
+            if (
+                localIntrinsics == null ||
+                    layoutDirection != intrinsicsLayoutDirection ||
+                    localIntrinsics.hasStaleResolvedFonts
+            ) {
+                intrinsicsLayoutDirection = layoutDirection
+                ParagraphIntrinsics(
+                    text = text,
+                    style = resolveDefaults(style, layoutDirection),
+                    density = density!!,
+                    fontFamilyResolver = fontFamilyResolver
+                )
+            } else {
+                localIntrinsics
+            }
         paragraphIntrinsics = intrinsics
         return intrinsics
     }
@@ -266,20 +235,18 @@ internal class ParagraphLayoutCache(
      * The text will layout with a width that's as close to its max intrinsic width as possible
      * while still being greater than or equal to `minWidth` and less than or equal to `maxWidth`.
      */
-    private fun layoutText(
-        constraints: Constraints,
-        layoutDirection: LayoutDirection
-    ): Paragraph {
+    private fun layoutText(constraints: Constraints, layoutDirection: LayoutDirection): Paragraph {
         val localParagraphIntrinsics = setLayoutDirection(layoutDirection)
 
         return Paragraph(
             paragraphIntrinsics = localParagraphIntrinsics,
-            constraints = finalConstraints(
-                constraints,
-                softWrap,
-                overflow,
-                localParagraphIntrinsics.maxIntrinsicWidth
-            ),
+            constraints =
+                finalConstraints(
+                    constraints,
+                    softWrap,
+                    overflow,
+                    localParagraphIntrinsics.maxIntrinsicWidth
+                ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines(softWrap, overflow, maxLines),
             ellipsis = overflow == TextOverflow.Ellipsis
@@ -377,16 +344,12 @@ internal class ParagraphLayoutCache(
         )
     }
 
-    /**
-     * The width for text if all soft wrap opportunities were taken.
-     */
+    /** The width for text if all soft wrap opportunities were taken. */
     fun minIntrinsicWidth(layoutDirection: LayoutDirection): Int {
         return setLayoutDirection(layoutDirection).minIntrinsicWidth.ceilToIntPx()
     }
 
-    /**
-     * The width at which increasing the width of the text no lonfger decreases the height.
-     */
+    /** The width at which increasing the width of the text no lonfger decreases the height. */
     fun maxIntrinsicWidth(layoutDirection: LayoutDirection): Int {
         return setLayoutDirection(layoutDirection).maxIntrinsicWidth.ceilToIntPx()
     }

@@ -73,10 +73,11 @@ class FirAnalysisResult(
     val reporter: BaseDiagnosticsCollector
 ) : AnalysisResult {
     override val diagnostics: Map<String, List<AnalysisResult.Diagnostic>>
-        get() = reporter.diagnostics.groupBy(
-            keySelector = { it.psiElement.containingFile.name },
-            valueTransform = { AnalysisResult.Diagnostic(it.factoryName, it.textRanges) }
-        )
+        get() =
+            reporter.diagnostics.groupBy(
+                keySelector = { it.psiElement.containingFile.name },
+                valueTransform = { AnalysisResult.Diagnostic(it.factoryName, it.textRanges) }
+            )
 }
 
 private class FirFrontendResult(
@@ -100,9 +101,7 @@ class K2CompilerFacade(environment: KotlinCoreEnvironment) : KotlinCompilerFacad
             moduleData,
             projectSessionProvider,
             PsiBasedProjectFileSearchScope(
-                TopDownAnalyzerFacadeForJVM.AllJavaSourcesInProjectScope(
-                    project
-                )
+                TopDownAnalyzerFacadeForJVM.AllJavaSourcesInProjectScope(project)
             ),
             projectEnvironment,
             null,
@@ -121,17 +120,19 @@ class K2CompilerFacade(environment: KotlinCoreEnvironment) : KotlinCompilerFacad
         val rootModuleName = configuration.get(CommonConfigurationKeys.MODULE_NAME, "main")
 
         val projectSessionProvider = FirProjectSessionProvider()
-        val binaryModuleData = BinaryModuleData.initialize(
-            Name.identifier(rootModuleName),
-            CommonPlatforms.defaultCommonPlatform,
-            CommonPlatformAnalyzerServices
-        )
+        val binaryModuleData =
+            BinaryModuleData.initialize(
+                Name.identifier(rootModuleName),
+                CommonPlatforms.defaultCommonPlatform,
+                CommonPlatformAnalyzerServices
+            )
         val dependencyList = DependencyListForCliModule.build(binaryModuleData)
-        val projectEnvironment = VfsBasedProjectEnvironment(
-            project,
-            VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.FILE_PROTOCOL),
-            environment::createPackagePartProvider
-        )
+        val projectEnvironment =
+            VfsBasedProjectEnvironment(
+                project,
+                VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.FILE_PROTOCOL),
+                environment::createPackagePartProvider
+            )
         val librariesScope = PsiBasedProjectFileSearchScope(ProjectScope.getLibrariesScope(project))
 
         FirJvmSessionFactory.createLibrarySession(
@@ -146,34 +147,30 @@ class K2CompilerFacade(environment: KotlinCoreEnvironment) : KotlinCompilerFacad
             registerExtraComponents = {}
         )
 
-        val commonModuleData = FirModuleDataImpl(
-            Name.identifier("$rootModuleName-common"),
-            dependencyList.regularDependencies,
-            dependencyList.dependsOnDependencies,
-            dependencyList.friendsDependencies,
-            CommonPlatforms.defaultCommonPlatform,
-            CommonPlatformAnalyzerServices
-        )
+        val commonModuleData =
+            FirModuleDataImpl(
+                Name.identifier("$rootModuleName-common"),
+                dependencyList.regularDependencies,
+                dependencyList.dependsOnDependencies,
+                dependencyList.friendsDependencies,
+                CommonPlatforms.defaultCommonPlatform,
+                CommonPlatformAnalyzerServices
+            )
 
-        val platformModuleData = FirModuleDataImpl(
-            Name.identifier(rootModuleName),
-            dependencyList.regularDependencies,
-            dependencyList.dependsOnDependencies + commonModuleData,
-            dependencyList.friendsDependencies,
-            JvmPlatforms.jvm8,
-            JvmPlatformAnalyzerServices
-        )
+        val platformModuleData =
+            FirModuleDataImpl(
+                Name.identifier(rootModuleName),
+                dependencyList.regularDependencies,
+                dependencyList.dependsOnDependencies + commonModuleData,
+                dependencyList.friendsDependencies,
+                JvmPlatforms.jvm8,
+                JvmPlatformAnalyzerServices
+            )
 
-        val commonSession = createSourceSession(
-            commonModuleData,
-            projectSessionProvider,
-            projectEnvironment
-        )
-        val platformSession = createSourceSession(
-            platformModuleData,
-            projectSessionProvider,
-            projectEnvironment
-        )
+        val commonSession =
+            createSourceSession(commonModuleData, projectSessionProvider, projectEnvironment)
+        val platformSession =
+            createSourceSession(platformModuleData, projectSessionProvider, projectEnvironment)
 
         val commonKtFiles = commonFiles.map { it.toKtFile(project) }
         val platformKtFiles = platformFiles.map { it.toKtFile(project) }
@@ -202,25 +199,23 @@ class K2CompilerFacade(environment: KotlinCoreEnvironment) : KotlinCompilerFacad
             MessageRenderer.PLAIN_FULL_PATHS
         )
 
-        val fir2IrExtensions = JvmFir2IrExtensions(
-            configuration,
-            JvmIrDeserializerImpl(),
-            JvmIrMangler
-        )
+        val fir2IrExtensions =
+            JvmFir2IrExtensions(configuration, JvmIrDeserializerImpl(), JvmIrMangler)
 
-        val fir2IrResult = analysisResult.firResult.convertToIrAndActualizeForJvm(
-            fir2IrExtensions,
-            Fir2IrConfiguration(
-                configuration.languageVersionSettings,
-                analysisResult.reporter,
-                configuration.getBoolean(JVMConfigurationKeys.LINK_VIA_SIGNATURES),
-                EvaluatedConstTracker.create(),
-                configuration[CommonConfigurationKeys.INLINE_CONST_TRACKER],
-                configuration[CommonConfigurationKeys.EXPECT_ACTUAL_TRACKER],
-                allowNonCachedDeclarations = false
-            ),
-            IrGenerationExtension.getInstances(project),
-        )
+        val fir2IrResult =
+            analysisResult.firResult.convertToIrAndActualizeForJvm(
+                fir2IrExtensions,
+                Fir2IrConfiguration(
+                    configuration.languageVersionSettings,
+                    analysisResult.reporter,
+                    configuration.getBoolean(JVMConfigurationKeys.LINK_VIA_SIGNATURES),
+                    EvaluatedConstTracker.create(),
+                    configuration[CommonConfigurationKeys.INLINE_CONST_TRACKER],
+                    configuration[CommonConfigurationKeys.EXPECT_ACTUAL_TRACKER],
+                    allowNonCachedDeclarations = false
+                ),
+                IrGenerationExtension.getInstances(project),
+            )
 
         return FirFrontendResult(fir2IrResult, fir2IrExtensions)
     }
@@ -236,25 +231,26 @@ class K2CompilerFacade(environment: KotlinCoreEnvironment) : KotlinCompilerFacad
         val irModuleFragment = frontendResult.firResult.irModuleFragment
         val components = frontendResult.firResult.components
 
-        val generationState = GenerationState.Builder(
-            project,
-            ClassBuilderFactories.TEST,
-            irModuleFragment.descriptor,
-            NoScopeRecordCliBindingTrace().bindingContext,
-            configuration
-        ).isIrBackend(
-            true
-        ).jvmBackendClassResolver(
-            FirJvmBackendClassResolver(components)
-        ).build()
+        val generationState =
+            GenerationState.Builder(
+                    project,
+                    ClassBuilderFactories.TEST,
+                    irModuleFragment.descriptor,
+                    NoScopeRecordCliBindingTrace().bindingContext,
+                    configuration
+                )
+                .isIrBackend(true)
+                .jvmBackendClassResolver(FirJvmBackendClassResolver(components))
+                .build()
 
         generationState.beforeCompile()
-        val codegenFactory = JvmIrCodegenFactory(
-            configuration,
-            configuration.get(CLIConfigurationKeys.PHASE_CONFIG)
-        )
+        val codegenFactory =
+            JvmIrCodegenFactory(configuration, configuration.get(CLIConfigurationKeys.PHASE_CONFIG))
         codegenFactory.generateModuleInFrontendIRMode(
-            generationState, irModuleFragment, components.symbolTable, components.irProviders,
+            generationState,
+            irModuleFragment,
+            components.symbolTable,
+            components.irProviders,
             frontendResult.generatorExtensions,
             FirJvmBackendExtension(components, frontendResult.firResult.irActualizedResult),
             frontendResult.firResult.pluginContext

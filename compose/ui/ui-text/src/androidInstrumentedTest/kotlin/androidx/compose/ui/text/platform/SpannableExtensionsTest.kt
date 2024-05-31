@@ -69,9 +69,7 @@ class SpannableExtensionsTest {
         val spanStyle = SpanStyle(fontWeight = FontWeight(123))
         val start = 4
         val end = 10
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle, start, end)
-        )
+        val spanStyles = listOf(AnnotatedString.Range(spanStyle, start, end))
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -86,10 +84,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 10),
-            AnnotatedString.Range(spanStyle2, 4, 6)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 10),
+                AnnotatedString.Range(spanStyle2, 4, 6)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -109,10 +108,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 10),
-            AnnotatedString.Range(spanStyle2, 3, 6)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 10),
+                AnnotatedString.Range(spanStyle2, 3, 6)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -131,10 +131,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 10),
-            AnnotatedString.Range(spanStyle2, 5, 10)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 10),
+                AnnotatedString.Range(spanStyle2, 5, 10)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -153,10 +154,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 10),
-            AnnotatedString.Range(spanStyle2, 3, 10)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 10),
+                AnnotatedString.Range(spanStyle2, 3, 10)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -174,10 +176,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 10),
-            AnnotatedString.Range(spanStyle2, 6, 19)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 10),
+                AnnotatedString.Range(spanStyle2, 6, 19)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -197,10 +200,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 4),
-            AnnotatedString.Range(spanStyle2, 8, 10)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 4),
+                AnnotatedString.Range(spanStyle2, 8, 10)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -219,10 +223,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontWeight = FontWeight(200))
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 3, 10),
-            AnnotatedString.Range(spanStyle2, 5, 9)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 3, 10),
+                AnnotatedString.Range(spanStyle2, 5, 9)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -243,10 +248,11 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(123))
         val spanStyle2 = SpanStyle(fontWeight = FontWeight(200))
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 5, 7),
-            AnnotatedString.Range(spanStyle2, 3, 10)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 5, 7),
+                AnnotatedString.Range(spanStyle2, 3, 10)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -269,11 +275,12 @@ class SpannableExtensionsTest {
         val spanStyle2 = SpanStyle(fontWeight = FontWeight(200))
         val spanStyle3 = SpanStyle(fontWeight = FontWeight(300))
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle3, 7, 8),
-            AnnotatedString.Range(spanStyle2, 3, 4),
-            AnnotatedString.Range(spanStyle1, 1, 2)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle3, 7, 8),
+                AnnotatedString.Range(spanStyle2, 3, 4),
+                AnnotatedString.Range(spanStyle1, 1, 2)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -294,10 +301,8 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(100))
         val spanStyle2 = SpanStyle(fontWeight = FontWeight(200))
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 5, 9),
-            AnnotatedString.Range(spanStyle2, 3, 6)
-        )
+        val spanStyles =
+            listOf(AnnotatedString.Range(spanStyle1, 5, 9), AnnotatedString.Range(spanStyle2, 3, 6))
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -321,11 +326,12 @@ class SpannableExtensionsTest {
         val spanStyle2 = SpanStyle(fontWeight = FontWeight(200))
         val spanStyle3 = SpanStyle(fontWeight = FontWeight(300))
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 2, 2),
-            AnnotatedString.Range(spanStyle2, 4, 4),
-            AnnotatedString.Range(spanStyle3, 0, 0),
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 2, 2),
+                AnnotatedString.Range(spanStyle2, 4, 4),
+                AnnotatedString.Range(spanStyle3, 0, 0),
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = contextSpanStyle,
@@ -345,11 +351,12 @@ class SpannableExtensionsTest {
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
         val spanStyle3 = SpanStyle(fontWeight = FontWeight(200))
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle3, 4, 10),
-            AnnotatedString.Range(spanStyle2, 1, 7),
-            AnnotatedString.Range(spanStyle1, 3, 3)
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle3, 4, 10),
+                AnnotatedString.Range(spanStyle2, 1, 7),
+                AnnotatedString.Range(spanStyle1, 3, 3)
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -370,10 +377,8 @@ class SpannableExtensionsTest {
         val spanStyle1 = SpanStyle(fontWeight = FontWeight(100))
         val spanStyle2 = SpanStyle(fontStyle = FontStyle.Italic)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 0, 0),
-            AnnotatedString.Range(spanStyle2, 0, 7)
-        )
+        val spanStyles =
+            listOf(AnnotatedString.Range(spanStyle1, 0, 0), AnnotatedString.Range(spanStyle2, 0, 7))
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = null,
@@ -394,9 +399,7 @@ class SpannableExtensionsTest {
         val contextSpanStyle = SpanStyle(color = color, fontStyle = fontStyle)
         val spanStyle = SpanStyle(fontWeight = fontWeight)
 
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle, 3, 6)
-        )
+        val spanStyles = listOf(AnnotatedString.Range(spanStyle, 3, 6))
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = contextSpanStyle,
@@ -404,17 +407,15 @@ class SpannableExtensionsTest {
             block = block
         )
         inOrder(block) {
-            verify(block).invoke(
-                argThat {
-                    this == SpanStyle(
-                        color = color,
-                        fontStyle = fontStyle,
-                        fontWeight = fontWeight
-                    )
-                },
-                eq(3),
-                eq(6)
-            )
+            verify(block)
+                .invoke(
+                    argThat {
+                        this ==
+                            SpanStyle(color = color, fontStyle = fontStyle, fontWeight = fontWeight)
+                    },
+                    eq(3),
+                    eq(6)
+                )
             verifyNoMoreInteractions()
         }
     }
@@ -429,12 +430,13 @@ class SpannableExtensionsTest {
         val fontWeight = FontWeight.Bold
         val fontStyle = FontStyle.Italic
         val fontSize = 24.sp
-        val contextSpanStyle = SpanStyle(
-            color = contextColor,
-            fontWeight = contextFontWeight,
-            fontStyle = contextFontStyle,
-            fontSize = contextFontSize
-        )
+        val contextSpanStyle =
+            SpanStyle(
+                color = contextColor,
+                fontWeight = contextFontWeight,
+                fontStyle = contextFontStyle,
+                fontSize = contextFontSize
+            )
         val spanStyle1 = SpanStyle(fontWeight = fontWeight)
         val spanStyle2 = SpanStyle(fontStyle = fontStyle)
         val spanStyle3 = SpanStyle(fontSize = fontSize)
@@ -445,11 +447,12 @@ class SpannableExtensionsTest {
         //   [6, 8)   contextColor, fontWeight,        fontStyle,        fontSize
         //   [8, 10)  contextColor, contextFontWeight, fontStyle,        fontSize
         //   [10, 12) contextColor, contextFontWeight, contextFontStyle, fontSize
-        val spanStyles = listOf(
-            AnnotatedString.Range(spanStyle1, 2, 8),
-            AnnotatedString.Range(spanStyle2, 4, 10),
-            AnnotatedString.Range(spanStyle3, 6, 12),
-        )
+        val spanStyles =
+            listOf(
+                AnnotatedString.Range(spanStyle1, 2, 8),
+                AnnotatedString.Range(spanStyle2, 4, 10),
+                AnnotatedString.Range(spanStyle3, 6, 12),
+            )
         val block = mock<(SpanStyle, Int, Int) -> Unit>()
         flattenFontStylesAndApply(
             contextFontSpanStyle = contextSpanStyle,
@@ -458,48 +461,48 @@ class SpannableExtensionsTest {
         )
 
         inOrder(block) {
-            verify(block).invoke(
-                argThat {
-                    this == contextSpanStyle.copy(fontWeight = fontWeight)
-                },
-                eq(2),
-                eq(4)
-            )
-            verify(block).invoke(
-                argThat {
-                    this == contextSpanStyle.copy(fontWeight = fontWeight, fontStyle = fontStyle)
-                },
-                eq(4),
-                eq(6)
-            )
-            verify(block).invoke(
-                argThat {
-                    this == contextSpanStyle.copy(
-                        fontWeight = fontWeight,
-                        fontStyle = fontStyle,
-                        fontSize = fontSize
-                    )
-                },
-                eq(6),
-                eq(8)
-            )
-            verify(block).invoke(
-                argThat {
-                    this == contextSpanStyle.copy(
-                        fontStyle = fontStyle,
-                        fontSize = fontSize
-                    )
-                },
-                eq(8),
-                eq(10)
-            )
-            verify(block).invoke(
-                argThat {
-                    this == contextSpanStyle.copy(fontSize = fontSize)
-                },
-                eq(10),
-                eq(12)
-            )
+            verify(block)
+                .invoke(
+                    argThat { this == contextSpanStyle.copy(fontWeight = fontWeight) },
+                    eq(2),
+                    eq(4)
+                )
+            verify(block)
+                .invoke(
+                    argThat {
+                        this ==
+                            contextSpanStyle.copy(fontWeight = fontWeight, fontStyle = fontStyle)
+                    },
+                    eq(4),
+                    eq(6)
+                )
+            verify(block)
+                .invoke(
+                    argThat {
+                        this ==
+                            contextSpanStyle.copy(
+                                fontWeight = fontWeight,
+                                fontStyle = fontStyle,
+                                fontSize = fontSize
+                            )
+                    },
+                    eq(6),
+                    eq(8)
+                )
+            verify(block)
+                .invoke(
+                    argThat {
+                        this == contextSpanStyle.copy(fontStyle = fontStyle, fontSize = fontSize)
+                    },
+                    eq(8),
+                    eq(10)
+                )
+            verify(block)
+                .invoke(
+                    argThat { this == contextSpanStyle.copy(fontSize = fontSize) },
+                    eq(10),
+                    eq(12)
+                )
             verifyNoMoreInteractions()
         }
     }
@@ -562,10 +565,11 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles = listOf(
-                AnnotatedString.Range(brushStyle, 0, text.length),
-                AnnotatedString.Range(colorStyle, 0, text.length)
-            ),
+            spanStyles =
+                listOf(
+                    AnnotatedString.Range(brushStyle, 0, text.length),
+                    AnnotatedString.Range(colorStyle, 0, text.length)
+                ),
             density = Density(1f, 1f),
             resolveTypeface = { _, _, _, _ -> Typeface.DEFAULT }
         )
@@ -585,10 +589,11 @@ class SpannableExtensionsTest {
         val spannable = SpannableStringBuilder().apply { append(text) }
         spannable.setSpanStyles(
             contextTextStyle = TextStyle(),
-            spanStyles = listOf(
-                AnnotatedString.Range(brushStyle, 0, text.length),
-                AnnotatedString.Range(colorStyle, 0, text.length)
-            ),
+            spanStyles =
+                listOf(
+                    AnnotatedString.Range(brushStyle, 0, text.length),
+                    AnnotatedString.Range(colorStyle, 0, text.length)
+                ),
             density = Density(1f, 1f),
             resolveTypeface = { _, _, _, _ -> Typeface.DEFAULT }
         )

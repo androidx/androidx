@@ -19,8 +19,8 @@ package androidx.compose.foundation.text
 import androidx.compose.ui.input.key.KeyEvent
 
 /**
- * Platform specific behavior for deselecting text selection in TextField and Text based on
- * special keys, such as the "Back" button on Android.
+ * Platform specific behavior for deselecting text selection in TextField and Text based on special
+ * keys, such as the "Back" button on Android.
  *
  * Only return true if selection of should be immediately cancelled in response to this [KeyEvent]
  * as a special case such as the "Back" button on Android. This is not intended for events that

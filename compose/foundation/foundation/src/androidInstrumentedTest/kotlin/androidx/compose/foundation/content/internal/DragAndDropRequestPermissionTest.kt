@@ -38,9 +38,7 @@ import org.junit.Test
 @SmallTest
 class DragAndDropRequestPermissionTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @Suppress("DEPRECATION") @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private lateinit var testNode: TestNode
 
@@ -48,14 +46,14 @@ class DragAndDropRequestPermissionTest {
     @Test
     fun asksPermission_ifAllRequirementsAreMet() {
         // setup
-        rule.setContent {
-            Box(Modifier.then(TestElement { testNode = it }))
-        }
-        val event = DragAndDropEvent(
-            DragAndDropTestUtils.makeImageDragEvent(
-            DragEvent.ACTION_DROP,
-            Uri.parse("content://com.example/content.png")
-        ))
+        rule.setContent { Box(Modifier.then(TestElement { testNode = it })) }
+        val event =
+            DragAndDropEvent(
+                DragAndDropTestUtils.makeImageDragEvent(
+                    DragEvent.ACTION_DROP,
+                    Uri.parse("content://com.example/content.png")
+                )
+            )
 
         // act
         testNode.dragAndDropRequestPermission(event)
@@ -68,14 +66,14 @@ class DragAndDropRequestPermissionTest {
     @Test
     fun doesNotAskPermission_ifNoContentUri() {
         // setup
-        rule.setContent {
-            Box(Modifier.then(TestElement { testNode = it }))
-        }
-        val event = DragAndDropEvent(
-            DragAndDropTestUtils.makeImageDragEvent(
-            DragEvent.ACTION_DROP,
-            Uri.parse("file://com.example/content.png")
-        ))
+        rule.setContent { Box(Modifier.then(TestElement { testNode = it })) }
+        val event =
+            DragAndDropEvent(
+                DragAndDropTestUtils.makeImageDragEvent(
+                    DragEvent.ACTION_DROP,
+                    Uri.parse("file://com.example/content.png")
+                )
+            )
 
         // act
         testNode.dragAndDropRequestPermission(event)
@@ -94,11 +92,13 @@ class DragAndDropRequestPermissionTest {
                 Box(Modifier.then(TestElement { testNode = it }))
             }
         }
-        val event = DragAndDropEvent(
-            DragAndDropTestUtils.makeImageDragEvent(
-            DragEvent.ACTION_DROP,
-            Uri.parse("file://com.example/content.png")
-        ))
+        val event =
+            DragAndDropEvent(
+                DragAndDropTestUtils.makeImageDragEvent(
+                    DragEvent.ACTION_DROP,
+                    Uri.parse("file://com.example/content.png")
+                )
+            )
 
         toggle = false
 
@@ -109,18 +109,17 @@ class DragAndDropRequestPermissionTest {
         Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()
     }
 
-    private data class TestElement(
-        val onNode: (TestNode) -> Unit
-    ) : ModifierNodeElement<TestNode>() {
+    private data class TestElement(val onNode: (TestNode) -> Unit) :
+        ModifierNodeElement<TestNode>() {
         override fun create(): TestNode = TestNode(onNode)
+
         override fun update(node: TestNode) {
             node.onNode = onNode
         }
     }
 
-    private class TestNode(
-        var onNode: (TestNode) -> Unit
-    ) : Modifier.Node(), CompositionLocalConsumerModifierNode {
+    private class TestNode(var onNode: (TestNode) -> Unit) :
+        Modifier.Node(), CompositionLocalConsumerModifierNode {
 
         override fun onAttach() {
             onNode(this)

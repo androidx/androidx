@@ -18,30 +18,21 @@ package androidx.compose.runtime.collection
 
 import android.util.SparseArray
 
-internal actual class IntMap<E> private constructor(
-    private val sparseArray: android.util.SparseArray<E>
-) {
+internal actual class IntMap<E>
+private constructor(private val sparseArray: android.util.SparseArray<E>) {
 
     actual constructor(initialCapacity: Int) : this(SparseArray(initialCapacity))
 
-    /**
-     * True if this map contains key
-     */
+    /** True if this map contains key */
     actual operator fun contains(key: Int): Boolean = sparseArray.indexOfKey(key) >= 0
 
-    /**
-     * Get [key] or null
-     */
+    /** Get [key] or null */
     actual operator fun get(key: Int): E? = sparseArray[key]
 
-    /**
-     * Get [key] or [valueIfAbsent]
-     */
+    /** Get [key] or [valueIfAbsent] */
     actual fun get(key: Int, valueIfAbsent: E): E = sparseArray.get(key, valueIfAbsent)
 
-    /**
-     * Set [key] to [value]
-     */
+    /** Set [key] to [value] */
     actual operator fun set(key: Int, value: E) = sparseArray.put(key, value)
 
     /**
@@ -51,14 +42,10 @@ internal actual class IntMap<E> private constructor(
      */
     actual fun remove(key: Int) = sparseArray.remove(key)
 
-    /**
-     * Clear this map
-     */
+    /** Clear this map */
     actual fun clear() = sparseArray.clear()
 
-    /**
-     * Current count of values
-     */
+    /** Current count of values */
     actual val size: Int
         get() = sparseArray.size()
 }

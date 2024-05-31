@@ -49,8 +49,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayoutNodeDensityTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun compositionLocalDensityChangeTriggersRemeasure() {
@@ -177,27 +176,23 @@ class LayoutNodeDensityTest {
     fun densityChangeRequestsLayerOutlineUpdate() {
         var density by mutableStateOf(Density(2f))
         var lastOutlineDensity: Density? = null
-        val shape = object : Shape {
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ): Outline {
-                lastOutlineDensity = density
-                return Outline.Rectangle(size.toRect())
+        val shape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density
+                ): Outline {
+                    lastOutlineDensity = density
+                    return Outline.Rectangle(size.toRect())
+                }
             }
-        }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides density
-            ) {
+            CompositionLocalProvider(LocalDensity provides density) {
                 Box(
-                    Modifier
-                        .layout { measurable, _ ->
+                    Modifier.layout { measurable, _ ->
                             val placeable = measurable.measure(Constraints.fixed(100, 100))
-                            layout(placeable.width, placeable.height) {
-                                placeable.place(0, 0)
-                            }
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                         }
                         .graphicsLayer(shape = shape, clip = true)
                 )
@@ -209,8 +204,6 @@ class LayoutNodeDensityTest {
             density = Density(2.5f)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(lastOutlineDensity).isEqualTo(density)
-        }
+        rule.runOnIdle { Truth.assertThat(lastOutlineDensity).isEqualTo(density) }
     }
 }

@@ -37,25 +37,26 @@ class TrivialStartupPerfettoSdkOverheadBenchmark(
     private val compilationMode: CompilationMode,
     private val isPerfettoSdkEnabled: Boolean
 ) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = try {
-        Arguments.perfettoSdkTracingEnableOverride = isPerfettoSdkEnabled
-        assertThat(Arguments.perfettoSdkTracingEnable, `is`(isPerfettoSdkEnabled))
+    fun startup() =
+        try {
+            Arguments.perfettoSdkTracingEnableOverride = isPerfettoSdkEnabled
+            assertThat(Arguments.perfettoSdkTracingEnable, `is`(isPerfettoSdkEnabled))
 
-        benchmarkRule.measureStartup(
-            compilationMode = compilationMode,
-            startupMode = startupMode,
-            packageName = "androidx.compose.integration.macrobenchmark.target"
-        ) {
-            action = "androidx.compose.integration.macrobenchmark.target." +
-                "TRIVIAL_STARTUP_TRACING_ACTIVITY"
+            benchmarkRule.measureStartup(
+                compilationMode = compilationMode,
+                startupMode = startupMode,
+                packageName = "androidx.compose.integration.macrobenchmark.target"
+            ) {
+                action =
+                    "androidx.compose.integration.macrobenchmark.target." +
+                        "TRIVIAL_STARTUP_TRACING_ACTIVITY"
+            }
+        } finally {
+            Arguments.perfettoSdkTracingEnableOverride = null
         }
-    } finally {
-        Arguments.perfettoSdkTracingEnableOverride = null
-    }
 
     companion object {
         // intended for local testing of all possible configurations
@@ -67,16 +68,18 @@ class TrivialStartupPerfettoSdkOverheadBenchmark(
             when {
                 exhaustiveMode ->
                     // complete set for testing locally
-                    createStartupCompilationParams()
-                        .flatMap { listOf(it + true, it + false) } /* perfetto sdk enabled */
+                    createStartupCompilationParams().flatMap {
+                        listOf(it + true, it + false)
+                    } /* perfetto sdk enabled */
                 else ->
                     // subset for testing in CI:
                     // compilation isn't expected to affect this, so we just look at startup time
                     // for cold and not, since the behavior is very different in those scenarios
                     createStartupCompilationParams(
-                        listOf(StartupMode.COLD, StartupMode.WARM),
-                        listOf(CompilationMode.DEFAULT)
-                    ).map { it + true } /* perfetto sdk enabled */
+                            listOf(StartupMode.COLD, StartupMode.WARM),
+                            listOf(CompilationMode.DEFAULT)
+                        )
+                        .map { it + true } /* perfetto sdk enabled */
             }
     }
 }

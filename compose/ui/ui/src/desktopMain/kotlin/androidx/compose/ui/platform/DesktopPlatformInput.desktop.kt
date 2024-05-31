@@ -46,13 +46,11 @@ internal actual interface PlatformInputComponent {
 
     /**
      * @param inputMethodRequests Optional [InputMethodRequests]. If specified, the requests will
-     * only be cleared if still set to this value.
+     *   only be cleared if still set to this value.
      */
     fun disableInput(inputMethodRequests: InputMethodRequests? = null)
 
-    /**
-     * @see SkiaBasedOwner.textInputSession
-     */
+    /** @see SkiaBasedOwner.textInputSession */
     actual suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing
@@ -74,10 +72,13 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
 
     var currentInput: CurrentInput? = null
 
-    // This is required to support input of accented characters using press-and-hold method (http://support.apple.com/kb/PH11264).
-    // JDK currently properly supports this functionality only for TextComponent/JTextComponent descendants.
+    // This is required to support input of accented characters using press-and-hold method
+    // (http://support.apple.com/kb/PH11264).
+    // JDK currently properly supports this functionality only for TextComponent/JTextComponent
+    // descendants.
     // For our editor component we need this workaround.
-    // After https://bugs.openjdk.java.net/browse/JDK-8074882 is fixed, this workaround should be replaced with a proper solution.
+    // After https://bugs.openjdk.java.net/browse/JDK-8074882 is fixed, this workaround should be
+    // replaced with a proper solution.
     var charKeyPressed: Boolean = false
     var needToDeletePreviousChar: Boolean = false
 
@@ -87,9 +88,7 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
         onEditCommand: (List<EditCommand>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
-        val input = CurrentInput(
-            value, onEditCommand, onImeActionPerformed, imeOptions.imeAction
-        )
+        val input = CurrentInput(value, onEditCommand, onImeActionPerformed, imeOptions.imeAction)
         currentInput = input
 
         component.enableInput(methodRequestsForInput(input))
@@ -100,23 +99,17 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
         currentInput = null
     }
 
-    override fun showSoftwareKeyboard() {
-    }
+    override fun showSoftwareKeyboard() {}
 
-    override fun hideSoftwareKeyboard() {
-    }
+    override fun hideSoftwareKeyboard() {}
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-        currentInput?.let { input ->
-            input.value = newValue
-        }
+        currentInput?.let { input -> input.value = newValue }
     }
 
     @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
     override fun notifyFocusedRect(rect: Rect) {
-        currentInput?.let { input ->
-            input.focusedRect = rect
-        }
+        currentInput?.let { input -> input.focusedRect = rect }
     }
 
     internal fun inputMethodCaretPositionChanged(
@@ -140,7 +133,8 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
                 ops.add(DeleteSurroundingTextInCodePointsCommand(1, 0))
             }
 
-            // newCursorPosition == 1 leads to effectively ignoring of this parameter in EditCommands
+            // newCursorPosition == 1 leads to effectively ignoring of this parameter in
+            // EditCommands
             // processing. the cursor will be set after the inserted text.
             if (committed.isNotEmpty()) {
                 ops.add(CommitTextCommand(committed, 1))
@@ -199,10 +193,11 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
 
             override fun getTextLocation(offset: TextHitInfo): Rectangle? {
                 return input.focusedRect?.let {
-                    val x = (it.right / component.density.density).toInt() +
-                        component.locationOnScreen.x
-                    val y = (it.top / component.density.density).toInt() +
-                        component.locationOnScreen.y
+                    val x =
+                        (it.right / component.density.density).toInt() +
+                            component.locationOnScreen.x
+                    val y =
+                        (it.top / component.density.density).toInt() + component.locationOnScreen.y
                     Rectangle(x, y, it.width.toInt(), it.height.toInt())
                 }
             }
@@ -220,12 +215,13 @@ internal actual class PlatformInput actual constructor(val component: PlatformCo
                     val res = text.substring(range)
                     return AttributedString(res).iterator
                 }
-                val committed = text.substring(
-                    TextRange(
-                        min(range.min, comp.min),
-                        max(range.max, comp.max).coerceAtMost(text.length)
+                val committed =
+                    text.substring(
+                        TextRange(
+                            min(range.min, comp.min),
+                            max(range.max, comp.max).coerceAtMost(text.length)
+                        )
                     )
-                )
                 return AttributedString(committed).iterator
             }
         }
@@ -255,5 +251,4 @@ private fun AttributedCharacterIterator.toStringFrom(index: Int): String {
     return String(strBuf)
 }
 
-private val isMac =
-    System.getProperty("os.name").lowercase(Locale.ENGLISH).startsWith("mac")
+private val isMac = System.getProperty("os.name").lowercase(Locale.ENGLISH).startsWith("mac")

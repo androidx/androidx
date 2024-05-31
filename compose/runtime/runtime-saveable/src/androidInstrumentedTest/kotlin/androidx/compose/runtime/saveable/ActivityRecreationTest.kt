@@ -60,9 +60,7 @@ class ActivityRecreationTest {
 
         activityScenario.recreate()
 
-        activityScenario.onActivity {
-            assertThat(it.array).isEqualTo(intArrayOf(0))
-        }
+        activityScenario.onActivity { assertThat(it.array).isEqualTo(intArrayOf(0)) }
     }
 
     @Test
@@ -80,9 +78,7 @@ class ActivityRecreationTest {
 
         activityScenario.recreate()
 
-        activityScenario.onActivity {
-            assertThat(it.array).isEqualTo(intArrayOf(1))
-        }
+        activityScenario.onActivity { assertThat(it.array).isEqualTo(intArrayOf(1)) }
     }
 
     @Test
@@ -150,9 +146,7 @@ class ActivityRecreationTest {
 
         activityScenario.recreate()
 
-        activityScenario.onActivity {
-            assertThat(it.state.value).isEqualTo(1)
-        }
+        activityScenario.onActivity { assertThat(it.state.value).isEqualTo(1) }
     }
 
     @Test
@@ -170,9 +164,7 @@ class ActivityRecreationTest {
 
         activityScenario.recreate()
 
-        activityScenario.onActivity {
-            assertThat(it.state.value).isEqualTo(1)
-        }
+        activityScenario.onActivity { assertThat(it.state.value).isEqualTo(1) }
     }
 
     @Test
@@ -190,9 +182,7 @@ class ActivityRecreationTest {
 
         activityScenario.recreate()
 
-        activityScenario.onActivity {
-            assertThat(it.state.value).isEqualTo(Count(1))
-        }
+        activityScenario.onActivity { assertThat(it.state.value).isEqualTo(Count(1)) }
     }
 
     @Test
@@ -284,9 +274,7 @@ class RecreationTest1Activity : BaseRestorableActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            array = remember { intArrayOf(0) }
-        }
+        setContent { array = remember { intArrayOf(0) } }
     }
 }
 
@@ -312,12 +300,12 @@ class RecreationTest3Activity : BaseRestorableActivity() {
 
         val linear = LinearLayout(this)
         linear.orientation = LinearLayout.VERTICAL
-        val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup
-                .LayoutParams.WRAP_CONTENT,
-            1f
-        )
+        val params =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
         val child1 = ComposeView(this)
         child1.id = R.id.child1
         linear.addView(child1, params)
@@ -344,12 +332,12 @@ class RecreationTest4Activity : BaseRestorableActivity() {
 
         val linear = LinearLayout(this)
         linear.orientation = LinearLayout.VERTICAL
-        val params = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup
-                .LayoutParams.WRAP_CONTENT,
-            1f
-        )
+        val params =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
         val child1 = FrameLayout(this)
         child1.id = R.id.child1
         linear.addView(child1, params)
@@ -359,7 +347,8 @@ class RecreationTest4Activity : BaseRestorableActivity() {
         setContentView(linear)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .replace(R.id.child1, TestFragment())
                 .replace(R.id.child2, TestFragment())
                 .commitNow()
@@ -373,9 +362,7 @@ class RecreationTest5Activity : BaseRestorableActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            state = rememberSaveable { mutableStateOf(0) }
-        }
+        setContent { state = rememberSaveable { mutableStateOf(0) } }
     }
 }
 
@@ -387,9 +374,7 @@ class RecreationTest6Activity : BaseRestorableActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val holder = rememberSaveableStateHolder()
-            holder.SaveableStateProvider(0) {
-                state = rememberSaveable { mutableStateOf(0) }
-            }
+            holder.SaveableStateProvider(0) { state = rememberSaveable { mutableStateOf(0) } }
         }
     }
 }
@@ -426,18 +411,17 @@ class RecreationTest8Activity : BaseRestorableActivity() {
     }
 }
 
-val StateAsListSaver = listSaver<MutableState<Int>, MutableState<Int>>(
-    save = { listOf(it) },
-    restore = { it[0] }
-)
+val StateAsListSaver =
+    listSaver<MutableState<Int>, MutableState<Int>>(save = { listOf(it) }, restore = { it[0] })
 
-val StateAsMapSaver = mapSaver(
-    save = { mapOf("state" to it) },
-    restore = {
-        @Suppress("UNCHECKED_CAST")
-        it["state"] as MutableState<Int>
-    }
-)
+val StateAsMapSaver =
+    mapSaver(
+        save = { mapOf("state" to it) },
+        restore = {
+            @Suppress("UNCHECKED_CAST")
+            it["state"] as MutableState<Int>
+        }
+    )
 
 class PopupsRecreationTestActivity : BaseRestorableActivity() {
 
@@ -447,12 +431,8 @@ class PopupsRecreationTestActivity : BaseRestorableActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Popup {
-                valueInPopup1 = rememberSaveable { Random.nextInt() }
-            }
-            Popup {
-                valueInPopup2 = rememberSaveable { Random.nextInt() }
-            }
+            Popup { valueInPopup1 = rememberSaveable { Random.nextInt() } }
+            Popup { valueInPopup2 = rememberSaveable { Random.nextInt() } }
         }
     }
 }
@@ -465,12 +445,8 @@ class DialogsRecreationTestActivity : BaseRestorableActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Dialog(onDismissRequest = {}) {
-                valueInDialog1 = rememberSaveable { Random.nextInt() }
-            }
-            Dialog(onDismissRequest = {}) {
-                valueInDialog2 = rememberSaveable { Random.nextInt() }
-            }
+            Dialog(onDismissRequest = {}) { valueInDialog1 = rememberSaveable { Random.nextInt() } }
+            Dialog(onDismissRequest = {}) { valueInDialog2 = rememberSaveable { Random.nextInt() } }
         }
     }
 }
@@ -500,17 +476,15 @@ class TestFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = ComposeView(requireContext()).apply {
-        setContent {
-            arrayOf<Any?>()
-            array = rememberSaveable(key = "key") { intArrayOf(0) }
+    ) =
+        ComposeView(requireContext()).apply {
+            setContent {
+                arrayOf<Any?>()
+                array = rememberSaveable(key = "key") { intArrayOf(0) }
+            }
         }
-    }
 }
 
 data class Count(val count: Int)
 
-val CountSaver = Saver<Count, Int>(
-    save = { it.count },
-    restore = { Count(it) }
-)
+val CountSaver = Saver<Count, Int>(save = { it.count }, restore = { Count(it) })

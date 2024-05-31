@@ -25,26 +25,26 @@ internal fun MotionEvent(
     actionIndex: Int,
     pointerProperties: Array<MotionEvent.PointerProperties>,
     pointerCoords: Array<MotionEvent.PointerCoords>
-) = MotionEvent.obtain(
-    0,
-    eventTime.toLong(),
-    action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
-    numPointers,
-    pointerProperties,
-    pointerCoords,
-    0,
-    0,
-    0f,
-    0f,
-    0,
-    0,
-    0,
-    0
-)
+) =
+    MotionEvent.obtain(
+        0,
+        eventTime.toLong(),
+        action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+        numPointers,
+        pointerProperties,
+        pointerCoords,
+        0,
+        0,
+        0f,
+        0f,
+        0,
+        0,
+        0,
+        0
+    )
 
 @Suppress("RemoveRedundantQualifierName")
-internal fun PointerProperties(id: Int) =
-    MotionEvent.PointerProperties().apply { this.id = id }
+internal fun PointerProperties(id: Int) = MotionEvent.PointerProperties().apply { this.id = id }
 
 @Suppress("RemoveRedundantQualifierName")
 internal fun PointerCoords(x: Float, y: Float) =

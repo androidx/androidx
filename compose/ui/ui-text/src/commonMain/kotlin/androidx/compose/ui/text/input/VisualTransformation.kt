@@ -20,18 +20,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 
-/**
- * The transformed text with offset offset mapping
- */
+/** The transformed text with offset offset mapping */
 class TransformedText(
-    /**
-     * The transformed text
-     */
+    /** The transformed text */
     val text: AnnotatedString,
 
-    /**
-     * The map used for bidirectional offset mapping from original to transformed text.
-     */
+    /** The map used for bidirectional offset mapping from original to transformed text. */
     val offsetMapping: OffsetMapping
 ) {
     override fun equals(other: Any?): Boolean {
@@ -56,8 +50,8 @@ class TransformedText(
 /**
  * Interface used for changing visual output of the input field.
  *
- * This interface can be used for changing visual output of the text in the input field.
- * For example, you can mask characters in password field with asterisk with
+ * This interface can be used for changing visual output of the text in the input field. For
+ * example, you can mask characters in password field with asterisk with
  * [PasswordVisualTransformation].
  */
 @Immutable
@@ -65,21 +59,19 @@ fun interface VisualTransformation {
     /**
      * Change the visual output of given text.
      *
-     * Note that the returned text length can be different length from the given text. The composable
-     * will call the offset translator for converting offsets for various reasons, cursor drawing
-     * position, text selection by gesture, etc.
+     * Note that the returned text length can be different length from the given text. The
+     * composable will call the offset translator for converting offsets for various reasons, cursor
+     * drawing position, text selection by gesture, etc.
      *
-     * Example: The ASCII only password (replacing with '*' chars)
-     *  original text   : thisispassword
-     *  transformed text: **************
+     * Example: The ASCII only password (replacing with '*' chars) original text : thisispassword
+     * transformed text: **************
      *
-     *  @sample androidx.compose.ui.text.samples.passwordFilter
+     * @sample androidx.compose.ui.text.samples.passwordFilter
      *
-     * Example: Credit Card Visual Output (inserting hyphens each 4 digits)
-     *  original text   : 1234567890123456
-     *  transformed text: 1234-5678-9012-3456
+     * Example: Credit Card Visual Output (inserting hyphens each 4 digits) original text :
+     * 1234567890123456 transformed text: 1234-5678-9012-3456
      *
-     *  @sample androidx.compose.ui.text.samples.creditCardFilter
+     * @sample androidx.compose.ui.text.samples.creditCardFilter
      *
      * @param text The original text
      * @return the pair of filtered text and offset translator.
@@ -87,9 +79,7 @@ fun interface VisualTransformation {
     fun filter(text: AnnotatedString): TransformedText
 
     companion object {
-        /**
-         * A special visual transformation object indicating that no transformation is applied.
-         */
+        /** A special visual transformation object indicating that no transformation is applied. */
         @Stable
         val None: VisualTransformation = VisualTransformation { text ->
             TransformedText(text, OffsetMapping.Identity)

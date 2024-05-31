@@ -132,10 +132,7 @@ class DelegatingFontLoaderForDeprecatedUsageTest {
     @Test
     @Suppress("DEPRECATION")
     fun loadOptional_delegatesToFontResourceLoader() {
-        val resourceFont = Font(
-            resId = 3,
-            loadingStrategy = FontLoadingStrategy.OptionalLocal
-        )
+        val resourceFont = Font(resId = 3, loadingStrategy = FontLoadingStrategy.OptionalLocal)
         val subject = TrackingLoader()
         val bridge = createFontFamilyResolver(subject, context)
 
@@ -146,10 +143,7 @@ class DelegatingFontLoaderForDeprecatedUsageTest {
     @Test
     @Suppress("DEPRECATION")
     fun loadAsync_delegatesToFontResourceLoader() {
-        val resourceFont = Font(
-            resId = 3,
-            loadingStrategy = FontLoadingStrategy.Async
-        )
+        val resourceFont = Font(resId = 3, loadingStrategy = FontLoadingStrategy.Async)
         val subject = TrackingLoader()
         val bridge = createFontFamilyResolver(subject, context)
 

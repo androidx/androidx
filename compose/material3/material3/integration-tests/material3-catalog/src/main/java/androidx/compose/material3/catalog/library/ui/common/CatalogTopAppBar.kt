@@ -78,10 +78,9 @@ fun CatalogTopAppBar(
                         Icon(
                             imageVector =
                                 if (favorite) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                            tint = if (favorite)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                LocalContentColor.current,
+                            tint =
+                                if (favorite) MaterialTheme.colorScheme.primary
+                                else LocalContentColor.current,
                             contentDescription = stringResource(id = R.string.favorite_button)
                         )
                     }
@@ -158,10 +157,7 @@ private fun MoreMenu(
     onPrivacyClick: () -> Unit,
     onLicensesClick: () -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest
-    ) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
         DropdownMenuItem(
             text = { Text(stringResource(id = R.string.view_design_guidelines)) },
             onClick = onGuidelinesClick

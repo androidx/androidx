@@ -24,9 +24,7 @@ import java.util.Locale as JavaLocale
 
 private val TAG = "Locale"
 
-/**
- * An Android implementation of LocaleDelegate object for API 23
- */
+/** An Android implementation of LocaleDelegate object for API 23 */
 internal class AndroidLocaleDelegateAPI23 : PlatformLocaleDelegate {
 
     override val current: LocaleList
@@ -35,17 +33,18 @@ internal class AndroidLocaleDelegateAPI23 : PlatformLocaleDelegate {
     override fun parseLanguageTag(languageTag: String): PlatformLocale {
         val platformLocale = JavaLocale.forLanguageTag(languageTag)
         if (platformLocale.toLanguageTag() == "und") {
-            Log.e(TAG, "The language tag $languageTag is not well-formed. Locale is resolved " +
-                "to Undetermined. Note that underscore '_' is not a valid subtags delimiter and " +
-                "must be replaced with '-'.")
+            Log.e(
+                TAG,
+                "The language tag $languageTag is not well-formed. Locale is resolved " +
+                    "to Undetermined. Note that underscore '_' is not a valid subtags delimiter and " +
+                    "must be replaced with '-'."
+            )
         }
         return platformLocale
     }
 }
 
-/**
- * An Android implementation of LocaleDelegate object for API 24 and later
- */
+/** An Android implementation of LocaleDelegate object for API 24 and later */
 @RequiresApi(api = 24)
 internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
     private var lastPlatformLocaleList: AndroidLocaleList? = null
@@ -57,15 +56,14 @@ internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
             val platformLocaleList = AndroidLocaleList.getDefault()
             return synchronized(lock) {
                 // try to avoid any more allocs
-                lastLocaleList?.let {
-                    if (platformLocaleList === lastPlatformLocaleList) return it
-                }
+                lastLocaleList?.let { if (platformLocaleList === lastPlatformLocaleList) return it }
                 // this is faster than adding to an empty mutableList
-                val localeList = LocaleList(
-                    List(platformLocaleList.size()) { position ->
-                        Locale(platformLocaleList[position])
-                    }
-                )
+                val localeList =
+                    LocaleList(
+                        List(platformLocaleList.size()) { position ->
+                            Locale(platformLocaleList[position])
+                        }
+                    )
                 // cache the platform result and compose result
                 lastPlatformLocaleList = platformLocaleList
                 lastLocaleList = localeList
@@ -76,9 +74,12 @@ internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
     override fun parseLanguageTag(languageTag: String): PlatformLocale {
         val platformLocale = JavaLocale.forLanguageTag(languageTag)
         if (platformLocale.toLanguageTag() == "und") {
-            Log.e(TAG, "The language tag $languageTag is not well-formed. Locale is resolved " +
-                "to Undetermined. Note that underscore '_' is not a valid subtag delimiter and " +
-                "must be replaced with '-'.")
+            Log.e(
+                TAG,
+                "The language tag $languageTag is not well-formed. Locale is resolved " +
+                    "to Undetermined. Note that underscore '_' is not a valid subtag delimiter and " +
+                    "must be replaced with '-'."
+            )
         }
         return platformLocale
     }

@@ -39,8 +39,8 @@ import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.accessibility.AccessibilityNodeProviderCompat
 
 /**
- * A snapshot of the semantics node. The children here is fixed and are taken from the time
- * this node is constructed. While a SemanticsNode always contains the up-to-date children.
+ * A snapshot of the semantics node. The children here is fixed and are taken from the time this
+ * node is constructed. While a SemanticsNode always contains the up-to-date children.
  */
 internal class SemanticsNodeCopy(
     semanticsNode: SemanticsNode,
@@ -60,8 +60,11 @@ internal class SemanticsNodeCopy(
 
 internal fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLayoutResult? {
     val textLayoutResults = mutableListOf<TextLayoutResult>()
-    val getLayoutResult = configuration.getOrNull(SemanticsActions.GetTextLayoutResult)
-        ?.action?.invoke(textLayoutResults) ?: return null
+    val getLayoutResult =
+        configuration
+            .getOrNull(SemanticsActions.GetTextLayoutResult)
+            ?.action
+            ?.invoke(textLayoutResults) ?: return null
     return if (getLayoutResult) {
         textLayoutResults[0]
     } else {
@@ -72,8 +75,11 @@ internal fun getTextLayoutResult(configuration: SemanticsConfiguration): TextLay
 @SuppressLint("PrimitiveInCollection")
 internal fun getScrollViewportLength(configuration: SemanticsConfiguration): Float? {
     val viewPortCalculationsResult = mutableListOf<Float>()
-    val actionResult = configuration.getOrNull(SemanticsActions.GetScrollViewportLength)
-        ?.action?.invoke(viewPortCalculationsResult) ?: return null
+    val actionResult =
+        configuration
+            .getOrNull(SemanticsActions.GetScrollViewportLength)
+            ?.action
+            ?.invoke(viewPortCalculationsResult) ?: return null
     return if (actionResult) {
         viewPortCalculationsResult[0]
     } else {
@@ -83,7 +89,7 @@ internal fun getScrollViewportLength(configuration: SemanticsConfiguration): Flo
 
 /**
  * These objects are used as snapshot observation scopes for the purpose of sending accessibility
- * scroll events whenever the scroll offset changes.  There is one per scroller and their lifecycle
+ * scroll events whenever the scroll offset changes. There is one per scroller and their lifecycle
  * is the same as the scroller's lifecycle in the semantics tree.
  */
 internal class ScrollObservationScope(
@@ -94,7 +100,8 @@ internal class ScrollObservationScope(
     var horizontalScrollAxisRange: ScrollAxisRange?,
     var verticalScrollAxisRange: ScrollAxisRange?
 ) : OwnerScope {
-    override val isValidOwnerScope get() = allScopes.contains(this)
+    override val isValidOwnerScope
+        get() = allScopes.contains(this)
 }
 
 internal fun List<ScrollObservationScope>.findById(id: Int): ScrollObservationScope? {
@@ -122,17 +129,13 @@ internal fun SemanticsNode.isImportantForAccessibility() =
 
 internal val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
 
-/**
- * Semantics node with adjusted bounds for the uncovered(by siblings) part.
- */
+/** Semantics node with adjusted bounds for the uncovered(by siblings) part. */
 internal class SemanticsNodeWithAdjustedBounds(
     val semanticsNode: SemanticsNode,
     val adjustedBounds: android.graphics.Rect
 )
 
-/**
- * This function retrieves the View corresponding to a semanticsId, if it exists.
- */
+/** This function retrieves the View corresponding to a semanticsId, if it exists. */
 internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
     layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
 
@@ -146,8 +149,7 @@ internal fun LayoutNode.isAncestorOf(node: LayoutNode): Boolean {
 // of `getAllUncoveredSemanticsNodesToMap` as it does now.
 /**
  * Finds pruned [SemanticsNode]s in the tree owned by this [SemanticsOwner]. A semantics node
- * completely covered by siblings drawn on top of it will be pruned. Return the results in a
- * map.
+ * completely covered by siblings drawn on top of it will be pruned. Return the results in a map.
  */
 internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap():
     IntObjectMap<SemanticsNodeWithAdjustedBounds> {
@@ -157,20 +159,22 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap():
         return nodes
     }
 
-    val unaccountedSpace = with(root.boundsInRoot) {
-        Region(
-            left.fastRoundToInt(),
-            top.fastRoundToInt(),
-            right.fastRoundToInt(),
-            bottom.fastRoundToInt()
-        )
-    }
+    val unaccountedSpace =
+        with(root.boundsInRoot) {
+            Region(
+                left.fastRoundToInt(),
+                top.fastRoundToInt(),
+                right.fastRoundToInt(),
+                bottom.fastRoundToInt()
+            )
+        }
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode, region: Region) {
         val notAttachedOrPlaced =
             !currentNode.layoutNode.isPlaced || !currentNode.layoutNode.isAttached
-        if ((unaccountedSpace.isEmpty && currentNode.id != root.id) ||
-            (notAttachedOrPlaced && !currentNode.isFake)
+        if (
+            (unaccountedSpace.isEmpty && currentNode.id != root.id) ||
+                (notAttachedOrPlaced && !currentNode.isFake)
         ) {
             return
         }
@@ -182,11 +186,12 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap():
 
         region.set(left, top, right, bottom)
 
-        val virtualViewId = if (currentNode.id == root.id) {
-            AccessibilityNodeProviderCompat.HOST_VIEW_ID
-        } else {
-            currentNode.id
-        }
+        val virtualViewId =
+            if (currentNode.id == root.id) {
+                AccessibilityNodeProviderCompat.HOST_VIEW_ID
+            } else {
+                currentNode.id
+            }
         if (region.op(unaccountedSpace, Region.Op.INTERSECT)) {
             nodes[virtualViewId] = SemanticsNodeWithAdjustedBounds(currentNode, region.bounds)
             // Children could be drawn outside of parent, but we are using clipped bounds for
@@ -204,23 +209,26 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap():
             if (currentNode.isFake) {
                 val parentNode = currentNode.parent
                 // use parent bounds for fake node
-                val boundsForFakeNode = if (parentNode?.layoutInfo?.isPlaced == true) {
-                    parentNode.boundsInRoot
-                } else {
-                    DefaultFakeNodeBounds
-                }
-                nodes[virtualViewId] = SemanticsNodeWithAdjustedBounds(
-                    currentNode,
-                    android.graphics.Rect(
-                        boundsForFakeNode.left.fastRoundToInt(),
-                        boundsForFakeNode.top.fastRoundToInt(),
-                        boundsForFakeNode.right.fastRoundToInt(),
-                        boundsForFakeNode.bottom.fastRoundToInt(),
+                val boundsForFakeNode =
+                    if (parentNode?.layoutInfo?.isPlaced == true) {
+                        parentNode.boundsInRoot
+                    } else {
+                        DefaultFakeNodeBounds
+                    }
+                nodes[virtualViewId] =
+                    SemanticsNodeWithAdjustedBounds(
+                        currentNode,
+                        android.graphics.Rect(
+                            boundsForFakeNode.left.fastRoundToInt(),
+                            boundsForFakeNode.top.fastRoundToInt(),
+                            boundsForFakeNode.right.fastRoundToInt(),
+                            boundsForFakeNode.bottom.fastRoundToInt(),
+                        )
                     )
-                )
             } else if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
                 // Root view might have WRAP_CONTENT layout params in which case it will have zero
-                // bounds if there is no other content with semantics. But we need to always send the
+                // bounds if there is no other content with semantics. But we need to always send
+                // the
                 // root view info as there are some other apps (e.g. Google Assistant) that depend
                 // on accessibility info
                 nodes[virtualViewId] = SemanticsNodeWithAdjustedBounds(currentNode, region.bounds)

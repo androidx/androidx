@@ -228,18 +228,26 @@ class DeleteSurroundingTextInCodePointsCommandTest {
     @Test
     fun throws_whenLengthBeforeInvalid() {
         val eb = EditingBuffer("", TextRange(0))
-        val error = assertFailsWith<IllegalArgumentException> {
-            eb.deleteSurroundingTextInCodePoints(lengthBeforeCursor = 0, lengthAfterCursor = -42)
-        }
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                eb.deleteSurroundingTextInCodePoints(
+                    lengthBeforeCursor = 0,
+                    lengthAfterCursor = -42
+                )
+            }
         assertThat(error).hasMessageThat().contains("-42")
     }
 
     @Test
     fun throws_whenLengthAfterInvalid() {
         val eb = EditingBuffer("", TextRange(0))
-        val error = assertFailsWith<IllegalArgumentException> {
-            eb.deleteSurroundingTextInCodePoints(lengthBeforeCursor = -42, lengthAfterCursor = 0)
-        }
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                eb.deleteSurroundingTextInCodePoints(
+                    lengthBeforeCursor = -42,
+                    lengthAfterCursor = 0
+                )
+            }
         assertThat(error).hasMessageThat().contains("-42")
     }
 

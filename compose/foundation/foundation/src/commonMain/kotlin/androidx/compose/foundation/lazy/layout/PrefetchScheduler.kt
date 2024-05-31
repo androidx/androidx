@@ -59,14 +59,15 @@ sealed interface PrefetchRequest {
      * finish it within [PrefetchRequestScope.availableTimeNanos].
      *
      * @return whether this request has more work it wants to do, but ran out of time. `true`
-     * indicates this request wants to have [execute] called again to do more work, while `false`
-     * indicates its work is complete.
+     *   indicates this request wants to have [execute] called again to do more work, while `false`
+     *   indicates its work is complete.
      */
     fun PrefetchRequestScope.execute(): Boolean
 }
 
 /**
- * Scope for [PrefetchRequest.execute], supplying info about how much time it has to execute requests.
+ * Scope for [PrefetchRequest.execute], supplying info about how much time it has to execute
+ * requests.
  */
 @ExperimentalFoundationApi
 interface PrefetchRequestScope {

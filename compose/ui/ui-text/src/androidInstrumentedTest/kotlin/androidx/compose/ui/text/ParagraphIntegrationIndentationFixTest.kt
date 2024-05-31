@@ -49,13 +49,9 @@ class ParagraphIntegrationIndentationFixTest {
 
     private fun hasEdgeLetterSpacingBugFix(): Boolean {
         val text = "a"
-        val singleLetterLetterSpacing = paragraph(
-            text = text,
-            letterSpacing = 10.sp)
+        val singleLetterLetterSpacing = paragraph(text = text, letterSpacing = 10.sp)
 
-        val singleLetterWithoutLetterSpacing = paragraph(
-            text = text,
-            letterSpacing = 0.sp)
+        val singleLetterWithoutLetterSpacing = paragraph(text = text, letterSpacing = 0.sp)
 
         // If the platform has a letter spacing fix, the letter spacing will not be added before and
         // after the visually left most letter and visually right most letter. Therefore, if the fix
@@ -96,10 +92,11 @@ class ParagraphIntegrationIndentationFixTest {
     @SdkSuppress(minSdkVersion = 23) // b/266743243
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent() {
-        val paragraph = paragraph(
-            text = ltrChar.repeat(repeatCount),
-            textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp)
-        )
+        val paragraph =
+            paragraph(
+                text = ltrChar.repeat(repeatCount),
+                textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp)
+            )
         for (line in 0 until paragraph.lineCount) {
             if (hasEdgeLetterSpacingBugFix()) {
                 assertThat(paragraph.getLineRight(line)).isEqualTo(paragraph.width)
@@ -127,23 +124,19 @@ class ParagraphIntegrationIndentationFixTest {
                 // right most letters are omitted. Therefore the total line lengths becomes shorter
                 // and line starting positions becomes right because the paragraph is end (right)
                 // aligned.
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(letterSpacing.toFloat())
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(letterSpacing.toFloat())
             }
         } else {
             lineStartOffsets.forEach { offset ->
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(0f)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(0f)
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(0f)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(0f)
             }
         }
     }
@@ -157,23 +150,19 @@ class ParagraphIntegrationIndentationFixTest {
                 // right most letters are omitted. Therefore the total line lengths becomes shorter
                 // and line starting positions becomes left because the paragraph is end (left)
                 // aligned.
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(paragraph.width - letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(paragraph.width - letterSpacing.toFloat())
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(paragraph.width - letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(paragraph.width - letterSpacing.toFloat())
             }
         } else {
             lineStartOffsets.forEach { offset ->
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(paragraph.width)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(paragraph.width)
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(paragraph.width)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(paragraph.width)
             }
         }
     }
@@ -182,9 +171,8 @@ class ParagraphIntegrationIndentationFixTest {
     fun getOffsetForPosition_Ltr() {
         val paragraph = paragraph(ltrChar.repeat(repeatCount))
         for (line in 0 until paragraph.lineCount) {
-            assertThat(
-                paragraph.getOffsetForPosition(Offset(1f, line * fontSize + 1f))
-            ).isEqualTo(lineStartOffsets[line])
+            assertThat(paragraph.getOffsetForPosition(Offset(1f, line * fontSize + 1f)))
+                .isEqualTo(lineStartOffsets[line])
         }
     }
 
@@ -193,8 +181,11 @@ class ParagraphIntegrationIndentationFixTest {
         val paragraph = paragraph(rtlChar.repeat(repeatCount))
         for (line in 0 until paragraph.lineCount) {
             assertThat(
-                paragraph.getOffsetForPosition(Offset(paragraph.width - 1f, line * fontSize + 1f))
-            ).isEqualTo(lineStartOffsets[line])
+                    paragraph.getOffsetForPosition(
+                        Offset(paragraph.width - 1f, line * fontSize + 1f)
+                    )
+                )
+                .isEqualTo(lineStartOffsets[line])
         }
     }
 
@@ -240,27 +231,29 @@ class ParagraphIntegrationIndentationFixTest {
     @SdkSuppress(minSdkVersion = 23) // b/266743243
     @Test
     fun getLineLeftAndGetLineRight_Ltr_TextIndent_sp_letterspacing() {
-        val paragraph = paragraph(
-            text = ltrChar.repeat(repeatCount),
-            textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp),
-            letterSpacing = letterSpacing.sp
-        )
+        val paragraph =
+            paragraph(
+                text = ltrChar.repeat(repeatCount),
+                textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp),
+                letterSpacing = letterSpacing.sp
+            )
         for (line in 0 until paragraph.lineCount) {
             assertThat(paragraph.getLineRight(line)).isEqualTo(paragraph.width)
 
-            val expectedLeft = if (hasEdgeLetterSpacingBugFix()) {
-                 if (line == paragraph.lineCount - 1) {
-                    -fontSize + letterSpacing.toFloat() / 2
+            val expectedLeft =
+                if (hasEdgeLetterSpacingBugFix()) {
+                    if (line == paragraph.lineCount - 1) {
+                        -fontSize + letterSpacing.toFloat() / 2
+                    } else {
+                        letterSpacing
+                    }
                 } else {
-                    letterSpacing
+                    if (line == paragraph.lineCount - 1) {
+                        -fontSize - letterSpacing
+                    } else {
+                        0f
+                    }
                 }
-            } else {
-                if (line == paragraph.lineCount - 1) {
-                    -fontSize - letterSpacing
-                } else {
-                    0f
-                }
-            }
             assertThat(paragraph.getLineLeft(line)).isEqualTo(expectedLeft)
         }
     }
@@ -270,21 +263,17 @@ class ParagraphIntegrationIndentationFixTest {
         val paragraph = paragraph(ltrChar.repeat(repeatCount), letterSpacing = letterSpacing.sp)
         lineStartOffsets.forEach { offset ->
             if (hasEdgeLetterSpacingBugFix()) {
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(letterSpacing.toFloat())
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(letterSpacing.toFloat())
             } else {
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(0f)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(0f)
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(0f)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(0f)
             }
         }
     }
@@ -294,21 +283,17 @@ class ParagraphIntegrationIndentationFixTest {
         val paragraph = paragraph(rtlChar.repeat(repeatCount), letterSpacing = letterSpacing.sp)
         lineStartOffsets.forEach { offset ->
             if (hasEdgeLetterSpacingBugFix()) {
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(paragraph.width - letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(paragraph.width - letterSpacing.toFloat())
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(paragraph.width - letterSpacing.toFloat())
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(paragraph.width - letterSpacing.toFloat())
             } else {
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = true)
-                ).isEqualTo(paragraph.width)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = true))
+                    .isEqualTo(paragraph.width)
 
-                assertThat(
-                    paragraph.getHorizontalPosition(offset, usePrimaryDirection = false)
-                ).isEqualTo(paragraph.width)
+                assertThat(paragraph.getHorizontalPosition(offset, usePrimaryDirection = false))
+                    .isEqualTo(paragraph.width)
             }
         }
     }
@@ -317,9 +302,8 @@ class ParagraphIntegrationIndentationFixTest {
     fun getOffsetForPosition_Ltr_sp_letterspacing() {
         val paragraph = paragraph(ltrChar.repeat(repeatCount), letterSpacing = letterSpacing.sp)
         for (line in 0 until paragraph.lineCount) {
-            assertThat(
-                paragraph.getOffsetForPosition(Offset(1f, line * fontSize + 1f))
-            ).isEqualTo(lineStartOffsets[line])
+            assertThat(paragraph.getOffsetForPosition(Offset(1f, line * fontSize + 1f)))
+                .isEqualTo(lineStartOffsets[line])
         }
     }
 
@@ -328,8 +312,11 @@ class ParagraphIntegrationIndentationFixTest {
         val paragraph = paragraph(rtlChar.repeat(repeatCount), letterSpacing = letterSpacing.sp)
         for (line in 0 until paragraph.lineCount) {
             assertThat(
-                paragraph.getOffsetForPosition(Offset(paragraph.width - 1f, line * fontSize + 1f))
-            ).isEqualTo(lineStartOffsets[line])
+                    paragraph.getOffsetForPosition(
+                        Offset(paragraph.width - 1f, line * fontSize + 1f)
+                    )
+                )
+                .isEqualTo(lineStartOffsets[line])
         }
     }
 
@@ -349,20 +336,20 @@ class ParagraphIntegrationIndentationFixTest {
 
         return Paragraph(
             text = text,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize.sp,
-                textAlign = TextAlign.End,
-                letterSpacing = letterSpacing,
-                textIndent = textIndent
-            ),
+            style =
+                TextStyle(
+                    fontFamily = fontFamilyMeasureFont,
+                    fontSize = fontSize.sp,
+                    textAlign = TextAlign.End,
+                    letterSpacing = letterSpacing,
+                    textIndent = textIndent
+                ),
             maxLines = lastLine + 1,
             ellipsis = true,
             constraints = Constraints(maxWidth = width),
             density = Density(density = 1f),
-            fontFamilyResolver = UncachedFontFamilyResolver(
-                InstrumentationRegistry.getInstrumentation().context
-            )
+            fontFamilyResolver =
+                UncachedFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
         )
     }
 }

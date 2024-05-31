@@ -29,63 +29,62 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-private val LightColorPalette = JetsnackColors(
-    brand = Shadow5,
-    brandSecondary = Ocean3,
-    uiBackground = Neutral0,
-    uiBorder = Neutral4,
-    uiFloated = FunctionalGrey,
-    textSecondary = Neutral7,
-    textHelp = Neutral6,
-    textInteractive = Neutral0,
-    textLink = Ocean11,
-    iconSecondary = Neutral7,
-    iconInteractive = Neutral0,
-    iconInteractiveInactive = Neutral1,
-    error = FunctionalRed,
-    gradient6_1 = listOf(Shadow4, Ocean3, Shadow2, Ocean3, Shadow4),
-    gradient6_2 = listOf(Rose4, Lavender3, Rose2, Lavender3, Rose4),
-    gradient3_1 = listOf(Shadow2, Ocean3, Shadow4),
-    gradient3_2 = listOf(Rose2, Lavender3, Rose4),
-    gradient2_1 = listOf(Shadow4, Shadow11),
-    gradient2_2 = listOf(Ocean3, Shadow3),
-    gradient2_3 = listOf(Lavender3, Rose2),
-    tornado1 = listOf(Shadow4, Ocean3),
-    isDark = false
-)
+private val LightColorPalette =
+    JetsnackColors(
+        brand = Shadow5,
+        brandSecondary = Ocean3,
+        uiBackground = Neutral0,
+        uiBorder = Neutral4,
+        uiFloated = FunctionalGrey,
+        textSecondary = Neutral7,
+        textHelp = Neutral6,
+        textInteractive = Neutral0,
+        textLink = Ocean11,
+        iconSecondary = Neutral7,
+        iconInteractive = Neutral0,
+        iconInteractiveInactive = Neutral1,
+        error = FunctionalRed,
+        gradient6_1 = listOf(Shadow4, Ocean3, Shadow2, Ocean3, Shadow4),
+        gradient6_2 = listOf(Rose4, Lavender3, Rose2, Lavender3, Rose4),
+        gradient3_1 = listOf(Shadow2, Ocean3, Shadow4),
+        gradient3_2 = listOf(Rose2, Lavender3, Rose4),
+        gradient2_1 = listOf(Shadow4, Shadow11),
+        gradient2_2 = listOf(Ocean3, Shadow3),
+        gradient2_3 = listOf(Lavender3, Rose2),
+        tornado1 = listOf(Shadow4, Ocean3),
+        isDark = false
+    )
 
-private val DarkColorPalette = JetsnackColors(
-    brand = Shadow1,
-    brandSecondary = Ocean2,
-    uiBackground = Neutral8,
-    uiBorder = Neutral3,
-    uiFloated = FunctionalDarkGrey,
-    textPrimary = Shadow1,
-    textSecondary = Neutral0,
-    textHelp = Neutral1,
-    textInteractive = Neutral7,
-    textLink = Ocean2,
-    iconPrimary = Shadow1,
-    iconSecondary = Neutral0,
-    iconInteractive = Neutral7,
-    iconInteractiveInactive = Neutral6,
-    error = FunctionalRedDark,
-    gradient6_1 = listOf(Shadow5, Ocean7, Shadow9, Ocean7, Shadow5),
-    gradient6_2 = listOf(Rose11, Lavender7, Rose8, Lavender7, Rose11),
-    gradient3_1 = listOf(Shadow9, Ocean7, Shadow5),
-    gradient3_2 = listOf(Rose8, Lavender7, Rose11),
-    gradient2_1 = listOf(Ocean3, Shadow3),
-    gradient2_2 = listOf(Ocean4, Shadow2),
-    gradient2_3 = listOf(Lavender3, Rose3),
-    tornado1 = listOf(Shadow4, Ocean3),
-    isDark = true
-)
+private val DarkColorPalette =
+    JetsnackColors(
+        brand = Shadow1,
+        brandSecondary = Ocean2,
+        uiBackground = Neutral8,
+        uiBorder = Neutral3,
+        uiFloated = FunctionalDarkGrey,
+        textPrimary = Shadow1,
+        textSecondary = Neutral0,
+        textHelp = Neutral1,
+        textInteractive = Neutral7,
+        textLink = Ocean2,
+        iconPrimary = Shadow1,
+        iconSecondary = Neutral0,
+        iconInteractive = Neutral7,
+        iconInteractiveInactive = Neutral6,
+        error = FunctionalRedDark,
+        gradient6_1 = listOf(Shadow5, Ocean7, Shadow9, Ocean7, Shadow5),
+        gradient6_2 = listOf(Rose11, Lavender7, Rose8, Lavender7, Rose11),
+        gradient3_1 = listOf(Shadow9, Ocean7, Shadow5),
+        gradient3_2 = listOf(Rose8, Lavender7, Rose11),
+        gradient2_1 = listOf(Ocean3, Shadow3),
+        gradient2_2 = listOf(Ocean4, Shadow2),
+        gradient2_3 = listOf(Lavender3, Rose3),
+        tornado1 = listOf(Shadow4, Ocean3),
+        isDark = true
+    )
 
 @Composable
-fun JetsnackTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+fun JetsnackTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) DarkColorPalette else LightColorPalette
 
     ProvideJetsnackColors(colors) {
@@ -100,13 +99,10 @@ fun JetsnackTheme(
 
 object JetsnackTheme {
     val colors: JetsnackColors
-        @Composable
-        get() = LocalJetsnackColors.current
+        @Composable get() = LocalJetsnackColors.current
 }
 
-/**
- * Jetsnack custom Color Palette
- */
+/** Jetsnack custom Color Palette */
 @Stable
 class JetsnackColors(
     gradient6_1: List<Color>,
@@ -140,58 +136,85 @@ class JetsnackColors(
 ) {
     var gradient6_1 by mutableStateOf(gradient6_1)
         private set
+
     var gradient6_2 by mutableStateOf(gradient6_2)
         private set
+
     var gradient3_1 by mutableStateOf(gradient3_1)
         private set
+
     var gradient3_2 by mutableStateOf(gradient3_2)
         private set
+
     var gradient2_1 by mutableStateOf(gradient2_1)
         private set
+
     var gradient2_2 by mutableStateOf(gradient2_2)
         private set
+
     var gradient2_3 by mutableStateOf(gradient2_3)
         private set
+
     var brand by mutableStateOf(brand)
         private set
+
     var brandSecondary by mutableStateOf(brandSecondary)
         private set
+
     var uiBackground by mutableStateOf(uiBackground)
         private set
+
     var uiBorder by mutableStateOf(uiBorder)
         private set
+
     var uiFloated by mutableStateOf(uiFloated)
         private set
+
     var interactivePrimary by mutableStateOf(interactivePrimary)
         private set
+
     var interactiveSecondary by mutableStateOf(interactiveSecondary)
         private set
+
     var interactiveMask by mutableStateOf(interactiveMask)
         private set
+
     var textPrimary by mutableStateOf(textPrimary)
         private set
+
     var textSecondary by mutableStateOf(textSecondary)
         private set
+
     var textHelp by mutableStateOf(textHelp)
         private set
+
     var textInteractive by mutableStateOf(textInteractive)
         private set
+
     var tornado1 by mutableStateOf(tornado1)
         private set
+
     var textLink by mutableStateOf(textLink)
         private set
+
     var iconPrimary by mutableStateOf(iconPrimary)
         private set
+
     var iconSecondary by mutableStateOf(iconSecondary)
         private set
+
     var iconInteractive by mutableStateOf(iconInteractive)
         private set
+
     var iconInteractiveInactive by mutableStateOf(iconInteractiveInactive)
         private set
+
     var error by mutableStateOf(error)
         private set
+
     var notificationBadge by mutableStateOf(notificationBadge)
         private set
+
     var isDark by mutableStateOf(isDark)
         private set
 
@@ -226,43 +249,41 @@ class JetsnackColors(
         isDark = other.isDark
     }
 
-    fun copy(): JetsnackColors = JetsnackColors(
-        gradient6_1 = gradient6_1,
-        gradient6_2 = gradient6_2,
-        gradient3_1 = gradient3_1,
-        gradient3_2 = gradient3_2,
-        gradient2_1 = gradient2_1,
-        gradient2_2 = gradient2_2,
-        gradient2_3 = gradient2_3,
-        brand = brand,
-        brandSecondary = brandSecondary,
-        uiBackground = uiBackground,
-        uiBorder = uiBorder,
-        uiFloated = uiFloated,
-        interactivePrimary = interactivePrimary,
-        interactiveSecondary = interactiveSecondary,
-        interactiveMask = interactiveMask,
-        textPrimary = textPrimary,
-        textSecondary = textSecondary,
-        textHelp = textHelp,
-        textInteractive = textInteractive,
-        textLink = textLink,
-        tornado1 = tornado1,
-        iconPrimary = iconPrimary,
-        iconSecondary = iconSecondary,
-        iconInteractive = iconInteractive,
-        iconInteractiveInactive = iconInteractiveInactive,
-        error = error,
-        notificationBadge = notificationBadge,
-        isDark = isDark,
-    )
+    fun copy(): JetsnackColors =
+        JetsnackColors(
+            gradient6_1 = gradient6_1,
+            gradient6_2 = gradient6_2,
+            gradient3_1 = gradient3_1,
+            gradient3_2 = gradient3_2,
+            gradient2_1 = gradient2_1,
+            gradient2_2 = gradient2_2,
+            gradient2_3 = gradient2_3,
+            brand = brand,
+            brandSecondary = brandSecondary,
+            uiBackground = uiBackground,
+            uiBorder = uiBorder,
+            uiFloated = uiFloated,
+            interactivePrimary = interactivePrimary,
+            interactiveSecondary = interactiveSecondary,
+            interactiveMask = interactiveMask,
+            textPrimary = textPrimary,
+            textSecondary = textSecondary,
+            textHelp = textHelp,
+            textInteractive = textInteractive,
+            textLink = textLink,
+            tornado1 = tornado1,
+            iconPrimary = iconPrimary,
+            iconSecondary = iconSecondary,
+            iconInteractive = iconInteractive,
+            iconInteractiveInactive = iconInteractiveInactive,
+            error = error,
+            notificationBadge = notificationBadge,
+            isDark = isDark,
+        )
 }
 
 @Composable
-fun ProvideJetsnackColors(
-    colors: JetsnackColors,
-    content: @Composable () -> Unit
-) {
+fun ProvideJetsnackColors(colors: JetsnackColors, content: @Composable () -> Unit) {
     val colorPalette = remember {
         // Explicitly creating a new object here so we don't mutate the initial [colors]
         // provided, and overwrite the values set in it.
@@ -272,29 +293,26 @@ fun ProvideJetsnackColors(
     CompositionLocalProvider(LocalJetsnackColors provides colorPalette, content = content)
 }
 
-private val LocalJetsnackColors = staticCompositionLocalOf<JetsnackColors> {
-    error("No JetsnackColorPalette provided")
-}
+private val LocalJetsnackColors =
+    staticCompositionLocalOf<JetsnackColors> { error("No JetsnackColorPalette provided") }
 
 /**
  * A Material [Colors] implementation which sets all colors to [debugColor] to discourage usage of
  * [MaterialTheme.colors] in preference to [JetsnackTheme.colors].
  */
-fun debugColors(
-    darkTheme: Boolean,
-    debugColor: Color = Color.Magenta
-) = Colors(
-    primary = debugColor,
-    primaryVariant = debugColor,
-    secondary = debugColor,
-    secondaryVariant = debugColor,
-    background = debugColor,
-    surface = debugColor,
-    error = debugColor,
-    onPrimary = debugColor,
-    onSecondary = debugColor,
-    onBackground = debugColor,
-    onSurface = debugColor,
-    onError = debugColor,
-    isLight = !darkTheme
-)
+fun debugColors(darkTheme: Boolean, debugColor: Color = Color.Magenta) =
+    Colors(
+        primary = debugColor,
+        primaryVariant = debugColor,
+        secondary = debugColor,
+        secondaryVariant = debugColor,
+        background = debugColor,
+        surface = debugColor,
+        error = debugColor,
+        onPrimary = debugColor,
+        onSecondary = debugColor,
+        onBackground = debugColor,
+        onSurface = debugColor,
+        onError = debugColor,
+        isLight = !darkTheme
+    )

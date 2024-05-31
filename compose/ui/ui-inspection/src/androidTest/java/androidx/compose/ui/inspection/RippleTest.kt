@@ -31,17 +31,20 @@ import org.junit.Test
 
 @LargeTest
 class RippleTest {
-    @get:Rule
-    val rule = ComposeInspectionRule(RippleTestActivity::class)
+    @get:Rule val rule = ComposeInspectionRule(RippleTestActivity::class)
 
     @Test
     fun rippleViewsAreMarked(): Unit = runBlocking {
-        val app = rule.inspectorTester.sendCommand(GetComposablesCommand(rule.rootId))
-            .getComposablesResponse
-        val composeViewChildren = ThreadUtils.runOnMainThread {
-            val composeView = rule.rootsForTest.single() as ViewGroup
-            composeView.getChildren().map { it.uniqueDrawingId }
-        }.get()
+        val app =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId))
+                .getComposablesResponse
+        val composeViewChildren =
+            ThreadUtils.runOnMainThread {
+                    val composeView = rule.rootsForTest.single() as ViewGroup
+                    composeView.getChildren().map { it.uniqueDrawingId }
+                }
+                .get()
         val toSkip = app.rootsList.single().viewsToSkipList
         assertThat(composeViewChildren).containsExactlyElementsIn(toSkip)
         assertThat(toSkip).hasSize(1)

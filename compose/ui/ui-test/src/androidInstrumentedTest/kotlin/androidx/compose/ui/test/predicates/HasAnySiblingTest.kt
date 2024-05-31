@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HasAnySiblingTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun findBySibling_oneSubtree_oneSibling_matches() {
@@ -46,8 +45,7 @@ class HasAnySiblingTest {
             }
         }
 
-        rule.onNode(hasAnySibling(hasTestTag("Sibling")))
-            .assert(hasTestTag("Me"))
+        rule.onNode(hasAnySibling(hasTestTag("Sibling"))).assert(hasTestTag("Me"))
     }
 
     @Test
@@ -61,8 +59,7 @@ class HasAnySiblingTest {
             }
         }
 
-        rule.onAllNodes(hasAnySibling(hasTestTag("Sibling")))
-            .assertCountEquals(2)
+        rule.onAllNodes(hasAnySibling(hasTestTag("Sibling"))).assertCountEquals(2)
     }
 
     @Test
@@ -75,8 +72,7 @@ class HasAnySiblingTest {
             }
         }
 
-        rule.onAllNodes(hasAnySibling(hasTestTag("Sibling")))
-            .assertCountEquals(2)
+        rule.onAllNodes(hasAnySibling(hasTestTag("Sibling"))).assertCountEquals(2)
     }
 
     @Test
@@ -93,20 +89,14 @@ class HasAnySiblingTest {
             }
         }
 
-        rule.onAllNodes(hasAnySibling(hasTestTag("Sibling")))
-            .assertCountEquals(2)
+        rule.onAllNodes(hasAnySibling(hasTestTag("Sibling"))).assertCountEquals(2)
     }
 
     @Test
     fun findBySibling_noSiblings_nothingFound() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Me")
-            }
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Me") } }
 
-        rule.onNode(hasAnySibling(hasTestTag("Me")))
-            .assertDoesNotExist()
+        rule.onNode(hasAnySibling(hasTestTag("Me"))).assertDoesNotExist()
     }
 
     @Test
@@ -118,40 +108,31 @@ class HasAnySiblingTest {
             }
         }
 
-        rule.onNode(hasAnySibling(hasTestTag("Sibling2")))
-            .assertDoesNotExist()
+        rule.onNode(hasAnySibling(hasTestTag("Sibling2"))).assertDoesNotExist()
     }
 
     @Test
     fun findBySibling_oneSiblings_notMySibling_nothingFound() {
         rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Me")
-            }
+            BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Me") }
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "SomeoneElse")
                 BoundaryNode(testTag = "Sibling")
             }
         }
 
-        rule.onNode(hasAnySibling(hasTestTag("Sibling")) and hasTestTag("Me"))
-            .assertDoesNotExist()
+        rule.onNode(hasAnySibling(hasTestTag("Sibling")) and hasTestTag("Me")).assertDoesNotExist()
     }
 
     @Test
     fun findByParentSibling_oneFound() {
         rule.setContent {
             BoundaryNode(testTag = "Grandparent") {
-                BoundaryNode(testTag = "Parent") {
-                    BoundaryNode(testTag = "Me")
-                }
-                BoundaryNode(testTag = "ParentSibling") {
-                    BoundaryNode(testTag = "SomeoneElse")
-                }
+                BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Me") }
+                BoundaryNode(testTag = "ParentSibling") { BoundaryNode(testTag = "SomeoneElse") }
             }
         }
 
-        rule.onNode(hasParent(hasAnySibling(hasTestTag("ParentSibling"))))
-            .assert(hasTestTag("Me"))
+        rule.onNode(hasParent(hasAnySibling(hasTestTag("ParentSibling")))).assert(hasTestTag("Me"))
     }
 }

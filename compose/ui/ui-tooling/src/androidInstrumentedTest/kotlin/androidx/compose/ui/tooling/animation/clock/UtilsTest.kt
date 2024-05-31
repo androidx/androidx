@@ -74,21 +74,13 @@ class UtilsTest {
 
     @Test
     fun offsetOutOfBounds() {
-        val value = parseParametersToValue(
-            Offset(10f, 20f),
-            listOf(30f),
-            listOf(50f, 60f)
-        )
+        val value = parseParametersToValue(Offset(10f, 20f), listOf(30f), listOf(50f, 60f))
         assertNull(value)
     }
 
     @Test
     fun offsetIncorrectType() {
-        val value = parseParametersToValue(
-            Offset(10f, 20f),
-            listOf("a", "b"),
-            listOf(50f, 60f)
-        )
+        val value = parseParametersToValue(Offset(10f, 20f), listOf("a", "b"), listOf(50f, 60f))
         assertNull(value)
     }
 
@@ -154,141 +146,99 @@ class UtilsTest {
 
     @Test
     fun intSizeIsParsed() {
-        val value = parseParametersToValue(
-            IntSize(10, 20),
-            IntSize(30, 40),
-            IntSize(50, 60)
-        )
+        val value = parseParametersToValue(IntSize(10, 20), IntSize(30, 40), IntSize(50, 60))
         assertEquals(TargetState(IntSize(30, 40), IntSize(50, 60)), value)
     }
 
     @Test
     fun intSizeIsParsedAsList() {
-        val value = parseParametersToValue(
-            IntSize(10, 20),
-            listOf(30, 40),
-            listOf(50, 60)
-        )
+        val value = parseParametersToValue(IntSize(10, 20), listOf(30, 40), listOf(50, 60))
         assertEquals(TargetState(IntSize(30, 40), IntSize(50, 60)), value)
     }
 
     @Test
     fun intOffsetIsParsed() {
-        val value = parseParametersToValue(
-            IntOffset(10, 20),
-            IntOffset(30, 40),
-            IntOffset(50, 60)
-        )
+        val value = parseParametersToValue(IntOffset(10, 20), IntOffset(30, 40), IntOffset(50, 60))
         assertEquals(TargetState(IntOffset(30, 40), IntOffset(50, 60)), value)
     }
 
     @Test
     fun intOffsetIsParsedAsList() {
-        val value = parseParametersToValue(
-            IntOffset(10, 20),
-            listOf(30, 40),
-            listOf(50, 60)
-        )
+        val value = parseParametersToValue(IntOffset(10, 20), listOf(30, 40), listOf(50, 60))
         assertEquals(TargetState(IntOffset(30, 40), IntOffset(50, 60)), value)
     }
 
     @Test
     fun sizeIsParsed() {
-        val value = parseParametersToValue(
-            Size(10f, 20f),
-            Size(30f, 40f),
-            Size(50f, 60f)
-        )
+        val value = parseParametersToValue(Size(10f, 20f), Size(30f, 40f), Size(50f, 60f))
         assertEquals(TargetState(Size(30f, 40f), Size(50f, 60f)), value)
     }
 
     @Test
     fun sizeIsParsedAsList() {
-        val value = parseParametersToValue(
-            Size(10f, 20f),
-            listOf(30f, 40f),
-            listOf(50f, 60f)
-        )
+        val value = parseParametersToValue(Size(10f, 20f), listOf(30f, 40f), listOf(50f, 60f))
         assertEquals(TargetState(Size(30f, 40f), Size(50f, 60f)), value)
     }
 
     @Test
     fun offsetIsParsed() {
-        val value = parseParametersToValue(
-            Offset(10f, 20f),
-            Offset(30f, 40f),
-            Offset(50f, 60f)
-        )
+        val value = parseParametersToValue(Offset(10f, 20f), Offset(30f, 40f), Offset(50f, 60f))
         assertEquals(TargetState(Offset(30f, 40f), Offset(50f, 60f)), value)
     }
 
     @Test
     fun offsetIsParsedAsList() {
-        val value = parseParametersToValue(
-            Offset(10f, 20f),
-            listOf(30f, 40f),
-            listOf(50f, 60f)
-        )
+        val value = parseParametersToValue(Offset(10f, 20f), listOf(30f, 40f), listOf(50f, 60f))
         assertEquals(TargetState(Offset(30f, 40f), Offset(50f, 60f)), value)
     }
 
     @Test
     fun rectIsParsed() {
-        val value = parseParametersToValue(
-            Rect(10f, 20f, 30f, 40f),
-            Rect(50f, 60f, 70f, 80f),
-            Rect(90f, 100f, 110f, 120f)
-        )
-        assertEquals(
-            TargetState(
+        val value =
+            parseParametersToValue(
+                Rect(10f, 20f, 30f, 40f),
                 Rect(50f, 60f, 70f, 80f),
                 Rect(90f, 100f, 110f, 120f)
-            ), value
-        )
+            )
+        assertEquals(TargetState(Rect(50f, 60f, 70f, 80f), Rect(90f, 100f, 110f, 120f)), value)
     }
 
     @Test
     fun rectIsParsedAsList() {
-        val value = parseParametersToValue(
-            Rect(10f, 20f, 30f, 40f),
-            listOf(50f, 60f, 70f, 80f),
-            listOf(90f, 100f, 110f, 120f)
-        )
-        assertEquals(
-            TargetState(
-                Rect(50f, 60f, 70f, 80f),
-                Rect(90f, 100f, 110f, 120f)
-            ), value
-        )
+        val value =
+            parseParametersToValue(
+                Rect(10f, 20f, 30f, 40f),
+                listOf(50f, 60f, 70f, 80f),
+                listOf(90f, 100f, 110f, 120f)
+            )
+        assertEquals(TargetState(Rect(50f, 60f, 70f, 80f), Rect(90f, 100f, 110f, 120f)), value)
     }
 
     @Test
     fun colorIsParsed() {
-        val value = parseParametersToValue(
-            Color(0.1f, 0.2f, 0.3f, 0.4f),
-            Color(0.5f, 0.6f, 0.7f, 0.8f),
-            Color(0.55f, 0.65f, 0.75f, 0.85f)
-        )
-        assertEquals(
-            TargetState(
+        val value =
+            parseParametersToValue(
+                Color(0.1f, 0.2f, 0.3f, 0.4f),
                 Color(0.5f, 0.6f, 0.7f, 0.8f),
                 Color(0.55f, 0.65f, 0.75f, 0.85f)
-            ), value
+            )
+        assertEquals(
+            TargetState(Color(0.5f, 0.6f, 0.7f, 0.8f), Color(0.55f, 0.65f, 0.75f, 0.85f)),
+            value
         )
     }
 
     @Test
     fun colorIsParsedAsList() {
-        val value = parseParametersToValue(
-            Color(0.1f, 0.2f, 0.3f, 0.4f),
-            listOf(0.5f, 0.6f, 0.7f, 0.8f),
-            listOf(0.55f, 0.65f, 0.75f, 0.85f)
-        )
+        val value =
+            parseParametersToValue(
+                Color(0.1f, 0.2f, 0.3f, 0.4f),
+                listOf(0.5f, 0.6f, 0.7f, 0.8f),
+                listOf(0.55f, 0.65f, 0.75f, 0.85f)
+            )
         assertEquals(
-            TargetState(
-                Color(0.5f, 0.6f, 0.7f, 0.8f),
-                Color(0.55f, 0.65f, 0.75f, 0.85f)
-            ), value
+            TargetState(Color(0.5f, 0.6f, 0.7f, 0.8f), Color(0.55f, 0.65f, 0.75f, 0.85f)),
+            value
         )
     }
 }

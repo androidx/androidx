@@ -32,9 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 
-/**
- * The benchmark test case for [Text], where the input is a plain string.
- */
+/** The benchmark test case for [Text], where the input is a plain string. */
 class TextInColumnTestCase(
     private val texts: List<String>,
     private val width: Dp,
@@ -53,8 +51,10 @@ class TextInColumnTestCase(
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
         Column(
-            modifier = Modifier.wrapContentSize(Alignment.Center).width(width)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier.wrapContentSize(Alignment.Center)
+                    .width(width)
+                    .verticalScroll(rememberScrollState())
         ) {
             content()
         }

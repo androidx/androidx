@@ -20,9 +20,7 @@ import androidx.compose.ui.text.platform.createSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
 import kotlin.jvm.JvmName
 
-/**
- * Copy from collection2 until that library can be added as a dependency
- */
+/** Copy from collection2 until that library can be added as a dependency */
 internal open class LruCache<K, V> {
 
     private val monitor = createSynchronizedObject()
@@ -33,11 +31,13 @@ internal open class LruCache<K, V> {
     @get:JvmName("size")
     public var size: Int = 0
         /**
-         * For caches that do not override [sizeOf], this returns the number
-         * of entries in the cache. For all other caches, this returns the sum of
-         * the sizes of the entries in this cache.
+         * For caches that do not override [sizeOf], this returns the number of entries in the
+         * cache. For all other caches, this returns the sum of the sizes of the entries in this
+         * cache.
          */
-        get() = synchronizedValue { return field }
+        get() = synchronizedValue {
+            return field
+        }
         private set
 
     private var maxSize = 0
@@ -49,11 +49,11 @@ internal open class LruCache<K, V> {
     private var missCount = 0
 
     /**
-     * @param maxSize for caches that do not override [sizeOf], this is
-     *     the maximum number of entries in the cache. For all other caches,
-     *     this is the maximum sum of the sizes of the entries in this cache.
+     * @param maxSize for caches that do not override [sizeOf], this is the maximum number of
+     *   entries in the cache. For all other caches, this is the maximum sum of the sizes of the
+     *   entries in this cache.
      */
-        constructor(maxSize: Int) {
+    constructor(maxSize: Int) {
         require(maxSize > 0) { "maxSize <= 0" }
         this.maxSize = maxSize
         map = HashMap<K, V>(0, 0.75f)
@@ -68,19 +68,16 @@ internal open class LruCache<K, V> {
     open fun resize(maxSize: Int) {
         require(maxSize > 0) { "maxSize <= 0" }
 
-        synchronized(monitor) {
-            this.maxSize = maxSize
-        }
+        synchronized(monitor) { this.maxSize = maxSize }
         trimToSize(maxSize)
     }
 
     /**
-     * Returns the value for [key] if it exists in the cache or can be
-     * created by [create]. If a value was returned, it is moved to the
-     * head of the queue. This returns `null` if a value is not cached and cannot
-     * be created.
+     * Returns the value for [key] if it exists in the cache or can be created by [create]. If a
+     * value was returned, it is moved to the head of the queue. This returns `null` if a value is
+     * not cached and cannot be created.
      */
-        fun get(key: K): V? {
+    fun get(key: K): V? {
         var mapValue: V? = null
 
         synchronized(monitor) {
@@ -126,13 +123,12 @@ internal open class LruCache<K, V> {
     }
 
     /**
-     * Caches [value] for [key]. The value is moved to the head of
-     * the queue.
+     * Caches [value] for [key]. The value is moved to the head of the queue.
      *
      * @return the previous value mapped by [key].
      * @throws NullPointerException if [key] or [value] is null
      */
-        fun put(key: K, value: V): V? {
+    fun put(key: K, value: V): V? {
         // Must throw NPE for JVM interop contract.
         if (key == null || value == null) {
             throw NullPointerException()
@@ -161,11 +157,11 @@ internal open class LruCache<K, V> {
     }
 
     /**
-     * Remove the eldest entries until the total of remaining entries is at or
-     * below the requested size.
+     * Remove the eldest entries until the total of remaining entries is at or below the requested
+     * size.
      *
-     * @param maxSize the maximum size of the cache before returning. May be -1
-     *            to evict even 0-sized elements.
+     * @param maxSize the maximum size of the cache before returning. May be -1 to evict even
+     *   0-sized elements.
      * @throws IllegalStateException
      */
     open fun trimToSize(maxSize: Int) {
@@ -174,19 +170,15 @@ internal open class LruCache<K, V> {
             var value: V? = null
 
             synchronized(monitor) {
-                if (size < 0 ||
-                    (map.isEmpty() && size != 0) ||
-                    (map.isEmpty() != keySet.isEmpty())
+                if (
+                    size < 0 || (map.isEmpty() && size != 0) || (map.isEmpty() != keySet.isEmpty())
                 ) {
                     throw IllegalStateException("map/keySet size inconsistency")
                 }
 
                 if (size > maxSize && !map.isEmpty()) {
                     key = keySet.first()
-                    value = map.get(key) ?: throw IllegalStateException(
-                        "inconsistent " +
-                            "state"
-                    )
+                    value = map.get(key) ?: throw IllegalStateException("inconsistent " + "state")
                     map.remove(key)
                     keySet.remove(key)
                     size -= safeSizeOf(key!!, value!!)
@@ -231,41 +223,35 @@ internal open class LruCache<K, V> {
     }
 
     /**
-     * Called for entries that have been evicted or removed. This method is
-     * invoked when a value is evicted to make space, removed by a call to
-     * [remove], or replaced by a call to [put]. The default
-     * implementation does nothing.
+     * Called for entries that have been evicted or removed. This method is invoked when a value is
+     * evicted to make space, removed by a call to [remove], or replaced by a call to [put]. The
+     * default implementation does nothing.
      *
-     * The method is called without synchronization: other threads may
-     * access the cache while this method is executing.
+     * The method is called without synchronization: other threads may access the cache while this
+     * method is executing.
      *
-     * @param evicted `true` if the entry is being removed to make space, `false`
-     *     if the removal was caused by a [put] or [remove].
+     * @param evicted `true` if the entry is being removed to make space, `false` if the removal was
+     *   caused by a [put] or [remove].
      * @param key key of the entry that was evicted or removed.
      * @param oldValue the original value of the entry that was evicted removed.
-     * @param newValue the new value for [key], if it exists. If non-null,
-     *     this removal was caused by a [put]. Otherwise it was caused by
-     *     an eviction or a [remove].
+     * @param newValue the new value for [key], if it exists. If non-null, this removal was caused
+     *   by a [put]. Otherwise it was caused by an eviction or a [remove].
      */
-    protected open fun entryRemoved(evicted: Boolean, key: K, oldValue: V, newValue: V?) {
-    }
+    protected open fun entryRemoved(evicted: Boolean, key: K, oldValue: V, newValue: V?) {}
 
     /**
-     * Called after a cache miss to compute a value for the corresponding key.
-     * Returns the computed value or null if no value can be computed. The
-     * default implementation returns null.
+     * Called after a cache miss to compute a value for the corresponding key. Returns the computed
+     * value or null if no value can be computed. The default implementation returns null.
      *
-     * The method is called without synchronization: other threads may
-     * access the cache while this method is executing.
+     * The method is called without synchronization: other threads may access the cache while this
+     * method is executing.
      *
-     * If a value for [key] exists in the cache when this method
-     * returns, the created value will be released with [entryRemoved]
-     * and discarded. This can occur when multiple threads request the same key
-     * at the same time (causing multiple values to be created), or when one
-     * thread calls [put] while another is creating a value for the same
-     * key.
+     * If a value for [key] exists in the cache when this method returns, the created value will be
+     * released with [entryRemoved] and discarded. This can occur when multiple threads request the
+     * same key at the same time (causing multiple values to be created), or when one thread calls
+     * [put] while another is creating a value for the same key.
      */
-        protected open fun create(key: K): V? = null
+    protected open fun create(key: K): V? = null
 
     private fun safeSizeOf(key: K, value: V): Int {
         val result = sizeOf(key, value)
@@ -274,58 +260,44 @@ internal open class LruCache<K, V> {
     }
 
     /**
-     * Returns the size of the entry for [key] and [value] in
-     * user-defined units.  The default implementation returns 1 so that size
-     * is the number of entries and max size is the maximum number of entries.
+     * Returns the size of the entry for [key] and [value] in user-defined units. The default
+     * implementation returns 1 so that size is the number of entries and max size is the maximum
+     * number of entries.
      *
      * An entry's size must not change while it is in the cache.
      */
     protected open fun sizeOf(key: K, value: V) = 1
 
-    /**
-     * Clear the cache, calling [entryRemoved] on each removed entry.
-     */
+    /** Clear the cache, calling [entryRemoved] on each removed entry. */
     fun evictAll() {
         trimToSize(-1) // -1 will evict 0-sized elements
     }
 
     /**
-     * For caches that do not override [sizeOf], this returns the maximum
-     * number of entries in the cache. For all other caches, this returns the
-     * maximum sum of the sizes of the entries in this cache.
+     * For caches that do not override [sizeOf], this returns the maximum number of entries in the
+     * cache. For all other caches, this returns the maximum sum of the sizes of the entries in this
+     * cache.
      */
     fun maxSize(): Int = synchronizedValue { maxSize }
 
-    /**
-     * Returns the number of times [get] returned a value that was
-     * already present in the cache.
-     */
+    /** Returns the number of times [get] returned a value that was already present in the cache. */
     fun hitCount(): Int = synchronizedValue { hitCount }
 
-    /**
-     * Returns the number of times [get] returned null or required a new
-     * value to be created.
-     */
+    /** Returns the number of times [get] returned null or required a new value to be created. */
     fun missCount(): Int = synchronizedValue { missCount }
 
-    /**
-     * Returns the number of times [create] returned a value.
-     */
+    /** Returns the number of times [create] returned a value. */
     fun createCount(): Int = synchronizedValue { createCount }
 
-    /**
-     * Returns the number of times [put] was called.
-     */
+    /** Returns the number of times [put] was called. */
     fun putCount(): Int = synchronizedValue { putCount }
 
-    /**
-     * Returns the number of values that have been evicted.
-     */
+    /** Returns the number of values that have been evicted. */
     fun evictionCount(): Int = synchronizedValue { evictionCount }
 
     /**
-     * Returns a copy of the current contents of the cache, ordered from least
-     * recently accessed to most recently accessed.
+     * Returns a copy of the current contents of the cache, ordered from least recently accessed to
+     * most recently accessed.
      */
     fun snapshot(): Map<K, V> {
         synchronized(monitor) {

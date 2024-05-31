@@ -107,11 +107,12 @@ sealed class Stability {
         }
     }
 
-    operator fun plus(other: Stability): Stability = when {
-        other is Certain -> if (other.stable) this else other
-        this is Certain -> if (stable) other else this
-        else -> Combined(listOf(this, other))
-    }
+    operator fun plus(other: Stability): Stability =
+        when {
+            other is Certain -> if (other.stable) this else other
+            this is Certain -> if (stable) other else this
+            else -> Combined(listOf(this, other))
+        }
 
     operator fun plus(other: List<Stability>): Stability {
         var stability = this
@@ -127,37 +128,41 @@ sealed class Stability {
     }
 }
 
-fun Stability.knownUnstable(): Boolean = when (this) {
-    is Stability.Certain -> !stable
-    is Stability.Runtime -> false
-    is Stability.Unknown -> false
-    is Stability.Parameter -> false
-    is Stability.Combined -> elements.any { it.knownUnstable() }
-}
+fun Stability.knownUnstable(): Boolean =
+    when (this) {
+        is Stability.Certain -> !stable
+        is Stability.Runtime -> false
+        is Stability.Unknown -> false
+        is Stability.Parameter -> false
+        is Stability.Combined -> elements.any { it.knownUnstable() }
+    }
 
-fun Stability.knownStable(): Boolean = when (this) {
-    is Stability.Certain -> stable
-    is Stability.Runtime -> false
-    is Stability.Unknown -> false
-    is Stability.Parameter -> false
-    is Stability.Combined -> elements.all { it.knownStable() }
-}
+fun Stability.knownStable(): Boolean =
+    when (this) {
+        is Stability.Certain -> stable
+        is Stability.Runtime -> false
+        is Stability.Unknown -> false
+        is Stability.Parameter -> false
+        is Stability.Combined -> elements.all { it.knownStable() }
+    }
 
-fun Stability.isUncertain(): Boolean = when (this) {
-    is Stability.Certain -> false
-    is Stability.Runtime -> true
-    is Stability.Unknown -> true
-    is Stability.Parameter -> true
-    is Stability.Combined -> elements.any { it.isUncertain() }
-}
+fun Stability.isUncertain(): Boolean =
+    when (this) {
+        is Stability.Certain -> false
+        is Stability.Runtime -> true
+        is Stability.Unknown -> true
+        is Stability.Parameter -> true
+        is Stability.Combined -> elements.any { it.isUncertain() }
+    }
 
-fun Stability.isExpressible(): Boolean = when (this) {
-    is Stability.Certain -> true
-    is Stability.Runtime -> true
-    is Stability.Unknown -> false
-    is Stability.Parameter -> true
-    is Stability.Combined -> elements.all { it.isExpressible() }
-}
+fun Stability.isExpressible(): Boolean =
+    when (this) {
+        is Stability.Certain -> true
+        is Stability.Runtime -> true
+        is Stability.Unknown -> false
+        is Stability.Parameter -> true
+        is Stability.Combined -> elements.all { it.isExpressible() }
+    }
 
 fun Stability.normalize(): Stability {
     when (this) {
@@ -166,7 +171,6 @@ fun Stability.normalize(): Stability {
         is Stability.Parameter,
         is Stability.Runtime,
         is Stability.Unknown -> return this
-
         is Stability.Combined -> {
             // if combined, we perform the more expensive normalization process
         }
@@ -179,19 +183,15 @@ fun Stability.normalize(): Stability {
             is Stability.Combined -> {
                 stack.addAll(stability.elements)
             }
-
             is Stability.Certain -> {
-                if (!stability.stable)
-                    return Stability.Unstable
+                if (!stability.stable) return Stability.Unstable
             }
-
             is Stability.Parameter -> {
                 if (stability.parameter.symbol !in parameters) {
                     parameters.add(stability.parameter.symbol)
                     parts.add(stability)
                 }
             }
-
             is Stability.Runtime -> parts.add(stability)
             is Stability.Unknown -> {
                 /* do nothing */
@@ -209,8 +209,7 @@ fun Stability.forEach(callback: (Stability) -> Unit) {
     }
 }
 
-fun IrAnnotationContainer.hasStableMarker(): Boolean =
-    annotations.any { it.isStableMarker() }
+fun IrAnnotationContainer.hasStableMarker(): Boolean = annotations.any { it.isStableMarker() }
 
 private fun IrConstructorCall.isStableMarker(): Boolean =
     annotationClass?.owner?.hasAnnotation(ComposeFqNames.StableMarker) == true
@@ -223,9 +222,9 @@ private fun IrClass.hasStableMarkedDescendant(): Boolean {
 }
 
 private fun IrAnnotationContainer.stabilityParamBitmask(): Int? =
-    (annotations.findAnnotation(ComposeFqNames.StabilityInferred)
-        ?.getValueArgument(0) as? IrConst<*>
-        )?.value as? Int
+    (annotations.findAnnotation(ComposeFqNames.StabilityInferred)?.getValueArgument(0)
+            as? IrConst<*>)
+        ?.value as? Int
 
 private data class SymbolForAnalysis(
     val symbol: IrClassifierSymbol,
@@ -238,8 +237,7 @@ class StabilityInferencer(
 ) {
     private val externalTypeMatcherCollection = FqNameMatcherCollection(externalStableTypeMatchers)
 
-    fun stabilityOf(irType: IrType): Stability =
-        stabilityOf(irType, emptyMap(), emptySet())
+    fun stabilityOf(irType: IrType): Stability = stabilityOf(irType, emptyMap(), emptySet())
 
     private fun stabilityOf(
         declaration: IrClass,
@@ -271,8 +269,8 @@ class StabilityInferencer(
                 mask = KnownStableConstructs.stableTypes[fqName] ?: 0
                 stability = Stability.Stable
             } else if (declaration.isExternalStableType()) {
-                mask = externalTypeMatcherCollection
-                    .maskForName(declaration.fqNameWhenAvailable) ?: 0
+                mask =
+                    externalTypeMatcherCollection.maskForName(declaration.fqNameWhenAvailable) ?: 0
                 stability = Stability.Stable
             } else {
                 val bitmask = declaration.stabilityParamBitmask() ?: return Stability.Unstable
@@ -284,26 +282,27 @@ class StabilityInferencer(
 
                 // supporting incremental compilation, where declaration stubs can be
                 // in the same module, so we need to use already inferred values
-                stability = if (isKnownStable && declaration.isInCurrentModule()) {
-                    Stability.Stable
-                } else {
-                    Stability.Runtime(declaration)
-                }
+                stability =
+                    if (isKnownStable && declaration.isInCurrentModule()) {
+                        Stability.Stable
+                    } else {
+                        Stability.Runtime(declaration)
+                    }
             }
             return when {
                 mask == 0 || typeParameters.isEmpty() -> stability
-                else -> stability + Stability.Combined(
-                    typeParameters.mapIndexedNotNull { index, irTypeParameter ->
-                        if (index >= 32) return@mapIndexedNotNull null
-                        if (mask and (0b1 shl index) != 0) {
-                            val sub = substitutions[irTypeParameter.symbol]
-                            if (sub != null)
-                                stabilityOf(sub, substitutions, analyzing)
-                            else
-                                Stability.Parameter(irTypeParameter)
-                        } else null
-                    }
-                )
+                else ->
+                    stability +
+                        Stability.Combined(
+                            typeParameters.mapIndexedNotNull { index, irTypeParameter ->
+                                if (index >= 32) return@mapIndexedNotNull null
+                                if (mask and (0b1 shl index) != 0) {
+                                    val sub = substitutions[irTypeParameter.symbol]
+                                    if (sub != null) stabilityOf(sub, substitutions, analyzing)
+                                    else Stability.Parameter(irTypeParameter)
+                                } else null
+                            }
+                        )
             }
         } else if (declaration.origin == IrDeclarationOrigin.IR_EXTERNAL_JAVA_DECLARATION_STUB) {
             return Stability.Unstable
@@ -323,7 +322,6 @@ class StabilityInferencer(
                         stability += stabilityOf(it.type, substitutions, analyzing)
                     }
                 }
-
                 is IrField -> {
                     stability += stabilityOf(member.type, substitutions, analyzing)
                 }
@@ -334,15 +332,18 @@ class StabilityInferencer(
     }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
-    private fun IrDeclaration.isInCurrentModule() =
-        module == currentModule
+    private fun IrDeclaration.isInCurrentModule() = module == currentModule
 
     private fun IrClass.isProtobufType(): Boolean {
         // Quick exit as all protos are final
         if (!isFinalClass) return false
         val directParentClassName =
-            superTypes.lastOrNull { !it.isInterface() }
-                ?.classOrNull?.owner?.fqNameWhenAvailable?.toString()
+            superTypes
+                .lastOrNull { !it.isInterface() }
+                ?.classOrNull
+                ?.owner
+                ?.fqNameWhenAvailable
+                ?.toString()
         return directParentClassName == "com.google.protobuf.GeneratedMessageLite" ||
             directParentClassName == "com.google.protobuf.GeneratedMessage"
     }
@@ -391,33 +392,24 @@ class StabilityInferencer(
         return when {
             type is IrErrorType -> Stability.Unstable
             type is IrDynamicType -> Stability.Unstable
-
             type.isUnit() ||
                 type.isPrimitiveType() ||
                 type.isFunctionOrKFunction() ||
                 type.isSyntheticComposableFunction() ||
                 type.isString() -> Stability.Stable
-
             type.isTypeParameter() -> {
                 val arg = substitutions[type.classifierOrNull as IrTypeParameterSymbol]
                 if (arg != null) {
                     stabilityOf(arg, substitutions, currentlyAnalyzing)
                 } else {
-                    Stability.Parameter(
-                        type.classifierOrFail.owner as IrTypeParameter
-                    )
+                    Stability.Parameter(type.classifierOrFail.owner as IrTypeParameter)
                 }
             }
-
-            type.isNullable() -> stabilityOf(
-                type.makeNotNull(),
-                substitutions,
-                currentlyAnalyzing
-            )
-
+            type.isNullable() -> stabilityOf(type.makeNotNull(), substitutions, currentlyAnalyzing)
             type.isInlineClassType() -> {
-                val inlineClassDeclaration = type.getClass()
-                    ?: error("Failed to resolve the class definition of inline type $type")
+                val inlineClassDeclaration =
+                    type.getClass()
+                        ?: error("Failed to resolve the class definition of inline type $type")
 
                 if (inlineClassDeclaration.hasStableMarker()) {
                     Stability.Stable
@@ -429,7 +421,6 @@ class StabilityInferencer(
                     )
                 }
             }
-
             type is IrSimpleType -> {
                 stabilityOf(
                     type.classifier,
@@ -437,13 +428,11 @@ class StabilityInferencer(
                     currentlyAnalyzing
                 )
             }
-
             type is IrTypeAbbreviation -> {
                 val aliased = type.typeAlias.owner.expandedType
                 // TODO(lmr): figure out how type.arguments plays in here
                 stabilityOf(aliased, substitutions, currentlyAnalyzing)
             }
-
             else -> error("Unexpected IrType: $type")
         }
     }
@@ -452,9 +441,10 @@ class StabilityInferencer(
         val cls = classOrNull ?: return emptyMap()
         val params = cls.owner.typeParameters.map { it.symbol }
         val args = arguments
-        return params.zip(args).filter { (param, arg) ->
-            param != (arg as? IrSimpleType)?.classifier
-        }.toMap()
+        return params
+            .zip(args)
+            .filter { (param, arg) -> param != (arg as? IrSimpleType)?.classifier }
+            .toMap()
     }
 
     private fun stabilityOf(expr: IrCall, baseStability: Stability): Stability {
@@ -464,17 +454,15 @@ class StabilityInferencer(
         return when (val mask = KnownStableConstructs.stableFunctions[fqName.asString()]) {
             null -> baseStability
             0 -> Stability.Stable
-            else -> Stability.Combined(
-                (0 until expr.typeArgumentsCount).mapNotNull { index ->
-                    if (mask and (0b1 shl index) != 0) {
-                        val sub = expr.getTypeArgument(index)
-                        if (sub != null)
-                            stabilityOf(sub)
-                        else
-                            Stability.Unstable
-                    } else null
-                }
-            )
+            else ->
+                Stability.Combined(
+                    (0 until expr.typeArgumentsCount).mapNotNull { index ->
+                        if (mask and (0b1 shl index) != 0) {
+                            val sub = expr.getTypeArgument(index)
+                            if (sub != null) stabilityOf(sub) else Stability.Unstable
+                        } else null
+                    }
+                )
         }
     }
 
@@ -493,7 +481,6 @@ class StabilityInferencer(
                     stability
                 }
             }
-
             is IrLocalDelegatedPropertyReference -> Stability.Stable
             // some default parameters and consts can be wrapped in composite
             is IrComposite -> {
@@ -503,7 +490,6 @@ class StabilityInferencer(
                     stability
                 }
             }
-
             else -> stability
         }
     }

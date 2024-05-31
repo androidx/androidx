@@ -21,20 +21,15 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 
-/**
- * Convert the [android.graphics.RenderEffect] instance into a Compose-compatible [RenderEffect]
- */
-fun android.graphics.RenderEffect.asComposeRenderEffect(): RenderEffect =
-    AndroidRenderEffect(this)
+/** Convert the [android.graphics.RenderEffect] instance into a Compose-compatible [RenderEffect] */
+fun android.graphics.RenderEffect.asComposeRenderEffect(): RenderEffect = AndroidRenderEffect(this)
 
 @Immutable
 actual sealed class RenderEffect {
 
     private var internalRenderEffect: android.graphics.RenderEffect? = null
 
-    /**
-     * Obtain a [android.graphics.RenderEffect] from the compose [RenderEffect]
-     */
+    /** Obtain a [android.graphics.RenderEffect] from the compose [RenderEffect] */
     @RequiresApi(Build.VERSION_CODES.S)
     fun asAndroidRenderEffect(): android.graphics.RenderEffect =
         internalRenderEffect ?: createRenderEffect().also { internalRenderEffect = it }
@@ -46,14 +41,14 @@ actual sealed class RenderEffect {
 }
 
 @Immutable
-internal class AndroidRenderEffect(
-    val androidRenderEffect: android.graphics.RenderEffect
-) : RenderEffect() {
+internal class AndroidRenderEffect(val androidRenderEffect: android.graphics.RenderEffect) :
+    RenderEffect() {
     override fun createRenderEffect(): android.graphics.RenderEffect = androidRenderEffect
 }
 
 @Immutable
-actual class BlurEffect actual constructor(
+actual class BlurEffect
+actual constructor(
     private val renderEffect: RenderEffect?,
     private val radiusX: Float,
     private val radiusY: Float,
@@ -96,10 +91,9 @@ actual class BlurEffect actual constructor(
 }
 
 @Immutable
-actual class OffsetEffect actual constructor(
-    private val renderEffect: RenderEffect?,
-    private val offset: Offset
-) : RenderEffect() {
+actual class OffsetEffect
+actual constructor(private val renderEffect: RenderEffect?, private val offset: Offset) :
+    RenderEffect() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     override fun createRenderEffect(): android.graphics.RenderEffect =

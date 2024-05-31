@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.DpSize
  * Usually used with [TooltipBox].
  *
  * @param modifier the [Modifier] to be applied to the tooltip.
- * @param caretSize [DpSize] for the caret of the tooltip, if a default
- * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
- * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default caret is desired with a
+ *   specific dimension. Please see [TooltipDefaults.caretSize] to see the default dimensions. Pass
+ *   in Dp.Unspecified for this parameter if no caret is desired.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param containerColor [Color] that will be applied to the tooltip's container.
@@ -67,13 +67,14 @@ actual fun TooltipScope.PlainTooltip(
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation
     ) {
-        Box(modifier = Modifier
-            .sizeIn(
-                minWidth = TooltipMinWidth,
-                maxWidth = PlainTooltipMaxWidth,
-                minHeight = TooltipMinHeight
-            )
-            .padding(PlainTooltipContentPadding)
+        Box(
+            modifier =
+                Modifier.sizeIn(
+                        minWidth = TooltipMinWidth,
+                        maxWidth = PlainTooltipMaxWidth,
+                        minHeight = TooltipMinHeight
+                    )
+                    .padding(PlainTooltipContentPadding)
         ) {
             val textStyle = PlainTooltipTokens.SupportingTextFont.value
             CompositionLocalProvider(
@@ -86,17 +87,17 @@ actual fun TooltipScope.PlainTooltip(
 }
 
 /**
- * Rich text tooltip that allows the user to pass in a title, text, and action.
- * Tooltips are used to provide a descriptive message.
+ * Rich text tooltip that allows the user to pass in a title, text, and action. Tooltips are used to
+ * provide a descriptive message.
  *
  * Usually used with [TooltipBox]
  *
  * @param modifier the [Modifier] to be applied to the tooltip.
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
- * @param caretSize [DpSize] for the caret of the tooltip, if a default
- * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
- * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default caret is desired with a
+ *   specific dimension. Please see [TooltipDefaults.caretSize] to see the default dimensions. Pass
+ *   in Dp.Unspecified for this parameter if no caret is desired.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
  * @param tonalElevation the tonal elevation of the tooltip.
@@ -117,8 +118,8 @@ actual fun TooltipScope.RichTooltip(
     text: @Composable () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .sizeIn(
+        modifier =
+            modifier.sizeIn(
                 minWidth = TooltipMinWidth,
                 maxWidth = RichTooltipMaxWidth,
                 minHeight = TooltipMinHeight
@@ -132,13 +133,9 @@ actual fun TooltipScope.RichTooltip(
         val subheadTextStyle = RichTooltipTokens.SubheadFont.value
         val supportingTextStyle = RichTooltipTokens.SupportingTextFont.value
 
-        Column(
-            modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)
-        ) {
+        Column(modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)) {
             title?.let {
-                Box(
-                    modifier = Modifier.paddingFromBaseline(top = HeightToSubheadFirstLine)
-                ) {
+                Box(modifier = Modifier.paddingFromBaseline(top = HeightToSubheadFirstLine)) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.titleContentColor,
                         LocalTextStyle provides subheadTextStyle,
@@ -146,9 +143,7 @@ actual fun TooltipScope.RichTooltip(
                     )
                 }
             }
-            Box(
-                modifier = Modifier.textVerticalPadding(title != null, action != null)
-            ) {
+            Box(modifier = Modifier.textVerticalPadding(title != null, action != null)) {
                 CompositionLocalProvider(
                     LocalContentColor provides colors.contentColor,
                     LocalTextStyle provides supportingTextStyle,
@@ -157,9 +152,9 @@ actual fun TooltipScope.RichTooltip(
             }
             action?.let {
                 Box(
-                    modifier = Modifier
-                        .requiredHeightIn(min = ActionLabelMinHeight)
-                        .padding(bottom = ActionLabelBottomPadding)
+                    modifier =
+                        Modifier.requiredHeightIn(min = ActionLabelMinHeight)
+                            .padding(bottom = ActionLabelBottomPadding)
                 ) {
                     CompositionLocalProvider(
                         LocalContentColor provides colors.actionContentColor,

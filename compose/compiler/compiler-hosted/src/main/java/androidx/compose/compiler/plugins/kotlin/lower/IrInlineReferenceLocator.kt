@@ -64,37 +64,42 @@ class ComposeInlineLambdaLocator(private val context: IrPluginContext) {
 
     // Locate all inline lambdas in the scope of the given IrElement.
     fun scan(element: IrElement) {
-        element.acceptVoid(object : IrElementVisitorVoid {
-            override fun visitElement(element: IrElement) {
-                element.acceptChildrenVoid(this)
-            }
+        element.acceptVoid(
+            object : IrElementVisitorVoid {
+                override fun visitElement(element: IrElement) {
+                    element.acceptChildrenVoid(this)
+                }
 
-            override fun visitValueParameter(declaration: IrValueParameter) {
-                declaration.acceptChildrenVoid(this)
-                val parent = declaration.parent as? IrFunction
-                if (parent?.isInlineFunctionCall(context) == true &&
-                    declaration.isInlinedFunction()) {
-                    declaration.defaultValue?.expression?.unwrapLambda()?.let {
-                        inlineLambdaToParameter[it] = declaration
+                override fun visitValueParameter(declaration: IrValueParameter) {
+                    declaration.acceptChildrenVoid(this)
+                    val parent = declaration.parent as? IrFunction
+                    if (
+                        parent?.isInlineFunctionCall(context) == true &&
+                            declaration.isInlinedFunction()
+                    ) {
+                        declaration.defaultValue?.expression?.unwrapLambda()?.let {
+                            inlineLambdaToParameter[it] = declaration
+                        }
                     }
                 }
-            }
 
-            override fun visitFunctionAccess(expression: IrFunctionAccessExpression) {
-                expression.acceptChildrenVoid(this)
-                val function = expression.symbol.owner
-                if (function.isInlineFunctionCall(context)) {
-                    for (parameter in function.valueParameters) {
-                        if (parameter.isInlinedFunction()) {
-                            expression.getValueArgument(parameter.index)
-                                ?.also { inlineFunctionExpressions += it }
-                                ?.unwrapLambda()
-                                ?.let { inlineLambdaToParameter[it] = parameter }
+                override fun visitFunctionAccess(expression: IrFunctionAccessExpression) {
+                    expression.acceptChildrenVoid(this)
+                    val function = expression.symbol.owner
+                    if (function.isInlineFunctionCall(context)) {
+                        for (parameter in function.valueParameters) {
+                            if (parameter.isInlinedFunction()) {
+                                expression
+                                    .getValueArgument(parameter.index)
+                                    ?.also { inlineFunctionExpressions += it }
+                                    ?.unwrapLambda()
+                                    ?.let { inlineLambdaToParameter[it] = parameter }
+                            }
                         }
                     }
                 }
             }
-        })
+        )
     }
 }
 
@@ -105,31 +110,33 @@ private fun IrFunction.isInlineFunctionCall(context: IrPluginContext) =
 
 // Constructors can't be marked as inline in metadata, hence this hack.
 private fun IrFunction.isInlineArrayConstructor(context: IrPluginContext): Boolean =
-    this is IrConstructor && valueParameters.size == 2 && constructedClass.symbol.let {
-        it == context.irBuiltIns.arrayClass ||
-            it in context.irBuiltIns.primitiveArraysToPrimitiveTypes
+    this is IrConstructor &&
+        valueParameters.size == 2 &&
+        constructedClass.symbol.let {
+            it == context.irBuiltIns.arrayClass ||
+                it in context.irBuiltIns.primitiveArraysToPrimitiveTypes
+        }
+
+fun IrExpression.unwrapLambda(): IrFunctionSymbol? =
+    when {
+        this is IrBlock && origin.isLambdaBlockOrigin ->
+            (statements.lastOrNull() as? IrFunctionReference)?.symbol
+        this is IrFunctionExpression -> function.symbol
+        else -> null
     }
 
-fun IrExpression.unwrapLambda(): IrFunctionSymbol? = when {
-    this is IrBlock && origin.isLambdaBlockOrigin ->
-        (statements.lastOrNull() as? IrFunctionReference)?.symbol
-
-    this is IrFunctionExpression ->
-        function.symbol
-
-    else ->
-        null
-}
-
 private val IrStatementOrigin?.isLambdaBlockOrigin: Boolean
-    get() = isLambda || this == IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE ||
-        this == IrStatementOrigin.SUSPEND_CONVERSION
+    get() =
+        isLambda ||
+            this == IrStatementOrigin.ADAPTED_FUNCTION_REFERENCE ||
+            this == IrStatementOrigin.SUSPEND_CONVERSION
 
 // This is copied from JvmIrInlineUtils.kt in the Kotlin compiler, since we
 // need to check for synthetic composable functions.
 private fun IrValueParameter.isInlinedFunction(): Boolean =
-    index >= 0 && !isNoinline && (type.isFunction() || type.isSuspendFunction() ||
-        type.isSyntheticComposableFunction()) &&
+    index >= 0 &&
+        !isNoinline &&
+        (type.isFunction() || type.isSuspendFunction() || type.isSyntheticComposableFunction()) &&
         // Parameters with default values are always nullable, so check the expression too.
         // Note that the frontend has a diagnostic for nullable inline parameters, so actually
         // making this return `false` requires using `@Suppress`.
@@ -137,6 +144,5 @@ private fun IrValueParameter.isInlinedFunction(): Boolean =
 
 fun IrType.isSyntheticComposableFunction() =
     classOrNull?.owner?.let {
-        it.name.asString().startsWith("ComposableFunction") &&
-            it.packageFqName == InternalPackage
+        it.name.asString().startsWith("ComposableFunction") && it.packageFqName == InternalPackage
     } ?: false

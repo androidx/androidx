@@ -47,22 +47,21 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 
-/**
- * The offset translator which works for all offset keep remains the same.
- */
-private val identityTranslator = object : OffsetMapping {
-    override fun originalToTransformed(offset: Int): Int = offset
-    override fun transformedToOriginal(offset: Int): Int = offset
-}
+/** The offset translator which works for all offset keep remains the same. */
+private val identityTranslator =
+    object : OffsetMapping {
+        override fun originalToTransformed(offset: Int): Int = offset
+
+        override fun transformedToOriginal(offset: Int): Int = offset
+    }
 
 /**
  * The visual filter for capitalization.
  *
  * This filer converts ASCII characters to capital form.
  */
-private class CapitalizeTransformation(
-    val locale: LocaleList = LocaleList("en-US")
-) : VisualTransformation {
+private class CapitalizeTransformation(val locale: LocaleList = LocaleList("en-US")) :
+    VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         // Note: identityTranslator doesn't work for some locale, e.g. Turkish
         return TransformedText(AnnotatedString(text.text).toUpperCase(locale), identityTranslator)
@@ -74,55 +73,56 @@ private class CapitalizeTransformation(
  *
  * @see phoneNumberFilter
  */
-private fun phoneNumberOffsetTranslator(text: String) = object : OffsetMapping {
-    override fun originalToTransformed(offset: Int): Int {
-        return when (offset) {
-            0 -> 1
-            1 -> 2
-            2 -> 3
-            3 -> 6
-            4 -> 7
-            5 -> 8
-            6 -> 10
-            7 -> 11
-            8 -> 12
-            9 -> 13
-            else -> 14
+private fun phoneNumberOffsetTranslator(text: String) =
+    object : OffsetMapping {
+        override fun originalToTransformed(offset: Int): Int {
+            return when (offset) {
+                0 -> 1
+                1 -> 2
+                2 -> 3
+                3 -> 6
+                4 -> 7
+                5 -> 8
+                6 -> 10
+                7 -> 11
+                8 -> 12
+                9 -> 13
+                else -> 14
+            }
+        }
+
+        override fun transformedToOriginal(offset: Int): Int {
+            return when (offset) {
+                0 -> 0
+                1 -> 0
+                2 -> 1
+                3 -> 2
+                4 -> 3
+                5 -> 3
+                6 -> 3
+                7 -> 4
+                8 -> 5
+                9 -> 6
+                10 -> 6
+                11 -> 7
+                12 -> 8
+                13 -> 9
+                else -> 10
+            }.coerceAtMost(text.length)
         }
     }
-
-    override fun transformedToOriginal(offset: Int): Int {
-        return when (offset) {
-            0 -> 0
-            1 -> 0
-            2 -> 1
-            3 -> 2
-            4 -> 3
-            5 -> 3
-            6 -> 3
-            7 -> 4
-            8 -> 5
-            9 -> 6
-            10 -> 6
-            11 -> 7
-            12 -> 8
-            13 -> 9
-            else -> 10
-        }.coerceAtMost(text.length)
-    }
-}
 
 /**
  * The visual filter for phone number.
  *
- * This filter converts up to 10 digits to phone number form.
- * For example, "1234567890" will be shown as "(123) 456-7890".
+ * This filter converts up to 10 digits to phone number form. For example, "1234567890" will be
+ * shown as "(123) 456-7890".
  */
 private val phoneNumberFilter = VisualTransformation { text ->
     val trimmed = if (text.text.length >= 10) text.text.substring(0..9) else text.text
     val filled = trimmed + "_".repeat(10 - trimmed.length)
-    val res = "(" + filled.substring(0..2) + ") " + filled.substring(3..5) + "-" +
-        filled.substring(6..9)
+    val res =
+        "(" + filled.substring(0..2) + ") " + filled.substring(3..5) + "-" + filled.substring(6..9)
     TransformedText(AnnotatedString(text = res), phoneNumberOffsetTranslator(text.text))
 }
 
@@ -137,19 +137,20 @@ private val emailFilter = VisualTransformation { text ->
     }
 }
 
-private fun emailOffsetTranslator(text: String) = object : OffsetMapping {
-    override fun originalToTransformed(offset: Int): Int {
-        return (offset).coerceAtMost(text.length + 10)
-    }
+private fun emailOffsetTranslator(text: String) =
+    object : OffsetMapping {
+        override fun originalToTransformed(offset: Int): Int {
+            return (offset).coerceAtMost(text.length + 10)
+        }
 
-    override fun transformedToOriginal(offset: Int): Int {
-        return if (offset <= text.length) {
-            offset
-        } else {
-            (offset - 10).coerceAtMost(text.length).coerceAtLeast(0)
+        override fun transformedToOriginal(offset: Int): Int {
+            return if (offset <= text.length) {
+                offset
+            } else {
+                (offset - 10).coerceAtMost(text.length).coerceAtLeast(0)
+            }
         }
     }
-}
 
 @Preview
 @Composable
@@ -159,9 +160,7 @@ fun VisualTransformationDemo() {
             TagLine(tag = "Capitalization")
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
-                onValueChange = { old, new ->
-                    if (new.any { !it.isLetterOrDigit() }) old else new
-                },
+                onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
                 visualTransformation = CapitalizeTransformation()
             )
         }
@@ -169,9 +168,7 @@ fun VisualTransformationDemo() {
             TagLine(tag = "Capitalization (Turkish)")
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
-                onValueChange = { old, new ->
-                    if (new.any { !it.isLetterOrDigit() }) old else new
-                },
+                onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
                 visualTransformation = CapitalizeTransformation(LocaleList("tr"))
             )
         }
@@ -179,9 +176,7 @@ fun VisualTransformationDemo() {
             TagLine(tag = "Password")
             VariousEditLine(
                 keyboardType = KeyboardType.Password,
-                onValueChange = { old, new ->
-                    if (new.any { !it.isLetterOrDigit() }) old else new
-                },
+                onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
                 visualTransformation = PasswordVisualTransformation()
             )
         }
@@ -201,10 +196,7 @@ fun VisualTransformationDemo() {
         }
         item {
             TagLine(tag = "Email Suggestion")
-            VariousEditLine(
-                keyboardType = KeyboardType.Email,
-                visualTransformation = emailFilter
-            )
+            VariousEditLine(keyboardType = KeyboardType.Email, visualTransformation = emailFilter)
         }
         item {
             TagLine(tag = "Editfield with Hint Text")
@@ -235,10 +227,7 @@ private fun VariousEditLine(
         modifier = demoTextFieldModifiers,
         value = state.value,
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         visualTransformation = visualTransformation,
         onValueChange = {
             val value = onValueChange(state.value, it)
@@ -267,24 +256,14 @@ private fun HintEditText(content: @Composable () -> Unit) {
 
 @Composable
 private fun InteractionSourceTextField() {
-    val state = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue())
-    }
+    val state =
+        rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(demoTextFieldModifiers) {
-        Text(
-            "Pressed?: ${interactionSource.collectIsPressedAsState().value}",
-            fontSize = fontSize4
-        )
-        Text(
-            "Focused?: ${interactionSource.collectIsFocusedAsState().value}",
-            fontSize = fontSize4
-        )
-        Text(
-            "Dragged?: ${interactionSource.collectIsDraggedAsState().value}",
-            fontSize = fontSize4
-        )
+        Text("Pressed?: ${interactionSource.collectIsPressedAsState().value}", fontSize = fontSize4)
+        Text("Focused?: ${interactionSource.collectIsFocusedAsState().value}", fontSize = fontSize4)
+        Text("Dragged?: ${interactionSource.collectIsDraggedAsState().value}", fontSize = fontSize4)
         BasicTextField(
             modifier = Modifier.fillMaxWidth(),
             value = state.value,

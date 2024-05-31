@@ -70,10 +70,9 @@ internal fun ContextMenuScope.testItem(
 internal fun assertThatContextMenuState(state: ContextMenuState): ContextMenuStateSubject =
     assertAbout(ContextMenuStateSubject.SUBJECT_FACTORY).that(state)!!
 
-internal class ContextMenuStateSubject internal constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: ContextMenuState
-) : Subject(failureMetadata, subject) {
+internal class ContextMenuStateSubject
+internal constructor(failureMetadata: FailureMetadata?, private val subject: ContextMenuState) :
+    Subject(failureMetadata, subject) {
     companion object {
         internal val SUBJECT_FACTORY: Factory<ContextMenuStateSubject?, ContextMenuState> =
             Factory { failureMetadata, subject ->
@@ -118,9 +117,10 @@ internal class ColorSubject(
     private val subject: Color,
 ) : Subject(failureMetadata, subject) {
     companion object {
-        val INSTANCE = Factory<ColorSubject, Color> { failureMetadata, subject ->
-            ColorSubject(failureMetadata, subject)
-        }
+        val INSTANCE =
+            Factory<ColorSubject, Color> { failureMetadata, subject ->
+                ColorSubject(failureMetadata, subject)
+            }
     }
 
     fun isFuzzyEqualTo(expected: Color, tolerance: Float = 0.001f) {
@@ -140,8 +140,8 @@ internal class ColorSubject(
 }
 
 /**
- * In order to trigger `Popup.onDismiss`, the click has to come from above compose's test
- * framework. This method will send the click in this way.
+ * In order to trigger `Popup.onDismiss`, the click has to come from above compose's test framework.
+ * This method will send the click in this way.
  *
  * @param offsetPicker Given the root rect bounds, select an offset to click at.
  */
@@ -149,9 +149,8 @@ internal fun ComposeTestRule.clickOffPopup(offsetPicker: (IntRect) -> IntOffset)
     // Need the click to register above Compose's test framework,
     // else it won't be directed to the popup properly. So,
     // we use a different way of dispatching the click.
-    val rootRect = with(density) {
-        onAllNodes(isRoot()).onFirst().getBoundsInRoot().toRect().roundToIntRect()
-    }
+    val rootRect =
+        with(density) { onAllNodes(isRoot()).onFirst().getBoundsInRoot().toRect().roundToIntRect() }
     val offset = offsetPicker(rootRect)
     UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(offset.x, offset.y)
     waitForIdle()
@@ -168,12 +167,16 @@ internal fun ComposeTestRule.contextMenuItemInteraction(
     label: String,
 ): SemanticsNodeInteraction = onNode(matcher = hasAnyAncestor(isPopup()) and hasText(label))
 
-internal enum class ContextMenuItemState { ENABLED, DISABLED, DOES_NOT_EXIST }
+internal enum class ContextMenuItemState {
+    ENABLED,
+    DISABLED,
+    DOES_NOT_EXIST
+}
 
 /**
- * Various asserts for checking enable/disable status of the context menu.
- * Always checks that the popup exists and that all the items exist.
- * Each boolean parameter represents whether the item is expected to be enabled or not.
+ * Various asserts for checking enable/disable status of the context menu. Always checks that the
+ * popup exists and that all the items exist. Each boolean parameter represents whether the item is
+ * expected to be enabled or not.
  */
 internal fun ComposeTestRule.assertContextMenuItems(
     cutState: ContextMenuItemState,

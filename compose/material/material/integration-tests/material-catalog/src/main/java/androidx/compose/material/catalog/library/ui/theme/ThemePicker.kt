@@ -68,22 +68,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ThemePicker(
-    theme: Theme,
-    onThemeChange: (theme: Theme) -> Unit
-) {
+fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
     var themeState by remember { mutableStateOf(theme) }
 
     LazyColumn(
-        contentPadding = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-            .add(
-                WindowInsets(
-                    top = ThemePickerPadding,
-                    bottom = ThemePickerPadding
-                )
-            )
-            .asPaddingValues()
+        contentPadding =
+            WindowInsets.safeDrawing
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                .add(WindowInsets(top = ThemePickerPadding, bottom = ThemePickerPadding))
+                .asPaddingValues()
     ) {
         item {
             Text(
@@ -102,11 +95,12 @@ fun ThemePicker(
             LazyRow(contentPadding = PaddingValues(end = ThemePickerPadding)) {
                 items(ThemeColor.values()) { themeColor ->
                     ThemeColorItem(
-                        modifier = Modifier.padding(
-                            start = ThemePickerPadding,
-                            top = ThemePickerPadding,
-                            bottom = ThemePickerPadding
-                        ),
+                        modifier =
+                            Modifier.padding(
+                                start = ThemePickerPadding,
+                                top = ThemePickerPadding,
+                                bottom = ThemePickerPadding
+                            ),
                         themeColor = themeColor,
                         selected = { it == themeState.primaryColor },
                         onClick = { themeState = themeState.copy(primaryColor = it) }
@@ -123,11 +117,12 @@ fun ThemePicker(
             LazyRow(contentPadding = PaddingValues(end = ThemePickerPadding)) {
                 items(ThemeColor.values()) { themeColor ->
                     ThemeColorItem(
-                        modifier = Modifier.padding(
-                            start = ThemePickerPadding,
-                            top = ThemePickerPadding,
-                            bottom = ThemePickerPadding
-                        ),
+                        modifier =
+                            Modifier.padding(
+                                start = ThemePickerPadding,
+                                top = ThemePickerPadding,
+                                bottom = ThemePickerPadding
+                            ),
                         themeColor = themeColor,
                         selected = { it == themeState.secondaryColor },
                         onClick = { themeState = themeState.copy(secondaryColor = it) }
@@ -197,11 +192,12 @@ fun ThemePicker(
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
             LazyRow(
-                contentPadding = PaddingValues(
-                    start = ThemePickerPadding,
-                    top = ThemePickerPadding,
-                    bottom = ThemePickerPadding
-                )
+                contentPadding =
+                    PaddingValues(
+                        start = ThemePickerPadding,
+                        top = ThemePickerPadding,
+                        bottom = ThemePickerPadding
+                    )
             ) {
                 items(ThemeShapeCornerFamily.values()) { themeShapeCornerFamily ->
                     ThemeShapeCornerFamilyItem(
@@ -220,9 +216,7 @@ fun ThemePicker(
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
             ThemeShapeCornerSizeItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ThemePickerPadding),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = ThemePickerPadding),
                 themeShapeCornerSize = themeState.smallShapeCornerSize,
                 themeShapeCornerSizeMax = MaxSmallShapeCornerSize,
                 onValueChange = { themeState = themeState.copy(smallShapeCornerSize = it) }
@@ -236,9 +230,7 @@ fun ThemePicker(
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
             ThemeShapeCornerSizeItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ThemePickerPadding),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = ThemePickerPadding),
                 themeShapeCornerSize = themeState.mediumShapeCornerSize,
                 themeShapeCornerSizeMax = MaxMediumShapeCornerSize,
                 onValueChange = { themeState = themeState.copy(mediumShapeCornerSize = it) }
@@ -252,9 +244,7 @@ fun ThemePicker(
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
             ThemeShapeCornerSizeItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ThemePickerPadding),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = ThemePickerPadding),
                 themeShapeCornerSize = themeState.largeShapeCornerSize,
                 themeShapeCornerSizeMax = MaxLargeShapeCornerSize,
                 onValueChange = { themeState = themeState.copy(largeShapeCornerSize = it) }
@@ -266,9 +256,7 @@ fun ThemePicker(
         item {
             Row(modifier = Modifier.padding(horizontal = ThemePickerPadding)) {
                 Button(
-                    onClick = {
-                        onThemeChange(themeState)
-                    },
+                    onClick = { onThemeChange(themeState) },
                     modifier = Modifier.weight(1f),
                     enabled = themeState != theme,
                     elevation = null
@@ -303,10 +291,11 @@ private fun ThemeColorItem(
         selected = selected(themeColor),
         onClick = { onClick(themeColor) },
         modifier = modifier,
-        colors = RadioButtonDefaults.colors(
-            selectedColor = themeColor.getColor(darkTheme),
-            unselectedColor = themeColor.getColor(darkTheme)
-        )
+        colors =
+            RadioButtonDefaults.colors(
+                selectedColor = themeColor.getColor(darkTheme),
+                unselectedColor = themeColor.getColor(darkTheme)
+            )
     )
 }
 
@@ -317,20 +306,13 @@ private fun ThemeFontFamilyItem(
     selected: (themeFontFamily: ThemeFontFamily) -> Boolean,
     onClick: (themeFontFamily: ThemeFontFamily) -> Unit
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = selected(themeFontFamily),
-            onClick = { onClick(themeFontFamily) }
-        )
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        RadioButton(selected = selected(themeFontFamily), onClick = { onClick(themeFontFamily) })
         Spacer(modifier = Modifier.width(ThemePickerPadding))
         Text(
             text = themeFontFamily.label,
-            style = MaterialTheme.typography.body2.copy(
-                fontFamily = themeFontFamily.getFontFamily()
-            )
+            style =
+                MaterialTheme.typography.body2.copy(fontFamily = themeFontFamily.getFontFamily())
         )
     }
 }
@@ -345,18 +327,20 @@ private fun ThemeShapeCornerFamilyItem(
     TextButton(
         onClick = { onClick(themeShapeCornerFamily) },
         modifier = modifier,
-        colors = if (selected(themeShapeCornerFamily)) {
-            ButtonDefaults.textButtonColors()
-        } else {
-            ButtonDefaults.textButtonColors(
-                contentColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
-            )
-        }
+        colors =
+            if (selected(themeShapeCornerFamily)) {
+                ButtonDefaults.textButtonColors()
+            } else {
+                ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
+                )
+            }
     ) {
-        val iconId = when (themeShapeCornerFamily) {
-            ThemeShapeCornerFamily.Rounded -> R.drawable.ic_shape_rounded_corner_24dp
-            ThemeShapeCornerFamily.Cut -> R.drawable.ic_shape_cut_corner_24dp
-        }
+        val iconId =
+            when (themeShapeCornerFamily) {
+                ThemeShapeCornerFamily.Rounded -> R.drawable.ic_shape_rounded_corner_24dp
+                ThemeShapeCornerFamily.Cut -> R.drawable.ic_shape_cut_corner_24dp
+            }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(iconId),

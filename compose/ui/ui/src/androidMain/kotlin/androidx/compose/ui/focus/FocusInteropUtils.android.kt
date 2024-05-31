@@ -30,23 +30,21 @@ private class FocusInteropUtils {
     }
 }
 
-/**
- * Converts an android focus direction to a compose [focus direction][FocusDirection].
- */
-internal fun toFocusDirection(androidDirection: Int): FocusDirection? = when (androidDirection) {
-    ViewGroup.FOCUS_UP -> FocusDirection.Up
-    ViewGroup.FOCUS_DOWN -> FocusDirection.Down
-    ViewGroup.FOCUS_LEFT -> FocusDirection.Left
-    ViewGroup.FOCUS_RIGHT -> FocusDirection.Right
-    ViewGroup.FOCUS_FORWARD -> FocusDirection.Next
-    ViewGroup.FOCUS_BACKWARD -> FocusDirection.Previous
-    else -> null
-}
+/** Converts an android focus direction to a compose [focus direction][FocusDirection]. */
+internal fun toFocusDirection(androidDirection: Int): FocusDirection? =
+    when (androidDirection) {
+        ViewGroup.FOCUS_UP -> FocusDirection.Up
+        ViewGroup.FOCUS_DOWN -> FocusDirection.Down
+        ViewGroup.FOCUS_LEFT -> FocusDirection.Left
+        ViewGroup.FOCUS_RIGHT -> FocusDirection.Right
+        ViewGroup.FOCUS_FORWARD -> FocusDirection.Next
+        ViewGroup.FOCUS_BACKWARD -> FocusDirection.Previous
+        else -> null
+    }
 
-/**
- * Converts a compose [focus direction][FocusDirection] to an android focus direction.
- */
-internal fun FocusDirection.toAndroidFocusDirection(): Int? = when (this) {
+/** Converts a compose [focus direction][FocusDirection] to an android focus direction. */
+internal fun FocusDirection.toAndroidFocusDirection(): Int? =
+    when (this) {
         FocusDirection.Up -> ViewGroup.FOCUS_UP
         FocusDirection.Down -> ViewGroup.FOCUS_DOWN
         FocusDirection.Left -> ViewGroup.FOCUS_LEFT
@@ -56,9 +54,7 @@ internal fun FocusDirection.toAndroidFocusDirection(): Int? = when (this) {
         else -> null
     }
 
-/**
- * Convert an Android layout direction to a compose [layout direction][LayoutDirection].
- */
+/** Convert an Android layout direction to a compose [layout direction][LayoutDirection]. */
 internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection? {
     return when (androidLayoutDirection) {
         android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
@@ -67,9 +63,7 @@ internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection? {
     }
 }
 
-/**
- * Returns the bounding rect of the view in the current window.
- */
+/** Returns the bounding rect of the view in the current window. */
 internal fun View.calculateBoundingRect(): androidx.compose.ui.geometry.Rect {
     val focusedAndroidBounds = tempCoordinates.also { getLocationInWindow(it) }
     return androidx.compose.ui.geometry.Rect(
@@ -87,14 +81,15 @@ internal fun View.requestInteropFocus(direction: Int?, rect: Rect?): Boolean {
         isFocused -> true
         isFocusable && !hasFocus() -> requestFocus(direction, rect)
         this is AndroidComposeView -> requestFocus(direction, rect)
-        rect != null -> FocusFinder.getInstance()
-            .findNextFocusFromRect(this, rect, direction)?.requestFocus(direction, rect)
-            ?: requestFocus(direction, rect)
+        rect != null ->
+            FocusFinder.getInstance()
+                .findNextFocusFromRect(this, rect, direction)
+                ?.requestFocus(direction, rect) ?: requestFocus(direction, rect)
         else -> {
             val focusedView = if (hasFocus()) findFocus() else null
             FocusFinder.getInstance()
-                .findNextFocus(this, focusedView, direction)?.requestFocus(direction)
-                ?: requestFocus(direction)
+                .findNextFocus(this, focusedView, direction)
+                ?.requestFocus(direction) ?: requestFocus(direction)
         }
     }
 }

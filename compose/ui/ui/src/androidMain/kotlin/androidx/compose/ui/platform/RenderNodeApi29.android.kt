@@ -26,9 +26,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RenderEffect
 
-/**
- * RenderNode on Q+ devices, where it is officially supported.
- */
+/** RenderNode on Q+ devices, where it is officially supported. */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class RenderNodeApi29(val ownerView: AndroidComposeView) : DeviceRenderNode {
     private val renderNode = RenderNode("Compose")
@@ -41,14 +39,26 @@ internal class RenderNodeApi29(val ownerView: AndroidComposeView) : DeviceRender
 
     internal fun hasOverlappingRendering(): Boolean = renderNode.hasOverlappingRendering()
 
-    override val uniqueId: Long get() = renderNode.uniqueId
+    override val uniqueId: Long
+        get() = renderNode.uniqueId
 
-    override val left: Int get() = renderNode.left
-    override val top: Int get() = renderNode.top
-    override val right: Int get() = renderNode.right
-    override val bottom: Int get() = renderNode.bottom
-    override val width: Int get() = renderNode.width
-    override val height: Int get() = renderNode.height
+    override val left: Int
+        get() = renderNode.left
+
+    override val top: Int
+        get() = renderNode.top
+
+    override val right: Int
+        get() = renderNode.right
+
+    override val bottom: Int
+        get() = renderNode.bottom
+
+    override val width: Int
+        get() = renderNode.width
+
+    override val height: Int
+        get() = renderNode.height
 
     override var scaleX: Float
         get() = renderNode.scaleX
@@ -196,11 +206,7 @@ internal class RenderNodeApi29(val ownerView: AndroidComposeView) : DeviceRender
         renderNode.offsetTopAndBottom(offset)
     }
 
-    override fun record(
-        canvasHolder: CanvasHolder,
-        clipPath: Path?,
-        drawBlock: (Canvas) -> Unit
-    ) {
+    override fun record(canvasHolder: CanvasHolder, clipPath: Path?, drawBlock: (Canvas) -> Unit) {
         canvasHolder.drawInto(renderNode.beginRecording()) {
             if (clipPath != null) {
                 save()

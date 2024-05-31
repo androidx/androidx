@@ -42,8 +42,7 @@ class FocusChangedModifierTest {
         val modifier = Modifier.onFocusChanged(onFocusChange) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("onFocusChanged")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("onFocusChanged", onFocusChange)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(ValueElement("onFocusChanged", onFocusChange))
     }
 }

@@ -152,9 +152,8 @@ class TextForegroundStyleTest {
 
         val newBrush = Brush.linearGradient(listOf(Color.White, Color.Black))
         val other = TextForegroundStyle.from(newBrush, Float.NaN)
-        assertThat(current.merge(other).brush).isEqualTo(
-            TextForegroundStyle.from(newBrush, 0.7f).brush
-        )
+        assertThat(current.merge(other).brush)
+            .isEqualTo(TextForegroundStyle.from(newBrush, 0.7f).brush)
         assertThat(current.merge(other).alpha).isWithin(TOLERANCE).of(0.7f)
     }
 
@@ -163,9 +162,8 @@ class TextForegroundStyleTest {
         val start = TextForegroundStyle.Unspecified
         val stop = TextForegroundStyle.from(Color.Red)
 
-        assertThat(lerp(start, stop, fraction = 0.4f)).isEqualTo(
-            TextForegroundStyle.from(lerp(Color.Unspecified, Color.Red, 0.4f))
-        )
+        assertThat(lerp(start, stop, fraction = 0.4f))
+            .isEqualTo(TextForegroundStyle.from(lerp(Color.Unspecified, Color.Red, 0.4f)))
     }
 
     @Test
@@ -173,9 +171,7 @@ class TextForegroundStyleTest {
         val start = TextForegroundStyle.from(defaultBrush, 1f)
         val stop = TextForegroundStyle.from(Color.Red)
 
-        assertThat(lerp(start, stop, fraction = 0.4f)).isEqualTo(
-            lerpDiscrete(start, stop, 0.4f)
-        )
+        assertThat(lerp(start, stop, fraction = 0.4f)).isEqualTo(lerpDiscrete(start, stop, 0.4f))
     }
 
     @Test
@@ -184,11 +180,12 @@ class TextForegroundStyleTest {
         val newBrush = Brush.linearGradient(listOf(Color.White, Color.Black))
         val stop = TextForegroundStyle.from(newBrush, 0.7f)
 
-        assertThat(lerp(start, stop, fraction = 0.6f)).isEqualTo(
-            TextForegroundStyle.from(
-                lerpDiscrete(defaultBrush, newBrush, 0.6f),
-                lerp(0.4f, 0.7f, 0.6f)
+        assertThat(lerp(start, stop, fraction = 0.6f))
+            .isEqualTo(
+                TextForegroundStyle.from(
+                    lerpDiscrete(defaultBrush, newBrush, 0.6f),
+                    lerp(0.4f, 0.7f, 0.6f)
+                )
             )
-        )
     }
 }

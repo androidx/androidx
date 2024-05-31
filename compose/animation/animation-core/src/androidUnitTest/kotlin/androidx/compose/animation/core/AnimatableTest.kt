@@ -45,11 +45,8 @@ class AnimatableTest {
             val from = 9f
             val initialVelocity = 20f
             val decaySpec = FloatExponentialDecaySpec()
-            val anim = DecayAnimation(
-                decaySpec,
-                initialValue = from,
-                initialVelocity = initialVelocity
-            )
+            val anim =
+                DecayAnimation(decaySpec, initialValue = from, initialVelocity = initialVelocity)
             val clock = SuspendAnimationTest.TestFrameClock()
             val interval = 50
             withContext(clock) {
@@ -59,19 +56,16 @@ class AnimatableTest {
                 }
                 var playTimeMillis = 0L
                 val animatable = Animatable(9f)
-                val result = animatable.animateDecay(20f, animationSpec = exponentialDecay()) {
-                    assertTrue(isRunning)
-                    assertEquals(anim.targetValue, targetValue)
-                    assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
-                    assertEquals(
-                        anim.getVelocityFromMillis(playTimeMillis),
-                        velocity,
-                        0.001f
-                    )
-                    playTimeMillis += interval
-                    assertEquals(value, animatable.value, 0.0001f)
-                    assertEquals(velocity, animatable.velocity, 0.0001f)
-                }
+                val result =
+                    animatable.animateDecay(20f, animationSpec = exponentialDecay()) {
+                        assertTrue(isRunning)
+                        assertEquals(anim.targetValue, targetValue)
+                        assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
+                        assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
+                        playTimeMillis += interval
+                        assertEquals(value, animatable.value, 0.0001f)
+                        assertEquals(velocity, animatable.velocity, 0.0001f)
+                    }
                 // After animation
                 assertEquals(anim.targetValue, animatable.value)
                 assertEquals(false, animatable.isRunning)
@@ -85,10 +79,13 @@ class AnimatableTest {
     @Test
     fun animateToTest() {
         runBlocking {
-            val anim = TargetBasedAnimation(
-                spring(dampingRatio = Spring.DampingRatioMediumBouncy), Float.VectorConverter,
-                initialValue = 0f, targetValue = 1f
-            )
+            val anim =
+                TargetBasedAnimation(
+                    spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                    Float.VectorConverter,
+                    initialValue = 0f,
+                    targetValue = 1f
+                )
             val clock = SuspendAnimationTest.TestFrameClock()
             val interval = 50
             val animatable = Animatable(0f)
@@ -98,16 +95,17 @@ class AnimatableTest {
                     clock.frame(frameTimeMillis * 1_000_000L)
                 }
                 var playTimeMillis = 0L
-                val result = animatable.animateTo(
-                    1f,
-                    spring(dampingRatio = Spring.DampingRatioMediumBouncy)
-                ) {
-                    assertTrue(isRunning)
-                    assertEquals(1f, targetValue)
-                    assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
-                    assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
-                    playTimeMillis += interval
-                }
+                val result =
+                    animatable.animateTo(
+                        1f,
+                        spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+                    ) {
+                        assertTrue(isRunning)
+                        assertEquals(1f, targetValue)
+                        assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
+                        assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
+                        playTimeMillis += interval
+                    }
                 // After animation
                 assertEquals(anim.targetValue, animatable.value)
                 assertEquals(0f, animatable.velocity)
@@ -127,16 +125,16 @@ class AnimatableTest {
                     convertToVector = { AnimationVector2D(it.x, it.y) },
                     convertFromVector = { Offset(it.v1, it.v2) }
                 )
-            val anim = TargetBasedAnimation(
-                tween(500), offsetToVector,
-                initialValue = from, targetValue = to
-            )
+            val anim =
+                TargetBasedAnimation(
+                    tween(500),
+                    offsetToVector,
+                    initialValue = from,
+                    targetValue = to
+                )
             val clock = SuspendAnimationTest.TestFrameClock()
             val interval = 50
-            val animatable = Animatable(
-                initialValue = from,
-                typeConverter = offsetToVector
-            )
+            val animatable = Animatable(initialValue = from, typeConverter = offsetToVector)
             coroutineScope {
                 withContext(clock) {
                     launch {
@@ -149,10 +147,7 @@ class AnimatableTest {
                     launch {
                         // The first frame should start at 100ms
                         var playTimeMillis = 0L
-                        animatable.animateTo(
-                            to,
-                            animationSpec = tween(500)
-                        ) {
+                        animatable.animateTo(to, animationSpec = tween(500)) {
                             assertTrue("PlayTime Millis: $playTimeMillis", isRunning)
                             assertEquals(to, targetValue)
                             val expectedValue = anim.getValueFromMillis(playTimeMillis)
@@ -189,12 +184,13 @@ class AnimatableTest {
     @Test
     fun animateToWithInterruption() {
         runBlocking {
-            val anim1 = TargetBasedAnimation(
-                tween(200, easing = LinearEasing),
-                Float.VectorConverter,
-                0f,
-                200f
-            )
+            val anim1 =
+                TargetBasedAnimation(
+                    tween(200, easing = LinearEasing),
+                    Float.VectorConverter,
+                    0f,
+                    200f
+                )
             val clock = MyTestFrameClock()
             val interval = 50
             coroutineScope {
@@ -203,37 +199,38 @@ class AnimatableTest {
                     var playTimeMillis by mutableStateOf(0L)
 
                     suspend fun createInterruption() {
-                        val anim2 = TargetBasedAnimation(
-                            spring(),
-                            Float.VectorConverter,
-                            animatable.value,
-                            300f,
-                            animatable.velocity
-                        )
+                        val anim2 =
+                            TargetBasedAnimation(
+                                spring(),
+                                Float.VectorConverter,
+                                animatable.value,
+                                300f,
+                                animatable.velocity
+                            )
                         assertEquals(100L, playTimeMillis)
                         var firstFrame = true
-                        val result2 = animatable.animateTo(300f, spring()) {
-                            // First frame will arrive with a timestamp of the time of interruption,
-                            // which is 100ms. The subsequent frames will be consistent with what's
-                            // tracked in `playTimeMillis`.
-                            val playTime = if (firstFrame) 100L else playTimeMillis
-                            assertTrue(isRunning)
-                            assertEquals(300f, targetValue)
-                            assertEquals(
-                                anim2.getValueFromMillis((playTime - 100)),
-                                value
-                            )
-                            assertEquals(
-                                anim2.getVelocityFromMillis((playTime - 100)),
-                                velocity
-                            )
-                            if (!firstFrame) {
-                                playTimeMillis += interval
-                                clock.trySendFrame(playTimeMillis * 1_000_000L)
-                            } else {
-                                firstFrame = false
+                        val result2 =
+                            animatable.animateTo(300f, spring()) {
+                                // First frame will arrive with a timestamp of the time of
+                                // interruption,
+                                // which is 100ms. The subsequent frames will be consistent with
+                                // what's
+                                // tracked in `playTimeMillis`.
+                                val playTime = if (firstFrame) 100L else playTimeMillis
+                                assertTrue(isRunning)
+                                assertEquals(300f, targetValue)
+                                assertEquals(anim2.getValueFromMillis((playTime - 100)), value)
+                                assertEquals(
+                                    anim2.getVelocityFromMillis((playTime - 100)),
+                                    velocity
+                                )
+                                if (!firstFrame) {
+                                    playTimeMillis += interval
+                                    clock.trySendFrame(playTimeMillis * 1_000_000L)
+                                } else {
+                                    firstFrame = false
+                                }
                             }
-                        }
                         assertFalse(animatable.isRunning)
                         assertEquals(AnimationEndReason.Finished, result2.endReason)
                         assertEquals(300f, animatable.targetValue)
@@ -251,15 +248,13 @@ class AnimatableTest {
                                 assertTrue(isRunning)
                                 assertEquals(targetValue, 200f)
                                 assertEquals(anim1.getValueFromMillis(playTimeMillis), value)
-                                assertEquals(
-                                    anim1.getVelocityFromMillis(playTimeMillis),
-                                    velocity
-                                )
+                                assertEquals(anim1.getVelocityFromMillis(playTimeMillis), velocity)
 
                                 assertTrue(playTimeMillis <= 100)
                                 if (playTimeMillis == 100L) {
                                     this@withContext.launch {
-                                        // No more new frame until the ongoing animation is canceled.
+                                        // No more new frame until the ongoing animation is
+                                        // canceled.
                                         createInterruption()
                                     }
                                 } else {
@@ -303,19 +298,18 @@ class AnimatableTest {
         assertEquals(0f, animatable.value)
 
         // Snap to value out of bounds
-        runBlocking {
-            animatable.snapTo(animatable.lowerBound!! - 100f)
-        }
+        runBlocking { animatable.snapTo(animatable.lowerBound!! - 100f) }
         assertEquals(animatable.lowerBound!!, animatable.value)
     }
 
     @Test
     fun testIntSize_alwaysWithinValidBounds() {
-        val animatable = Animatable(
-            initialValue = IntSize(10, 10),
-            typeConverter = IntSize.VectorConverter,
-            visibilityThreshold = IntSize.VisibilityThreshold
-        )
+        val animatable =
+            Animatable(
+                initialValue = IntSize(10, 10),
+                typeConverter = IntSize.VectorConverter,
+                visibilityThreshold = IntSize.VisibilityThreshold
+            )
 
         val values = mutableListOf<IntSize>()
 
@@ -353,10 +347,8 @@ class AnimatableTest {
 
     @Test
     fun animationResult_toString() {
-        val animatable = AnimationResult(
-            endReason = AnimationEndReason.Finished,
-            endState = AnimationState(42f)
-        )
+        val animatable =
+            AnimationResult(endReason = AnimationEndReason.Finished, endState = AnimationState(42f))
         val string = animatable.toString()
         assertThat(string).contains(AnimationResult::class.java.simpleName)
         assertThat(string).contains("endReason=Finished")
@@ -365,13 +357,14 @@ class AnimatableTest {
 
     @Test
     fun animationState_toString() {
-        val state = AnimationState(
-            initialValue = 42f,
-            initialVelocity = 2f,
-            lastFrameTimeNanos = 4000L,
-            finishedTimeNanos = 3000L,
-            isRunning = true
-        )
+        val state =
+            AnimationState(
+                initialValue = 42f,
+                initialVelocity = 2f,
+                lastFrameTimeNanos = 4000L,
+                finishedTimeNanos = 3000L,
+                isRunning = true
+            )
         val string = state.toString()
         assertThat(string).contains(AnimationState::class.java.simpleName)
         assertThat(string).contains("value=42.0")

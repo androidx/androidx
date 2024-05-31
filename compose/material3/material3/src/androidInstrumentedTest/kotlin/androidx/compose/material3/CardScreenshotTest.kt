@@ -54,17 +54,16 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class CardScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
-    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
-        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-    }
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     private val wrap = Modifier.size(width = 200.dp, height = 120.dp)
     private val wrapperTestTag = "cardWrapper"
@@ -75,10 +74,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 Card(Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -92,10 +88,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 Card(Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -113,10 +106,7 @@ class CardScreenshotTest {
                     enabled = false
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -134,10 +124,7 @@ class CardScreenshotTest {
                     enabled = false
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -151,10 +138,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 ElevatedCard(Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -168,10 +152,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 ElevatedCard(Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -189,10 +170,7 @@ class CardScreenshotTest {
                     enabled = false
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -210,10 +188,7 @@ class CardScreenshotTest {
                     enabled = false
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -227,10 +202,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 OutlinedCard(Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -244,10 +216,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 OutlinedCard(Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -265,10 +234,7 @@ class CardScreenshotTest {
                     enabled = false
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -286,10 +252,7 @@ class CardScreenshotTest {
                     enabled = false
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -301,15 +264,9 @@ class CardScreenshotTest {
     fun filledCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
-                Card(
-                    onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                ) {
+                Card(onClick = {}, Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -322,15 +279,9 @@ class CardScreenshotTest {
     fun elevatedCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
-                ElevatedCard(
-                    onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                ) {
+                ElevatedCard(onClick = {}, Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -343,15 +294,9 @@ class CardScreenshotTest {
     fun outlinedCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
-                OutlinedCard(
-                    onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                ) {
+                OutlinedCard(onClick = {}, Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -365,15 +310,9 @@ class CardScreenshotTest {
     fun filledCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
-                Card(
-                    onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                ) {
+                Card(onClick = {}, Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -390,15 +329,9 @@ class CardScreenshotTest {
     fun elevatedCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
-                ElevatedCard(
-                    onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                ) {
+                ElevatedCard(onClick = {}, Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -415,15 +348,9 @@ class CardScreenshotTest {
     fun outlinedCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
-                OutlinedCard(
-                    onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                ) {
+                OutlinedCard(onClick = {}, Modifier.size(width = 180.dp, height = 100.dp)) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -444,14 +371,10 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 Card(
                     onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                        .focusRequester(focusRequester)
+                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester)
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Filled Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Filled Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -476,14 +399,10 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 ElevatedCard(
                     onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                        .focusRequester(focusRequester)
+                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester)
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Elevated Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Elevated Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -508,14 +427,10 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 OutlinedCard(
                     onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp)
-                        .focusRequester(focusRequester)
+                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester)
                 ) {
                     Box(Modifier.fillMaxSize()) {
-                        Text(
-                            "Outlined Card",
-                            Modifier.align(Alignment.Center)
-                        )
+                        Text("Outlined Card", Modifier.align(Alignment.Center))
                     }
                 }
             }
@@ -547,7 +462,8 @@ class CardScreenshotTest {
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(wrapperTestTag)
+        rule
+            .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }

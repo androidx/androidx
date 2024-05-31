@@ -33,15 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 
 /**
- * Creates a [Color] animation as a part of the given [Transition]. This means the lifecycle
- * of this animation will be managed by the [Transition].
+ * Creates a [Color] animation as a part of the given [Transition]. This means the lifecycle of this
+ * animation will be managed by the [Transition].
  *
  * [targetValueByState] is used as a mapping from a target state to the target value of this
  * animation. [Transition] will be using this mapping to determine what value to target this
  * animation towards. __Note__ that [targetValueByState] is a composable function. This means the
  * mapping function could access states, CompositionLocals, themes, etc. If the target value changes
- * when the [Transition] already reached its [targetState][Transition.targetState],
- * the [Transition] will run an animation to ensure the new target value is reached smoothly.
+ * when the [Transition] already reached its [targetState][Transition.targetState], the [Transition]
+ * will run an animation to ensure the new target value is reached smoothly.
  *
  * An optional [transitionSpec] can be provided to specify (potentially different) animations for
  * each pair of initialState and targetState. [FiniteAnimationSpec] can be used to describe such
@@ -61,15 +61,14 @@ import androidx.compose.ui.graphics.Color
  */
 @Composable
 inline fun <S> Transition<S>.animateColor(
-    noinline transitionSpec:
-    @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Color> = { spring() },
+    noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Color> = {
+        spring()
+    },
     label: String = "ColorAnimation",
     targetValueByState: @Composable() (state: S) -> Color
 ): State<Color> {
     val colorSpace = targetValueByState(targetState).colorSpace
-    val typeConverter = remember(colorSpace) {
-        Color.VectorConverter(colorSpace)
-    }
+    val typeConverter = remember(colorSpace) { Color.VectorConverter(colorSpace) }
 
     return animateValue(typeConverter, transitionSpec, label, targetValueByState)
 }
@@ -78,9 +77,9 @@ inline fun <S> Transition<S>.animateColor(
  * Creates a Color animation that runs infinitely as a part of the given [InfiniteTransition].
  *
  * Once the animation is created, it will run from [initialValue] to [targetValue] and repeat.
- * Depending on the [RepeatMode] of the provided [animationSpec], the animation could either
- * restart after each iteration (i.e. [RepeatMode.Restart]), or reverse after each iteration (i.e
- * . [RepeatMode.Reverse]).
+ * Depending on the [RepeatMode] of the provided [animationSpec], the animation could either restart
+ * after each iteration (i.e. [RepeatMode.Restart]), or reverse after each iteration (i.e .
+ * [RepeatMode.Reverse]).
  *
  * If [initialValue] or [targetValue] is changed at any point during the animation, the animation
  * will be restarted with the new initial/targetValue. __Note__: this means animation continuity
@@ -100,9 +99,7 @@ fun InfiniteTransition.animateColor(
     animationSpec: InfiniteRepeatableSpec<Color>,
     label: String = "ColorAnimation"
 ): State<Color> {
-    val converter = remember {
-        (Color.VectorConverter)(targetValue.colorSpace)
-    }
+    val converter = remember { (Color.VectorConverter)(targetValue.colorSpace) }
     return animateValue(initialValue, targetValue, converter, animationSpec, label)
 }
 
@@ -115,9 +112,10 @@ fun InfiniteTransition.animateColor(
     initialValue: Color,
     targetValue: Color,
     animationSpec: InfiniteRepeatableSpec<Color>
-): State<Color> = this.animateColor(
-    initialValue = initialValue,
-    targetValue = targetValue,
-    animationSpec = animationSpec,
-    label = "ColorAnimation"
-)
+): State<Color> =
+    this.animateColor(
+        initialValue = initialValue,
+        targetValue = targetValue,
+        animationSpec = animationSpec,
+        label = "ColorAnimation"
+    )

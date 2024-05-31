@@ -22,9 +22,7 @@ import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
 
 @ExperimentalFoundationApi
-actual class PlatformTransferableContent internal constructor(
-    val transferable: Transferable
-)
+actual class PlatformTransferableContent internal constructor(val transferable: Transferable)
 
 @ExperimentalFoundationApi
 actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean {

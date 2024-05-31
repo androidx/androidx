@@ -56,17 +56,15 @@ fun OffsetKeyframeWithSplineDemo() {
     val density = LocalDensity.current
 
     BoxWithConstraints(
-        Modifier
-            .fillMaxSize()
-            .drawBehind {
-                drawPoints(
-                    points = points,
-                    pointMode = PointMode.Lines,
-                    color = Color.LightGray,
-                    strokeWidth = 4f,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(30f, 20f))
-                )
-            }
+        Modifier.fillMaxSize().drawBehind {
+            drawPoints(
+                points = points,
+                pointMode = PointMode.Lines,
+                color = Color.LightGray,
+                strokeWidth = 4f,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(30f, 20f))
+            )
+        }
     ) {
         val minDimension = minOf(maxWidth, maxHeight)
         val size = minDimension / 4
@@ -79,16 +77,11 @@ fun OffsetKeyframeWithSplineDemo() {
         val maxYOff = heightPx - (sizePx / 2f)
 
         Box(
-            Modifier
-                .align(Alignment.TopCenter)
-                .offset {
-                    offsetAnim.value.round()
-                }
+            Modifier.align(Alignment.TopCenter)
+                .offset { offsetAnim.value.round() }
                 .size(size)
                 .background(Color.Red, RoundedCornerShape(50))
-                .onPlaced {
-                    points.add(it.boundsInParent().center)
-                }
+                .onPlaced { points.add(it.boundsInParent().center) }
         )
 
         LaunchedEffect(Unit) {
@@ -96,32 +89,33 @@ fun OffsetKeyframeWithSplineDemo() {
             while (isActive) {
                 offsetAnim.animateTo(
                     targetValue = Offset.Zero,
-                    animationSpec = keyframesWithSpline {
-                        durationMillis = 2400
+                    animationSpec =
+                        keyframesWithSpline {
+                            durationMillis = 2400
 
-                        // Increasingly approach the halfway point moving from side to side
-                        repeat(4) {
-                            val i = it + 1
-                            val sign = if (i % 2 == 0) 1 else -1
-                            Offset(
-                                x = maxXOff * (i.toFloat() / 5f) * sign,
-                                y = (maxYOff) * (i.toFloat() / 5f)
-                            ) atFraction (0.1f * i)
+                            // Increasingly approach the halfway point moving from side to side
+                            repeat(4) {
+                                val i = it + 1
+                                val sign = if (i % 2 == 0) 1 else -1
+                                Offset(
+                                    x = maxXOff * (i.toFloat() / 5f) * sign,
+                                    y = (maxYOff) * (i.toFloat() / 5f)
+                                ) atFraction (0.1f * i)
+                            }
+
+                            // Halfway point (at bottom of the screen)
+                            Offset(0f, maxYOff) atFraction 0.5f
+
+                            // Return with mirrored movement
+                            repeat(4) {
+                                val i = it + 1
+                                val sign = if (i % 2 == 0) 1 else -1
+                                Offset(
+                                    x = maxXOff * (1f - i.toFloat() / 5f) * sign,
+                                    y = (maxYOff) * (1f - i.toFloat() / 5f)
+                                ) atFraction ((0.1f * i) + 0.5f)
+                            }
                         }
-
-                        // Halfway point (at bottom of the screen)
-                        Offset(0f, maxYOff) atFraction 0.5f
-
-                        // Return with mirrored movement
-                        repeat(4) {
-                            val i = it + 1
-                            val sign = if (i % 2 == 0) 1 else -1
-                            Offset(
-                                x = maxXOff * (1f - i.toFloat() / 5f) * sign,
-                                y = (maxYOff) * (1f - i.toFloat() / 5f)
-                            ) atFraction ((0.1f * i) + 0.5f)
-                        }
-                    }
                 )
                 points.clear()
             }

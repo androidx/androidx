@@ -28,14 +28,14 @@ import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.min
 
 /**
- * Used to specify the arrangement of the layout's children in layouts like [Row] or [Column] in
- * the main axis direction (horizontal and vertical, respectively).
+ * Used to specify the arrangement of the layout's children in layouts like [Row] or [Column] in the
+ * main axis direction (horizontal and vertical, respectively).
  *
- * Below is an illustration of different horizontal arrangements in [Row]s:
- * ![Row arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/row_arrangement_visualization.gif)
+ * Below is an illustration of different horizontal arrangements in [Row]s: ![Row
+ * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/row_arrangement_visualization.gif)
  *
- * Different vertical arrangements in [Column]s:
- * ![Column arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/column_arrangement_visualization.gif)
+ * Different vertical arrangements in [Column]s: ![Column
+ * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/column_arrangement_visualization.gif)
  */
 @Immutable
 object Arrangement {
@@ -45,10 +45,9 @@ object Arrangement {
     @Stable
     @JvmDefaultWithCompatibility
     interface Horizontal {
-        /**
-         * Spacing that should be added between any two adjacent layout children.
-         */
-        val spacing get() = 0.dp
+        /** Spacing that should be added between any two adjacent layout children. */
+        val spacing
+            get() = 0.dp
 
         /**
          * Horizontally places the layout children.
@@ -56,9 +55,9 @@ object Arrangement {
          * @param totalSize Available space that can be occupied by the children, in pixels.
          * @param sizes An array of sizes of all children, in pixels.
          * @param layoutDirection A layout direction, left-to-right or right-to-left, of the parent
-         * layout that should be taken into account when determining positions of the children.
-         * @param outPositions An array of the size of [sizes] that returns the calculated
-         * positions relative to the left, in pixels.
+         *   layout that should be taken into account when determining positions of the children.
+         * @param outPositions An array of the size of [sizes] that returns the calculated positions
+         *   relative to the left, in pixels.
          */
         fun Density.arrange(
             totalSize: Int,
@@ -74,24 +73,19 @@ object Arrangement {
     @Stable
     @JvmDefaultWithCompatibility
     interface Vertical {
-        /**
-         * Spacing that should be added between any two adjacent layout children.
-         */
-        val spacing get() = 0.dp
+        /** Spacing that should be added between any two adjacent layout children. */
+        val spacing
+            get() = 0.dp
 
         /**
          * Vertically places the layout children.
          *
          * @param totalSize Available space that can be occupied by the children, in pixels.
          * @param sizes An array of sizes of all children, in pixels.
-         * @param outPositions An array of the size of [sizes] that returns the calculated
-         * positions relative to the top, in pixels.
+         * @param outPositions An array of the size of [sizes] that returns the calculated positions
+         *   relative to the top, in pixels.
          */
-        fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        )
+        fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray)
     }
 
     /**
@@ -102,206 +96,196 @@ object Arrangement {
     @Stable
     @JvmDefaultWithCompatibility
     interface HorizontalOrVertical : Horizontal, Vertical {
-        /**
-         * Spacing that should be added between any two adjacent layout children.
-         */
-        override val spacing: Dp get() = 0.dp
+        /** Spacing that should be added between any two adjacent layout children. */
+        override val spacing: Dp
+            get() = 0.dp
     }
 
     /**
      * Place children horizontally such that they are as close as possible to the beginning of the
-     * horizontal axis (left if the layout direction is LTR, right otherwise).
-     * Visually: 123#### for LTR and ####321.
+     * horizontal axis (left if the layout direction is LTR, right otherwise). Visually: 123#### for
+     * LTR and ####321.
      */
     @Stable
-    val Start = object : Horizontal {
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            layoutDirection: LayoutDirection,
-            outPositions: IntArray
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            placeLeftOrTop(sizes, outPositions, reverseInput = false)
-        } else {
-            placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = true)
-        }
+    val Start =
+        object : Horizontal {
+            override fun Density.arrange(
+                totalSize: Int,
+                sizes: IntArray,
+                layoutDirection: LayoutDirection,
+                outPositions: IntArray
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    placeLeftOrTop(sizes, outPositions, reverseInput = false)
+                } else {
+                    placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = true)
+                }
 
-        override fun toString() = "Arrangement#Start"
-    }
+            override fun toString() = "Arrangement#Start"
+        }
 
     /**
      * Place children horizontally such that they are as close as possible to the end of the main
-     * axis.
-     * Visually: ####123 for LTR and 321#### for RTL.
+     * axis. Visually: ####123 for LTR and 321#### for RTL.
      */
     @Stable
-    val End = object : Horizontal {
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            layoutDirection: LayoutDirection,
-            outPositions: IntArray
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
-        } else {
-            placeLeftOrTop(sizes, outPositions, reverseInput = true)
-        }
+    val End =
+        object : Horizontal {
+            override fun Density.arrange(
+                totalSize: Int,
+                sizes: IntArray,
+                layoutDirection: LayoutDirection,
+                outPositions: IntArray
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
+                } else {
+                    placeLeftOrTop(sizes, outPositions, reverseInput = true)
+                }
 
-        override fun toString() = "Arrangement#End"
-    }
+            override fun toString() = "Arrangement#End"
+        }
 
     /**
      * Place children vertically such that they are as close as possible to the top of the main
-     * axis.
-     * Visually: (top) 123#### (bottom)
+     * axis. Visually: (top) 123#### (bottom)
      */
     @Stable
-    val Top = object : Vertical {
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = placeLeftOrTop(sizes, outPositions, reverseInput = false)
+    val Top =
+        object : Vertical {
+            override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+                placeLeftOrTop(sizes, outPositions, reverseInput = false)
 
-        override fun toString() = "Arrangement#Top"
-    }
+            override fun toString() = "Arrangement#Top"
+        }
 
     /**
      * Place children vertically such that they are as close as possible to the bottom of the main
-     * axis.
-     * Visually: (top) ####123 (bottom)
+     * axis. Visually: (top) ####123 (bottom)
      */
     @Stable
-    val Bottom = object : Vertical {
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
+    val Bottom =
+        object : Vertical {
+            override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+                placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
 
-        override fun toString() = "Arrangement#Bottom"
-    }
+            override fun toString() = "Arrangement#Bottom"
+        }
 
     /**
      * Place children such that they are as close as possible to the middle of the main axis.
      * Visually: ##123## for LTR and ##321## for RTL.
      */
     @Stable
-    val Center = object : HorizontalOrVertical {
-        override val spacing = 0.dp
+    val Center =
+        object : HorizontalOrVertical {
+            override val spacing = 0.dp
 
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            layoutDirection: LayoutDirection,
-            outPositions: IntArray
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            placeCenter(totalSize, sizes, outPositions, reverseInput = false)
-        } else {
-            placeCenter(totalSize, sizes, outPositions, reverseInput = true)
+            override fun Density.arrange(
+                totalSize: Int,
+                sizes: IntArray,
+                layoutDirection: LayoutDirection,
+                outPositions: IntArray
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    placeCenter(totalSize, sizes, outPositions, reverseInput = false)
+                } else {
+                    placeCenter(totalSize, sizes, outPositions, reverseInput = true)
+                }
+
+            override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+                placeCenter(totalSize, sizes, outPositions, reverseInput = false)
+
+            override fun toString() = "Arrangement#Center"
         }
-
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = placeCenter(totalSize, sizes, outPositions, reverseInput = false)
-
-        override fun toString() = "Arrangement#Center"
-    }
 
     /**
-     * Place children such that they are spaced evenly across the main axis, including free
-     * space before the first child and after the last child.
-     * Visually: #1#2#3# for LTR and #3#2#1# for RTL.
+     * Place children such that they are spaced evenly across the main axis, including free space
+     * before the first child and after the last child. Visually: #1#2#3# for LTR and #3#2#1# for
+     * RTL.
      */
     @Stable
-    val SpaceEvenly = object : HorizontalOrVertical {
-        override val spacing = 0.dp
+    val SpaceEvenly =
+        object : HorizontalOrVertical {
+            override val spacing = 0.dp
 
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            layoutDirection: LayoutDirection,
-            outPositions: IntArray
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
-        } else {
-            placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = true)
+            override fun Density.arrange(
+                totalSize: Int,
+                sizes: IntArray,
+                layoutDirection: LayoutDirection,
+                outPositions: IntArray
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
+                } else {
+                    placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = true)
+                }
+
+            override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+                placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
+
+            override fun toString() = "Arrangement#SpaceEvenly"
         }
-
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
-
-        override fun toString() = "Arrangement#SpaceEvenly"
-    }
 
     /**
-     * Place children such that they are spaced evenly across the main axis, without free
-     * space before the first child or after the last child.
-     * Visually: 1##2##3 for LTR or 3##2##1 for RTL.
+     * Place children such that they are spaced evenly across the main axis, without free space
+     * before the first child or after the last child. Visually: 1##2##3 for LTR or 3##2##1 for RTL.
      */
     @Stable
-    val SpaceBetween = object : HorizontalOrVertical {
-        override val spacing = 0.dp
+    val SpaceBetween =
+        object : HorizontalOrVertical {
+            override val spacing = 0.dp
 
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            layoutDirection: LayoutDirection,
-            outPositions: IntArray
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
-        } else {
-            placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = true)
+            override fun Density.arrange(
+                totalSize: Int,
+                sizes: IntArray,
+                layoutDirection: LayoutDirection,
+                outPositions: IntArray
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
+                } else {
+                    placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = true)
+                }
+
+            override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+                placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
+
+            override fun toString() = "Arrangement#SpaceBetween"
         }
-
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
-
-        override fun toString() = "Arrangement#SpaceBetween"
-    }
 
     /**
-     * Place children such that they are spaced evenly across the main axis, including free
-     * space before the first child and after the last child, but half the amount of space
-     * existing otherwise between two consecutive children.
-     * Visually: #1##2##3# for LTR and #3##2##1# for RTL
+     * Place children such that they are spaced evenly across the main axis, including free space
+     * before the first child and after the last child, but half the amount of space existing
+     * otherwise between two consecutive children. Visually: #1##2##3# for LTR and #3##2##1# for RTL
      */
     @Stable
-    val SpaceAround = object : HorizontalOrVertical {
-        override val spacing = 0.dp
+    val SpaceAround =
+        object : HorizontalOrVertical {
+            override val spacing = 0.dp
 
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            layoutDirection: LayoutDirection,
-            outPositions: IntArray
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
-        } else {
-            placeSpaceAround(totalSize, sizes, outPositions, reverseInput = true)
+            override fun Density.arrange(
+                totalSize: Int,
+                sizes: IntArray,
+                layoutDirection: LayoutDirection,
+                outPositions: IntArray
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
+                } else {
+                    placeSpaceAround(totalSize, sizes, outPositions, reverseInput = true)
+                }
+
+            override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+                placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
+
+            override fun toString() = "Arrangement#SpaceAround"
         }
-
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
-
-        override fun toString() = "Arrangement#SpaceAround"
-    }
 
     /**
      * Place children such that each two adjacent ones are spaced by a fixed [space] distance across
-     * the main axis. The spacing will be subtracted from the available space that the children
-     * can occupy. The [space] can be negative, in which case children will overlap.
+     * the main axis. The spacing will be subtracted from the available space that the children can
+     * occupy. The [space] can be negative, in which case children will overlap.
      *
      * To change alignment of the spaced children horizontally or vertically, use [spacedBy]
      * overloads with `alignment` parameter.
@@ -316,10 +300,10 @@ object Arrangement {
 
     /**
      * Place children horizontally such that each two adjacent ones are spaced by a fixed [space]
-     * distance. The spacing will be subtracted from the available width that the children
-     * can occupy. An [alignment] can be specified to align the spaced children horizontally
-     * inside the parent, in case there is empty width remaining. The [space] can be negative,
-     * in which case children will overlap.
+     * distance. The spacing will be subtracted from the available width that the children can
+     * occupy. An [alignment] can be specified to align the spaced children horizontally inside the
+     * parent, in case there is empty width remaining. The [space] can be negative, in which case
+     * children will overlap.
      *
      * @param space The space between adjacent children.
      * @param alignment The alignment of the spaced children inside the parent.
@@ -332,10 +316,10 @@ object Arrangement {
 
     /**
      * Place children vertically such that each two adjacent ones are spaced by a fixed [space]
-     * distance. The spacing will be subtracted from the available height that the children
-     * can occupy. An [alignment] can be specified to align the spaced children vertically
-     * inside the parent, in case there is empty height remaining. The [space] can be negative,
-     * in which case children will overlap.
+     * distance. The spacing will be subtracted from the available height that the children can
+     * occupy. An [alignment] can be specified to align the spaced children vertically inside the
+     * parent, in case there is empty height remaining. The [space] can be negative, in which case
+     * children will overlap.
      *
      * @param space The space between adjacent children.
      * @param alignment The alignment of the spaced children inside the parent.
@@ -345,8 +329,8 @@ object Arrangement {
         SpacedAligned(space, false) { size, _ -> alignment.align(0, size) }
 
     /**
-     * Place children horizontally one next to the other and align the obtained group
-     * according to an [alignment].
+     * Place children horizontally one next to the other and align the obtained group according to
+     * an [alignment].
      *
      * @param alignment The alignment of the children inside the parent.
      */
@@ -357,8 +341,8 @@ object Arrangement {
         }
 
     /**
-     * Place children vertically one next to the other and align the obtained group
-     * according to an [alignment].
+     * Place children vertically one next to the other and align the obtained group according to an
+     * [alignment].
      *
      * @param alignment The alignment of the children inside the parent.
      */
@@ -373,149 +357,161 @@ object Arrangement {
          * the [Row].
          *
          * Unlike [Arrangement.Start], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * Visually: 123####
          */
         @Stable
-        val Left = object : Horizontal {
-            override fun Density.arrange(
-                totalSize: Int,
-                sizes: IntArray,
-                layoutDirection: LayoutDirection,
-                outPositions: IntArray
-            ) = placeLeftOrTop(sizes, outPositions, reverseInput = false)
+        val Left =
+            object : Horizontal {
+                override fun Density.arrange(
+                    totalSize: Int,
+                    sizes: IntArray,
+                    layoutDirection: LayoutDirection,
+                    outPositions: IntArray
+                ) = placeLeftOrTop(sizes, outPositions, reverseInput = false)
 
-            override fun toString() = "AbsoluteArrangement#Left"
-        }
+                override fun toString() = "AbsoluteArrangement#Left"
+            }
 
         /**
          * Place children such that they are as close as possible to the middle of the [Row].
          *
          * Unlike [Arrangement.Center], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * Visually: ##123##
          */
         @Stable
-        val Center = object : Horizontal {
-            override fun Density.arrange(
-                totalSize: Int,
-                sizes: IntArray,
-                layoutDirection: LayoutDirection,
-                outPositions: IntArray
-            ) = placeCenter(totalSize, sizes, outPositions, reverseInput = false)
+        val Center =
+            object : Horizontal {
+                override fun Density.arrange(
+                    totalSize: Int,
+                    sizes: IntArray,
+                    layoutDirection: LayoutDirection,
+                    outPositions: IntArray
+                ) = placeCenter(totalSize, sizes, outPositions, reverseInput = false)
 
-            override fun toString() = "AbsoluteArrangement#Center"
-        }
+                override fun toString() = "AbsoluteArrangement#Center"
+            }
 
         /**
          * Place children horizontally such that they are as close as possible to the right edge of
          * the [Row].
          *
          * Unlike [Arrangement.End], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * Visually: ####123
          */
         @Stable
-        val Right = object : Horizontal {
-            override fun Density.arrange(
-                totalSize: Int,
-                sizes: IntArray,
-                layoutDirection: LayoutDirection,
-                outPositions: IntArray
-            ) = placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
+        val Right =
+            object : Horizontal {
+                override fun Density.arrange(
+                    totalSize: Int,
+                    sizes: IntArray,
+                    layoutDirection: LayoutDirection,
+                    outPositions: IntArray
+                ) = placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = false)
 
-            override fun toString() = "AbsoluteArrangement#Right"
-        }
+                override fun toString() = "AbsoluteArrangement#Right"
+            }
 
         /**
-         * Place children such that they are spaced evenly across the main axis, without free
-         * space before the first child or after the last child.
+         * Place children such that they are spaced evenly across the main axis, without free space
+         * before the first child or after the last child.
          *
-         * Unlike [Arrangement.SpaceBetween], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * Unlike [Arrangement.SpaceBetween], when the layout direction is RTL, the children will
+         * not be mirrored and as such children will appear in the order they are composed inside
+         * the [Row].
          *
          * Visually: 1##2##3
          */
         @Stable
-        val SpaceBetween = object : Horizontal {
-            override fun Density.arrange(
-                totalSize: Int,
-                sizes: IntArray,
-                layoutDirection: LayoutDirection,
-                outPositions: IntArray
-            ) = placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
+        val SpaceBetween =
+            object : Horizontal {
+                override fun Density.arrange(
+                    totalSize: Int,
+                    sizes: IntArray,
+                    layoutDirection: LayoutDirection,
+                    outPositions: IntArray
+                ) = placeSpaceBetween(totalSize, sizes, outPositions, reverseInput = false)
 
-            override fun toString() = "AbsoluteArrangement#SpaceBetween"
-        }
+                override fun toString() = "AbsoluteArrangement#SpaceBetween"
+            }
 
         /**
          * Place children such that they are spaced evenly across the main axis, including free
          * space before the first child and after the last child.
          *
-         * Unlike [Arrangement.SpaceEvenly], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * Unlike [Arrangement.SpaceEvenly], when the layout direction is RTL, the children will not
+         * be mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * Visually: #1#2#3#
          */
         @Stable
-        val SpaceEvenly = object : Horizontal {
-            override fun Density.arrange(
-                totalSize: Int,
-                sizes: IntArray,
-                layoutDirection: LayoutDirection,
-                outPositions: IntArray
-            ) = placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
+        val SpaceEvenly =
+            object : Horizontal {
+                override fun Density.arrange(
+                    totalSize: Int,
+                    sizes: IntArray,
+                    layoutDirection: LayoutDirection,
+                    outPositions: IntArray
+                ) = placeSpaceEvenly(totalSize, sizes, outPositions, reverseInput = false)
 
-            override fun toString() = "AbsoluteArrangement#SpaceEvenly"
-        }
+                override fun toString() = "AbsoluteArrangement#SpaceEvenly"
+            }
 
         /**
-         * Place children such that they are spaced evenly horizontally, including free
-         * space before the first child and after the last child, but half the amount of space
-         * existing otherwise between two consecutive children.
+         * Place children such that they are spaced evenly horizontally, including free space before
+         * the first child and after the last child, but half the amount of space existing otherwise
+         * between two consecutive children.
          *
-         * Unlike [Arrangement.SpaceAround], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * Unlike [Arrangement.SpaceAround], when the layout direction is RTL, the children will not
+         * be mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * Visually: #1##2##3##4#
          */
         @Stable
-        val SpaceAround = object : Horizontal {
-            override fun Density.arrange(
-                totalSize: Int,
-                sizes: IntArray,
-                layoutDirection: LayoutDirection,
-                outPositions: IntArray
-            ) = placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
+        val SpaceAround =
+            object : Horizontal {
+                override fun Density.arrange(
+                    totalSize: Int,
+                    sizes: IntArray,
+                    layoutDirection: LayoutDirection,
+                    outPositions: IntArray
+                ) = placeSpaceAround(totalSize, sizes, outPositions, reverseInput = false)
 
-            override fun toString() = "AbsoluteArrangement#SpaceAround"
-        }
+                override fun toString() = "AbsoluteArrangement#SpaceAround"
+            }
 
         /**
-         * Place children such that each two adjacent ones are spaced by a fixed [space] distance across
-         * the main axis. The spacing will be subtracted from the available space that the children
-         * can occupy.
+         * Place children such that each two adjacent ones are spaced by a fixed [space] distance
+         * across the main axis. The spacing will be subtracted from the available space that the
+         * children can occupy.
          *
          * Unlike [Arrangement.spacedBy], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * @param space The space between adjacent children.
          */
-        @Stable
-        fun spacedBy(space: Dp): HorizontalOrVertical =
-            SpacedAligned(space, false, null)
+        @Stable fun spacedBy(space: Dp): HorizontalOrVertical = SpacedAligned(space, false, null)
 
         /**
-         * Place children horizontally such that each two adjacent ones are spaced by a fixed [space]
-         * distance. The spacing will be subtracted from the available width that the children
-         * can occupy. An [alignment] can be specified to align the spaced children horizontally
-         * inside the parent, in case there is empty width remaining.
+         * Place children horizontally such that each two adjacent ones are spaced by a fixed
+         * [space] distance. The spacing will be subtracted from the available width that the
+         * children can occupy. An [alignment] can be specified to align the spaced children
+         * horizontally inside the parent, in case there is empty width remaining.
          *
          * Unlike [Arrangement.spacedBy], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * @param space The space between adjacent children.
          * @param alignment The alignment of the spaced children inside the parent.
@@ -528,12 +524,13 @@ object Arrangement {
 
         /**
          * Place children vertically such that each two adjacent ones are spaced by a fixed [space]
-         * distance. The spacing will be subtracted from the available height that the children
-         * can occupy. An [alignment] can be specified to align the spaced children vertically
-         * inside the parent, in case there is empty height remaining.
+         * distance. The spacing will be subtracted from the available height that the children can
+         * occupy. An [alignment] can be specified to align the spaced children vertically inside
+         * the parent, in case there is empty height remaining.
          *
          * Unlike [Arrangement.spacedBy], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * @param space The space between adjacent children.
          * @param alignment The alignment of the spaced children inside the parent.
@@ -543,11 +540,12 @@ object Arrangement {
             SpacedAligned(space, false) { size, _ -> alignment.align(0, size) }
 
         /**
-         * Place children horizontally one next to the other and align the obtained group
-         * according to an [alignment].
+         * Place children horizontally one next to the other and align the obtained group according
+         * to an [alignment].
          *
          * Unlike [Arrangement.aligned], when the layout direction is RTL, the children will not be
-         * mirrored and as such children will appear in the order they are composed inside the [Row].
+         * mirrored and as such children will appear in the order they are composed inside the
+         * [Row].
          *
          * @param alignment The alignment of the children inside the parent.
          */
@@ -559,8 +557,8 @@ object Arrangement {
     }
 
     /**
-     * Arrangement with spacing between adjacent children and alignment for the spaced group.
-     * Should not be instantiated directly, use [spacedBy] instead.
+     * Arrangement with spacing between adjacent children and alignment for the spaced group. Should
+     * not be instantiated directly, use [spacedBy] instead.
      */
     @Immutable
     internal data class SpacedAligned(
@@ -598,11 +596,8 @@ object Arrangement {
             }
         }
 
-        override fun Density.arrange(
-            totalSize: Int,
-            sizes: IntArray,
-            outPositions: IntArray
-        ) = arrange(totalSize, sizes, LayoutDirection.Ltr, outPositions)
+        override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) =
+            arrange(totalSize, sizes, LayoutDirection.Ltr, outPositions)
 
         override fun toString() =
             "${if (rtlMirror) "" else "Absolute"}Arrangement#spacedAligned($space, $alignment)"
@@ -690,11 +685,12 @@ object Arrangement {
         reverseInput: Boolean
     ) {
         val consumedSize = size.fold(0) { a, b -> a + b }
-        val gapSize = if (size.isNotEmpty()) {
-            (totalSize - consumedSize).toFloat() / size.size
-        } else {
-            0f
-        }
+        val gapSize =
+            if (size.isNotEmpty()) {
+                (totalSize - consumedSize).toFloat() / size.size
+            } else {
+                0f
+            }
         var current = gapSize / 2
         size.forEachIndexed(reverseInput) { index, it ->
             outPosition[index] = current.fastRoundToInt()

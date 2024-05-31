@@ -48,36 +48,27 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MeasureInPlacementTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @Suppress("DEPRECATION") @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Before
     fun setup() {
         rule.activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
     }
 
-    /**
-     * Make sure that measurement in the layout modifier's placement block doesn't crash.
-     */
+    /** Make sure that measurement in the layout modifier's placement block doesn't crash. */
     @Test
     fun measureInModifierPlacement() {
         var childSize = IntSize.Zero
         rule.setContent {
-            val measureInPlaceModifier = Modifier.layout { measurable, constraints ->
-                layout(100, 100) {
-                    val p = measurable.measure(constraints)
-                    childSize = IntSize(p.width, p.height)
-                    p.place(0, 0)
+            val measureInPlaceModifier =
+                Modifier.layout { measurable, constraints ->
+                    layout(100, 100) {
+                        val p = measurable.measure(constraints)
+                        childSize = IntSize(p.width, p.height)
+                        p.place(0, 0)
+                    }
                 }
-            }
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .then(measureInPlaceModifier)
-            ) {
-                Box(Modifier.size(10.dp))
-            }
+            Box(Modifier.fillMaxSize().then(measureInPlaceModifier)) { Box(Modifier.size(10.dp)) }
         }
 
         rule.waitForIdle()
@@ -85,16 +76,15 @@ class MeasureInPlacementTest {
         assertThat(childSize.height).isGreaterThan(0)
     }
 
-    /**
-     * Make sure that measurement in the layout's placement block doesn't crash.
-     */
+    /** Make sure that measurement in the layout's placement block doesn't crash. */
     @Test
     fun measureInLayoutPlacement() {
         var childSize = IntSize.Zero
         rule.setContent {
-            Layout(modifier = Modifier.fillMaxSize(), content = @Composable {
-                Box(Modifier.size(10.dp))
-            }) { measurables, constraints ->
+            Layout(
+                modifier = Modifier.fillMaxSize(),
+                content = @Composable { Box(Modifier.size(10.dp)) }
+            ) { measurables, constraints ->
                 layout(100, 100) {
                     val p = measurables[0].measure(constraints)
                     childSize = IntSize(p.width, p.height)
@@ -118,18 +108,15 @@ class MeasureInPlacementTest {
         var childSize = IntSize.Zero
         rule.setContent {
             LookaheadScope {
-                val measureInPlaceModifier = Modifier.layout { measurable, constraints ->
-                    layout(100, 100) {
-                        val p = measurable.measure(constraints)
-                        childSize = IntSize(p.width, p.height)
-                        p.place(0, 0)
+                val measureInPlaceModifier =
+                    Modifier.layout { measurable, constraints ->
+                        layout(100, 100) {
+                            val p = measurable.measure(constraints)
+                            childSize = IntSize(p.width, p.height)
+                            p.place(0, 0)
+                        }
                     }
-                }
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .then(measureInPlaceModifier)
-                ) {
+                Box(Modifier.fillMaxSize().then(measureInPlaceModifier)) {
                     Box(Modifier.size(10.dp))
                 }
             }
@@ -141,8 +128,7 @@ class MeasureInPlacementTest {
     }
 
     /**
-     * Make sure that measurement in the layout's placement block doesn't crash in
-     * lookahead scope.
+     * Make sure that measurement in the layout's placement block doesn't crash in lookahead scope.
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
@@ -150,9 +136,10 @@ class MeasureInPlacementTest {
         var childSize = IntSize.Zero
         rule.setContent {
             LookaheadScope {
-                Layout(modifier = Modifier.fillMaxSize(), content = @Composable {
-                    Box(Modifier.size(10.dp))
-                }) { measurables, constraints ->
+                Layout(
+                    modifier = Modifier.fillMaxSize(),
+                    content = @Composable { Box(Modifier.size(10.dp)) }
+                ) { measurables, constraints ->
                     layout(100, 100) {
                         val p = measurables[0].measure(constraints)
                         childSize = IntSize(p.width, p.height)
@@ -171,13 +158,12 @@ class MeasureInPlacementTest {
     fun remeasureRequestForANodeWhichIsNotYetPlacedButMeasuredAlready() {
         var needToMeasureTopBar by mutableStateOf(false)
         var topBoxSize by mutableStateOf(0.dp)
-        val stateBasedSize = Modifier.layout { measurable, _ ->
-            val sizePx = topBoxSize.roundToPx()
-            val placeable = measurable.measure(Constraints.fixed(sizePx, sizePx))
-            layout(placeable.width, placeable.height) {
-                placeable.place(0, 0)
+        val stateBasedSize =
+            Modifier.layout { measurable, _ ->
+                val sizePx = topBoxSize.roundToPx()
+                val placeable = measurable.measure(Constraints.fixed(sizePx, sizePx))
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
-        }
         rule.setContent {
             Layout(
                 content = {
@@ -186,34 +172,31 @@ class MeasureInPlacementTest {
                 }
             ) { measurables, constraints ->
                 layout(constraints.maxWidth, constraints.maxHeight) {
-                    val topBarHeight = if (needToMeasureTopBar) {
-                        val placeable = measurables[0].measure(Constraints())
-                        if (Snapshot.withoutReadObservation { topBoxSize } == 0.dp) {
-                            topBoxSize = 10.dp
-                            // it will synchronously request one more remeasure for measurables[0]
-                            // while it is still not placed. such requests were ignored previously
-                            // meaning that given remeasure will never happen.
-                            Snapshot.sendApplyNotifications()
+                    val topBarHeight =
+                        if (needToMeasureTopBar) {
+                            val placeable = measurables[0].measure(Constraints())
+                            if (Snapshot.withoutReadObservation { topBoxSize } == 0.dp) {
+                                topBoxSize = 10.dp
+                                // it will synchronously request one more remeasure for
+                                // measurables[0]
+                                // while it is still not placed. such requests were ignored
+                                // previously
+                                // meaning that given remeasure will never happen.
+                                Snapshot.sendApplyNotifications()
+                            }
+                            placeable.place(0, 0)
+                            placeable.height
+                        } else {
+                            0
                         }
-                        placeable.place(0, 0)
-                        placeable.height
-                    } else {
-                        0
-                    }
                     measurables[1].measure(Constraints()).place(0, topBarHeight)
                 }
             }
         }
 
-        rule.runOnIdle {
-            needToMeasureTopBar = true
-        }
+        rule.runOnIdle { needToMeasureTopBar = true }
 
-        rule.onNodeWithTag("bottom")
-            .assertIsDisplayed()
-            .assertPositionInRootIsEqualTo(0.dp, 10.dp)
-        rule.onNodeWithTag("top")
-            .assertIsDisplayed()
-            .assertPositionInRootIsEqualTo(0.dp, 0.dp)
+        rule.onNodeWithTag("bottom").assertIsDisplayed().assertPositionInRootIsEqualTo(0.dp, 10.dp)
+        rule.onNodeWithTag("top").assertIsDisplayed().assertPositionInRootIsEqualTo(0.dp, 0.dp)
     }
 }

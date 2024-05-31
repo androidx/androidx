@@ -96,14 +96,8 @@ fun displayCutoutPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Blue)
-                        .statusBarsPadding()) {
-                    Box(
-                        Modifier
-                            .background(Color.Yellow)
-                            .displayCutoutPadding()) {
+                Box(Modifier.background(Color.Blue).statusBarsPadding()) {
+                    Box(Modifier.background(Color.Yellow).displayCutoutPadding()) {
                         // app content
                     }
                 }
@@ -119,14 +113,8 @@ fun statusBarsAndNavigationBarsPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Blue)
-                        .statusBarsPadding()) {
-                    Box(
-                        Modifier
-                            .background(Color.Green)
-                            .navigationBarsPadding()) {
+                Box(Modifier.background(Color.Blue).statusBarsPadding()) {
+                    Box(Modifier.background(Color.Green).navigationBarsPadding()) {
                         // app content
                     }
                 }
@@ -142,10 +130,7 @@ fun imePaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Blue)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Blue).systemBarsPadding()) {
                     Box(Modifier.imePadding()) {
                         // app content
                     }
@@ -162,15 +147,9 @@ fun waterfallPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Blue)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Blue).systemBarsPadding()) {
                     // The app content shouldn't spill over the edges. They will be green.
-                    Box(
-                        Modifier
-                            .background(Color.Green)
-                            .waterfallPadding()) {
+                    Box(Modifier.background(Color.Green).waterfallPadding()) {
                         // app content
                     }
                 }
@@ -186,16 +165,10 @@ fun systemGesturesPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Blue)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Blue).systemBarsPadding()) {
                     // The app content won't interfere with the system gestures area.
                     // It will just be white.
-                    Box(
-                        Modifier
-                            .background(Color.White)
-                            .systemGesturesPadding()) {
+                    Box(Modifier.background(Color.White).systemGesturesPadding()) {
                         // app content
                     }
                 }
@@ -211,16 +184,10 @@ fun mandatorySystemGesturesPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Blue)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Blue).systemBarsPadding()) {
                     // The app content won't interfere with the mandatory system gestures area.
                     // It will just be white.
-                    Box(
-                        Modifier
-                            .background(Color.White)
-                            .mandatorySystemGesturesPadding()) {
+                    Box(Modifier.background(Color.White).mandatorySystemGesturesPadding()) {
                         // app content
                     }
                 }
@@ -236,16 +203,10 @@ fun safeDrawingPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Black)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Black).systemBarsPadding()) {
                     // The app content won't have anything drawing over it, but all the
                     // background not in the status bars will be white.
-                    Box(
-                        Modifier
-                            .background(Color.White)
-                            .safeDrawingPadding()) {
+                    Box(Modifier.background(Color.White).safeDrawingPadding()) {
                         // app content
                     }
                 }
@@ -261,16 +222,10 @@ fun safeGesturesPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Black)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Black).systemBarsPadding()) {
                     // The app content will only be drawn where there is no possible
                     // gesture confusion. The rest will be plain white
-                    Box(
-                        Modifier
-                            .background(Color.White)
-                            .safeGesturesPadding()) {
+                    Box(Modifier.background(Color.White).safeGesturesPadding()) {
                         // app content
                     }
                 }
@@ -286,17 +241,11 @@ fun safeContentPaddingSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                Box(
-                    Modifier
-                        .background(Color.Black)
-                        .systemBarsPadding()) {
+                Box(Modifier.background(Color.Black).systemBarsPadding()) {
                     // The app content will only be drawn where there is no possible
                     // gesture confusion and content will not be drawn over.
                     // The rest will be plain white
-                    Box(
-                        Modifier
-                            .background(Color.White)
-                            .safeContentPadding()) {
+                    Box(Modifier.background(Color.White).safeContentPadding()) {
                         // app content
                     }
                 }
@@ -313,11 +262,7 @@ fun insetsPaddingSample() {
             super.onCreate(savedInstanceState)
             setContent {
                 val insets = WindowInsets.systemBars.union(WindowInsets.ime)
-                Box(
-                    Modifier
-                        .background(Color.White)
-                        .fillMaxSize()
-                        .windowInsetsPadding(insets)) {
+                Box(Modifier.background(Color.White).fillMaxSize().windowInsetsPadding(insets)) {
                     // app content
                 }
             }
@@ -334,11 +279,7 @@ fun consumedInsetsPaddingSample() {
             setContent {
                 with(LocalDensity.current) {
                     val paddingValues = PaddingValues(horizontal = 20.dp)
-                    Box(
-                        Modifier
-                            .padding(paddingValues)
-                            .consumeWindowInsets(paddingValues)
-                    ) {
+                    Box(Modifier.padding(paddingValues).consumeWindowInsets(paddingValues)) {
                         // app content
                     }
                 }
@@ -388,9 +329,7 @@ fun paddingValuesSample() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             super.onCreate(savedInstanceState)
             setContent {
-                LazyColumn(
-                    contentPadding = WindowInsets.navigationBars.asPaddingValues()
-                ) {
+                LazyColumn(contentPadding = WindowInsets.navigationBars.asPaddingValues()) {
                     // items
                 }
             }
@@ -426,11 +365,11 @@ fun withConsumedInsetsSample() {
                 val remainingInsets = remember { MutableWindowInsets() }
                 val safeContent = WindowInsets.safeContent
                 Box(
-                    Modifier
-                        .navigationBarsPadding()
-                        .onConsumedWindowInsetsChanged { consumedWindowInsets ->
-                            remainingInsets.insets = safeContent.exclude(consumedWindowInsets)
-                        }) {
+                    Modifier.navigationBarsPadding().onConsumedWindowInsetsChanged {
+                        consumedWindowInsets ->
+                        remainingInsets.insets = safeContent.exclude(consumedWindowInsets)
+                    }
+                ) {
                     // padding can be used without recomposition when insets change.
                     val padding = remainingInsets.asPaddingValues()
                     Box(Modifier.padding(padding))

@@ -38,8 +38,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MaterialComponentsInsetSupportTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<MaterialWindowInsetsActivity>()
+    @get:Rule val rule = createAndroidComposeRule<MaterialWindowInsetsActivity>()
 
     @Before
     fun setup() {
@@ -51,14 +50,12 @@ class MaterialComponentsInsetSupportTest {
         var contentPadding: WindowInsets? = null
         var expected: WindowInsets? = null
         rule.setContent {
-            expected = WindowInsets.systemBars
-                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+            expected =
+                WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
             contentPadding = TopAppBarDefaults.windowInsets
         }
 
-        rule.runOnIdle {
-            assertThat(contentPadding).isEqualTo(expected)
-        }
+        rule.runOnIdle { assertThat(contentPadding).isEqualTo(expected) }
     }
 
     @Test
@@ -66,8 +63,10 @@ class MaterialComponentsInsetSupportTest {
         var contentPadding: WindowInsets? = null
         var expected: WindowInsets? = null
         rule.setContent {
-            expected = WindowInsets.systemBars
-                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+            expected =
+                WindowInsets.systemBars.only(
+                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                )
             contentPadding = BottomAppBarDefaults.windowInsets
         }
 
@@ -82,14 +81,12 @@ class MaterialComponentsInsetSupportTest {
         var contentPadding: WindowInsets? = null
         var expected: WindowInsets? = null
         rule.setContent {
-            expected = WindowInsets.systemBars
-                .only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
+            expected =
+                WindowInsets.systemBars.only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
             contentPadding = DrawerDefaults.windowInsets
         }
 
-        rule.runOnIdle {
-            assertThat(contentPadding).isEqualTo(expected)
-        }
+        rule.runOnIdle { assertThat(contentPadding).isEqualTo(expected) }
     }
 
     @Test
@@ -97,14 +94,14 @@ class MaterialComponentsInsetSupportTest {
         var contentPadding: WindowInsets? = null
         var expected: WindowInsets? = null
         rule.setContent {
-            expected = WindowInsets.systemBars
-                .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+            expected =
+                WindowInsets.systemBars.only(
+                    WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
+                )
             contentPadding = NavigationBarDefaults.windowInsets
         }
 
-        rule.runOnIdle {
-            assertThat(contentPadding).isEqualTo(expected)
-        }
+        rule.runOnIdle { assertThat(contentPadding).isEqualTo(expected) }
     }
 
     @Test
@@ -112,14 +109,12 @@ class MaterialComponentsInsetSupportTest {
         var contentPadding: WindowInsets? = null
         var expected: WindowInsets? = null
         rule.setContent {
-            expected = WindowInsets.systemBars
-                .only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
+            expected =
+                WindowInsets.systemBars.only(WindowInsetsSides.Start + WindowInsetsSides.Vertical)
             contentPadding = NavigationRailDefaults.windowInsets
         }
 
-        rule.runOnIdle {
-            assertThat(contentPadding).isEqualTo(expected)
-        }
+        rule.runOnIdle { assertThat(contentPadding).isEqualTo(expected) }
     }
 
     @Test
@@ -129,11 +124,8 @@ class MaterialComponentsInsetSupportTest {
         var layoutDirection: LayoutDirection? = null
         rule.setContent {
             layoutDirection = LocalLayoutDirection.current
-            expected = WindowInsets.systemBars
-                .asPaddingValues(LocalDensity.current)
-            Scaffold { paddingValues ->
-                contentPadding = paddingValues
-            }
+            expected = WindowInsets.systemBars.asPaddingValues(LocalDensity.current)
+            Scaffold { paddingValues -> contentPadding = paddingValues }
         }
 
         rule.runOnIdle {

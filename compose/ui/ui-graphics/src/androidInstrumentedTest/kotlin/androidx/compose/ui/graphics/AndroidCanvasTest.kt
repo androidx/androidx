@@ -50,9 +50,8 @@ import org.junit.runner.RunWith
 class AndroidCanvasTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -80,7 +79,7 @@ class AndroidCanvasTest {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         // Not sure why this test is flaky, so this is just going to make sure that
         // the drawn content can get onto the screen before we capture the bitmap.
-        activityTestRule.runOnUiThread { }
+        activityTestRule.runOnUiThread {}
         val bitmap = groupView!!.captureToImage().asAndroidBitmap()
         assertEquals(android.graphics.Color.WHITE, bitmap.getPixel(0, 0))
         assertEquals(android.graphics.Color.WHITE, bitmap.getPixel(9, 9))
@@ -218,10 +217,7 @@ class AndroidCanvasTest {
             withSave {
                 rotate(180.0f, 100.0f, 100.0f)
                 paint.color = fg
-                drawRect(
-                    Rect(100.0f, 100.0f, 200.0f, 200.0f),
-                    paint
-                )
+                drawRect(Rect(100.0f, 100.0f, 200.0f, 200.0f), paint)
             }
         }
 
@@ -253,10 +249,7 @@ class AndroidCanvasTest {
             withSave {
                 rotate(-45.0f)
                 paint.color = fg
-                drawRect(
-                    Rect(0.0f, 0.0f, 100.0f, 100.0f),
-                    paint
-                )
+                drawRect(Rect(0.0f, 0.0f, 100.0f, 100.0f), paint)
             }
         }
 
@@ -623,7 +616,9 @@ class AndroidCanvasTest {
                 android.graphics.Paint.FILTER_BITMAP_FLAG
         )
 
-    class EnableDisableZViewGroup @JvmOverloads constructor(
+    class EnableDisableZViewGroup
+    @JvmOverloads
+    constructor(
         val drawLatch: CountDownLatch,
         context: Context,
         attrs: AttributeSet? = null,

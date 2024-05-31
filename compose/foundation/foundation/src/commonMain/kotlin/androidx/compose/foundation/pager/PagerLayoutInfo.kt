@@ -27,20 +27,16 @@ import androidx.compose.ui.unit.IntSize
  * Use [PagerState.layoutInfo] to retrieve this
  */
 sealed interface PagerLayoutInfo {
-    /**
-     * A list of all pages that are currently visible in the [Pager]
-     */
+    /** A list of all pages that are currently visible in the [Pager] */
     val visiblePagesInfo: List<PageInfo>
 
     /**
-     * The main axis size of the Pages in this [Pager] provided by the [PageSize] API in the
-     * Pager definition. This is provided in pixels.
+     * The main axis size of the Pages in this [Pager] provided by the [PageSize] API in the Pager
+     * definition. This is provided in pixels.
      */
     val pageSize: Int
 
-    /**
-     * The spacing in pixels provided in the [Pager] creation.
-     */
+    /** The spacing in pixels provided in the [Pager] creation. */
     val pageSpacing: Int
 
     /**
@@ -68,29 +64,22 @@ sealed interface PagerLayoutInfo {
     val beforeContentPadding: Int
 
     /**
-     * The content padding in pixels applied after the last page in the direction of scrolling.
-     * For example it is a bottom content padding for [VerticalPager] with reverseLayout set to
-     * false.
+     * The content padding in pixels applied after the last page in the direction of scrolling. For
+     * example it is a bottom content padding for [VerticalPager] with reverseLayout set to false.
      */
     val afterContentPadding: Int
 
     /**
-     * The size of the viewport in pixels. It is the [Pager] layout size including all the
-     * content paddings.
+     * The size of the viewport in pixels. It is the [Pager] layout size including all the content
+     * paddings.
      */
     val viewportSize: IntSize
 
-    /**
-     * The [Pager] orientation.
-     */
+    /** The [Pager] orientation. */
     val orientation: Orientation
 
-    /**
-     * True if the direction of scrolling and layout is reversed.
-     */
-    @Suppress("GetterSetterNames")
-    @get:Suppress("GetterSetterNames")
-    val reverseLayout: Boolean
+    /** True if the direction of scrolling and layout is reversed. */
+    @Suppress("GetterSetterNames") @get:Suppress("GetterSetterNames") val reverseLayout: Boolean
 
     /**
      * Pages to compose and layout before and after the list of visible pages. This does not include
@@ -99,9 +88,7 @@ sealed interface PagerLayoutInfo {
      */
     val beyondViewportPageCount: Int
 
-    /**
-     * The calculation of how this Pager performs snapping of pages.
-     */
+    /** The calculation of how this Pager performs snapping of pages. */
     val snapPosition: SnapPosition
 }
 

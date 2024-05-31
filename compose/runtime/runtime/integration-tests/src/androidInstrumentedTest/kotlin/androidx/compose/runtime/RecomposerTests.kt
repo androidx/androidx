@@ -41,21 +41,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RecomposerTests : BaseComposeTest() {
 
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @Test
     fun testNativeViewWithAttributes() {
-        compose {
-            TextView(id = 456, text = "some text")
-        }.then { activity ->
-            assertEquals(1, activity.root.childCount)
+        compose { TextView(id = 456, text = "some text") }
+            .then { activity ->
+                assertEquals(1, activity.root.childCount)
 
-            val tv = activity.findViewById(456) as TextView
-            assertEquals("some text", tv.text)
+                val tv = activity.findViewById(456) as TextView
+                assertEquals("some text", tv.text)
 
-            assertEquals(tv, activity.root.traversal().first { it is TextView })
-        }
+                assertEquals(tv, activity.root.traversal().first { it is TextView })
+            }
     }
 
     @Test
@@ -64,41 +62,40 @@ class RecomposerTests : BaseComposeTest() {
         var tv1: TextView? = null
         val trigger = Trigger()
         compose {
-            trigger.subscribe()
-            // this should cause the textview to get recreated on every compose
-            i++
+                trigger.subscribe()
+                // this should cause the textview to get recreated on every compose
+                i++
 
-            key(i) {
-                TextView(id = 456, text = "some text")
+                key(i) { TextView(id = 456, text = "some text") }
             }
-        }.then { activity ->
-            tv1 = activity.findViewById(456) as TextView
-            trigger.recompose()
-        }.then { activity ->
-            assertEquals("Compose got called twice", 3, i)
+            .then { activity ->
+                tv1 = activity.findViewById(456) as TextView
+                trigger.recompose()
+            }
+            .then { activity ->
+                assertEquals("Compose got called twice", 3, i)
 
-            val tv2 = activity.findViewById(456) as TextView
+                val tv2 = activity.findViewById(456) as TextView
 
-            assertFalse(
-                "The text views should be different instances",
-                tv1 === tv2
-            )
+                assertFalse("The text views should be different instances", tv1 === tv2)
 
-            assertEquals(
-                "The unused child got removed from the view hierarchy",
-                1,
-                activity.root.childCount
-            )
-        }
+                assertEquals(
+                    "The unused child got removed from the view hierarchy",
+                    1,
+                    activity.root.childCount
+                )
+            }
     }
 
     // components for testing recompose behavior above
     sealed class ClickAction {
         object Recompose : ClickAction()
+
         class PerformOnView(val action: (View) -> Unit) : ClickAction()
     }
 
-    @Composable fun RecomposeTestComponentsB(counter: Counter, listener: ClickAction, id: Int = 0) {
+    @Composable
+    fun RecomposeTestComponentsB(counter: Counter, listener: ClickAction, id: Int = 0) {
         counter.inc("$id")
 
         val scope = currentRecomposeScope
@@ -118,39 +115,46 @@ class RecomposerTests : BaseComposeTest() {
     @Test
     fun testFrameTransition() {
         var snapshotId: Int? = null
-        compose {
-            snapshotId = Snapshot.current.id
-        }.then {
-            assertNotSame(snapshotId, Snapshot.current.id)
-        }
+        compose { snapshotId = Snapshot.current.id }
+            .then { assertNotSame(snapshotId, Snapshot.current.id) }
     }
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-    fun runningRecomposerFlow() = runTest(UnconfinedTestDispatcher()) {
-        lateinit var recomposer: RecomposerInfo
-        val recomposerJob = launch(TestMonotonicFrameClock(this)) {
-            withRunningRecomposer {
-                recomposer = it.asRecomposerInfo()
-                suspendCancellableCoroutine<Unit> { }
-            }
+    fun runningRecomposerFlow() =
+        runTest(UnconfinedTestDispatcher()) {
+            lateinit var recomposer: RecomposerInfo
+            val recomposerJob =
+                launch(TestMonotonicFrameClock(this)) {
+                    withRunningRecomposer {
+                        recomposer = it.asRecomposerInfo()
+                        suspendCancellableCoroutine<Unit> {}
+                    }
+                }
+            val afterLaunch = Recomposer.runningRecomposers.value
+            assertTrue("recomposer in running list", recomposer in afterLaunch)
+            recomposerJob.cancelAndJoin()
+            val afterCancel = Recomposer.runningRecomposers.value
+            assertFalse("recomposer no longer in running list", recomposer in afterCancel)
         }
-        val afterLaunch = Recomposer.runningRecomposers.value
-        assertTrue("recomposer in running list", recomposer in afterLaunch)
-        recomposerJob.cancelAndJoin()
-        val afterCancel = Recomposer.runningRecomposers.value
-        assertFalse("recomposer no longer in running list", recomposer in afterCancel)
-    }
 }
 
 class Counter {
     private var counts = mutableMapOf<String, Int>()
+
     fun inc(key: String) = counts.getOrPut(key, { 0 }).let { counts[key] = it + 1 }
+
     operator fun get(key: String) = counts[key] ?: 0
 }
 
 private class Trigger {
     val count = mutableStateOf(0)
-    fun subscribe() { count.value }
-    fun recompose() { count.value += 1 }
+
+    fun subscribe() {
+        count.value
+    }
+
+    fun recompose() {
+        count.value += 1
+    }
 }

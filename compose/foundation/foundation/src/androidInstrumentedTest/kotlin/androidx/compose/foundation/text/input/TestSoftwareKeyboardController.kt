@@ -20,9 +20,8 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import com.google.common.truth.Truth.assertWithMessage
 
-class TestSoftwareKeyboardController(
-    private val rule: ComposeTestRule
-) : SoftwareKeyboardController {
+class TestSoftwareKeyboardController(private val rule: ComposeTestRule) :
+    SoftwareKeyboardController {
     private var shown = false
 
     override fun show() {
@@ -36,14 +35,16 @@ class TestSoftwareKeyboardController(
     fun assertShown() {
         rule.runOnIdle {
             assertWithMessage("Expected last call on SoftwareKeyboardController to be show")
-                .that(shown).isTrue()
+                .that(shown)
+                .isTrue()
         }
     }
 
     fun assertHidden() {
         rule.runOnIdle {
             assertWithMessage("Expected last call on SoftwareKeyboardController to be hide")
-                .that(shown).isFalse()
+                .that(shown)
+                .isFalse()
         }
     }
 }

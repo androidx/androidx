@@ -38,9 +38,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple [drag] demo.
- */
+/** Simple [drag] demo. */
 @Composable
 fun RawDragGestureFilterDemo() {
     val offset = remember { mutableStateOf(Offset.Zero) }
@@ -51,8 +49,7 @@ fun RawDragGestureFilterDemo() {
     Column {
         Text("Demonstrates dragging that starts immediately (no slop or anything else).")
         Box(
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
                 .offset(offsetX, offsetY)
                 .size(192.dp)

@@ -23,16 +23,16 @@ import java.lang.ref.WeakReference
 
 // It is a copy from androidx.compose.ui.platform
 /**
- * A simple collection that keeps values as [WeakReference]s.
- * Elements are added with [push] and removed with [pop].
+ * A simple collection that keeps values as [WeakReference]s. Elements are added with [push] and
+ * removed with [pop].
  */
 internal class WeakCache<T> {
     private val values = mutableVectorOf<Reference<T>>()
     private val referenceQueue = ReferenceQueue<T>()
 
     /**
-     * Add [element] to the collection as a [WeakReference]. It will be removed when
-     * garbage collected or from [pop].
+     * Add [element] to the collection as a [WeakReference]. It will be removed when garbage
+     * collected or from [pop].
      */
     fun push(element: T) {
         clearWeakReferences()
@@ -40,8 +40,8 @@ internal class WeakCache<T> {
     }
 
     /**
-     * Remove an element from the collection and return it. If no element is
-     * available, `null` is returned.
+     * Remove an element from the collection and return it. If no element is available, `null` is
+     * returned.
      */
     fun pop(): T? {
         clearWeakReferences()
@@ -56,8 +56,8 @@ internal class WeakCache<T> {
     }
 
     /**
-     * The number of elements currently in the collection. This may change between
-     * calls if the references have been garbage collected.
+     * The number of elements currently in the collection. This may change between calls if the
+     * references have been garbage collected.
      */
     val size: Int
         get() {
@@ -69,8 +69,7 @@ internal class WeakCache<T> {
         do {
             val item: Reference<out T>? = referenceQueue.poll()
             if (item != null) {
-                @Suppress("UNCHECKED_CAST")
-                values.remove(item as Reference<T>)
+                @Suppress("UNCHECKED_CAST") values.remove(item as Reference<T>)
             }
         } while (item != null)
     }

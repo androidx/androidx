@@ -32,8 +32,8 @@ import androidx.compose.ui.platform.debugInspectorInfo
 @JvmDefaultWithCompatibility
 interface ModifierLocalConsumer : Modifier.Element {
     /**
-     * This function is called whenever one of the consumed values has changed.
-     * This could be called in response to the modifier being added, removed or re-ordered.
+     * This function is called whenever one of the consumed values has changed. This could be called
+     * in response to the modifier being added, removed or re-ordered.
      */
     fun onModifierLocalsUpdated(scope: ModifierLocalReadScope)
 }

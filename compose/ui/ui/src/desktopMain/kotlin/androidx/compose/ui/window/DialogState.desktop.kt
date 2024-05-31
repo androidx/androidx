@@ -41,16 +41,11 @@ import androidx.compose.ui.unit.dp
 fun rememberDialogState(
     position: WindowPosition = WindowPosition(Alignment.Center),
     size: DpSize = DpSize(400.dp, 300.dp),
-): DialogState = rememberSaveable(saver = DialogStateImpl.Saver(position)) {
-    DialogStateImpl(
-        position,
-        size
-    )
-}
+): DialogState =
+    rememberSaveable(saver = DialogStateImpl.Saver(position)) { DialogStateImpl(position, size) }
 
 /**
- * A state object that can be hoisted to control and observe dialog attributes
- * (size/position).
+ * A state object that can be hoisted to control and observe dialog attributes (size/position).
  *
  * @param position the initial value for [DialogState.position]
  * @param size the initial value for [DialogState.size]
@@ -58,9 +53,8 @@ fun rememberDialogState(
 fun DialogState(
     position: WindowPosition = WindowPosition(Alignment.Center),
     size: DpSize = DpSize(400.dp, 300.dp)
-): DialogState = DialogStateImpl(
-    position, size
-)
+): DialogState = DialogStateImpl(position, size)
+
 /**
  * Creates a [DialogState] that is remembered across compositions.
  *
@@ -76,16 +70,13 @@ fun DialogState(
 fun rememberDialogState(
     position: WindowPosition = WindowPosition(Alignment.Center),
     size: WindowSize,
-): DialogState = rememberSaveable(saver = DialogStateImpl.Saver(position)) {
-    DialogStateImpl(
-        position,
-        DpSize(size.width, size.height)
-    )
-}
+): DialogState =
+    rememberSaveable(saver = DialogStateImpl.Saver(position)) {
+        DialogStateImpl(position, DpSize(size.width, size.height))
+    }
 
 /**
- * A state object that can be hoisted to control and observe dialog attributes
- * (size/position).
+ * A state object that can be hoisted to control and observe dialog attributes (size/position).
  *
  * @param position the initial value for [DialogState.position]
  * @param size the initial value for [DialogState.size]
@@ -95,9 +86,7 @@ fun rememberDialogState(
 fun DialogState(
     position: WindowPosition = WindowPosition(Alignment.Center),
     size: WindowSize
-): DialogState = DialogStateImpl(
-    position, DpSize(size.width, size.height)
-)
+): DialogState = DialogStateImpl(position, DpSize(size.width, size.height))
 
 /**
  * Creates a [DialogState] that is remembered across compositions.
@@ -107,86 +96,72 @@ fun DialogState(
  *
  * @param position the initial value for [DialogState.position]
  * @param width the initial value for width of [WindowState.size]
- * @param height the initial value for height of  [WindowState.size]
+ * @param height the initial value for height of [WindowState.size]
  */
 @Composable
 fun rememberDialogState(
     position: WindowPosition = WindowPosition(Alignment.Center),
     width: Dp = 400.dp,
     height: Dp = 300.dp,
-): DialogState = rememberSaveable(saver = DialogStateImpl.Saver(position)) {
-    DialogStateImpl(
-        position,
-        DpSize(width, height)
-    )
-}
+): DialogState =
+    rememberSaveable(saver = DialogStateImpl.Saver(position)) {
+        DialogStateImpl(position, DpSize(width, height))
+    }
 
 /**
- * A state object that can be hoisted to control and observe dialog attributes
- * (size/position).
+ * A state object that can be hoisted to control and observe dialog attributes (size/position).
  *
  * @param position the initial value for [DialogState.position]
  * @param width the initial value for width of [WindowState.size]
- * @param height the initial value for height of  [WindowState.size]
+ * @param height the initial value for height of [WindowState.size]
  */
 fun DialogState(
     position: WindowPosition = WindowPosition(Alignment.Center),
     width: Dp = 400.dp,
     height: Dp = 300.dp,
-): DialogState = DialogStateImpl(
-    position,
-    DpSize(width, height)
-)
+): DialogState = DialogStateImpl(position, DpSize(width, height))
 
-/**
- * A state object that can be hoisted to control and observe dialog attributes
- * (size/position).
- */
+/** A state object that can be hoisted to control and observe dialog attributes (size/position). */
 interface DialogState {
     /**
-     * Current position of the dialog. If position is not specified ([WindowPosition.isSpecified]
-     * is false) then once the dialog shows on the screen the position will be set to
-     * absolute values [WindowPosition.Absolute].
+     * Current position of the dialog. If position is not specified ([WindowPosition.isSpecified] is
+     * false) then once the dialog shows on the screen the position will be set to absolute values
+     * [WindowPosition.Absolute].
      */
     var position: WindowPosition
 
-    /**
-     * Current size of the dialog.
-     */
+    /** Current size of the dialog. */
     var size: DpSize
 }
 
-private class DialogStateImpl(
-    position: WindowPosition,
-    size: DpSize
-) : DialogState {
+private class DialogStateImpl(position: WindowPosition, size: DpSize) : DialogState {
     override var position by mutableStateOf(position)
     override var size by mutableStateOf(size)
 
     companion object {
-        /**
-         * The default [Saver] implementation for [DialogStateImpl].
-         */
-        fun Saver(unspecifiedPosition: WindowPosition) = listSaver<DialogState, Any>(
-            save = {
-                listOf(
-                    it.position.isSpecified,
-                    it.position.x.value,
-                    it.position.y.value,
-                    it.size.width.value,
-                    it.size.height.value,
-                )
-            },
-            restore = { state ->
-                DialogStateImpl(
-                    position = if (state[0] as Boolean) {
-                        WindowPosition((state[1] as Float).dp, (state[2] as Float).dp)
-                    } else {
-                        unspecifiedPosition
-                    },
-                    size = DpSize((state[3] as Float).dp, (state[4] as Float).dp),
-                )
-            }
-        )
+        /** The default [Saver] implementation for [DialogStateImpl]. */
+        fun Saver(unspecifiedPosition: WindowPosition) =
+            listSaver<DialogState, Any>(
+                save = {
+                    listOf(
+                        it.position.isSpecified,
+                        it.position.x.value,
+                        it.position.y.value,
+                        it.size.width.value,
+                        it.size.height.value,
+                    )
+                },
+                restore = { state ->
+                    DialogStateImpl(
+                        position =
+                            if (state[0] as Boolean) {
+                                WindowPosition((state[1] as Float).dp, (state[2] as Float).dp)
+                            } else {
+                                unspecifiedPosition
+                            },
+                        size = DpSize((state[3] as Float).dp, (state[4] as Float).dp),
+                    )
+                }
+            )
     }
 }

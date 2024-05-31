@@ -72,22 +72,19 @@ class ComposeIrGenerationExtension(
     var metrics: ModuleMetrics = EmptyModuleMetrics
         private set
 
-    override fun generate(
-        moduleFragment: IrModuleFragment,
-        pluginContext: IrPluginContext
-    ) {
+    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         val isKlibTarget = !pluginContext.platform.isJvm()
         VersionChecker(pluginContext).check()
 
-        val stabilityInferencer = StabilityInferencer(
-            pluginContext.moduleDescriptor,
-            stableTypeMatchers,
-        )
+        val stabilityInferencer =
+            StabilityInferencer(
+                pluginContext.moduleDescriptor,
+                stableTypeMatchers,
+            )
 
         // Input check.  This should always pass, else something is horribly wrong upstream.
         // Necessary because oftentimes the issue is upstream (compiler bug, prior plugin, etc)
-        if (validateIr)
-            validateIr(moduleFragment, pluginContext.irBuiltIns)
+        if (validateIr) validateIr(moduleFragment, pluginContext.irBuiltIns)
 
         // create a symbol remapper to be used across all transforms
         val symbolRemapper = ComposableSymbolRemapper()
@@ -99,55 +96,60 @@ class ComposeIrGenerationExtension(
         if (moduleMetricsFactory != null) {
             metrics = moduleMetricsFactory.invoke(stabilityInferencer)
         } else if (metricsDestination != null || reportsDestination != null) {
-            metrics = ModuleMetricsImpl(moduleFragment.name.asString()) {
-                stabilityInferencer.stabilityOf(it)
-            }
+            metrics =
+                ModuleMetricsImpl(moduleFragment.name.asString()) {
+                    stabilityInferencer.stabilityOf(it)
+                }
         }
 
         if (pluginContext.platform.isNative()) {
             AddHiddenFromObjCLowering(
-                pluginContext,
-                symbolRemapper,
-                metrics,
-                descriptorSerializerContext?.hideFromObjCDeclarationsSet,
-                stabilityInferencer,
-                featureFlags,
-            ).lower(moduleFragment)
+                    pluginContext,
+                    symbolRemapper,
+                    metrics,
+                    descriptorSerializerContext?.hideFromObjCDeclarationsSet,
+                    stabilityInferencer,
+                    featureFlags,
+                )
+                .lower(moduleFragment)
         }
 
         ClassStabilityTransformer(
-            useK2,
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            classStabilityInferredCollection = descriptorSerializerContext
-                ?.classStabilityInferredCollection?.takeIf {
-                    !pluginContext.platform.isJvm()
-                },
-            featureFlags,
-        ).lower(moduleFragment)
+                useK2,
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                classStabilityInferredCollection =
+                    descriptorSerializerContext?.classStabilityInferredCollection?.takeIf {
+                        !pluginContext.platform.isJvm()
+                    },
+                featureFlags,
+            )
+            .lower(moduleFragment)
 
         LiveLiteralTransformer(
-            liveLiteralsEnabled || liveLiteralsV2Enabled,
-            liveLiteralsV2Enabled,
-            DurableKeyVisitor(),
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            featureFlags,
-        ).lower(moduleFragment)
+                liveLiteralsEnabled || liveLiteralsV2Enabled,
+                liveLiteralsV2Enabled,
+                DurableKeyVisitor(),
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                featureFlags,
+            )
+            .lower(moduleFragment)
 
         ComposableFunInterfaceLowering(pluginContext).lower(moduleFragment)
 
-        val functionKeyTransformer = DurableFunctionKeyTransformer(
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            featureFlags,
-        )
+        val functionKeyTransformer =
+            DurableFunctionKeyTransformer(
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                featureFlags,
+            )
 
         functionKeyTransformer.lower(moduleFragment)
 
@@ -157,91 +159,101 @@ class ComposeIrGenerationExtension(
 
         // Generate default wrappers for virtual functions
         ComposableDefaultParamLowering(
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            featureFlags
-        ).lower(moduleFragment)
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                featureFlags
+            )
+            .lower(moduleFragment)
 
         // Memoize normal lambdas and wrap composable lambdas
         ComposerLambdaMemoization(
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            featureFlags,
-        ).lower(moduleFragment)
-
-        val mangler = when {
-            pluginContext.platform.isJs() -> JsManglerIr
-            else -> null
-        }
-
-        val idSignatureBuilder = when {
-            pluginContext.platform.isJs() -> IdSignatureSerializer(
-                PublicIdSignatureComputer(mangler!!),
-                DeclarationTable(JsGlobalDeclarationTable(pluginContext.irBuiltIns))
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                featureFlags,
             )
-            else -> null
-        }
+            .lower(moduleFragment)
+
+        val mangler =
+            when {
+                pluginContext.platform.isJs() -> JsManglerIr
+                else -> null
+            }
+
+        val idSignatureBuilder =
+            when {
+                pluginContext.platform.isJs() ->
+                    IdSignatureSerializer(
+                        PublicIdSignatureComputer(mangler!!),
+                        DeclarationTable(JsGlobalDeclarationTable(pluginContext.irBuiltIns))
+                    )
+                else -> null
+            }
         if (decoysEnabled) {
             require(idSignatureBuilder != null) {
                 "decoys are not supported for ${pluginContext.platform}"
             }
 
             CreateDecoysTransformer(
-                pluginContext,
-                symbolRemapper,
-                idSignatureBuilder,
-                stabilityInferencer,
-                metrics,
-                featureFlags,
-            ).lower(moduleFragment)
+                    pluginContext,
+                    symbolRemapper,
+                    idSignatureBuilder,
+                    stabilityInferencer,
+                    metrics,
+                    featureFlags,
+                )
+                .lower(moduleFragment)
 
             SubstituteDecoyCallsTransformer(
-                pluginContext,
-                symbolRemapper,
-                idSignatureBuilder,
-                stabilityInferencer,
-                metrics,
-                featureFlags,
-            ).lower(moduleFragment)
+                    pluginContext,
+                    symbolRemapper,
+                    idSignatureBuilder,
+                    stabilityInferencer,
+                    metrics,
+                    featureFlags,
+                )
+                .lower(moduleFragment)
         }
 
         // transform all composable functions to have an extra synthetic composer
         // parameter. this will also transform all types and calls to include the extra
         // parameter.
         ComposerParamTransformer(
-            pluginContext,
-            symbolRemapper,
-            stabilityInferencer,
-            decoysEnabled,
-            metrics,
-            featureFlags,
-        ).lower(moduleFragment)
+                pluginContext,
+                symbolRemapper,
+                stabilityInferencer,
+                decoysEnabled,
+                metrics,
+                featureFlags,
+            )
+            .lower(moduleFragment)
 
         ComposableTargetAnnotationsTransformer(
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            featureFlags,
-        ).lower(moduleFragment)
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                featureFlags,
+            )
+            .lower(moduleFragment)
 
         // transform calls to the currentComposer to just use the local parameter from the
         // previous transform
         ComposerIntrinsicTransformer(pluginContext, decoysEnabled).lower(moduleFragment)
 
         ComposableFunctionBodyTransformer(
-            pluginContext,
-            symbolRemapper,
-            metrics,
-            stabilityInferencer,
-            sourceInformationEnabled,
-            traceMarkersEnabled,
-            featureFlags,
-        ).lower(moduleFragment)
+                pluginContext,
+                symbolRemapper,
+                metrics,
+                stabilityInferencer,
+                sourceInformationEnabled,
+                traceMarkersEnabled,
+                featureFlags,
+            )
+            .lower(moduleFragment)
 
         if (decoysEnabled) {
             require(idSignatureBuilder != null) {
@@ -249,36 +261,39 @@ class ComposeIrGenerationExtension(
             }
 
             RecordDecoySignaturesTransformer(
-                pluginContext,
-                symbolRemapper,
-                idSignatureBuilder,
-                metrics,
-                mangler!!,
-                stabilityInferencer,
-                featureFlags,
-            ).lower(moduleFragment)
+                    pluginContext,
+                    symbolRemapper,
+                    idSignatureBuilder,
+                    metrics,
+                    mangler!!,
+                    stabilityInferencer,
+                    featureFlags,
+                )
+                .lower(moduleFragment)
         }
 
         if (isKlibTarget) {
             KlibAssignableParamTransformer(
-                pluginContext,
-                symbolRemapper,
-                metrics,
-                stabilityInferencer,
-                featureFlags,
-            ).lower(moduleFragment)
+                    pluginContext,
+                    symbolRemapper,
+                    metrics,
+                    stabilityInferencer,
+                    featureFlags,
+                )
+                .lower(moduleFragment)
         }
 
         if (pluginContext.platform.isJs() || pluginContext.platform.isWasm()) {
             WrapJsComposableLambdaLowering(
-                pluginContext,
-                symbolRemapper,
-                metrics,
-                idSignatureBuilder,
-                stabilityInferencer,
-                decoysEnabled,
-                featureFlags,
-            ).lower(moduleFragment)
+                    pluginContext,
+                    symbolRemapper,
+                    metrics,
+                    idSignatureBuilder,
+                    stabilityInferencer,
+                    decoysEnabled,
+                    featureFlags,
+                )
+                .lower(moduleFragment)
         }
 
         if (generateFunctionKeyMetaClasses) {
@@ -295,7 +310,6 @@ class ComposeIrGenerationExtension(
         }
 
         // Verify that our transformations didn't break something
-        if (validateIr)
-            validateIr(moduleFragment, pluginContext.irBuiltIns)
+        if (validateIr) validateIr(moduleFragment, pluginContext.irBuiltIns)
     }
 }

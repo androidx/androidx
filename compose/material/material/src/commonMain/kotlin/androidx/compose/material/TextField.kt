@@ -67,12 +67,14 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://material.io/components/text-fields#filled-text-field" class="external" target="_blank">Material Design filled text field</a>.
+ * <a href="https://material.io/components/text-fields#filled-text-field" class="external"
+ * target="_blank">Material Design filled text field</a>.
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
  * when surrounded by other content and components.
  *
- * ![Filled text field image](https://developer.android.com/images/reference/androidx/compose/material/filled-text-field.png)
+ * ![Filled text field
+ * image](https://developer.android.com/images/reference/androidx/compose/material/filled-text-field.png)
  *
  * If you are looking for an outlined version, see [OutlinedTextField].
  *
@@ -104,57 +106,57 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.compose.material.samples.TextFieldWithHideKeyboardOnImeAction
  *
- * If apart from input text change you also want to observe the cursor location, selection range,
- * or IME composition use the TextField overload with the [TextFieldValue] parameter instead.
+ * If apart from input text change you also want to observe the cursor location, selection range, or
+ * IME composition use the TextField overload with the [TextFieldValue] parameter instead.
  *
  * @param value the input text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
- * updated text comes as a parameter of the callback
+ *   updated text comes as a parameter of the callback
  * @param modifier a [Modifier] for this text field
  * @param enabled controls the enabled state of the [TextField]. When `false`, the text field will
- * be neither editable nor focusable, the input of the text field will not be selectable,
- * visually text field will appear in the disabled UI state
- * @param readOnly controls the editable state of the [TextField]. When `true`, the text
- * field can not be modified, however, a user can focus it and copy text from it. Read-only text
- * fields are usually used to display pre-filled forms that user can not edit
+ *   be neither editable nor focusable, the input of the text field will not be selectable, visually
+ *   text field will appear in the disabled UI state
+ * @param readOnly controls the editable state of the [TextField]. When `true`, the text field can
+ *   not be modified, however, a user can focus it and copy text from it. Read-only text fields are
+ *   usually used to display pre-filled forms that user can not edit
  * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [LocalTextStyle] defined by the theme
- * @param label the optional label to be displayed inside the text field container. The default
- * text style for internal [Text] is [Typography.caption] when the text field is in focus and
- * [Typography.subtitle1] when the text field is not in focus
+ *   [LocalTextStyle] defined by the theme
+ * @param label the optional label to be displayed inside the text field container. The default text
+ *   style for internal [Text] is [Typography.caption] when the text field is in focus and
+ *   [Typography.subtitle1] when the text field is not in focus
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
- * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ *   the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
- * container
+ *   container
  * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
- * container
+ *   container
  * @param isError indicates if the text field's current value is in error. If set to true, the
- * label, bottom indicator and trailing icon by default will be displayed in error color
- * @param visualTransformation transforms the visual representation of the input [value]
- * For example, you can use
- * [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
- * create a password text field. By default no visual transformation is applied
+ *   label, bottom indicator and trailing icon by default will be displayed in error color
+ * @param visualTransformation transforms the visual representation of the input [value] For
+ *   example, you can use
+ *   [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
+ *   create a password text field. By default no visual transformation is applied
  * @param keyboardOptions software keyboard options that contains configuration such as
- * [KeyboardType] and [ImeAction].
- * @param keyboardActions when the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction].
- * @param singleLine when set to true, this text field becomes a single horizontally scrolling
- * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
- * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
- * maxLines attribute will be automatically set to 1.
+ *   [KeyboardType] and [ImeAction].
+ * @param keyboardActions when the input service emits an IME action, the corresponding callback is
+ *   called. Note that this IME action may be different from what you specified in
+ *   [KeyboardOptions.imeAction].
+ * @param singleLine when set to true, this text field becomes a single horizontally scrolling text
+ *   field instead of wrapping onto multiple lines. The keyboard will be informed to not show the
+ *   return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the maxLines
+ *   attribute will be automatically set to 1.
  * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param minLines the minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this text field. You can use this to change the text field's
- * appearance or preview the text field in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this text field. You can use this to change the text field's
+ *   appearance or preview the text field in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param shape the shape of the text field's container
  * @param colors [TextFieldColors] that will be used to resolve color of the text, content
- * (including label, placeholder, leading and trailing icons, indicator line) and background for
- * this text field in different states. See [TextFieldDefaults.textFieldColors]
+ *   (including label, placeholder, leading and trailing icons, indicator line) and background for
+ *   this text field in different states. See [TextFieldDefaults.textFieldColors]
  */
 @Composable
 fun TextField(
@@ -182,21 +184,20 @@ fun TextField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // If color is not provided via the text style, use content color as a default
-    val textColor = textStyle.color.takeOrElse {
-        colors.textColor(enabled).value
-    }
+    val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
     @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
-        modifier = modifier
-            .indicatorLine(enabled, isError, interactionSource, colors)
-            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
-            .defaultMinSize(
-                minWidth = TextFieldDefaults.MinWidth,
-                minHeight = TextFieldDefaults.MinHeight
-            ),
+        modifier =
+            modifier
+                .indicatorLine(enabled, isError, interactionSource, colors)
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                .defaultMinSize(
+                    minWidth = TextFieldDefaults.MinWidth,
+                    minHeight = TextFieldDefaults.MinHeight
+                ),
         onValueChange = onValueChange,
         enabled = enabled,
         readOnly = readOnly,
@@ -209,24 +210,25 @@ fun TextField(
         singleLine = singleLine,
         maxLines = maxLines,
         minLines = minLines,
-        decorationBox = @Composable { innerTextField ->
-            // places leading icon, text field with label and placeholder, trailing icon
-            TextFieldDefaults.TextFieldDecorationBox(
-                value = value,
-                visualTransformation = visualTransformation,
-                innerTextField = innerTextField,
-                placeholder = placeholder,
-                label = label,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                singleLine = singleLine,
-                enabled = enabled,
-                isError = isError,
-                interactionSource = interactionSource,
-                shape = shape,
-                colors = colors,
-            )
-        }
+        decorationBox =
+            @Composable { innerTextField ->
+                // places leading icon, text field with label and placeholder, trailing icon
+                TextFieldDefaults.TextFieldDecorationBox(
+                    value = value,
+                    visualTransformation = visualTransformation,
+                    innerTextField = innerTextField,
+                    placeholder = placeholder,
+                    label = label,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    singleLine = singleLine,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    shape = shape,
+                    colors = colors,
+                )
+            }
     )
 }
 
@@ -282,70 +284,73 @@ fun TextField(
 }
 
 /**
- * <a href="https://material.io/components/text-fields#filled-text-field" class="external" target="_blank">Material Design filled text field</a>.
+ * <a href="https://material.io/components/text-fields#filled-text-field" class="external"
+ * target="_blank">Material Design filled text field</a>.
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
  * when surrounded by other content and components.
  *
- * ![Filled text field image](https://developer.android.com/images/reference/androidx/compose/material/filled-text-field.png)
+ * ![Filled text field
+ * image](https://developer.android.com/images/reference/androidx/compose/material/filled-text-field.png)
  *
  * If you are looking for an outlined version, see [OutlinedTextField].
  *
  * See example usage:
+ *
  * @sample androidx.compose.material.samples.TextFieldSample
  *
- * This overload provides access to the input text, cursor position, selection range and
- * IME composition. If you only want to observe an input text change, use the TextField
- * overload with the [String] parameter instead.
+ * This overload provides access to the input text, cursor position, selection range and IME
+ * composition. If you only want to observe an input text change, use the TextField overload with
+ * the [String] parameter instead.
  *
  * @param value the input [TextFieldValue] to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates values in
- * [TextFieldValue]. An updated [TextFieldValue] comes as a parameter of the callback
+ *   [TextFieldValue]. An updated [TextFieldValue] comes as a parameter of the callback
  * @param modifier a [Modifier] for this text field
  * @param enabled controls the enabled state of the [TextField]. When `false`, the text field will
- * be neither editable nor focusable, the input of the text field will not be selectable,
- * visually text field will appear in the disabled UI state
- * @param readOnly controls the editable state of the [TextField]. When `true`, the text
- * field can not be modified, however, a user can focus it and copy text from it. Read-only text
- * fields are usually used to display pre-filled forms that user can not edit
+ *   be neither editable nor focusable, the input of the text field will not be selectable, visually
+ *   text field will appear in the disabled UI state
+ * @param readOnly controls the editable state of the [TextField]. When `true`, the text field can
+ *   not be modified, however, a user can focus it and copy text from it. Read-only text fields are
+ *   usually used to display pre-filled forms that user can not edit
  * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [LocalTextStyle] defined by the theme
- * @param label the optional label to be displayed inside the text field container. The default
- * text style for internal [Text] is [Typography.caption] when the text field is in focus and
- * [Typography.subtitle1] when the text field is not in focus
+ *   [LocalTextStyle] defined by the theme
+ * @param label the optional label to be displayed inside the text field container. The default text
+ *   style for internal [Text] is [Typography.caption] when the text field is in focus and
+ *   [Typography.subtitle1] when the text field is not in focus
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
- * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ *   the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
- * container
+ *   container
  * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
- * container
- * @param isError indicates if the text field's current value is in error state. If set to
- * true, the label, bottom indicator and trailing icon by default will be displayed in error color
- * @param visualTransformation transforms the visual representation of the input [value].
- * For example, you can use
- * [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
- * create a password text field. By default no visual transformation is applied
+ *   container
+ * @param isError indicates if the text field's current value is in error state. If set to true, the
+ *   label, bottom indicator and trailing icon by default will be displayed in error color
+ * @param visualTransformation transforms the visual representation of the input [value]. For
+ *   example, you can use
+ *   [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
+ *   create a password text field. By default no visual transformation is applied
  * @param keyboardOptions software keyboard options that contains configuration such as
- * [KeyboardType] and [ImeAction].
- * @param keyboardActions when the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction].
- * @param singleLine when set to true, this text field becomes a single horizontally scrolling
- * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
- * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
- * maxLines attribute will be automatically set to 1.
+ *   [KeyboardType] and [ImeAction].
+ * @param keyboardActions when the input service emits an IME action, the corresponding callback is
+ *   called. Note that this IME action may be different from what you specified in
+ *   [KeyboardOptions.imeAction].
+ * @param singleLine when set to true, this text field becomes a single horizontally scrolling text
+ *   field instead of wrapping onto multiple lines. The keyboard will be informed to not show the
+ *   return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the maxLines
+ *   attribute will be automatically set to 1.
  * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param minLines the minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this text field. You can use this to change the text field's
- * appearance or preview the text field in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this text field. You can use this to change the text field's
+ *   appearance or preview the text field in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param shape the shape of the text field's container
  * @param colors [TextFieldColors] that will be used to resolve color of the text, content
- * (including label, placeholder, leading and trailing icons, indicator line) and background for
- * this text field in different states. See [TextFieldDefaults.textFieldColors]
+ *   (including label, placeholder, leading and trailing icons, indicator line) and background for
+ *   this text field in different states. See [TextFieldDefaults.textFieldColors]
  */
 @Composable
 fun TextField(
@@ -373,21 +378,20 @@ fun TextField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // If color is not provided via the text style, use content color as a default
-    val textColor = textStyle.color.takeOrElse {
-        colors.textColor(enabled).value
-    }
+    val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
     @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
-        modifier = modifier
-            .indicatorLine(enabled, isError, interactionSource, colors)
-            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
-            .defaultMinSize(
-                minWidth = TextFieldDefaults.MinWidth,
-                minHeight = TextFieldDefaults.MinHeight
-            ),
+        modifier =
+            modifier
+                .indicatorLine(enabled, isError, interactionSource, colors)
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                .defaultMinSize(
+                    minWidth = TextFieldDefaults.MinWidth,
+                    minHeight = TextFieldDefaults.MinHeight
+                ),
         onValueChange = onValueChange,
         enabled = enabled,
         readOnly = readOnly,
@@ -400,24 +404,25 @@ fun TextField(
         singleLine = singleLine,
         maxLines = maxLines,
         minLines = minLines,
-        decorationBox = @Composable { innerTextField ->
-            // places leading icon, text field with label and placeholder, trailing icon
-            TextFieldDefaults.TextFieldDecorationBox(
-                value = value.text,
-                visualTransformation = visualTransformation,
-                innerTextField = innerTextField,
-                placeholder = placeholder,
-                label = label,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                singleLine = singleLine,
-                enabled = enabled,
-                isError = isError,
-                interactionSource = interactionSource,
-                shape = shape,
-                colors = colors,
-            )
-        }
+        decorationBox =
+            @Composable { innerTextField ->
+                // places leading icon, text field with label and placeholder, trailing icon
+                TextFieldDefaults.TextFieldDecorationBox(
+                    value = value.text,
+                    visualTransformation = visualTransformation,
+                    innerTextField = innerTextField,
+                    placeholder = placeholder,
+                    label = label,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    singleLine = singleLine,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    shape = shape,
+                    colors = colors,
+                )
+            }
     )
 }
 
@@ -487,9 +492,10 @@ internal fun TextFieldLayout(
     animationProgress: Float,
     paddingValues: PaddingValues
 ) {
-    val measurePolicy = remember(singleLine, animationProgress, paddingValues) {
-        TextFieldMeasurePolicy(singleLine, animationProgress, paddingValues)
-    }
+    val measurePolicy =
+        remember(singleLine, animationProgress, paddingValues) {
+            TextFieldMeasurePolicy(singleLine, animationProgress, paddingValues)
+        }
     val layoutDirection = LocalLayoutDirection.current
     Layout(
         modifier = modifier,
@@ -513,20 +519,21 @@ internal fun TextFieldLayout(
 
             val startTextFieldPadding = paddingValues.calculateStartPadding(layoutDirection)
             val endTextFieldPadding = paddingValues.calculateEndPadding(layoutDirection)
-            val padding = Modifier.padding(
-                start = if (leading != null) {
-                    (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(
-                        0.dp
-                    )
-                } else {
-                    startTextFieldPadding
-                },
-                end = if (trailing != null) {
-                    (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
-                } else {
-                    endTextFieldPadding
-                }
-            )
+            val padding =
+                Modifier.padding(
+                    start =
+                        if (leading != null) {
+                            (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
+                        } else {
+                            startTextFieldPadding
+                        },
+                    end =
+                        if (trailing != null) {
+                            (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
+                        } else {
+                            endTextFieldPadding
+                        }
+                )
             if (placeholder != null) {
                 placeholder(Modifier.layoutId(PlaceholderId).then(padding))
             }
@@ -564,72 +571,75 @@ private class TextFieldMeasurePolicy(
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val leadingPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LeadingId }?.measure(looseConstraints)
-        occupiedSpaceHorizontally += widthOrZero(
-            leadingPlaceable
-        )
+        occupiedSpaceHorizontally += widthOrZero(leadingPlaceable)
 
         // measure trailing icon
-        val trailingPlaceable = measurables.fastFirstOrNull { it.layoutId == TrailingId }
-            ?.measure(looseConstraints.offset(horizontal = -occupiedSpaceHorizontally))
-        occupiedSpaceHorizontally += widthOrZero(
-            trailingPlaceable
-        )
+        val trailingPlaceable =
+            measurables
+                .fastFirstOrNull { it.layoutId == TrailingId }
+                ?.measure(looseConstraints.offset(horizontal = -occupiedSpaceHorizontally))
+        occupiedSpaceHorizontally += widthOrZero(trailingPlaceable)
 
         // measure label
-        val labelConstraints = looseConstraints
-            .offset(
+        val labelConstraints =
+            looseConstraints.offset(
                 vertical = -bottomPaddingValue,
                 horizontal = -occupiedSpaceHorizontally
             )
         val labelPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LabelId }?.measure(labelConstraints)
-        val lastBaseline = labelPlaceable?.get(LastBaseline)?.let {
-            if (it != AlignmentLine.Unspecified) it else labelPlaceable.height
-        } ?: 0
+        val lastBaseline =
+            labelPlaceable?.get(LastBaseline)?.let {
+                if (it != AlignmentLine.Unspecified) it else labelPlaceable.height
+            } ?: 0
         val effectiveLabelBaseline = max(lastBaseline, topPaddingValue)
 
         // measure input field
         // input field is laid out differently depending on whether the label is present or not
-        val verticalConstraintOffset = if (labelPlaceable != null) {
-            -bottomPaddingValue - topPadding - effectiveLabelBaseline
-        } else {
-            -topPaddingValue - bottomPaddingValue
-        }
-        val textFieldConstraints = constraints
-            .copy(minHeight = 0)
-            .offset(
-                vertical = verticalConstraintOffset,
-                horizontal = -occupiedSpaceHorizontally
-            )
-        val textFieldPlaceable = measurables
-            .fastFirst { it.layoutId == TextFieldId }
-            .measure(textFieldConstraints)
+        val verticalConstraintOffset =
+            if (labelPlaceable != null) {
+                -bottomPaddingValue - topPadding - effectiveLabelBaseline
+            } else {
+                -topPaddingValue - bottomPaddingValue
+            }
+        val textFieldConstraints =
+            constraints
+                .copy(minHeight = 0)
+                .offset(
+                    vertical = verticalConstraintOffset,
+                    horizontal = -occupiedSpaceHorizontally
+                )
+        val textFieldPlaceable =
+            measurables.fastFirst { it.layoutId == TextFieldId }.measure(textFieldConstraints)
 
         // measure placeholder
         val placeholderConstraints = textFieldConstraints.copy(minWidth = 0)
-        val placeholderPlaceable = measurables
-            .fastFirstOrNull { it.layoutId == PlaceholderId }
-            ?.measure(placeholderConstraints)
+        val placeholderPlaceable =
+            measurables
+                .fastFirstOrNull { it.layoutId == PlaceholderId }
+                ?.measure(placeholderConstraints)
 
-        val width = calculateWidth(
-            widthOrZero(leadingPlaceable),
-            widthOrZero(trailingPlaceable),
-            textFieldPlaceable.width,
-            widthOrZero(labelPlaceable),
-            widthOrZero(placeholderPlaceable),
-            constraints
-        )
-        val height = calculateHeight(
-            textFieldPlaceable.height,
-            labelPlaceable != null,
-            effectiveLabelBaseline,
-            heightOrZero(leadingPlaceable),
-            heightOrZero(trailingPlaceable),
-            heightOrZero(placeholderPlaceable),
-            constraints,
-            density,
-            paddingValues
-        )
+        val width =
+            calculateWidth(
+                widthOrZero(leadingPlaceable),
+                widthOrZero(trailingPlaceable),
+                textFieldPlaceable.width,
+                widthOrZero(labelPlaceable),
+                widthOrZero(placeholderPlaceable),
+                constraints
+            )
+        val height =
+            calculateHeight(
+                textFieldPlaceable.height,
+                labelPlaceable != null,
+                effectiveLabelBaseline,
+                heightOrZero(leadingPlaceable),
+                heightOrZero(trailingPlaceable),
+                heightOrZero(placeholderPlaceable),
+                constraints,
+                density,
+                paddingValues
+            )
 
         return layout(width, height) {
             if (labelPlaceable != null) {
@@ -708,18 +718,22 @@ private class TextFieldMeasurePolicy(
     ): Int {
         val textFieldWidth =
             intrinsicMeasurer(measurables.fastFirst { it.layoutId == TextFieldId }, height)
-        val labelWidth = measurables.fastFirstOrNull { it.layoutId == LabelId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
-        val trailingWidth = measurables.fastFirstOrNull { it.layoutId == TrailingId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
-        val leadingWidth = measurables.fastFirstOrNull { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
-        val placeholderWidth = measurables.fastFirstOrNull { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
+        val labelWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == LabelId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
+        val trailingWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == TrailingId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
+        val leadingWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == LeadingId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
+        val placeholderWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == PlaceholderId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
         return calculateWidth(
             leadingWidth = leadingWidth,
             trailingWidth = trailingWidth,
@@ -736,28 +750,38 @@ private class TextFieldMeasurePolicy(
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
         var remainingWidth = width
-        val leadingHeight = measurables.fastFirstOrNull { it.layoutId == LeadingId }?.let {
-            remainingWidth = remainingWidth.substractConstraintSafely(
-                it.maxIntrinsicWidth(Constraints.Infinity)
-            )
-            intrinsicMeasurer(it, width)
-        } ?: 0
-        val trailingHeight = measurables.fastFirstOrNull { it.layoutId == TrailingId }?.let {
-            remainingWidth = remainingWidth.substractConstraintSafely(
-                it.maxIntrinsicWidth(Constraints.Infinity)
-            )
-            intrinsicMeasurer(it, width)
-        } ?: 0
+        val leadingHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == LeadingId }
+                ?.let {
+                    remainingWidth =
+                        remainingWidth.substractConstraintSafely(
+                            it.maxIntrinsicWidth(Constraints.Infinity)
+                        )
+                    intrinsicMeasurer(it, width)
+                } ?: 0
+        val trailingHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == TrailingId }
+                ?.let {
+                    remainingWidth =
+                        remainingWidth.substractConstraintSafely(
+                            it.maxIntrinsicWidth(Constraints.Infinity)
+                        )
+                    intrinsicMeasurer(it, width)
+                } ?: 0
 
-        val labelHeight = measurables.fastFirstOrNull { it.layoutId == LabelId }?.let {
-            intrinsicMeasurer(it, remainingWidth)
-        } ?: 0
+        val labelHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == LabelId }
+                ?.let { intrinsicMeasurer(it, remainingWidth) } ?: 0
 
         val textFieldHeight =
             intrinsicMeasurer(measurables.fastFirst { it.layoutId == TextFieldId }, remainingWidth)
-        val placeholderHeight = measurables.fastFirstOrNull { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, remainingWidth)
-        } ?: 0
+        val placeholderHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == PlaceholderId }
+                ?.let { intrinsicMeasurer(it, remainingWidth) } ?: 0
 
         return calculateHeight(
             textFieldHeight = textFieldHeight,
@@ -788,11 +812,7 @@ private fun calculateWidth(
     placeholderWidth: Int,
     constraints: Constraints
 ): Int {
-    val middleSection = maxOf(
-        textFieldWidth,
-        labelWidth,
-        placeholderWidth
-    )
+    val middleSection = maxOf(textFieldWidth, labelWidth, placeholderWidth)
     val wrappedWidth = leadingWidth + middleSection + trailingWidth
     return max(wrappedWidth, constraints.minWidth)
 }
@@ -813,11 +833,12 @@ private fun calculateHeight(
     val bottomPaddingValue = paddingValues.calculateBottomPadding().value * density
 
     val inputFieldHeight = max(textFieldHeight, placeholderHeight)
-    val middleSectionHeight = if (hasLabel) {
-        labelBaseline + paddingToLabel + inputFieldHeight + bottomPaddingValue
-    } else {
-        topPaddingValue + inputFieldHeight + bottomPaddingValue
-    }
+    val middleSectionHeight =
+        if (hasLabel) {
+            labelBaseline + paddingToLabel + inputFieldHeight + bottomPaddingValue
+        } else {
+            topPaddingValue + inputFieldHeight + bottomPaddingValue
+        }
     return maxOf(
         middleSectionHeight.roundToInt(),
         max(leadingHeight, trailingHeight),
@@ -855,13 +876,16 @@ private fun Placeable.PlacementScope.placeWithLabel(
         // if it's a single line, the label's start position is in the center of the
         // container. When it's a multiline text field, the label's start position is at the
         // top with padding
-        val startPosition = if (singleLine) {
-            Alignment.CenterVertically.align(it.height, height)
-        } else {
-            // even though the padding is defined by developer, it only affects text field when animation progress == 1,
-            // which is when text field is focused or non-empty input text. The start position of the label is always 16.dp.
-            (TextFieldPadding.value * density).roundToInt()
-        }
+        val startPosition =
+            if (singleLine) {
+                Alignment.CenterVertically.align(it.height, height)
+            } else {
+                // even though the padding is defined by developer, it only affects text field when
+                // animation progress == 1,
+                // which is when text field is focused or non-empty input text. The start position
+                // of the label is always 16.dp.
+                (TextFieldPadding.value * density).roundToInt()
+            }
         val distance = startPosition - labelEndPosition
         val positionY = startPosition - (distance * animationProgress).roundToInt()
         it.placeRelative(widthOrZero(leadingPlaceable), positionY)
@@ -871,8 +895,8 @@ private fun Placeable.PlacementScope.placeWithLabel(
 }
 
 /**
- * Places the provided text field and placeholder in [TextField] when there is no label. When
- * there is a label, [placeWithLabel] is used
+ * Places the provided text field and placeholder in [TextField] when there is no label. When there
+ * is a label, [placeWithLabel] is used
  */
 private fun Placeable.PlacementScope.placeWithoutLabel(
     width: Int,
@@ -898,33 +922,27 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
 
     // Single line text field without label places its input center vertically. Multiline text
     // field without label places its input at the top with padding
-    val textVerticalPosition = if (singleLine) {
-        Alignment.CenterVertically.align(textPlaceable.height, height)
-    } else {
-        topPadding
-    }
-    textPlaceable.placeRelative(
-        widthOrZero(leadingPlaceable),
-        textVerticalPosition
-    )
-
-    // placeholder is placed similar to the text input above
-    placeholderPlaceable?.let {
-        val placeholderVerticalPosition = if (singleLine) {
-            Alignment.CenterVertically.align(placeholderPlaceable.height, height)
+    val textVerticalPosition =
+        if (singleLine) {
+            Alignment.CenterVertically.align(textPlaceable.height, height)
         } else {
             topPadding
         }
-        it.placeRelative(
-            widthOrZero(leadingPlaceable),
-            placeholderVerticalPosition
-        )
+    textPlaceable.placeRelative(widthOrZero(leadingPlaceable), textVerticalPosition)
+
+    // placeholder is placed similar to the text input above
+    placeholderPlaceable?.let {
+        val placeholderVerticalPosition =
+            if (singleLine) {
+                Alignment.CenterVertically.align(placeholderPlaceable.height, height)
+            } else {
+                topPadding
+            }
+        it.placeRelative(widthOrZero(leadingPlaceable), placeholderVerticalPosition)
     }
 }
 
-/**
- * A draw modifier that draws a bottom indicator line in [TextField]
- */
+/** A draw modifier that draws a bottom indicator line in [TextField] */
 internal fun Modifier.drawIndicatorLine(indicatorBorder: BorderStroke): Modifier {
     val strokeWidthDp = indicatorBorder.width
     return drawWithContent {
@@ -932,12 +950,7 @@ internal fun Modifier.drawIndicatorLine(indicatorBorder: BorderStroke): Modifier
         if (strokeWidthDp == Dp.Hairline) return@drawWithContent
         val strokeWidth = strokeWidthDp.value * density
         val y = size.height - strokeWidth / 2
-        drawLine(
-            indicatorBorder.brush,
-            Offset(0f, y),
-            Offset(size.width, y),
-            strokeWidth
-        )
+        drawLine(indicatorBorder.brush, Offset(0f, y), Offset(size.width, y), strokeWidth)
     }
 }
 

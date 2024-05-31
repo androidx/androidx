@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 
 /**
- * The receiver scope of a [LazyLayout]'s measure lambda. The return value of the
- * measure lambda is [MeasureResult], which should be returned by [layout].
+ * The receiver scope of a [LazyLayout]'s measure lambda. The return value of the measure lambda is
+ * [MeasureResult], which should be returned by [layout].
  *
  * Main difference from the regular flow of writing any custom layout is that you have a new
  * function [measure] which accepts item index and constraints, composes the item based and then
@@ -53,11 +53,10 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
      *
      * @param index the item index. Should be no larger that [LazyLayoutItemProvider.itemCount].
      * @param constraints [Constraints] to measure the children emitted into an item content
-     * composable specified via [LazyLayoutItemProvider.Item].
-     *
+     *   composable specified via [LazyLayoutItemProvider.Item].
      * @return List of [Placeable]s. Note that if you emitted multiple children into the item
-     * composable you will receive multiple placeables, each of them will be measured with
-     * the passed [constraints].
+     *   composable you will receive multiple placeables, each of them will be measured with the
+     *   passed [constraints].
      */
     fun measure(index: Int, constraints: Constraints): List<Placeable>
 
@@ -70,38 +69,36 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
         return Dp(value * fontScale)
     }
 
-    @Stable
-    override fun Int.toDp(): Dp = (this / density).dp
+    @Stable override fun Int.toDp(): Dp = (this / density).dp
+
+    @Stable override fun Float.toDp(): Dp = (this / density).dp
+
+    @Stable override fun Float.toSp(): TextUnit = (this / (fontScale * density)).sp
+
+    @Stable override fun Int.toSp(): TextUnit = (this / (fontScale * density)).sp
+
+    @Stable override fun Dp.toSp(): TextUnit = (value / fontScale).sp
 
     @Stable
-    override fun Float.toDp(): Dp = (this / density).dp
+    override fun DpSize.toSize(): Size =
+        if (isSpecified) {
+            Size(width.toPx(), height.toPx())
+        } else {
+            Size.Unspecified
+        }
 
     @Stable
-    override fun Float.toSp(): TextUnit = (this / (fontScale * density)).sp
-
-    @Stable
-    override fun Int.toSp(): TextUnit = (this / (fontScale * density)).sp
-
-    @Stable
-    override fun Dp.toSp(): TextUnit = (value / fontScale).sp
-
-    @Stable
-    override fun DpSize.toSize(): Size = if (isSpecified) {
-        Size(width.toPx(), height.toPx())
-    } else {
-        Size.Unspecified
-    }
-
-    @Stable
-    override fun Size.toDpSize(): DpSize = if (isSpecified) {
-        DpSize(width.toDp(), height.toDp())
-    } else {
-        DpSize.Unspecified
-    }
+    override fun Size.toDpSize(): DpSize =
+        if (isSpecified) {
+            DpSize(width.toDp(), height.toDp())
+        } else {
+            DpSize.Unspecified
+        }
 }
 
 @ExperimentalFoundationApi
-internal class LazyLayoutMeasureScopeImpl internal constructor(
+internal class LazyLayoutMeasureScopeImpl
+internal constructor(
     private val itemContentFactory: LazyLayoutItemContentFactory,
     private val subcomposeMeasureScope: SubcomposeMeasureScope
 ) : LazyLayoutMeasureScope, MeasureScope by subcomposeMeasureScope {
@@ -109,8 +106,8 @@ internal class LazyLayoutMeasureScopeImpl internal constructor(
     private val itemProvider = itemContentFactory.itemProvider()
 
     /**
-     * A cache of the previously composed items. It allows us to support [get]
-     * re-executions with the same index during the same measure pass.
+     * A cache of the previously composed items. It allows us to support [get] re-executions with
+     * the same index during the same measure pass.
      */
     private val placeablesCache = hashMapOf<Int, List<Placeable>>()
 
@@ -123,18 +120,12 @@ internal class LazyLayoutMeasureScopeImpl internal constructor(
             val contentType = itemProvider.getContentType(index)
             val itemContent = itemContentFactory.getContent(index, key, contentType)
             val measurables = subcomposeMeasureScope.subcompose(key, itemContent)
-            List(measurables.size) { i ->
-                measurables[i].measure(constraints)
-            }.also {
-                placeablesCache[index] = it
-            }
+            List(measurables.size) { i -> measurables[i].measure(constraints) }
+                .also { placeablesCache[index] = it }
         }
     }
 
-    /**
-     * Below overrides added to work around https://youtrack.jetbrains.com/issue/KT-51672
-     */
-
+    /** Below overrides added to work around https://youtrack.jetbrains.com/issue/KT-51672 */
     override fun TextUnit.toDp(): Dp = with(subcomposeMeasureScope) { toDp() }
 
     override fun Int.toDp(): Dp = with(subcomposeMeasureScope) { toDp() }

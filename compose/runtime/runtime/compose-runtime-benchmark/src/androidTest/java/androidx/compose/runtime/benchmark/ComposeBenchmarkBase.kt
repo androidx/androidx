@@ -75,44 +75,42 @@ private fun CountGroupsAndSlots(content: @Composable () -> Unit) {
     val data = currentComposer.compositionData
     currentComposer.disableSourceInformation()
     CompositionLocalProvider(LocalInspectionTables provides compositionTables, content = content)
-    SideEffect {
-        compositionTables?.let {
-            countGroupsAndSlots(data, it)
-        }
-    }
+    SideEffect { compositionTables?.let { countGroupsAndSlots(data, it) } }
 }
 
 @OptIn(ExperimentalBenchmarkConfigApi::class)
 abstract class ComposeBenchmarkBase {
     @get:Rule
-    val benchmarkRule = BenchmarkRule(
-        MicrobenchmarkConfig(
-            metrics = listOf(
-                TimeCapture(),
-                object : MetricCapture(listOf(GROUP_METRIC_NAME, SLOT_METRIC_NAME)) {
-                    override fun captureStart(timeNs: Long) {
-                        compositionTables = mutableSetOf()
-                        groupsCount = 0
-                        slotsCount = 0
-                    }
+    val benchmarkRule =
+        BenchmarkRule(
+            MicrobenchmarkConfig(
+                metrics =
+                    listOf(
+                        TimeCapture(),
+                        object : MetricCapture(listOf(GROUP_METRIC_NAME, SLOT_METRIC_NAME)) {
+                            override fun captureStart(timeNs: Long) {
+                                compositionTables = mutableSetOf()
+                                groupsCount = 0
+                                slotsCount = 0
+                            }
 
-                    override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
-                        output[offset + GROUP_METRIC_INDEX] = groupsCount
-                        output[offset + SLOT_METRIC_INDEX] = slotsCount
-                        compositionTables = null
-                    }
+                            override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
+                                output[offset + GROUP_METRIC_INDEX] = groupsCount
+                                output[offset + SLOT_METRIC_INDEX] = slotsCount
+                                compositionTables = null
+                            }
 
-                    override fun capturePaused() {
-                        // Unsupported for now
-                    }
+                            override fun capturePaused() {
+                                // Unsupported for now
+                            }
 
-                    override fun captureResumed() {
-                        // Unsupported for now
-                    }
-                }
-            ),
+                            override fun captureResumed() {
+                                // Unsupported for now
+                            }
+                        }
+                    ),
+            )
         )
-    )
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -131,9 +129,7 @@ abstract class ComposeBenchmarkBase {
 
         try {
             benchmarkRule.measureRepeatedSuspendable {
-                activity.setContent(recomposer) {
-                    CountGroupsAndSlots(block)
-                }
+                activity.setContent(recomposer) { CountGroupsAndSlots(block) }
 
                 runWithTimingDisabled {
                     activity.setContentView(emptyView)
@@ -184,48 +180,42 @@ abstract class ComposeBenchmarkBase {
 
     @ExperimentalCoroutinesApi
     @ExperimentalTestApi
-    suspend fun TestScope.measureRecomposeSuspending(
-        block: RecomposeReceiver.() -> Unit
-    ) = coroutineScope {
-        val receiver = RecomposeReceiver()
-        receiver.block()
+    suspend fun TestScope.measureRecomposeSuspending(block: RecomposeReceiver.() -> Unit) =
+        coroutineScope {
+            val receiver = RecomposeReceiver()
+            receiver.block()
 
-        val activity = activityRule.activity
-        val emptyView = View(activity)
+            val activity = activityRule.activity
+            val emptyView = View(activity)
 
-        val recomposer = Recomposer(coroutineContext)
-        launch { recomposer.runRecomposeAndApplyChanges() }
+            val recomposer = Recomposer(coroutineContext)
+            launch { recomposer.runRecomposeAndApplyChanges() }
 
-        activity.setContent(recomposer) {
-            CountGroupsAndSlots(receiver.composeCb)
-        }
+            activity.setContent(recomposer) { CountGroupsAndSlots(receiver.composeCb) }
 
-        var iterations = 0
-        benchmarkRule.measureRepeatedSuspendable {
-            runWithTimingDisabled {
-                receiver.updateModelCb()
-                Snapshot.sendApplyNotifications()
-            }
-            assertTrue(
-                "recomposer does not have invalidations for frame",
-                recomposer.hasPendingWork
-            )
-            testScheduler.advanceUntilIdle()
-            assertFalse(
-                "recomposer has invalidations for frame",
-                recomposer.hasPendingWork
-            )
-            runWithTimingDisabled {
-                receiver.resetCb()
-                Snapshot.sendApplyNotifications()
+            var iterations = 0
+            benchmarkRule.measureRepeatedSuspendable {
+                runWithTimingDisabled {
+                    receiver.updateModelCb()
+                    Snapshot.sendApplyNotifications()
+                }
+                assertTrue(
+                    "recomposer does not have invalidations for frame",
+                    recomposer.hasPendingWork
+                )
                 testScheduler.advanceUntilIdle()
+                assertFalse("recomposer has invalidations for frame", recomposer.hasPendingWork)
+                runWithTimingDisabled {
+                    receiver.resetCb()
+                    Snapshot.sendApplyNotifications()
+                    testScheduler.advanceUntilIdle()
+                }
+                iterations++
             }
-            iterations++
-        }
 
-        activity.setContentView(emptyView)
-        recomposer.cancel()
-    }
+            activity.setContentView(emptyView)
+            recomposer.cancel()
+        }
 }
 
 @ExperimentalCoroutinesApi
@@ -233,11 +223,10 @@ abstract class ComposeBenchmarkBase {
 fun runBlockingTestWithFrameClock(
     context: CoroutineContext = EmptyCoroutineContext,
     testBody: suspend TestScope.() -> Unit
-): Unit = runTest(UnconfinedTestDispatcher() + context) {
-    withContext(TestMonotonicFrameClock(this)) {
-        testBody()
+): Unit =
+    runTest(UnconfinedTestDispatcher() + context) {
+        withContext(TestMonotonicFrameClock(this)) { testBody() }
     }
-}
 
 inline fun BenchmarkRule.measureRepeatedSuspendable(block: BenchmarkRule.Scope.() -> Unit) {
     // Note: this is an extension function to discourage calling from Java.
@@ -256,16 +245,14 @@ fun ControlledComposition.performRecompose(
     writeObserver: (Any) -> Unit
 ): Boolean {
     val snapshot = Snapshot.takeMutableSnapshot(readObserver, writeObserver)
-    val result = snapshot.enter {
-        recompose().also { applyChanges() }
-    }
+    val result = snapshot.enter { recompose().also { applyChanges() } }
     snapshot.apply().check()
     return result
 }
 
 class RecomposeReceiver {
-    var composeCb: @Composable () -> Unit = @Composable { }
-    var updateModelCb: () -> Unit = { }
+    var composeCb: @Composable () -> Unit = @Composable {}
+    var updateModelCb: () -> Unit = {}
     var resetCb: () -> Unit = {}
 
     fun compose(block: @Composable () -> Unit) {

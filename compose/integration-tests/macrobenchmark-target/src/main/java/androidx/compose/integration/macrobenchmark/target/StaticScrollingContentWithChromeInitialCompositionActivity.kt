@@ -65,8 +65,10 @@ import androidx.compose.ui.util.trace
 class StaticScrollingContentWithChromeInitialCompositionActivity : ComponentActivity() {
 
     private val onlyPerformComposition: Boolean
-        get() = intent.action == "androidx.compose.integration.macrobenchmark.target" +
-            ".STATIC_SCROLLING_CONTENT_WITH_CHROME_INITIAL_COMPOSITION_ACTIVITY"
+        get() =
+            intent.action ==
+                "androidx.compose.integration.macrobenchmark.target" +
+                    ".STATIC_SCROLLING_CONTENT_WITH_CHROME_INITIAL_COMPOSITION_ACTIVITY"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,17 +76,17 @@ class StaticScrollingContentWithChromeInitialCompositionActivity : ComponentActi
             if (onlyPerformComposition) {
                 ComposeOnlyLayout {
                     StaticScrollingContentWithChrome(
-                        modifier = Modifier
-                            .onPlaced { _ ->
-                                throw RuntimeException(
-                                    "Content was placed, but should only be composed"
-                                )
-                            }
-                            .drawWithContent {
-                                throw RuntimeException(
-                                    "Content was drawn, but should only be composed"
-                                )
-                            }
+                        modifier =
+                            Modifier.onPlaced { _ ->
+                                    throw RuntimeException(
+                                        "Content was placed, but should only be composed"
+                                    )
+                                }
+                                .drawWithContent {
+                                    throw RuntimeException(
+                                        "Content was drawn, but should only be composed"
+                                    )
+                                }
                     )
                 }
             } else {
@@ -95,31 +97,28 @@ class StaticScrollingContentWithChromeInitialCompositionActivity : ComponentActi
 }
 
 /**
- * A layout that will compose all of the [content], but will not place
- * (and therefore not layout or draw) any of its children.
+ * A layout that will compose all of the [content], but will not place (and therefore not layout or
+ * draw) any of its children.
  *
- * This is useful for this benchmark as we care about the composition time. A major limitation
- * of this approach is that any content in a SubcomposeLayout will not be composed
- * and will not contribute to the overall measured time of this test.
+ * This is useful for this benchmark as we care about the composition time. A major limitation of
+ * this approach is that any content in a SubcomposeLayout will not be composed and will not
+ * contribute to the overall measured time of this test.
  */
 @Composable
-private fun ComposeOnlyLayout(
-    content: @Composable () -> Unit
-) {
+private fun ComposeOnlyLayout(content: @Composable () -> Unit) {
     Layout(content) { _, _ -> layout(0, 0) {} }
 }
 
 @Preview
 @Composable
-private fun StaticScrollingContentWithChrome(
-    modifier: Modifier = Modifier
-) = trace(sectionName = "StaticScrollingContentWithChrome") {
-    Column(modifier) {
-        TopBar()
-        ScrollingContent(modifier = Modifier.weight(1f))
-        BottomBar()
+private fun StaticScrollingContentWithChrome(modifier: Modifier = Modifier) =
+    trace(sectionName = "StaticScrollingContentWithChrome") {
+        Column(modifier) {
+            TopBar()
+            ScrollingContent(modifier = Modifier.weight(1f))
+            BottomBar()
+        }
     }
-}
 
 @Composable
 private fun TopBar(modifier: Modifier = Modifier) {
@@ -139,16 +138,8 @@ private fun TopBar(modifier: Modifier = Modifier) {
                 )
             }
         },
-        navigationIcon = {
-            Button(onClick = {}) {
-                Icon(Icons.Default.Close, "Dismiss")
-            }
-        },
-        actions = {
-            Button(onClick = {}) {
-                Icon(Icons.Default.MoreVert, "Actions")
-            }
-        }
+        navigationIcon = { Button(onClick = {}) { Icon(Icons.Default.Close, "Dismiss") } },
+        actions = { Button(onClick = {}) { Icon(Icons.Default.MoreVert, "Actions") } }
     )
 }
 
@@ -170,20 +161,15 @@ private fun BottomBar(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ScrollingContent(modifier: Modifier = Modifier) {
-    Column(
-        modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(vertical = 16.dp)
-    ) {
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(vertical = 16.dp)) {
         Item(
             color = Color.DarkGray,
             icon = Icons.Filled.Info,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .aspectRatio(16f / 9f)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
+            modifier =
+                Modifier.padding(horizontal = 16.dp)
+                    .aspectRatio(16f / 9f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
         )
 
         repeat(5) { iteration ->
@@ -222,28 +208,20 @@ private fun CardGroup(
     modifier: Modifier = Modifier,
     count: Int = 10
 ) {
-    Column(
-        modifier = modifier
-    ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(16.dp)
-        )
+    Column(modifier = modifier) {
+        Text(title, style = MaterialTheme.typography.h6, modifier = Modifier.padding(16.dp))
 
         Row(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 12.dp)
+            modifier = Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp)
         ) {
             repeat(count) {
                 Item(
                     color = groupColor,
                     icon = groupIcon,
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(4.dp))
+                    modifier =
+                        Modifier.padding(horizontal = 4.dp)
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(4.dp))
                 )
             }
         }
@@ -251,15 +229,8 @@ private fun CardGroup(
 }
 
 @Composable
-private fun Item(
-    color: Color,
-    icon: ImageVector,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier.background(color),
-        contentAlignment = Alignment.Center
-    ) {
+private fun Item(color: Color, icon: ImageVector, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.background(color), contentAlignment = Alignment.Center) {
         Icon(icon, null, tint = Color.White)
     }
 }

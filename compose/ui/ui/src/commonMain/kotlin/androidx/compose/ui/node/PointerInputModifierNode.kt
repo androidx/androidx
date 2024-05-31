@@ -25,8 +25,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.IntSize
 
 /**
- * A [androidx.compose.ui.Modifier.Node] that receives [PointerInputChange]s,
- * interprets them, and consumes the aspects of the changes that it is react to such that other
+ * A [androidx.compose.ui.Modifier.Node] that receives [PointerInputChange]s, interprets them, and
+ * consumes the aspects of the changes that it is react to such that other
  * [PointerInputModifierNode]s don't also react to them.
  *
  * This is the [androidx.compose.ui.Modifier.Node] equivalent of
@@ -42,44 +42,39 @@ interface PointerInputModifierNode : DelegatableNode {
      * [PointerInputChange.consume].
      *
      * @param pointerEvent The list of [PointerInputChange]s with positions relative to this
-     * [PointerInputModifierNode].
+     *   [PointerInputModifierNode].
      * @param pass The [PointerEventPass] in which this function is being called.
      * @param bounds The width and height associated with this [PointerInputModifierNode].
-     *
      * @see PointerInputChange
      * @see PointerEventPass
      */
-    fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize
-    )
+    fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize)
 
     /**
      * Invoked to notify the handler that no more calls to [PointerInputModifierNode] will be made,
-     * until at least new pointers exist.  This can occur for a few reasons:
+     * until at least new pointers exist. This can occur for a few reasons:
      * 1. Android dispatches ACTION_CANCEL to Compose.
      * 2. This [PointerInputModifierNode] is no longer associated with a LayoutNode.
      * 3. This [PointerInputModifierNode]'s associated LayoutNode is no longer in the composition
-     * tree.
+     *    tree.
      */
     fun onCancelPointerInput()
 
     /**
      * Intercept pointer input that children receive even if the pointer is out of bounds.
      *
-     * If `true`, and a child has been moved out of this layout and receives an event, this
-     * will receive that event. If `false`, a child receiving pointer input outside of the
-     * bounds of this layout will not trigger any events in this.
+     * If `true`, and a child has been moved out of this layout and receives an event, this will
+     * receive that event. If `false`, a child receiving pointer input outside of the bounds of this
+     * layout will not trigger any events in this.
      */
     fun interceptOutOfBoundsChildEvents(): Boolean = false
 
     /**
      * If `false`, then this [PointerInputModifierNode] will not allow siblings under it to respond
-     * to events. If `true`, this will have the first chance to respond and the next sibling
-     * under will then get a chance to respond as well. This trigger acts at the Layout
-     * level, so if any [PointerInputModifierNode]s on a Layout has
-     * [sharePointerInputWithSiblings] set to `true` then the Layout will share with siblings.
+     * to events. If `true`, this will have the first chance to respond and the next sibling under
+     * will then get a chance to respond as well. This trigger acts at the Layout level, so if any
+     * [PointerInputModifierNode]s on a Layout has [sharePointerInputWithSiblings] set to `true`
+     * then the Layout will share with siblings.
      */
     fun sharePointerInputWithSiblings(): Boolean = false
 
@@ -87,14 +82,14 @@ interface PointerInputModifierNode : DelegatableNode {
      * Invoked when the density (pixels per inch for the screen) changes. This can impact the
      * location of pointer input events (x and y) and can affect things like touch slop detection.
      *
-     * Developers will need to restart the gesture detection handling pointer input in order for
-     * the event locations to remain accurate.
+     * Developers will need to restart the gesture detection handling pointer input in order for the
+     * event locations to remain accurate.
      *
      * The default implementation will do that by calling [onCancelPointerInput].
      *
      * [SuspendingPointerInputModifierNode] offers a more specific interface to allow only
-     * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl]
-     * for a concrete example.
+     * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl] for a
+     * concrete example.
      */
     fun onDensityChange() {
         onCancelPointerInput()
@@ -102,17 +97,17 @@ interface PointerInputModifierNode : DelegatableNode {
 
     /**
      * Invoked when the view configuration (touch slop size, minimum touch target, tap timing)
-     * changes which means the composable UI the pointer input block is tied to has
-     * changed and the new UI might impact the location of pointer input events (x and y).
+     * changes which means the composable UI the pointer input block is tied to has changed and the
+     * new UI might impact the location of pointer input events (x and y).
      *
-     * Developers will need to restart the gesture detection that handles pointer input in order
-     * for the events locations to remain accurate.
+     * Developers will need to restart the gesture detection that handles pointer input in order for
+     * the events locations to remain accurate.
      *
      * The default implementation will do that by calling [onCancelPointerInput].
      *
      * [SuspendingPointerInputModifierNode] offers a more specific interface to allow only
-     * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl]
-     * for a concrete example.
+     * cancelling the coroutine for more control. See [SuspendingPointerInputModifierNodeImpl] for a
+     * concrete example.
      */
     fun onViewConfigurationChange() {
         onCancelPointerInput()

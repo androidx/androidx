@@ -26,62 +26,46 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 
 /**
- * A Rule that allows simulation of parameterized tests that change a Composable input. Make sure
- * to set the content using [setContent] and react to parameter changes proposed by the content
- * block  parameter. Later, use [forEachParameter] to execute a list of changes in the
- * parameters of the used composable.
+ * A Rule that allows simulation of parameterized tests that change a Composable input. Make sure to
+ * set the content using [setContent] and react to parameter changes proposed by the content block
+ * parameter. Later, use [forEachParameter] to execute a list of changes in the parameters of the
+ * used composable.
  */
 interface ParameterizedComposeTestRule<T> : ComposeTestRule {
     /**
      * Sets the content to be tested, make sure to use config to set the inputs of the tested
      * Composable.
      */
-    fun setContent(
-        content: @Composable (parameter: T) -> Unit
-    )
+    fun setContent(content: @Composable (parameter: T) -> Unit)
 
     /**
-     * Runs [block] for each config in [parameters] making sure that composition is
-     * reset between the runs effectively simulating a parameterized test run.
+     * Runs [block] for each config in [parameters] making sure that composition is reset between
+     * the runs effectively simulating a parameterized test run.
      */
-    fun forEachParameter(
-        parameters: List<T>,
-        block: (T) -> Unit
-    )
+    fun forEachParameter(parameters: List<T>, block: (T) -> Unit)
 }
 
 /**
- * A helper class to run parameterized tests with composition. This is useful for tests that
- * change Composables parameters in parameterized fashion.
+ * A helper class to run parameterized tests with composition. This is useful for tests that change
+ * Composables parameters in parameterized fashion.
  */
 private class ParameterizedComposeTestRuleImpl<T>(private val rule: ComposeContentTestRule) :
     ParameterizedComposeTestRule<T>, ComposeTestRule by rule {
-    private var content: @Composable (config: T) -> Unit = { }
+    private var content: @Composable (config: T) -> Unit = {}
     private var contentInitialized = false
 
-    override fun setContent(
-        content: @Composable (config: T) -> Unit
-    ) {
-        check(!contentInitialized) {
-            "SetContent should be called only once per test case."
-        }
+    override fun setContent(content: @Composable (config: T) -> Unit) {
+        check(!contentInitialized) { "SetContent should be called only once per test case." }
         this.content = content
         contentInitialized = true
     }
 
-    override fun forEachParameter(
-        parameters: List<T>,
-        block: T.() -> Unit
-    ) {
+    override fun forEachParameter(parameters: List<T>, block: T.() -> Unit) {
         check(parameters.isNotEmpty()) { "Config List Cannot Be Empty" }
         var configState by mutableStateOf(parameters.first())
 
         // setting content on the first config
-        rule.setContent {
-            key(configState) {
-                content(configState)
-            }
-        }
+        rule.setContent { key(configState) { content(configState) } }
         runBlockCheck(block, configState)
         rule.mainClock.advanceTimeByFrame() // push time forward
 
@@ -103,9 +87,7 @@ private class ParameterizedComposeTestRuleImpl<T>(private val rule: ComposeConte
     }
 }
 
-/**
- * Creates a [ParameterizedComposeTestRule] to simulate input parameterization in tests.
- */
+/** Creates a [ParameterizedComposeTestRule] to simulate input parameterization in tests. */
 fun <T> createParameterizedComposeTestRule(): ParameterizedComposeTestRule<T> {
     val contentRule = createComposeRule()
     return ParameterizedComposeTestRuleImpl(contentRule)

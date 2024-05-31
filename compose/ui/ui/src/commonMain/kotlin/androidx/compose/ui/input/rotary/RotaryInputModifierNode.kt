@@ -38,9 +38,9 @@ interface RotaryInputModifierNode : DelegatableNode {
     /**
      * This function is called when a [RotaryScrollEvent] is received by this node during the
      * downward pass. It gives ancestors of a focused component the chance to intercept an event.
-     * Return true to stop propagation of this event. If you return false, the event will be sent
-     * to this [RotaryInputModifierNode]'s child. If none of the children consume the event,
-     * it will be sent back up to the root using the [onRotaryScrollEvent] function.
+     * Return true to stop propagation of this event. If you return false, the event will be sent to
+     * this [RotaryInputModifierNode]'s child. If none of the children consume the event, it will be
+     * sent back up to the root using the [onRotaryScrollEvent] function.
      */
     fun onPreRotaryScrollEvent(event: RotaryScrollEvent): Boolean
 }

@@ -24,6 +24,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 
 internal typealias PlaceholderRange = AnnotatedString.Range<Placeholder>
+
 internal typealias InlineContentRange = AnnotatedString.Range<@Composable (String) -> Unit>
 
 /**
@@ -53,11 +54,7 @@ internal fun AnnotatedString.resolveInlineContent(
                 )
             )
             inlineComposables.add(
-                AnnotatedString.Range(
-                    inlineTextContent.children,
-                    annotation.start,
-                    annotation.end
-                )
+                AnnotatedString.Range(inlineTextContent.children, annotation.start, annotation.end)
             )
         }
     }
@@ -68,14 +65,9 @@ internal fun AnnotatedString.hasInlineContent(): Boolean =
     hasStringAnnotations(INLINE_CONTENT_TAG, 0, text.length)
 
 @Composable
-internal fun InlineChildren(
-    text: AnnotatedString,
-    inlineContents: List<InlineContentRange>
-) {
+internal fun InlineChildren(text: AnnotatedString, inlineContents: List<InlineContentRange>) {
     inlineContents.fastForEach { (content, start, end) ->
-        Layout(
-            content = { content(text.subSequence(start, end).text) }
-        ) { children, constrains ->
+        Layout(content = { content(text.subSequence(start, end).text) }) { children, constrains ->
             val placeables = children.fastMap { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
                 placeables.fastForEach { it.placeRelative(0, 0) }

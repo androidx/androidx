@@ -52,13 +52,14 @@ internal abstract class TextField1SelectionGesturesTest(
     override lateinit var asserter: TextFieldSelectionAsserter<TextFieldValue>
 
     override fun setupAsserter() {
-        asserter = TextField1SelectionAsserter(
-            textContent = textFieldValue.text,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { textFieldValue }
-        )
+        asserter =
+            TextField1SelectionAsserter(
+                textContent = textFieldValue.text,
+                rule = rule,
+                textToolbar = textToolbar,
+                hapticFeedback = hapticFeedback,
+                getActual = { textFieldValue }
+            )
     }
 
     @Composable
@@ -71,9 +72,7 @@ internal abstract class TextField1SelectionGesturesTest(
                     readOnly = readOnly,
                     enabled = enabled,
                     textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(pointerAreaTag),
+                    modifier = Modifier.fillMaxWidth().testTag(pointerAreaTag),
                 )
             }
         }

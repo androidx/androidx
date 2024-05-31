@@ -21,18 +21,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 
 /**
- * Scale the contents of the composable by the following scale factors along the horizontal
- * and vertical axis respectively. Negative scale factors can be used to mirror content
- * across the corresponding horizontal or vertical axis.
+ * Scale the contents of the composable by the following scale factors along the horizontal and
+ * vertical axis respectively. Negative scale factors can be used to mirror content across the
+ * corresponding horizontal or vertical axis.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.ScaleNonUniformSample
  *
  * Usage of this API renders this composable into a separate graphics layer
- * @see graphicsLayer
  *
  * @param scaleX Multiplier to scale content along the horizontal axis
  * @param scaleY Multiplier to scale content along the vertical axis
+ * @see graphicsLayer
  */
 @Stable
 fun Modifier.scale(scaleX: Float, scaleY: Float) =
@@ -46,12 +47,12 @@ fun Modifier.scale(scaleX: Float, scaleY: Float) =
  * Scale the contents of both the horizontal and vertical axis uniformly by the same scale factor.
  *
  * Usage of this API renders this composable into a separate graphics layer
+ *
+ * @param scale Multiplier to scale content along the horizontal and vertical axis
  * @see graphicsLayer
  *
  * Example usage:
- * @sample androidx.compose.ui.samples.ScaleUniformSample
  *
- * @param scale Multiplier to scale content along the horizontal and vertical axis
+ * @sample androidx.compose.ui.samples.ScaleUniformSample
  */
-@Stable
-fun Modifier.scale(scale: Float) = scale(scale, scale)
+@Stable fun Modifier.scale(scale: Float) = scale(scale, scale)

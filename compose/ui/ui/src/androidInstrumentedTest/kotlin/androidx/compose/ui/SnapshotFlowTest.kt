@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SnapshotFlowTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @OptIn(InternalCoroutinesApi::class)
     @Test
@@ -44,19 +43,13 @@ class SnapshotFlowTest {
         var lastComposedValue: Int? = null
 
         rule.setContent {
-            LaunchedEffect(Unit) {
-                state.value = 1
-            }
+            LaunchedEffect(Unit) { state.value = 1 }
 
             lastComposedValue = state.value
 
-            LaunchedEffect(state) {
-                snapshotFlow { state.value }.collect { }
-            }
+            LaunchedEffect(state) { snapshotFlow { state.value }.collect {} }
         }
 
-        rule.runOnIdle {
-            assertEquals(1, lastComposedValue)
-        }
+        rule.runOnIdle { assertEquals(1, lastComposedValue) }
     }
 }

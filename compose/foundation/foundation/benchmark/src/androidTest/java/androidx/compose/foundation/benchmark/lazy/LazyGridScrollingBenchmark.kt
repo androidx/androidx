@@ -49,11 +49,8 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyGridScrollingBenchmark(
-    private val testCase: LazyGridScrollingTestCase
-) {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+class LazyGridScrollingBenchmark(private val testCase: LazyGridScrollingTestCase) {
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun scrollProgrammatically_noNewItems() {
@@ -132,16 +129,13 @@ class LazyGridScrollingBenchmark(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<LazyGridScrollingTestCase> =
-            arrayOf(
-                Vertical,
-                Horizontal
-            )
+        fun initParameters(): Array<LazyGridScrollingTestCase> = arrayOf(Vertical, Horizontal)
 
         // Copied from AndroidComposeTestCaseRunner
         private val supportsRenderNode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-        private val supportsMRenderNode = Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+        private val supportsMRenderNode =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
     }
 }
 
@@ -155,47 +149,31 @@ class LazyGridScrollingTestCase(
     }
 }
 
-private val Vertical = LazyGridScrollingTestCase(
-    "Vertical",
-    isVertical = true
-) { state ->
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        state = state,
-        modifier = Modifier
-            .requiredHeight(400.dp)
-            .fillMaxWidth(),
-        flingBehavior = NoFlingBehavior
-    ) {
-        items(2) {
-            FirstLargeItem()
-        }
-        items(items) {
-            RegularItem()
+private val Vertical =
+    LazyGridScrollingTestCase("Vertical", isVertical = true) { state ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            state = state,
+            modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+            flingBehavior = NoFlingBehavior
+        ) {
+            items(2) { FirstLargeItem() }
+            items(items) { RegularItem() }
         }
     }
-}
 
-private val Horizontal = LazyGridScrollingTestCase(
-    "Horizontal",
-    isVertical = false
-) { state ->
-    LazyHorizontalGrid(
-        rows = GridCells.Fixed(2),
-        state = state,
-        modifier = Modifier
-            .requiredWidth(400.dp)
-            .fillMaxHeight(),
-        flingBehavior = NoFlingBehavior
-    ) {
-        items(2) {
-            FirstLargeItem()
-        }
-        items(items) {
-            RegularItem()
+private val Horizontal =
+    LazyGridScrollingTestCase("Horizontal", isVertical = false) { state ->
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(2),
+            state = state,
+            modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
+            flingBehavior = NoFlingBehavior
+        ) {
+            items(2) { FirstLargeItem() }
+            items(items) { RegularItem() }
         }
     }
-}
 
 class GridRemeasureTestCase(
     val addNewItemOnToggle: Boolean,
@@ -215,11 +193,12 @@ class GridRemeasureTestCase(
 
     @Composable
     override fun Content() {
-        val scrollBy = if (addNewItemOnToggle) {
-            with(LocalDensity.current) { 15.dp.roundToPx() }
-        } else {
-            5
-        }
+        val scrollBy =
+            if (addNewItemOnToggle) {
+                with(LocalDensity.current) { 15.dp.roundToPx() }
+            } else {
+                5
+            }
         InitializeScrollHelper(scrollAmount = scrollBy)
         state = rememberLazyGridState()
         content(state)
@@ -227,11 +206,7 @@ class GridRemeasureTestCase(
 
     @Composable
     fun RegularItem() {
-        Box(
-            Modifier
-                .requiredSize(20.dp)
-                .background(Color.Red, RoundedCornerShape(8.dp))
-        )
+        Box(Modifier.requiredSize(20.dp).background(Color.Red, RoundedCornerShape(8.dp)))
     }
 
     override fun beforeToggleCheck() {
@@ -245,15 +220,11 @@ class GridRemeasureTestCase(
     }
 
     override suspend fun programmaticScroll(amount: Int) {
-        runBlocking {
-            state.scrollBy(amount.toFloat())
-        }
+        runBlocking { state.scrollBy(amount.toFloat()) }
     }
 
     override fun setUp() {
-        runBlocking {
-            state.scrollToItem(0, 0)
-        }
+        runBlocking { state.scrollToItem(0, 0) }
     }
 
     override fun tearDown() {

@@ -23,9 +23,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 
-/**
- * Version of [CheckboxesInRowsTestCase] using Android views.
- */
+/** Version of [CheckboxesInRowsTestCase] using Android views. */
 class AndroidRectsInLinearLayoutTestCase(private val numberOfRectangles: Int) : AndroidTestCase {
 
     private val rectangles = mutableListOf<View>()
@@ -34,17 +32,19 @@ class AndroidRectsInLinearLayoutTestCase(private val numberOfRectangles: Int) : 
     override fun getContent(activity: Activity): ViewGroup {
         val column = LinearLayout(activity)
         column.orientation = LinearLayout.VERTICAL
-        column.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        column.layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         repeat(numberOfRectangles) {
             val rectangle = View(activity)
             rectangle.setBackgroundColor(Color.BLUE)
-            rectangle.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            rectangle.layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
 
             column.addView(rectangle)
             rectangles += rectangle

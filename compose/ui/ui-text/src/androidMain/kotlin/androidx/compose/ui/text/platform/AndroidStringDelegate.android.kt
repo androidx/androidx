@@ -19,9 +19,7 @@ package androidx.compose.ui.text.platform
 import androidx.compose.ui.text.PlatformStringDelegate
 import androidx.compose.ui.text.intl.PlatformLocale
 
-/**
- * An Android implementation of StringDelegate
- */
+/** An Android implementation of StringDelegate */
 internal class AndroidStringDelegate : PlatformStringDelegate {
     override fun toUpperCase(string: String, locale: PlatformLocale): String =
         string.uppercase(locale)
@@ -30,15 +28,10 @@ internal class AndroidStringDelegate : PlatformStringDelegate {
         string.lowercase(locale)
 
     override fun capitalize(string: String, locale: PlatformLocale): String =
-        string.replaceFirstChar {
-            if (it.isLowerCase())
-                it.titlecase(locale)
-            else it.toString()
-        }
+        string.replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 
     override fun decapitalize(string: String, locale: PlatformLocale): String =
         string.replaceFirstChar { it.lowercase(locale) }
 }
 
-internal actual fun ActualStringDelegate(): PlatformStringDelegate =
-    AndroidStringDelegate()
+internal actual fun ActualStringDelegate(): PlatformStringDelegate = AndroidStringDelegate()

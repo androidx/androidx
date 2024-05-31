@@ -26,8 +26,8 @@ import androidx.compose.runtime.ReadOnlyComposable
  * It is also recommended to provide user accessible overrides in your application, so users can
  * choose to force an always-light or always-dark theme. To do this, you should provide the current
  * theme value in a CompositionLocal or similar to components further down your hierarchy, only
- * calling this effect once at the top level if no user override has been set. This also helps
- * avoid multiple calls to this effect, which can be expensive as it queries system configuration.
+ * calling this effect once at the top level if no user override has been set. This also helps avoid
+ * multiple calls to this effect, which can be expensive as it queries system configuration.
  *
  * For example, to draw a white rectangle when in dark theme, and a black rectangle when in light
  * theme:
@@ -36,10 +36,6 @@ import androidx.compose.runtime.ReadOnlyComposable
  *
  * @return `true` if the system is considered to be in 'dark theme'.
  */
-@Composable
-@ReadOnlyComposable
-fun isSystemInDarkTheme() = _isSystemInDarkTheme()
+@Composable @ReadOnlyComposable fun isSystemInDarkTheme() = _isSystemInDarkTheme()
 
-@Composable
-@ReadOnlyComposable
-internal expect fun _isSystemInDarkTheme(): Boolean
+@Composable @ReadOnlyComposable internal expect fun _isSystemInDarkTheme(): Boolean

@@ -57,12 +57,8 @@ class FontFamilyResolverFileTest {
         fontStyle: FontStyle = FontStyle.Normal,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
-        return fontFamilyResolver.resolve(
-            fontFamily,
-            fontWeight,
-            fontStyle,
-            fontSynthesis
-        ).value as Typeface
+        return fontFamilyResolver.resolve(fontFamily, fontWeight, fontStyle, fontSynthesis).value
+            as Typeface
     }
 
     private fun deleteFile() {

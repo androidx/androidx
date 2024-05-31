@@ -29,24 +29,23 @@ fun SubcomposeLayoutSample(
 ) {
     // enum class SlotsEnum { Main, Dependent }
     SubcomposeLayout { constraints ->
-        val mainPlaceables = subcompose(SlotsEnum.Main, mainContent).map {
-            it.measure(constraints)
-        }
-        val maxSize = mainPlaceables.fold(IntSize.Zero) { currentMax, placeable ->
-            IntSize(
-                width = maxOf(currentMax.width, placeable.width),
-                height = maxOf(currentMax.height, placeable.height)
-            )
-        }
+        val mainPlaceables = subcompose(SlotsEnum.Main, mainContent).map { it.measure(constraints) }
+        val maxSize =
+            mainPlaceables.fold(IntSize.Zero) { currentMax, placeable ->
+                IntSize(
+                    width = maxOf(currentMax.width, placeable.width),
+                    height = maxOf(currentMax.height, placeable.height)
+                )
+            }
         layout(maxSize.width, maxSize.height) {
             mainPlaceables.forEach { it.placeRelative(0, 0) }
-            subcompose(SlotsEnum.Dependent) {
-                dependentContent(maxSize)
-            }.forEach {
-                it.measure(constraints).placeRelative(0, 0)
-            }
+            subcompose(SlotsEnum.Dependent) { dependentContent(maxSize) }
+                .forEach { it.measure(constraints).placeRelative(0, 0) }
         }
     }
 }
 
-enum class SlotsEnum { Main, Dependent }
+enum class SlotsEnum {
+    Main,
+    Dependent
+}

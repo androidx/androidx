@@ -59,14 +59,12 @@ actual fun DropdownMenu(
     if (expandedState.currentState || expandedState.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
-        val popupPositionProvider = remember(offset, density) {
-            DropdownMenuPositionProvider(
-                offset,
-                density
-            ) { parentBounds, menuBounds ->
-                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+        val popupPositionProvider =
+            remember(offset, density) {
+                DropdownMenuPositionProvider(offset, density) { parentBounds, menuBounds ->
+                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+                }
             }
-        }
 
         Popup(
             onDismissRequest = onDismissRequest,
@@ -91,24 +89,27 @@ actual fun DropdownMenu(
 
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        expression = "DropdownMenu(\n" +
-            "    expanded = expanded,\n" +
-            "    onDismissRequest = onDismissRequest,\n" +
-            "    modifier = modifier,\n" +
-            "    offset = offset,\n" +
-            "    scrollState = scrollState,\n" +
-            "    properties = properties,\n" +
-            "    shape = MenuDefaults.shape,\n" +
-            "    containerColor = MenuDefaults.containerColor,\n" +
-            "    tonalElevation = MenuDefaults.TonalElevation,\n" +
-            "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
-            "    border = null,\n" +
-            "    content = content,\n" +
-            ")",
-    ),
-    message = "Maintained for binary compatibility. Use overload with parameters for shape, " +
-        "color, elevation, and border."
+    replaceWith =
+        ReplaceWith(
+            expression =
+                "DropdownMenu(\n" +
+                    "    expanded = expanded,\n" +
+                    "    onDismissRequest = onDismissRequest,\n" +
+                    "    modifier = modifier,\n" +
+                    "    offset = offset,\n" +
+                    "    scrollState = scrollState,\n" +
+                    "    properties = properties,\n" +
+                    "    shape = MenuDefaults.shape,\n" +
+                    "    containerColor = MenuDefaults.containerColor,\n" +
+                    "    tonalElevation = MenuDefaults.TonalElevation,\n" +
+                    "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
+                    "    border = null,\n" +
+                    "    content = content,\n" +
+                    ")",
+        ),
+    message =
+        "Maintained for binary compatibility. Use overload with parameters for shape, " +
+            "color, elevation, and border."
 )
 @Composable
 fun DropdownMenu(
@@ -119,28 +120,31 @@ fun DropdownMenu(
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    scrollState = scrollState,
-    properties = properties,
-    shape = MenuDefaults.shape,
-    containerColor = MenuDefaults.containerColor,
-    tonalElevation = MenuDefaults.TonalElevation,
-    shadowElevation = MenuDefaults.ShadowElevation,
-    border = null,
-    content = content,
-)
+) =
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        scrollState = scrollState,
+        properties = properties,
+        shape = MenuDefaults.shape,
+        containerColor = MenuDefaults.containerColor,
+        tonalElevation = MenuDefaults.TonalElevation,
+        shadowElevation = MenuDefaults.ShadowElevation,
+        border = null,
+        content = content,
+    )
 
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        expression = "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
-            "rememberScrollState(), properties, content)",
-        "androidx.compose.foundation.rememberScrollState"
-    ),
+    replaceWith =
+        ReplaceWith(
+            expression =
+                "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
+                    "rememberScrollState(), properties, content)",
+            "androidx.compose.foundation.rememberScrollState"
+        ),
     message = "Replaced by a DropdownMenu function with a ScrollState parameter"
 )
 @Composable
@@ -151,15 +155,16 @@ fun DropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    scrollState = rememberScrollState(),
-    properties = properties,
-    content = content
-)
+) =
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        scrollState = rememberScrollState(),
+        properties = properties,
+        content = content
+    )
 
 @Composable
 actual fun DropdownMenuItem(
@@ -186,5 +191,4 @@ actual fun DropdownMenuItem(
     )
 }
 
-internal actual val DefaultMenuProperties =
-    PopupProperties(focusable = true)
+internal actual val DefaultMenuProperties = PopupProperties(focusable = true)

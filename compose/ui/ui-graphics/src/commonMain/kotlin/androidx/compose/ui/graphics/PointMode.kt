@@ -18,10 +18,7 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.Immutable
 
-/**
- * Defines how a list of points is interpreted when drawing a set of points.
- *
- */
+/** Defines how a list of points is interpreted when drawing a set of points. */
 // ignore: deprecated_member_use
 /** Used by [Canvas.drawPoints]. */
 // These enum values must be kept in sync with SkCanvas::PointMode.
@@ -32,13 +29,12 @@ value class PointMode internal constructor(@Suppress("unused") private val value
         /**
          * Draw each point separately.
          *
-         * If the [Paint.strokeCap] is [StrokeCap.Round], then each point is drawn
-         * as a circle with the diameter of the [Paint.strokeWidth], filled as
-         * described by the [Paint] (ignoring [Paint.style]).
-         *
-         * Otherwise, each point is drawn as an axis-aligned square with sides of
-         * length [Paint.strokeWidth], filled as described by the [Paint] (ignoring
+         * If the [Paint.strokeCap] is [StrokeCap.Round], then each point is drawn as a circle with
+         * the diameter of the [Paint.strokeWidth], filled as described by the [Paint] (ignoring
          * [Paint.style]).
+         *
+         * Otherwise, each point is drawn as an axis-aligned square with sides of length
+         * [Paint.strokeWidth], filled as described by the [Paint] (ignoring [Paint.style]).
          */
         val Points = PointMode(0)
 
@@ -47,24 +43,23 @@ value class PointMode internal constructor(@Suppress("unused") private val value
          *
          * If the number of points is odd, then the last point is ignored.
          *
-         * The lines are stroked as described by the [Paint] (ignoring
-         * [Paint.style]).
+         * The lines are stroked as described by the [Paint] (ignoring [Paint.style]).
          */
         val Lines = PointMode(1)
 
         /**
          * Draw the entire sequence of point as one line.
          *
-         * The lines are stroked as described by the [Paint] (ignoring
-         * [Paint.style]).
+         * The lines are stroked as described by the [Paint] (ignoring [Paint.style]).
          */
         val Polygon = PointMode(2)
     }
 
-    override fun toString() = when (this) {
-        Points -> "Points"
-        Lines -> "Lines"
-        Polygon -> "Polygon"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            Points -> "Points"
+            Lines -> "Lines"
+            Polygon -> "Polygon"
+            else -> "Unknown"
+        }
 }

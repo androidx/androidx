@@ -27,6 +27,7 @@ import kotlin.jvm.JvmInline
  */
 internal abstract class StateObjectImpl internal constructor() : StateObject {
     private val readerKind = AtomicInt(0)
+
     internal fun recordReadIn(reader: ReaderKind) {
         do {
             val old = ReaderKind(readerKind.get())
@@ -44,12 +45,18 @@ internal abstract class StateObjectImpl internal constructor() : StateObject {
 internal value class ReaderKind(val mask: Int = 0) {
     @Suppress("NOTHING_TO_INLINE")
     inline fun withReadIn(reader: ReaderKind): ReaderKind = ReaderKind(mask or reader.mask)
+
     @Suppress("NOTHING_TO_INLINE")
     inline fun isReadIn(reader: ReaderKind): Boolean = mask and reader.mask != 0
 
     internal companion object {
-        inline val Composition get() = ReaderKind(mask = 1 shl 0)
-        inline val SnapshotStateObserver get() = ReaderKind(mask = 1 shl 1)
-        inline val SnapshotFlow get() = ReaderKind(mask = 1 shl 2)
+        inline val Composition
+            get() = ReaderKind(mask = 1 shl 0)
+
+        inline val SnapshotStateObserver
+            get() = ReaderKind(mask = 1 shl 1)
+
+        inline val SnapshotFlow
+            get() = ReaderKind(mask = 1 shl 2)
     }
 }

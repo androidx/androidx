@@ -67,13 +67,15 @@ internal actual fun createInputDispatcher(
                 when (it.source) {
                     SOURCE_TOUCHSCREEN -> view.dispatchTouchEvent(it)
                     SOURCE_ROTARY_ENCODER -> view.dispatchGenericMotionEvent(it)
-                    SOURCE_MOUSE -> when (it.action) {
-                        in MouseAsTouchEvents -> view.dispatchTouchEvent(it)
-                        else -> view.dispatchGenericMotionEvent(it)
-                    }
-                    else -> throw IllegalArgumentException(
-                        "Can't dispatch MotionEvents with source ${it.source}"
-                    )
+                    SOURCE_MOUSE ->
+                        when (it.action) {
+                            in MouseAsTouchEvents -> view.dispatchTouchEvent(it)
+                            else -> view.dispatchGenericMotionEvent(it)
+                        }
+                    else ->
+                        throw IllegalArgumentException(
+                            "Can't dispatch MotionEvents with source ${it.source}"
+                        )
                 }
             }
         }
@@ -127,9 +129,8 @@ internal class AndroidInputDispatcher(
             actionIndex = 0,
             pointerIds = List(entries.size) { entries[it].key },
             eventTimes = absoluteHistoricalTimes + listOf(currentTime),
-            coordinates = List(entries.size) {
-                historicalCoordinates[it] + listOf(entries[it].value)
-            }
+            coordinates =
+                List(entries.size) { historicalCoordinates[it] + listOf(entries[it].value) }
         )
     }
 
@@ -238,9 +239,7 @@ internal class AndroidInputDispatcher(
         )
     }
 
-    /**
-     * Generates an event with the given parameters.
-     */
+    /** Generates an event with the given parameters. */
     private fun enqueueTouchEvent(
         downTime: Long,
         action: Int,
@@ -275,79 +274,90 @@ internal class AndroidInputDispatcher(
                 root.view.getLocationOnScreen(array)
                 Offset(array[0].toFloat(), array[1].toFloat())
             }
-            val motionEvent = MotionEvent.obtain(
-                /* downTime = */ downTime,
-                /* eventTime = */ eventTimes[0],
-                /* action = */ action + (actionIndex shl ACTION_POINTER_INDEX_SHIFT),
-                /* pointerCount = */ coordinates.size,
-                /* pointerProperties = */ Array(coordinates.size) { pointerIndex ->
-                    PointerProperties().apply {
-                        id = pointerIds[pointerIndex]
-                        toolType = MotionEvent.TOOL_TYPE_FINGER
-                    }
-                },
-                /* pointerCoords = */ Array(coordinates.size) { pointerIndex ->
-                    PointerCoords().apply {
-
-                        val startOffset = coordinates[pointerIndex][0]
-
-                        // Allows for non-valid numbers/Offsets to be passed along to Compose to
-                        // test if it handles them properly (versus breaking here and we not knowing
-                        // if Compose properly handles these values).
-                        x = if (startOffset.isValid()) {
-                            positionInScreen.x + startOffset.x
-                        } else {
-                            Float.NaN
-                        }
-
-                        y = if (startOffset.isValid()) {
-                            positionInScreen.y + startOffset.y
-                        } else {
-                            Float.NaN
-                        }
-                    }
-                },
-                /* metaState = */ 0,
-                /* buttonState = */ 0,
-                /* xPrecision = */ 1f,
-                /* yPrecision = */ 1f,
-                /* deviceId = */ 0,
-                /* edgeFlags = */ 0,
-                /* source = */ SOURCE_TOUCHSCREEN,
-                /* flags = */ 0
-            ).apply {
-                // The current time & coordinates are the last element in the lists, and need to
-                // be passed into the final addBatch call. If there are no historical events,
-                // the list sizes are 1 and we don't need to call addBatch at all.
-                for (timeIndex in 1 until eventTimes.size) {
-                    addBatch(
-                        /* eventTime = */ eventTimes[timeIndex],
-                        /* pointerCoords = */ Array(coordinates.size) { pointerIndex ->
-                            PointerCoords().apply {
-                                val currentOffset = coordinates[pointerIndex][timeIndex]
-
-                                // Allows for non-valid numbers/Offsets to be passed along to
-                                // Compose to test if it handles them properly (versus breaking
-                                // here and we not knowing if Compose properly handles these
-                                // values).
-                                x = if (currentOffset.isValid()) {
-                                    positionInScreen.x + currentOffset.x
-                                } else {
-                                    Float.NaN
-                                }
-
-                                y = if (currentOffset.isValid()) {
-                                    positionInScreen.y + currentOffset.y
-                                } else {
-                                    Float.NaN
-                                }
+            val motionEvent =
+                MotionEvent.obtain(
+                        /* downTime = */ downTime,
+                        /* eventTime = */ eventTimes[0],
+                        /* action = */ action + (actionIndex shl ACTION_POINTER_INDEX_SHIFT),
+                        /* pointerCount = */ coordinates.size,
+                        /* pointerProperties = */ Array(coordinates.size) { pointerIndex ->
+                            PointerProperties().apply {
+                                id = pointerIds[pointerIndex]
+                                toolType = MotionEvent.TOOL_TYPE_FINGER
                             }
                         },
-                        /* metaState = */ 0
+                        /* pointerCoords = */ Array(coordinates.size) { pointerIndex ->
+                            PointerCoords().apply {
+                                val startOffset = coordinates[pointerIndex][0]
+
+                                // Allows for non-valid numbers/Offsets to be passed along to
+                                // Compose to
+                                // test if it handles them properly (versus breaking here and we not
+                                // knowing
+                                // if Compose properly handles these values).
+                                x =
+                                    if (startOffset.isValid()) {
+                                        positionInScreen.x + startOffset.x
+                                    } else {
+                                        Float.NaN
+                                    }
+
+                                y =
+                                    if (startOffset.isValid()) {
+                                        positionInScreen.y + startOffset.y
+                                    } else {
+                                        Float.NaN
+                                    }
+                            }
+                        },
+                        /* metaState = */ 0,
+                        /* buttonState = */ 0,
+                        /* xPrecision = */ 1f,
+                        /* yPrecision = */ 1f,
+                        /* deviceId = */ 0,
+                        /* edgeFlags = */ 0,
+                        /* source = */ SOURCE_TOUCHSCREEN,
+                        /* flags = */ 0
                     )
-                }
-                offsetLocation(-positionInScreen.x, -positionInScreen.y)
-            }
+                    .apply {
+                        // The current time & coordinates are the last element in the lists, and
+                        // need to
+                        // be passed into the final addBatch call. If there are no historical
+                        // events,
+                        // the list sizes are 1 and we don't need to call addBatch at all.
+                        for (timeIndex in 1 until eventTimes.size) {
+                            addBatch(
+                                /* eventTime = */ eventTimes[timeIndex],
+                                /* pointerCoords = */ Array(coordinates.size) { pointerIndex ->
+                                    PointerCoords().apply {
+                                        val currentOffset = coordinates[pointerIndex][timeIndex]
+
+                                        // Allows for non-valid numbers/Offsets to be passed along
+                                        // to
+                                        // Compose to test if it handles them properly (versus
+                                        // breaking
+                                        // here and we not knowing if Compose properly handles these
+                                        // values).
+                                        x =
+                                            if (currentOffset.isValid()) {
+                                                positionInScreen.x + currentOffset.x
+                                            } else {
+                                                Float.NaN
+                                            }
+
+                                        y =
+                                            if (currentOffset.isValid()) {
+                                                positionInScreen.y + currentOffset.y
+                                            } else {
+                                                Float.NaN
+                                            }
+                                    }
+                                },
+                                /* metaState = */ 0
+                            )
+                        }
+                        offsetLocation(-positionInScreen.x, -positionInScreen.y)
+                    }
 
             batchedEvents.add(motionEvent)
         }
@@ -395,36 +405,35 @@ internal class AndroidInputDispatcher(
             }
             batchedEvents.add(
                 MotionEvent.obtain(
-                    /* downTime = */ downTime,
-                    /* eventTime = */ eventTime,
-                    /* action = */ action,
-                    /* pointerCount = */ 1,
-                    /* pointerProperties = */ arrayOf(
-                        PointerProperties().apply {
-                            id = 0
-                            toolType = MotionEvent.TOOL_TYPE_MOUSE
-                        }
-                    ),
-                    /* pointerCoords = */ arrayOf(
-                        PointerCoords().apply {
-                            x = positionInScreen.x + coordinate.x
-                            y = positionInScreen.y + coordinate.y
-                            if (axis != -1) {
-                                setAxisValue(axis, axisDelta)
+                        /* downTime = */ downTime,
+                        /* eventTime = */ eventTime,
+                        /* action = */ action,
+                        /* pointerCount = */ 1,
+                        /* pointerProperties = */ arrayOf(
+                            PointerProperties().apply {
+                                id = 0
+                                toolType = MotionEvent.TOOL_TYPE_MOUSE
                             }
-                        }
-                    ),
-                    /* metaState = */ metaState,
-                    /* buttonState = */ buttonState,
-                    /* xPrecision = */ 1f,
-                    /* yPrecision = */ 1f,
-                    /* deviceId = */ 0,
-                    /* edgeFlags = */ 0,
-                    /* source = */ SOURCE_MOUSE,
-                    /* flags = */ 0
-                ).apply {
-                    offsetLocation(-positionInScreen.x, -positionInScreen.y)
-                }
+                        ),
+                        /* pointerCoords = */ arrayOf(
+                            PointerCoords().apply {
+                                x = positionInScreen.x + coordinate.x
+                                y = positionInScreen.y + coordinate.y
+                                if (axis != -1) {
+                                    setAxisValue(axis, axisDelta)
+                                }
+                            }
+                        ),
+                        /* metaState = */ metaState,
+                        /* buttonState = */ buttonState,
+                        /* xPrecision = */ 1f,
+                        /* yPrecision = */ 1f,
+                        /* deviceId = */ 0,
+                        /* edgeFlags = */ 0,
+                        /* source = */ SOURCE_MOUSE,
+                        /* flags = */ 0
+                    )
+                    .apply { offsetLocation(-positionInScreen.x, -positionInScreen.y) }
             )
         }
     }
@@ -443,10 +452,7 @@ internal class AndroidInputDispatcher(
         )
     }
 
-    private fun enqueueRotaryScrollEvent(
-        eventTime: Long,
-        scrollPixels: Float
-    ) {
+    private fun enqueueRotaryScrollEvent(eventTime: Long, scrollPixels: Float) {
         synchronized(batchLock) {
             ensureNotDisposed {
                 "Can't enqueue rotary scroll event (" +
@@ -466,9 +472,7 @@ internal class AndroidInputDispatcher(
                         }
                     ),
                     /* pointerCoords = */ arrayOf(
-                        PointerCoords().apply {
-                            setAxisValue(AXIS_SCROLL, scrollPixels)
-                        }
+                        PointerCoords().apply { setAxisValue(AXIS_SCROLL, scrollPixels) }
                     ),
                     /* metaState = */ 0,
                     /* buttonState = */ 0,
@@ -484,17 +488,13 @@ internal class AndroidInputDispatcher(
     }
 
     /**
-     * Generates a KeyEvent with the given [action] and [keyCode] and adds the KeyEvent to
-     * the batch.
+     * Generates a KeyEvent with the given [action] and [keyCode] and adds the KeyEvent to the
+     * batch.
      *
      * @see KeyEvent.getAction
      * @see KeyEvent.getKeyCode
      */
-    private fun KeyInputState.enqueueKeyEvent(
-        action: Int,
-        keyCode: Int,
-        metaState: Int
-    ) {
+    private fun KeyInputState.enqueueKeyEvent(action: Int, keyCode: Int, metaState: Int) {
         enqueueKeyEvent(
             downTime = downTime,
             eventTime = currentTime,
@@ -505,9 +505,7 @@ internal class AndroidInputDispatcher(
         )
     }
 
-    /**
-     * Generates a key event with the given parameters.
-     */
+    /** Generates a key event with the given parameters. */
     private fun enqueueKeyEvent(
         downTime: Long,
         eventTime: Long,
@@ -527,18 +525,19 @@ internal class AndroidInputDispatcher(
                     "metaState=$metaState)"
             }
 
-            val keyEvent = KeyEvent(
-                /* downTime = */ downTime,
-                /* eventTime = */ eventTime,
-                /* action = */ action,
-                /* code = */ code,
-                /* repeat = */ repeat,
-                /* metaState = */ metaState,
-                /* deviceId = */ KeyCharacterMap.VIRTUAL_KEYBOARD,
-                /* scancode = */ 0
-            )
+            val keyEvent =
+                KeyEvent(
+                    /* downTime = */ downTime,
+                    /* eventTime = */ eventTime,
+                    /* action = */ action,
+                    /* code = */ code,
+                    /* repeat = */ repeat,
+                    /* metaState = */ metaState,
+                    /* deviceId = */ KeyCharacterMap.VIRTUAL_KEYBOARD,
+                    /* scancode = */ 0
+                )
 
-             batchedEvents.add(keyEvent)
+            batchedEvents.add(keyEvent)
         }
     }
 
@@ -546,13 +545,14 @@ internal class AndroidInputDispatcher(
         // Must inject on the main thread, because it might modify View properties
         @OptIn(InternalTestApi::class)
         testContext.testOwner.runOnUiThread {
-            val events = synchronized(batchLock) {
-                ensureNotDisposed { "Can't flush events" }
-                mutableListOf<InputEvent>().apply {
-                    addAll(batchedEvents)
-                    batchedEvents.clear()
+            val events =
+                synchronized(batchLock) {
+                    ensureNotDisposed { "Can't flush events" }
+                    mutableListOf<InputEvent>().apply {
+                        addAll(batchedEvents)
+                        batchedEvents.clear()
+                    }
                 }
-            }
 
             events.forEach { event ->
                 // Before injecting the next event, pump the clock
@@ -573,25 +573,19 @@ internal class AndroidInputDispatcher(
     }
 
     private fun ensureNotDisposed(lazyMessage: () -> String) {
-        check(!disposed) {
-            "${lazyMessage()}, AndroidInputDispatcher has already been disposed"
-        }
+        check(!disposed) { "${lazyMessage()}, AndroidInputDispatcher has already been disposed" }
     }
 
     override fun onDispose() {
         synchronized(batchLock) {
             if (!disposed) {
                 disposed = true
-                batchedEvents.forEach {
-                    recycleEventIfPossible(it)
-                }
+                batchedEvents.forEach { recycleEventIfPossible(it) }
             }
         }
     }
 
-    /**
-     * Sends and recycles the given [event].
-     */
+    /** Sends and recycles the given [event]. */
     private fun sendAndRecycleEvent(event: InputEvent) {
         try {
             sendEvent(event)

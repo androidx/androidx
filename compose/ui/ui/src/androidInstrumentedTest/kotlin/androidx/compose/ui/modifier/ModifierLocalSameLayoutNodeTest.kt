@@ -38,8 +38,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModifierLocalSameLayoutNodeTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val defaultValue = "Default Value"
 
@@ -63,13 +62,7 @@ class ModifierLocalSameLayoutNodeTest {
         // Arrange.
         val localString = modifierLocalOf { defaultValue }
         lateinit var readValue: String
-        rule.setContent {
-            Box(
-                Modifier.modifierLocalConsumer {
-                    readValue = localString.current
-                }
-            )
-        }
+        rule.setContent { Box(Modifier.modifierLocalConsumer { readValue = localString.current }) }
 
         // Assert.
         rule.runOnIdle { assertThat(readValue).isEqualTo(defaultValue) }
@@ -83,8 +76,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readValue: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalConsumer { readValue = localString.current }
+                Modifier.modifierLocalConsumer { readValue = localString.current }
                     .modifierLocalProvider(localString) { providedValue }
             )
         }
@@ -101,8 +93,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readValue: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedValue }
+                Modifier.modifierLocalProvider(localString) { providedValue }
                     .modifierLocalConsumer { readValue = localString.current }
             )
         }
@@ -119,8 +110,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readValue: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedValue }
+                Modifier.modifierLocalProvider(localString) { providedValue }
                     .size(100.dp)
                     .modifierLocalConsumer { readValue = localString.current }
             )
@@ -139,8 +129,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readValue: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedValue1 }
+                Modifier.modifierLocalProvider(localString) { providedValue1 }
                     .modifierLocalProvider(localString) { providedValue2 }
                     .modifierLocalConsumer { readValue = localString.current }
             )
@@ -161,8 +150,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readValue2: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString1) { providedValue1 }
+                Modifier.modifierLocalProvider(localString1) { providedValue1 }
                     .modifierLocalProvider(localString2) { providedValue2 }
                     .modifierLocalConsumer {
                         readValue1 = localString1.current
@@ -189,8 +177,7 @@ class ModifierLocalSameLayoutNodeTest {
         var readInteger = 0
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedString }
+                Modifier.modifierLocalProvider(localString) { providedString }
                     .modifierLocalProvider(localInteger) { providedInteger }
                     .modifierLocalConsumer {
                         readString = localString.current
@@ -216,8 +203,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .then(
+                Modifier.then(
                         if (useFirstProvider) {
                             Modifier.modifierLocalProvider(localString) { provider1value }
                         } else {
@@ -246,8 +232,7 @@ class ModifierLocalSameLayoutNodeTest {
 
         rule.setContent {
             Box(
-                Modifier
-                    .then(
+                Modifier.then(
                         if (useFirstProvider) {
                             Modifier.modifierLocalProvider(localString) { provider1value }
                         } else {
@@ -263,9 +248,7 @@ class ModifierLocalSameLayoutNodeTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(receivedValues)
-                .containsExactly(provider1value, provider2value)
-                .inOrder()
+            assertThat(receivedValues).containsExactly(provider1value, provider2value).inOrder()
         }
     }
 
@@ -277,8 +260,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var receivedValue: String
         rule.setContent {
             Box(
-                Modifier
-                    .then(
+                Modifier.then(
                         if (hasProvider) {
                             Modifier.modifierLocalProvider(modifierLocal) { "ProvidedValue" }
                         } else Modifier
@@ -303,8 +285,7 @@ class ModifierLocalSameLayoutNodeTest {
         rule.setContent {
             if (includeComposable) {
                 Box(
-                    Modifier
-                        .modifierLocalProvider(modifierLocal) { "ProvidedValue" }
+                    Modifier.modifierLocalProvider(modifierLocal) { "ProvidedValue" }
                         .modifierLocalConsumer { receivedValue = modifierLocal.current }
                 )
             }
@@ -327,8 +308,9 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { if (useFirstValue) value1 else value2 }
+                Modifier.modifierLocalProvider(localString) {
+                        if (useFirstValue) value1 else value2
+                    }
                     .modifierLocalConsumer { readString = localString.current }
             )
         }
@@ -350,8 +332,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedByParent1 }
+                Modifier.modifierLocalProvider(localString) { providedByParent1 }
                     .then(
                         if (secondParentAdded) {
                             Modifier.modifierLocalProvider(localString) { providedByParent2 }
@@ -379,8 +360,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .then(
+                Modifier.then(
                         if (providerRemoved) {
                             Modifier
                         } else {
@@ -408,8 +388,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedByParent1 }
+                Modifier.modifierLocalProvider(localString) { providedByParent1 }
                     .then(
                         if (secondParentRemoved) {
                             Modifier
@@ -438,8 +417,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .then(if (providerMoved) Modifier else providerModifier)
+                Modifier.then(if (providerMoved) Modifier else providerModifier)
                     .modifierLocalConsumer { readString = localString.current }
                     .then(if (providerMoved) providerModifier else Modifier)
             )
@@ -463,8 +441,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .modifierLocalProvider(localString) { providedByParent1 }
+                Modifier.modifierLocalProvider(localString) { providedByParent1 }
                     .then(if (secondParentMoved) Modifier else parent2Modifier)
                     .modifierLocalConsumer { readString = localString.current }
                     .then(if (secondParentMoved) parent2Modifier else Modifier)
@@ -488,8 +465,7 @@ class ModifierLocalSameLayoutNodeTest {
         lateinit var readString: String
         rule.setContent {
             Box(
-                Modifier
-                    .then(if (providerMoved) Modifier else providerModifier)
+                Modifier.then(if (providerMoved) Modifier else providerModifier)
                     .size(100.dp)
                     .then(if (providerMoved) providerModifier else Modifier)
                     .modifierLocalConsumer { readString = localString.current }
@@ -503,9 +479,7 @@ class ModifierLocalSameLayoutNodeTest {
         rule.runOnIdle { assertThat(readString).isEqualTo(providedValue) }
     }
 
-    /**
-     * We don't want the same modifier local invalidated multiple times for the same change.
-     */
+    /** We don't want the same modifier local invalidated multiple times for the same change. */
     @Test
     fun modifierLocalCallsOnce() {
         var calls = 0
@@ -513,21 +487,18 @@ class ModifierLocalSameLayoutNodeTest {
         val provider1 = Modifier.modifierLocalProvider(localString) { "ProvidedValue" }
         val provider2 = Modifier.modifierLocalProvider(localString) { "Another ProvidedValue" }
         var providerChoice by mutableStateOf(provider1)
-        val consumer = Modifier.modifierLocalConsumer {
-            localString.current // read the value
-            calls++
-        }
-        rule.setContent {
-            Box(providerChoice.then(consumer))
-        }
+        val consumer =
+            Modifier.modifierLocalConsumer {
+                localString.current // read the value
+                calls++
+            }
+        rule.setContent { Box(providerChoice.then(consumer)) }
 
         rule.runOnIdle {
             calls = 0
             providerChoice = provider2
         }
 
-        rule.runOnIdle {
-            assertThat(calls).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(calls).isEqualTo(1) }
     }
 }

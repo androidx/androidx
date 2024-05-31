@@ -20,9 +20,7 @@ import android.view.KeyEvent
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 
-/**
- * An interface of listening IME events.
- */
+/** An interface of listening IME events. */
 internal interface InputEventCallback2 {
     /**
      * Called when IME sends some input events.
@@ -38,9 +36,7 @@ internal interface InputEventCallback2 {
      */
     fun onImeAction(imeAction: ImeAction)
 
-    /**
-     * Called when IME triggered a KeyEvent
-     */
+    /** Called when IME triggered a KeyEvent */
     fun onKeyEvent(event: KeyEvent)
 
     /**

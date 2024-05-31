@@ -63,8 +63,7 @@ import org.junit.Test
 
 @Suppress("WrapUnaryOperator")
 class ScrollbarTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun `drag slider to the middle`() {
@@ -156,19 +155,19 @@ class ScrollbarTest {
 
     // TODO(demin): write a test when we support DesktopComposeTestRule.mainClock:
     //  see https://github.com/JetBrains/compose-jb/issues/637
-//    fun `move mouse to the slider and drag it`() {
-//        ...
-//        rule.performMouseMove(0, 25)
-//        rule.mainClock.advanceTimeByFrame()
-//        down(Offset(0f, 25f))
-//        rule.mainClock.advanceTimeByFrame()
-//        moveTo(Offset(0f, 30f))
-//        rule.mainClock.advanceTimeByFrame()
-//        moveTo(Offset(0f, 50f))
-//        rule.mainClock.advanceTimeByFrame()
-//        up()
-//        ...
-//    }
+    //    fun `move mouse to the slider and drag it`() {
+    //        ...
+    //        rule.performMouseMove(0, 25)
+    //        rule.mainClock.advanceTimeByFrame()
+    //        down(Offset(0f, 25f))
+    //        rule.mainClock.advanceTimeByFrame()
+    //        moveTo(Offset(0f, 30f))
+    //        rule.mainClock.advanceTimeByFrame()
+    //        moveTo(Offset(0f, 50f))
+    //        rule.mainClock.advanceTimeByFrame()
+    //        up()
+    //        ...
+    //    }
 
     // TODO(demin): enable after we resolve b/171889442
     @Ignore("Enable after we resolve b/171889442")
@@ -242,9 +241,7 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performTouchInput {
-                down(Offset(0f, 26f))
-            }
+            rule.onNodeWithTag("scrollbar").performTouchInput { down(Offset(0f, 26f)) }
 
             tryUntilSucceeded {
                 rule.awaitIdle()
@@ -261,9 +258,7 @@ class ScrollbarTest {
             }
             rule.awaitIdle()
 
-            rule.onNodeWithTag("scrollbar").performTouchInput {
-                down(Offset(0f, 99f))
-            }
+            rule.onNodeWithTag("scrollbar").performTouchInput { down(Offset(0f, 99f)) }
 
             tryUntilSucceeded {
                 rule.awaitIdle()
@@ -277,14 +272,9 @@ class ScrollbarTest {
         runBlocking(Dispatchers.Main) {
             val isContentVisible = mutableStateOf(false)
             rule.setContent {
-                TestBox(
-                    size = 100.dp,
-                    scrollbarWidth = 10.dp
-                ) {
+                TestBox(size = 100.dp, scrollbarWidth = 10.dp) {
                     if (isContentVisible.value) {
-                        repeat(10) {
-                            Box(Modifier.size(20.dp).testTag("box$it"))
-                        }
+                        repeat(10) { Box(Modifier.size(20.dp).testTag("box$it")) }
                     }
                 }
             }
@@ -426,7 +416,10 @@ class ScrollbarTest {
         runBlocking(Dispatchers.Main) {
             rule.setContent {
                 LazyTestBox(
-                    size = 100.dp, childSize = 20.dp, childCount = 1, scrollbarWidth = 10.dp
+                    size = 100.dp,
+                    childSize = 20.dp,
+                    childCount = 1,
+                    scrollbarWidth = 10.dp
                 )
             }
             rule.awaitIdle()
@@ -451,19 +444,20 @@ class ScrollbarTest {
 
     @OptIn(InternalTestApi::class, ExperimentalComposeUiApi::class)
     private fun ComposeTestRule.performMouseScroll(x: Int, y: Int, delta: Float) {
-        (this as DesktopComposeTestRule).scene.sendPointerEvent(
-            PointerEventType.Scroll,
-            Offset(x.toFloat(), y.toFloat()),
-            scrollDelta = Offset(x = 0f, y = delta)
-        )
+        (this as DesktopComposeTestRule)
+            .scene
+            .sendPointerEvent(
+                PointerEventType.Scroll,
+                Offset(x.toFloat(), y.toFloat()),
+                scrollDelta = Offset(x = 0f, y = delta)
+            )
     }
 
     @OptIn(ExperimentalComposeUiApi::class, InternalTestApi::class)
     private fun ComposeTestRule.performMouseMove(x: Int, y: Int) {
-        (this as DesktopComposeTestRule).scene.sendPointerEvent(
-            PointerEventType.Move,
-            Offset(x.toFloat(), y.toFloat())
-        )
+        (this as DesktopComposeTestRule)
+            .scene
+            .sendPointerEvent(PointerEventType.Move, Offset(x.toFloat(), y.toFloat()))
     }
 
     @Composable
@@ -476,20 +470,13 @@ class ScrollbarTest {
         Box(Modifier.size(size)) {
             val state = rememberScrollState()
 
-            Column(
-                Modifier.fillMaxSize().testTag("column").verticalScroll(state)
-            ) {
-                repeat(childCount) {
-                    Box(Modifier.size(childSize).testTag("box$it"))
-                }
+            Column(Modifier.fillMaxSize().testTag("column").verticalScroll(state)) {
+                repeat(childCount) { Box(Modifier.size(childSize).testTag("box$it")) }
             }
 
             VerticalScrollbar(
                 adapter = rememberScrollbarAdapter(state),
-                modifier = Modifier
-                    .width(scrollbarWidth)
-                    .fillMaxHeight()
-                    .testTag("scrollbar")
+                modifier = Modifier.width(scrollbarWidth).fillMaxHeight().testTag("scrollbar")
             )
         }
     }
@@ -510,10 +497,7 @@ class ScrollbarTest {
 
             VerticalScrollbar(
                 adapter = rememberScrollbarAdapter(state),
-                modifier = Modifier
-                    .width(scrollbarWidth)
-                    .fillMaxHeight()
-                    .testTag("scrollbar")
+                modifier = Modifier.width(scrollbarWidth).fillMaxHeight().testTag("scrollbar")
             )
         }
     }
@@ -543,10 +527,7 @@ class ScrollbarTest {
             VerticalScrollbar(
                 adapter = rememberScrollbarAdapter(state),
                 reverseLayout = reverseLayout,
-                modifier = Modifier
-                    .width(scrollbarWidth)
-                    .fillMaxHeight()
-                    .testTag("scrollbar")
+                modifier = Modifier.width(scrollbarWidth).fillMaxHeight().testTag("scrollbar")
             )
         }
     }
@@ -558,18 +539,20 @@ class ScrollbarTest {
     }
 
     @Composable
-    private fun withTestEnvironment(content: @Composable () -> Unit) = CompositionLocalProvider(
-        LocalScrollbarStyle provides ScrollbarStyle(
-            minimalHeight = 16.dp,
-            thickness = 8.dp,
-            shape = RectangleShape,
-            hoverDurationMillis = 300,
-            unhoverColor = Color.Black,
-            hoverColor = Color.Red
-        ),
-        LocalScrollConfig provides TestConfig,
-        content = content
-    )
+    private fun withTestEnvironment(content: @Composable () -> Unit) =
+        CompositionLocalProvider(
+            LocalScrollbarStyle provides
+                ScrollbarStyle(
+                    minimalHeight = 16.dp,
+                    thickness = 8.dp,
+                    shape = RectangleShape,
+                    hoverDurationMillis = 300,
+                    unhoverColor = Color.Black,
+                    hoverColor = Color.Red
+                ),
+            LocalScrollConfig provides TestConfig,
+            content = content
+        )
 }
 
 internal object TestConfig : ScrollConfig {

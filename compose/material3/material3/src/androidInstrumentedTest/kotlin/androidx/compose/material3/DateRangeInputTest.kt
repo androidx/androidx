@@ -46,8 +46,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class DateRangeInputTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun dateRangeInput() {
@@ -58,45 +57,36 @@ class DateRangeInputTest {
             pickerStartDateHeadline = getString(string = Strings.DateRangePickerStartHeadline)
             pickerEndDateHeadline = getString(string = Strings.DateRangePickerEndHeadline)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
-            state = rememberDateRangePickerState(
-                initialDisplayedMonthMillis = monthInUtcMillis,
-                initialDisplayMode = DisplayMode.Input
-            )
+            state =
+                rememberDateRangePickerState(
+                    initialDisplayedMonthMillis = monthInUtcMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
             DateRangePicker(state = state)
         }
 
         // Expecting 2 nodes with the text "Start date", and 2 with "End date".
-        rule.onAllNodesWithText(pickerStartDateHeadline, useUnmergedTree = true)
+        rule
+            .onAllNodesWithText(pickerStartDateHeadline, useUnmergedTree = true)
             .assertCountEquals(2)
-        rule.onAllNodesWithText(pickerEndDateHeadline, useUnmergedTree = true)
-            .assertCountEquals(2)
+        rule.onAllNodesWithText(pickerEndDateHeadline, useUnmergedTree = true).assertCountEquals(2)
 
         // Enter dates.
         rule.onNodeWithText(pickerStartDateHeadline).performClick().performTextInput("01272019")
         rule.onNodeWithText(pickerEndDateHeadline).performClick().performTextInput("05102020")
 
         rule.runOnIdle {
-            assertThat(state.selectedStartDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 1,
-                    dayOfMonth = 27
-                )
-            )
-            assertThat(state.selectedEndDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2020,
-                    month = 5,
-                    dayOfMonth = 10
-                )
-            )
+            assertThat(state.selectedStartDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 27))
+            assertThat(state.selectedEndDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2020, month = 5, dayOfMonth = 10))
         }
 
         // Now expecting only one node with "Start date", and one with "End date".
-        rule.onAllNodesWithText(pickerStartDateHeadline, useUnmergedTree = true)
+        rule
+            .onAllNodesWithText(pickerStartDateHeadline, useUnmergedTree = true)
             .assertCountEquals(1)
-        rule.onAllNodesWithText(pickerEndDateHeadline, useUnmergedTree = true)
-            .assertCountEquals(1)
+        rule.onAllNodesWithText(pickerEndDateHeadline, useUnmergedTree = true).assertCountEquals(1)
         rule.onNodeWithText("Jan 27, 2019", useUnmergedTree = true).assertExists()
         rule.onNodeWithText("May 10, 2020", useUnmergedTree = true).assertExists()
     }
@@ -109,11 +99,12 @@ class DateRangeInputTest {
                 dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
             val initialEndDateMillis =
                 dayInUtcMilliseconds(year = 2020, month = 10, dayOfMonth = 20)
-            state = rememberDateRangePickerState(
-                initialSelectedStartDateMillis = initialStartDateMillis,
-                initialSelectedEndDateMillis = initialEndDateMillis,
-                initialDisplayMode = DisplayMode.Input
-            )
+            state =
+                rememberDateRangePickerState(
+                    initialSelectedStartDateMillis = initialStartDateMillis,
+                    initialSelectedEndDateMillis = initialEndDateMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
             DateRangePicker(state = state)
         }
 
@@ -133,12 +124,15 @@ class DateRangeInputTest {
             startDateRangeInputLabel = getString(string = Strings.DateRangePickerStartHeadline)
             endDateRangeInputLabel = getString(string = Strings.DateRangePickerEndHeadline)
             errorMessage = getString(string = Strings.DateInputInvalidNotAllowed)
-            state = rememberDateRangePickerState(
-                initialDisplayMode = DisplayMode.Input,
-                selectableDates = object : SelectableDates {
-                    // All dates are invalid for the sake of this test.
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
-                })
+            state =
+                rememberDateRangePickerState(
+                    initialDisplayMode = DisplayMode.Input,
+                    selectableDates =
+                        object : SelectableDates {
+                            // All dates are invalid for the sake of this test.
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                        }
+                )
             DateRangePicker(state = state)
         }
 
@@ -150,22 +144,14 @@ class DateRangeInputTest {
             assertThat(state.selectedStartDateMillis).isNull()
             assertThat(state.selectedEndDateMillis).isNull()
         }
-        rule.onNodeWithText("01/27/2019")
+        rule
+            .onNodeWithText("01/27/2019")
             .assert(keyIsDefined(SemanticsProperties.Error))
-            .assert(
-                expectValue(
-                    SemanticsProperties.Error,
-                    errorMessage.format("Jan 27, 2019")
-                )
-            )
-        rule.onNodeWithText("05/10/2020")
+            .assert(expectValue(SemanticsProperties.Error, errorMessage.format("Jan 27, 2019")))
+        rule
+            .onNodeWithText("05/10/2020")
             .assert(keyIsDefined(SemanticsProperties.Error))
-            .assert(
-                expectValue(
-                    SemanticsProperties.Error,
-                    errorMessage.format("May 10, 2020")
-                )
-            )
+            .assert(expectValue(SemanticsProperties.Error, errorMessage.format("May 10, 2020")))
     }
 
     @Test
@@ -178,11 +164,12 @@ class DateRangeInputTest {
             startDateRangeInputLabel = getString(string = Strings.DateRangePickerStartHeadline)
             endDateRangeInputLabel = getString(string = Strings.DateRangePickerEndHeadline)
             errorMessage = getString(string = Strings.DateRangeInputInvalidRangeInput)
-            state = rememberDateRangePickerState(
-                // Limit the years selection to 2018-2023
-                yearRange = IntRange(2018, 2023),
-                initialDisplayMode = DisplayMode.Input
-            )
+            state =
+                rememberDateRangePickerState(
+                    // Limit the years selection to 2018-2023
+                    yearRange = IntRange(2018, 2023),
+                    initialDisplayMode = DisplayMode.Input
+                )
             DateRangePicker(state = state)
         }
 
@@ -195,7 +182,8 @@ class DateRangeInputTest {
             assertThat(state.selectedStartDateMillis).isNotNull()
             assertThat(state.selectedEndDateMillis).isNull()
         }
-        rule.onNodeWithText("05/10/2019", useUnmergedTree = true)
+        rule
+            .onNodeWithText("05/10/2019", useUnmergedTree = true)
             .assert(keyIsDefined(SemanticsProperties.Error))
             .assert(expectValue(SemanticsProperties.Error, errorMessage))
     }
@@ -238,30 +226,34 @@ class DateRangeInputTest {
             pickerStartDateHeadline = getString(string = Strings.DateRangePickerStartHeadline)
             pickerEndDateHeadline = getString(string = Strings.DateRangePickerEndHeadline)
             DateRangePicker(
-                state = rememberDateRangePickerState(
-                    initialSelectedStartDateMillis = startDateMillis,
-                    initialSelectedEndDateMillis = endDateMillis,
-                    initialDisplayMode = DisplayMode.Input
-                )
+                state =
+                    rememberDateRangePickerState(
+                        initialSelectedStartDateMillis = startDateMillis,
+                        initialSelectedEndDateMillis = endDateMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    )
             )
         }
         val cache = mutableMapOf<String, Any>()
-        val fullStartDateDescription = formatWithSkeleton(
-            startDateMillis,
-            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US,
-            cache
-        )
-        val fullEndDateDescription = formatWithSkeleton(
-            endDateMillis,
-            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US,
-            cache
-        )
+        val fullStartDateDescription =
+            formatWithSkeleton(
+                startDateMillis,
+                DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+                Locale.US,
+                cache
+            )
+        val fullEndDateDescription =
+            formatWithSkeleton(
+                endDateMillis,
+                DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+                Locale.US,
+                cache
+            )
 
         val startHeadlineDescription = "$pickerStartDateHeadline: $fullStartDateDescription"
         val endHeadlineDescription = "$pickerEndDateHeadline: $fullEndDateDescription"
-        rule.onNodeWithContentDescription("$startHeadlineDescription, $endHeadlineDescription")
+        rule
+            .onNodeWithContentDescription("$startHeadlineDescription, $endHeadlineDescription")
             .assertExists()
     }
 

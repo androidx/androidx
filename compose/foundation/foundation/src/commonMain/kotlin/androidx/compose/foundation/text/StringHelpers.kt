@@ -21,9 +21,7 @@ import androidx.compose.ui.text.TextRange
 /** StringBuilder.appendCodePoint is already defined on JVM so it's called appendCodePointX. */
 internal expect fun StringBuilder.appendCodePointX(codePoint: Int): StringBuilder
 
-/**
- * Returns the index of the character break preceding [index].
- */
+/** Returns the index of the character break preceding [index]. */
 internal expect fun String.findPrecedingBreak(index: Int): Int
 
 /**

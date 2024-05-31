@@ -74,25 +74,29 @@ class ScrollToTest(private val config: TestConfig) {
         val expectScrolling: Boolean,
         val expectedAlignment: ExpectedAlignment
     ) {
-        val viewportSizePx: Int get() = viewportSize.sizePx
+        val viewportSizePx: Int
+            get() = viewportSize.sizePx
 
-        val initialScrollOffset: Int get() {
-            val offset = when (viewportSize) {
-                ViewportSize.SmallerThanItem -> startPosition.smallViewportOffset
-                ViewportSize.BiggerThenItem -> startPosition.bigViewportOffset
+        val initialScrollOffset: Int
+            get() {
+                val offset =
+                    when (viewportSize) {
+                        ViewportSize.SmallerThanItem -> startPosition.smallViewportOffset
+                        ViewportSize.BiggerThenItem -> startPosition.bigViewportOffset
+                    }
+                val scrollRange = itemCount * itemSizePx - viewportSizePx
+                // Need to invert the scroll offset for reverseScrolling so the target is
+                // on the correct side of the viewport according to the [StartPosition]
+                return if (reverseScrolling) scrollRange - offset else offset
             }
-            val scrollRange = itemCount * itemSizePx - viewportSizePx
-            // Need to invert the scroll offset for reverseScrolling so the target is
-            // on the correct side of the viewport according to the [StartPosition]
-            return if (reverseScrolling) scrollRange - offset else offset
-        }
 
-        override fun toString(): String = "orientation=$orientation, " +
-            "reverseScrolling=$reverseScrolling, " +
-            "viewport=$viewportSize, " +
-            "targetStarts=${startPosition}Viewport, " +
-            "expectScrolling=$expectScrolling, " +
-            "expectedAlignment=$expectedAlignment"
+        override fun toString(): String =
+            "orientation=$orientation, " +
+                "reverseScrolling=$reverseScrolling, " +
+                "viewport=$viewportSize, " +
+                "targetStarts=${startPosition}Viewport, " +
+                "expectScrolling=$expectScrolling, " +
+                "expectedAlignment=$expectedAlignment"
     }
 
     companion object {
@@ -105,17 +109,23 @@ class ScrollToTest(private val config: TestConfig) {
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<TestConfig>().apply {
-            for (orientation in Orientation.values()) {
-                for (reverseScrolling in listOf(false, true)) {
-                    for (viewportSize in ViewportSize.values()) {
-                        for (startPosition in StartPosition.values()) {
-                            addConfig(orientation, reverseScrolling, viewportSize, startPosition)
+        fun params() =
+            mutableListOf<TestConfig>().apply {
+                for (orientation in Orientation.values()) {
+                    for (reverseScrolling in listOf(false, true)) {
+                        for (viewportSize in ViewportSize.values()) {
+                            for (startPosition in StartPosition.values()) {
+                                addConfig(
+                                    orientation,
+                                    reverseScrolling,
+                                    viewportSize,
+                                    startPosition
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
         private fun MutableList<TestConfig>.addConfig(
             orientation: Orientation,
@@ -127,11 +137,16 @@ class ScrollToTest(private val config: TestConfig) {
             val expectScrolling = startPosition.expectScrolling
 
             // Start with simple expectation, factor in other parameters below
-            var expectedAlignment = when (startPosition) {
-                FullyAfter, PartiallyAfter, EndAlignedIn -> if (isVertical) Bottom else Right
-                FullyBefore, PartiallyBefore, StartAlignedIn -> if (isVertical) Top else Left
-                CenterAlignedIn -> Center
-            }
+            var expectedAlignment =
+                when (startPosition) {
+                    FullyAfter,
+                    PartiallyAfter,
+                    EndAlignedIn -> if (isVertical) Bottom else Right
+                    FullyBefore,
+                    PartiallyBefore,
+                    StartAlignedIn -> if (isVertical) Top else Left
+                    CenterAlignedIn -> Center
+                }
 
             // When scrolling into a small viewport, the opposite edge is found first
             if (expectScrolling && viewportSize == ViewportSize.SmallerThanItem) {
@@ -144,18 +159,18 @@ class ScrollToTest(private val config: TestConfig) {
             }
 
             TestConfig(
-                orientation,
-                reverseScrolling,
-                viewportSize,
-                startPosition,
-                expectScrolling,
-                expectedAlignment
-            ).also { add(it) }
+                    orientation,
+                    reverseScrolling,
+                    viewportSize,
+                    startPosition,
+                    expectScrolling,
+                    expectedAlignment
+                )
+                .also { add(it) }
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun scrollToTarget() {
@@ -186,32 +201,39 @@ class ScrollToTest(private val config: TestConfig) {
 
         if (config.expectScrolling) {
             assertWithMessage("target must have scrolled, it was not yet in the viewport")
-                .that(targetBoundsAfter).isNotEqualTo(targetBoundsBefore)
+                .that(targetBoundsAfter)
+                .isNotEqualTo(targetBoundsBefore)
         } else {
             assertWithMessage("target must not scroll, it was already in the viewport")
-                .that(targetBoundsAfter).isEqualTo(targetBoundsBefore)
+                .that(targetBoundsAfter)
+                .isEqualTo(targetBoundsBefore)
         }
 
         when (config.expectedAlignment) {
             Left -> {
                 assertWithMessage("target must be left-aligned in the viewport")
-                    .that(targetBoundsAfter.left).isEqualTo(viewportBounds.left)
+                    .that(targetBoundsAfter.left)
+                    .isEqualTo(viewportBounds.left)
             }
             Right -> {
                 assertWithMessage("target must be right-aligned in the viewport")
-                    .that(targetBoundsAfter.right).isEqualTo(viewportBounds.right)
+                    .that(targetBoundsAfter.right)
+                    .isEqualTo(viewportBounds.right)
             }
             Top -> {
                 assertWithMessage("target must be top-aligned in the viewport")
-                    .that(targetBoundsAfter.top).isEqualTo(viewportBounds.top)
+                    .that(targetBoundsAfter.top)
+                    .isEqualTo(viewportBounds.top)
             }
             Bottom -> {
                 assertWithMessage("target must be bottom-aligned in the viewport")
-                    .that(targetBoundsAfter.bottom).isEqualTo(viewportBounds.bottom)
+                    .that(targetBoundsAfter.bottom)
+                    .isEqualTo(viewportBounds.bottom)
             }
             Center -> {
                 assertWithMessage("target must be bottom-aligned in the viewport")
-                    .that(targetBoundsAfter.center).isEqualTo(viewportBounds.center)
+                    .that(targetBoundsAfter.center)
+                    .isEqualTo(viewportBounds.center)
             }
         }
     }
@@ -233,7 +255,6 @@ class ScrollToTest(private val config: TestConfig) {
                 when (config.orientation) {
                     HorizontalLtr,
                     HorizontalRtl -> Row(rowModifier(scrollState)) { Boxes() }
-
                     Vertical -> Column(columnModifier(scrollState)) { Boxes() }
                 }
             }
@@ -246,23 +267,23 @@ class ScrollToTest(private val config: TestConfig) {
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }
 
-    private fun rowModifier(scrollState: ScrollState): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
-            Modifier
-                .testTag(containerTag)
-                .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
-                .horizontalScroll(scrollState, reverseScrolling = config.reverseScrolling)
+    private fun rowModifier(scrollState: ScrollState): Modifier =
+        Modifier.composed {
+            with(LocalDensity.current) {
+                Modifier.testTag(containerTag)
+                    .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
+                    .horizontalScroll(scrollState, reverseScrolling = config.reverseScrolling)
+            }
         }
-    }
 
-    private fun columnModifier(scrollState: ScrollState): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
-            Modifier
-                .testTag(containerTag)
-                .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
-                .verticalScroll(scrollState, reverseScrolling = config.reverseScrolling)
+    private fun columnModifier(scrollState: ScrollState): Modifier =
+        Modifier.composed {
+            with(LocalDensity.current) {
+                Modifier.testTag(containerTag)
+                    .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
+                    .verticalScroll(scrollState, reverseScrolling = config.reverseScrolling)
+            }
         }
-    }
 
     @Composable
     private fun Boxes() {
@@ -295,20 +316,31 @@ class ScrollToTest(private val config: TestConfig) {
         PartiallyBefore(270, 250),
         FullyBefore(420, 350);
 
-        val expectScrolling get() = when (this) {
-            EndAlignedIn, CenterAlignedIn, StartAlignedIn -> false
-            else -> true
-        }
+        val expectScrolling
+            get() =
+                when (this) {
+                    EndAlignedIn,
+                    CenterAlignedIn,
+                    StartAlignedIn -> false
+                    else -> true
+                }
     }
 
     enum class ExpectedAlignment {
-        Left, Right, Top, Bottom, Center;
-        val reverse get() = when (this) {
-            Left -> Right
-            Right -> Left
-            Top -> Bottom
-            Bottom -> Top
-            Center -> Center
-        }
+        Left,
+        Right,
+        Top,
+        Bottom,
+        Center;
+
+        val reverse
+            get() =
+                when (this) {
+                    Left -> Right
+                    Right -> Left
+                    Top -> Bottom
+                    Bottom -> Top
+                    Center -> Center
+                }
     }
 }

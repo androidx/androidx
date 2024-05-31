@@ -20,14 +20,12 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 
-internal actual fun createSnapshotMutableIntState(
-    value: Int
-): MutableIntState = ParcelableSnapshotMutableIntState(value)
+internal actual fun createSnapshotMutableIntState(value: Int): MutableIntState =
+    ParcelableSnapshotMutableIntState(value)
 
 @SuppressLint("BanParcelableUsage")
-private class ParcelableSnapshotMutableIntState(
-    value: Int
-) : SnapshotMutableIntStateImpl(value), Parcelable {
+private class ParcelableSnapshotMutableIntState(value: Int) :
+    SnapshotMutableIntStateImpl(value), Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(intValue)
@@ -40,15 +38,14 @@ private class ParcelableSnapshotMutableIntState(
     companion object {
         @Suppress("unused")
         @JvmField
-        val CREATOR = object : Parcelable.Creator<ParcelableSnapshotMutableIntState> {
-            override fun createFromParcel(parcel: Parcel): ParcelableSnapshotMutableIntState {
-                return ParcelableSnapshotMutableIntState(
-                    value = parcel.readInt()
-                )
-            }
+        val CREATOR =
+            object : Parcelable.Creator<ParcelableSnapshotMutableIntState> {
+                override fun createFromParcel(parcel: Parcel): ParcelableSnapshotMutableIntState {
+                    return ParcelableSnapshotMutableIntState(value = parcel.readInt())
+                }
 
-            override fun newArray(size: Int) =
-                arrayOfNulls<ParcelableSnapshotMutableIntState>(size)
-        }
+                override fun newArray(size: Int) =
+                    arrayOfNulls<ParcelableSnapshotMutableIntState>(size)
+            }
     }
 }

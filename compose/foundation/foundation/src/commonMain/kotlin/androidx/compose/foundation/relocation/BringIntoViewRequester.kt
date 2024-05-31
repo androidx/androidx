@@ -30,14 +30,14 @@ import androidx.compose.ui.platform.InspectorInfo
  * Can be used to send [bringIntoView] requests. Pass it as a parameter to
  * [Modifier.bringIntoViewRequester()][bringIntoViewRequester].
  *
- * For instance, you can call [bringIntoView()][bringIntoView] to make all the
- * scrollable parents scroll so that the specified item is brought into the
- * scroll viewport.
+ * For instance, you can call [bringIntoView()][bringIntoView] to make all the scrollable parents
+ * scroll so that the specified item is brought into the scroll viewport.
  *
- * Note: this API is experimental while we optimise the performance and find the right API shape
- * for it.
+ * Note: this API is experimental while we optimise the performance and find the right API shape for
+ * it.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
+ *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
 @ExperimentalFoundationApi
@@ -50,11 +50,12 @@ sealed interface BringIntoViewRequester {
      * [CancellationException][kotlinx.coroutines.CancellationException].
      *
      * @param rect The rectangle (In local coordinates) that should be brought into view. If you
-     * don't specify the coordinates, the coordinates of the
-     * [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
-     * [BringIntoViewRequester] will be used.
+     *   don't specify the coordinates, the coordinates of the
+     *   [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
+     *   [BringIntoViewRequester] will be used.
      *
      * @sample androidx.compose.foundation.samples.BringIntoViewSample
+     *
      * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
      */
     suspend fun bringIntoView(rect: Rect? = null)
@@ -67,13 +68,15 @@ sealed interface BringIntoViewRequester {
  * scroll to bring this item into view.
  *
  * Here is a sample where a composable is brought into view:
+ *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  *
  * Here is a sample where a part of a composable is brought into view:
+ *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  *
- * Note: this API is experimental while we optimise the performance and find the right API shape
- * for it
+ * Note: this API is experimental while we optimise the performance and find the right API shape for
+ * it
  */
 @ExperimentalFoundationApi
 fun BringIntoViewRequester(): BringIntoViewRequester {
@@ -81,45 +84,39 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
 }
 
 /**
- * Modifier that can be used to send
- * [scrollIntoView][BringIntoViewRequester.bringIntoView] requests.
+ * Modifier that can be used to send [scrollIntoView][BringIntoViewRequester.bringIntoView]
+ * requests.
  *
- * The following example uses a `bringIntoViewRequester` to bring an item into
- * the parent bounds. The example demonstrates how a composable can ask its
- * parents to scroll so that the component using this modifier is brought into
- * the bounds of all its parents.
+ * The following example uses a `bringIntoViewRequester` to bring an item into the parent bounds.
+ * The example demonstrates how a composable can ask its parents to scroll so that the component
+ * using this modifier is brought into the bounds of all its parents.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
  *
- * @param bringIntoViewRequester An instance of [BringIntoViewRequester]. This
- *     hoisted object can be used to send
- *     [scrollIntoView][BringIntoViewRequester.scrollIntoView] requests to parents
- *     of the current composable.
+ * @param bringIntoViewRequester An instance of [BringIntoViewRequester]. This hoisted object can be
+ *   used to send [scrollIntoView][BringIntoViewRequester.scrollIntoView] requests to parents of the
+ *   current composable.
  *
- * Note: this API is experimental while we optimise the performance and find the right API shape
- * for it
+ * Note: this API is experimental while we optimise the performance and find the right API shape for
+ * it
  */
 @Suppress("ModifierInspectorInfo")
 @ExperimentalFoundationApi
-fun Modifier.bringIntoViewRequester(
-    bringIntoViewRequester: BringIntoViewRequester
-): Modifier = this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
+fun Modifier.bringIntoViewRequester(bringIntoViewRequester: BringIntoViewRequester): Modifier =
+    this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
 
 @ExperimentalFoundationApi
 private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     val modifiers = mutableVectorOf<BringIntoViewRequesterNode>()
 
     override suspend fun bringIntoView(rect: Rect?) {
-        modifiers.forEach {
-            it.scrollIntoView(rect)
-        }
+        modifiers.forEach { it.scrollIntoView(rect) }
     }
 }
 
 @ExperimentalFoundationApi
-private class BringIntoViewRequesterElement(
-    private val requester: BringIntoViewRequester
-) : ModifierNodeElement<BringIntoViewRequesterNode>() {
+private class BringIntoViewRequesterElement(private val requester: BringIntoViewRequester) :
+    ModifierNodeElement<BringIntoViewRequesterNode>() {
     override fun create(): BringIntoViewRequesterNode {
         return BringIntoViewRequesterNode(requester)
     }
@@ -145,13 +142,12 @@ private class BringIntoViewRequesterElement(
 
 /**
  * A modifier that holds state and modifier implementations for [bringIntoViewRequester]. It has
- * access to the next [BringIntoViewParent] via [findBringIntoViewParent], and uses that parent
- * to respond to requests to [scrollIntoView].
+ * access to the next [BringIntoViewParent] via [findBringIntoViewParent], and uses that parent to
+ * respond to requests to [scrollIntoView].
  */
 @ExperimentalFoundationApi
-internal class BringIntoViewRequesterNode(
-    private var requester: BringIntoViewRequester
-) : Modifier.Node() {
+internal class BringIntoViewRequesterNode(private var requester: BringIntoViewRequester) :
+    Modifier.Node() {
     override val shouldAutoInvalidate: Boolean = false
 
     override fun onAttach() {

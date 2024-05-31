@@ -70,8 +70,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CompositionLocalMapInjectionTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun consumeInDraw() {
@@ -114,9 +113,7 @@ class CompositionLocalMapInjectionTest {
         }
         assertThat(node.int).isEqualTo(state)
         state = 2
-        rule.runOnIdle {
-            assertThat(node.int).isEqualTo(state)
-        }
+        rule.runOnIdle { assertThat(node.int).isEqualTo(state) }
     }
 
     @Test
@@ -130,9 +127,7 @@ class CompositionLocalMapInjectionTest {
         }
         assertThat(node.int).isEqualTo(state)
         state = 2
-        rule.runOnIdle {
-            assertThat(node.int).isEqualTo(state)
-        }
+        rule.runOnIdle { assertThat(node.int).isEqualTo(state) }
     }
 
     @Test
@@ -146,9 +141,7 @@ class CompositionLocalMapInjectionTest {
         }
         assertThat(node.int).isEqualTo(state)
         state = 2
-        rule.runOnIdle {
-            assertThat(node.int).isEqualTo(state)
-        }
+        rule.runOnIdle { assertThat(node.int).isEqualTo(state) }
     }
 
     @Test
@@ -192,9 +185,7 @@ class CompositionLocalMapInjectionTest {
         }
         assertThat(node.int).isEqualTo(state)
         state = 2
-        rule.runOnIdle {
-            assertThat(node.int).isEqualTo(state)
-        }
+        rule.runOnIdle { assertThat(node.int).isEqualTo(state) }
     }
 
     @Test
@@ -208,9 +199,7 @@ class CompositionLocalMapInjectionTest {
         }
         assertThat(node.int).isEqualTo(state)
         state = 2
-        rule.runOnIdle {
-            assertThat(node.int).isEqualTo(state)
-        }
+        rule.runOnIdle { assertThat(node.int).isEqualTo(state) }
     }
 
     @Test
@@ -224,9 +213,7 @@ class CompositionLocalMapInjectionTest {
         }
         assertThat(node.int).isEqualTo(state)
         state = 2
-        rule.runOnIdle {
-            assertThat(node.int).isEqualTo(state)
-        }
+        rule.runOnIdle { assertThat(node.int).isEqualTo(state) }
     }
 }
 
@@ -235,14 +222,18 @@ val SomeLocal = compositionLocalOf<Int> { error("unprovided value") }
 inline fun <reified T : Modifier.Node> modifierOf(crossinline fn: () -> T) =
     object : ModifierNodeElement<T>() {
         override fun create() = fn()
+
         override fun hashCode() = System.identityHashCode(this)
+
         override fun equals(other: Any?) = other === this
+
         override fun update(node: T) {}
     }
 
 class ConsumeInDrawNode : CompositionLocalConsumerModifierNode, DrawModifierNode, Modifier.Node() {
     var view: View? = null
     var int: Int? = null
+
     override fun ContentDrawScope.draw() {
         // Consume Static local
         view = currentValueOf(LocalView)
@@ -252,11 +243,10 @@ class ConsumeInDrawNode : CompositionLocalConsumerModifierNode, DrawModifierNode
 }
 
 class ConsumeInLayoutNode :
-    CompositionLocalConsumerModifierNode,
-    LayoutModifierNode,
-    Modifier.Node() {
+    CompositionLocalConsumerModifierNode, LayoutModifierNode, Modifier.Node() {
     var view: View? = null
     var int: Int? = null
+
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -266,9 +256,7 @@ class ConsumeInLayoutNode :
         // Consume Freshly Provided Local
         int = currentValueOf(SomeLocal)
         val placeable = measurable.measure(constraints)
-        return layout(constraints.minWidth, constraints.maxWidth) {
-            placeable.place(0, 0)
-        }
+        return layout(constraints.minWidth, constraints.maxWidth) { placeable.place(0, 0) }
     }
 }
 
@@ -276,15 +264,18 @@ class ConsumeInAttachNode :
     CompositionLocalConsumerModifierNode, ObserverModifierNode, Modifier.Node() {
     var view: View? = null
     var int: Int? = null
+
     private fun readLocals() {
         // Consume Static local
         view = currentValueOf(LocalView)
         // Consume Freshly Provided Local
         int = currentValueOf(SomeLocal)
     }
+
     override fun onAttach() {
         observeReads { readLocals() }
     }
+
     override fun onObservedReadsChanged() {
         observeReads { readLocals() }
     }
@@ -312,12 +303,12 @@ inline fun OldLayoutSkippableUpdate(
             set(density, SetDensity)
             set(layoutDirection, SetLayoutDirection)
             set(viewConfiguration, SetViewConfiguration)
-            @OptIn(ExperimentalComposeUiApi::class)
-            set(compositeKeyHash, SetCompositeKeyHash)
+            @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
         },
         // The old version of Layout called a function called "materializerOf". The function below
         // has the same JVM signature as that function used to have, so the code that this source
-        // generates will be essentially identical to what will have been generated in older versions
+        // generates will be essentially identical to what will have been generated in older
+        // versions
         // of UI, despite this name being different now.
         skippableUpdate = materializerOfWithCompositionLocalInjection(modifier),
         content = content
@@ -327,10 +318,7 @@ inline fun OldLayoutSkippableUpdate(
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 @UiComposable
-internal inline fun OldLayout(
-    modifier: Modifier = Modifier,
-    measurePolicy: MeasurePolicy
-) {
+internal inline fun OldLayout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
     val compositeKeyHash = currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -348,19 +336,21 @@ internal inline fun OldLayout(
             set(layoutDirection, SetLayoutDirection)
             set(viewConfiguration, SetViewConfiguration)
             set(materialized, SetModifier)
-            @OptIn(ExperimentalComposeUiApi::class)
-            set(compositeKeyHash, SetCompositeKeyHash)
+            @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
         },
     )
 }
+
 private val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->
     layout(constraints.minWidth, constraints.minHeight) {}
 }
 
-@Composable fun OldBoxSkippableUpdate(modifier: Modifier = Modifier) {
-    OldLayoutSkippableUpdate({ }, modifier, EmptyBoxMeasurePolicy)
+@Composable
+fun OldBoxSkippableUpdate(modifier: Modifier = Modifier) {
+    OldLayoutSkippableUpdate({}, modifier, EmptyBoxMeasurePolicy)
 }
 
-@Composable fun OldBox(modifier: Modifier = Modifier) {
+@Composable
+fun OldBox(modifier: Modifier = Modifier) {
     OldLayout(modifier, EmptyBoxMeasurePolicy)
 }

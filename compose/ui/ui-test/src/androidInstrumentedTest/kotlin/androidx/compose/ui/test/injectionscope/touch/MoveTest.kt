@@ -37,39 +37,30 @@ class MoveTest() {
         private val downPosition1 = Offset(10f, 10f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox()
-        }
+        rule.setContent { ClickableTestBox() }
     }
 
     @Test
     fun move_withoutDown() {
-        expectError<IllegalStateException> {
-            rule.performTouchInput { move() }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { move() } }
     }
 
     @Test
     fun move_afterUp() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { up() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { move() }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { move() } }
     }
 
     @Test
     fun move_afterCancel() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { cancel() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { move() }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { move() } }
     }
 }

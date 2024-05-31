@@ -31,17 +31,17 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class JetsnackStartupBenchmark(val startupMode: StartupMode, val compilationMode: CompilationMode) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureStartup(
-        compilationMode = compilationMode,
-        startupMode = startupMode,
-        packageName = PACKAGE_NAME,
-    ) {
-        action = "$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY"
-    }
+    fun startup() =
+        benchmarkRule.measureStartup(
+            compilationMode = compilationMode,
+            startupMode = startupMode,
+            packageName = PACKAGE_NAME,
+        ) {
+            action = "$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY"
+        }
 
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilationMode={1}")

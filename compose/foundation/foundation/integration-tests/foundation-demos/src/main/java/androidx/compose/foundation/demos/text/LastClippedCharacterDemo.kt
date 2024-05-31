@@ -51,53 +51,55 @@ fun LastClippedCharacterDemo() {
     var overflow by remember { mutableStateOf(false) }
     var height by remember { mutableIntStateOf(20) }
     Column {
-        Box(modifier = Modifier
-            .width(100.dp)
-            .height(height.dp)
-            .border(1.dp, Color.Red)) {
+        Box(modifier = Modifier.width(100.dp).height(height.dp).border(1.dp, Color.Red)) {
             BasicText(
                 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                overflow = if (!overflow) { TextOverflow.Clip } else { TextOverflow.Visible },
-                modifier = Modifier.drawWithContent {
-                    drawContent()
-                    lastCharacterBox?.let { box ->
-                        drawRoundRect(
-                            Color.Green,
-                            box.topLeft,
-                            box.size,
-                            CornerRadius(4f, 4f),
-                            Stroke(2f)
-                        )
-                    }
-                },
+                overflow =
+                    if (!overflow) {
+                        TextOverflow.Clip
+                    } else {
+                        TextOverflow.Visible
+                    },
+                modifier =
+                    Modifier.drawWithContent {
+                        drawContent()
+                        lastCharacterBox?.let { box ->
+                            drawRoundRect(
+                                Color.Green,
+                                box.topLeft,
+                                box.size,
+                                CornerRadius(4f, 4f),
+                                Stroke(2f)
+                            )
+                        }
+                    },
                 onTextLayout = { textLayoutResult ->
                     val lastNonClippedLine = textLayoutResult.findLastNonClippedLine()
                     // this finds the newline
-                    val actualLastCharacter = textLayoutResult
-                        .getOffsetForPosition(
+                    val actualLastCharacter =
+                        textLayoutResult.getOffsetForPosition(
                             Offset(
                                 textLayoutResult.size.width.toFloat(),
                                 textLayoutResult.lineVerticalMiddle(lastNonClippedLine),
-                            ))
-                    lastCharacterBox = textLayoutResult.getBoundingBox(actualLastCharacter)
-                        .translate(Offset(0f, textLayoutResult.getLineTop(lastNonClippedLine)))
+                            )
+                        )
+                    lastCharacterBox =
+                        textLayoutResult
+                            .getBoundingBox(actualLastCharacter)
+                            .translate(Offset(0f, textLayoutResult.getLineTop(lastNonClippedLine)))
                 },
             )
         }
         Spacer(modifier = Modifier.height(200.dp))
-        Button(onClick = { overflow = !overflow }) {
-            Text("Show overflow")
-        }
-        Button(onClick = { height += 5 }) {
-            Text("Increase clip height (5)")
-        }
-        Button(onClick = { height = 2 }) {
-            Text("Reset height (+5)")
-        }
+        Button(onClick = { overflow = !overflow }) { Text("Show overflow") }
+        Button(onClick = { height += 5 }) { Text("Increase clip height (5)") }
+        Button(onClick = { height = 2 }) { Text("Reset height (+5)") }
 
         Text("For more information see b/319500907")
-        Text("Note that this demo considers a line non-clipped when any pixel of the line is" +
-            " not clipped, change the logic in findLastNonClippedLine to fit your needs")
+        Text(
+            "Note that this demo considers a line non-clipped when any pixel of the line is" +
+                " not clipped, change the logic in findLastNonClippedLine to fit your needs"
+        )
     }
 }
 

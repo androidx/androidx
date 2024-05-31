@@ -26,18 +26,15 @@ import org.junit.runners.model.Statement
 /**
  * Collection of text benchmark utilities. It tries to
  * - trigger garbage collection
- * - free text layout caches
- * before each test run.
+ * - free text layout caches before each test run.
  *
  * It also provides random text generation capabilities.
- *
  */
 class TextBenchmarkTestRule(alphabet: Alphabet = Alphabet.Latin) : TestRule {
     private val textGeneratorTestRule = RandomTextGeneratorTestRule(alphabet)
 
     override fun apply(base: Statement, description: Description): Statement {
-        return RuleChain
-            .outerRule(GarbageCollectTestRule())
+        return RuleChain.outerRule(GarbageCollectTestRule())
             .around(TextLayoutCacheTestRule())
             .around(textGeneratorTestRule)
             .apply(base, description)
@@ -60,8 +57,8 @@ class TextBenchmarkTestRule(alphabet: Alphabet = Alphabet.Latin) : TestRule {
 }
 
 /**
- * At the beginning of each test calls Canvas.freeTextLayoutCaches in order to clear the native
- * text layout cache.
+ * At the beginning of each test calls Canvas.freeTextLayoutCaches in order to clear the native text
+ * layout cache.
  */
 private class TextLayoutCacheTestRule : TestRule {
     private val TAG = "TextLayoutCacheTestRule"
@@ -102,15 +99,14 @@ private class GarbageCollectTestRule : TestRule {
 
 /**
  * Test rule that initiates a [RandomTextGenerator] using a different seed based on the class and
- * function name. This way each function will have a different text generated, but at each run
- * the same function will get the same text.
+ * function name. This way each function will have a different text generated, but at each run the
+ * same function will get the same text.
  *
- * This will ensure that the execution order of a test class or functions in a test class does
- * not affect others because of the native text layout cache.
+ * This will ensure that the execution order of a test class or functions in a test class does not
+ * affect others because of the native text layout cache.
  */
-private class RandomTextGeneratorTestRule(
-    private val alphabet: Alphabet = Alphabet.Latin
-) : TestRule {
+private class RandomTextGeneratorTestRule(private val alphabet: Alphabet = Alphabet.Latin) :
+    TestRule {
     private lateinit var textGenerator: RandomTextGenerator
 
     override fun apply(base: Statement, description: Description): Statement =

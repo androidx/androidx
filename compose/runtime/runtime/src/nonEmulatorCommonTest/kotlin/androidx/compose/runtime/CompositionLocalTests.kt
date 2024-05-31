@@ -67,43 +67,22 @@ class CompositionLocalTests {
                 LocalSomeOtherIntProvider provides 42,
                 LocalSomeStaticInt provides 50
             ) {
-                assertEquals(
-                    "Test1",
-                    LocalSomeTextComposition.current
-                )
+                assertEquals("Test1", LocalSomeTextComposition.current)
                 assertEquals(12, LocalSomeIntComposition.current)
-                assertEquals(
-                    42,
-                    LocalSomeOtherIntComposition.current
-                )
+                assertEquals(42, LocalSomeOtherIntComposition.current)
                 assertEquals(50, LocalSomeStaticInt.current)
                 CompositionLocalProvider(
                     LocalSomeTextComposition provides "Test2",
                     LocalSomeStaticInt provides 60
                 ) {
-                    assertEquals(
-                        "Test2",
-                        LocalSomeTextComposition.current
-                    )
-                    assertEquals(
-                        12,
-                        LocalSomeIntComposition.current
-                    )
-                    assertEquals(
-                        42,
-                        LocalSomeOtherIntComposition.current
-                    )
+                    assertEquals("Test2", LocalSomeTextComposition.current)
+                    assertEquals(12, LocalSomeIntComposition.current)
+                    assertEquals(42, LocalSomeOtherIntComposition.current)
                     assertEquals(60, LocalSomeStaticInt.current)
                 }
-                assertEquals(
-                    "Test1",
-                    LocalSomeTextComposition.current
-                )
+                assertEquals("Test1", LocalSomeTextComposition.current)
                 assertEquals(12, LocalSomeIntComposition.current)
-                assertEquals(
-                    42,
-                    LocalSomeOtherIntComposition.current
-                )
+                assertEquals(42, LocalSomeOtherIntComposition.current)
                 assertEquals(50, LocalSomeStaticInt.current)
             }
             assertEquals("Default", LocalSomeTextComposition.current)
@@ -118,19 +97,13 @@ class CompositionLocalTests {
         var someText = "Unmodified"
         compose {
             invalidates.add(currentRecomposeScope)
-            CompositionLocalProvider(
-                LocalSomeTextComposition provides someText
-            ) {
-                ReadStringCompositionLocal(
-                    compositionLocal = LocalSomeTextComposition
-                )
+            CompositionLocalProvider(LocalSomeTextComposition provides someText) {
+                ReadStringCompositionLocal(compositionLocal = LocalSomeTextComposition)
             }
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
 
         someText = "Modified"
@@ -147,19 +120,13 @@ class CompositionLocalTests {
         var someText = "Unmodified"
         compose {
             invalidates.add(currentRecomposeScope)
-            CompositionLocalProvider(
-                staticStringCompositionLocal provides someText
-            ) {
-                ReadStringCompositionLocal(
-                    compositionLocal = staticStringCompositionLocal
-                )
+            CompositionLocalProvider(staticStringCompositionLocal provides someText) {
+                ReadStringCompositionLocal(compositionLocal = staticStringCompositionLocal)
             }
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
         validate()
 
@@ -184,32 +151,19 @@ class CompositionLocalTests {
                 ReadStringCompositionLocal(compositionLocal = LocalSomeTextComposition)
 
                 TestSubcomposition {
-                    assertEquals(
-                        someText,
-                        LocalSomeTextComposition.current
-                    )
+                    assertEquals(someText, LocalSomeTextComposition.current)
                     assertEquals(0, LocalSomeIntComposition.current)
 
-                    CompositionLocalProvider(
-                        LocalSomeIntComposition provides 42
-                    ) {
-                        assertEquals(
-                            someText,
-                            LocalSomeTextComposition.current
-                        )
-                        assertEquals(
-                            42,
-                            LocalSomeIntComposition.current
-                        )
+                    CompositionLocalProvider(LocalSomeIntComposition provides 42) {
+                        assertEquals(someText, LocalSomeTextComposition.current)
+                        assertEquals(42, LocalSomeIntComposition.current)
                     }
                 }
             }
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
 
         someText = "Modified"
@@ -243,9 +197,7 @@ class CompositionLocalTests {
                     assertEquals(someText, staticSomeTextCompositionLocal.current)
                     assertEquals(0, staticSomeIntCompositionLocal.current)
 
-                    CompositionLocalProvider(
-                        staticSomeIntCompositionLocal provides 42
-                    ) {
+                    CompositionLocalProvider(staticSomeIntCompositionLocal provides 42) {
                         assertEquals(someText, staticSomeTextCompositionLocal.current)
                         assertEquals(42, staticSomeIntCompositionLocal.current)
                     }
@@ -254,9 +206,7 @@ class CompositionLocalTests {
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
 
         someText = "Modified"
@@ -283,32 +233,19 @@ class CompositionLocalTests {
                 )
 
                 doSubCompose = testDeferredSubcomposition {
-                    assertEquals(
-                        someText,
-                        LocalSomeTextComposition.current
-                    )
+                    assertEquals(someText, LocalSomeTextComposition.current)
                     assertEquals(0, LocalSomeIntComposition.current)
 
-                    CompositionLocalProvider(
-                        LocalSomeIntComposition provides 42
-                    ) {
-                        assertEquals(
-                            someText,
-                            LocalSomeTextComposition.current
-                        )
-                        assertEquals(
-                            42,
-                            LocalSomeIntComposition.current
-                        )
+                    CompositionLocalProvider(LocalSomeIntComposition provides 42) {
+                        assertEquals(someText, LocalSomeTextComposition.current)
+                        assertEquals(42, LocalSomeIntComposition.current)
                     }
                 }
             }
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
         validate()
         doSubCompose()
@@ -339,18 +276,13 @@ class CompositionLocalTests {
                 assertEquals(someText, staticSomeTextCompositionLocal.current)
                 assertEquals(0, staticSomeIntCompositionLocal.current)
 
-                ReadStringCompositionLocal(
-                    compositionLocal = staticSomeTextCompositionLocal
-                )
+                ReadStringCompositionLocal(compositionLocal = staticSomeTextCompositionLocal)
 
                 doSubCompose = testDeferredSubcomposition {
-
                     assertEquals(someText, staticSomeTextCompositionLocal.current)
                     assertEquals(0, staticSomeIntCompositionLocal.current)
 
-                    CompositionLocalProvider(
-                        staticSomeIntCompositionLocal provides 42
-                    ) {
+                    CompositionLocalProvider(staticSomeIntCompositionLocal provides 42) {
                         assertEquals(someText, staticSomeTextCompositionLocal.current)
                         assertEquals(42, staticSomeIntCompositionLocal.current)
                     }
@@ -359,9 +291,7 @@ class CompositionLocalTests {
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
         validate()
         doSubCompose()
@@ -393,12 +323,9 @@ class CompositionLocalTests {
                 assertEquals(someText, staticSomeTextCompositionLocal.current)
                 assertEquals(0, staticSomeIntCompositionLocal.current)
 
-                ReadStringCompositionLocal(
-                    compositionLocal = staticSomeTextCompositionLocal
-                )
+                ReadStringCompositionLocal(compositionLocal = staticSomeTextCompositionLocal)
 
                 doSubCompose1 = testDeferredSubcomposition {
-
                     assertEquals(someText, staticSomeTextCompositionLocal.current)
                     assertEquals(0, staticSomeIntCompositionLocal.current)
 
@@ -411,9 +338,7 @@ class CompositionLocalTests {
         }
 
         fun validate() {
-            validate {
-                Text(someText)
-            }
+            validate { Text(someText) }
         }
         validate()
         doSubCompose1()
@@ -435,20 +360,14 @@ class CompositionLocalTests {
         val someStaticString = staticCompositionLocalOf { "Default" }
         var shouldRead = false
         compose {
-            CompositionLocalProvider(
-                someStaticString provides "Provided A"
-            ) {
+            CompositionLocalProvider(someStaticString provides "Provided A") {
                 invalidates.add(currentRecomposeScope)
-                if (shouldRead)
-                    ReadStringCompositionLocal(someStaticString)
+                if (shouldRead) ReadStringCompositionLocal(someStaticString)
             }
         }
 
         fun validate() {
-            validate {
-                if (shouldRead)
-                    Text("Provided A")
-            }
+            validate { if (shouldRead) Text("Provided A") }
         }
         validate()
 
@@ -476,9 +395,7 @@ class CompositionLocalTests {
 
         compose {
             invalidates.add(currentRecomposeScope)
-            CompositionLocalProvider(
-                someDataCompositionLocal provides SomeData("provided")
-            ) {
+            CompositionLocalProvider(someDataCompositionLocal provides SomeData("provided")) {
                 ReadSomeDataCompositionLocal(someDataCompositionLocal, composed)
             }
         }
@@ -563,9 +480,7 @@ class CompositionLocalTests {
         val e = Array(101) { it }.map { it to it }
         val c = persistentHashMapOf(*e.toTypedArray())
         val n = p.builder().apply { putAll(c) }.build()
-        repeat(101) {
-            assertEquals(it, n[it])
-        }
+        repeat(101) { assertEquals(it, n[it]) }
     }
 
     @Suppress("UNUSED_EXPRESSION")
@@ -623,17 +538,16 @@ class CompositionLocalTests {
             DisposableEffect(Unit) {
                 val context = coroutineContext + TestMonotonicFrameClock(this@compositionTest)
                 val recomposer = Recomposer(context)
-                launch(context) {
-                    recomposer.runRecomposeAndApplyChanges()
-                }
+                launch(context) { recomposer.runRecomposeAndApplyChanges() }
                 val composition2 = Composition(EmptyApplier(), recomposer)
                 composition2.setContent {
                     CompositionLocalProvider(locals) {
-                        actualValues = setOf(
-                            local1.current,
-                            local2.current,
-                            staticLocal.current,
-                        )
+                        actualValues =
+                            setOf(
+                                local1.current,
+                                local2.current,
+                                staticLocal.current,
+                            )
                     }
                 }
                 onDispose {
@@ -643,11 +557,7 @@ class CompositionLocalTests {
             }
         }
 
-        compose {
-            CompositionLocalProvider(*provided) {
-                LocalsConsumer()
-            }
-        }
+        compose { CompositionLocalProvider(*provided) { LocalsConsumer() } }
 
         advance()
         assertEquals(setOf(0, 0, 0), actualValues)
@@ -689,13 +599,9 @@ class CompositionLocalTests {
     fun testRecomposeCacheInvalidation() = compositionTest {
         var state = mutableStateOf(0)
 
-        compose {
-            CacheInvalidate(state)
-        }
+        compose { CacheInvalidate(state) }
 
-        validate {
-            this.CacheInvalidate(state)
-        }
+        validate { this.CacheInvalidate(state) }
 
         state.value++
         advance()
@@ -708,9 +614,7 @@ class CompositionLocalTests {
         val local = compositionLocalOf { 0 }
         compose {
             CompositionLocalProvider(local provides 1) {
-                CompositionLocalProvider(local providesDefault 2) {
-                    assertEquals(1, local.current)
-                }
+                CompositionLocalProvider(local providesDefault 2) { assertEquals(1, local.current) }
             }
         }
     }
@@ -796,9 +700,7 @@ class CompositionLocalTests {
             // Value is computed to be 14
             val computedValue = LocalComputedValue.current
             assertEquals(14, computedValue)
-            CompositionLocalProvider(
-                LocalValue provides 20
-            ) {
+            CompositionLocalProvider(LocalValue provides 20) {
                 // Value is 20 provided above
                 val nestedValue = LocalValue.current
                 assertEquals(20, nestedValue)
@@ -808,15 +710,11 @@ class CompositionLocalTests {
                 // Values is computed to be 24; LocalValue.current + 4
                 val nestedComputedValue = LocalComputedValue.current
                 assertEquals(24, nestedComputedValue)
-                CompositionLocalProvider(
-                    LocalLargerValue provides LocalValue.current + 2
-                ) {
+                CompositionLocalProvider(LocalLargerValue provides LocalValue.current + 2) {
                     // Value is 22 provided above
                     val newLargerValue = LocalLargerValue.current
                     assertEquals(22, newLargerValue)
-                    CompositionLocalProvider(
-                        LocalValue provides 50
-                    ) {
+                    CompositionLocalProvider(LocalValue provides 50) {
                         // Value is now 50 provided above
                         val finalValue = LocalValue.current
                         assertEquals(50, finalValue)
@@ -836,6 +734,7 @@ class CompositionLocalTests {
 }
 
 val cacheLocal = staticCompositionLocalOf { "Unset" }
+
 @Composable
 fun CacheInvalidate(state: State<Int>) {
     Text("${state.value}")
@@ -849,9 +748,7 @@ fun CacheInvalidate(state: State<Int>) {
 
 @Composable
 fun CacheInvalidateSet(content: @Composable () -> Unit) {
-    CompositionLocalProvider(cacheLocal provides "Set") {
-        content()
-    }
+    CompositionLocalProvider(cacheLocal provides "Set") { content() }
 }
 
 fun MockViewValidator.CacheInvalidate(state: State<Int>) {
@@ -863,4 +760,5 @@ fun MockViewValidator.CacheInvalidate(state: State<Int>) {
 }
 
 data class SomeData(val value: String = "default")
+
 @Stable class StableRef<T>(var value: T)

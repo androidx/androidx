@@ -20,24 +20,17 @@ import org.jetbrains.skia.PathEffect as SkPathEffect
 
 internal class SkiaBackedPathEffect(val nativePathEffect: SkPathEffect) : PathEffect
 
-/**
- * Convert the [org.jetbrains.skia.PathEffect] instance into a Compose-compatible PathEffect
- */
+/** Convert the [org.jetbrains.skia.PathEffect] instance into a Compose-compatible PathEffect */
 fun SkPathEffect.asComposePathEffect(): PathEffect = SkiaBackedPathEffect(this)
 
-/**
- * Obtain a reference to skia PathEffect type
- */
-fun PathEffect.asSkiaPathEffect(): SkPathEffect =
-    (this as SkiaBackedPathEffect).nativePathEffect
+/** Obtain a reference to skia PathEffect type */
+fun PathEffect.asSkiaPathEffect(): SkPathEffect = (this as SkiaBackedPathEffect).nativePathEffect
 
 internal actual fun actualCornerPathEffect(radius: Float): PathEffect =
     SkiaBackedPathEffect(SkPathEffect.makeCorner(radius))
 
-internal actual fun actualDashPathEffect(
-    intervals: FloatArray,
-    phase: Float
-): PathEffect = SkiaBackedPathEffect(SkPathEffect.makeDash(intervals, phase))
+internal actual fun actualDashPathEffect(intervals: FloatArray, phase: Float): PathEffect =
+    SkiaBackedPathEffect(SkPathEffect.makeDash(intervals, phase))
 
 internal actual fun actualChainPathEffect(outer: PathEffect, inner: PathEffect): PathEffect =
     SkiaBackedPathEffect(outer.asSkiaPathEffect().makeCompose(inner.asSkiaPathEffect()))

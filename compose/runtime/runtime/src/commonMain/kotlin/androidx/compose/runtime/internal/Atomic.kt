@@ -18,14 +18,20 @@ package androidx.compose.runtime.internal
 
 internal expect class AtomicReference<V>(value: V) {
     fun get(): V
+
     fun set(value: V)
+
     fun getAndSet(value: V): V
+
     fun compareAndSet(expect: V, newValue: V): Boolean
 }
 
 internal expect class AtomicInt(value: Int) {
     fun get(): Int
+
     fun set(value: Int)
+
     fun add(amount: Int): Int
+
     fun compareAndSet(expect: Int, newValue: Int): Boolean
 }

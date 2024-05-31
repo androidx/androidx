@@ -22,24 +22,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.util.lerp
 
-/**
- * A single shadow.
- */
+/** A single shadow. */
 @Immutable
 class Shadow(
-    @Stable
-    val color: Color = Color(0xFF000000),
-    @Stable
-    val offset: Offset = Offset.Zero,
-    @Stable
-    val blurRadius: Float = 0.0f
+    @Stable val color: Color = Color(0xFF000000),
+    @Stable val offset: Offset = Offset.Zero,
+    @Stable val blurRadius: Float = 0.0f
 ) {
     companion object {
-        /**
-         * Constant for no shadow.
-         */
-        @Stable
-        val None = Shadow()
+        /** Constant for no shadow. */
+        @Stable val None = Shadow()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -69,17 +61,11 @@ class Shadow(
         offset: Offset = this.offset,
         blurRadius: Float = this.blurRadius
     ): Shadow {
-        return Shadow(
-            color = color,
-            offset = offset,
-            blurRadius = blurRadius
-        )
+        return Shadow(color = color, offset = offset, blurRadius = blurRadius)
     }
 }
 
-/**
- * Linearly interpolate two [Shadow]s.
- */
+/** Linearly interpolate two [Shadow]s. */
 @Stable
 fun lerp(start: Shadow, stop: Shadow, fraction: Float): Shadow {
     return Shadow(

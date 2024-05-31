@@ -19,12 +19,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 
 fun Rect.toSkiaRect(): org.jetbrains.skia.Rect {
-    return org.jetbrains.skia.Rect.makeLTRB(
-        left,
-        top,
-        right,
-        bottom
-    )
+    return org.jetbrains.skia.Rect.makeLTRB(left, top, right, bottom)
 }
 
 fun org.jetbrains.skia.Rect.toComposeRect() =

@@ -38,8 +38,7 @@ private const val invalid = "Not applicable to a 2D focus search."
 
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // We need to wrap the inline class parameter in another class because Java can't instantiate
     // the inline class.
@@ -77,9 +76,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -88,7 +85,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left, Right -> {
+                Down,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -115,9 +114,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -126,7 +123,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left, Right -> {
+                Down,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -153,9 +152,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -164,7 +161,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left, Right -> {
+                Down,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -191,9 +190,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -202,7 +199,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left, Right -> {
+                Down,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -229,9 +228,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -240,7 +237,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left, Right -> {
+                Down,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -267,18 +266,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left -> {
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -305,18 +304,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left -> {
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -343,18 +342,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left -> {
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -380,18 +379,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left -> {
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -416,18 +415,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Down, Left -> {
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -452,9 +451,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -463,7 +460,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -489,9 +488,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -500,7 +497,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -526,9 +525,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -537,7 +534,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -563,9 +562,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -574,7 +571,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -600,9 +599,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -611,7 +608,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -635,9 +634,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -646,7 +643,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -671,9 +670,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -682,7 +679,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Left -> {
+                Up,
+                Down,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -707,18 +706,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left -> {
+                Up,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -744,18 +743,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left -> {
+                Up,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -782,18 +781,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left -> {
+                Up,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -820,18 +819,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left -> {
+                Up,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -858,18 +857,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left -> {
+                Up,
+                Left -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -896,9 +895,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -907,7 +904,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left, Right -> {
+                Up,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -934,9 +933,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -945,7 +942,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left, Right -> {
+                Up,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -972,9 +971,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -983,7 +980,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left, Right -> {
+                Up,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1010,9 +1009,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1021,7 +1018,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left, Right -> {
+                Up,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1048,9 +1047,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1059,7 +1056,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left, Right -> {
+                Up,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1086,9 +1085,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1097,7 +1094,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Left, Right -> {
+                Up,
+                Left,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1124,18 +1123,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1162,18 +1161,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1200,18 +1199,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1237,18 +1236,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1273,18 +1272,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Right -> {
+                Up,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1294,10 +1293,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________    ________________
-     *  |               |   |  focusedItem  |
-     *  |   candidate   |   |_______________|
-     *  |_______________|
+     * ________________ ________________ | | | focusedItem | | candidate | |_______________|
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1309,9 +1306,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1320,7 +1315,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1330,9 +1327,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________   ________________
-     *  |   candidate   |  |  focusedItem  |
-     *  |_______________|  |_______________|
+     * ________________ ________________ | candidate | | focusedItem | |_______________|
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1344,9 +1340,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1355,7 +1349,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1365,11 +1361,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________    ________________
-     *  |   candidate   |   |               |
-     *  |_______________|   |  focusedItem  |
-     *                      |               |
-     *                      |_______________|
+     * ________________ ________________ | candidate | | | |_______________| | focusedItem | | |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1381,9 +1374,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1392,7 +1383,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1418,9 +1411,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1429,7 +1420,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1455,9 +1448,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1466,7 +1457,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1476,11 +1469,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________
-     *  |               |    ________________
-     *  |   candidate   |   |  focusedItem  |
-     *  |               |   |_______________|
-     *  |_______________|
+     * ________________ | | ________________ | candidate | | focusedItem | | | |_______________|
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1492,9 +1482,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1503,7 +1491,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1513,10 +1503,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |               |   ________________
-     *   |   candidate   |  |  focusedItem  |
-     *   |_______________|  |_______________|
+     * ________________ | | ________________ | candidate | | focusedItem | |_______________|
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1528,9 +1516,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1539,7 +1525,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Up, Down, Right -> {
+                Up,
+                Down,
+                Right -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1549,10 +1537,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |   candidate   |   ________________
-     *   |_______________|  |  focusedItem  |
-     *                      |_______________|
+     * ________________ | candidate | ________________ |_______________| | focusedItem |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1564,18 +1550,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1585,11 +1571,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |   candidate   |
-     *   |_______________|   ________________
-     *                      |  focusedItem  |
-     *                      |_______________|
+     * ________________ | candidate | |_______________| ________________ | focusedItem |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1601,18 +1584,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1622,12 +1605,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |   candidate   |
-     *   |_______________|
-     *                       ________________
-     *                      |  focusedItem  |
-     *                      |_______________|
+     * ________________ | candidate | |_______________| ________________ | focusedItem |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -1639,18 +1618,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1677,18 +1656,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1715,18 +1694,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1753,9 +1732,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1764,7 +1741,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1790,9 +1769,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1801,7 +1778,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1827,9 +1806,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1838,7 +1815,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1864,9 +1843,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1875,7 +1852,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1901,9 +1880,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1912,7 +1889,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1938,9 +1917,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -1949,7 +1926,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -1975,18 +1954,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2012,18 +1991,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2048,18 +2027,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2084,9 +2063,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2095,7 +2072,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2121,9 +2100,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2132,7 +2109,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2158,9 +2137,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2169,7 +2146,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2195,9 +2174,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2206,7 +2183,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2232,9 +2211,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2243,7 +2220,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2267,9 +2246,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2278,7 +2255,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2303,9 +2282,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2314,7 +2291,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2339,18 +2318,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2376,18 +2355,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2413,18 +2392,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2450,9 +2429,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2461,7 +2438,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2487,9 +2466,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2498,7 +2475,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2524,9 +2503,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2535,7 +2512,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2561,9 +2540,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2572,7 +2549,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2598,9 +2577,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2609,7 +2586,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2635,9 +2614,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2646,7 +2623,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2672,18 +2651,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2709,18 +2688,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2745,18 +2724,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2766,10 +2745,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________________________
-     *  |               |  focusedItem  |
-     *  |   candidate   |_______________|
-     *  |_______________|
+     * ________________________________ | | focusedItem | | candidate |_______________|
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -2781,9 +2758,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2792,7 +2767,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2802,9 +2779,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________________________
-     *  |   candidate   |  focusedItem  |
-     *  |_______________|_______________|
+     * ________________________________ | candidate | focusedItem |
+     * |_______________|_______________|
      */
     @LargeTest
     @Test
@@ -2816,9 +2792,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2827,7 +2801,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2837,11 +2813,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________________________
-     *  |   candidate   |               |
-     *  |_______________|  focusedItem  |
-     *                  |               |
-     *                  |_______________|
+     * ________________________________ | candidate | | |_______________| focusedItem | | |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -2853,9 +2826,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2864,7 +2835,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2890,9 +2863,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2901,7 +2872,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2927,9 +2900,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2938,7 +2909,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2948,11 +2921,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ________________
-     *  |               |________________
-     *  |   candidate   |  focusedItem  |
-     *  |               |_______________|
-     *  |_______________|
+     * ________________ | |________________ | candidate | focusedItem | | |_______________|
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -2964,9 +2934,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -2975,7 +2943,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -2985,10 +2955,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |               |________________
-     *   |   candidate   |  focusedItem  |
-     *   |_______________|_______________|
+     * ________________ | |________________ | candidate | focusedItem |
+     * |_______________|_______________|
      */
     @LargeTest
     @Test
@@ -3000,9 +2968,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3011,7 +2977,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3021,10 +2989,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |   candidate   |________________
-     *   |_______________|  focusedItem  |
-     *                   |_______________|
+     * ________________ | candidate |________________ |_______________| focusedItem |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -3036,18 +3002,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3057,11 +3023,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ________________
-     *   |   candidate   |
-     *   |_______________|________________
-     *                   |  focusedItem  |
-     *                   |_______________|
+     * ________________ | candidate | |_______________|________________ | focusedItem |
+     * |_______________|
      */
     @LargeTest
     @Test
@@ -3073,18 +3036,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3110,18 +3073,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3147,9 +3110,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3158,7 +3119,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3185,9 +3148,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3196,7 +3157,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3223,9 +3186,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3234,7 +3195,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3261,9 +3224,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3272,7 +3233,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3299,9 +3262,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3310,7 +3271,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3337,9 +3300,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3348,7 +3309,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3373,18 +3336,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3409,9 +3372,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3420,7 +3381,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3446,9 +3409,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3457,7 +3418,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3483,9 +3446,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3494,7 +3455,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3520,9 +3483,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3531,7 +3492,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3557,9 +3520,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3568,7 +3529,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3592,9 +3555,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3603,7 +3564,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3628,9 +3591,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3639,7 +3600,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up, Down -> {
+                Left,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3664,18 +3627,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3702,9 +3665,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3713,7 +3674,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3740,9 +3703,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3751,7 +3712,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3778,9 +3741,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3789,7 +3750,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3816,9 +3779,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3827,7 +3788,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3854,9 +3817,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3865,7 +3826,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3892,9 +3855,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3903,7 +3864,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Up -> {
+                Left,
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3928,18 +3891,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Down -> {
+                Left,
+                Down -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up -> {
+                Right,
+                Up -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3949,10 +3912,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ___________________________________
-     *  |               |  |  focusedItem  |
-     *  |   candidate   |__|_______________|
-     *  |__________________|
+     * ___________________________________ | | | focusedItem | | candidate |__|_______________|
+     * |__________________|
      */
     @LargeTest
     @Test
@@ -3964,9 +3925,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -3975,7 +3934,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -3985,9 +3946,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ___________________________________
-     *  |   candidate   |  |  focusedItem  |
-     *  |_______________|__|_______________|
+     * ___________________________________ | candidate | | focusedItem |
+     * |_______________|__|_______________|
      */
     @LargeTest
     @Test
@@ -3999,9 +3959,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4010,7 +3968,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4020,11 +3980,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ___________________________________
-     *  |   candidate   |  |               |
-     *  |_______________|__|  focusedItem  |
-     *                  |                  |
-     *                  |__________________|
+     * ___________________________________ | candidate | | | |_______________|__| focusedItem | | |
+     * |__________________|
      */
     @LargeTest
     @Test
@@ -4036,9 +3993,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4047,7 +4002,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4073,9 +4030,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4084,7 +4039,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4110,9 +4067,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4121,7 +4076,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4131,11 +4088,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *   ___________________
-     *  |                __|_________________
-     *  |   candidate   |  |   focusedItem  |
-     *  |               |__|________________|
-     *  |__________________|
+     * ___________________ | __|_________________ | candidate | | focusedItem | |
+     * |__|________________| |__________________|
      */
     @MediumTest
     @Test
@@ -4147,9 +4101,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4158,7 +4110,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4168,10 +4122,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ___________________
-     *   |                __|_________________
-     *   |   candidate   |  |   focusedItem  |
-     *   |_______________|__|________________|
+     * ___________________ | __|_________________ | candidate | | focusedItem |
+     * |_______________|__|________________|
      */
     @LargeTest
     @Test
@@ -4183,9 +4135,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4194,7 +4144,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Up, Down -> {
+                Right,
+                Up,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4204,10 +4156,8 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
     }
 
     /**
-     *    ___________________
-     *   |   candidate    __|________________
-     *   |_______________|__|  focusedItem  |
-     *                   |__________________|
+     * ___________________ | candidate __|________________ |_______________|__| focusedItem |
+     * |__________________|
      */
     @LargeTest
     @Test
@@ -4219,18 +4169,18 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             when (focusDirection) {
-                Left, Up -> {
+                Left,
+                Up -> {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Right, Down -> {
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4257,9 +4207,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4268,7 +4216,9 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
                     assertThat(focusedItem.value).isFalse()
                     assertThat(candidate.value).isTrue()
                 }
-                Left, Right, Down -> {
+                Left,
+                Right,
+                Down -> {
                     assertThat(focusedItem.value).isTrue()
                     assertThat(candidate.value).isFalse()
                 }
@@ -4294,9 +4244,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4322,9 +4270,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4350,9 +4296,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4378,9 +4322,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4406,9 +4348,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4434,9 +4374,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4462,9 +4400,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4490,9 +4426,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4519,9 +4453,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4547,9 +4479,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4575,9 +4505,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4603,9 +4531,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4631,9 +4557,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4659,9 +4583,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4687,9 +4609,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4715,9 +4635,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4743,9 +4661,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4772,9 +4688,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4793,14 +4707,12 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
      *          <---- Direction of Search ---          *     |  focus    |_______| |        |
      *                                                 *     |_____________________|
      * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-     *    ______________________                       *      ______________________
-     *   |            ________ |   _________________   *     |            ________ |        |
-     *   |  current  | child | |  |  next sibling  |   *     |  current  | child | |        |
-     *   |  focus    |_______| |  |________________|   *     |  focus    |_______| |    Direction
-     *   |_____________________|                       *     |_____________________|    of Search
-     *                                                 *        _________________           |
-     *          ---- Direction of Search --->          *       |  next sibling  |           |
-     *                                                 *       |________________|           v
+     * ______________________ * ______________________ | ________ | _________________ * | ________ |
+     * | | current | child | | | next sibling | * | current | child | | | | focus |_______| |
+     * |________________| * | focus |_______| | Direction |_____________________| *
+     * |_____________________| of Search
+     * * _________________ | ---- Direction of Search ---> * | next sibling | |
+     * * |________________| v
      */
     @OptIn(ExperimentalComposeUiApi::class)
     @MediumTest
@@ -4839,9 +4751,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -4861,9 +4771,7 @@ class TwoDimensionalFocusTraversalTwoItemsTest(param: Param) {
         }
 
         // Act.
-        rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {

@@ -27,9 +27,9 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * A [CoroutineDispatcher] that will perform dispatch during a [handler] callback or
- * [choreographer]'s animation frame stage, whichever comes first. Use [Main] to obtain
- * a dispatcher for the process's main thread (i.e. the activity thread) or [CurrentThread]
- * to obtain a dispatcher for the current thread.
+ * [choreographer]'s animation frame stage, whichever comes first. Use [Main] to obtain a dispatcher
+ * for the process's main thread (i.e. the activity thread) or [CurrentThread] to obtain a
+ * dispatcher for the current thread.
  */
 // Implementation note: the constructor is private to direct users toward the companion object
 // accessors for the main/current threads. A choreographer must be obtained from its current
@@ -38,10 +38,9 @@ import kotlinx.coroutines.runBlocking
 // not marked as async will adversely affect dispatch behavior but not to the point of
 // incorrectness; more operations would be deferred to the choreographer frame as racing handler
 // messages would wait behind a frame barrier.
-class AndroidUiDispatcher private constructor(
-    val choreographer: Choreographer,
-    private val handler: android.os.Handler
-) : CoroutineDispatcher() {
+class AndroidUiDispatcher
+private constructor(val choreographer: Choreographer, private val handler: android.os.Handler) :
+    CoroutineDispatcher() {
 
     // Guards all properties in this class
     private val lock = Any()
@@ -52,27 +51,26 @@ class AndroidUiDispatcher private constructor(
     private var scheduledTrampolineDispatch = false
     private var scheduledFrameDispatch = false
 
-    private val dispatchCallback = object : Choreographer.FrameCallback, Runnable {
-        override fun run() {
-            performTrampolineDispatch()
-            synchronized(lock) {
-                if (toRunOnFrame.isEmpty()) {
-                    choreographer.removeFrameCallback(this)
-                    scheduledFrameDispatch = false
+    private val dispatchCallback =
+        object : Choreographer.FrameCallback, Runnable {
+            override fun run() {
+                performTrampolineDispatch()
+                synchronized(lock) {
+                    if (toRunOnFrame.isEmpty()) {
+                        choreographer.removeFrameCallback(this)
+                        scheduledFrameDispatch = false
+                    }
                 }
+            }
+
+            override fun doFrame(frameTimeNanos: Long) {
+                handler.removeCallbacks(this)
+                performTrampolineDispatch()
+                performFrameDispatch(frameTimeNanos)
             }
         }
 
-        override fun doFrame(frameTimeNanos: Long) {
-            handler.removeCallbacks(this)
-            performTrampolineDispatch()
-            performFrameDispatch(frameTimeNanos)
-        }
-    }
-
-    private fun nextTask(): Runnable? = synchronized(lock) {
-        toRunTrampolined.removeFirstOrNull()
-    }
+    private fun nextTask(): Runnable? = synchronized(lock) { toRunTrampolined.removeFirstOrNull() }
 
     private fun performTrampolineDispatch() {
         do {
@@ -96,14 +94,15 @@ class AndroidUiDispatcher private constructor(
     }
 
     private fun performFrameDispatch(frameTimeNanos: Long) {
-        val toRun = synchronized(lock) {
-            if (!scheduledFrameDispatch) return
-            scheduledFrameDispatch = false
-            val result = toRunOnFrame
-            toRunOnFrame = spareToRunOnFrame
-            spareToRunOnFrame = result
-            result
-        }
+        val toRun =
+            synchronized(lock) {
+                if (!scheduledFrameDispatch) return
+                scheduledFrameDispatch = false
+                val result = toRunOnFrame
+                toRunOnFrame = spareToRunOnFrame
+                spareToRunOnFrame = result
+                result
+            }
         for (i in 0 until toRun.size) {
             // This callback will not and must not throw, see AndroidUiFrameClock
             toRun[i].doFrame(frameTimeNanos)
@@ -122,14 +121,12 @@ class AndroidUiDispatcher private constructor(
     }
 
     internal fun removeFrameCallback(callback: Choreographer.FrameCallback) {
-        synchronized(lock) {
-            toRunOnFrame.remove(callback)
-        }
+        synchronized(lock) { toRunOnFrame.remove(callback) }
     }
 
     /**
-     * A [MonotonicFrameClock] associated with this [AndroidUiDispatcher]'s [choreographer]
-     * that may be used to await [Choreographer] frame dispatch.
+     * A [MonotonicFrameClock] associated with this [AndroidUiDispatcher]'s [choreographer] that may
+     * be used to await [Choreographer] frame dispatch.
      */
     val frameClock: MonotonicFrameClock = AndroidUiFrameClock(choreographer, this)
 
@@ -153,37 +150,42 @@ class AndroidUiDispatcher private constructor(
          * process's main thread.
          */
         val Main: CoroutineContext by lazy {
-            val dispatcher = AndroidUiDispatcher(
-                if (isMainThread()) Choreographer.getInstance()
-                else runBlocking(Dispatchers.Main) { Choreographer.getInstance() },
-                HandlerCompat.createAsync(Looper.getMainLooper())
-            )
+            val dispatcher =
+                AndroidUiDispatcher(
+                    if (isMainThread()) Choreographer.getInstance()
+                    else runBlocking(Dispatchers.Main) { Choreographer.getInstance() },
+                    HandlerCompat.createAsync(Looper.getMainLooper())
+                )
 
             dispatcher + dispatcher.frameClock
         }
 
         private val currentThread: ThreadLocal<CoroutineContext> =
             object : ThreadLocal<CoroutineContext>() {
-                override fun initialValue(): CoroutineContext = AndroidUiDispatcher(
-                    Choreographer.getInstance(),
-                    HandlerCompat.createAsync(
-                        Looper.myLooper()
-                            ?: error("no Looper on this thread")
-                    )
-                ).let { it + it.frameClock }
+                override fun initialValue(): CoroutineContext =
+                    AndroidUiDispatcher(
+                            Choreographer.getInstance(),
+                            HandlerCompat.createAsync(
+                                Looper.myLooper() ?: error("no Looper on this thread")
+                            )
+                        )
+                        .let { it + it.frameClock }
             }
 
         /**
          * The canonical [CoroutineContext] containing the [AndroidUiDispatcher] and its
-         * [frameClock] for the calling thread. Returns [Main] if accessed from the process's
-         * main thread.
+         * [frameClock] for the calling thread. Returns [Main] if accessed from the process's main
+         * thread.
          *
-         * Throws [IllegalStateException] if the calling thread does not have
-         * both a [Choreographer] and an active [Looper].
+         * Throws [IllegalStateException] if the calling thread does not have both a [Choreographer]
+         * and an active [Looper].
          */
-        val CurrentThread: CoroutineContext get() = if (isMainThread()) Main else {
-            currentThread.get() ?: error("no AndroidUiDispatcher for this thread")
-        }
+        val CurrentThread: CoroutineContext
+            get() =
+                if (isMainThread()) Main
+                else {
+                    currentThread.get() ?: error("no AndroidUiDispatcher for this thread")
+                }
     }
 }
 

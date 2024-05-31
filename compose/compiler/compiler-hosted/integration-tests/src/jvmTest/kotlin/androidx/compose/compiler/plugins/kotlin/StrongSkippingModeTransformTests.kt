@@ -33,12 +33,13 @@ class StrongSkippingModeTransformTests(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "useFir = {0}, intrinsicRemember = {1}")
-        fun data() = arrayOf<Any>(
-            arrayOf(false, false),
-            arrayOf(false, true),
-            arrayOf(true, false),
-            arrayOf(true, true)
-        )
+        fun data() =
+            arrayOf<Any>(
+                arrayOf(false, false),
+                arrayOf(false, true),
+                arrayOf(true, false),
+                arrayOf(true, true)
+            )
     }
 
     override fun CompilerConfiguration.updateConfiguration() {
@@ -53,67 +54,72 @@ class StrongSkippingModeTransformTests(
     }
 
     @Test
-    fun testSingleStableParam(): Unit = verifyMemoization(
-        """
+    fun testSingleStableParam(): Unit =
+        verifyMemoization(
+            """
             class Foo(val value: Int = 0)
             @Composable fun A(x: Foo) {}
         """,
-        """
+            """
             @Composable
             fun Test(x: Foo) {
                 A(x)
             }
         """
-    )
+        )
 
     @Test
-    fun testSingleUnstableParam(): Unit = verifyMemoization(
-        """
+    fun testSingleUnstableParam(): Unit =
+        verifyMemoization(
+            """
             @Composable fun A(x: Foo) {}
             class Foo(var value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test(x: Foo) {
                 A(x)
             }
         """
-    )
+        )
 
     @Test
-    fun testSingleNullableUnstableParam(): Unit = verifyMemoization(
-        """
+    fun testSingleNullableUnstableParam(): Unit =
+        verifyMemoization(
+            """
             @Composable fun A(x: Foo?) {}
             class Foo(var value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test(x: Foo?) {
                 A(x)
             }
         """
-    )
+        )
 
     @Test
-    fun testSingleOptionalUnstableParam(): Unit = verifyMemoization(
-        """
+    fun testSingleOptionalUnstableParam(): Unit =
+        verifyMemoization(
+            """
             @Composable fun A(x: Foo?) {}
             class Foo(var value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test(x: Foo? = Foo()) {
                 A(x)
             }
         """
-    )
+        )
 
     @Test
-    fun testRuntimeStableParam(): Unit = verifyMemoization(
-        """
+    fun testRuntimeStableParam(): Unit =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int) {}
         """,
-        """
+            """
             class Holder<T> {
                 @Composable
                 fun Test(x: T) {
@@ -121,15 +127,16 @@ class StrongSkippingModeTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testStableUnstableParams(): Unit = verifyMemoization(
-        """
+    fun testStableUnstableParams(): Unit =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int = 0, y: Int = 0): Int { return 10 }
             class Foo(var value: Int = 0)
         """,
-        """
+            """
             @Composable fun CanSkip(a: Int = 0, b: Foo = Foo()) {
                 used(a)
                 used(b)
@@ -143,45 +150,48 @@ class StrongSkippingModeTransformTests(
                 print("Hello World")
             }
         """
-    )
+        )
 
     @Test
-    fun testStaticDefaultParam() = verifyMemoization(
-        """
+    fun testStaticDefaultParam() =
+        verifyMemoization(
+            """
             @Composable
             fun A(i: Int, list: List<Int>? = null, set: Set<Int> = emptySet()) {}
         """,
-        """
+            """
             @Composable
             fun Test(i: Int) {
                 A(i)
             }
         """
-    )
+        )
 
     @Test
-    fun testMemoizingUnstableCapturesInLambda() = verifyMemoization(
-        """
+    fun testMemoizingUnstableCapturesInLambda() =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int = 0, y: Int = 0): Int { return 10 }
             class Foo(var value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val foo = Foo(0)
                 val lambda = { foo }
             }
         """
-    )
+        )
 
     @Test
-    fun testDontMemoizeLambda() = verifyMemoization(
-        """
+    fun testDontMemoizeLambda() =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int = 0, y: Int = 0): Int { return 10 }
             class Foo(var value: Int = 0)
             fun Lam(x: ()->Unit) { x() }
         """,
-        """
+            """
             import androidx.compose.runtime.DontMemoize
 
             @Composable
@@ -191,16 +201,17 @@ class StrongSkippingModeTransformTests(
                 Lam @DontMemoize { foo }
             }
         """
-    )
+        )
 
     @Test
-    fun testMemoizingUnstableFunctionParameterInLambda() = verifyMemoization(
-        """
+    fun testMemoizingUnstableFunctionParameterInLambda() =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int = 0, y: Int = 0): Int { return 10 }
             class Foo(var value: Int = 0)
             class Bar(val value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test(foo: Foo, bar: Bar) {
                 val lambda: ()->Unit = { 
@@ -209,16 +220,17 @@ class StrongSkippingModeTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testMemoizingComposableLambda() = verifyMemoization(
-        """
+    fun testMemoizingComposableLambda() =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int = 0, y: Int = 0): Int { return 10 }
             class Foo(var value: Int = 0)
             class Bar(val value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test(foo: Foo, bar: Bar) {
                 val lambda: @Composable ()->Unit = {
@@ -227,16 +239,17 @@ class StrongSkippingModeTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testMemoizingStableAndUnstableCapturesInLambda() = verifyMemoization(
-        """
+    fun testMemoizingStableAndUnstableCapturesInLambda() =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int = 0, y: Int = 0): Int { return 10 }
             class Foo(var value: Int = 0)
             class Bar(val value: Int = 0)
         """,
-        """
+            """
             @Composable
             fun Test() {
                 val foo = Foo(0)
@@ -247,17 +260,18 @@ class StrongSkippingModeTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testFunctionInterfaceMemorized() = verifyMemoization(
-        """
+    fun testFunctionInterfaceMemorized() =
+        verifyMemoization(
+            """
             fun interface TestFunInterface {
                 fun compute(value: Int)
             }
             fun use(@Suppress("UNUSED_PARAMETER") v: Int) {}
         """,
-        """
+            """
             @Composable fun TestMemoizedFun(compute: TestFunInterface) {}
             @Composable fun Test() {
                 val capture = 0
@@ -271,26 +285,28 @@ class StrongSkippingModeTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testVarArgs() = verifyMemoization(
-        "",
-        """
+    fun testVarArgs() =
+        verifyMemoization(
+            "",
+            """
             @Composable fun Varargs(vararg ints: Int) {
             }
             @Composable fun Test() {
                 Varargs(1, 2, 3)
             }
         """
-    )
+        )
 
     @Test
-    fun testRuntimeStableVarArgs() = verifyMemoization(
-        """
+    fun testRuntimeStableVarArgs() =
+        verifyMemoization(
+            """
             @Composable fun A(x: Int) {}
         """,
-        """
+            """
             class Holder<T> {
                 @Composable
                 fun Test(vararg x: T) {
@@ -298,45 +314,46 @@ class StrongSkippingModeTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testUnstableReceiverFunctionReferenceMemoized() = verifyMemoization(
-        """
+    fun testUnstableReceiverFunctionReferenceMemoized() =
+        verifyMemoization(
+            """
             class Unstable(var qux: Int = 0) { fun method(arg1: Int) {} }
             val unstable = Unstable()
         """,
-        """
+            """
             @Composable
             fun Something() {
                 val x = unstable::method
             }
         """
-    )
+        )
 
     @Test
-    fun testUnstableExtensionReceiverFunctionReferenceMemoized() = verifyMemoization(
-        """
+    fun testUnstableExtensionReceiverFunctionReferenceMemoized() =
+        verifyMemoization(
+            """
             class Unstable(var foo: Int = 0)
             fun Unstable.method(arg1: Int) {}
             val unstable = Unstable()
         """,
-        """
+            """
             @Composable
             fun Something() {
                 val x = unstable::method
             }
         """
-    )
+        )
 
     private fun verifyMemoization(
-        @Language("kotlin")
-        unchecked: String,
-        @Language("kotlin")
-        checked: String,
+        @Language("kotlin") unchecked: String,
+        @Language("kotlin") checked: String,
         dumpTree: Boolean = false
     ) {
-        val source = """
+        val source =
+            """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.NonRestartableComposable
             import androidx.compose.runtime.ReadOnlyComposable
@@ -344,7 +361,8 @@ class StrongSkippingModeTransformTests(
             $checked
         """
 
-        val extra = """
+        val extra =
+            """
              import androidx.compose.runtime.Composable
 
             $unchecked
@@ -357,11 +375,7 @@ class StrongSkippingModeTransformTests(
 
         assertEquals(module1, module2)
 
-        verifyGoldenComposeIrTransform(
-            source,
-            extra,
-            dumpTree = dumpTree
-        )
+        verifyGoldenComposeIrTransform(source, extra, dumpTree = dumpTree)
     }
 
     private fun dumpIrWithPath(

@@ -60,8 +60,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Boolean) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var focusManager: FocusManager
     private lateinit var view: View
@@ -76,9 +75,7 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
     @Test
     fun singleFocusableComposable() {
         // Arrange.
-        setContent {
-            FocusableComponent(composable)
-        }
+        setContent { FocusableComponent(composable) }
 
         // Act.
         rule.focusSearchBackward()
@@ -90,17 +87,13 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
     @Test
     fun singleFocusableView() {
         // Arrange.
-        setContent {
-            AndroidView({ FocusableView(it).apply { view = this } })
-        }
+        setContent { AndroidView({ FocusableView(it).apply { view = this } }) }
 
         // Act.
         rule.focusSearchBackward()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(view.isFocused).isTrue()
-        }
+        rule.runOnIdle { assertThat(view.isFocused).isTrue() }
     }
 
     @Test
@@ -108,9 +101,7 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
         // Arrange.
         setContent {
             AndroidView({
-                LinearLayout(it).apply {
-                    addView(FocusableView(it).apply { view = this })
-                }
+                LinearLayout(it).apply { addView(FocusableView(it).apply { view = this }) }
             })
         }
 
@@ -202,18 +193,19 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
             AndroidView({ context ->
                 LinearLayout(context).apply {
                     addView(FocusableView(context).apply { view2 = this })
-                    addView(ComposeView(context).apply {
-                        setContent {
-                            Row(
-                                Modifier
-                                    .testTag(composable)
-                                    .onFocusChanged { isComposableFocused = it.isFocused }
-                                    .focusable()
-                            ) {
-                                AndroidView({ FocusableView(it).apply { view1 = this } })
+                    addView(
+                        ComposeView(context).apply {
+                            setContent {
+                                Row(
+                                    Modifier.testTag(composable)
+                                        .onFocusChanged { isComposableFocused = it.isFocused }
+                                        .focusable()
+                                ) {
+                                    AndroidView({ FocusableView(it).apply { view1 = this } })
+                                }
                             }
                         }
-                    })
+                    )
                 }
             })
         }
@@ -260,11 +252,7 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
             AndroidView({
                 LinearLayout(it).apply {
                     addView(FocusableView(it).apply { view2 = this })
-                    addView(
-                        ComposeView(it).apply {
-                            setContent { FocusableComponent(composable) }
-                        }
-                    )
+                    addView(ComposeView(it).apply { setContent { FocusableComponent(composable) } })
                     addView(FocusableView(it).apply { view1 = this })
                 }
             })
@@ -667,8 +655,7 @@ class FocusSearchBackwardInteropTest(private val moveFocusProgrammatically: Bool
         if (moveFocusProgrammatically) {
             runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
         } else {
-            InstrumentationRegistry
-                .getInstrumentation()
+            InstrumentationRegistry.getInstrumentation()
                 .sendKeySync(KeyEvent(0L, 0L, ACTION_DOWN, Key.Tab.nativeKeyCode, 0, Shift))
         }
     }

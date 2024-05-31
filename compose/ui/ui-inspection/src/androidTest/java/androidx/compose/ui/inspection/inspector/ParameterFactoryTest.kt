@@ -98,9 +98,7 @@ private const val PARAM_INDEX = 4
 private const val MAX_RECURSIONS = 2
 private const val MAX_ITERABLE_SIZE = 5
 
-@Suppress("unused")
-private fun topLevelFunction() {
-}
+@Suppress("unused") private fun topLevelFunction() {}
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -120,10 +118,8 @@ class ParameterFactoryTest {
 
     @Test
     fun testAbsoluteAlignment() {
-        assertThat(lookup(AbsoluteAlignment.TopLeft))
-            .isEqualTo(ParameterType.String to "TopLeft")
-        assertThat(lookup(AbsoluteAlignment.TopRight))
-            .isEqualTo(ParameterType.String to "TopRight")
+        assertThat(lookup(AbsoluteAlignment.TopLeft)).isEqualTo(ParameterType.String to "TopLeft")
+        assertThat(lookup(AbsoluteAlignment.TopRight)).isEqualTo(ParameterType.String to "TopRight")
         assertThat(lookup(AbsoluteAlignment.CenterLeft))
             .isEqualTo(ParameterType.String to "CenterLeft")
         assertThat(lookup(AbsoluteAlignment.CenterRight))
@@ -132,10 +128,8 @@ class ParameterFactoryTest {
             .isEqualTo(ParameterType.String to "BottomLeft")
         assertThat(lookup(AbsoluteAlignment.BottomRight))
             .isEqualTo(ParameterType.String to "BottomRight")
-        assertThat(lookup(AbsoluteAlignment.Left))
-            .isEqualTo(ParameterType.String to "Left")
-        assertThat(lookup(AbsoluteAlignment.Right))
-            .isEqualTo(ParameterType.String to "Right")
+        assertThat(lookup(AbsoluteAlignment.Left)).isEqualTo(ParameterType.String to "Left")
+        assertThat(lookup(AbsoluteAlignment.Right)).isEqualTo(ParameterType.String to "Right")
     }
 
     @Test
@@ -263,15 +257,13 @@ class ParameterFactoryTest {
     fun testComposableLambda() = runBlocking {
         // capture here to force the lambda to not be created as a singleton.
         val capture = "Hello World"
-        @Suppress("COMPOSABLE_INVOCATION")
-        val c: @Composable () -> Unit = { Text(text = capture) }
+        @Suppress("COMPOSABLE_INVOCATION") val c: @Composable () -> Unit = { Text(text = capture) }
         val result = lookup(c as Any)
         val array = result.second as Array<*>
         assertThat(result.first).isEqualTo(ParameterType.Lambda)
         assertThat(array).hasLength(1)
-        assertThat(array[0]?.javaClass?.name).isEqualTo(
-            "${ParameterFactoryTest::class.java.name}\$testComposableLambda\$1\$c\$1"
-        )
+        assertThat(array[0]?.javaClass?.name)
+            .isEqualTo("${ParameterFactoryTest::class.java.name}\$testComposableLambda\$1\$c\$1")
     }
 
     @Test
@@ -347,14 +339,15 @@ class ParameterFactoryTest {
 
     @Test
     fun testFontListFontFamily() {
-        val family = FontFamily(
-            listOf(
-                Font(1234, FontWeight.Normal, FontStyle.Italic),
-                Font(1235, FontWeight.Normal, FontStyle.Normal),
-                Font(1236, FontWeight.Bold, FontStyle.Italic),
-                Font(1237, FontWeight.Bold, FontStyle.Normal)
+        val family =
+            FontFamily(
+                listOf(
+                    Font(1234, FontWeight.Normal, FontStyle.Italic),
+                    Font(1235, FontWeight.Normal, FontStyle.Normal),
+                    Font(1236, FontWeight.Bold, FontStyle.Italic),
+                    Font(1237, FontWeight.Bold, FontStyle.Normal)
+                )
             )
-        )
         assertThat(lookup(family)).isEqualTo(ParameterType.Resource to 1235)
     }
 
@@ -397,11 +390,7 @@ class ParameterFactoryTest {
     @Test
     fun testPaddingValues() {
         validate(create("padding", PaddingValues(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))) {
-            parameter(
-                "padding",
-                ParameterType.String,
-                "PaddingValuesImpl"
-            ) {
+            parameter("padding", ParameterType.String, "PaddingValuesImpl") {
                 parameter("bottom", ParameterType.DimensionDp, 0.7f)
                 parameter("end", ParameterType.DimensionDp, 2.5f)
                 parameter("start", ParameterType.DimensionDp, 2.0f)
@@ -464,10 +453,11 @@ class ParameterFactoryTest {
 
     @Test
     fun testMapEntry() {
-        val entry = object : Map.Entry<String, String> {
-            override val key = "Hello"
-            override val value = "World"
-        }
+        val entry =
+            object : Map.Entry<String, String> {
+                override val key = "Hello"
+                override val value = "World"
+            }
         validate(create("myEntry", entry)) {
             parameter("myEntry", ParameterType.String, "World") {
                 parameter("key", ParameterType.String, "Hello")
@@ -559,28 +549,29 @@ class ParameterFactoryTest {
 
     @Test
     fun testListWithNullElement() {
-        val value = listOf(
-            "a",
-            null,
-            "b",
-            "c",
-            null,
-            null,
-            null,
-            null,
-            "d",
-            null,
-            "e",
-            null,
-            null,
-            null,
-            null,
-            null,
-            "f",
-            null,
-            "g",
-            null
-        )
+        val value =
+            listOf(
+                "a",
+                null,
+                "b",
+                "c",
+                null,
+                null,
+                null,
+                null,
+                "d",
+                null,
+                "e",
+                null,
+                null,
+                null,
+                null,
+                null,
+                "f",
+                null,
+                "g",
+                null
+            )
         val parameter = create("array", value)
         val refToSelf = ref()
         val display = "List[20]"
@@ -612,8 +603,7 @@ class ParameterFactoryTest {
         validate(
             create(
                 "modifier",
-                Modifier
-                    .background(Color.Blue)
+                Modifier.background(Color.Blue)
                     .border(width = 5.dp, color = Color.Red)
                     .padding(2.0.dp)
                     .fillMaxWidth()
@@ -682,12 +672,7 @@ class ParameterFactoryTest {
         validate(
             create(
                 "modifier",
-                Modifier.graphicsLayer(
-                    scaleX = 2f,
-                    scaleY = 1.5f,
-                    alpha = 0.5f,
-                    clip = true
-                )
+                Modifier.graphicsLayer(scaleX = 2f, scaleY = 1.5f, alpha = 0.5f, clip = true)
             )
         ) {
             parameter("modifier", ParameterType.String, "") {
@@ -718,14 +703,15 @@ class ParameterFactoryTest {
     @Test
     fun testWrappedModifier() {
         @Suppress("DEPRECATION")
-        fun Modifier.frame(color: Color) = inspectable(
-            debugInspectorInfo {
-                name = "frame"
-                value = color
+        fun Modifier.frame(color: Color) =
+            inspectable(
+                debugInspectorInfo {
+                    name = "frame"
+                    value = color
+                }
+            ) {
+                background(color).border(width = 5.dp, color = color)
             }
-        ) {
-            background(color).border(width = 5.dp, color = color)
-        }
         validate(create("modifier", Modifier.width(40.dp).frame(Color.Green).height(50.dp))) {
             parameter("modifier", ParameterType.String, "") {
                 parameter("width", ParameterType.DimensionDp, 40.0f)
@@ -851,8 +837,7 @@ class ParameterFactoryTest {
         runBlocking {
             assertThat(lookup(java.net.URL("http://domain.com")))
                 .isEqualTo(ParameterType.String to "")
-            assertThat(lookup(android.app.Notification()))
-                .isEqualTo(ParameterType.String to "")
+            assertThat(lookup(android.app.Notification())).isEqualTo(ParameterType.String to "")
         }
     }
 
@@ -893,8 +878,7 @@ class ParameterFactoryTest {
         assertThat(lookup(TextDecoration.None)).isEqualTo(ParameterType.String to "None")
         assertThat(lookup(TextDecoration.LineThrough))
             .isEqualTo(ParameterType.String to "LineThrough")
-        assertThat(lookup(TextDecoration.Underline))
-            .isEqualTo(ParameterType.String to "Underline")
+        assertThat(lookup(TextDecoration.Underline)).isEqualTo(ParameterType.String to "Underline")
         assertThat(lookup(TextDecoration.LineThrough + TextDecoration.Underline))
             .isEqualTo(ParameterType.String to "LineThrough+Underline")
     }
@@ -903,7 +887,8 @@ class ParameterFactoryTest {
     fun testTextGeometricTransform() {
         validate(create("transform", TextGeometricTransform(2.0f, 1.5f))) {
             parameter(
-                "transform", ParameterType.String,
+                "transform",
+                ParameterType.String,
                 TextGeometricTransform::class.java.simpleName
             ) {
                 parameter("scaleX", ParameterType.Float, 2.0f)
@@ -926,11 +911,12 @@ class ParameterFactoryTest {
 
     @Test
     fun testTextStyle() {
-        val style = TextStyle(
-            color = Color.Red,
-            textDecoration = TextDecoration.Underline,
-            textDirection = TextDirection.Content
-        )
+        val style =
+            TextStyle(
+                color = Color.Red,
+                textDecoration = TextDecoration.Underline,
+                textDirection = TextDirection.Content
+            )
         validate(create("style", style)) {
             parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
                 parameter("color", ParameterType.Color, Color.Red.toArgb())
@@ -969,17 +955,18 @@ class ParameterFactoryTest {
         maxRecursions: Int = MAX_RECURSIONS,
         maxInitialIterableSize: Int = MAX_ITERABLE_SIZE
     ): NodeParameter {
-        val parameter = factory.create(
-            ROOT_ID,
-            NODE_ID,
-            ANCHOR_HASH,
-            name,
-            value,
-            ParameterKind.Normal,
-            PARAM_INDEX,
-            maxRecursions,
-            maxInitialIterableSize
-        )
+        val parameter =
+            factory.create(
+                ROOT_ID,
+                NODE_ID,
+                ANCHOR_HASH,
+                name,
+                value,
+                ParameterKind.Normal,
+                PARAM_INDEX,
+                maxRecursions,
+                maxInitialIterableSize
+            )
 
         // Check that factory.expand will return the exact same information as factory.create
         // for each parameter and parameter child. Punt if there are references.
@@ -1025,7 +1012,11 @@ class ParameterFactoryTest {
 
     private fun ref(vararg reference: Int): NodeParameterReference =
         NodeParameterReference(
-            NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, intListOf(*reference)
+            NODE_ID,
+            ANCHOR_HASH,
+            ParameterKind.Normal,
+            PARAM_INDEX,
+            intListOf(*reference)
         )
 
     private fun validate(
@@ -1048,13 +1039,14 @@ class ParameterFactoryTest {
         factory.clearReferenceCache()
         val reference =
             NodeParameterReference(NODE_ID, ANCHOR_HASH, ParameterKind.Normal, PARAM_INDEX, indices)
-        val expanded = expand(
-            name,
-            value,
-            reference,
-            maxRecursions = maxRecursions,
-            maxInitialIterableSize = maxInitialIterableSize
-        )
+        val expanded =
+            expand(
+                name,
+                value,
+                reference,
+                maxRecursions = maxRecursions,
+                maxInitialIterableSize = maxInitialIterableSize
+            )
         if (parameter.value == null && indices.isNotEmpty()) {
             assertThat(expanded).isNull()
         } else {
@@ -1079,10 +1071,7 @@ class ParameterFactoryTest {
     }
 }
 
-private class TestPainter(
-    val width: Float,
-    val height: Float
-) : Painter() {
+private class TestPainter(val width: Float, val height: Float) : Painter() {
 
     var color = Color.Red
 
@@ -1150,6 +1139,7 @@ class MyClass(private val name: String) {
     var third: MyClass? = null
 
     override fun hashCode(): Int = name.hashCode()
+
     override fun equals(other: Any?): Boolean = name == (other as? MyClass)?.name
 }
 

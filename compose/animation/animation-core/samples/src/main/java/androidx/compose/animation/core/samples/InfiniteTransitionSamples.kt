@@ -52,43 +52,47 @@ fun InfiniteTransitionSample() {
         val infiniteTransition = rememberInfiniteTransition()
 
         // Creates a child animation of float type as a part of the [InfiniteTransition].
-        val scale by infiniteTransition.animateFloat(
-            initialValue = 3f,
-            targetValue = 6f,
-            animationSpec = infiniteRepeatable(
-                // Infinitely repeating a 1000ms tween animation using default easing curve.
-                animation = tween(1000),
-                // After each iteration of the animation (i.e. every 1000ms), the animation will
-                // start again from the [initialValue] defined above.
-                // This is the default [RepeatMode]. See [RepeatMode.Reverse] below for an
-                // alternative.
-                repeatMode = RepeatMode.Restart
+        val scale by
+            infiniteTransition.animateFloat(
+                initialValue = 3f,
+                targetValue = 6f,
+                animationSpec =
+                    infiniteRepeatable(
+                        // Infinitely repeating a 1000ms tween animation using default easing curve.
+                        animation = tween(1000),
+                        // After each iteration of the animation (i.e. every 1000ms), the animation
+                        // will
+                        // start again from the [initialValue] defined above.
+                        // This is the default [RepeatMode]. See [RepeatMode.Reverse] below for an
+                        // alternative.
+                        repeatMode = RepeatMode.Restart
+                    )
             )
-        )
 
         // Creates a Color animation as a part of the [InfiniteTransition].
-        val color by infiniteTransition.animateColor(
-            initialValue = Color.Red,
-            targetValue = Color(0xff800000), // Dark Red
-            animationSpec = infiniteRepeatable(
-                // Linearly interpolate between initialValue and targetValue every 1000ms.
-                animation = tween(1000, easing = LinearEasing),
-                // Once [TargetValue] is reached, starts the next iteration in reverse (i.e. from
-                // TargetValue to InitialValue). Then again from InitialValue to TargetValue. This
-                // [RepeatMode] ensures that the animation value is *always continuous*.
-                repeatMode = RepeatMode.Reverse
+        val color by
+            infiniteTransition.animateColor(
+                initialValue = Color.Red,
+                targetValue = Color(0xff800000), // Dark Red
+                animationSpec =
+                    infiniteRepeatable(
+                        // Linearly interpolate between initialValue and targetValue every 1000ms.
+                        animation = tween(1000, easing = LinearEasing),
+                        // Once [TargetValue] is reached, starts the next iteration in reverse (i.e.
+                        // from
+                        // TargetValue to InitialValue). Then again from InitialValue to
+                        // TargetValue. This
+                        // [RepeatMode] ensures that the animation value is *always continuous*.
+                        repeatMode = RepeatMode.Reverse
+                    )
             )
-        )
 
         Box(Modifier.fillMaxSize()) {
             Icon(
                 Icons.Filled.Favorite,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.Center)
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale
-                    ),
+                modifier =
+                    Modifier.align(Alignment.Center).graphicsLayer(scaleX = scale, scaleY = scale),
                 tint = color
             )
         }
@@ -101,19 +105,22 @@ fun InfiniteTransitionAnimateValueSample() {
     // Creates an [InfiniteTransition] instance to run child animations.
     val infiniteTransition = rememberInfiniteTransition()
     // Infinitely animate a Dp offset from 0.dp to 100.dp
-    val offsetX by infiniteTransition.animateValue(
-        initialValue = 0.dp,
-        targetValue = 100.dp,
-        typeConverter = Dp.VectorConverter,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = 500
-                0.dp at 200 // ms
-                80.dp at 300 using FastOutLinearInEasing
-            }
-            // Use the default RepeatMode.Restart to start from 0.dp after each iteration
+    val offsetX by
+        infiniteTransition.animateValue(
+            initialValue = 0.dp,
+            targetValue = 100.dp,
+            typeConverter = Dp.VectorConverter,
+            animationSpec =
+                infiniteRepeatable(
+                    animation =
+                        keyframes {
+                            durationMillis = 500
+                            0.dp at 200 // ms
+                            80.dp at 300 using FastOutLinearInEasing
+                        }
+                    // Use the default RepeatMode.Restart to start from 0.dp after each iteration
+                )
         )
-    )
 
     Box(Modifier.offset(x = offsetX)) {
         // Content goes here

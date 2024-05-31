@@ -28,68 +28,67 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.StarProjectionImpl
 
 /**
- * This symbol remapper is aware of possible descriptor signature change to align
- * function signature and descriptor signature in cases of composable value parameters.
- * It removes descriptors whenever the signature changes, forcing it to be generated from IR.
+ * This symbol remapper is aware of possible descriptor signature change to align function signature
+ * and descriptor signature in cases of composable value parameters. It removes descriptors whenever
+ * the signature changes, forcing it to be generated from IR.
  *
  * E.g. when function has a signature of:
  * ```
  * fun A(@Composable f: () -> Unit)
  * ```
+ *
  * it is going to be converted to incompatible signature of:
  * ```
  * fun A(f: (Composer<*>, Int) -> Unit)
  * ```
+ *
  * Same applies for receiver and return types.
  *
  * This conversion is only required with decoys, but can be applied to the JVM as well for
  * consistency.
  *
- * This is K1 specific. In K2, descriptors are only there for backwards compatibility and
- * always reflect the IR.
+ * This is K1 specific. In K2, descriptors are only there for backwards compatibility and always
+ * reflect the IR.
  */
-class ComposableSymbolRemapper : DeepCopySymbolRemapper(
-    object : DescriptorsRemapper {
-        override fun remapDeclaredConstructor(
-            descriptor: ClassConstructorDescriptor
-        ): ClassConstructorDescriptor? =
-            descriptor.takeUnless { it.isTransformed() }
+class ComposableSymbolRemapper :
+    DeepCopySymbolRemapper(
+        object : DescriptorsRemapper {
+            override fun remapDeclaredConstructor(
+                descriptor: ClassConstructorDescriptor
+            ): ClassConstructorDescriptor? = descriptor.takeUnless { it.isTransformed() }
 
-        override fun remapDeclaredSimpleFunction(
-            descriptor: FunctionDescriptor
-        ): FunctionDescriptor? =
-            descriptor.takeUnless { it.isTransformed() }
+            override fun remapDeclaredSimpleFunction(
+                descriptor: FunctionDescriptor
+            ): FunctionDescriptor? = descriptor.takeUnless { it.isTransformed() }
 
-        override fun remapDeclaredValueParameter(
-            descriptor: ParameterDescriptor
-        ): ParameterDescriptor? =
-            descriptor.takeUnless { it.isTransformed() }
+            override fun remapDeclaredValueParameter(
+                descriptor: ParameterDescriptor
+            ): ParameterDescriptor? = descriptor.takeUnless { it.isTransformed() }
 
-        override fun remapDeclaredTypeParameter(
-            descriptor: TypeParameterDescriptor
-        ): TypeParameterDescriptor? =
-            descriptor.takeUnless { it.isTransformed() }
+            override fun remapDeclaredTypeParameter(
+                descriptor: TypeParameterDescriptor
+            ): TypeParameterDescriptor? = descriptor.takeUnless { it.isTransformed() }
 
-        private fun ClassConstructorDescriptor.isTransformed(): Boolean =
-            this is IrBasedDeclarationDescriptor<*> ||
-                valueParameters.any { it.type.containsComposable() }
+            private fun ClassConstructorDescriptor.isTransformed(): Boolean =
+                this is IrBasedDeclarationDescriptor<*> ||
+                    valueParameters.any { it.type.containsComposable() }
 
-        private fun FunctionDescriptor.isTransformed(): Boolean =
-            this is IrBasedDeclarationDescriptor<*> ||
-                valueParameters.any { it.type.containsComposable() } ||
-                returnType?.containsComposable() == true
+            private fun FunctionDescriptor.isTransformed(): Boolean =
+                this is IrBasedDeclarationDescriptor<*> ||
+                    valueParameters.any { it.type.containsComposable() } ||
+                    returnType?.containsComposable() == true
 
-        private fun ParameterDescriptor.isTransformed(): Boolean =
-            this is IrBasedDeclarationDescriptor<*> ||
-                type.containsComposable() ||
-                containingDeclaration.let { it is FunctionDescriptor && it.isTransformed() }
+            private fun ParameterDescriptor.isTransformed(): Boolean =
+                this is IrBasedDeclarationDescriptor<*> ||
+                    type.containsComposable() ||
+                    containingDeclaration.let { it is FunctionDescriptor && it.isTransformed() }
 
-        private fun TypeParameterDescriptor.isTransformed(): Boolean =
-            this is IrBasedDeclarationDescriptor<*> ||
-                containingDeclaration.let { it is FunctionDescriptor && it.isTransformed() }
+            private fun TypeParameterDescriptor.isTransformed(): Boolean =
+                this is IrBasedDeclarationDescriptor<*> ||
+                    containingDeclaration.let { it is FunctionDescriptor && it.isTransformed() }
 
-        private fun KotlinType.containsComposable(): Boolean =
-            hasComposableAnnotation() ||
-                arguments.any { it !is StarProjectionImpl && it.type.containsComposable() }
-    }
-)
+            private fun KotlinType.containsComposable(): Boolean =
+                hasComposableAnnotation() ||
+                    arguments.any { it !is StarProjectionImpl && it.type.containsComposable() }
+        }
+    )

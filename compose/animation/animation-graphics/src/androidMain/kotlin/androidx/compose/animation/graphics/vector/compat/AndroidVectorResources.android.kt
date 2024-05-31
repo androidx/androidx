@@ -16,9 +16,7 @@
 
 package androidx.compose.animation.graphics.vector.compat
 
-/**
- * Constants used to resolve AnimatedVectorDrawable attributes during xml inflation
- */
+/** Constants used to resolve AnimatedVectorDrawable attributes during xml inflation */
 internal object AndroidVectorResources {
 
     val STYLEABLE_ANIMATED_VECTOR_DRAWABLE = intArrayOf(android.R.attr.drawable)
@@ -29,16 +27,17 @@ internal object AndroidVectorResources {
     const val STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_ANIMATION = 1
     const val STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_NAME = 0
 
-    val STYLEABLE_ANIMATOR = intArrayOf(
-        0x01010141,
-        0x01010198,
-        0x010101be,
-        0x010101bf,
-        0x010101c0,
-        0x010102de,
-        0x010102df,
-        0x010102e0
-    )
+    val STYLEABLE_ANIMATOR =
+        intArrayOf(
+            0x01010141,
+            0x01010198,
+            0x010101be,
+            0x010101bf,
+            0x010101c0,
+            0x010102de,
+            0x010102df,
+            0x010102e0
+        )
     const val STYLEABLE_ANIMATOR_INTERPOLATOR = 0
     const val STYLEABLE_ANIMATOR_DURATION = 1
     const val STYLEABLE_ANIMATOR_START_OFFSET = 2
@@ -70,10 +69,8 @@ internal object AndroidVectorResources {
     const val STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_X_NAME = 2
     const val STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_Y_NAME = 3
 
-    val STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR = intArrayOf(
-        android.R.attr.tension,
-        android.R.attr.extraTension
-    )
+    val STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR =
+        intArrayOf(android.R.attr.tension, android.R.attr.extraTension)
     const val STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_TENSION = 0
     const val STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_EXTRA_TENSION = 1
 

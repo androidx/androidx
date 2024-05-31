@@ -53,23 +53,24 @@ class AspectRatioTest : LayoutTest() {
     }
 
     @Test
-    fun testAspectRatioModifier_intrinsicDimensions() = with(density) {
-        testIntrinsics(
-            @Composable {
-                Container(modifier = Modifier.aspectRatio(2f), width = 30.dp, height = 40.dp) { }
-            }
-        ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
-            assertEquals(40, minIntrinsicWidth(20))
-            assertEquals(40, maxIntrinsicWidth(20))
-            assertEquals(20, minIntrinsicHeight(40))
-            assertEquals(20, maxIntrinsicHeight(40))
+    fun testAspectRatioModifier_intrinsicDimensions() =
+        with(density) {
+            testIntrinsics(
+                @Composable {
+                    Container(modifier = Modifier.aspectRatio(2f), width = 30.dp, height = 40.dp) {}
+                }
+            ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+                assertEquals(40, minIntrinsicWidth(20))
+                assertEquals(40, maxIntrinsicWidth(20))
+                assertEquals(20, minIntrinsicHeight(40))
+                assertEquals(20, maxIntrinsicHeight(40))
 
-            assertEquals(30.dp.roundToPx(), minIntrinsicWidth(Constraints.Infinity))
-            assertEquals(30.dp.roundToPx(), maxIntrinsicWidth(Constraints.Infinity))
-            assertEquals(40.dp.roundToPx(), minIntrinsicHeight(Constraints.Infinity))
-            assertEquals(40.dp.roundToPx(), maxIntrinsicHeight(Constraints.Infinity))
+                assertEquals(30.dp.roundToPx(), minIntrinsicWidth(Constraints.Infinity))
+                assertEquals(30.dp.roundToPx(), maxIntrinsicWidth(Constraints.Infinity))
+                assertEquals(40.dp.roundToPx(), minIntrinsicHeight(Constraints.Infinity))
+                assertEquals(40.dp.roundToPx(), maxIntrinsicHeight(Constraints.Infinity))
+            }
         }
-    }
 
     @Test(expected = IllegalArgumentException::class)
     fun testAspectRatioModifier_zeroRatio() {
@@ -85,56 +86,29 @@ class AspectRatioTest : LayoutTest() {
     fun testAspectRatio_sizesCorrectly() {
         assertEquals(IntSize(30, 30), getSize(1f, Constraints(maxWidth = 30)))
         assertEquals(IntSize(30, 15), getSize(2f, Constraints(maxWidth = 30)))
-        assertEquals(
-            IntSize(10, 10),
-            getSize(1f, Constraints(maxWidth = 30, maxHeight = 10))
-        )
-        assertEquals(
-            IntSize(20, 10),
-            getSize(2f, Constraints(maxWidth = 30, maxHeight = 10))
-        )
-        assertEquals(
-            IntSize(10, 5),
-            getSize(2f, Constraints(minWidth = 10, minHeight = 5))
-        )
-        assertEquals(
-            IntSize(20, 10),
-            getSize(2f, Constraints(minWidth = 5, minHeight = 10))
-        )
-        assertEquals(
-            IntSize(20, 10),
-            getSize(2f, Constraints.fixed(20, 20))
-        )
-        assertEquals(
-            IntSize(50, 25),
-            getSize(2f, Constraints(minWidth = 50, minHeight = 20))
-        )
+        assertEquals(IntSize(10, 10), getSize(1f, Constraints(maxWidth = 30, maxHeight = 10)))
+        assertEquals(IntSize(20, 10), getSize(2f, Constraints(maxWidth = 30, maxHeight = 10)))
+        assertEquals(IntSize(10, 5), getSize(2f, Constraints(minWidth = 10, minHeight = 5)))
+        assertEquals(IntSize(20, 10), getSize(2f, Constraints(minWidth = 5, minHeight = 10)))
+        assertEquals(IntSize(20, 10), getSize(2f, Constraints.fixed(20, 20)))
+        assertEquals(IntSize(50, 25), getSize(2f, Constraints(minWidth = 50, minHeight = 20)))
     }
 
     @Test
     fun testAspectRatio_sizesCorrectly_forHeightFirst() {
         assertEquals(IntSize(30, 30), getSize(1f, Constraints(maxHeight = 30), true))
         assertEquals(IntSize(15, 30), getSize(0.5f, Constraints(maxHeight = 30), true))
-        assertEquals(
-            IntSize(10, 10),
-            getSize(1f, Constraints(maxWidth = 10, maxHeight = 30), true)
-        )
+        assertEquals(IntSize(10, 10), getSize(1f, Constraints(maxWidth = 10, maxHeight = 30), true))
         assertEquals(
             IntSize(10, 20),
             getSize(0.5f, Constraints(maxWidth = 10, maxHeight = 30), true)
         )
-        assertEquals(
-            IntSize(5, 10),
-            getSize(0.5f, Constraints(minWidth = 5, minHeight = 10), true)
-        )
+        assertEquals(IntSize(5, 10), getSize(0.5f, Constraints(minWidth = 5, minHeight = 10), true))
         assertEquals(
             IntSize(10, 20),
             getSize(0.5f, Constraints(minWidth = 10, minHeight = 5), true)
         )
-        assertEquals(
-            IntSize(10, 20),
-            getSize(0.5f, Constraints.fixed(20, 20), true)
-        )
+        assertEquals(IntSize(10, 20), getSize(0.5f, Constraints.fixed(20, 20), true))
         assertEquals(
             IntSize(25, 50),
             getSize(0.5f, Constraints(minWidth = 20, minHeight = 50), true)
@@ -153,11 +127,9 @@ class AspectRatioTest : LayoutTest() {
             Layout(
                 @Composable {
                     Container(
-                        Modifier
-                            .aspectRatio(aspectRatio, matchHeightConstraintsFirst)
+                        Modifier.aspectRatio(aspectRatio, matchHeightConstraintsFirst)
                             .then(Modifier.saveLayoutInfo(size, position, positionedLatch))
-                    ) {
-                    }
+                    ) {}
                 }
             ) { measurables, incomingConstraints ->
                 require(measurables.isNotEmpty())
@@ -175,9 +147,10 @@ class AspectRatioTest : LayoutTest() {
     fun testInspectableValue() {
         val modifier = Modifier.aspectRatio(2.0f) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("aspectRatio")
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("ratio", 2.0f),
-            ValueElement("matchHeightConstraintsFirst", false)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(
+                ValueElement("ratio", 2.0f),
+                ValueElement("matchHeightConstraintsFirst", false)
+            )
     }
 }

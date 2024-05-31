@@ -41,27 +41,27 @@ fun SharedElementExplorationDemo() {
     val A = remember {
         movableContentWithReceiverOf<SceneScope, Modifier> { modifier ->
             Box(
-                modifier = Modifier
-                    .sharedElement().then(modifier)
-                    .background(color = Color(0xfff3722c), RoundedCornerShape(10))
+                modifier =
+                    Modifier.sharedElement()
+                        .then(modifier)
+                        .background(color = Color(0xfff3722c), RoundedCornerShape(10))
             )
         }
     }
     val B = remember {
         movableContentWithReceiverOf<SceneScope, Modifier> { modifier ->
             Box(
-                modifier = Modifier
-                    .sharedElement().then(modifier)
-                    .background(color = Color(0xff90be6d), RoundedCornerShape(10))
+                modifier =
+                    Modifier.sharedElement()
+                        .then(modifier)
+                        .background(color = Color(0xff90be6d), RoundedCornerShape(10))
             )
         }
     }
 
     val C = remember {
         movableContentWithReceiverOf<SceneScope, @Composable () -> Unit> { content ->
-            Box(Modifier.sharedElement().background(Color(0xfff9c74f)).padding(20.dp)) {
-                content()
-            }
+            Box(Modifier.sharedElement().background(Color(0xfff9c74f)).padding(20.dp)) { content() }
         }
     }
 

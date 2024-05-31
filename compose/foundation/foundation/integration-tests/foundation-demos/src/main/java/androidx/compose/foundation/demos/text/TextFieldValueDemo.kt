@@ -50,9 +50,7 @@ fun TextFieldValueDemo() {
             var string by remember { mutableStateOf("") }
             BasicTextField(
                 value = string,
-                onValueChange = {
-                    string = it
-                },
+                onValueChange = { string = it },
                 textStyle = TextStyle(fontSize = fontSize8),
                 modifier = demoTextFieldModifiers
             )
@@ -62,9 +60,7 @@ fun TextFieldValueDemo() {
             var uppercaseValue by remember { mutableStateOf("") }
             BasicTextField(
                 value = uppercaseValue,
-                onValueChange = {
-                    uppercaseValue = it.uppercase(java.util.Locale.US)
-                },
+                onValueChange = { uppercaseValue = it.uppercase(java.util.Locale.US) },
                 textStyle = TextStyle(fontSize = fontSize8),
                 modifier = demoTextFieldModifiers
             )
@@ -74,15 +70,11 @@ fun TextFieldValueDemo() {
             var clearedValue by remember { mutableStateOf("") }
             BasicTextField(
                 value = clearedValue,
-                onValueChange = {
-                    clearedValue = it
-                },
+                onValueChange = { clearedValue = it },
                 textStyle = TextStyle(fontSize = fontSize8),
                 modifier = demoTextFieldModifiers
             )
-            Button(onClick = { clearedValue = "" }) {
-                Text("Clear")
-            }
+            Button(onClick = { clearedValue = "" }) { Text("Clear") }
         }
         item {
             TagLine("Delayed callback")

@@ -33,34 +33,29 @@ class RootExistenceAssertTest {
                 ".*\\bsetContent was called before the ComposeTestRule ran\\..*"
     }
 
-    @get:Rule
-    val rule = createEmptyComposeRule()
+    @get:Rule val rule = createEmptyComposeRule()
 
     @Test
     fun noContent_assertExists() {
         expectError<IllegalStateException>(expectedMessage = NoComposeHierarchiesFound) {
-            rule.onNodeWithTag("item")
-                .assertExists()
+            rule.onNodeWithTag("item").assertExists()
         }
     }
 
     @Test
     fun noContent_assertDoesNotExist() {
-        rule.onNodeWithTag("item")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("item").assertDoesNotExist()
     }
 
     @Test
     fun noContent_queryMultipleAssertZero() {
-        rule.onAllNodesWithTag("item")
-            .assertCountEquals(0)
+        rule.onAllNodesWithTag("item").assertCountEquals(0)
     }
 
     @Test
     fun noContent_queryMultipleAssertOne() {
         expectError<IllegalStateException>(expectedMessage = NoComposeHierarchiesFound) {
-            rule.onAllNodesWithTag("item")
-                .assertCountEquals(1)
+            rule.onAllNodesWithTag("item").assertCountEquals(1)
         }
     }
 }

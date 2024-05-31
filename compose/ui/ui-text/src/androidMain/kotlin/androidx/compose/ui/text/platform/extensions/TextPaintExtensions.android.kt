@@ -50,9 +50,7 @@ internal fun AndroidTextPaint.applySpanStyle(
     requiresLetterSpacing: Boolean = false,
 ): SpanStyle? {
     when (style.fontSize.type) {
-        TextUnitType.Sp -> with(density) {
-            textSize = style.fontSize.toPx()
-        }
+        TextUnitType.Sp -> with(density) { textSize = style.fontSize.toPx() }
         TextUnitType.Em -> {
             textSize *= style.fontSize.value
         }
@@ -60,23 +58,25 @@ internal fun AndroidTextPaint.applySpanStyle(
     }
 
     if (style.hasFontAttributes()) {
-        typeface = resolveTypeface(
-            style.fontFamily,
-            style.fontWeight ?: FontWeight.Normal,
-            style.fontStyle ?: FontStyle.Normal,
-            style.fontSynthesis ?: FontSynthesis.All
-        )
+        typeface =
+            resolveTypeface(
+                style.fontFamily,
+                style.fontWeight ?: FontWeight.Normal,
+                style.fontStyle ?: FontStyle.Normal,
+                style.fontSynthesis ?: FontSynthesis.All
+            )
     }
 
     if (style.localeList != null && style.localeList != LocaleList.current) {
         if (Build.VERSION.SDK_INT >= 24) {
             LocaleListHelperMethods.setTextLocales(this, style.localeList)
         } else {
-            val locale = if (style.localeList.isEmpty()) {
-                Locale.current
-            } else {
-                style.localeList[0]
-            }
+            val locale =
+                if (style.localeList.isEmpty()) {
+                    Locale.current
+                } else {
+                    style.localeList[0]
+                }
             textLocale = locale.platformLocale
         }
     }
@@ -85,8 +85,9 @@ internal fun AndroidTextPaint.applySpanStyle(
         fontFeatureSettings = style.fontFeatureSettings
     }
 
-    if (style.textGeometricTransform != null &&
-        style.textGeometricTransform != TextGeometricTransform.None
+    if (
+        style.textGeometricTransform != null &&
+            style.textGeometricTransform != TextGeometricTransform.None
     ) {
         textScaleX *= style.textGeometricTransform.scaleX
         textSkewX += style.textGeometricTransform.skewX
@@ -106,9 +107,7 @@ internal fun AndroidTextPaint.applySpanStyle(
     // apply para level leterspacing
     if (style.letterSpacing.type == TextUnitType.Sp && style.letterSpacing.value != 0.0f) {
         val emWidth = textSize * textScaleX
-        val letterSpacingPx = with(density) {
-            style.letterSpacing.toPx()
-        }
+        val letterSpacingPx = with(density) { style.letterSpacing.toPx() }
         // Do nothing if emWidth is 0.0f.
         if (emWidth != 0.0f) {
             letterSpacing = letterSpacingPx / emWidth
@@ -133,8 +132,9 @@ private fun generateFallbackSpanStyle(
 ): SpanStyle? {
     // letterSpacing needs to be reset at every metricsEffectingSpan transition - so generate
     // a span for it only if there are other spans
-    val hasLetterSpacing = requiresLetterSpacing &&
-        (letterSpacing.type == TextUnitType.Sp && letterSpacing.value != 0f)
+    val hasLetterSpacing =
+        requiresLetterSpacing &&
+            (letterSpacing.type == TextUnitType.Sp && letterSpacing.value != 0f)
 
     // baselineShift and bgColor is reset in the Android Layout constructor,
     // therefore we cannot apply them on paint, have to use spans.
@@ -145,20 +145,36 @@ private fun generateFallbackSpanStyle(
         null
     } else {
         SpanStyle(
-            letterSpacing = if (hasLetterSpacing) { letterSpacing } else { TextUnit.Unspecified },
-            background = if (hasBackgroundColor) { background } else { Color.Unspecified },
-            baselineShift = if (hasBaselineShift) { baselineShift } else { null }
+            letterSpacing =
+                if (hasLetterSpacing) {
+                    letterSpacing
+                } else {
+                    TextUnit.Unspecified
+                },
+            background =
+                if (hasBackgroundColor) {
+                    background
+                } else {
+                    Color.Unspecified
+                },
+            baselineShift =
+                if (hasBaselineShift) {
+                    baselineShift
+                } else {
+                    null
+                }
         )
     }
 }
 
 internal fun AndroidTextPaint.setTextMotion(textMotion: TextMotion?) {
     val finalTextMotion = textMotion ?: TextMotion.Static
-    flags = if (finalTextMotion.subpixelTextPositioning) {
-        flags or TextPaint.SUBPIXEL_TEXT_FLAG
-    } else {
-        flags and TextPaint.SUBPIXEL_TEXT_FLAG.inv()
-    }
+    flags =
+        if (finalTextMotion.subpixelTextPositioning) {
+            flags or TextPaint.SUBPIXEL_TEXT_FLAG
+        } else {
+            flags and TextPaint.SUBPIXEL_TEXT_FLAG.inv()
+        }
     when (finalTextMotion.linearity) {
         TextMotion.Linearity.Linear -> {
             flags = flags or TextPaint.LINEAR_TEXT_FLAG
@@ -176,21 +192,20 @@ internal fun AndroidTextPaint.setTextMotion(textMotion: TextMotion?) {
     }
 }
 
-/**
- * Returns true if this [SpanStyle] contains any font style attributes set.
- */
+/** Returns true if this [SpanStyle] contains any font style attributes set. */
 internal fun SpanStyle.hasFontAttributes(): Boolean {
     return fontFamily != null || fontStyle != null || fontWeight != null
 }
 
 /**
- * Platform shadow layer turns off shadow when blur is zero. Where as developers expect when blur
- * is zero, the shadow is still visible but without any blur. This utility function is used
- * while setting shadow on spans or paint in order to replace 0 with Float.MIN_VALUE so that the
- * shadow will still be visible and the blur is practically 0.
+ * Platform shadow layer turns off shadow when blur is zero. Where as developers expect when blur is
+ * zero, the shadow is still visible but without any blur. This utility function is used while
+ * setting shadow on spans or paint in order to replace 0 with Float.MIN_VALUE so that the shadow
+ * will still be visible and the blur is practically 0.
  */
-internal fun correctBlurRadius(blurRadius: Float) = if (blurRadius == 0f) {
-    Float.MIN_VALUE
-} else {
-    blurRadius
-}
+internal fun correctBlurRadius(blurRadius: Float) =
+    if (blurRadius == 0f) {
+        Float.MIN_VALUE
+    } else {
+        blurRadius
+    }

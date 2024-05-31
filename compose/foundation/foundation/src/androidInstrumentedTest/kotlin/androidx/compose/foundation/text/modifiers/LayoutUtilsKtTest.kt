@@ -31,8 +31,7 @@ import org.junit.runner.RunWith
  * These constants are the largest values that each slot can hold. The following pairings are the
  * only ones allowed:
  *
- * (Big, Tiny), (Tiny, Big)
- * (Medium, Small), (Small, Medium)
+ * (Big, Tiny), (Tiny, Big) (Medium, Small), (Small, Medium)
  *
  * For more information see [Constraints] implementation
  */
@@ -45,57 +44,40 @@ class LayoutUtilsKtTest {
     @Test
     fun finalConstraints_doesntThrowWhenLarge() {
         // this used to throw, ensure it doesn't
-        val subject = finalConstraints(
-            /* minWidth != maxWidth */
-            Constraints(0, 500, 0, BigConstraintValue - 1),
-            true /* width matters */,
-            TextOverflow.Ellipsis,
-            (BigConstraintValue - 1).toFloat()
-        )
+        val subject =
+            finalConstraints(
+                /* minWidth != maxWidth */
+                Constraints(0, 500, 0, BigConstraintValue - 1),
+                true /* width matters */,
+                TextOverflow.Ellipsis,
+                (BigConstraintValue - 1).toFloat()
+            )
         assertThat(subject).isNotNull()
     }
 
     @Test
     fun finalConstraints_returnsTightWidth() {
-        val subject = finalConstraints(
-            Constraints(500, 500, 0, 50),
-            true,
-            TextOverflow.Ellipsis,
-            42f
-        )
+        val subject =
+            finalConstraints(Constraints(500, 500, 0, 50), true, TextOverflow.Ellipsis, 42f)
         assertThat(subject.maxWidth).isEqualTo(500)
     }
 
     @Test
     fun finalConstraints_returnsMaxIntrinsicWhenUnbound() {
-        val subject = finalConstraints(
-            Constraints(500, 500, 0, 50),
-            false,
-            TextOverflow.Clip,
-            1234.1f
-        )
+        val subject =
+            finalConstraints(Constraints(500, 500, 0, 50), false, TextOverflow.Clip, 1234.1f)
         assertThat(subject.maxWidth).isEqualTo(1235)
     }
 
     @Test
     fun finalMaxWidth_returnsTightWidth() {
-        val subject = finalMaxWidth(
-            Constraints(500, 500, 0, 50),
-            true,
-            TextOverflow.Ellipsis,
-            42f
-        )
+        val subject = finalMaxWidth(Constraints(500, 500, 0, 50), true, TextOverflow.Ellipsis, 42f)
         assertThat(subject).isEqualTo(500)
     }
 
     @Test
     fun finalMaxWidth_returnsMaxIntrinsicWhenUnbound() {
-        val subject = finalMaxWidth(
-            Constraints(500, 500, 0, 50),
-            false,
-            TextOverflow.Clip,
-            1234.1f
-        )
+        val subject = finalMaxWidth(Constraints(500, 500, 0, 50), false, TextOverflow.Clip, 1234.1f)
         assertThat(subject).isEqualTo(1235)
     }
 
@@ -126,12 +108,13 @@ class LayoutUtilsKtTest {
             while (1 shl b > 0) {
                 val height = 1 shl b
                 /* shouldn't crash */
-                val constraints = fitPrioritizingWidth(
-                    minWidth = width,
-                    maxWidth = width,
-                    minHeight = height,
-                    maxHeight = height
-                )
+                val constraints =
+                    fitPrioritizingWidth(
+                        minWidth = width,
+                        maxWidth = width,
+                        minHeight = height,
+                        maxHeight = height
+                    )
                 println("$width $height => $constraints")
                 b++
             }

@@ -45,13 +45,8 @@ fun ElevationDemo() {
             val text = getMessage(MaterialTheme.colors.isLight)
             Text(text)
         }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(25.dp)
-        ) {
-            items(elevations) { elevation ->
-                ElevatedCard(elevation)
-            }
+        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(25.dp)) {
+            items(elevations) { elevation -> ElevatedCard(elevation) }
         }
     }
 }
@@ -66,36 +61,20 @@ private fun ElevatedCard(elevation: Dp) {
         border = if (elevation == 0.dp) BorderStroke(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
             Text("$elevation", style = MaterialTheme.typography.h4)
         }
     }
 }
 
-private val elevations = listOf(
-    0.dp,
-    1.dp,
-    2.dp,
-    3.dp,
-    4.dp,
-    6.dp,
-    8.dp,
-    12.dp,
-    16.dp,
-    24.dp
-)
+private val elevations = listOf(0.dp, 1.dp, 2.dp, 3.dp, 4.dp, 6.dp, 8.dp, 12.dp, 16.dp, 24.dp)
 
-private fun getMessage(isLight: Boolean) = (
-    if (isLight) {
+private fun getMessage(isLight: Boolean) =
+    (if (isLight) {
         "In a light theme elevation is represented by shadows"
     } else {
         "In a dark theme elevation is represented by shadows and a translucent white overlay " +
             "applied to the surface"
-    }
-    ) + "\n\nnote: drawing a small border around 0.dp elevation to make it visible where the " +
-    "card edges end"
+    }) +
+        "\n\nnote: drawing a small border around 0.dp elevation to make it visible where the " +
+        "card edges end"

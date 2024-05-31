@@ -64,10 +64,7 @@ internal fun CursorAnchorInfo.Builder.build(
         val compositionEnd = composition?.max ?: -1
 
         if (compositionStart in 0 until compositionEnd) {
-            setComposingText(
-                compositionStart,
-                text.subSequence(compositionStart, compositionEnd)
-            )
+            setComposingText(compositionStart, text.subSequence(compositionStart, compositionEnd))
             addCharacterBounds(
                 compositionStart,
                 compositionEnd,
@@ -125,12 +122,7 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
     innerTextFieldBounds: Rect
 ): CursorAnchorInfo.Builder {
     val array = FloatArray((endOffset - startOffset) * 4)
-    textLayoutResult.multiParagraph.fillBoundingBoxes(
-        TextRange(
-            startOffset,
-            endOffset
-        ), array, 0
-    )
+    textLayoutResult.multiParagraph.fillBoundingBoxes(TextRange(startOffset, endOffset), array, 0)
 
     for (offset in startOffset until endOffset) {
         val arrayIndex = 4 * (offset - startOffset)
@@ -148,7 +140,7 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
         }
         if (
             !innerTextFieldBounds.containsInclusive(rect.left, rect.top) ||
-            !innerTextFieldBounds.containsInclusive(rect.right, rect.bottom)
+                !innerTextFieldBounds.containsInclusive(rect.right, rect.bottom)
         ) {
             flags = flags or CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
         }

@@ -30,12 +30,10 @@ import org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor
 open class ComposeDiagnosticSuppressor : DiagnosticSuppressor {
 
     companion object {
-        fun registerExtension(
-            project: Project,
-            extension: DiagnosticSuppressor
-        ) {
+        fun registerExtension(project: Project, extension: DiagnosticSuppressor) {
             @Suppress("DEPRECATION")
-            Extensions.getRootArea().getExtensionPoint(DiagnosticSuppressor.EP_NAME)
+            Extensions.getRootArea()
+                .getExtensionPoint(DiagnosticSuppressor.EP_NAME)
                 .registerExtension(extension, project)
         }
     }
@@ -46,11 +44,8 @@ open class ComposeDiagnosticSuppressor : DiagnosticSuppressor {
 
     override fun isSuppressed(diagnostic: Diagnostic, bindingContext: BindingContext?): Boolean {
         if (diagnostic.factory == Errors.NON_SOURCE_ANNOTATION_ON_INLINED_LAMBDA_EXPRESSION) {
-            for (
-                entry in (
-                    diagnostic.psiElement.parent as KtAnnotatedExpression
-                    ).annotationEntries
-            ) {
+            for (entry in
+                (diagnostic.psiElement.parent as KtAnnotatedExpression).annotationEntries) {
                 if (bindingContext != null) {
                     val annotation = bindingContext.get(BindingContext.ANNOTATION, entry)
                     if (annotation != null && annotation.isComposableAnnotation) return true
@@ -61,8 +56,10 @@ open class ComposeDiagnosticSuppressor : DiagnosticSuppressor {
         }
         if (diagnostic.factory == Errors.NAMED_ARGUMENTS_NOT_ALLOWED) {
             if (bindingContext != null) {
-                val call = (diagnostic.psiElement.parent.parent.parent.parent as KtCallExpression)
-                    .getCall(bindingContext).getResolvedCall(bindingContext)
+                val call =
+                    (diagnostic.psiElement.parent.parent.parent.parent as KtCallExpression)
+                        .getCall(bindingContext)
+                        .getResolvedCall(bindingContext)
                 if (call != null) {
                     return call.isComposableInvocation()
                 }

@@ -38,18 +38,17 @@ import org.junit.runners.JUnit4
 class SelectionLayoutTest {
     @Test
     fun layoutBuilderSizeZero_throws() {
-        assertFailsWith(IllegalStateException::class) {
-            buildSelectionLayoutForTest { }
-        }
+        assertFailsWith(IllegalStateException::class) { buildSelectionLayoutForTest {} }
     }
 
     @Test
     fun singleLayout_verifySimpleParameters() {
         val selection = getSelection()
-        val layout = getSingleSelectionLayoutForTest(
-            isStartHandle = true,
-            previousSelection = selection,
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                isStartHandle = true,
+                previousSelection = selection,
+            )
         assertThat(layout.isStartHandle).isTrue()
         assertThat(layout.previousSelection).isEqualTo(selection)
     }
@@ -57,12 +56,13 @@ class SelectionLayoutTest {
     @Test
     fun layoutBuilder_verifySimpleParameters() {
         val selection = getSelection()
-        val layout = buildSelectionLayoutForTest(
-            isStartHandle = true,
-            previousSelection = selection,
-        ) {
-            appendInfoForTest()
-        }
+        val layout =
+            buildSelectionLayoutForTest(
+                isStartHandle = true,
+                previousSelection = selection,
+            ) {
+                appendInfoForTest()
+            }
         assertThat(layout.isStartHandle).isTrue()
         assertThat(layout.previousSelection).isEqualTo(selection)
     }
@@ -86,9 +86,7 @@ class SelectionLayoutTest {
 
     @Test
     fun size_layoutBuilderSizeOne_returnsOne() {
-        val selection = buildSelectionLayoutForTest {
-            appendInfoForTest()
-        }
+        val selection = buildSelectionLayoutForTest { appendInfoForTest() }
         assertThat(selection.size).isEqualTo(1)
     }
 
@@ -300,28 +298,31 @@ class SelectionLayoutTest {
 
     @Test
     fun crossStatus_singleLayout_collapsed() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawStartHandleOffset = 0,
-            rawEndHandleOffset = 0,
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawStartHandleOffset = 0,
+                rawEndHandleOffset = 0,
+            )
         assertThat(layout.crossStatus).isEqualTo(CrossStatus.COLLAPSED)
     }
 
     @Test
     fun crossStatus_singleLayout_crossed() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawStartHandleOffset = 1,
-            rawEndHandleOffset = 0,
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawStartHandleOffset = 1,
+                rawEndHandleOffset = 0,
+            )
         assertThat(layout.crossStatus).isEqualTo(CrossStatus.CROSSED)
     }
 
     @Test
     fun crossStatus_singleLayout_notCrossed() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawStartHandleOffset = 0,
-            rawEndHandleOffset = 1,
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawStartHandleOffset = 0,
+                rawEndHandleOffset = 1,
+            )
         assertThat(layout.crossStatus).isEqualTo(CrossStatus.NOT_CROSSED)
     }
 
@@ -551,35 +552,37 @@ class SelectionLayoutTest {
 
     @Test
     fun currentInfo_layoutBuilder_currentInfo_startHandle_equalsFirst() {
-        val layout = buildSelectionLayoutForTest(isStartHandle = true) {
-            appendInfoForTest(
-                selectableId = 1L,
-                startYHandleDirection = ON,
-                endYHandleDirection = AFTER,
-            )
-            appendInfoForTest(
-                selectableId = 2L,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = ON,
-            )
-        }
+        val layout =
+            buildSelectionLayoutForTest(isStartHandle = true) {
+                appendInfoForTest(
+                    selectableId = 1L,
+                    startYHandleDirection = ON,
+                    endYHandleDirection = AFTER,
+                )
+                appendInfoForTest(
+                    selectableId = 2L,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = ON,
+                )
+            }
         assertThat(layout.currentInfo.selectableId).isEqualTo(1L)
     }
 
     @Test
     fun currentInfo_layoutBuilder_endHandle_equalsSecond() {
-        val layout = buildSelectionLayoutForTest(isStartHandle = false) {
-            appendInfoForTest(
-                selectableId = 1L,
-                startYHandleDirection = ON,
-                endYHandleDirection = AFTER,
-            )
-            appendInfoForTest(
-                selectableId = 2L,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = ON,
-            )
-        }
+        val layout =
+            buildSelectionLayoutForTest(isStartHandle = false) {
+                appendInfoForTest(
+                    selectableId = 1L,
+                    startYHandleDirection = ON,
+                    endYHandleDirection = AFTER,
+                )
+                appendInfoForTest(
+                    selectableId = 2L,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = ON,
+                )
+            }
         assertThat(layout.currentInfo.selectableId).isEqualTo(2L)
     }
 
@@ -688,11 +691,12 @@ class SelectionLayoutTest {
                 startYHandleDirection = ON,
                 endYHandleDirection = AFTER,
             )
-            info = appendInfoForTest(
-                selectableId = 2L,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = AFTER,
-            )
+            info =
+                appendInfoForTest(
+                    selectableId = 2L,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = AFTER,
+                )
             appendInfoForTest(
                 selectableId = 3L,
                 startYHandleDirection = BEFORE,
@@ -714,16 +718,18 @@ class SelectionLayoutTest {
                 startYHandleDirection = ON,
                 endYHandleDirection = AFTER,
             )
-            infoOne = appendInfoForTest(
-                selectableId = 2L,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = AFTER,
-            )
-            infoTwo = appendInfoForTest(
-                selectableId = 3L,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = AFTER,
-            )
+            infoOne =
+                appendInfoForTest(
+                    selectableId = 2L,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = AFTER,
+                )
+            infoTwo =
+                appendInfoForTest(
+                    selectableId = 3L,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = AFTER,
+                )
             appendInfoForTest(
                 selectableId = 4L,
                 startYHandleDirection = BEFORE,
@@ -737,19 +743,21 @@ class SelectionLayoutTest {
 
     @Test
     fun shouldRecomputeSelection_singleLayout_otherNull_returnsTrue() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
         assertThat(layout.shouldRecomputeSelection(null)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_singleLayout_otherMulti_returnsTrue() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
         val otherLayout = buildSelectionLayoutForTest {
             appendInfoForTest()
             appendInfoForTest()
@@ -759,239 +767,233 @@ class SelectionLayoutTest {
 
     @Test
     fun shouldRecomputeSelection_singleLayout_differentHandle_returnsTrue() {
-        val layout = getSingleSelectionLayoutForTest(
-            isStartHandle = true,
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
-        val otherLayout = getSingleSelectionLayoutForTest(
-            isStartHandle = false,
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                isStartHandle = true,
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
+        val otherLayout =
+            getSingleSelectionLayoutForTest(
+                isStartHandle = false,
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_singleLayout_differentInfo_returnsTrue() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawStartHandleOffset = 0,
-            previousSelection = getSelection()
-        )
-        val otherLayout = getSingleSelectionLayoutForTest(
-            rawStartHandleOffset = 1,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawStartHandleOffset = 0,
+                previousSelection = getSelection()
+            )
+        val otherLayout =
+            getSingleSelectionLayoutForTest(
+                rawStartHandleOffset = 1,
+                previousSelection = getSelection()
+            )
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_singleLayout_noPreviousSelection_returnsTrue() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-        )
-        val otherLayout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+            )
+        val otherLayout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_singleLayout_sameLayout_returnsFalse() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
         assertThat(layout.shouldRecomputeSelection(layout)).isFalse()
     }
 
     @Test
     fun shouldRecomputeSelection_singleLayout_equalLayout_returnsFalse() {
-        val layout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
-        val otherLayout = getSingleSelectionLayoutForTest(
-            rawPreviousHandleOffset = 5,
-            previousSelection = getSelection()
-        )
+        val layout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
+        val otherLayout =
+            getSingleSelectionLayoutForTest(
+                rawPreviousHandleOffset = 5,
+                previousSelection = getSelection()
+            )
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isFalse()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_otherNull_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
         assertThat(layout.shouldRecomputeSelection(null)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_otherSingle_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
-        val otherLayout = getSingleSelectionLayoutForTest(
-            previousSelection = getSelection(),
-            rawPreviousHandleOffset = 5
-        )
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
+        val otherLayout =
+            getSingleSelectionLayoutForTest(
+                previousSelection = getSelection(),
+                rawPreviousHandleOffset = 5
+            )
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_differentStartSlot_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = AFTER,
-            )
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = ON,
-            )
-        }
-        val otherLayout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = ON,
-                endYHandleDirection = AFTER,
-            )
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = ON,
-            )
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = AFTER,
+                )
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = ON,
+                )
+            }
+        val otherLayout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = ON,
+                    endYHandleDirection = AFTER,
+                )
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = ON,
+                )
+            }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_differentEndSlot_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = ON,
-                endYHandleDirection = AFTER,
-            )
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = AFTER,
-            )
-        }
-        val otherLayout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = ON,
-                endYHandleDirection = AFTER,
-            )
-            appendInfoForTest(
-                rawEndHandleOffset = 5,
-                rawPreviousHandleOffset = 5,
-                startYHandleDirection = BEFORE,
-                endYHandleDirection = ON,
-            )
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = ON,
+                    endYHandleDirection = AFTER,
+                )
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = AFTER,
+                )
+            }
+        val otherLayout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = ON,
+                    endYHandleDirection = AFTER,
+                )
+                appendInfoForTest(
+                    rawEndHandleOffset = 5,
+                    rawPreviousHandleOffset = 5,
+                    startYHandleDirection = BEFORE,
+                    endYHandleDirection = ON,
+                )
+            }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_differentHandle_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            isStartHandle = true,
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
-        val otherLayout = buildSelectionLayoutForTest(
-            previousSelection = getSelection(),
-            isStartHandle = false
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
+        val layout =
+            buildSelectionLayoutForTest(isStartHandle = true, previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
+        val otherLayout =
+            buildSelectionLayoutForTest(previousSelection = getSelection(), isStartHandle = false) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_differentSize_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
-        val otherLayout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
+        val otherLayout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_differentInfo_returnsTrue() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
-        val otherLayout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 4, rawPreviousHandleOffset = 5)
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
+        val otherLayout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 4, rawPreviousHandleOffset = 5)
+            }
         assertThat(layout.shouldRecomputeSelection(otherLayout)).isTrue()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_sameLayout_returnsFalse() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
         assertThat(layout.shouldRecomputeSelection(layout)).isFalse()
     }
 
     @Test
     fun shouldRecomputeSelection_layoutBuilder_equalLayout_returnsFalse() {
-        val layout = buildSelectionLayoutForTest(
-            previousSelection = getSelection()
-        ) {
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-            appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
-        }
+        val layout =
+            buildSelectionLayoutForTest(previousSelection = getSelection()) {
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+                appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
+            }
         val otherLayout = buildSelectionLayoutForTest {
             appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
             appendInfoForTest(rawEndHandleOffset = 5, rawPreviousHandleOffset = 5)
@@ -1005,8 +1007,7 @@ class SelectionLayoutTest {
         val selection = getSelection(startOffset = 1, endOffset = 0, handlesCrossed = false)
         val actual = layout.createSubSelections(selection).toMap()
         assertThat(actual).hasSize(1)
-        assertThat(actual.toList().single().second)
-            .isEqualTo(selection.copy(handlesCrossed = true))
+        assertThat(actual.toList().single().second).isEqualTo(selection.copy(handlesCrossed = true))
     }
 
     @Test
@@ -1031,30 +1032,23 @@ class SelectionLayoutTest {
 
     @Test
     fun createSubSelections_builtSingleLayout_validSelection_returnsInputSelection() {
-        val layout = buildSelectionLayoutForTest {
-            appendInfoForTest(selectableId = 1L)
-        }
+        val layout = buildSelectionLayoutForTest { appendInfoForTest(selectableId = 1L) }
         val selection = getSelection()
         assertThat(layout.createSubSelections(selection).toMap()).containsExactly(1L, selection)
     }
 
     @Test
     fun createSubSelections_layoutBuilder_missNonCrossedSingleSelection_returnsCrossedSelection() {
-        val layout = buildSelectionLayoutForTest {
-            appendInfoForTest(selectableId = 1L)
-        }
+        val layout = buildSelectionLayoutForTest { appendInfoForTest(selectableId = 1L) }
         val selection = getSelection(startOffset = 1, endOffset = 0, handlesCrossed = false)
         val actual = layout.createSubSelections(selection).toMap()
         assertThat(actual).hasSize(1)
-        assertThat(actual.toList().single().second)
-            .isEqualTo(selection.copy(handlesCrossed = true))
+        assertThat(actual.toList().single().second).isEqualTo(selection.copy(handlesCrossed = true))
     }
 
     @Test
     fun createSubSelections_layoutBuilder_missCrossedSingleSelection_returnsUncrossedSelection() {
-        val layout = buildSelectionLayoutForTest {
-            appendInfoForTest(selectableId = 1L)
-        }
+        val layout = buildSelectionLayoutForTest { appendInfoForTest(selectableId = 1L) }
         val selection = getSelection(startOffset = 0, endOffset = 1, handlesCrossed = true)
         val actual = layout.createSubSelections(selection).toMap()
         assertThat(actual).hasSize(1)
@@ -1087,10 +1081,13 @@ class SelectionLayoutTest {
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 2L)
-        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
-            1L, getSelection(startSelectableId = 1L, endSelectableId = 1L),
-            2L, getSelection(startSelectableId = 2L, endSelectableId = 2L),
-        )
+        assertThat(layout.createSubSelections(selection).toMap())
+            .containsExactly(
+                1L,
+                getSelection(startSelectableId = 1L, endSelectableId = 1L),
+                2L,
+                getSelection(startSelectableId = 2L, endSelectableId = 2L),
+            )
     }
 
     @Test
@@ -1113,11 +1110,15 @@ class SelectionLayoutTest {
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 3L)
-        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
-            1L, getSelection(startSelectableId = 1L, endSelectableId = 1L),
-            2L, getSelection(startSelectableId = 2L, endSelectableId = 2L),
-            3L, getSelection(startSelectableId = 3L, endSelectableId = 3L),
-        )
+        assertThat(layout.createSubSelections(selection).toMap())
+            .containsExactly(
+                1L,
+                getSelection(startSelectableId = 1L, endSelectableId = 1L),
+                2L,
+                getSelection(startSelectableId = 2L, endSelectableId = 2L),
+                3L,
+                getSelection(startSelectableId = 3L, endSelectableId = 3L),
+            )
     }
 
     @Test
@@ -1145,12 +1146,17 @@ class SelectionLayoutTest {
             )
         }
         val selection = getSelection(startSelectableId = 1L, endSelectableId = 4L)
-        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
-            1L, getSelection(startSelectableId = 1L, endSelectableId = 1L),
-            2L, getSelection(startSelectableId = 2L, endSelectableId = 2L),
-            3L, getSelection(startSelectableId = 3L, endSelectableId = 3L),
-            4L, getSelection(startSelectableId = 4L, endSelectableId = 4L),
-        )
+        assertThat(layout.createSubSelections(selection).toMap())
+            .containsExactly(
+                1L,
+                getSelection(startSelectableId = 1L, endSelectableId = 1L),
+                2L,
+                getSelection(startSelectableId = 2L, endSelectableId = 2L),
+                3L,
+                getSelection(startSelectableId = 3L, endSelectableId = 3L),
+                4L,
+                getSelection(startSelectableId = 4L, endSelectableId = 4L),
+            )
     }
 
     @Test
@@ -1164,13 +1170,14 @@ class SelectionLayoutTest {
                 rawEndHandleOffset = 0,
             )
         }
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 5,
-            endSelectableId = 1L,
-            endOffset = 0,
-            handlesCrossed = true
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 5,
+                endSelectableId = 1L,
+                endOffset = 0,
+                handlesCrossed = true
+            )
         assertThat(layout.createSubSelections(selection).toMap()).containsExactly(1L, selection)
     }
 
@@ -1192,31 +1199,33 @@ class SelectionLayoutTest {
                 rawEndHandleOffset = 0,
             )
         }
-        val selection = getSelection(
-            startSelectableId = 2L,
-            startOffset = 5,
-            endSelectableId = 1L,
-            endOffset = 0,
-            handlesCrossed = true
-        )
-        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
-            1L,
-            getSelection(
-                startSelectableId = 1L,
-                endSelectableId = 1L,
-                startOffset = 5,
-                endOffset = 0,
-                handlesCrossed = true
-            ),
-            2L,
+        val selection =
             getSelection(
                 startSelectableId = 2L,
-                endSelectableId = 2L,
                 startOffset = 5,
+                endSelectableId = 1L,
                 endOffset = 0,
                 handlesCrossed = true
-            ),
-        )
+            )
+        assertThat(layout.createSubSelections(selection).toMap())
+            .containsExactly(
+                1L,
+                getSelection(
+                    startSelectableId = 1L,
+                    endSelectableId = 1L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+                2L,
+                getSelection(
+                    startSelectableId = 2L,
+                    endSelectableId = 2L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+            )
     }
 
     @Test
@@ -1244,39 +1253,41 @@ class SelectionLayoutTest {
                 rawEndHandleOffset = 0,
             )
         }
-        val selection = getSelection(
-            startSelectableId = 3L,
-            startOffset = 5,
-            endSelectableId = 1L,
-            endOffset = 0,
-            handlesCrossed = true
-        )
-        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
-            1L,
-            getSelection(
-                startSelectableId = 1L,
-                endSelectableId = 1L,
-                startOffset = 5,
-                endOffset = 0,
-                handlesCrossed = true
-            ),
-            2L,
-            getSelection(
-                startSelectableId = 2L,
-                endSelectableId = 2L,
-                startOffset = 5,
-                endOffset = 0,
-                handlesCrossed = true
-            ),
-            3L,
+        val selection =
             getSelection(
                 startSelectableId = 3L,
-                endSelectableId = 3L,
                 startOffset = 5,
+                endSelectableId = 1L,
                 endOffset = 0,
                 handlesCrossed = true
-            ),
-        )
+            )
+        assertThat(layout.createSubSelections(selection).toMap())
+            .containsExactly(
+                1L,
+                getSelection(
+                    startSelectableId = 1L,
+                    endSelectableId = 1L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+                2L,
+                getSelection(
+                    startSelectableId = 2L,
+                    endSelectableId = 2L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+                3L,
+                getSelection(
+                    startSelectableId = 3L,
+                    endSelectableId = 3L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+            )
     }
 
     @Test
@@ -1311,47 +1322,49 @@ class SelectionLayoutTest {
                 rawEndHandleOffset = 0,
             )
         }
-        val selection = getSelection(
-            startSelectableId = 4L,
-            startOffset = 5,
-            endSelectableId = 1L,
-            endOffset = 0,
-            handlesCrossed = true
-        )
-        assertThat(layout.createSubSelections(selection).toMap()).containsExactly(
-            1L,
-            getSelection(
-                startSelectableId = 1L,
-                endSelectableId = 1L,
-                startOffset = 5,
-                endOffset = 0,
-                handlesCrossed = true
-            ),
-            2L,
-            getSelection(
-                startSelectableId = 2L,
-                endSelectableId = 2L,
-                startOffset = 5,
-                endOffset = 0,
-                handlesCrossed = true
-            ),
-            3L,
-            getSelection(
-                startSelectableId = 3L,
-                endSelectableId = 3L,
-                startOffset = 5,
-                endOffset = 0,
-                handlesCrossed = true
-            ),
-            4L,
+        val selection =
             getSelection(
                 startSelectableId = 4L,
-                endSelectableId = 4L,
                 startOffset = 5,
+                endSelectableId = 1L,
                 endOffset = 0,
                 handlesCrossed = true
-            ),
-        )
+            )
+        assertThat(layout.createSubSelections(selection).toMap())
+            .containsExactly(
+                1L,
+                getSelection(
+                    startSelectableId = 1L,
+                    endSelectableId = 1L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+                2L,
+                getSelection(
+                    startSelectableId = 2L,
+                    endSelectableId = 2L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+                3L,
+                getSelection(
+                    startSelectableId = 3L,
+                    endSelectableId = 3L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+                4L,
+                getSelection(
+                    startSelectableId = 4L,
+                    endSelectableId = 4L,
+                    startOffset = 5,
+                    endOffset = 0,
+                    handlesCrossed = true
+                ),
+            )
     }
 
     @Test
@@ -1387,137 +1400,158 @@ class SelectionLayoutTest {
 
     @Test
     fun selection_isCollapsed_layoutBuilder_twoLayouts_empty_returnsTrue() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 0,
-            endSelectableId = 2L,
-            endOffset = 0
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = ""),
-                getSelectableInfoFake(selectableId = 2L, text = ""),
-            ),
-            startSlot = 1,
-            endSlot = 3,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 0,
+                endSelectableId = 2L,
+                endOffset = 0
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = ""),
+                        getSelectableInfoFake(selectableId = 2L, text = ""),
+                    ),
+                startSlot = 1,
+                endSlot = 3,
+            )
         assertThat(selection.isCollapsed(layout)).isTrue()
     }
 
     @Test
     fun selection_isCollapsed_layoutBuilder_twoLayouts_collapsed_returnsTrue() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 5,
-            endSelectableId = 2L,
-            endOffset = 0
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = "hello"),
-                getSelectableInfoFake(selectableId = 2L, text = "hello"),
-            ),
-            startSlot = 1,
-            endSlot = 3,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 5,
+                endSelectableId = 2L,
+                endOffset = 0
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = "hello"),
+                        getSelectableInfoFake(selectableId = 2L, text = "hello"),
+                    ),
+                startSlot = 1,
+                endSlot = 3,
+            )
         assertThat(selection.isCollapsed(layout)).isTrue()
     }
 
     @Test
     fun selection_isCollapsed_layoutBuilder_twoLayouts_notCollapsedInFirst_returnsFalse() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 4,
-            endSelectableId = 2L,
-            endOffset = 0
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = "hello"),
-                getSelectableInfoFake(selectableId = 2L, text = "hello"),
-            ),
-            startSlot = 1,
-            endSlot = 3,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 4,
+                endSelectableId = 2L,
+                endOffset = 0
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = "hello"),
+                        getSelectableInfoFake(selectableId = 2L, text = "hello"),
+                    ),
+                startSlot = 1,
+                endSlot = 3,
+            )
         assertThat(selection.isCollapsed(layout)).isFalse()
     }
 
     @Test
     fun selection_isCollapsed_layoutBuilder_twoLayouts_notCollapsedInSecond_returnsFalse() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 5,
-            endSelectableId = 2L,
-            endOffset = 1
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = "hello"),
-                getSelectableInfoFake(selectableId = 2L, text = "hello"),
-            ),
-            startSlot = 1,
-            endSlot = 3,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 5,
+                endSelectableId = 2L,
+                endOffset = 1
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = "hello"),
+                        getSelectableInfoFake(selectableId = 2L, text = "hello"),
+                    ),
+                startSlot = 1,
+                endSlot = 3,
+            )
         assertThat(selection.isCollapsed(layout)).isFalse()
     }
 
     @Test
     fun selection_isCollapsed_layoutBuilder_threeLayouts_empty_returnsTrue() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 0,
-            endSelectableId = 3L,
-            endOffset = 0
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = ""),
-                getSelectableInfoFake(selectableId = 2L, text = ""),
-                getSelectableInfoFake(selectableId = 3L, text = ""),
-            ),
-            startSlot = 1,
-            endSlot = 5,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 0,
+                endSelectableId = 3L,
+                endOffset = 0
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = ""),
+                        getSelectableInfoFake(selectableId = 2L, text = ""),
+                        getSelectableInfoFake(selectableId = 3L, text = ""),
+                    ),
+                startSlot = 1,
+                endSlot = 5,
+            )
         assertThat(selection.isCollapsed(layout)).isTrue()
     }
 
     @Test
     fun selection_isCollapsed_layoutBuilder_threeLayouts_collapsed_returnsTrue() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 5,
-            endSelectableId = 3L,
-            endOffset = 0
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = "hello"),
-                getSelectableInfoFake(selectableId = 2L, text = ""),
-                getSelectableInfoFake(selectableId = 3L, text = "hello"),
-            ),
-            startSlot = 1,
-            endSlot = 5,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 5,
+                endSelectableId = 3L,
+                endOffset = 0
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = "hello"),
+                        getSelectableInfoFake(selectableId = 2L, text = ""),
+                        getSelectableInfoFake(selectableId = 3L, text = "hello"),
+                    ),
+                startSlot = 1,
+                endSlot = 5,
+            )
         assertThat(selection.isCollapsed(layout)).isTrue()
     }
 
     @Test
     fun selection_isCollapsed_layoutBuilder_threeLayouts_notCollapsed_returnsFalse() {
-        val selection = getSelection(
-            startSelectableId = 1L,
-            startOffset = 5,
-            endSelectableId = 3L,
-            endOffset = 0
-        )
-        val layout = getSelectionLayoutFake(
-            infos = listOf(
-                getSelectableInfoFake(selectableId = 1L, text = "hello"),
-                getSelectableInfoFake(selectableId = 2L, text = "."),
-                getSelectableInfoFake(selectableId = 3L, text = "hello"),
-            ),
-            startSlot = 1,
-            endSlot = 5,
-        )
+        val selection =
+            getSelection(
+                startSelectableId = 1L,
+                startOffset = 5,
+                endSelectableId = 3L,
+                endOffset = 0
+            )
+        val layout =
+            getSelectionLayoutFake(
+                infos =
+                    listOf(
+                        getSelectableInfoFake(selectableId = 1L, text = "hello"),
+                        getSelectableInfoFake(selectableId = 2L, text = "."),
+                        getSelectableInfoFake(selectableId = 3L, text = "hello"),
+                    ),
+                startSlot = 1,
+                endSlot = 5,
+            )
         assertThat(selection.isCollapsed(layout)).isFalse()
     }
 
@@ -1534,16 +1568,17 @@ class SelectionLayoutTest {
     ): SelectionLayout {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         return SelectionLayoutBuilder(
-            currentPosition = currentPosition,
-            previousHandlePosition = previousHandlePosition,
-            containerCoordinates = containerCoordinates,
-            isStartHandle = isStartHandle,
-            previousSelection = previousSelection,
-            selectableIdOrderingComparator = selectableIdOrderingComparator,
-        ).run {
-            block()
-            build()
-        }
+                currentPosition = currentPosition,
+                previousHandlePosition = previousHandlePosition,
+                containerCoordinates = containerCoordinates,
+                isStartHandle = isStartHandle,
+                previousSelection = previousSelection,
+                selectableIdOrderingComparator = selectableIdOrderingComparator,
+            )
+            .run {
+                block()
+                build()
+            }
     }
 
     private fun SelectionLayoutBuilder.appendInfoForTest(
@@ -1560,12 +1595,13 @@ class SelectionLayoutTest {
         wordBoundaries: List<TextRange> = listOf(),
         lineBreaks: List<Int> = emptyList(),
     ): SelectableInfo {
-        val layoutResult = getTextLayoutResultMock(
-            text = text,
-            rtlCharRanges = rtlRanges,
-            wordBoundaries = wordBoundaries,
-            lineBreaks = lineBreaks,
-        )
+        val layoutResult =
+            getTextLayoutResultMock(
+                text = text,
+                rtlCharRanges = rtlRanges,
+                wordBoundaries = wordBoundaries,
+                lineBreaks = lineBreaks,
+            )
         return appendInfo(
             selectableId = selectableId,
             rawStartHandleOffset = rawStartHandleOffset,
@@ -1592,12 +1628,13 @@ class SelectionLayoutTest {
         previousSelection: Selection? = null,
         isStartOfSelection: Boolean = previousSelection == null,
     ): SelectionLayout {
-        val layoutResult = getTextLayoutResultMock(
-            text = text,
-            rtlCharRanges = rtlRanges,
-            wordBoundaries = wordBoundaries,
-            lineBreaks = lineBreaks,
-        )
+        val layoutResult =
+            getTextLayoutResultMock(
+                text = text,
+                rtlCharRanges = rtlRanges,
+                wordBoundaries = wordBoundaries,
+                lineBreaks = lineBreaks,
+            )
         return getTextFieldSelectionLayout(
             layoutResult = layoutResult,
             rawStartHandleOffset = rawStartHandleOffset,

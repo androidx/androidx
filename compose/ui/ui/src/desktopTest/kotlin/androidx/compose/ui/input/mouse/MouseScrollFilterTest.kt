@@ -34,7 +34,8 @@ import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
-@Ignore // TODO(b/217238066) remove after migration to ImageComposeScene (it will be upstreamed from Compose MPP 1.0.0)
+@Ignore // TODO(b/217238066) remove after migration to ImageComposeScene (it will be upstreamed from
+// Compose MPP 1.0.0)
 class MouseScrollFilterTest {
     private val window = TestComposeWindow(width = 100, height = 100, density = Density(2f))
 
@@ -45,8 +46,7 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent = event
                         actualBounds = bounds
                         true
@@ -73,8 +73,7 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent = event
                         actualBounds = bounds
                         true
@@ -102,8 +101,7 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent1 = event
                         actualBounds1 = bounds
                         true
@@ -111,8 +109,7 @@ class MouseScrollFilterTest {
                     .size(10.dp, 20.dp)
             )
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent2 = event
                         actualBounds2 = bounds
                         true
@@ -141,21 +138,14 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent = event
                         actualBounds = bounds
                         true
                     }
                     .size(10.dp, 20.dp)
             )
-            Box(
-                Modifier
-                    .mouseScrollFilter { _, _ ->
-                        false
-                    }
-                    .size(5.dp, 10.dp)
-            )
+            Box(Modifier.mouseScrollFilter { _, _ -> false }.size(5.dp, 10.dp))
         }
 
         window.onMouseScroll(
@@ -175,18 +165,14 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent = event
                         actualBounds = bounds
                         true
                     }
                     .size(10.dp, 20.dp)
             )
-            Box(
-                Modifier
-                    .size(5.dp, 10.dp)
-            )
+            Box(Modifier.size(5.dp, 10.dp))
         }
 
         window.onMouseScroll(
@@ -209,8 +195,7 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent1 = event
                         actualBounds1 = bounds
                         true
@@ -218,8 +203,7 @@ class MouseScrollFilterTest {
                     .size(10.dp, 20.dp)
             ) {
                 Box(
-                    Modifier
-                        .mouseScrollFilter { event, bounds ->
+                    Modifier.mouseScrollFilter { event, bounds ->
                             actualEvent2 = event
                             actualBounds2 = bounds
                             true
@@ -249,21 +233,14 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent = event
                         actualBounds = bounds
                         true
                     }
                     .size(10.dp, 20.dp)
             ) {
-                Box(
-                    Modifier
-                        .mouseScrollFilter { _, _ ->
-                            false
-                        }
-                        .size(5.dp, 10.dp)
-                )
+                Box(Modifier.mouseScrollFilter { _, _ -> false }.size(5.dp, 10.dp))
             }
         }
 
@@ -285,18 +262,14 @@ class MouseScrollFilterTest {
 
         window.setContent {
             Box(
-                Modifier
-                    .mouseScrollFilter { event, bounds ->
+                Modifier.mouseScrollFilter { event, bounds ->
                         actualEvent = event
                         actualBounds = bounds
                         true
                     }
                     .size(10.dp, 20.dp)
             ) {
-                Box(
-                    Modifier
-                        .size(5.dp, 10.dp)
-                )
+                Box(Modifier.size(5.dp, 10.dp))
             }
         }
 

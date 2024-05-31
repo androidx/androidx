@@ -80,25 +80,31 @@ class DecayAnimationTest {
 
         val startValue = 2000f
         val startVelocity = 800f
-        val fullAnim = FloatExponentialDecaySpec(absVelocityThreshold = 0f).createAnimation(
-            startValue,
-            startVelocity
-        )
+        val fullAnim =
+            FloatExponentialDecaySpec(absVelocityThreshold = 0f)
+                .createAnimation(startValue, startVelocity)
 
         val finishValue = fullAnim.getValueFromNanos(Int.MAX_VALUE.toLong())
 
-        val finishValue1 = anim1.createAnimation(startValue, startVelocity)
-            .getValueFromNanos(Int.MAX_VALUE.toLong())
+        val finishValue1 =
+            anim1
+                .createAnimation(startValue, startVelocity)
+                .getValueFromNanos(Int.MAX_VALUE.toLong())
 
-        val finishVelocity1 = anim1.createAnimation(startValue, startVelocity)
-            .getVelocityVectorFromNanos(Int.MAX_VALUE.toLong()).value
+        val finishVelocity1 =
+            anim1
+                .createAnimation(startValue, startVelocity)
+                .getVelocityVectorFromNanos(Int.MAX_VALUE.toLong())
+                .value
 
         // Verify that the finish velocity is at the threshold
         assertEquals(threshold, finishVelocity1, epsilon)
 
         // Feed in the finish value from anim1 to anim2
-        val finishValue2 = anim2.createAnimation(finishValue1, finishVelocity1)
-            .getValueFromNanos(Int.MAX_VALUE.toLong())
+        val finishValue2 =
+            anim2
+                .createAnimation(finishValue1, finishVelocity1)
+                .getValueFromNanos(Int.MAX_VALUE.toLong())
 
         assertEquals(finishValue, finishValue2, 2f)
     }

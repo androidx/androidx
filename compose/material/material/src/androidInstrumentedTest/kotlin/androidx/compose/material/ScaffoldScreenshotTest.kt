@@ -50,11 +50,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ScaffoldScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     @Test
     fun onlyContent() {
@@ -69,9 +67,7 @@ class ScaffoldScreenshotTest {
             }
         }
 
-        assertScaffoldMatches(
-            "scaffold_onlyContent"
-        )
+        assertScaffoldMatches("scaffold_onlyContent")
     }
 
     @Test
@@ -87,9 +83,7 @@ class ScaffoldScreenshotTest {
             }
         }
 
-        assertScaffoldMatches(
-            "scaffold_topAppBar"
-        )
+        assertScaffoldMatches("scaffold_topAppBar")
     }
 
     @Test
@@ -726,11 +720,10 @@ class ScaffoldScreenshotTest {
      *
      * @param goldenIdentifier the identifier for the corresponding screenshot
      */
-    private fun assertScaffoldMatches(
-        goldenIdentifier: String
-    ) {
+    private fun assertScaffoldMatches(goldenIdentifier: String) {
         // Capture and compare screenshots
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }
@@ -743,11 +736,11 @@ class ScaffoldScreenshotTest {
  * @param showBottomAppBar whether to show a [BottomAppBar] or not
  * @param showFab whether to show a [FloatingActionButton] or not
  * @param dockedFab whether the FAB (if present) is docked to the [BottomAppBar] or not
- * @param fabCutout whether the [BottomAppBar] (if present) should draw a cutout where the FAB
- * (if present) is, when docked to the [BottomAppBar].
+ * @param fabCutout whether the [BottomAppBar] (if present) should draw a cutout where the FAB (if
+ *   present) is, when docked to the [BottomAppBar].
  * @param fabPosition the [FabPosition] of the FAB (if present)
  * @param rtl whether to set [LayoutDirection.Rtl] as the [LayoutDirection] for this Scaffold and
- * its content
+ *   its content
  */
 @Composable
 private fun ScreenshotScaffold(
@@ -760,51 +753,53 @@ private fun ScreenshotScaffold(
     fabPosition: FabPosition = FabPosition.End,
     rtl: Boolean = false
 ) {
-    val topAppBar = @Composable {
-        if (showTopAppBar) {
-            TopAppBar(title = { Text("Scaffold") })
+    val topAppBar =
+        @Composable {
+            if (showTopAppBar) {
+                TopAppBar(title = { Text("Scaffold") })
+            }
         }
-    }
 
-    val bottomAppBar = @Composable {
-        if (showBottomAppBar) {
-            val cutoutShape = if (fabCutout) CircleShape else null
-            BottomAppBar(cutoutShape = cutoutShape) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Filled.Menu, null)
+    val bottomAppBar =
+        @Composable {
+            if (showBottomAppBar) {
+                val cutoutShape = if (fabCutout) CircleShape else null
+                BottomAppBar(cutoutShape = cutoutShape) {
+                    IconButton(onClick = {}) { Icon(Icons.Filled.Menu, null) }
                 }
             }
         }
-    }
 
-    val snackbar = @Composable {
-        if (showSnackbar) {
-            val snackbarData = object : SnackbarData {
-                override val message = "Snackbar"
-                override val actionLabel = "Click me"
-                override fun dismiss() {}
-                override fun performAction() {}
-                override val duration = SnackbarDuration.Indefinite
+    val snackbar =
+        @Composable {
+            if (showSnackbar) {
+                val snackbarData =
+                    object : SnackbarData {
+                        override val message = "Snackbar"
+                        override val actionLabel = "Click me"
+
+                        override fun dismiss() {}
+
+                        override fun performAction() {}
+
+                        override val duration = SnackbarDuration.Indefinite
+                    }
+                Snackbar(snackbarData)
             }
-            Snackbar(snackbarData)
         }
-    }
 
-    val fab = @Composable {
-        if (showFab) {
-            FloatingActionButton(
-                content = { Icon(Icons.Filled.Favorite, null) },
-                onClick = {}
-            )
+    val fab =
+        @Composable {
+            if (showFab) {
+                FloatingActionButton(content = { Icon(Icons.Filled.Favorite, null) }, onClick = {})
+            }
         }
-    }
 
     val layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
 
     CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
         Box(
-            Modifier
-                .fillMaxSize(0.5f)
+            Modifier.fillMaxSize(0.5f)
                 .wrapContentSize()
                 .semantics(mergeDescendants = true) {}
                 .testTag(Tag)
@@ -818,10 +813,10 @@ private fun ScreenshotScaffold(
                 isFloatingActionButtonDocked = dockedFab,
                 content = { innerPadding ->
                     Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                            .background(MaterialTheme.colors.secondary.copy(alpha = 0.3f))
+                        modifier =
+                            Modifier.padding(innerPadding)
+                                .fillMaxSize()
+                                .background(MaterialTheme.colors.secondary.copy(alpha = 0.3f))
                     ) {
                         Text(
                             text = "Scaffold Content",

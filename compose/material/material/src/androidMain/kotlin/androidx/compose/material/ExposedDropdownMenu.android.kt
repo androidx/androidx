@@ -68,7 +68,8 @@ import androidx.compose.ui.unit.DpOffset
 import kotlin.math.max
 
 /**
- * [Material Design Exposed Dropdown Menu](https://material.io/components/menus#exposed-dropdown-menu).
+ * [Material Design Exposed Dropdown
+ * Menu](https://material.io/components/menus#exposed-dropdown-menu).
  *
  * Box for Exposed Dropdown Menu. Expected to contain [TextField] and
  * [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as a content.
@@ -101,62 +102,57 @@ fun ExposedDropdownMenuBox(
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
     val coordinates = remember { Ref<LayoutCoordinates>() }
 
-    val scope = remember(density, menuHeight, width) {
-        object : ExposedDropdownMenuBoxScope() {
-            override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
-                return with(density) {
-                    heightIn(max = menuHeight.toDp()).let {
-                        if (matchTextFieldWidth) {
-                            it.width(width.toDp())
-                        } else it
+    val scope =
+        remember(density, menuHeight, width) {
+            object : ExposedDropdownMenuBoxScope() {
+                override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
+                    return with(density) {
+                        heightIn(max = menuHeight.toDp()).let {
+                            if (matchTextFieldWidth) {
+                                it.width(width.toDp())
+                            } else it
+                        }
                     }
                 }
             }
         }
-    }
     val focusRequester = remember { FocusRequester() }
 
     Box(
-        modifier.onGloballyPositioned {
-            width = it.size.width
-            coordinates.value = it
-            updateHeight(
-                view.rootView,
-                coordinates.value,
-                verticalMarginInPx
-            ) { newHeight ->
-                menuHeight = newHeight
+        modifier
+            .onGloballyPositioned {
+                width = it.size.width
+                coordinates.value = it
+                updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
+                    menuHeight = newHeight
+                }
             }
-        }.expandable(
-            onExpandedChange = { onExpandedChange(!expanded) },
-            menuLabel = getString(Strings.ExposedDropdownMenu)
-        ).focusRequester(focusRequester)
+            .expandable(
+                onExpandedChange = { onExpandedChange(!expanded) },
+                menuLabel = getString(Strings.ExposedDropdownMenu)
+            )
+            .focusRequester(focusRequester)
     ) {
         scope.content()
     }
 
-    SideEffect {
-        if (expanded) focusRequester.requestFocus()
-    }
+    SideEffect { if (expanded) focusRequester.requestFocus() }
 
     DisposableEffect(view) {
-        val listener = OnGlobalLayoutListener(view) {
-            // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
-            updateHeight(
-                view.rootView,
-                coordinates.value,
-                verticalMarginInPx
-            ) { newHeight ->
-                menuHeight = newHeight
+        val listener =
+            OnGlobalLayoutListener(view) {
+                // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
+                updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
+                    menuHeight = newHeight
+                }
             }
-        }
         onDispose { listener.dispose() }
     }
 }
 
 /**
- * Subscribes to onGlobalLayout and correctly removes the callback when the View is detached.
- * Logic copied from AndroidPopup.android.kt.
+ * Subscribes to onGlobalLayout and correctly removes the callback when the View is detached. Logic
+ * copied from AndroidPopup.android.kt.
  */
 private class OnGlobalLayoutListener(
     private val view: View,
@@ -193,37 +189,28 @@ private class OnGlobalLayoutListener(
     }
 }
 
-/**
- * Scope for [ExposedDropdownMenuBox].
- */
+/** Scope for [ExposedDropdownMenuBox]. */
 @ExperimentalMaterialApi
 abstract class ExposedDropdownMenuBoxScope {
     /**
-     * Modifier which should be applied to an [ExposedDropdownMenu]
-     * placed inside the scope. It's responsible for
-     * setting the width of the [ExposedDropdownMenu], which
-     * will match the width of the [TextField]
-     * (if [matchTextFieldWidth] is set to true).
-     * Also it'll change the height of [ExposedDropdownMenu], so
-     * it'll take the largest possible height to not overlap
-     * the [TextField] and the software keyboard.
+     * Modifier which should be applied to an [ExposedDropdownMenu] placed inside the scope. It's
+     * responsible for setting the width of the [ExposedDropdownMenu], which will match the width of
+     * the [TextField] (if [matchTextFieldWidth] is set to true). Also it'll change the height of
+     * [ExposedDropdownMenu], so it'll take the largest possible height to not overlap the
+     * [TextField] and the software keyboard.
      *
-     * @param matchTextFieldWidth Whether menu should match
-     * the width of the text field to which it's attached.
-     * If set to true the width will match the width
-     * of the text field.
+     * @param matchTextFieldWidth Whether menu should match the width of the text field to which
+     *   it's attached. If set to true the width will match the width of the text field.
      */
-    abstract fun Modifier.exposedDropdownSize(
-        matchTextFieldWidth: Boolean = true
-    ): Modifier
+    abstract fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean = true): Modifier
 
     /**
-     * Popup which contains content for Exposed Dropdown Menu.
-     * Should be used inside the content of [ExposedDropdownMenuBox].
+     * Popup which contains content for Exposed Dropdown Menu. Should be used inside the content of
+     * [ExposedDropdownMenuBox].
      *
      * @param expanded Whether the menu is currently open and visible to the user
-     * @param onDismissRequest Called when the user requests to dismiss the menu, such as by
-     * tapping outside the menu's bounds
+     * @param onDismissRequest Called when the user requests to dismiss the menu, such as by tapping
+     *   outside the menu's bounds
      * @param modifier The modifier to apply to this layout
      * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
      * @param content The content of the [ExposedDropdownMenu]
@@ -251,12 +238,10 @@ abstract class ExposedDropdownMenuBoxScope {
         if (expandedStates.currentState || expandedStates.targetState) {
             val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
             val density = LocalDensity.current
-            val popupPositionProvider = DropdownMenuPositionProvider(
-                DpOffset.Zero,
-                density
-            ) { parentBounds, menuBounds ->
-                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
-            }
+            val popupPositionProvider =
+                DropdownMenuPositionProvider(DpOffset.Zero, density) { parentBounds, menuBounds ->
+                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+                }
 
             ExposedDropdownMenuPopup(
                 onDismissRequest = onDismissRequest,
@@ -274,38 +259,28 @@ abstract class ExposedDropdownMenuBoxScope {
     }
 }
 
-/**
- * Contains default values used by Exposed Dropdown Menu.
- */
+/** Contains default values used by Exposed Dropdown Menu. */
 @ExperimentalMaterialApi
 object ExposedDropdownMenuDefaults {
     /**
      * Default trailing icon for Exposed Dropdown Menu.
      *
-     * @param expanded Whether [ExposedDropdownMenuBoxScope.ExposedDropdownMenu]
-     * is expanded or not. Affects the appearance of the icon.
+     * @param expanded Whether [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] is expanded or not.
+     *   Affects the appearance of the icon.
      * @param onIconClick Called when the icon was clicked.
      */
     @ExperimentalMaterialApi
     @Composable
-    fun TrailingIcon(
-        expanded: Boolean,
-        onIconClick: () -> Unit = {}
-    ) {
+    fun TrailingIcon(expanded: Boolean, onIconClick: () -> Unit = {}) {
         // Clear semantics here as otherwise icon will be a11y focusable but without an
         // action. When there's an API to check if Talkback is on, developer will be able to
         // expand the menu on icon click in a11y mode only esp. if using their own custom
         // trailing icon.
-        IconButton(onClick = onIconClick, modifier = Modifier.clearAndSetSemantics { }) {
+        IconButton(onClick = onIconClick, modifier = Modifier.clearAndSetSemantics {}) {
             Icon(
                 Icons.Filled.ArrowDropDown,
                 "Trailing icon for exposed dropdown menu",
-                Modifier.rotate(
-                    if (expanded)
-                        180f
-                    else
-                        360f
-                )
+                Modifier.rotate(if (expanded) 180f else 360f)
             )
         }
     }
@@ -315,43 +290,41 @@ object ExposedDropdownMenuDefaults {
      * (including label, placeholder, leading and trailing icons) colors used in a [TextField].
      *
      * @param textColor Represents the color used for the input text of this text field.
-     * @param disabledTextColor Represents the color used for the input text of this text field
-     * when it's disabled.
+     * @param disabledTextColor Represents the color used for the input text of this text field when
+     *   it's disabled.
      * @param backgroundColor Represents the background color for this text field.
      * @param cursorColor Represents the cursor color for this text field.
-     * @param errorCursorColor Represents the cursor color for this text field
-     * when it's in error state.
-     * @param focusedIndicatorColor Represents the indicator color for this text field
-     * when it's focused.
-     * @param unfocusedIndicatorColor Represents the indicator color for this text field
-     * when it's not focused.
-     * @param disabledIndicatorColor Represents the indicator color for this text field
-     * when it's disabled.
-     * @param errorIndicatorColor Represents the indicator color for this text field
-     * when it's in error state.
+     * @param errorCursorColor Represents the cursor color for this text field when it's in error
+     *   state.
+     * @param focusedIndicatorColor Represents the indicator color for this text field when it's
+     *   focused.
+     * @param unfocusedIndicatorColor Represents the indicator color for this text field when it's
+     *   not focused.
+     * @param disabledIndicatorColor Represents the indicator color for this text field when it's
+     *   disabled.
+     * @param errorIndicatorColor Represents the indicator color for this text field when it's in
+     *   error state.
      * @param leadingIconColor Represents the leading icon color for this text field.
-     * @param disabledLeadingIconColor Represents the leading icon color for this text field
-     * when it's disabled.
-     * @param errorLeadingIconColor Represents the leading icon color for this text field
-     * when it's in error state.
+     * @param disabledLeadingIconColor Represents the leading icon color for this text field when
+     *   it's disabled.
+     * @param errorLeadingIconColor Represents the leading icon color for this text field when it's
+     *   in error state.
      * @param trailingIconColor Represents the trailing icon color for this text field.
-     * @param focusedTrailingIconColor Represents the trailing icon color for this text field
-     * when it's focused.
-     * @param disabledTrailingIconColor Represents the trailing icon color for this text field
-     * when it's disabled.
-     * @param errorTrailingIconColor Represents the trailing icon color for this text field
-     * when it's in error state.
-     * @param focusedLabelColor Represents the label color for this text field
-     * when it's focused.
-     * @param unfocusedLabelColor Represents the label color for this text field
-     * when it's not focused.
-     * @param disabledLabelColor Represents the label color for this text field
-     * when it's disabled.
-     * @param errorLabelColor Represents the label color for this text field
-     * when it's in error state.
+     * @param focusedTrailingIconColor Represents the trailing icon color for this text field when
+     *   it's focused.
+     * @param disabledTrailingIconColor Represents the trailing icon color for this text field when
+     *   it's disabled.
+     * @param errorTrailingIconColor Represents the trailing icon color for this text field when
+     *   it's in error state.
+     * @param focusedLabelColor Represents the label color for this text field when it's focused.
+     * @param unfocusedLabelColor Represents the label color for this text field when it's not
+     *   focused.
+     * @param disabledLabelColor Represents the label color for this text field when it's disabled.
+     * @param errorLabelColor Represents the label color for this text field when it's in error
+     *   state.
      * @param placeholderColor Represents the placeholder color for this text field.
-     * @param disabledPlaceholderColor Represents the placeholder color for this text field
-     * when it's disabled.
+     * @param disabledPlaceholderColor Represents the placeholder color for this text field when
+     *   it's disabled.
      */
     @Composable
     fun textFieldColors(
@@ -361,8 +334,7 @@ object ExposedDropdownMenuDefaults {
             MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.BackgroundOpacity),
         cursorColor: Color = MaterialTheme.colors.primary,
         errorCursorColor: Color = MaterialTheme.colors.error,
-        focusedIndicatorColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
+        focusedIndicatorColor: Color = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
         unfocusedIndicatorColor: Color =
             MaterialTheme.colors.onSurface.copy(
                 alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity
@@ -379,8 +351,7 @@ object ExposedDropdownMenuDefaults {
             MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
         disabledTrailingIconColor: Color = trailingIconColor.copy(alpha = ContentAlpha.disabled),
         errorTrailingIconColor: Color = MaterialTheme.colors.error,
-        focusedLabelColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
+        focusedLabelColor: Color = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
         unfocusedLabelColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
         disabledLabelColor: Color = unfocusedLabelColor.copy(ContentAlpha.disabled),
         errorLabelColor: Color = MaterialTheme.colors.error,
@@ -418,43 +389,40 @@ object ExposedDropdownMenuDefaults {
      * [OutlinedTextField].
      *
      * @param textColor Represents the color used for the input text of this text field.
-     * @param disabledTextColor Represents the color used for the input text of this text field
-     * when it's disabled.
+     * @param disabledTextColor Represents the color used for the input text of this text field when
+     *   it's disabled.
      * @param backgroundColor Represents the background color for this text field.
      * @param cursorColor Represents the cursor color for this text field.
-     * @param errorCursorColor Represents the cursor color for this text field
-     * when it's in error state.
-     * @param focusedBorderColor Represents the border color for this text field
-     * when it's focused.
-     * @param unfocusedBorderColor Represents the border color for this text field
-     * when it's not focused.
-     * @param disabledBorderColor Represents the border color for this text field
-     * when it's disabled.
-     * @param errorBorderColor Represents the border color for this text field
-     * when it's in error state.
+     * @param errorCursorColor Represents the cursor color for this text field when it's in error
+     *   state.
+     * @param focusedBorderColor Represents the border color for this text field when it's focused.
+     * @param unfocusedBorderColor Represents the border color for this text field when it's not
+     *   focused.
+     * @param disabledBorderColor Represents the border color for this text field when it's
+     *   disabled.
+     * @param errorBorderColor Represents the border color for this text field when it's in error
+     *   state.
      * @param leadingIconColor Represents the leading icon color for this text field.
-     * @param disabledLeadingIconColor Represents the leading icon color for this text field
-     * when it's disabled.
-     * @param errorLeadingIconColor Represents the leading icon color for this text field
-     * when it's in error state.
+     * @param disabledLeadingIconColor Represents the leading icon color for this text field when
+     *   it's disabled.
+     * @param errorLeadingIconColor Represents the leading icon color for this text field when it's
+     *   in error state.
      * @param trailingIconColor Represents the trailing icon color for this text field.
-     * @param focusedTrailingIconColor Represents the trailing icon color for this text field
-     * when it's focused.
-     * @param disabledTrailingIconColor Represents the trailing icon color for this text field
-     * when it's disabled.
-     * @param errorTrailingIconColor Represents the trailing icon color for this text field
-     * when it's in error state.
-     * @param focusedLabelColor Represents the label color for this text field
-     * when it's focused.
-     * @param unfocusedLabelColor Represents the label color for this text field
-     * when it's not focused.
-     * @param disabledLabelColor Represents the label color for this text field
-     * when it's disabled.
-     * @param errorLabelColor Represents the label color for this text field
-     * when it's in error state.
+     * @param focusedTrailingIconColor Represents the trailing icon color for this text field when
+     *   it's focused.
+     * @param disabledTrailingIconColor Represents the trailing icon color for this text field when
+     *   it's disabled.
+     * @param errorTrailingIconColor Represents the trailing icon color for this text field when
+     *   it's in error state.
+     * @param focusedLabelColor Represents the label color for this text field when it's focused.
+     * @param unfocusedLabelColor Represents the label color for this text field when it's not
+     *   focused.
+     * @param disabledLabelColor Represents the label color for this text field when it's disabled.
+     * @param errorLabelColor Represents the label color for this text field when it's in error
+     *   state.
      * @param placeholderColor Represents the placeholder color for this text field.
-     * @param disabledPlaceholderColor Represents the placeholder color for this text field
-     * when it's disabled.
+     * @param disabledPlaceholderColor Represents the placeholder color for this text field when
+     *   it's disabled.
      */
     @Composable
     fun outlinedTextFieldColors(
@@ -463,8 +431,7 @@ object ExposedDropdownMenuDefaults {
         backgroundColor: Color = Color.Transparent,
         cursorColor: Color = MaterialTheme.colors.primary,
         errorCursorColor: Color = MaterialTheme.colors.error,
-        focusedBorderColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
+        focusedBorderColor: Color = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
         unfocusedBorderColor: Color =
             MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
         disabledBorderColor: Color = unfocusedBorderColor.copy(alpha = ContentAlpha.disabled),
@@ -479,8 +446,7 @@ object ExposedDropdownMenuDefaults {
             MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
         disabledTrailingIconColor: Color = trailingIconColor.copy(alpha = ContentAlpha.disabled),
         errorTrailingIconColor: Color = MaterialTheme.colors.error,
-        focusedLabelColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
+        focusedLabelColor: Color = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high),
         unfocusedLabelColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
         disabledLabelColor: Color = unfocusedLabelColor.copy(ContentAlpha.disabled),
         errorLabelColor: Color = MaterialTheme.colors.error,
@@ -513,26 +479,26 @@ object ExposedDropdownMenuDefaults {
         )
 }
 
-private fun Modifier.expandable(
-    onExpandedChange: () -> Unit,
-    menuLabel: String
-) = pointerInput(onExpandedChange) {
-    awaitEachGesture {
-        // Must be PointerEventPass.Initial to observe events before the text field consumes them
-        // in the Main pass
-        awaitFirstDown(pass = PointerEventPass.Initial)
-        val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-        if (upEvent != null) {
-            onExpandedChange()
+private fun Modifier.expandable(onExpandedChange: () -> Unit, menuLabel: String) =
+    pointerInput(onExpandedChange) {
+            awaitEachGesture {
+                // Must be PointerEventPass.Initial to observe events before the text field consumes
+                // them
+                // in the Main pass
+                awaitFirstDown(pass = PointerEventPass.Initial)
+                val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                if (upEvent != null) {
+                    onExpandedChange()
+                }
+            }
         }
-    }
-}.semantics {
-    contentDescription = menuLabel // this should be a localised string
-    onClick {
-        onExpandedChange()
-        true
-    }
-}
+        .semantics {
+            contentDescription = menuLabel // this should be a localised string
+            onClick {
+                onExpandedChange()
+                true
+            }
+        }
 
 private fun updateHeight(
     view: View,
@@ -541,10 +507,11 @@ private fun updateHeight(
     onHeightUpdate: (Int) -> Unit
 ) {
     coordinates ?: return
-    val visibleWindowBounds = Rect().let {
-        view.getWindowVisibleDisplayFrame(it)
-        it
-    }
+    val visibleWindowBounds =
+        Rect().let {
+            view.getWindowVisibleDisplayFrame(it)
+            it
+        }
     val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
     val heightBelow =
         visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom
@@ -628,12 +595,13 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     ): State<Color> {
         val focused by interactionSource.collectIsFocusedAsState()
 
-        val targetValue = when {
-            !enabled -> disabledIndicatorColor
-            isError -> errorIndicatorColor
-            focused -> focusedIndicatorColor
-            else -> unfocusedIndicatorColor
-        }
+        val targetValue =
+            when {
+                !enabled -> disabledIndicatorColor
+                isError -> errorIndicatorColor
+                focused -> focusedIndicatorColor
+                else -> unfocusedIndicatorColor
+            }
         return if (enabled) {
             animateColorAsState(targetValue, tween(durationMillis = AnimationDuration))
         } else {
@@ -659,12 +627,13 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     ): State<Color> {
         val focused by interactionSource.collectIsFocusedAsState()
 
-        val targetValue = when {
-            !enabled -> disabledLabelColor
-            error -> errorLabelColor
-            focused -> focusedLabelColor
-            else -> unfocusedLabelColor
-        }
+        val targetValue =
+            when {
+                !enabled -> disabledLabelColor
+                error -> errorLabelColor
+                focused -> focusedLabelColor
+                else -> unfocusedLabelColor
+            }
         return rememberUpdatedState(targetValue)
     }
 

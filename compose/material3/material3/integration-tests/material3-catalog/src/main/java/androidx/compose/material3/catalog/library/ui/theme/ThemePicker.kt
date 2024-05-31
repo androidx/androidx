@@ -57,20 +57,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ThemePicker(
-    theme: Theme,
-    onThemeChange: (theme: Theme) -> Unit
-) {
+fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
     LazyColumn(
-        contentPadding = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
-            .add(
-                WindowInsets(
-                    top = ThemePickerPadding,
-                    bottom = ThemePickerPadding
-                )
-            )
-            .asPaddingValues(),
+        contentPadding =
+            WindowInsets.safeDrawing
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                .add(WindowInsets(top = ThemePickerPadding, bottom = ThemePickerPadding))
+                .asPaddingValues(),
         verticalArrangement = Arrangement.spacedBy(ThemePickerPadding)
     ) {
         item {
@@ -194,16 +187,12 @@ fun ThemePicker(
                 RadioButtonOption(
                     option = FontScaleMode.System,
                     selected = theme.fontScaleMode == FontScaleMode.System,
-                    onClick = {
-                        onThemeChange(theme.copy(fontScaleMode = FontScaleMode.System))
-                    }
+                    onClick = { onThemeChange(theme.copy(fontScaleMode = FontScaleMode.System)) }
                 )
                 RadioButtonOption(
                     option = FontScaleMode.Custom,
                     selected = theme.fontScaleMode == FontScaleMode.Custom,
-                    onClick = {
-                        onThemeChange(theme.copy(fontScaleMode = FontScaleMode.Custom))
-                    }
+                    onClick = { onThemeChange(theme.copy(fontScaleMode = FontScaleMode.Custom)) }
                 )
 
                 var fontScale by remember(theme.fontScale) { mutableFloatStateOf(theme.fontScale) }
@@ -221,9 +210,7 @@ fun ThemePicker(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    onClick = { onThemeChange(Theme()) }
-                ) {
+                Button(onClick = { onThemeChange(Theme()) }) {
                     Text(text = stringResource(id = R.string.reset_all))
                 }
             }
@@ -240,14 +227,15 @@ private fun <T> RadioButtonOption(
     enabled: Boolean = true,
 ) {
     Row(
-        modifier = modifier
-            .selectable(
-                selected = selected,
-                enabled = enabled,
-                onClick = { onClick(option) },
-                role = Role.RadioButton,
-            )
-            .minimumInteractiveComponentSize(),
+        modifier =
+            modifier
+                .selectable(
+                    selected = selected,
+                    enabled = enabled,
+                    onClick = { onClick(option) },
+                    role = Role.RadioButton,
+                )
+                .minimumInteractiveComponentSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
     ) {
@@ -256,10 +244,7 @@ private fun <T> RadioButtonOption(
             enabled = enabled,
             onClick = null,
         )
-        Text(
-            text = option.toString(),
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Text(text = option.toString(), style = MaterialTheme.typography.bodyMedium)
     }
 }
 

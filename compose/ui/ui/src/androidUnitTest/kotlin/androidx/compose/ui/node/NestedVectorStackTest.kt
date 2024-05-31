@@ -31,9 +31,7 @@ class NestedVectorStackTest {
         stack.push(mutableVectorOf(1, 2, 3))
         stack.push(mutableVectorOf(4, 5, 6))
 
-        Truth
-            .assertThat(stack.enumerate())
-            .isEqualTo(listOf(6, 5, 4, 3, 2, 1))
+        Truth.assertThat(stack.enumerate()).isEqualTo(listOf(6, 5, 4, 3, 2, 1))
     }
 
     @Test
@@ -47,9 +45,7 @@ class NestedVectorStackTest {
 
         Truth.assertThat(stack.pop()).isEqualTo(6)
 
-        Truth
-            .assertThat(stack.enumerate())
-            .isEqualTo(listOf(5, 4, 2, 1))
+        Truth.assertThat(stack.enumerate()).isEqualTo(listOf(5, 4, 2, 1))
     }
 
     @Test
@@ -65,9 +61,7 @@ class NestedVectorStackTest {
 
         Truth.assertThat(stack.pop()).isEqualTo(6)
 
-        Truth
-            .assertThat(stack.enumerate())
-            .isEqualTo(listOf(5, 4))
+        Truth.assertThat(stack.enumerate()).isEqualTo(listOf(5, 4))
     }
 }
 

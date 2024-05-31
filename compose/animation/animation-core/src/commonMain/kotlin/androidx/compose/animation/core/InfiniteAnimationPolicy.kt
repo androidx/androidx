@@ -21,6 +21,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+
 /**
  * Like [withFrameNanos], but applies the [InfiniteAnimationPolicy] from the calling
  * [CoroutineContext] if there is one.

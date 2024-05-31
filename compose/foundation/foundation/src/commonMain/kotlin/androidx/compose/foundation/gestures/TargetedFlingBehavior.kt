@@ -18,9 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.runtime.Stable
 
-/**
- * Interface to specify fling behavior with additional information about its animation target.
- */
+/** Interface to specify fling behavior with additional information about its animation target. */
 @Stable
 interface TargetedFlingBehavior : FlingBehavior {
 
@@ -32,16 +30,15 @@ interface TargetedFlingBehavior : FlingBehavior {
      * This functions is called with [ScrollScope] to drive the state change of the
      * [androidx.compose.foundation.gestures.ScrollableState] via [ScrollScope.scrollBy].
      *
-     * This function must return the correct velocity left after it is finished flinging in order
-     * to guarantee proper nested scroll support.
+     * This function must return the correct velocity left after it is finished flinging in order to
+     * guarantee proper nested scroll support.
      *
      * @param initialVelocity velocity available for fling in the orientation specified in
-     * [androidx.compose.foundation.gestures.scrollable] that invoked this method.
+     *   [androidx.compose.foundation.gestures.scrollable] that invoked this method.
      * @param onRemainingDistanceUpdated a lambda that will be called anytime the distance to the
-     * settling offset is updated. The settling offset in pixels is passed to this lambda an it
-     * represents the final offset where this fling will stop and may change depending on the
-     * snapping animation progression.
-     *
+     *   settling offset is updated. The settling offset in pixels is passed to this lambda an it
+     *   represents the final offset where this fling will stop and may change depending on the
+     *   snapping animation progression.
      * @return remaining velocity after fling operation has ended
      */
     suspend fun ScrollScope.performFling(
@@ -53,4 +50,4 @@ interface TargetedFlingBehavior : FlingBehavior {
         performFling(initialVelocity, NoOnReport)
 }
 
-private val NoOnReport: (Float) -> Unit = { }
+private val NoOnReport: (Float) -> Unit = {}

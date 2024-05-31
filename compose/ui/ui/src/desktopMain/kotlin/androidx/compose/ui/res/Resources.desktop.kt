@@ -20,17 +20,13 @@ import java.io.InputStream
 
 /**
  * Open [InputStream] from a resource stored in resources for the application, calls the [block]
- * callback giving it a InputStream and closes stream once the processing is
- * complete.
+ * callback giving it a InputStream and closes stream once the processing is complete.
  *
  * @return object that was returned by [block]
- *
  * @throws IllegalArgumentException if there is no [resourcePath] in resources
  */
-inline fun <T> useResource(
-    resourcePath: String,
-    block: (InputStream) -> T
-): T = openResource(resourcePath).use(block)
+inline fun <T> useResource(resourcePath: String, block: (InputStream) -> T): T =
+    openResource(resourcePath).use(block)
 
 /**
  * Open [InputStream] from a resource stored in resources for the application.

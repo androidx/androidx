@@ -53,118 +53,115 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ColorSchemeScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun colorScheme() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                ColorSchemeDemo()
-            }
+            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) { ColorSchemeDemo() }
         }
         assertToggeableAgainstGolden("color_scheme_${scheme.name}")
     }
 
     private fun assertToggeableAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(Tag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, goldenName)
+        rule.onNodeWithTag(Tag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
     }
 
     // Provide the ColorScheme and their name parameter in a ColorSchemeWrapper.
     // This makes sure that the default method name and the initial Scuba image generated
     // name is as expected.
     companion object {
-        private val LightCustomColorScheme = lightColorScheme(
-            primary = Color(0xFF006E2C),
-            onPrimary = Color(0xFFFFFFFF),
-            primaryContainer = Color(0xFF43B55F),
-            onPrimaryContainer = Color(0xFF004117),
-            inversePrimary = Color(0xFF6DDD81),
-            secondary = Color(0xFF3F6743),
-            onSecondary = Color(0xFFFFFFFF),
-            secondaryContainer = Color(0xFFC2F0C2),
-            onSecondaryContainer = Color(0xFF466F4A),
-            tertiary = Color(0xFF005EB3),
-            onTertiary = Color(0xFFFFFFFF),
-            tertiaryContainer = Color(0xFF5EA1FF),
-            onTertiaryContainer = Color(0xFF00376C),
-            background = Color(0xFFF5FBF0),
-            onBackground = Color(0xFF171D17),
-            surface = Color(0xFFF5FBF0),
-            onSurface = Color(0xFF171D17),
-            surfaceVariant = Color(0xFFD9E6D6),
-            onSurfaceVariant = Color(0xFF3E4A3E),
-            inverseSurface = Color(0xFF2C322B),
-            inverseOnSurface = Color(0xFFECF3E8),
-            error = Color(0xFFBA1A1A),
-            onError = Color(0xFFFFFFFF),
-            errorContainer = Color(0xFFFFDAD6),
-            onErrorContainer = Color(0xFF410002),
-            outline = Color(0xFF6C786A),
-            outlineVariant = Color(0xFFBDCABA),
-            scrim = Color(0xFF000000),
-            surfaceTint = Color(0xFF006E2C),
-            surfaceContainerHighest = Color(0xFFDEE4DA),
-            surfaceContainerHigh = Color(0xFFE4EADF),
-            surfaceContainer = Color(0xFFE9F0E5),
-            surfaceContainerLow = Color(0xFFEFF6EB),
-            surfaceContainerLowest = Color(0xFFFFFFFF),
-            surfaceBright = Color(0xFFF5FBF0),
-            surfaceDim = Color(0xFFD5DCD1)
-        )
+        private val LightCustomColorScheme =
+            lightColorScheme(
+                primary = Color(0xFF006E2C),
+                onPrimary = Color(0xFFFFFFFF),
+                primaryContainer = Color(0xFF43B55F),
+                onPrimaryContainer = Color(0xFF004117),
+                inversePrimary = Color(0xFF6DDD81),
+                secondary = Color(0xFF3F6743),
+                onSecondary = Color(0xFFFFFFFF),
+                secondaryContainer = Color(0xFFC2F0C2),
+                onSecondaryContainer = Color(0xFF466F4A),
+                tertiary = Color(0xFF005EB3),
+                onTertiary = Color(0xFFFFFFFF),
+                tertiaryContainer = Color(0xFF5EA1FF),
+                onTertiaryContainer = Color(0xFF00376C),
+                background = Color(0xFFF5FBF0),
+                onBackground = Color(0xFF171D17),
+                surface = Color(0xFFF5FBF0),
+                onSurface = Color(0xFF171D17),
+                surfaceVariant = Color(0xFFD9E6D6),
+                onSurfaceVariant = Color(0xFF3E4A3E),
+                inverseSurface = Color(0xFF2C322B),
+                inverseOnSurface = Color(0xFFECF3E8),
+                error = Color(0xFFBA1A1A),
+                onError = Color(0xFFFFFFFF),
+                errorContainer = Color(0xFFFFDAD6),
+                onErrorContainer = Color(0xFF410002),
+                outline = Color(0xFF6C786A),
+                outlineVariant = Color(0xFFBDCABA),
+                scrim = Color(0xFF000000),
+                surfaceTint = Color(0xFF006E2C),
+                surfaceContainerHighest = Color(0xFFDEE4DA),
+                surfaceContainerHigh = Color(0xFFE4EADF),
+                surfaceContainer = Color(0xFFE9F0E5),
+                surfaceContainerLow = Color(0xFFEFF6EB),
+                surfaceContainerLowest = Color(0xFFFFFFFF),
+                surfaceBright = Color(0xFFF5FBF0),
+                surfaceDim = Color(0xFFD5DCD1)
+            )
 
-        private val DarkCustomColorScheme = darkColorScheme(
-            primary = Color(0xFF6DDD81),
-            onPrimary = Color(0xFF003914),
-            primaryContainer = Color(0xFF008738),
-            onPrimaryContainer = Color(0xFFF7FFF2),
-            inversePrimary = Color(0xFF006E2C),
-            secondary = Color(0xFFA5D2A6),
-            onSecondary = Color(0xFF0F3819),
-            secondaryContainer = Color(0xFF1D4524),
-            onSecondaryContainer = Color(0xFF87B389),
-            tertiary = Color(0xFFA7C8FF),
-            onTertiary = Color(0xFF003061),
-            tertiaryContainer = Color(0xFF0774D9),
-            onTertiaryContainer = Color(0xFFFDFCFF),
-            background = Color(0xFF0F150F),
-            onBackground = Color(0xFFDEE4DA),
-            surface = Color(0xFF0F150F),
-            onSurface = Color(0xFFDEE4DA),
-            surfaceVariant = Color(0xFF3E4A3E),
-            onSurfaceVariant = Color(0xFFBDCABA),
-            inverseSurface = Color(0xFFDEE4DA),
-            inverseOnSurface = Color(0xFF2C322B),
-            error = Color(0xFFFFB4A9),
-            onError = Color(0xFF680003),
-            errorContainer = Color(0xFF930006),
-            onErrorContainer = Color(0xFFFFDAD4),
-            outline = Color(0xFF6C786A),
-            outlineVariant = Color(0xFF3E4A3E),
-            scrim = Color(0xFF000000),
-            surfaceTint = Color(0xFF6DDD81),
-            surfaceContainerHighest = Color(0xFF30362F),
-            surfaceContainerHigh = Color(0xFF252C25),
-            surfaceContainer = Color(0xFF1B211B),
-            surfaceContainerLow = Color(0xFF171D17),
-            surfaceContainerLowest = Color(0xFF0A100A),
-            surfaceBright = Color(0xFF343B34),
-            surfaceDim = Color(0xFF0F150F)
-        )
+        private val DarkCustomColorScheme =
+            darkColorScheme(
+                primary = Color(0xFF6DDD81),
+                onPrimary = Color(0xFF003914),
+                primaryContainer = Color(0xFF008738),
+                onPrimaryContainer = Color(0xFFF7FFF2),
+                inversePrimary = Color(0xFF006E2C),
+                secondary = Color(0xFFA5D2A6),
+                onSecondary = Color(0xFF0F3819),
+                secondaryContainer = Color(0xFF1D4524),
+                onSecondaryContainer = Color(0xFF87B389),
+                tertiary = Color(0xFFA7C8FF),
+                onTertiary = Color(0xFF003061),
+                tertiaryContainer = Color(0xFF0774D9),
+                onTertiaryContainer = Color(0xFFFDFCFF),
+                background = Color(0xFF0F150F),
+                onBackground = Color(0xFFDEE4DA),
+                surface = Color(0xFF0F150F),
+                onSurface = Color(0xFFDEE4DA),
+                surfaceVariant = Color(0xFF3E4A3E),
+                onSurfaceVariant = Color(0xFFBDCABA),
+                inverseSurface = Color(0xFFDEE4DA),
+                inverseOnSurface = Color(0xFF2C322B),
+                error = Color(0xFFFFB4A9),
+                onError = Color(0xFF680003),
+                errorContainer = Color(0xFF930006),
+                onErrorContainer = Color(0xFFFFDAD4),
+                outline = Color(0xFF6C786A),
+                outlineVariant = Color(0xFF3E4A3E),
+                scrim = Color(0xFF000000),
+                surfaceTint = Color(0xFF6DDD81),
+                surfaceContainerHighest = Color(0xFF30362F),
+                surfaceContainerHigh = Color(0xFF252C25),
+                surfaceContainer = Color(0xFF1B211B),
+                surfaceContainerLow = Color(0xFF171D17),
+                surfaceContainerLowest = Color(0xFF0A100A),
+                surfaceBright = Color(0xFF343B34),
+                surfaceDim = Color(0xFF0F150F)
+            )
 
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("light", lightColorScheme()),
-            ColorSchemeWrapper("light_dynamic", LightCustomColorScheme),
-            ColorSchemeWrapper("dark", darkColorScheme()),
-            ColorSchemeWrapper("dark_dynamic", DarkCustomColorScheme),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("light", lightColorScheme()),
+                ColorSchemeWrapper("light_dynamic", LightCustomColorScheme),
+                ColorSchemeWrapper("dark", darkColorScheme()),
+                ColorSchemeWrapper("dark_dynamic", DarkCustomColorScheme),
+            )
     }
 
     class ColorSchemeWrapper(val name: String, val colorScheme: ColorScheme) {
@@ -182,10 +179,7 @@ private fun ColorSchemeDemo() {
     Row(
         modifier = Modifier.padding(8.dp),
     ) {
-        Column(
-            Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Text("Surfaces", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(16.dp))
             SurfaceColorSwatch(
@@ -292,10 +286,7 @@ private fun ColorSchemeDemo() {
             Spacer(modifier = Modifier.height(16.dp))
         }
         Spacer(modifier = Modifier.width(24.dp))
-        Column(
-            Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Text("Content", style = MaterialTheme.typography.bodyLarge)
             ContentColorSwatch(
                 color = colorScheme.primary,
@@ -305,7 +296,8 @@ private fun ColorSchemeDemo() {
                 colorContainer = colorScheme.primaryContainer,
                 colorContainerText = "Primary Container",
                 onColorContainer = colorScheme.onPrimaryContainer,
-                onColorContainerText = "On Primary Container")
+                onColorContainerText = "On Primary Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ContentColorSwatch(
                 color = colorScheme.secondary,
@@ -315,7 +307,8 @@ private fun ColorSchemeDemo() {
                 colorContainer = colorScheme.secondaryContainer,
                 colorContainerText = "Secondary Container",
                 onColorContainer = colorScheme.onSecondaryContainer,
-                onColorContainerText = "On Secondary Container")
+                onColorContainerText = "On Secondary Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ContentColorSwatch(
                 color = colorScheme.tertiary,
@@ -325,7 +318,8 @@ private fun ColorSchemeDemo() {
                 colorContainer = colorScheme.tertiaryContainer,
                 colorContainerText = "Tertiary Container",
                 onColorContainer = colorScheme.onTertiaryContainer,
-                onColorContainerText = "On Tertiary Container")
+                onColorContainerText = "On Tertiary Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ContentColorSwatch(
                 color = colorScheme.error,
@@ -335,7 +329,8 @@ private fun ColorSchemeDemo() {
                 colorContainer = colorScheme.errorContainer,
                 colorContainerText = "Error Container",
                 onColorContainer = colorScheme.onErrorContainer,
-                onColorContainerText = "On Error Container")
+                onColorContainerText = "On Error Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text("Utility", style = MaterialTheme.typography.bodyLarge)
             DoubleTile(
@@ -385,12 +380,7 @@ private fun ContentColorSwatch(
     onColorContainerText: String,
 ) {
     DoubleTile(
-        leftTile = {
-            ColorTile(
-                text = colorText,
-                color = color
-            )
-        },
+        leftTile = { ColorTile(text = colorText, color = color) },
         rightTile = {
             ColorTile(
                 text = onColorText,
@@ -432,9 +422,7 @@ private fun ColorTile(text: String, color: Color) {
     } else if (color == Color.White) borderColor = Color.Black
 
     Surface(
-        modifier = Modifier
-            .height(48.dp)
-            .fillMaxWidth(),
+        modifier = Modifier.height(48.dp).fillMaxWidth(),
         color = color,
         border = BorderStroke(1.dp, borderColor),
     ) {
@@ -442,9 +430,9 @@ private fun ColorTile(text: String, color: Color) {
             text,
             Modifier.padding(4.dp),
             style =
-            MaterialTheme.typography.bodyMedium.copy(
-                if (color.luminance() < .25) Color.White else Color.Black
-            )
+                MaterialTheme.typography.bodyMedium.copy(
+                    if (color.luminance() < .25) Color.White else Color.Black
+                )
         )
     }
 }

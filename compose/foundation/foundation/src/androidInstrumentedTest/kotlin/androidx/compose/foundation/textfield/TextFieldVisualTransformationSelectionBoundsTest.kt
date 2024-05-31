@@ -38,52 +38,59 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldVisualTransformationSelectionBoundsTest : FocusedWindowTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun BasicTextField_doesOffsetMapChecks_inInitialComposition() {
-        val error = assertFailsWith<IllegalStateException> {
-            rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "12345689",
-                    onValueChange = { /* ignore changes */ },
-                    visualTransformation = { original ->
-                        TransformedText(
-                            text = original,
-                            offsetMapping = object : OffsetMapping {
-                                override fun originalToTransformed(offset: Int) = offset + 1
-                                override fun transformedToOriginal(offset: Int) = offset - 1
-                            }
-                        )
-                    }
-                )
+        val error =
+            assertFailsWith<IllegalStateException> {
+                rule.setTextFieldTestContent {
+                    BasicTextField(
+                        value = "12345689",
+                        onValueChange = { /* ignore changes */ },
+                        visualTransformation = { original ->
+                            TransformedText(
+                                text = original,
+                                offsetMapping =
+                                    object : OffsetMapping {
+                                        override fun originalToTransformed(offset: Int) = offset + 1
+
+                                        override fun transformedToOriginal(offset: Int) = offset - 1
+                                    }
+                            )
+                        }
+                    )
+                }
             }
-        }
-        assertThat(error).hasMessageThat()
+        assertThat(error)
+            .hasMessageThat()
             .startsWith("OffsetMapping.originalToTransformed returned invalid mapping: ")
     }
 
     @Test
     fun BasicTextField_doesOffsetMapChecks_inInitialComposition_veryLongTextOffBy1() {
-        val error = assertFailsWith<IllegalStateException> {
-            rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "12345689",
-                    onValueChange = { /* ignore changes */ },
-                    visualTransformation = { original ->
-                        TransformedText(
-                            text = original,
-                            offsetMapping = object : OffsetMapping {
-                                override fun originalToTransformed(offset: Int) = offset + 1
-                                override fun transformedToOriginal(offset: Int) = offset - 1
-                            }
-                        )
-                    }
-                )
+        val error =
+            assertFailsWith<IllegalStateException> {
+                rule.setTextFieldTestContent {
+                    BasicTextField(
+                        value = "12345689",
+                        onValueChange = { /* ignore changes */ },
+                        visualTransformation = { original ->
+                            TransformedText(
+                                text = original,
+                                offsetMapping =
+                                    object : OffsetMapping {
+                                        override fun originalToTransformed(offset: Int) = offset + 1
+
+                                        override fun transformedToOriginal(offset: Int) = offset - 1
+                                    }
+                            )
+                        }
+                    )
+                }
             }
-        }
-        assertThat(error).hasMessageThat()
+        assertThat(error)
+            .hasMessageThat()
             .startsWith("OffsetMapping.originalToTransformed returned invalid mapping: ")
     }
 }

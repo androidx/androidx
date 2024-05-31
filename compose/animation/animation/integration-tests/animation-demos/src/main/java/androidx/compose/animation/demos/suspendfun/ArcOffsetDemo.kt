@@ -63,15 +63,11 @@ fun ArcOffsetDemo() {
     val points = remember { mutableStateListOf<Offset>() }
     val target = remember { MutableStateFlow(Offset.Unspecified) }
     Box(
-        Modifier
-            .fillMaxSize()
+        Modifier.fillMaxSize()
             .pointerInput(Unit) {
                 val halfSize = size.toSize() * 0.5f
                 detectTapGestures {
-                    target.value = Offset(
-                        x = it.x - halfSize.width,
-                        y = it.y - halfSize.height
-                    )
+                    target.value = Offset(x = it.x - halfSize.width, y = it.y - halfSize.height)
                 }
             }
             .drawBehind {
@@ -90,12 +86,9 @@ fun ArcOffsetDemo() {
     ) {
         Text("Tap anywhere to animate")
         Box(
-            Modifier
-                .size(50.dp)
+            Modifier.size(50.dp)
                 .align(Alignment.Center)
-                .offset {
-                    animOffset.value.round()
-                }
+                .offset { animOffset.value.round() }
                 .background(Color.Red, RoundedCornerShape(50))
         )
     }
@@ -111,12 +104,13 @@ fun ArcOffsetDemo() {
                 val mode = if (diffOff.y > 0f) ArcBelow else ArcAbove
                 animOffset.animateTo(
                     targetValue = target,
-                    animationSpec = keyframes {
-                        durationMillis = 1400
+                    animationSpec =
+                        keyframes {
+                            durationMillis = 1400
 
-                        current atFraction 0f using LinearEasing using ArcLinear
-                        midOffset atFraction 0.5f using FastOutSlowInEasing using mode
-                    }
+                            current atFraction 0f using LinearEasing using ArcLinear
+                            midOffset atFraction 0.5f using FastOutSlowInEasing using mode
+                        }
                 ) {
                     points.add(value)
                 }

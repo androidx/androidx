@@ -21,8 +21,8 @@ import android.view.HardwareCanvas
 import android.view.RenderNode
 
 /**
- * Implementation of HardwareCanvas abstract class used to record a displaylist
- * on demand by passing directly to View#draw(canvas)
+ * Implementation of HardwareCanvas abstract class used to record a displaylist on demand by passing
+ * directly to View#draw(canvas)
  */
 internal class PlaceholderHardwareCanvas : HardwareCanvas() {
 

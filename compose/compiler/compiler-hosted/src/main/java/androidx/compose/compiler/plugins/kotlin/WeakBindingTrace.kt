@@ -24,10 +24,10 @@ import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 
 /**
- * This class is meant to have the shape of a BindingTrace object that could exist and flow
- * through the Psi2Ir -> Ir phase, but doesn't currently exist. Ideally, this gets replaced in
- * the future by a trace that handles this use case in upstream. For now, we are okay with this
- * because the combination of IrAttributeContainer and WeakHashMap makes this relatively safe.
+ * This class is meant to have the shape of a BindingTrace object that could exist and flow through
+ * the Psi2Ir -> Ir phase, but doesn't currently exist. Ideally, this gets replaced in the future by
+ * a trace that handles this use case in upstream. For now, we are okay with this because the
+ * combination of IrAttributeContainer and WeakHashMap makes this relatively safe.
  */
 class WeakBindingTrace {
     private val map = WeakHashMap<Any, KeyFMap>()
@@ -50,4 +50,5 @@ class WeakBindingTrace {
 private val ComposeTemporaryGlobalBindingTrace = WeakBindingTrace()
 
 @Suppress("unused")
-val IrPluginContext.irTrace: WeakBindingTrace get() = ComposeTemporaryGlobalBindingTrace
+val IrPluginContext.irTrace: WeakBindingTrace
+    get() = ComposeTemporaryGlobalBindingTrace

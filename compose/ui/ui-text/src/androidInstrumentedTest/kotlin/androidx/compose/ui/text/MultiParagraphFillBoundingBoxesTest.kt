@@ -33,9 +33,8 @@ import org.junit.runner.RunWith
 @SmallTest
 class MultiParagraphFillBoundingBoxesTest {
     private val fontFamilyMeasureFont = BASIC_MEASURE_FONT.toFontFamily()
-    val fontFamilyResolver = createFontFamilyResolver(
-        InstrumentationRegistry.getInstrumentation().context
-    )
+    val fontFamilyResolver =
+        createFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
     private val defaultDensity = Density(density = 1f)
     private val fontSize = 10.sp
     private val fontSizeInPx = with(defaultDensity) { fontSize.toPx() }
@@ -47,9 +46,7 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val result = paragraph.getBoundingBoxes(TextRange(0, text.length))
 
-        assertThat(result).isEqualToWithTolerance(
-            ltrCharacterBoundariesForTestFont(text.text)
-        )
+        assertThat(result).isEqualToWithTolerance(ltrCharacterBoundariesForTestFont(text.text))
     }
 
     @Test
@@ -60,9 +57,8 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val result = paragraph.getBoundingBoxes(TextRange(0, text.length))
 
-        assertThat(result).isEqualToWithTolerance(
-            rtlCharacterBoundariesForTestFont(text.text, width)
-        )
+        assertThat(result)
+            .isEqualToWithTolerance(rtlCharacterBoundariesForTestFont(text.text, width))
     }
 
     @Test
@@ -76,9 +72,8 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val paragraph1Rects = ltrCharacterBoundariesForTestFont(paragraph1)
         val paragraph2Rects = ltrCharacterBoundariesForTestFont(paragraph2)
-        assertThat(result).isEqualToWithTolerance(
-            paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects)
-        )
+        assertThat(result)
+            .isEqualToWithTolerance(paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects))
     }
 
     @Test
@@ -93,9 +88,8 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val paragraph1Rects = rtlCharacterBoundariesForTestFont(paragraph1, width)
         val paragraph2Rects = rtlCharacterBoundariesForTestFont(paragraph2, width)
-        assertThat(result).isEqualToWithTolerance(
-            paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects)
-        )
+        assertThat(result)
+            .isEqualToWithTolerance(paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects))
     }
 
     @Test
@@ -109,9 +103,8 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val paragraph1Rects = ltrCharacterBoundariesForTestFont(paragraph1)
         val paragraph2Rects = ltrCharacterBoundariesForTestFont(paragraph2)
-        assertThat(result).isEqualToWithTolerance(
-            paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects)
-        )
+        assertThat(result)
+            .isEqualToWithTolerance(paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects))
     }
 
     @Test
@@ -126,9 +119,8 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val paragraph1Rects = rtlCharacterBoundariesForTestFont(paragraph1, width)
         val paragraph2Rects = rtlCharacterBoundariesForTestFont(paragraph2, width)
-        assertThat(result).isEqualToWithTolerance(
-            paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects)
-        )
+        assertThat(result)
+            .isEqualToWithTolerance(paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects))
     }
 
     @Test
@@ -143,9 +135,7 @@ class MultiParagraphFillBoundingBoxesTest {
 
         val paragraph1Rects = ltrCharacterBoundariesForTestFont(paragraph1)
         val paragraph2Rects = rtlCharacterBoundariesForTestFont(paragraph2, width)
-        assertThat(result).isEqualTo(
-            paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects)
-        )
+        assertThat(result).isEqualTo(paragraph1Rects.offsetVerticalAndAppend(paragraph2Rects))
     }
 
     private fun MultiParagraph.getBoundingBoxes(range: TextRange): Array<Rect> {
@@ -163,13 +153,10 @@ class MultiParagraphFillBoundingBoxesTest {
         return this + other.offsetVerticalBy(this.last().bottom)
     }
 
-    /**
-     * Offsets top and bottom positions of rectangles in this array with [value].
-     */
+    /** Offsets top and bottom positions of rectangles in this array with [value]. */
     private fun Array<Rect>.offsetVerticalBy(value: Float): Array<Rect> {
-        return this.map {
-            Rect(it.left, it.top + value, it.right, it.bottom + value)
-        }.toTypedArray()
+        return this.map { Rect(it.left, it.top + value, it.right, it.bottom + value) }
+            .toTypedArray()
     }
 
     private fun ltrCharacterBoundariesForTestFont(text: String): Array<Rect> =
@@ -197,10 +184,7 @@ class MultiParagraphFillBoundingBoxesTest {
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize
-            ),
+            style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize),
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = fontFamilyResolver

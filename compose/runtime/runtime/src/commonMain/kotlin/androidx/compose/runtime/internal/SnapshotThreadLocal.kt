@@ -21,8 +21,8 @@ import androidx.compose.runtime.synchronized
 
 /**
  * This is similar to a [ThreadLocal] but has lower overhead because it avoids a weak reference.
- * This should only be used when the writes are delimited by a try...finally call that will clean
- * up the reference such as [androidx.compose.runtime.snapshots.Snapshot.enter] else the reference
+ * This should only be used when the writes are delimited by a try...finally call that will clean up
+ * the reference such as [androidx.compose.runtime.snapshots.Snapshot.enter] else the reference
  * could get pinned by the thread local causing a leak.
  *
  * [ThreadLocal] can be used to implement the actual for platforms that do not exhibit the same

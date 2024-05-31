@@ -55,271 +55,292 @@ class TextLayoutHelperTest {
         val multiParagraph = mock<MultiParagraph>()
         whenever(multiParagraph.intrinsics).thenReturn(intrinsics)
         whenever(intrinsics.hasStaleResolvedFonts).thenReturn(false)
-        referenceResult = TextLayoutResult(
-            TextLayoutInput(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = listOf(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = Constraints.fixedWidth(100)
-            ),
-            multiParagraph = multiParagraph,
-            size = IntSize(50, 50)
-        )
+        referenceResult =
+            TextLayoutResult(
+                TextLayoutInput(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = listOf(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = Constraints.fixedWidth(100)
+                ),
+                multiParagraph = multiParagraph,
+                size = IntSize(50, 50)
+            )
     }
 
     @Test
     fun testCanReuse_same() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun testCanReuse_different_text() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, Android").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, Android").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_style() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(fontSize = 1.5.em),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(fontSize = 1.5.em),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_maxLines() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 2,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 2,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_softWrap() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = false,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_overflow() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Clip,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Clip,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_density() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(2.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(2.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_layoutDirection() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Rtl,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Rtl,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_resourceLoader() {
         val constraints = Constraints.fixedWidth(100)
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = mock(),
-                constraints = constraints
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = mock(),
+                    constraints = constraints
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_constraintsWidth() {
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = Constraints.fixedWidth(200)
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = Constraints.fixedWidth(200)
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_constraintsHeight() {
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = emptyList(),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = Constraints.fixedHeight(200)
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = Constraints.fixedHeight(200)
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_different_placeholders() {
         assertThat(
-            referenceResult.canReuse(
-                text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-                style = TextStyle(),
-                placeholders = listOf(
-                    AnnotatedString.Range(
-                        item = Placeholder(10.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline),
-                        start = 0,
-                        end = 5
-                    )
-                ),
-                maxLines = 1,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = Density(1.0f),
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = fontFamilyResolver,
-                constraints = Constraints.fixedWidth(200)
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders =
+                        listOf(
+                            AnnotatedString.Range(
+                                item =
+                                    Placeholder(
+                                        10.sp,
+                                        20.sp,
+                                        PlaceholderVerticalAlign.AboveBaseline
+                                    ),
+                                start = 0,
+                                end = 5
+                            )
+                        ),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = Constraints.fixedWidth(200)
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun testCanReuse_notLatestTypefaces_isFalse() {
         val constraints = Constraints.fixedWidth(100)
-        whenever(referenceResult.multiParagraph.intrinsics.hasStaleResolvedFonts)
-            .thenReturn(true)
-        assertThat(referenceResult.canReuse(
-            text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
-            style = TextStyle(),
-            placeholders = emptyList(),
-            maxLines = 1,
-            softWrap = true,
-            overflow = TextOverflow.Ellipsis,
-            density = Density(1.0f),
-            layoutDirection = LayoutDirection.Ltr,
-            fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints
-        )).isFalse()
+        whenever(referenceResult.multiParagraph.intrinsics.hasStaleResolvedFonts).thenReturn(true)
+        assertThat(
+                referenceResult.canReuse(
+                    text = AnnotatedString.Builder("Hello, World").toAnnotatedString(),
+                    style = TextStyle(),
+                    placeholders = emptyList(),
+                    maxLines = 1,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = Density(1.0f),
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = fontFamilyResolver,
+                    constraints = constraints
+                )
+            )
+            .isFalse()
     }
 }

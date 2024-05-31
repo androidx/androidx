@@ -44,19 +44,18 @@ open class InputDispatcherTest {
     private val testOwner: TestOwner = mock {
         val testClock: MainTestClock = mock()
         on { mainClock } doReturn testClock
-        on { runOnUiThread(any<() -> Any>()) }.then {
-            it.getArgument<() -> Any>(0).invoke()
-        }
+        on { runOnUiThread(any<() -> Any>()) }.then { it.getArgument<() -> Any>(0).invoke() }
     }
 
     private val testContext = createTestContext(testOwner)
 
     private val viewRootForTest: ViewRootForTest = mock {
         val mockView: View = mock {
-            on { getLocationOnScreen(any()) }.then {
-                it.getArgument<IntArray>(0).fill(0)
-                null
-            }
+            on { getLocationOnScreen(any()) }
+                .then {
+                    it.getArgument<IntArray>(0).fill(0)
+                    null
+                }
         }
         on { view } doReturn mockView
 
@@ -70,11 +69,8 @@ open class InputDispatcherTest {
         on { semanticsOwner } doReturn mockSemanticsOwner
     }
 
-    internal val subject = AndroidInputDispatcher(
-        testContext,
-        viewRootForTest,
-        recorder::recordEvent
-    )
+    internal val subject =
+        AndroidInputDispatcher(testContext, viewRootForTest, recorder::recordEvent)
 
     @After
     fun tearDown() {

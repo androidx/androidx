@@ -27,10 +27,8 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.ui.Modifier
 
-class WeightedColumnWithRowsTestCase(
-    private val subLayouts: Int,
-    private val numberOfBoxes: Int
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class WeightedColumnWithRowsTestCase(private val subLayouts: Int, private val numberOfBoxes: Int) :
+    LayeredComposeTestCase(), ToggleableTestCase {
 
     private val numberOfSubLayouts = mutableStateOf(subLayouts)
 
@@ -39,14 +37,11 @@ class WeightedColumnWithRowsTestCase(
         Column(modifier = Modifier.fillMaxSize()) {
             repeat(numberOfSubLayouts.value) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1 / numberOfSubLayouts.value.toFloat())
+                    modifier =
+                        Modifier.fillMaxWidth().weight(1 / numberOfSubLayouts.value.toFloat())
                 ) {
                     repeat(numberOfBoxes) {
-                        Box(
-                            modifier = Modifier.weight(1 / numberOfBoxes.toFloat())
-                        )
+                        Box(modifier = Modifier.weight(1 / numberOfBoxes.toFloat()))
                     }
                 }
             }

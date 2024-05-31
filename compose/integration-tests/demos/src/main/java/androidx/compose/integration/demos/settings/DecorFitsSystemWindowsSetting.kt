@@ -34,21 +34,19 @@ internal object DecorFitsSystemWindowsSetting : DemoSetting<Boolean> {
     private const val Key = "decorFitsSystemWindows"
     private const val DefaultValue = true
 
-    override fun createPreference(context: Context) = CheckBoxPreference(context).apply {
-        title = "Decor fits system windows"
-        key = Key
-        summaryOff =
-            "The framework will not fit the content view to the insets and will just pass through" +
-                " the WindowInsetsCompat to the content view.  WindowInsets APIs must be used to" +
-                " add necessary padding. Insets will be animated."
-        summaryOn = "The framework will fit the content view to the insets."
-        setDefaultValue(DefaultValue)
-    }
+    override fun createPreference(context: Context) =
+        CheckBoxPreference(context).apply {
+            title = "Decor fits system windows"
+            key = Key
+            summaryOff =
+                "The framework will not fit the content view to the insets and will just pass through" +
+                    " the WindowInsetsCompat to the content view.  WindowInsets APIs must be used to" +
+                    " add necessary padding. Insets will be animated."
+            summaryOn = "The framework will fit the content view to the insets."
+            setDefaultValue(DefaultValue)
+        }
 
-    @Composable
-    fun asState() = preferenceAsState(Key) {
-        getBoolean(Key, DefaultValue)
-    }
+    @Composable fun asState() = preferenceAsState(Key) { getBoolean(Key, DefaultValue) }
 }
 
 /**
@@ -64,11 +62,8 @@ internal fun DecorFitsSystemWindowsEffect(
     DisposableEffect(decorFitsSystemWindows, window) {
         setDecorFitsSystemWindows(window, decorFitsSystemWindows)
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
-            if (!decorFitsSystemWindows) WindowInsetsCompat.CONSUMED
-            else insets
+            if (!decorFitsSystemWindows) WindowInsetsCompat.CONSUMED else insets
         }
-        onDispose {
-            setDecorFitsSystemWindows(window, true)
-        }
+        onDispose { setDecorFitsSystemWindows(window, true) }
     }
 }

@@ -18,9 +18,10 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.VertexMode as SkVertexMode
 
-internal fun VertexMode.toSkiaVertexMode(): SkVertexMode = when (this) {
-    VertexMode.Triangles -> SkVertexMode.TRIANGLES
-    VertexMode.TriangleStrip -> SkVertexMode.TRIANGLE_STRIP
-    VertexMode.TriangleFan -> SkVertexMode.TRIANGLE_FAN
-    else -> SkVertexMode.TRIANGLES
-}
+internal fun VertexMode.toSkiaVertexMode(): SkVertexMode =
+    when (this) {
+        VertexMode.Triangles -> SkVertexMode.TRIANGLES
+        VertexMode.TriangleStrip -> SkVertexMode.TRIANGLE_STRIP
+        VertexMode.TriangleFan -> SkVertexMode.TRIANGLE_FAN
+        else -> SkVertexMode.TRIANGLES
+    }

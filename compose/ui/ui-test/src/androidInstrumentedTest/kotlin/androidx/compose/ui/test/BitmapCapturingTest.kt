@@ -55,21 +55,19 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class BitmapCapturingTest(val config: TestConfig) {
-    data class TestConfig(
-        val activityClass: Class<out ComponentActivity>
-    )
+    data class TestConfig(val activityClass: Class<out ComponentActivity>)
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<TestConfig> = listOf(
-            TestConfig(ComponentActivity::class.java),
-            TestConfig(ActivityWithActionBar::class.java)
-        )
+        fun createTestSet(): List<TestConfig> =
+            listOf(
+                TestConfig(ComponentActivity::class.java),
+                TestConfig(ActivityWithActionBar::class.java)
+            )
     }
 
-    @get:Rule
-    val rule = createAndroidComposeRule(config.activityClass)
+    @get:Rule val rule = createAndroidComposeRule(config.activityClass)
 
     private val rootTag = "Root"
     private val tagTopLeft = "TopLeft"
@@ -88,40 +86,40 @@ class BitmapCapturingTest(val config: TestConfig) {
         composeCheckerboard()
 
         var calledCount = 0
-        rule.onNodeWithTag(tagTopLeft)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(100, 50)) {
-                calledCount++
-                colorTopLeft
-            }
+        rule.onNodeWithTag(tagTopLeft).captureToImage().assertPixels(
+            expectedSize = IntSize(100, 50)
+        ) {
+            calledCount++
+            colorTopLeft
+        }
         assertThat(calledCount).isEqualTo((100 * 50))
 
-        rule.onNodeWithTag(tagTopRight)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(100, 50)) {
-                colorTopRight
-            }
-        rule.onNodeWithTag(tagBottomLeft)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(100, 50)) {
-                colorBottomLeft
-            }
-        rule.onNodeWithTag(tagBottomRight)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(100, 50)) {
-                colorBottomRight
-            }
+        rule.onNodeWithTag(tagTopRight).captureToImage().assertPixels(
+            expectedSize = IntSize(100, 50)
+        ) {
+            colorTopRight
+        }
+        rule.onNodeWithTag(tagBottomLeft).captureToImage().assertPixels(
+            expectedSize = IntSize(100, 50)
+        ) {
+            colorBottomLeft
+        }
+        rule.onNodeWithTag(tagBottomRight).captureToImage().assertPixels(
+            expectedSize = IntSize(100, 50)
+        ) {
+            colorBottomRight
+        }
     }
 
     @Test
     fun captureRootContainer_checkSizeAndColors() {
         composeCheckerboard()
 
-        rule.onNodeWithTag(rootTag)
-            .captureToImage()
-            .assertPixels(expectedSize = IntSize(200, 100)) {
-                expectedColorProvider(it)
-            }
+        rule.onNodeWithTag(rootTag).captureToImage().assertPixels(
+            expectedSize = IntSize(200, 100)
+        ) {
+            expectedColorProvider(it)
+        }
     }
 
     @Test
@@ -132,47 +130,27 @@ class BitmapCapturingTest(val config: TestConfig) {
             AlertDialog(onDismissRequest = {}, confirmButton = {}, backgroundColor = Color.Red)
         }
 
-        rule.onNode(isDialog())
-            .captureToImage()
-            .assertContainsColor(Color.Red)
+        rule.onNode(isDialog()).captureToImage().assertContainsColor(Color.Red)
     }
 
     @Ignore // b/266737024
     @Test
     fun capturePopup_verifyBackground() {
-        setContent {
-            Box {
-                Popup {
-                    Box(Modifier.background(Color.Red)) {
-                        Text("Hello")
-                    }
-                }
-            }
-        }
+        setContent { Box { Popup { Box(Modifier.background(Color.Red)) { Text("Hello") } } } }
 
-        rule.onNode(isPopup())
-            .captureToImage()
-            .assertContainsColor(Color.Red)
+        rule.onNode(isPopup()).captureToImage().assertContainsColor(Color.Red)
     }
 
     @Test
     fun captureComposable_withPopUp_verifyBackground() {
         setContent {
-            Box(
-                Modifier
-                    .testTag(rootTag)
-                    .size(300.dp)
-                    .background(Color.Yellow)
-            ) {
-                Popup {
-                    Box(Modifier.background(Color.Red)) {
-                        Text("Hello")
-                    }
-                }
+            Box(Modifier.testTag(rootTag).size(300.dp).background(Color.Yellow)) {
+                Popup { Box(Modifier.background(Color.Red)) { Text("Hello") } }
             }
         }
 
-        rule.onNodeWithTag(rootTag)
+        rule
+            .onNodeWithTag(rootTag)
             .captureToImage()
             .assertContainsColor(Color.Yellow)
             .assertDoesNotContainColor(Color.Red)
@@ -181,23 +159,12 @@ class BitmapCapturingTest(val config: TestConfig) {
     @Test
     fun captureComposable_withDialog_verifyBackground() {
         setContent {
-            Box(
-                Modifier
-                    .testTag(rootTag)
-                    .size(300.dp)
-                    .background(Color.Yellow)
-            ) {
-                Dialog({}) {
-                    Box(
-                        Modifier
-                            .size(300.dp)
-                            .background(Color.Red)) {
-                        Text("Hello")
-                    }
-                }
+            Box(Modifier.testTag(rootTag).size(300.dp).background(Color.Yellow)) {
+                Dialog({}) { Box(Modifier.size(300.dp).background(Color.Red)) { Text("Hello") } }
             }
         }
-        rule.onNodeWithTag(rootTag)
+        rule
+            .onNodeWithTag(rootTag)
             .captureToImage()
             .assertContainsColor(Color.Yellow)
             .assertDoesNotContainColor(Color.Red)
@@ -207,21 +174,11 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun capturePopup_verifySize() {
         val boxSize = 200.dp
         val boxSizePx = boxSize.toPixel(rule.density).roundToInt()
-        setContent {
-            Box {
-                Popup {
-                    Box(Modifier.size(boxSize)) {
-                        Text("Hello")
-                    }
-                }
-            }
-        }
+        setContent { Box { Popup { Box(Modifier.size(boxSize)) { Text("Hello") } } } }
 
-        rule.onNode(isPopup())
-            .captureToImage()
-            .let {
-                assertThat(IntSize(it.width, it.height)).isEqualTo(IntSize(boxSizePx, boxSizePx))
-            }
+        rule.onNode(isPopup()).captureToImage().let {
+            assertThat(IntSize(it.width, it.height)).isEqualTo(IntSize(boxSizePx, boxSizePx))
+        }
     }
 
     private fun Dp.toPixel(density: Density) = this.value * density.density
@@ -247,35 +204,28 @@ class BitmapCapturingTest(val config: TestConfig) {
         with(rule.density) {
             setContent {
                 Box(Modifier.background(colorBg)) {
-                    Box(
-                        Modifier
-                            .padding(top = 20.toDp())
-                            .background(colorBg)) {
+                    Box(Modifier.padding(top = 20.toDp()).background(colorBg)) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
                                 Box(
-                                    Modifier
-                                        .testTag(tagTopLeft)
+                                    Modifier.testTag(tagTopLeft)
                                         .size(100.toDp(), 50.toDp())
                                         .background(color = colorTopLeft)
                                 )
                                 Box(
-                                    Modifier
-                                        .testTag(tagTopRight)
+                                    Modifier.testTag(tagTopRight)
                                         .size(100.toDp(), 50.toDp())
                                         .background(colorTopRight)
                                 )
                             }
                             Row {
                                 Box(
-                                    Modifier
-                                        .testTag(tagBottomLeft)
+                                    Modifier.testTag(tagBottomLeft)
                                         .size(100.toDp(), 50.toDp())
                                         .background(colorBottomLeft)
                                 )
                                 Box(
-                                    Modifier
-                                        .testTag(tagBottomRight)
+                                    Modifier.testTag(tagBottomRight)
                                         .size(100.toDp(), 50.toDp())
                                         .background(colorBottomRight)
                                 )

@@ -30,8 +30,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ColorSchemeTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     /**
      * Test for switching between provided [ColorScheme]s, ensuring that the existing colors objects
@@ -86,8 +85,8 @@ class ColorSchemeTest {
 }
 
 /**
- * [ColorScheme] is @Stable, so by contract it doesn't have equals implemented. And since it creates a
- * new Colors object to mutate internally, we can't compare references. Instead we compare the
+ * [ColorScheme] is @Stable, so by contract it doesn't have equals implemented. And since it creates
+ * a new Colors object to mutate internally, we can't compare references. Instead we compare the
  * properties to make sure that the properties are equal.
  *
  * @return true if all the properties inside [this] are equal to those in [other], false otherwise.

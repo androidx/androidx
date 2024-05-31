@@ -75,19 +75,16 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalLayoutApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
 class WindowInsetsControllerTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<WindowInsetsActivity>()
+    @get:Rule val rule = createAndroidComposeRule<WindowInsetsActivity>()
 
     private val testTag = "TestTag"
 
-    /**
-     * The size of the inset when shown.
-     */
+    /** The size of the inset when shown. */
     private var shownSize = 0
 
     /**
-     * This is the fling velocity that will move enough so that a spring will show at least
-     * 1 pixel of movement. This should be considered a small fling.
+     * This is the fling velocity that will move enough so that a spring will show at least 1 pixel
+     * of movement. This should be considered a small fling.
      */
     private val FlingToSpring1Pixel = 300f
 
@@ -99,15 +96,12 @@ class WindowInsetsControllerTest {
     // work with different insets types.
     // ========================================================
 
-    /**
-     * The android WindowInsets type.
-     */
+    /** The android WindowInsets type. */
     private val insetType = android.view.WindowInsets.Type.statusBars()
     private val insetSide = WindowInsetsSides.Top
 
     private val windowInsets: AndroidWindowInsets
-        @Composable
-        get() = WindowInsetsHolder.current().ime
+        @Composable get() = WindowInsetsHolder.current().ime
 
     private val WindowInsets.value: Int
         get() = getBottom(Density(1f))
@@ -125,9 +119,7 @@ class WindowInsetsControllerTest {
         swipeDown()
     }
 
-    /**
-     * A motion in this direction moves away from the insets
-     */
+    /** A motion in this direction moves away from the insets */
     private val directionMultiplier: Float = -1f
 
     private var shownAtStart = false
@@ -141,6 +133,7 @@ class WindowInsetsControllerTest {
             shownAtStart = view.rootWindowInsets.isVisible(insetType)
         }
     }
+
     @After
     fun teardown() {
         rule.runOnUiThread {
@@ -154,9 +147,7 @@ class WindowInsetsControllerTest {
         }
     }
 
-    /**
-     * Scrolling away from the inset with the inset hidden should show it.
-     */
+    /** Scrolling away from the inset with the inset hidden should show it. */
     @Test
     fun canScrollToShow() {
         if (!initializeDeviceWithInsetsHidden()) {
@@ -166,13 +157,12 @@ class WindowInsetsControllerTest {
         lateinit var coordinates: LayoutCoordinates
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-                .onPlaced { coordinates = it }
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
+            Box(
+                Modifier.fillMaxSize()
+                    .windowInsetsPadding(windowInsets)
+                    .nestedScroll(connection)
+                    .onPlaced { coordinates = it }
             )
         }
 
@@ -180,11 +170,12 @@ class WindowInsetsControllerTest {
 
         rule.runOnUiThread {
             // The first scroll triggers the animation controller to be requested
-            val consumed = connection.onPostScroll(
-                consumed = Offset.Zero,
-                available = Offset(3f, directionMultiplier),
-                source = NestedScrollSource.UserInput
-            )
+            val consumed =
+                connection.onPostScroll(
+                    consumed = Offset.Zero,
+                    available = Offset(3f, directionMultiplier),
+                    source = NestedScrollSource.UserInput
+                )
             assertThat(consumed).isEqualTo(Offset(0f, directionMultiplier))
         }
         // We don't know when the animation controller request will be fulfilled, so loop
@@ -192,14 +183,15 @@ class WindowInsetsControllerTest {
         val startTime = SystemClock.uptimeMillis()
         do {
             assertThat(SystemClock.uptimeMillis()).isLessThan(startTime + 1000)
-            val size = rule.runOnUiThread {
-                connection.onPostScroll(
-                    consumed = Offset.Zero,
-                    available = Offset(3f, directionMultiplier * 5f),
-                    source = NestedScrollSource.UserInput
-                )
-                coordinates.size
-            }
+            val size =
+                rule.runOnUiThread {
+                    connection.onPostScroll(
+                        consumed = Offset.Zero,
+                        available = Offset(3f, directionMultiplier * 5f),
+                        source = NestedScrollSource.UserInput
+                    )
+                    coordinates.size
+                }
         } while (size == sizeBefore)
 
         rule.runOnIdle {
@@ -208,9 +200,7 @@ class WindowInsetsControllerTest {
         }
     }
 
-    /**
-     * Scrolling toward the inset with the inset shown should hide it.
-     */
+    /** Scrolling toward the inset with the inset shown should hide it. */
     @Test
     fun canScrollToHide() {
         if (!initializeDeviceWithInsetsShown()) {
@@ -220,13 +210,12 @@ class WindowInsetsControllerTest {
         lateinit var coordinates: LayoutCoordinates
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-                .onPlaced { coordinates = it }
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
+            Box(
+                Modifier.fillMaxSize()
+                    .windowInsetsPadding(windowInsets)
+                    .nestedScroll(connection)
+                    .onPlaced { coordinates = it }
             )
         }
 
@@ -234,10 +223,11 @@ class WindowInsetsControllerTest {
 
         rule.runOnUiThread {
             // The first scroll triggers the animation controller to be requested
-            val consumed = connection.onPreScroll(
-                available = Offset(3f, -directionMultiplier),
-                source = NestedScrollSource.UserInput
-            )
+            val consumed =
+                connection.onPreScroll(
+                    available = Offset(3f, -directionMultiplier),
+                    source = NestedScrollSource.UserInput
+                )
             assertThat(consumed).isEqualTo(Offset(0f, -directionMultiplier))
         }
         // We don't know when the animation controller request will be fulfilled, so loop
@@ -245,13 +235,14 @@ class WindowInsetsControllerTest {
         val startTime = SystemClock.uptimeMillis()
         do {
             assertThat(SystemClock.uptimeMillis()).isLessThan(startTime + 1000)
-            val size = rule.runOnUiThread {
-                connection.onPreScroll(
-                    available = Offset(3f, directionMultiplier * -5f),
-                    source = NestedScrollSource.UserInput
-                )
-                coordinates.size
-            }
+            val size =
+                rule.runOnUiThread {
+                    connection.onPreScroll(
+                        available = Offset(3f, directionMultiplier * -5f),
+                        source = NestedScrollSource.UserInput
+                    )
+                    coordinates.size
+                }
         } while (size == sizeBefore)
 
         rule.runOnIdle {
@@ -260,9 +251,7 @@ class WindowInsetsControllerTest {
         }
     }
 
-    /**
-     * Flinging away from an inset should show it.
-     */
+    /** Flinging away from an inset should show it. */
     @Test
     fun canFlingToShow() {
         if (!initializeDeviceWithInsetsHidden()) {
@@ -272,23 +261,23 @@ class WindowInsetsControllerTest {
         lateinit var coordinates: LayoutCoordinates
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-                .onPlaced { coordinates = it }
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
+            Box(
+                Modifier.fillMaxSize()
+                    .windowInsetsPadding(windowInsets)
+                    .nestedScroll(connection)
+                    .onPlaced { coordinates = it }
             )
         }
 
         val sizeBefore = coordinates.size
 
         runBlockingOnUiThread {
-            val consumed = connection.onPostFling(
-                consumed = Velocity.Zero,
-                available = Velocity(3f, directionMultiplier * 5000f)
-            )
+            val consumed =
+                connection.onPostFling(
+                    consumed = Velocity.Zero,
+                    available = Velocity(3f, directionMultiplier * 5000f)
+                )
             assertThat(consumed.x).isEqualTo(0f)
             assertThat(abs(consumed.y)).isLessThan(5000f)
         }
@@ -299,9 +288,7 @@ class WindowInsetsControllerTest {
         }
     }
 
-    /**
-     * Flinging toward an inset should hide it.
-     */
+    /** Flinging toward an inset should hide it. */
     @Test
     fun canFlingToHide() {
         if (!initializeDeviceWithInsetsShown()) {
@@ -311,22 +298,20 @@ class WindowInsetsControllerTest {
         lateinit var coordinates: LayoutCoordinates
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-                .onPlaced { coordinates = it }
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
+            Box(
+                Modifier.fillMaxSize()
+                    .windowInsetsPadding(windowInsets)
+                    .nestedScroll(connection)
+                    .onPlaced { coordinates = it }
             )
         }
 
         val sizeBefore = coordinates.size
 
         runBlockingOnUiThread {
-            val consumed = connection.onPreFling(
-                available = Velocity(3f, -directionMultiplier * 5000f)
-            )
+            val consumed =
+                connection.onPreFling(available = Velocity(3f, -directionMultiplier * 5000f))
             assertThat(consumed.x).isEqualTo(0f)
             assertThat(abs(consumed.y)).isLessThan(5000f)
         }
@@ -337,9 +322,7 @@ class WindowInsetsControllerTest {
         }
     }
 
-    /**
-     * A small fling should use an animation to bounce back to hiding the inset
-     */
+    /** A small fling should use an animation to bounce back to hiding the inset */
     @Test
     fun smallFlingSpringsBackToHide() {
         if (!initializeDeviceWithInsetsHidden()) {
@@ -351,15 +334,10 @@ class WindowInsetsControllerTest {
         var isVisible = false
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
             maxVisible = maxOf(maxVisible, windowInsets.value)
             isVisible = windowInsets.isVisible
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-            )
+            Box(Modifier.fillMaxSize().windowInsetsPadding(windowInsets).nestedScroll(connection))
         }
 
         runBlockingOnUiThread {
@@ -370,14 +348,10 @@ class WindowInsetsControllerTest {
             assertThat(maxVisible).isGreaterThan(0)
         }
 
-        rule.runOnIdle {
-            assertThat(isVisible).isFalse()
-        }
+        rule.runOnIdle { assertThat(isVisible).isFalse() }
     }
 
-    /**
-     * A small fling should use an animation to bounce back to showing the inset
-     */
+    /** A small fling should use an animation to bounce back to showing the inset */
     @Test
     fun smallFlingSpringsBackToShow() {
         if (!initializeDeviceWithInsetsShown()) {
@@ -389,15 +363,10 @@ class WindowInsetsControllerTest {
         var isVisible = false
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
             minVisible = minOf(minVisible, windowInsets.value)
             isVisible = windowInsets.isVisible
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-            )
+            Box(Modifier.fillMaxSize().windowInsetsPadding(windowInsets).nestedScroll(connection))
         }
 
         runBlockingOnUiThread {
@@ -408,14 +377,10 @@ class WindowInsetsControllerTest {
             assertThat(minVisible).isLessThan(shownSize)
         }
 
-        rule.runOnIdle {
-            assertThat(isVisible).isTrue()
-        }
+        rule.runOnIdle { assertThat(isVisible).isTrue() }
     }
 
-    /**
-     * A fling past the middle should animate to fully showing the inset
-     */
+    /** A fling past the middle should animate to fully showing the inset */
     @Test
     fun flingPastMiddleSpringsToShow() {
         if (!initializeDeviceWithInsetsHidden()) {
@@ -427,15 +392,10 @@ class WindowInsetsControllerTest {
         var insetsSize = 0
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
             isVisible = windowInsets.isVisible
             insetsSize = windowInsets.value
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-            )
+            Box(Modifier.fillMaxSize().windowInsetsPadding(windowInsets).nestedScroll(connection))
         }
 
         // We don't know when the animation controller request will be fulfilled, so loop
@@ -471,9 +431,7 @@ class WindowInsetsControllerTest {
             )
         }
 
-        rule.runOnIdle {
-            assertThat(isVisible).isTrue()
-        }
+        rule.runOnIdle { assertThat(isVisible).isTrue() }
     }
 
     /**
@@ -490,15 +448,10 @@ class WindowInsetsControllerTest {
         var insetsSize = 0
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
             isVisible = windowInsets.isVisible
             insetsSize = windowInsets.value
-            Box(Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-            )
+            Box(Modifier.fillMaxSize().windowInsetsPadding(windowInsets).nestedScroll(connection))
         }
 
         // We don't know when the animation controller request will be fulfilled, so loop
@@ -530,14 +483,10 @@ class WindowInsetsControllerTest {
             )
         }
 
-        rule.runOnIdle {
-            assertThat(isVisible).isFalse()
-        }
+        rule.runOnIdle { assertThat(isVisible).isFalse() }
     }
 
-    /**
-     * The insets shouldn't get in the way of normal scrolling on the normal content.
-     */
+    /** The insets shouldn't get in the way of normal scrolling on the normal content. */
     @Test
     fun allowsContentScroll() {
         if (!initializeDeviceWithInsetsHidden()) {
@@ -548,31 +497,25 @@ class WindowInsetsControllerTest {
         val lazyListState = LazyListState()
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
             val boxSize = with(LocalDensity.current) { 100.toDp() }
             LazyColumn(
                 reverseLayout = reverseLazyColumn,
                 state = lazyListState,
-                modifier = Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-                .testTag(testTag)
-                .onPlaced { coordinates = it }
+                modifier =
+                    Modifier.fillMaxSize()
+                        .windowInsetsPadding(windowInsets)
+                        .nestedScroll(connection)
+                        .testTag(testTag)
+                        .onPlaced { coordinates = it }
             ) {
-                items(1000) {
-                    Box(Modifier.size(boxSize))
-                }
+                items(1000) { Box(Modifier.size(boxSize)) }
             }
         }
 
         val sizeBefore = coordinates.size
 
-        rule.onNodeWithTag(testTag)
-            .performTouchInput {
-                swipeTowardInset()
-            }
+        rule.onNodeWithTag(testTag).performTouchInput { swipeTowardInset() }
 
         rule.runOnIdle {
             assertThat(coordinates.size.height).isEqualTo(sizeBefore.height)
@@ -582,10 +525,7 @@ class WindowInsetsControllerTest {
 
         val firstVisibleIndex = lazyListState.firstVisibleItemIndex
 
-        rule.onNodeWithTag(testTag)
-            .performTouchInput {
-                swipeAwayFromInset()
-            }
+        rule.onNodeWithTag(testTag).performTouchInput { swipeAwayFromInset() }
 
         rule.runOnIdle {
             assertThat(coordinates.size.height).isEqualTo(sizeBefore.height)
@@ -595,8 +535,8 @@ class WindowInsetsControllerTest {
     }
 
     /**
-     * When flinging more than the inset, it should animate the insets closed and then fling
-     * the content.
+     * When flinging more than the inset, it should animate the insets closed and then fling the
+     * content.
      */
     @Test
     fun flingRemainderMovesContent() {
@@ -608,31 +548,25 @@ class WindowInsetsControllerTest {
         val lazyListState = LazyListState()
 
         rule.setContent {
-            connection =
-                rememberWindowInsetsConnection(windowInsets, insetSide)
+            connection = rememberWindowInsetsConnection(windowInsets, insetSide)
             val boxSize = with(LocalDensity.current) { 100.toDp() }
             LazyColumn(
                 reverseLayout = reverseLazyColumn,
                 state = lazyListState,
-                modifier = Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(windowInsets)
-                .nestedScroll(connection)
-                .testTag(testTag)
-                .onPlaced { coordinates = it }
+                modifier =
+                    Modifier.fillMaxSize()
+                        .windowInsetsPadding(windowInsets)
+                        .nestedScroll(connection)
+                        .testTag(testTag)
+                        .onPlaced { coordinates = it }
             ) {
-                items(1000) {
-                    Box(Modifier.size(boxSize))
-                }
+                items(1000) { Box(Modifier.size(boxSize)) }
             }
         }
 
         val sizeBefore = coordinates.size
 
-        rule.onNodeWithTag(testTag)
-            .performTouchInput {
-                swipeTowardInset()
-            }
+        rule.onNodeWithTag(testTag).performTouchInput { swipeTowardInset() }
 
         rule.runOnIdle {
             assertThat(coordinates.size.height).isGreaterThan(sizeBefore.height)
@@ -642,24 +576,23 @@ class WindowInsetsControllerTest {
     }
 
     /**
-     * On some devices, the animation can begin and then end immediately without the value being
-     * set to the final state in onProgress().
+     * On some devices, the animation can begin and then end immediately without the value being set
+     * to the final state in onProgress().
      */
     @Test
     fun quickAnimation() {
         val view = rule.activity.window.decorView
         val imeType = android.view.WindowInsets.Type.ime()
 
-        rule.runOnUiThread {
-            view.windowInsetsController?.show(imeType)
-        }
+        rule.runOnUiThread { view.windowInsetsController?.show(imeType) }
 
-        val imeAvailable = rule.runOnIdle {
-            val windowInsets = view.rootWindowInsets
-            val insets = windowInsets.getInsets(imeType)
-            shownSize = insets.value
-            windowInsets.isVisible(imeType) && insets.value != 0
-        }
+        val imeAvailable =
+            rule.runOnIdle {
+                val windowInsets = view.rootWindowInsets
+                val insets = windowInsets.getInsets(imeType)
+                shownSize = insets.value
+                windowInsets.isVisible(imeType) && insets.value != 0
+            }
         if (!imeAvailable) {
             return // IME isn't available on this device
         }
@@ -671,7 +604,7 @@ class WindowInsetsControllerTest {
             Column(Modifier.background(Color.White).wrapContentSize().imePadding()) {
                 BasicTextField(
                     "Hello World",
-                    { },
+                    {},
                     modifier = Modifier.focusRequester(focusRequester).testTag("textField")
                 )
                 if (showDialog) {
@@ -682,15 +615,11 @@ class WindowInsetsControllerTest {
             }
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.onNodeWithTag("textField").assertIsFocused()
 
-        rule.runOnIdle {
-            assertThat(imeBottom).isNotEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(imeBottom).isNotEqualTo(0) }
 
         showDialog = true
 
@@ -703,9 +632,7 @@ class WindowInsetsControllerTest {
     private fun initializeDeviceWithInsetsShown(): Boolean {
         val view = rule.activity.window.decorView
 
-        rule.runOnUiThread {
-            view.windowInsetsController?.show(insetType)
-        }
+        rule.runOnUiThread { view.windowInsetsController?.show(insetType) }
 
         return rule.runOnIdle {
             val windowInsets = view.rootWindowInsets
@@ -720,9 +647,7 @@ class WindowInsetsControllerTest {
             return false
         }
         val view = rule.activity.window.decorView
-        rule.runOnUiThread {
-            view.windowInsetsController?.hide(insetType)
-        }
+        rule.runOnUiThread { view.windowInsetsController?.hide(insetType) }
         return rule.runOnUiThread {
             val windowInsets = view.rootWindowInsets
             !windowInsets.isVisible(insetType)

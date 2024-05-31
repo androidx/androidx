@@ -39,51 +39,55 @@ import org.jetbrains.uast.UVariable
 /**
  * [Detector] that checks the naming of CompositionLocal properties for consistency with guidelines.
  *
- * CompositionLocal properties should be prefixed with `Local` to make it clear that their value
- * is local to the current composition.
+ * CompositionLocal properties should be prefixed with `Local` to make it clear that their value is
+ * local to the current composition.
  */
 class CompositionLocalNamingDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UVariable::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitVariable(node: UVariable) {
-            // Ignore parameters of type CompositionLocal
-            if (node is UParameter) return
-            if (node.sourcePsi is KtParameter) return
-            // Ignore local properties
-            if ((node.sourcePsi as? KtProperty)?.isLocal == true) return
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitVariable(node: UVariable) {
+                // Ignore parameters of type CompositionLocal
+                if (node is UParameter) return
+                if (node.sourcePsi is KtParameter) return
+                // Ignore local properties
+                if ((node.sourcePsi as? KtProperty)?.isLocal == true) return
 
-            val type = node.type
-            if (!type.inheritsFrom(Names.Runtime.CompositionLocal)) return
+                val type = node.type
+                if (!type.inheritsFrom(Names.Runtime.CompositionLocal)) return
 
-            val name = node.name
-            if (name!!.startsWith("Local", ignoreCase = true)) return
+                val name = node.name
+                if (name!!.startsWith("Local", ignoreCase = true)) return
 
-            // Kotlinc can't disambiguate overloads for report / getNameLocation otherwise
-            val uElementNode: UElement = node
+                // Kotlinc can't disambiguate overloads for report / getNameLocation otherwise
+                val uElementNode: UElement = node
 
-            context.report(
-                CompositionLocalNaming,
-                uElementNode,
-                context.getNameLocation(uElementNode),
-                "CompositionLocal properties should be prefixed with `Local`",
-            )
+                context.report(
+                    CompositionLocalNaming,
+                    uElementNode,
+                    context.getNameLocation(uElementNode),
+                    "CompositionLocal properties should be prefixed with `Local`",
+                )
+            }
         }
-    }
 
     companion object {
-        val CompositionLocalNaming = Issue.create(
-            "CompositionLocalNaming",
-            "CompositionLocal properties should be prefixed with `Local`",
-            "CompositionLocal properties should be prefixed with `Local`. This helps make " +
-                "it clear at their use site that these values are local to the current " +
-                "composition. Typically the full name will be `Local` + the type of the " +
-                "CompositionLocal, for example val LocalFoo = compositionLocalOf { Foo() }.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                CompositionLocalNamingDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val CompositionLocalNaming =
+            Issue.create(
+                "CompositionLocalNaming",
+                "CompositionLocal properties should be prefixed with `Local`",
+                "CompositionLocal properties should be prefixed with `Local`. This helps make " +
+                    "it clear at their use site that these values are local to the current " +
+                    "composition. Typically the full name will be `Local` + the type of the " +
+                    "CompositionLocal, for example val LocalFoo = compositionLocalOf { Foo() }.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    CompositionLocalNamingDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

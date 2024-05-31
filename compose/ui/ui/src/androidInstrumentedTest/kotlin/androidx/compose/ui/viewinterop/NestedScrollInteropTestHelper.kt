@@ -61,17 +61,11 @@ internal const val AndroidViewContainer = "androidView"
 internal class NestedScrollInteropAdapter :
     RecyclerView.Adapter<NestedScrollInteropAdapter.SimpleTextViewHolder>() {
     val items = (1..200).map { it.toString() }
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): SimpleTextViewHolder {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SimpleTextViewHolder {
         return SimpleTextViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(
-                    R.layout.android_in_compose_nested_scroll_interop_list_item,
-                    parent,
-                    false
-                )
+                .inflate(R.layout.android_in_compose_nested_scroll_interop_list_item, parent, false)
         )
     }
 
@@ -132,10 +126,8 @@ internal open class InspectableNestedScrollConnection() : NestedScrollConnection
     }
 }
 
-internal class TestNestedScrollParentView(
-    context: Context,
-    attrs: AttributeSet
-) : CoordinatorLayout(context, attrs) {
+internal class TestNestedScrollParentView(context: Context, attrs: AttributeSet) :
+    CoordinatorLayout(context, attrs) {
 
     private val unconsumed = IntArray(2)
     val unconsumedOffset: Offset
@@ -237,6 +229,7 @@ internal class RecyclerViewConsumptionTracker {
 
     val deltaConsumed
         get() = consumedByRecyclerView.toOffset()
+
     val velocityConsumed
         get() = velocityConsumedByRecyclerView.toComposeVelocity()
 
@@ -257,10 +250,7 @@ internal class RecyclerViewConsumptionTracker {
 }
 
 @Composable
-internal fun NestedScrollInteropTestApp(
-    modifier: Modifier = Modifier,
-    content: (Context) -> View
-) {
+internal fun NestedScrollInteropTestApp(modifier: Modifier = Modifier, content: (Context) -> View) {
     Box(modifier.fillMaxSize().testTag(OuterBoxLayout)) {
         AndroidView(content, modifier = Modifier.testTag(AndroidViewContainer))
     }
@@ -281,30 +271,24 @@ internal fun NestedScrollDeepNested(
             .apply {
                 with(findViewById<ComposeView>(R.id.compose_view)) {
                     setContent {
-                        Box(modifier = outerModifier) {
-                            ComposeInViewWithNestedScrollInterop()
-                        }
+                        Box(modifier = outerModifier) { ComposeInViewWithNestedScrollInterop() }
                     }
                 }
-            }.also {
-                ViewCompat.setNestedScrollingEnabled(it, enabled)
             }
+            .also { ViewCompat.setNestedScrollingEnabled(it, enabled) }
     }
 }
 
 @Composable
 internal fun ComposeInViewWithNestedScrollInterop() {
     LazyColumn(
-        modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection())
-            .testTag(MainTestList)
+        modifier =
+            Modifier.nestedScroll(rememberNestedScrollInteropConnection()).testTag(MainTestList)
     ) {
         items(200) { item ->
             Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .height(56.dp)
-                    .fillMaxWidth()
-                    .background(Color.Gray),
+                modifier =
+                    Modifier.padding(16.dp).height(56.dp).fillMaxWidth().background(Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
                 Text(item.toString())
@@ -325,28 +309,24 @@ internal fun NestedScrollInteropWithView(
             .inflate(R.layout.android_in_compose_nested_scroll_interop, null)
             .apply {
                 with(findViewById<RecyclerView>(R.id.main_list)) {
-                    layoutManager = LinearLayoutManager(
-                        context,
-                        RecyclerView.VERTICAL,
-                        false
-                    )
+                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                     adapter = NestedScrollInteropAdapter()
                     setOnScrollChangeListener { _, _, _, oldX, oldY ->
                         recyclerViewConsumptionTracker.trackDeltaConsumption(oldX, oldY)
                     }
-                    onFlingListener = object : RecyclerView.OnFlingListener() {
-                        override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                            recyclerViewConsumptionTracker.trackVelocityConsumed(
-                                velocityX,
-                                velocityY
-                            )
-                            return false
+                    onFlingListener =
+                        object : RecyclerView.OnFlingListener() {
+                            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                                recyclerViewConsumptionTracker.trackVelocityConsumed(
+                                    velocityX,
+                                    velocityY
+                                )
+                                return false
+                            }
                         }
-                    }
                 }
-            }.also {
-                ViewCompat.setNestedScrollingEnabled(it, enabled)
             }
+            .also { ViewCompat.setNestedScrollingEnabled(it, enabled) }
     }
 }
 
@@ -361,12 +341,11 @@ internal fun ActivityScenario<*>.createActivityWithComposeContent(
         activity.setContentView(layout)
         with(activity.findViewById<ComposeView>(R.id.compose_view)) {
             setContent {
-                val nestedScrollInterop = if (enableInterop) modifier.nestedScroll(
-                    rememberNestedScrollInteropConnection()
-                ) else modifier
-                Box(nestedScrollInterop) {
-                    content()
-                }
+                val nestedScrollInterop =
+                    if (enableInterop)
+                        modifier.nestedScroll(rememberNestedScrollInteropConnection())
+                    else modifier
+                Box(nestedScrollInterop) { content() }
             }
         }
     }
@@ -375,22 +354,20 @@ internal fun ActivityScenario<*>.createActivityWithComposeContent(
 
 @Composable
 internal fun RecyclerViewAndroidView(interopEnabled: Boolean) {
-    AndroidView(factory = { context ->
-        LayoutInflater.from(context)
-            .inflate(R.layout.android_in_compose_nested_scroll_interop, null)
-            .apply {
-                with(findViewById<RecyclerView>(R.id.main_list)) {
-                    layoutManager = LinearLayoutManager(
-                        context,
-                        RecyclerView.VERTICAL,
-                        false
-                    )
-                    adapter = NestedScrollInteropAdapter()
+    AndroidView(
+        factory = { context ->
+            LayoutInflater.from(context)
+                .inflate(R.layout.android_in_compose_nested_scroll_interop, null)
+                .apply {
+                    with(findViewById<RecyclerView>(R.id.main_list)) {
+                        layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                        adapter = NestedScrollInteropAdapter()
+                    }
                 }
-            }.also {
-                ViewCompat.setNestedScrollingEnabled(it, interopEnabled)
-            }
-    }, modifier = Modifier.testTag(AndroidViewContainer))
+                .also { ViewCompat.setNestedScrollingEnabled(it, interopEnabled) }
+        },
+        modifier = Modifier.testTag(AndroidViewContainer)
+    )
 }
 
 private fun IntArray.toOffset() = Offset(this[0].toFloat(), this[1].toFloat())
@@ -408,7 +385,5 @@ private fun FloatArray.toReversedVelocity(): Velocity {
     return Velocity(this[0] * -1f, this[1] * -1f)
 }
 
-internal fun abs(velocity: Velocity) = Velocity(
-    kotlin.math.abs(velocity.x),
-    kotlin.math.abs(velocity.y)
-)
+internal fun abs(velocity: Velocity) =
+    Velocity(kotlin.math.abs(velocity.x), kotlin.math.abs(velocity.y))

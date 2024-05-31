@@ -58,17 +58,18 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun SharedElementDemos() {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val list = listOf<Pair<String, @Composable () -> Unit>>(
-        "AnimContent\n List To Details" to { ListToDetailsDemo() },
-        "Nested" to { NestedSharedElementDemo() },
-        "Expanded Card" to { SwitchBetweenCollapsedAndExpanded() },
-        "Container Transform" to { ContainerTransformDemo() },
-        "Shared Element\n Caller Managed Vis" to { SharedElementWithCallerManagedVisibility() },
-        "FABInOverlay" to { SharedElementWithFABInOverlaySample() },
-        "AnimatedContent" to { SharedElementInAnimatedContentSample() },
-        "Text transform" to { TextSharedBoundsExperiments() },
-        "Nav Shared Tool Bar" to { NavigationWithSharedToolBarDemo() },
-    )
+    val list =
+        listOf<Pair<String, @Composable () -> Unit>>(
+            "AnimContent\n List To Details" to { ListToDetailsDemo() },
+            "Nested" to { NestedSharedElementDemo() },
+            "Expanded Card" to { SwitchBetweenCollapsedAndExpanded() },
+            "Container Transform" to { ContainerTransformDemo() },
+            "Shared Element\n Caller Managed Vis" to { SharedElementWithCallerManagedVisibility() },
+            "FABInOverlay" to { SharedElementWithFABInOverlaySample() },
+            "AnimatedContent" to { SharedElementInAnimatedContentSample() },
+            "Text transform" to { TextSharedBoundsExperiments() },
+            "Nav Shared Tool Bar" to { NavigationWithSharedToolBarDemo() },
+        )
 
     Column {
         ScrollableTabRow(selectedTab) {
@@ -137,31 +138,31 @@ fun ScaleContentTransition() {
                 Text(
                     text = someText,
                     fontSize = 20.sp,
-                    modifier = Modifier
-                        .padding(20.dp)
-                        .sharedBounds(
-                            rememberSharedContentState(key = rememberSharedKey),
-                            this,
-                            EnterTransition.None,
-                            ExitTransition.None,
-                            resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
-                        )
+                    modifier =
+                        Modifier.padding(20.dp)
+                            .sharedBounds(
+                                rememberSharedContentState(key = rememberSharedKey),
+                                this,
+                                EnterTransition.None,
+                                ExitTransition.None,
+                                resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
+                            )
                 )
             } else {
                 Image(
                     painterResource(id = R.drawable.yt_profile),
                     contentDescription = "cute cat",
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .sharedBounds(
-                            rememberSharedContentState(key = rememberSharedKey),
-                            this,
-                            EnterTransition.None,
-                            ExitTransition.None,
-                            resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
-                        )
-                        .requiredSize(200.dp)
-                        .clip(shape = RoundedCornerShape(10))
+                    modifier =
+                        Modifier.wrapContentSize()
+                            .sharedBounds(
+                                rememberSharedContentState(key = rememberSharedKey),
+                                this,
+                                EnterTransition.None,
+                                ExitTransition.None,
+                                resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
+                            )
+                            .requiredSize(200.dp)
+                            .clip(shape = RoundedCornerShape(10))
                 )
             }
         }

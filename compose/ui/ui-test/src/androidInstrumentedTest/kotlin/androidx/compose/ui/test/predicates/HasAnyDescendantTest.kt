@@ -32,19 +32,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HasAnyDescendantTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun findByDescendant_directDescendant_matches() {
         rule.setContent {
             BoundaryNode(testTag = "Node")
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
+            BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") }
         }
 
-        rule.onNode(hasAnyDescendant(hasTestTag("Child")) and hasTestTag("Parent"))
+        rule
+            .onNode(hasAnyDescendant(hasTestTag("Child")) and hasTestTag("Parent"))
             .assert(hasTestTag("Parent"))
     }
 
@@ -53,42 +51,36 @@ class HasAnyDescendantTest {
         rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Grandparent") {
-                BoundaryNode(testTag = "Parent") {
-                    BoundaryNode(testTag = "Child")
-                }
+                BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") }
             }
         }
 
-        rule.onNode(
-            hasAnyDescendant(hasTestTag("Child")) and !hasTestTag("Parent")
-                and hasTestTag("Grandparent")
-        )
+        rule
+            .onNode(
+                hasAnyDescendant(hasTestTag("Child")) and
+                    !hasTestTag("Parent") and
+                    hasTestTag("Grandparent")
+            )
             .assert(hasTestTag("Grandparent"))
     }
 
     @Test
     fun findByDescendant_justSelf_oneMatch() {
-        rule.setContent {
-            BoundaryNode(testTag = "Node")
-        }
+        rule.setContent { BoundaryNode(testTag = "Node") }
 
-        rule.onNode(hasAnyDescendant(hasTestTag("Node")))
-            .assertExists() // Root node
+        rule.onNode(hasAnyDescendant(hasTestTag("Node"))).assertExists() // Root node
     }
 
     @Test
     fun findByDescendant_twoSubtrees_threeMatches() {
         rule.setContent {
             BoundaryNode(testTag = "Node")
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
-            BoundaryNode(testTag = "Parent2") {
-                BoundaryNode(testTag = "Child")
-            }
+            BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") }
+            BoundaryNode(testTag = "Parent2") { BoundaryNode(testTag = "Child") }
         }
 
-        rule.onAllNodes(hasAnyDescendant(hasTestTag("Child")))
+        rule
+            .onAllNodes(hasAnyDescendant(hasTestTag("Child")))
             .assertCountEquals(3) // Parent, Parent2 and root
     }
 }

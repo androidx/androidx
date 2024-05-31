@@ -56,9 +56,7 @@ fun SpringChainDemo() {
     var leader by remember { mutableStateOf(Offset(200f, 200f)) }
     Box(
         Modifier.fillMaxSize().pointerInput(Unit) {
-            detectDragGestures { _, dragAmount ->
-                leader += dragAmount
-            }
+            detectDragGestures { _, dragAmount -> leader += dragAmount }
         }
     ) {
         Text(
@@ -79,8 +77,7 @@ fun SpringChainDemo() {
         // Followers stacked in reverse orders
         for (i in followers.size - 1 downTo 0) {
             Box(
-                Modifier
-                    .offset { followers[i].value.round() }
+                Modifier.offset { followers[i].value.round() }
                     .offset { IntOffset(0, spacing * (i + 1)) }
                     .size(circleSize)
                     .background(vibrantColors[i], CircleShape)
@@ -89,11 +86,14 @@ fun SpringChainDemo() {
 
         // Leader
         Box(
-            Modifier.offset { leader.round() }.size(circleSize)
+            Modifier.offset { leader.round() }
+                .size(circleSize)
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
-                ) { expanded = !expanded }
+                ) {
+                    expanded = !expanded
+                }
                 .background(Color(0xFFfff8ad), CircleShape)
         ) {
             // Rotate icon when expanded / collapsed
@@ -101,8 +101,10 @@ fun SpringChainDemo() {
             Icon(
                 Icons.Filled.KeyboardArrowDown,
                 contentDescription = "Expand or Collapse",
-                modifier = Modifier.size(30.dp).align(Alignment.Center)
-                    .graphicsLayer { this.rotationZ = rotation },
+                modifier =
+                    Modifier.size(30.dp).align(Alignment.Center).graphicsLayer {
+                        this.rotationZ = rotation
+                    },
                 tint = Color.Gray
             )
         }
@@ -111,10 +113,11 @@ fun SpringChainDemo() {
 
 val circleSize = 60.dp
 
-private val vibrantColors = listOf(
-    Color(0xffbfbdff),
-    Color(0xffffc7ed),
-    Color(0xffffdcab),
-    Color(0xffd5ffb0),
-    Color(0xffbaefff)
-)
+private val vibrantColors =
+    listOf(
+        Color(0xffbfbdff),
+        Color(0xffffc7ed),
+        Color(0xffffdcab),
+        Color(0xffd5ffb0),
+        Color(0xffbaefff)
+    )

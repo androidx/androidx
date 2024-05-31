@@ -44,25 +44,21 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Used to check the size of the RecycledViewPool
- */
+/** Used to check the size of the RecycledViewPool */
 private const val MaxItemsInAnyTest = 100
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 /**
- * Note: this test's structure largely parallels PoolingContainerRecyclerViewTest
- * (though there are notable implementation differences)
+ * Note: this test's structure largely parallels PoolingContainerRecyclerViewTest (though there are
+ * notable implementation differences)
  *
  * Consider if new tests added here should also be added there.
  */
 class AndroidComposeViewsRecyclerViewTest {
-    @get:Rule
-    val animationRule = AnimationDurationScaleRule.create()
+    @get:Rule val animationRule = AnimationDurationScaleRule.create()
 
-    @get:Rule
-    var activityRule = ActivityScenarioRule(ComponentActivity::class.java)
+    @get:Rule var activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
     lateinit var recyclerView: RecyclerView
     lateinit var container: FrameLayout
@@ -73,10 +69,11 @@ class AndroidComposeViewsRecyclerViewTest {
     fun setup() {
         activityRule.scenario.onActivity { activity ->
             container = FrameLayout(activity)
-            container.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            container.layoutParams =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
             activity.setContentView(container)
             recyclerView = RecyclerView(activity)
             setUpRecyclerView(recyclerView)
@@ -89,11 +86,8 @@ class AndroidComposeViewsRecyclerViewTest {
             // Animators cause items to stick around and prevent clean rebinds, which we don't want,
             // since it makes testing this less straightforward.
             rv.itemAnimator = null
-            rv.layoutManager =
-                LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-            rv.layoutParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 100
-            )
+            rv.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            rv.layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 100)
         }
     }
 
@@ -104,7 +98,7 @@ class AndroidComposeViewsRecyclerViewTest {
             adapter = PoolingContainerTestAdapter(activity, 100)
             recyclerView.adapter = adapter
         }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // All items created and bound
         assertThat(adapter.creations).isEqualTo(100)
@@ -112,7 +106,7 @@ class AndroidComposeViewsRecyclerViewTest {
         assertThat(adapter.binds).isEqualTo(100)
 
         instrumentation.runOnMainSync { adapter.notifyItemRangeChanged(0, 100) }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // All items changed: no new creations, but all items rebound
         assertThat(adapter.creations).isEqualTo(100)
@@ -129,7 +123,7 @@ class AndroidComposeViewsRecyclerViewTest {
             recyclerView.adapter = adapter
         }
 
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
         assertThat(adapter.creations).isEqualTo(100)
         assertThat(adapter.compositions).isEqualTo(100)
         assertThat(adapter.releases).isEqualTo(0)
@@ -146,7 +140,7 @@ class AndroidComposeViewsRecyclerViewTest {
             adapter = PoolingContainerTestAdapter(activity, 100)
             recyclerView.adapter = adapter
         }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // Initially added: all items created, no disposals
         assertThat(adapter.creations).isEqualTo(100)
@@ -182,14 +176,12 @@ class AndroidComposeViewsRecyclerViewTest {
             }
             recyclerView.adapter = adapter
         }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
         assertThat(recyclerView.height).isEqualTo(100)
         assertThat(adapter.creations).isEqualTo(50)
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            recyclerView.smoothScrollBy(0, 100)
-        }
+        instrumentation.runOnMainSync { recyclerView.smoothScrollBy(0, 100) }
 
         recyclerView.awaitScrollIdle()
 
@@ -219,12 +211,10 @@ class AndroidComposeViewsRecyclerViewTest {
             recyclerView.adapter = adapter
         }
 
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // Scroll to put some views into the shared pool
-        instrumentation.runOnMainSync {
-            recyclerView.smoothScrollBy(0, 100)
-        }
+        instrumentation.runOnMainSync { recyclerView.smoothScrollBy(0, 100) }
 
         recyclerView.awaitScrollIdle()
 
@@ -244,23 +234,17 @@ class AndroidComposeViewsRecyclerViewTest {
     fun setAdapter_allDisposed() {
         // Replacing the adapter when it is the only adapter attached to the pool means that
         // the pool is cleared, so everything should be disposed.
-        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) {
-            recyclerView.adapter = it
-        }
+        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) { recyclerView.adapter = it }
     }
 
     @Test
     fun swapAdapter_noDisposals() {
-        doSetOrSwapTest(expectedDisposalsAfterBlock = 0) {
-            recyclerView.swapAdapter(it, false)
-        }
+        doSetOrSwapTest(expectedDisposalsAfterBlock = 0) { recyclerView.swapAdapter(it, false) }
     }
 
     @Test
     fun setAdapterToNull_allDisposed() {
-        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) {
-            recyclerView.adapter = null
-        }
+        doSetOrSwapTest(expectedDisposalsAfterBlock = 100) { recyclerView.adapter = null }
     }
 
     private fun doSetOrSwapTest(
@@ -278,12 +262,10 @@ class AndroidComposeViewsRecyclerViewTest {
             }
             recyclerView.adapter = adapter
         }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // Scroll to put some views into the shared pool
-        withContext(Dispatchers.Main) {
-            recyclerView.smoothScrollBy(0, 100)
-        }
+        withContext(Dispatchers.Main) { recyclerView.smoothScrollBy(0, 100) }
         recyclerView.awaitScrollIdle()
 
         assertThat(adapter.creations).isEqualTo(100)
@@ -320,7 +302,7 @@ class AndroidComposeViewsRecyclerViewTest {
             }
         }
 
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         // All items created and bound
         assertThat(adapter.creations).isEqualTo(100)
@@ -332,7 +314,7 @@ class AndroidComposeViewsRecyclerViewTest {
             adapter.notifyItemRangeRemoved(0, 100)
             adapter.notifyItemRangeInserted(0, 100)
         }
-        instrumentation.runOnMainSync { }
+        instrumentation.runOnMainSync {}
 
         assertThat(adapter.creations).isEqualTo(200)
         assertThat(adapter.compositions).isEqualTo(200)
@@ -344,104 +326,108 @@ class AndroidComposeViewsRecyclerViewTest {
     }
 
     @Test
-    fun sharedViewPool() = runBlocking(Dispatchers.Main) {
-        val itemViewCacheSize = 2
-        container.removeAllViews()
-        val lp1 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
-        val lp2 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
-        val rv1: RecyclerView = recyclerView.also { it.layoutParams = lp1 }
-        lateinit var rv2: RecyclerView
-        lateinit var testContainer: LinearLayout
-        val pool = RecyclerView.RecycledViewPool()
-        lateinit var adapter1: PoolingContainerTestAdapter
-        lateinit var adapter2: PoolingContainerTestAdapter
-        activityRule.scenario.onActivity { activity ->
-            adapter1 = PoolingContainerTestAdapter(activity, 100, 10)
-            adapter2 = PoolingContainerTestAdapter(activity, 100, 10)
+    fun sharedViewPool() =
+        runBlocking(Dispatchers.Main) {
+            val itemViewCacheSize = 2
+            container.removeAllViews()
+            val lp1 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+            val lp2 = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+            val rv1: RecyclerView = recyclerView.also { it.layoutParams = lp1 }
+            lateinit var rv2: RecyclerView
+            lateinit var testContainer: LinearLayout
+            val pool = RecyclerView.RecycledViewPool()
+            lateinit var adapter1: PoolingContainerTestAdapter
+            lateinit var adapter2: PoolingContainerTestAdapter
+            activityRule.scenario.onActivity { activity ->
+                adapter1 = PoolingContainerTestAdapter(activity, 100, 10)
+                adapter2 = PoolingContainerTestAdapter(activity, 100, 10)
 
-            rv2 = RecyclerView(activity).also { setUpRecyclerView(it); it.layoutParams = lp2 }
-            testContainer = LinearLayout(activity).also {
-                it.layoutParams = FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    200
-                )
-                it.orientation = LinearLayout.VERTICAL
+                rv2 =
+                    RecyclerView(activity).also {
+                        setUpRecyclerView(it)
+                        it.layoutParams = lp2
+                    }
+                testContainer =
+                    LinearLayout(activity).also {
+                        it.layoutParams =
+                            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200)
+                        it.orientation = LinearLayout.VERTICAL
+                    }
+                rv1.setItemViewCacheSize(itemViewCacheSize)
+                rv2.setItemViewCacheSize(itemViewCacheSize)
+                rv1.adapter = adapter1
+                rv2.adapter = adapter2
+                testContainer.addView(rv1)
+                testContainer.addView(rv2)
+                container.addView(testContainer)
+                for (i in 0..9) {
+                    pool.setMaxRecycledViews(i, 10)
+                }
+                rv1.setRecycledViewPool(pool)
+                rv2.setRecycledViewPool(pool)
             }
-            rv1.setItemViewCacheSize(itemViewCacheSize)
-            rv2.setItemViewCacheSize(itemViewCacheSize)
-            rv1.adapter = adapter1
-            rv2.adapter = adapter2
-            testContainer.addView(rv1)
-            testContainer.addView(rv2)
-            container.addView(testContainer)
-            for (i in 0..9) {
-                pool.setMaxRecycledViews(i, 10)
-            }
-            rv1.setRecycledViewPool(pool)
-            rv2.setRecycledViewPool(pool)
+
+            awaitFrame()
+            awaitFrame()
+
+            assertThat(adapter1.creations).isEqualTo(10)
+            assertThat(adapter1.compositions).isEqualTo(10)
+
+            // Scroll to put some views into the shared pool
+            rv1.scrollBy(0, 100)
+
+            // The RV keeps a couple items in its view cache before returning them to the pool
+            val expectedRecycledItems = 10 - itemViewCacheSize
+            assertThat(pool.getRecycledViewCount(0)).isEqualTo(expectedRecycledItems)
+
+            // Nothing should have been disposed yet, everything should have gone to the pool
+            assertThat(adapter1.releases + adapter2.releases).isEqualTo(0)
+
+            val adapter1Creations = adapter1.creations
+            // There were 10, we scrolled 10 more into view, plus maybe prefetching
+            assertThat(adapter1Creations).isAtLeast(20)
+            val adapter1Compositions = adapter1.compositions
+            // Currently, prefetched views don't end up being composed, but that could change
+            assertThat(adapter1Compositions).isAtLeast(20)
+
+            // Remove the first RecyclerView
+            testContainer.removeView(rv1)
+            // get the relayout
+            awaitFrame()
+            awaitFrame()
+
+            // After the first RecyclerView is removed, we expect everything it created to be
+            // disposed,
+            // *except* for what's in the shared pool
+            assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just checking
+            assertThat(adapter1Compositions).isEqualTo(adapter1.compositions) // just checking
+            assertThat(pool.size).isEqualTo(expectedRecycledItems)
+            // We need to check compositions, not creations, because if it's not composed, it won't
+            // be
+            // disposed.
+            assertThat(adapter1.releases).isEqualTo(adapter1.compositions - expectedRecycledItems)
+            assertThat(adapter2.creations).isEqualTo(20) // it's twice as tall with rv1 gone
+            assertThat(adapter2.compositions).isEqualTo(20) // it's twice as tall with rv1 gone
+            assertThat(adapter2.releases).isEqualTo(0) // it hasn't scrolled
+
+            testContainer.removeView(rv2)
+            awaitFrame()
+
+            assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just to be really sure...
+            // double-check that nothing weird happened
+            assertThat(adapter1.compositions).isEqualTo(20)
+            // at this point they're all off
+            assertThat(adapter1.releases).isEqualTo(adapter1.compositions)
+            assertThat(adapter2.creations).isEqualTo(20) // again, just checking
+            assertThat(adapter2.compositions).isEqualTo(20) // again, just checking
+            assertThat(adapter2.releases).isEqualTo(20) // all of these should be gone too
         }
-
-        awaitFrame()
-        awaitFrame()
-
-        assertThat(adapter1.creations).isEqualTo(10)
-        assertThat(adapter1.compositions).isEqualTo(10)
-
-        // Scroll to put some views into the shared pool
-        rv1.scrollBy(0, 100)
-
-        // The RV keeps a couple items in its view cache before returning them to the pool
-        val expectedRecycledItems = 10 - itemViewCacheSize
-        assertThat(pool.getRecycledViewCount(0)).isEqualTo(expectedRecycledItems)
-
-        // Nothing should have been disposed yet, everything should have gone to the pool
-        assertThat(adapter1.releases + adapter2.releases).isEqualTo(0)
-
-        val adapter1Creations = adapter1.creations
-        // There were 10, we scrolled 10 more into view, plus maybe prefetching
-        assertThat(adapter1Creations).isAtLeast(20)
-        val adapter1Compositions = adapter1.compositions
-        // Currently, prefetched views don't end up being composed, but that could change
-        assertThat(adapter1Compositions).isAtLeast(20)
-
-        // Remove the first RecyclerView
-        testContainer.removeView(rv1)
-        // get the relayout
-        awaitFrame()
-        awaitFrame()
-
-        // After the first RecyclerView is removed, we expect everything it created to be disposed,
-        // *except* for what's in the shared pool
-        assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just checking
-        assertThat(adapter1Compositions).isEqualTo(adapter1.compositions) // just checking
-        assertThat(pool.size).isEqualTo(expectedRecycledItems)
-        // We need to check compositions, not creations, because if it's not composed, it won't be
-        // disposed.
-        assertThat(adapter1.releases).isEqualTo(adapter1.compositions - expectedRecycledItems)
-        assertThat(adapter2.creations).isEqualTo(20) // it's twice as tall with rv1 gone
-        assertThat(adapter2.compositions).isEqualTo(20) // it's twice as tall with rv1 gone
-        assertThat(adapter2.releases).isEqualTo(0) // it hasn't scrolled
-
-        testContainer.removeView(rv2)
-        awaitFrame()
-
-        assertThat(adapter1.creations).isEqualTo(adapter1Creations) // just to be really sure...
-        // double-check that nothing weird happened
-        assertThat(adapter1.compositions).isEqualTo(20)
-        // at this point they're all off
-        assertThat(adapter1.releases).isEqualTo(adapter1.compositions)
-        assertThat(adapter2.creations).isEqualTo(20) // again, just checking
-        assertThat(adapter2.compositions).isEqualTo(20) // again, just checking
-        assertThat(adapter2.releases).isEqualTo(20) // all of these should be gone too
-    }
 
     @Test
     fun animationTest() = runBlocking {
         animationRule.setAnimationDurationScale(1f)
 
-        withContext(Dispatchers.Main) {
-            recyclerView.itemAnimator = DefaultItemAnimator()
-        }
+        withContext(Dispatchers.Main) { recyclerView.itemAnimator = DefaultItemAnimator() }
 
         lateinit var adapter: PoolingContainerTestAdapter
         activityRule.scenario.onActivity { activity ->
@@ -528,9 +514,7 @@ class DisposalCountingComposeView(
     override fun Content() {
         DisposableEffect(true) {
             adapter.compositions++
-            onDispose {
-                adapter.releases++
-            }
+            onDispose { adapter.releases++ }
         }
     }
 }
@@ -539,13 +523,14 @@ private suspend fun RecyclerView.awaitScrollIdle() {
     val rv = this
     withContext(Dispatchers.Main) {
         suspendCancellableCoroutine<Unit> { continuation ->
-            val listener = object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        continuation.resume(Unit)
+            val listener =
+                object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            continuation.resume(Unit)
+                        }
                     }
                 }
-            }
 
             rv.addOnScrollListener(listener)
 
@@ -562,10 +547,12 @@ private suspend fun RecyclerView.awaitItemAnimationsComplete() {
     val rv = this
     withContext(Dispatchers.Main) {
         suspendCancellableCoroutine<Unit> { continuation ->
-            val animator = rv.itemAnimator ?: throw IllegalStateException(
-                "awaitItemAnimationsComplete() was called on a RecyclerView with no ItemAnimator." +
-                    " This may have been unintended."
-            )
+            val animator =
+                rv.itemAnimator
+                    ?: throw IllegalStateException(
+                        "awaitItemAnimationsComplete() was called on a RecyclerView with no ItemAnimator." +
+                            " This may have been unintended."
+                    )
             animator.isRunning { continuation.resume(Unit) }
         }
     }

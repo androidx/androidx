@@ -28,9 +28,7 @@ import androidx.compose.ui.window.rememberTrayState
 import androidx.compose.ui.window.rememberWindowState
 
 fun main() = application {
-    val windowState = rememberWindowState(
-        size = DpSize(800.dp, 600.dp)
-    )
+    val windowState = rememberWindowState(size = DpSize(800.dp, 600.dp))
 
     val trayState = rememberTrayState()
 
@@ -38,9 +36,7 @@ fun main() = application {
         Tray(
             state = trayState,
             icon = AppState.image().toPainter(),
-            menu = {
-                ActionItems(trayState)
-            }
+            menu = { ActionItems(trayState) }
         )
 
         Window(
@@ -51,19 +47,11 @@ fun main() = application {
         ) {
             MainMenuBar(windowState, trayState)
 
-            CompositionLocalProvider(
-                LocalTest provides 42
-            ) {
-                Content(windowState, trayState)
-            }
+            CompositionLocalProvider(LocalTest provides 42) { Content(windowState, trayState) }
         }
     }
 
     for (id in AppState.secondaryWindowIds) {
-        key(id) {
-            SecondaryWindow(
-                onCloseRequest = { AppState.closeSecondaryWindow(id) }
-            )
-        }
+        key(id) { SecondaryWindow(onCloseRequest = { AppState.closeSecondaryWindow(id) }) }
     }
 }

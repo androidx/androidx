@@ -32,9 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Sampled
 @Composable
 fun SurfaceSample() {
-    Surface {
-        Text("Text on Surface")
-    }
+    Surface { Text("Text on Surface") }
 }
 
 @Preview
@@ -58,10 +56,7 @@ fun SelectableSurfaceSample() {
         selected = selected,
         onClick = { selected = !selected },
     ) {
-        Text(
-            text = if (selected) "Selected" else "Not Selected",
-            textAlign = TextAlign.Center
-        )
+        Text(text = if (selected) "Selected" else "Not Selected", textAlign = TextAlign.Center)
     }
 }
 
@@ -73,15 +68,13 @@ fun ToggleableSurfaceSample() {
     Surface(
         checked = checked,
         onCheckedChange = { checked = !checked },
-        color = if (checked) {
-            MaterialTheme.colorScheme.surfaceVariant
-        } else {
-            MaterialTheme.colorScheme.surface
-        }
+        color =
+            if (checked) {
+                MaterialTheme.colorScheme.surfaceVariant
+            } else {
+                MaterialTheme.colorScheme.surface
+            }
     ) {
-        Text(
-            text = if (checked) "ON" else "OFF",
-            textAlign = TextAlign.Center
-        )
+        Text(text = if (checked) "ON" else "OFF", textAlign = TextAlign.Center)
     }
 }

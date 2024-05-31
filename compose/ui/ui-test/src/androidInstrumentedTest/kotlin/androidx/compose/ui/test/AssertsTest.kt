@@ -31,127 +31,130 @@ import org.junit.Test
 
 class AssertsTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun assertIsOn_forCheckedElement_isOk() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
+            BoundaryNode {
+                testTag = "test"
+                toggleableState = ToggleableState.On
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsOn()
+        rule.onNodeWithTag("test").assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOn_forUncheckedElement_throwsError() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
+            BoundaryNode {
+                testTag = "test"
+                toggleableState = ToggleableState.Off
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsOn()
+        rule.onNodeWithTag("test").assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOn_forNotToggleableElement_throwsError() {
-        rule.setContent {
-            BoundaryNode { testTag = "test" }
-        }
+        rule.setContent { BoundaryNode { testTag = "test" } }
 
-        rule.onNodeWithTag("test")
-            .assertIsOn()
+        rule.onNodeWithTag("test").assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOff_forCheckedElement_throwsError() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
+            BoundaryNode {
+                testTag = "test"
+                toggleableState = ToggleableState.On
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsOff()
+        rule.onNodeWithTag("test").assertIsOff()
     }
 
     @Test
     fun assertIsOff_forUncheckedElement_isOk() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
+            BoundaryNode {
+                testTag = "test"
+                toggleableState = ToggleableState.Off
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsOff()
+        rule.onNodeWithTag("test").assertIsOff()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOff_forNotToggleableElement_throwsError() {
-        rule.setContent {
-            BoundaryNode { testTag = "test"; }
-        }
+        rule.setContent { BoundaryNode { testTag = "test" } }
 
-        rule.onNodeWithTag("test")
-            .assertIsOff()
+        rule.onNodeWithTag("test").assertIsOff()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectedElement_throwsError() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; selected = false }
+            BoundaryNode {
+                testTag = "test"
+                selected = false
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsSelected()
+        rule.onNodeWithTag("test").assertIsSelected()
     }
 
     @Test
     fun assertIsSelected_forSelectedElement_isOk() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; selected = true }
+            BoundaryNode {
+                testTag = "test"
+                selected = true
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsSelected()
+        rule.onNodeWithTag("test").assertIsSelected()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectableElement_throwsError() {
-        rule.setContent {
-            BoundaryNode { testTag = "test"; }
-        }
+        rule.setContent { BoundaryNode { testTag = "test" } }
 
-        rule.onNodeWithTag("test")
-            .assertIsSelected()
+        rule.onNodeWithTag("test").assertIsSelected()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotSelected_forSelectedElement_throwsError() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; selected = true }
+            BoundaryNode {
+                testTag = "test"
+                selected = true
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsNotSelected()
+        rule.onNodeWithTag("test").assertIsNotSelected()
     }
 
     @Test
     fun assertIsNotSelected_forNotSelectedElement_isOk() {
         rule.setContent {
-            BoundaryNode { testTag = "test"; selected = false }
+            BoundaryNode {
+                testTag = "test"
+                selected = false
+            }
         }
 
-        rule.onNodeWithTag("test")
-            .assertIsNotSelected()
+        rule.onNodeWithTag("test").assertIsNotSelected()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotSelected_forNotSelectableElement_throwsError() {
-        rule.setContent {
-            BoundaryNode { testTag = "test"; }
-        }
+        rule.setContent { BoundaryNode { testTag = "test" } }
 
-        rule.onNodeWithTag("test")
-            .assertIsNotSelected()
+        rule.onNodeWithTag("test").assertIsNotSelected()
     }
 
     @Composable

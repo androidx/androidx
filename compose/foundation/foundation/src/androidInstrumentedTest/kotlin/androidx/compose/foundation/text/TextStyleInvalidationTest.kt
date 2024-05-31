@@ -69,232 +69,244 @@ class TextStyleInvalidationTest(private val config: Config) {
         override fun toString(): String = buildString {
             append(description)
             listOfNotNull(
-                "measure".takeIf { invalidatesMeasure },
-                "placement".takeIf { invalidatesPlacement },
-                "draw".takeIf { invalidatesDraw },
-            ).joinTo(this, prefix = " ", separator = ", ") { "invalidates $it" }
+                    "measure".takeIf { invalidatesMeasure },
+                    "placement".takeIf { invalidatesPlacement },
+                    "draw".takeIf { invalidatesDraw },
+                )
+                .joinTo(this, prefix = " ", separator = ", ") { "invalidates $it" }
         }
     }
 
     companion object {
         @Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            Config("nothing", { it }, recompose = false),
-            Config(
-                "color",
-                { it.copy(color = Color.Blue) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "to brush",
-                { it.copy(brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "from brush to brush",
-                initializeStyle = {
-                    it.copy(brush = Brush.verticalGradient(0f to Color.Black, 1f to Color.Magenta))
-                },
-                updateStyle = {
-                    it.copy(brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta))
-                },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "alpha",
-                initializeStyle = {
-                    it.copy(
-                        alpha = 1f,
-                        brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
-                    )
-                },
-                updateStyle = { it.copy(alpha = 0.5f, brush = it.brush) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "fontSize",
-                { it.copy(fontSize = it.fontSize * 2) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "fontWeight",
-                { it.copy(fontWeight = FontWeight(it.fontWeight!!.weight * 2)) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "fontStyle",
-                { it.copy(fontStyle = FontStyle.Italic) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true
-            ),
-            Config(
-                "fontSynthesis",
-                { it.copy(fontSynthesis = FontSynthesis.All) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "fontFamily",
-                { it.copy(fontFamily = FontFamily.Cursive) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "fontFeatureSettings",
-                initializeStyle = { it.copy(fontFeatureSettings = "a") },
-                updateStyle = { it.copy(fontFeatureSettings = "b") },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "letterSpacing",
-                { it.copy(letterSpacing = it.letterSpacing * 2) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "baselineShift",
-                { it.copy(baselineShift = BaselineShift.Superscript) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "textGeometricTransform",
-                { it.copy(textGeometricTransform = TextGeometricTransform(scaleX = 2f)) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "localeList",
-                initializeStyle = { it.copy(localeList = LocaleList("en-US")) },
-                updateStyle = { it.copy(localeList = LocaleList("en-GB")) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "background",
-                { it.copy(background = Color.Blue) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "textDecoration",
-                { it.copy(textDecoration = TextDecoration.LineThrough) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "to shadow",
-                { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "from shadow to shadow",
-                initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
-                updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "to drawStyle",
-                { it.copy(drawStyle = Stroke(width = 1f)) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "from drawStyle to drawStyle",
-                initializeStyle = { it.copy(drawStyle = Stroke(width = 0f)) },
-                updateStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "textAlign",
-                { it.copy(textAlign = TextAlign.Justify) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "textDirection",
-                { it.copy(textDirection = TextDirection.Rtl) },
-                invalidatesDraw = true,
-            ),
-            Config(
-                "lineHeight",
-                { it.copy(lineHeight = it.lineHeight * 2) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "textIndent",
-                { it.copy(textIndent = TextIndent(firstLine = 5.sp)) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "platformStyle",
-                initializeStyle = {
-                    it.copy(platformStyle = PlatformTextStyle(includeFontPadding = true))
-                },
-                updateStyle = {
-                    it.copy(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "lineHeightStyle",
-                {
-                    it.copy(
-                        lineHeightStyle = LineHeightStyle(
-                            alignment = LineHeightStyle.Alignment.Center,
-                            trim = LineHeightStyle.Trim.FirstLineTop
+        fun parameters() =
+            arrayOf(
+                Config("nothing", { it }, recompose = false),
+                Config(
+                    "color",
+                    { it.copy(color = Color.Blue) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "to brush",
+                    {
+                        it.copy(
+                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
                         )
-                    )
-                },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "lineBreak",
-                { it.copy(lineBreak = LineBreak.Heading) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-            Config(
-                "hyphens",
-                { it.copy(hyphens = Hyphens.Auto) },
-                invalidatesMeasure = true,
-                invalidatesDraw = true,
-            ),
-        )
+                    },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "from brush to brush",
+                    initializeStyle = {
+                        it.copy(
+                            brush = Brush.verticalGradient(0f to Color.Black, 1f to Color.Magenta)
+                        )
+                    },
+                    updateStyle = {
+                        it.copy(
+                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
+                        )
+                    },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "alpha",
+                    initializeStyle = {
+                        it.copy(
+                            alpha = 1f,
+                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
+                        )
+                    },
+                    updateStyle = { it.copy(alpha = 0.5f, brush = it.brush) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "fontSize",
+                    { it.copy(fontSize = it.fontSize * 2) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "fontWeight",
+                    { it.copy(fontWeight = FontWeight(it.fontWeight!!.weight * 2)) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "fontStyle",
+                    { it.copy(fontStyle = FontStyle.Italic) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true
+                ),
+                Config(
+                    "fontSynthesis",
+                    { it.copy(fontSynthesis = FontSynthesis.All) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "fontFamily",
+                    { it.copy(fontFamily = FontFamily.Cursive) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "fontFeatureSettings",
+                    initializeStyle = { it.copy(fontFeatureSettings = "a") },
+                    updateStyle = { it.copy(fontFeatureSettings = "b") },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "letterSpacing",
+                    { it.copy(letterSpacing = it.letterSpacing * 2) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "baselineShift",
+                    { it.copy(baselineShift = BaselineShift.Superscript) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "textGeometricTransform",
+                    { it.copy(textGeometricTransform = TextGeometricTransform(scaleX = 2f)) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "localeList",
+                    initializeStyle = { it.copy(localeList = LocaleList("en-US")) },
+                    updateStyle = { it.copy(localeList = LocaleList("en-GB")) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "background",
+                    { it.copy(background = Color.Blue) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "textDecoration",
+                    { it.copy(textDecoration = TextDecoration.LineThrough) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "to shadow",
+                    { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "from shadow to shadow",
+                    initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
+                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "to drawStyle",
+                    { it.copy(drawStyle = Stroke(width = 1f)) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "from drawStyle to drawStyle",
+                    initializeStyle = { it.copy(drawStyle = Stroke(width = 0f)) },
+                    updateStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "textAlign",
+                    { it.copy(textAlign = TextAlign.Justify) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "textDirection",
+                    { it.copy(textDirection = TextDirection.Rtl) },
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "lineHeight",
+                    { it.copy(lineHeight = it.lineHeight * 2) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "textIndent",
+                    { it.copy(textIndent = TextIndent(firstLine = 5.sp)) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "platformStyle",
+                    initializeStyle = {
+                        it.copy(platformStyle = PlatformTextStyle(includeFontPadding = true))
+                    },
+                    updateStyle = {
+                        it.copy(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                    },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "lineHeightStyle",
+                    {
+                        it.copy(
+                            lineHeightStyle =
+                                LineHeightStyle(
+                                    alignment = LineHeightStyle.Alignment.Center,
+                                    trim = LineHeightStyle.Trim.FirstLineTop
+                                )
+                        )
+                    },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "lineBreak",
+                    { it.copy(lineBreak = LineBreak.Heading) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+                Config(
+                    "hyphens",
+                    { it.copy(hyphens = Hyphens.Auto) },
+                    invalidatesMeasure = true,
+                    invalidatesDraw = true,
+                ),
+            )
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun changing() {
         // Don't leave any TextUnits Unspecified so test cases can double them to invalidate.
-        var style by mutableStateOf(
-            TextStyle(
-                color = Color.Black,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Normal,
-                fontStyle = null,
-                fontSynthesis = null,
-                fontFamily = TEST_FONT_FAMILY,
-                fontFeatureSettings = null,
-                letterSpacing = 12.sp,
-                baselineShift = null,
-                textGeometricTransform = null,
-                localeList = null,
-                background = Color.White,
-                textDecoration = null,
-                shadow = null,
-                textAlign = TextAlign.Start,
-                textDirection = TextDirection.Ltr,
-                lineHeight = 12.sp,
-                textIndent = null,
-            ).let(config.initializeStyle)
-        )
+        var style by
+            mutableStateOf(
+                TextStyle(
+                        color = Color.Black,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Normal,
+                        fontStyle = null,
+                        fontSynthesis = null,
+                        fontFamily = TEST_FONT_FAMILY,
+                        fontFeatureSettings = null,
+                        letterSpacing = 12.sp,
+                        baselineShift = null,
+                        textGeometricTransform = null,
+                        localeList = null,
+                        background = Color.White,
+                        textDecoration = null,
+                        shadow = null,
+                        textAlign = TextAlign.Start,
+                        textDirection = TextDirection.Ltr,
+                        lineHeight = 12.sp,
+                        textIndent = null,
+                    )
+                    .let(config.initializeStyle)
+            )
         var compositions = 0
         var measures = 0
         var placements = 0
@@ -304,18 +316,16 @@ class TextStyleInvalidationTest(private val config: Config) {
             BasicText(
                 "a",
                 style = style,
-                modifier = Modifier
-                    .layout { measurable, constraints ->
-                        measures++
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placements++
-                            placeable.place(IntOffset.Zero)
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                            measures++
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placements++
+                                placeable.place(IntOffset.Zero)
+                            }
                         }
-                    }
-                    .drawBehind {
-                        draws++
-                    }
+                        .drawBehind { draws++ }
             )
             compositions++
         }
@@ -335,17 +345,18 @@ class TextStyleInvalidationTest(private val config: Config) {
 
             if (config.invalidatesMeasure) {
                 assertWithMessage("invalidate measure")
-                    .that(measures).isGreaterThan(initialMeasures)
+                    .that(measures)
+                    .isGreaterThan(initialMeasures)
             }
             if (config.invalidatesPlacement) {
                 assertWithMessage("invalidate placements")
-                    .that(placements).isGreaterThan(initialPlacements)
+                    .that(placements)
+                    .isGreaterThan(initialPlacements)
 
                 // If measure is invalidated, placement will also always be invalidated, so ensure
                 // that placement was also invalidated separately from measurement.
                 if (config.invalidatesMeasure) {
-                    assertWithMessage("invalidate measure")
-                        .that(placements).isGreaterThan(measures)
+                    assertWithMessage("invalidate measure").that(placements).isGreaterThan(measures)
                 }
             }
             if (config.invalidatesDraw) {

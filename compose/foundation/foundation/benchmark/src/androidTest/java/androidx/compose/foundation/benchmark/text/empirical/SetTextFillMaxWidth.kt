@@ -44,11 +44,7 @@ class SetTextFillMaxWidth(private val text: String) : LayeredComposeTestCase(), 
 
     @Composable
     override fun MeasuredContent() {
-        Subject(
-            toggleText.value,
-            modifier = Modifier.fillMaxWidth(),
-            style = style
-        )
+        Subject(toggleText.value, modifier = Modifier.fillMaxWidth(), style = style)
     }
 
     override fun toggleState() {
@@ -62,9 +58,8 @@ class SetTextFillMaxWidth(private val text: String) : LayeredComposeTestCase(), 
 
 @LargeTest
 @RunWith(Parameterized::class)
-open class SetTextFillMaxWidthParent(
-    private val size: Int
-) : EmpiricalBench<SetTextFillMaxWidth>() {
+open class SetTextFillMaxWidthParent(private val size: Int) :
+    EmpiricalBench<SetTextFillMaxWidth>() {
     override val caseFactory = {
         val text = generateCacheableStringOf(size)
         SetTextFillMaxWidth(text)
@@ -77,9 +72,7 @@ open class SetTextFillMaxWidthParent(
     }
 }
 
-/**
- * Metrics determined from all apps
- */
+/** Metrics determined from all apps */
 @LargeTest
 @RunWith(Parameterized::class)
 class AllAppsSetTextFillMaxWidth(size: Int) : SetTextFillMaxWidthParent(size) {

@@ -33,36 +33,21 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 
 class ParametersTestActivity : ComponentActivity() {
-    private val fontFamily = FontFamily(
-        Font(
-            resId = R.font.samplefont,
-            weight = FontWeight.W400,
-            style = FontStyle.Normal
-        ),
-        Font(
-            resId = R.font.samplefont,
-            weight = FontWeight.W400,
-            style = FontStyle.Italic
+    private val fontFamily =
+        FontFamily(
+            Font(resId = R.font.samplefont, weight = FontWeight.W400, style = FontStyle.Normal),
+            Font(resId = R.font.samplefont, weight = FontWeight.W400, style = FontStyle.Italic)
         )
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             Column(modifier = Modifier.semantics(true) {}) {
-                Button(onClick = { println("smth") }) {
-                    Text("one", fontFamily = fontFamily)
-                }
-                Button(onClick = ::testClickHandler) {
-                    Text("two", fontFamily = fontFamily)
-                }
+                Button(onClick = { println("smth") }) { Text("one", fontFamily = fontFamily) }
+                Button(onClick = ::testClickHandler) { Text("two", fontFamily = fontFamily) }
                 FunctionWithIntArray(intArrayOf(10, 11, 12, 13, 14, 15, 16, 17))
                 Text("four")
-                SomeContent {
-                    Column {
-                        Text("five")
-                    }
-                }
+                SomeContent { Column { Text("five") } }
                 Row(modifier = Modifier.semantics(true) {}) {
                     Text("Text1")
                     Text("Text2")
@@ -84,7 +69,6 @@ fun FunctionWithIntArray(intArray: IntArray) {
     Text("three")
 }
 
-@Composable
-fun SomeContent(content: @Composable () -> Unit) = content()
+@Composable fun SomeContent(content: @Composable () -> Unit) = content()
 
 internal fun testClickHandler() {}

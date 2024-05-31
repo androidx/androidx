@@ -16,22 +16,22 @@
 package androidx.compose.ui.text.font
 
 /**
- *  Possible options for font synthesis.
+ * Possible options for font synthesis.
  *
- *  `FontSynthesis` is used to specify whether the system should fake bold or slanted
- *  glyphs when the [FontFamily] used does not contain bold or oblique [Font]s.
+ * `FontSynthesis` is used to specify whether the system should fake bold or slanted glyphs when the
+ * [FontFamily] used does not contain bold or oblique [Font]s.
  *
- *  If the font family does not include a requested [FontWeight] or [FontStyle], the system
- *  fakes bold or slanted glyphs when the [Weight] or [Style], respectively, or both when [All]
- *  is set. If this is not desired, use [None] to disable font synthesis.
+ * If the font family does not include a requested [FontWeight] or [FontStyle], the system fakes
+ * bold or slanted glyphs when the [Weight] or [Style], respectively, or both when [All] is set. If
+ * this is not desired, use [None] to disable font synthesis.
  *
- *  It is possible to fake an increase of [FontWeight] but not a decrease. It is possible to fake
- *  a regular font slanted, but not vice versa.
+ * It is possible to fake an increase of [FontWeight] but not a decrease. It is possible to fake a
+ * regular font slanted, but not vice versa.
  *
- *  `FontSynthesis` works the same way as the
- *  [CSS font-synthesis](https://www.w3.org/TR/css-fonts-4/#font-synthesis) property.
+ * `FontSynthesis` works the same way as the
+ * [CSS font-synthesis](https://www.w3.org/TR/css-fonts-4/#font-synthesis) property.
  *
- *  @sample androidx.compose.ui.text.samples.FontFamilySynthesisSample
+ * @sample androidx.compose.ui.text.samples.FontFamilySynthesisSample
  */
 @kotlin.jvm.JvmInline
 value class FontSynthesis internal constructor(internal val value: Int) {
@@ -60,14 +60,14 @@ value class FontSynthesis internal constructor(internal val value: Int) {
         val All = FontSynthesis(1)
 
         /**
-         * Only a bold font is synthesized, if it is not available in the [FontFamily]. Slanted fonts
-         * will not be synthesized.
+         * Only a bold font is synthesized, if it is not available in the [FontFamily]. Slanted
+         * fonts will not be synthesized.
          */
         val Weight = FontSynthesis(2)
 
         /**
-         * Only an slanted font is synthesized, if it is not available in the [FontFamily]. Bold fonts
-         * will not be synthesized.
+         * Only an slanted font is synthesized, if it is not available in the [FontFamily]. Bold
+         * fonts will not be synthesized.
          */
         val Style = FontSynthesis(3)
     }

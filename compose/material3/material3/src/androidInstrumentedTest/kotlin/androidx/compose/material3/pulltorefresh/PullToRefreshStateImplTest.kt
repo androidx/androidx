@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3Api::class)
 class PullToRefreshStateImplTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun refreshTrigger_onlyAfterThreshold() {
@@ -55,11 +54,11 @@ class PullToRefreshStateImplTest {
 
         rule.setContent {
             touchSlop = LocalViewConfiguration.current.touchSlop
-            positionalThreshold = with(LocalDensity.current) {
-                PullToRefreshDefaults.PositionalThreshold.toPx()
-            }
+            positionalThreshold =
+                with(LocalDensity.current) { PullToRefreshDefaults.PositionalThreshold.toPx() }
             var isRefreshing by mutableStateOf(false)
-            PullToRefreshBox(modifier = Modifier.testTag(PullRefreshTag),
+            PullToRefreshBox(
+                modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = isRefreshing,
                 onRefresh = {
                     isRefreshing = true
@@ -67,12 +66,7 @@ class PullToRefreshStateImplTest {
                     isRefreshing = false
                 }
             ) {
-
-                LazyColumn {
-                    items(100) {
-                        Text("item $it")
-                    }
-                }
+                LazyColumn { items(100) { Text("item $it") } }
             }
         }
         // Account for DragModifier - pull down twice the threshold value.
@@ -83,9 +77,7 @@ class PullToRefreshStateImplTest {
         rule.waitForIdle()
 
         // Equal to threshold
-        pullRefreshNode.performTouchInput {
-            swipeDown(endY = 2 * positionalThreshold + touchSlop)
-        }
+        pullRefreshNode.performTouchInput { swipeDown(endY = 2 * positionalThreshold + touchSlop) }
 
         rule.runOnIdle {
             assertThat(refreshCount).isEqualTo(0)
@@ -105,46 +97,37 @@ class PullToRefreshStateImplTest {
         var refreshCount = 0
         var touchSlop = 0f
         var positionalThreshold = 0f
-        val state = object : PullToRefreshState {
+        val state =
+            object : PullToRefreshState {
 
-            var distanceFractionState by mutableStateOf(0f)
-            override val distanceFraction: Float
-                get() = distanceFractionState
+                var distanceFractionState by mutableStateOf(0f)
+                override val distanceFraction: Float
+                    get() = distanceFractionState
 
-            override suspend fun animateToThreshold() {
+                override suspend fun animateToThreshold() {}
+
+                override suspend fun animateToHidden() {}
+
+                override suspend fun snapTo(targetValue: Float) {
+                    distanceFractionState = targetValue
+                }
             }
-
-            override suspend fun animateToHidden() {
-            }
-
-            override suspend fun snapTo(targetValue: Float) {
-                distanceFractionState = targetValue
-            }
-        }
 
         rule.setContent {
             touchSlop = LocalViewConfiguration.current.touchSlop
-            positionalThreshold = with(LocalDensity.current) {
-                PullToRefreshDefaults.PositionalThreshold.toPx()
-            }
+            positionalThreshold =
+                with(LocalDensity.current) { PullToRefreshDefaults.PositionalThreshold.toPx() }
             PullToRefreshBox(
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = false,
                 onRefresh = { refreshCount++ },
                 state = state
             ) {
-
-                LazyColumn {
-                    items(100) {
-                        Text("item $it")
-                    }
-                }
+                LazyColumn { items(100) { Text("item $it") } }
             }
         }
 
-        pullRefreshNode.performTouchInput {
-            swipeDown(endY = positionalThreshold + touchSlop)
-        }
+        pullRefreshNode.performTouchInput { swipeDown(endY = positionalThreshold + touchSlop) }
 
         rule.runOnIdle {
             // Expected values given drag modifier of 0.5f
@@ -158,55 +141,44 @@ class PullToRefreshStateImplTest {
         var refreshCount = 0
         var touchSlop = 0f
         var positionalThreshold = 0f
-        val state = object : PullToRefreshState {
+        val state =
+            object : PullToRefreshState {
 
-            var distanceFractionState by mutableStateOf(0f)
-            override val distanceFraction: Float
-                get() = distanceFractionState
+                var distanceFractionState by mutableStateOf(0f)
+                override val distanceFraction: Float
+                    get() = distanceFractionState
 
-            override suspend fun animateToThreshold() {
+                override suspend fun animateToThreshold() {}
+
+                override suspend fun animateToHidden() {}
+
+                override suspend fun snapTo(targetValue: Float) {
+                    distanceFractionState = targetValue
+                }
             }
-
-            override suspend fun animateToHidden() {
-            }
-
-            override suspend fun snapTo(targetValue: Float) {
-                distanceFractionState = targetValue
-            }
-        }
 
         rule.setContent {
             touchSlop = LocalViewConfiguration.current.touchSlop
-            positionalThreshold = with(LocalDensity.current) {
-                PullToRefreshDefaults.PositionalThreshold.toPx()
-            }
+            positionalThreshold =
+                with(LocalDensity.current) { PullToRefreshDefaults.PositionalThreshold.toPx() }
             PullToRefreshBox(
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = false,
                 onRefresh = { refreshCount++ },
                 state = state
             ) {
-
-                LazyColumn {
-                    items(100) {
-                        Text("item $it")
-                    }
-                }
+                LazyColumn { items(100) { Text("item $it") } }
             }
         }
 
-        pullRefreshNode.performTouchInput {
-            swipeDown(endY = positionalThreshold * 2 + touchSlop)
-        }
+        pullRefreshNode.performTouchInput { swipeDown(endY = positionalThreshold * 2 + touchSlop) }
         rule.runOnIdle {
             assertThat(state.distanceFraction).isEqualTo(1f)
             // Account for PullMultiplier.
             assertThat(refreshCount).isEqualTo(0)
         }
 
-        pullRefreshNode.performTouchInput {
-            swipeDown(endY = 3 * positionalThreshold + touchSlop)
-        }
+        pullRefreshNode.performTouchInput { swipeDown(endY = 3 * positionalThreshold + touchSlop) }
 
         rule.runOnIdle {
             assertThat(state.distanceFraction).isWithin(0.1f).of(1.5f)
@@ -220,62 +192,47 @@ class PullToRefreshStateImplTest {
         var refreshCount = 0
         var touchSlop = 0f
         var positionalThreshold = 0f
-        val state = object : PullToRefreshState {
+        val state =
+            object : PullToRefreshState {
 
-            var distanceFractionState by mutableStateOf(0f)
-            override val distanceFraction: Float
-                get() = distanceFractionState
+                var distanceFractionState by mutableStateOf(0f)
+                override val distanceFraction: Float
+                    get() = distanceFractionState
 
-            override suspend fun animateToThreshold() {
+                override suspend fun animateToThreshold() {}
+
+                override suspend fun animateToHidden() {}
+
+                override suspend fun snapTo(targetValue: Float) {
+                    distanceFractionState = targetValue
+                }
             }
-
-            override suspend fun animateToHidden() {
-            }
-
-            override suspend fun snapTo(targetValue: Float) {
-                distanceFractionState = targetValue
-            }
-        }
 
         rule.setContent {
             touchSlop = LocalViewConfiguration.current.touchSlop
-            positionalThreshold = with(LocalDensity.current) {
-                PullToRefreshDefaults.PositionalThreshold.toPx()
-            }
+            positionalThreshold =
+                with(LocalDensity.current) { PullToRefreshDefaults.PositionalThreshold.toPx() }
             PullToRefreshBox(
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = false,
                 onRefresh = { refreshCount++ },
                 state = state
             ) {
-
-                LazyColumn {
-                    items(100) {
-                        Text("item $it")
-                    }
-                }
+                LazyColumn { items(100) { Text("item $it") } }
             }
         }
-        pullRefreshNode.performTouchInput {
-            swipeDown(endY = 10 * positionalThreshold + touchSlop)
-        }
+        pullRefreshNode.performTouchInput { swipeDown(endY = 10 * positionalThreshold + touchSlop) }
 
-        rule.runOnIdle {
-            assertThat(state.distanceFraction).isEqualTo(2f)
-        }
+        rule.runOnIdle { assertThat(state.distanceFraction).isEqualTo(2f) }
     }
 
     @Test
     fun state_restoresPullRefreshState() {
         val restorationTester = StateRestorationTester(rule)
         var state: PullToRefreshState? = null
-        restorationTester.setContent {
-            state = rememberPullToRefreshState()
-        }
+        restorationTester.setContent { state = rememberPullToRefreshState() }
 
-        runBlocking {
-            state!!.snapTo(0.5f)
-        }
+        runBlocking { state!!.snapTo(0.5f) }
         state = null
         restorationTester.emulateSavedInstanceStateRestore()
         assertThat(state!!.distanceFraction).isEqualTo(0.5f)

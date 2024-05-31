@@ -58,10 +58,7 @@ class IntRectTest {
 
     @Test
     fun `rect size`() {
-        Assert.assertEquals(
-            IntSize(210, 290),
-            IntRect(70, 10, 280, 300).size
-        )
+        Assert.assertEquals(IntSize(210, 290), IntRect(70, 10, 280, 300).size)
     }
 
     @Test
@@ -100,9 +97,7 @@ class IntRectTest {
 
     @Test
     fun `rect intersect`() {
-        val intersected = IntRect(0, 0, 20, 20).intersect(
-            IntRect(10, 10, 30, 30)
-        )
+        val intersected = IntRect(0, 0, 20, 20).intersect(IntRect(10, 10, 30, 30))
         Assert.assertEquals(IntRect(10, 10, 20, 20), intersected)
     }
 
@@ -231,18 +226,12 @@ class IntRectTest {
         val rect1 = IntRect(0, 0, 100, 100)
         val rect2 = IntRect(50, 50, 200, 200)
 
-        Assert.assertEquals(
-            IntRect(25, 25, 150, 150),
-            lerp(rect1, rect2, 0.5f)
-        )
+        Assert.assertEquals(IntRect(25, 25, 150, 150), lerp(rect1, rect2, 0.5f))
     }
 
     @Test
     fun `to Rect`() {
-        Assert.assertEquals(
-            Rect(25.0f, 25.0f, 150.0f, 150.0f),
-            IntRect(25, 25, 150, 150).toRect()
-        )
+        Assert.assertEquals(Rect(25.0f, 25.0f, 150.0f, 150.0f), IntRect(25, 25, 150, 150).toRect())
     }
 
     @Test

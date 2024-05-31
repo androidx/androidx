@@ -20,28 +20,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 
-/**
- * Test case representing a layout hierarchy of nested boxes.
- */
-class NestedBoxesTestCase(
-    private val depth: Int,
-    private val children: Int
-) : LayeredComposeTestCase() {
+/** Test case representing a layout hierarchy of nested boxes. */
+class NestedBoxesTestCase(private val depth: Int, private val children: Int) :
+    LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        Box {
-            Boxes(depth - 1, children)
-        }
+        Box { Boxes(depth - 1, children) }
     }
 
     @Composable
     private fun Boxes(depth: Int, children: Int) {
         if (depth == 0) return
-        repeat(children) {
-            Box {
-                Boxes(depth - 1, children)
-            }
-        }
+        repeat(children) { Box { Boxes(depth - 1, children) } }
     }
 }

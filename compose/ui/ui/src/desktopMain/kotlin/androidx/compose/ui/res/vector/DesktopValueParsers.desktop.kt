@@ -67,38 +67,43 @@ internal fun parseColorValue(color: String): Int {
     }
 }
 
-internal fun parseFillType(fillType: String): PathFillType = when (fillType) {
-    "nonZero" -> PathFillType.NonZero
-    "evenOdd" -> PathFillType.EvenOdd
-    else -> throw UnsupportedOperationException("unknown fillType: $fillType")
-}
-
-internal fun parseStrokeCap(strokeCap: String): StrokeCap = when (strokeCap) {
-    "butt" -> StrokeCap.Butt
-    "round" -> StrokeCap.Round
-    "square" -> StrokeCap.Square
-    else -> throw UnsupportedOperationException("unknown strokeCap: $strokeCap")
-}
-
-internal fun parseStrokeJoin(strokeJoin: String): StrokeJoin = when (strokeJoin) {
-    "miter" -> StrokeJoin.Miter
-    "round" -> StrokeJoin.Round
-    "bevel" -> StrokeJoin.Bevel
-    else -> throw UnsupportedOperationException("unknown strokeJoin: $strokeJoin")
-}
-
-internal fun parseTileMode(tileMode: String): TileMode = when (tileMode) {
-    "clamp" -> TileMode.Clamp
-    "repeated" -> TileMode.Repeated
-    "mirror" -> TileMode.Mirror
-    else -> throw throw UnsupportedOperationException("unknown tileMode: $tileMode")
-}
-
-internal fun String?.parseDp(density: Density): Dp = with(density) {
-    return when {
-        this@parseDp == null -> 0f.dp
-        endsWith("dp") -> removeSuffix("dp").toFloat().dp
-        endsWith("px") -> removeSuffix("px").toFloat().toDp()
-        else -> throw UnsupportedOperationException("value should ends with dp or px")
+internal fun parseFillType(fillType: String): PathFillType =
+    when (fillType) {
+        "nonZero" -> PathFillType.NonZero
+        "evenOdd" -> PathFillType.EvenOdd
+        else -> throw UnsupportedOperationException("unknown fillType: $fillType")
     }
-}
+
+internal fun parseStrokeCap(strokeCap: String): StrokeCap =
+    when (strokeCap) {
+        "butt" -> StrokeCap.Butt
+        "round" -> StrokeCap.Round
+        "square" -> StrokeCap.Square
+        else -> throw UnsupportedOperationException("unknown strokeCap: $strokeCap")
+    }
+
+internal fun parseStrokeJoin(strokeJoin: String): StrokeJoin =
+    when (strokeJoin) {
+        "miter" -> StrokeJoin.Miter
+        "round" -> StrokeJoin.Round
+        "bevel" -> StrokeJoin.Bevel
+        else -> throw UnsupportedOperationException("unknown strokeJoin: $strokeJoin")
+    }
+
+internal fun parseTileMode(tileMode: String): TileMode =
+    when (tileMode) {
+        "clamp" -> TileMode.Clamp
+        "repeated" -> TileMode.Repeated
+        "mirror" -> TileMode.Mirror
+        else -> throw throw UnsupportedOperationException("unknown tileMode: $tileMode")
+    }
+
+internal fun String?.parseDp(density: Density): Dp =
+    with(density) {
+        return when {
+            this@parseDp == null -> 0f.dp
+            endsWith("dp") -> removeSuffix("dp").toFloat().dp
+            endsWith("px") -> removeSuffix("px").toFloat().toDp()
+            else -> throw UnsupportedOperationException("value should ends with dp or px")
+        }
+    }

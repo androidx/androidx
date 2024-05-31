@@ -44,46 +44,47 @@ fun MultiDimensionalAnimationDemo() {
     var currentState by remember { mutableStateOf(AnimState.Collapsed) }
     val onClick = {
         // Cycle through states when clicked.
-        currentState = when (currentState) {
-            AnimState.Collapsed -> AnimState.Expanded
-            AnimState.Expanded -> AnimState.PutAway
-            AnimState.PutAway -> AnimState.Collapsed
-        }
+        currentState =
+            when (currentState) {
+                AnimState.Collapsed -> AnimState.Expanded
+                AnimState.Expanded -> AnimState.PutAway
+                AnimState.PutAway -> AnimState.Collapsed
+            }
     }
 
     var width by remember { mutableFloatStateOf(0f) }
     var height by remember { mutableFloatStateOf(0f) }
     val transition = updateTransition(currentState)
-    val rect by transition.animateRect(transitionSpec = { spring(stiffness = 100f) }) {
-        when (it) {
-            AnimState.Collapsed -> Rect(600f, 600f, 900f, 900f)
-            AnimState.Expanded -> Rect(0f, 400f, width, height - 400f)
-            AnimState.PutAway -> Rect(width - 300f, height - 300f, width, height)
+    val rect by
+        transition.animateRect(transitionSpec = { spring(stiffness = 100f) }) {
+            when (it) {
+                AnimState.Collapsed -> Rect(600f, 600f, 900f, 900f)
+                AnimState.Expanded -> Rect(0f, 400f, width, height - 400f)
+                AnimState.PutAway -> Rect(width - 300f, height - 300f, width, height)
+            }
         }
-    }
 
-    val color by transition.animateColor(transitionSpec = { tween(durationMillis = 500) }) {
-        when (it) {
-            AnimState.Collapsed -> Color.LightGray
-            AnimState.Expanded -> Color(0xFFd0fff8)
-            AnimState.PutAway -> Color(0xFFe3ffd9)
+    val color by
+        transition.animateColor(transitionSpec = { tween(durationMillis = 500) }) {
+            when (it) {
+                AnimState.Collapsed -> Color.LightGray
+                AnimState.Expanded -> Color(0xFFd0fff8)
+                AnimState.PutAway -> Color(0xFFe3ffd9)
+            }
         }
-    }
     Canvas(
-        modifier = Modifier.fillMaxSize().clickable(
-            onClick = onClick,
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        )
+        modifier =
+            Modifier.fillMaxSize()
+                .clickable(
+                    onClick = onClick,
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                )
     ) {
         width = size.width
         height = size.height
 
-        drawRect(
-            color,
-            topLeft = Offset(rect.left, rect.top),
-            size = Size(rect.width, rect.height)
-        )
+        drawRect(color, topLeft = Offset(rect.left, rect.top), size = Size(rect.width, rect.height))
     }
 }
 

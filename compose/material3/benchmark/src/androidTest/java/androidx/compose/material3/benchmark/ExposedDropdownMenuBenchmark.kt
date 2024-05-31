@@ -51,8 +51,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun edm_firstPixel() {
@@ -97,9 +96,8 @@ class ExposedDropdownMenuBenchmark(private val expanded: Boolean) {
     }
 }
 
-internal class ExposedDropdownMenuTestCase(
-    private val expanded: Boolean
-) : LayeredComposeTestCase(), ToggleableTestCase {
+internal class ExposedDropdownMenuTestCase(private val expanded: Boolean) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var state: MutableState<Dp>
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -123,9 +121,7 @@ internal class ExposedDropdownMenuTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

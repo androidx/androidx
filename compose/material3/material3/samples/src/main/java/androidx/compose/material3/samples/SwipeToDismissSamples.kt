@@ -42,25 +42,20 @@ fun SwipeToDismissListItems() {
     SwipeToDismissBox(
         state = dismissState,
         backgroundContent = {
-            val color by animateColorAsState(
-                when (dismissState.targetValue) {
-                    SwipeToDismissBoxValue.Settled -> Color.LightGray
-                    SwipeToDismissBoxValue.StartToEnd -> Color.Green
-                    SwipeToDismissBoxValue.EndToStart -> Color.Red
-                }
-            )
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(color)
-            )
+            val color by
+                animateColorAsState(
+                    when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.Settled -> Color.LightGray
+                        SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                        SwipeToDismissBoxValue.EndToStart -> Color.Red
+                    }
+                )
+            Box(Modifier.fillMaxSize().background(color))
         }
     ) {
         OutlinedCard(shape = RectangleShape) {
             ListItem(
-                headlineContent = {
-                    Text("Cupcake")
-                },
+                headlineContent = { Text("Cupcake") },
                 supportingContent = { Text("Swipe me left or right!") }
             )
         }

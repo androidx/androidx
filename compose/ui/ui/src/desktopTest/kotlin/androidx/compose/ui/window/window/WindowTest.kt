@@ -63,21 +63,21 @@ class WindowTest {
         launchApplication {
             var isOpen by remember { mutableStateOf(true) }
 
-            fun createWindow() = ComposeWindow().apply {
-                size = Dimension(300, 200)
+            fun createWindow() =
+                ComposeWindow().apply {
+                    size = Dimension(300, 200)
 
-                addWindowListener(object : WindowAdapter() {
-                    override fun windowClosing(e: WindowEvent) {
-                        isOpen = false
-                    }
-                })
-            }
+                    addWindowListener(
+                        object : WindowAdapter() {
+                            override fun windowClosing(e: WindowEvent) {
+                                isOpen = false
+                            }
+                        }
+                    )
+                }
 
             if (isOpen) {
-                Window(
-                    create = ::createWindow,
-                    dispose = ComposeWindow::dispose
-                ) {
+                Window(create = ::createWindow, dispose = ComposeWindow::dispose) {
                     window = this.window
                     Box(Modifier.size(32.dp).background(Color.Red))
                 }
@@ -98,15 +98,18 @@ class WindowTest {
         var title by mutableStateOf("Title1")
 
         launchApplication {
-            fun createWindow() = ComposeWindow().apply {
-                size = Dimension(300, 200)
+            fun createWindow() =
+                ComposeWindow().apply {
+                    size = Dimension(300, 200)
 
-                addWindowListener(object : WindowAdapter() {
-                    override fun windowClosing(e: WindowEvent) {
-                        isOpen = false
-                    }
-                })
-            }
+                    addWindowListener(
+                        object : WindowAdapter() {
+                            override fun windowClosing(e: WindowEvent) {
+                                isOpen = false
+                            }
+                        }
+                    )
+                }
 
             if (isOpen) {
                 Window(
@@ -156,11 +159,7 @@ class WindowTest {
 
         launchApplication {
             if (isOpen) {
-                Window(
-                    onCloseRequest = {
-                        isCloseCalled = true
-                    }
-                ) {
+                Window(onCloseRequest = { isCloseCalled = true }) {
                     window = this.window
                     Box(Modifier.size(32.dp).background(Color.Red))
                 }
@@ -261,9 +260,10 @@ class WindowTest {
             if (isOpen) {
                 Window(
                     onCloseRequest = {},
-                    state = rememberWindowState(
-                        size = DpSize(600.dp, 600.dp),
-                    )
+                    state =
+                        rememberWindowState(
+                            size = DpSize(600.dp, 600.dp),
+                        )
                 ) {
                     window1 = this.window
                     Box(Modifier.size(32.dp).background(Color.Red))
@@ -271,9 +271,10 @@ class WindowTest {
                     if (isNestedOpen) {
                         Window(
                             onCloseRequest = {},
-                            state = rememberWindowState(
-                                size = DpSize(300.dp, 300.dp),
-                            )
+                            state =
+                                rememberWindowState(
+                                    size = DpSize(300.dp, 300.dp),
+                                )
                         ) {
                             window2 = this.window
                             Box(Modifier.size(32.dp).background(Color.Blue))
@@ -319,9 +320,10 @@ class WindowTest {
                 CompositionLocalProvider(*locals) {
                     Window(
                         onCloseRequest = {},
-                        state = rememberWindowState(
-                            size = DpSize(600.dp, 600.dp),
-                        )
+                        state =
+                            rememberWindowState(
+                                size = DpSize(600.dp, 600.dp),
+                            )
                     ) {
                         actualValue1 = local1TestValue.current
                         actualValue2 = local2TestValue.current
@@ -329,9 +331,10 @@ class WindowTest {
 
                         Window(
                             onCloseRequest = {},
-                            state = rememberWindowState(
-                                size = DpSize(300.dp, 300.dp),
-                            )
+                            state =
+                                rememberWindowState(
+                                    size = DpSize(300.dp, 300.dp),
+                                )
                         ) {
                             actualValue3 = local1TestValue.current
                             Box(Modifier.size(32.dp).background(Color.Blue))
@@ -385,9 +388,7 @@ class WindowTest {
                 Window(onCloseRequest = {}) {
                     DisposableEffect(Unit) {
                         initCount++
-                        onDispose {
-                            disposeCount++
-                        }
+                        onDispose { disposeCount++ }
                     }
                 }
             }

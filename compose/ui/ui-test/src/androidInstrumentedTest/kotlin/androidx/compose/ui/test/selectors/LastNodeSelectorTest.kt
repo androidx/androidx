@@ -34,8 +34,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LastNodeSelectorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun twoNodes_getLast() {
@@ -46,29 +45,19 @@ class LastNodeSelectorTest {
             }
         }
 
-        rule.onNodeWithTag("Parent")
-            .onChildren()
-            .onLast()
-            .assert(hasTestTag("Child2"))
+        rule.onNodeWithTag("Parent").onChildren().onLast().assert(hasTestTag("Child2"))
     }
 
     @Test
     fun zeroNodes_getLast() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
-        rule.onNodeWithTag("Parent")
-            .onChildren()
-            .onLast()
-            .assertDoesNotExist()
+        rule.onNodeWithTag("Parent").onChildren().onLast().assertDoesNotExist()
     }
 
     @Test
     fun zeroNodes_getLast_fail() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
         expectErrorMessageStartsWith(
             "" +
@@ -76,10 +65,7 @@ class LastNodeSelectorTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Parent').children).last)"
         ) {
-            rule.onNodeWithTag("Parent")
-                .onChildren()
-                .onLast()
-                .assertExists()
+            rule.onNodeWithTag("Parent").onChildren().onLast().assertExists()
         }
     }
 }

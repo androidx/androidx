@@ -34,32 +34,24 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
     fun drawLines() {
         canvas.drawPoints(
             pointMode = PointMode.Lines,
-            points = listOf(
-                Offset(0f, 8f),
-                Offset(8f, 0f),
-                Offset(8f, 8f),
-                Offset(0f, 8f)
-            ),
-            paint = Paint().apply {
-                color = Color.Red
-                strokeWidth = 2f
-            }
+            points = listOf(Offset(0f, 8f), Offset(8f, 0f), Offset(8f, 8f), Offset(0f, 8f)),
+            paint =
+                Paint().apply {
+                    color = Color.Red
+                    strokeWidth = 2f
+                }
         )
 
         canvas.translate(6f, 6f)
         canvas.drawPoints(
             pointMode = PointMode.Lines,
-            points = listOf(
-                Offset(0f, 8f),
-                Offset(8f, 0f),
-                Offset(8f, 8f),
-                Offset(0f, 8f)
-            ),
-            paint = Paint().apply {
-                color = Color.Green
-                strokeWidth = 2f
-                strokeCap = StrokeCap.Round
-            }
+            points = listOf(Offset(0f, 8f), Offset(8f, 0f), Offset(8f, 8f), Offset(0f, 8f)),
+            paint =
+                Paint().apply {
+                    color = Color.Green
+                    strokeWidth = 2f
+                    strokeCap = StrokeCap.Round
+                }
         )
 
         screenshotRule.snap(surface)
@@ -69,38 +61,33 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
     fun drawPoints() {
         canvas.drawPoints(
             pointMode = PointMode.Points,
-            points = listOf(
-                Offset(0f, 2f),
-                Offset(2f, 0f)
-            ),
-            paint = Paint().apply {
-                color = Color.Red
-                strokeWidth = 2f
-                strokeCap = StrokeCap.Butt
-            }
+            points = listOf(Offset(0f, 2f), Offset(2f, 0f)),
+            paint =
+                Paint().apply {
+                    color = Color.Red
+                    strokeWidth = 2f
+                    strokeCap = StrokeCap.Butt
+                }
         )
         canvas.drawRawPoints(
             pointMode = PointMode.Points,
-            points = floatArrayOf(
-                4f, 4f,
-                8f, 8f
-            ),
-            paint = Paint().apply {
-                color = Color.Blue
-                strokeWidth = 4f
-                strokeCap = StrokeCap.Round
-            }
+            points = floatArrayOf(4f, 4f, 8f, 8f),
+            paint =
+                Paint().apply {
+                    color = Color.Blue
+                    strokeWidth = 4f
+                    strokeCap = StrokeCap.Round
+                }
         )
         canvas.drawPoints(
             pointMode = PointMode.Points,
-            points = listOf(
-                Offset(4f, 0f)
-            ),
-            paint = Paint().apply {
-                color = Color.Green
-                strokeWidth = 2f
-                strokeCap = StrokeCap.Square
-            }
+            points = listOf(Offset(4f, 0f)),
+            paint =
+                Paint().apply {
+                    color = Color.Green
+                    strokeWidth = 2f
+                    strokeCap = StrokeCap.Square
+                }
         )
 
         screenshotRule.snap(surface)
@@ -110,32 +97,24 @@ class DesktopCanvasPointsTest : DesktopGraphicsTest() {
     fun drawPolygons() {
         canvas.drawPoints(
             pointMode = PointMode.Polygon,
-            points = listOf(
-                Offset(0f, 8f),
-                Offset(8f, 0f),
-                Offset(8f, 8f),
-                Offset(0f, 8f)
-            ),
-            paint = Paint().apply {
-                color = Color.Red
-                strokeWidth = 2f
-            }
+            points = listOf(Offset(0f, 8f), Offset(8f, 0f), Offset(8f, 8f), Offset(0f, 8f)),
+            paint =
+                Paint().apply {
+                    color = Color.Red
+                    strokeWidth = 2f
+                }
         )
 
         canvas.translate(6f, 6f)
         canvas.drawPoints(
             pointMode = PointMode.Polygon,
-            points = listOf(
-                Offset(0f, 8f),
-                Offset(8f, 0f),
-                Offset(8f, 8f),
-                Offset(0f, 8f)
-            ),
-            paint = Paint().apply {
-                color = Color.Green
-                strokeWidth = 2f
-                strokeCap = StrokeCap.Round
-            }
+            points = listOf(Offset(0f, 8f), Offset(8f, 0f), Offset(8f, 8f), Offset(0f, 8f)),
+            paint =
+                Paint().apply {
+                    color = Color.Green
+                    strokeWidth = 2f
+                    strokeCap = StrokeCap.Round
+                }
         )
 
         screenshotRule.snap(surface)

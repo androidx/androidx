@@ -26,21 +26,20 @@ import androidx.compose.ui.unit.IntSize
  * The receiver scope of all input injection lambdas offered in `ui-test`, such as
  * [performTouchInput] and [performMouseInput].
  *
- * This scope offers several properties that allow you to get [coordinates][Offset] within the
- * node you're interacting on, like the [topLeft] corner, its [center], or some percentage of the
- * size ([percentOffset]).
+ * This scope offers several properties that allow you to get [coordinates][Offset] within the node
+ * you're interacting on, like the [topLeft] corner, its [center], or some percentage of the size
+ * ([percentOffset]).
  *
- * All positional properties are expressed in pixels. [InjectionScope] implements [Density] so
- * you can convert between px and dp as you wish. The density used is taken from the
- * [SemanticsNode][androidx.compose.ui.semantics.SemanticsNode] from the
- * [SemanticsNodeInteraction] on which the input injection method is called.
+ * All positional properties are expressed in pixels. [InjectionScope] implements [Density] so you
+ * can convert between px and dp as you wish. The density used is taken from the
+ * [SemanticsNode][androidx.compose.ui.semantics.SemanticsNode] from the [SemanticsNodeInteraction]
+ * on which the input injection method is called.
  */
 @JvmDefaultWithCompatibility
 interface InjectionScope : Density {
-    /**
-     * The default time between two successive events.
-     */
-    val eventPeriodMillis get() = InputDispatcher.eventPeriodMillis
+    /** The default time between two successive events. */
+    val eventPeriodMillis
+        get() = InputDispatcher.eventPeriodMillis
 
     /**
      * Adds the given [durationMillis] to the current event time, delaying the next event by that
@@ -61,125 +60,138 @@ interface InjectionScope : Density {
      */
     val viewConfiguration: ViewConfiguration
 
-    /**
-     * The width of the node in px. Shorthand for [visibleSize.width][visibleSize].
-     */
-    val width: Int get() = visibleSize.width
+    /** The width of the node in px. Shorthand for [visibleSize.width][visibleSize]. */
+    val width: Int
+        get() = visibleSize.width
+
+    /** The height of the node in px. Shorthand for [visibleSize.height][visibleSize]. */
+    val height: Int
+        get() = visibleSize.height
 
     /**
-     * The height of the node in px. Shorthand for [visibleSize.height][visibleSize].
+     * The x-coordinate for the left edge of the node we're interacting with in px, in the node's
+     * local coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val height: Int get() = visibleSize.height
+    val left: Float
+        get() = 0f
 
     /**
-     * The x-coordinate for the left edge of the node we're interacting with in px, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The y-coordinate for the bottom of the node we're interacting with in px, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val left: Float get() = 0f
+    val top: Float
+        get() = 0f
 
     /**
-     * The y-coordinate for the bottom of the node we're interacting with in px, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The x-coordinate for the center of the node we're interacting with in px, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val top: Float get() = 0f
+    val centerX: Float
+        get() = width / 2f
 
     /**
-     * The x-coordinate for the center of the node we're interacting with in px, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The y-coordinate for the center of the node we're interacting with in px, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val centerX: Float get() = width / 2f
+    val centerY: Float
+        get() = height / 2f
 
     /**
-     * The y-coordinate for the center of the node we're interacting with in px, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
-     */
-    val centerY: Float get() = height / 2f
-
-    /**
-     * The x-coordinate for the right edge of the node we're interacting with in px, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The x-coordinate for the right edge of the node we're interacting with in px, in the node's
+     * local coordinate system, where (0, 0) is the top left corner of the node.
      *
      * Note that, unless `width == 0`, `right != width`. In particular, `right == width - 1f`,
      * because pixels are 0-based. If `width == 0`, `right == 0` too.
      */
-    val right: Float get() = width.let { if (it == 0) 0f else it - 1f }
+    val right: Float
+        get() = width.let { if (it == 0) 0f else it - 1f }
 
     /**
-     * The y-coordinate for the bottom of the node we're interacting with in px, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The y-coordinate for the bottom of the node we're interacting with in px, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      *
      * Note that, unless `height == 0`, `bottom != height`. In particular, `bottom == height - 1f`,
      * because pixels are 0-based. If `height == 0`, `bottom == 0` too.
      */
-    val bottom: Float get() = height.let { if (it == 0) 0f else it - 1f }
+    val bottom: Float
+        get() = height.let { if (it == 0) 0f else it - 1f }
 
     /**
-     * The top left corner of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The top left corner of the node we're interacting with, in the node's local coordinate
+     * system, where (0, 0) is the top left corner of the node.
      */
-    val topLeft: Offset get() = Offset(left, top)
+    val topLeft: Offset
+        get() = Offset(left, top)
 
     /**
-     * The center of the top edge of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The center of the top edge of the node we're interacting with, in the node's local coordinate
+     * system, where (0, 0) is the top left corner of the node.
      */
-    val topCenter: Offset get() = Offset(centerX, top)
+    val topCenter: Offset
+        get() = Offset(centerX, top)
 
     /**
-     * The top right corner of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The top right corner of the node we're interacting with, in the node's local coordinate
+     * system, where (0, 0) is the top left corner of the node.
      *
      * Note that `topRight.x != width`, see [right].
      */
-    val topRight: Offset get() = Offset(right, top)
+    val topRight: Offset
+        get() = Offset(right, top)
 
     /**
-     * The center of the left edge of the node we're interacting with, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The center of the left edge of the node we're interacting with, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      */
-    val centerLeft: Offset get() = Offset(left, centerY)
+    val centerLeft: Offset
+        get() = Offset(left, centerY)
 
     /**
-     * The center of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The center of the node we're interacting with, in the node's local coordinate system, where
+     * (0, 0) is the top left corner of the node.
      */
-    val center: Offset get() = Offset(centerX, centerY)
+    val center: Offset
+        get() = Offset(centerX, centerY)
 
     /**
-     * The center of the right edge of the node we're interacting with, in the
-     * node's local coordinate system, where (0, 0) is the top left corner of the node.
+     * The center of the right edge of the node we're interacting with, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      *
      * Note that `centerRight.x != width`, see [right].
      */
-    val centerRight: Offset get() = Offset(right, centerY)
+    val centerRight: Offset
+        get() = Offset(right, centerY)
 
     /**
-     * The bottom left corner of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The bottom left corner of the node we're interacting with, in the node's local coordinate
+     * system, where (0, 0) is the top left corner of the node.
      *
      * Note that `bottomLeft.y != height`, see [bottom].
      */
-    val bottomLeft: Offset get() = Offset(left, bottom)
+    val bottomLeft: Offset
+        get() = Offset(left, bottom)
 
     /**
-     * The center of the bottom edge of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The center of the bottom edge of the node we're interacting with, in the node's local
+     * coordinate system, where (0, 0) is the top left corner of the node.
      *
      * Note that `bottomCenter.y != height`, see [bottom].
      */
-    val bottomCenter: Offset get() = Offset(centerX, bottom)
+    val bottomCenter: Offset
+        get() = Offset(centerX, bottom)
 
     /**
-     * The bottom right corner of the node we're interacting with, in the node's
-     * local coordinate system, where (0, 0) is the top left corner of the node.
+     * The bottom right corner of the node we're interacting with, in the node's local coordinate
+     * system, where (0, 0) is the top left corner of the node.
      *
      * Note that `bottomRight.x != width` and `bottomRight.y != height`, see [right] and [bottom].
      */
-    val bottomRight: Offset get() = Offset(right, bottom)
+    val bottomRight: Offset
+        get() = Offset(right, bottom)
 
     /**
-     * Creates an [Offset] relative to the size of the node we're interacting with. [x] and [y]
-     * are fractions of the [width] and [height], between `-1` and `1`.
+     * Creates an [Offset] relative to the size of the node we're interacting with. [x] and [y] are
+     * fractions of the [width] and [height], between `-1` and `1`.
      *
      * Note that `percentOffset(1f, 1f) != bottomRight`, see [right] and [bottom].
      *

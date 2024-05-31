@@ -47,9 +47,7 @@ fun InteropTextFieldDemo() {
         )
 
         Text("First EditText")
-        AndroidView(factory = {
-            EditText(it)
-        }, Modifier.fillMaxWidth())
+        AndroidView(factory = { EditText(it) }, Modifier.fillMaxWidth())
 
         Text("Second TextField")
         TextField(
@@ -60,8 +58,6 @@ fun InteropTextFieldDemo() {
         )
 
         Text("Second EditText")
-        AndroidView(factory = {
-            EditText(it)
-        }, Modifier.fillMaxWidth())
+        AndroidView(factory = { EditText(it) }, Modifier.fillMaxWidth())
     }
 }

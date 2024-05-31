@@ -17,12 +17,16 @@
 package androidx.compose.foundation.text
 
 @RequiresOptIn(
-    message = "Internal/Unstable API for use only between foundation modules sharing " +
-        "the same exact version, subject to change without notice."
+    message =
+        "Internal/Unstable API for use only between foundation modules sharing " +
+            "the same exact version, subject to change without notice."
 )
 @Target(
-    AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY,
-    AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.BINARY)
 annotation class InternalFoundationTextApi

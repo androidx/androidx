@@ -25,11 +25,9 @@ import androidx.compose.ui.test.performMultiModalInput
 
 @Sampled
 fun multiModalInputClickDragDrop() {
-    composeTestRule.onNodeWithTag("myComponent")
-        .performMultiModalInput {
-            touch { click(center) }
-            advanceEventTime(500)
-            @OptIn(ExperimentalTestApi::class)
-            mouse { dragAndDrop(topLeft, bottomRight) }
-        }
+    composeTestRule.onNodeWithTag("myComponent").performMultiModalInput {
+        touch { click(center) }
+        advanceEventTime(500)
+        @OptIn(ExperimentalTestApi::class) mouse { dragAndDrop(topLeft, bottomRight) }
+    }
 }

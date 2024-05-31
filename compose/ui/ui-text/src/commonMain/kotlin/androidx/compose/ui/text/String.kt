@@ -21,9 +21,7 @@ import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.platform.ActualStringDelegate
 
-/**
- * Interface for providing platform dependent string related operations.
- */
+/** Interface for providing platform dependent string related operations. */
 internal interface PlatformStringDelegate {
     /**
      * Implementation must return uppercase transformed String.
@@ -79,6 +77,7 @@ fun String.toUpperCase(locale: Locale): String =
  */
 fun String.toLowerCase(locale: Locale): String =
     stringDelegate.toLowerCase(this, locale.platformLocale)
+
 /**
  * Returns capitalized String.
  *
@@ -87,6 +86,7 @@ fun String.toLowerCase(locale: Locale): String =
  */
 fun String.capitalize(locale: Locale): String =
     stringDelegate.capitalize(this, locale.platformLocale)
+
 /**
  * Returns decapitalized String.
  *
@@ -100,7 +100,7 @@ fun String.decapitalize(locale: Locale): String =
  * Returns uppercase transformed String.
  *
  * @param localeList a locale list object. If empty locale list object is passed, use current locale
- *                   instead.
+ *   instead.
  * @return a transformed text
  */
 fun String.toUpperCase(localeList: LocaleList): String =
@@ -110,7 +110,7 @@ fun String.toUpperCase(localeList: LocaleList): String =
  * Returns lowercase transformed String.
  *
  * @param localeList a locale list object. If empty locale list object is passed, use current locale
- *                   instead.
+ *   instead.
  * @return a transformed text
  */
 fun String.toLowerCase(localeList: LocaleList): String =
@@ -120,7 +120,7 @@ fun String.toLowerCase(localeList: LocaleList): String =
  * Returns capitalized String.
  *
  * @param localeList a locale list object. If empty locale list object is passed, use current locale
- *                   instead.
+ *   instead.
  * @return a transformed text
  */
 fun String.capitalize(localeList: LocaleList): String =
@@ -130,7 +130,7 @@ fun String.capitalize(localeList: LocaleList): String =
  * Returns decapitalized String.
  *
  * @param localeList a locale list object. If empty locale list object is passed, use current locale
- *                   instead.
+ *   instead.
  */
 fun String.decapitalize(localeList: LocaleList): String =
     if (localeList.isEmpty()) decapitalize(Locale.current) else decapitalize(localeList[0])

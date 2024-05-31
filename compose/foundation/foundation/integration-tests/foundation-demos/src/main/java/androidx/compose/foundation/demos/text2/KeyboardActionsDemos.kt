@@ -55,16 +55,17 @@ fun KeyboardActionsDemos() {
     val coroutineScope = rememberCoroutineScope()
     Box(Modifier.imePadding()) {
         var executeDefaultActions by remember { mutableStateOf(true) }
-        val onKeyboardAction: KeyboardActionHandler = remember(executeDefaultActions) {
-            KeyboardActionHandler { performDefaultAction ->
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar("Keyboard action is executed")
-                }
-                if (executeDefaultActions) {
-                    performDefaultAction()
+        val onKeyboardAction: KeyboardActionHandler =
+            remember(executeDefaultActions) {
+                KeyboardActionHandler { performDefaultAction ->
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("Keyboard action is executed")
+                    }
+                    if (executeDefaultActions) {
+                        performDefaultAction()
+                    }
                 }
             }
-        }
         LazyColumn {
             item {
                 Row(Modifier.padding(8.dp)) {
@@ -100,16 +101,17 @@ fun KeyboardActionsDemos() {
 }
 
 @Suppress("PrimitiveInCollection")
-private val imeActions = listOf(
-    ImeAction.Default,
-    ImeAction.None,
-    ImeAction.Go,
-    ImeAction.Search,
-    ImeAction.Send,
-    ImeAction.Previous,
-    ImeAction.Next,
-    ImeAction.Done
-)
+private val imeActions =
+    listOf(
+        ImeAction.Default,
+        ImeAction.None,
+        ImeAction.Go,
+        ImeAction.Search,
+        ImeAction.Send,
+        ImeAction.Previous,
+        ImeAction.Next,
+        ImeAction.Done
+    )
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -123,14 +125,13 @@ private fun KeyboardActionDemoItem(
     BasicTextField(
         modifier = demoTextFieldModifiers,
         state = state,
-        keyboardOptions = KeyboardOptions(
-            imeAction = imeAction
-        ),
-        lineLimits = if (singleLine) {
-            TextFieldLineLimits.SingleLine
-        } else {
-            TextFieldLineLimits.Default
-        },
+        keyboardOptions = KeyboardOptions(imeAction = imeAction),
+        lineLimits =
+            if (singleLine) {
+                TextFieldLineLimits.SingleLine
+            } else {
+                TextFieldLineLimits.Default
+            },
         onKeyboardAction = onKeyboardAction,
         textStyle = TextStyle(fontSize = fontSize8),
     )

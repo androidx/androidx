@@ -71,14 +71,9 @@ fun KeyEventSample() {
     // When the inner Box is focused, and the user presses a key, the key goes down the hierarchy
     // and then back up to the parent. At any stage you can stop the propagation by returning
     // true to indicate that you consumed the event.
-    Box(
-        Modifier
-            .onPreviewKeyEvent { keyEvent1 -> false }
-            .onKeyEvent { keyEvent4 -> false }
-    ) {
+    Box(Modifier.onPreviewKeyEvent { keyEvent1 -> false }.onKeyEvent { keyEvent4 -> false }) {
         Box(
-            Modifier
-                .onPreviewKeyEvent { keyEvent2 -> false }
+            Modifier.onPreviewKeyEvent { keyEvent2 -> false }
                 .onKeyEvent { keyEvent3 -> false }
                 .focusable()
         )
@@ -89,8 +84,7 @@ fun KeyEventSample() {
 @Composable
 fun KeyEventTypeSample() {
     Box(
-        Modifier
-            .onKeyEvent {
+        Modifier.onKeyEvent {
                 when (it.type) {
                     KeyUp -> println("KeyUp Pressed")
                     KeyDown -> println("KeyUp Pressed")
@@ -108,8 +102,7 @@ fun KeyEventTypeSample() {
 @Composable
 fun KeyEventIsAltPressedSample() {
     Box(
-        Modifier
-            .onKeyEvent {
+        Modifier.onKeyEvent {
                 if (it.isAltPressed && it.key == Key.A) {
                     println("Alt + A is pressed")
                     true
@@ -126,8 +119,7 @@ fun KeyEventIsAltPressedSample() {
 @Composable
 fun KeyEventIsCtrlPressedSample() {
     Box(
-        Modifier
-            .onKeyEvent {
+        Modifier.onKeyEvent {
                 if (it.isCtrlPressed && it.key == Key.A) {
                     println("Ctrl + A is pressed")
                     true
@@ -144,8 +136,7 @@ fun KeyEventIsCtrlPressedSample() {
 @Composable
 fun KeyEventIsMetaPressedSample() {
     Box(
-        Modifier
-            .onKeyEvent {
+        Modifier.onKeyEvent {
                 if (it.isMetaPressed && it.key == Key.A) {
                     println("Meta + A is pressed")
                     true
@@ -162,8 +153,7 @@ fun KeyEventIsMetaPressedSample() {
 @Composable
 fun KeyEventIsShiftPressedSample() {
     Box(
-        Modifier
-            .onKeyEvent {
+        Modifier.onKeyEvent {
                 if (it.isShiftPressed && it.key == Key.A) {
                     println("Shift + A is pressed")
                     true
@@ -183,18 +173,19 @@ fun RotaryEventSample() {
     val coroutineScope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(scrollState)
-            .onRotaryScrollEvent {
-                coroutineScope.launch {
-                    scrollState.scrollTo((scrollState.value +
-                        it.verticalScrollPixels).roundToInt())
+        modifier =
+            Modifier.fillMaxWidth()
+                .verticalScroll(scrollState)
+                .onRotaryScrollEvent {
+                    coroutineScope.launch {
+                        scrollState.scrollTo(
+                            (scrollState.value + it.verticalScrollPixels).roundToInt()
+                        )
+                    }
+                    true
                 }
-                true
-            }
-            .focusRequester(focusRequester)
-            .focusable(),
+                .focusRequester(focusRequester)
+                .focusable(),
     ) {
         repeat(100) {
             Text(
@@ -205,9 +196,7 @@ fun RotaryEventSample() {
         }
     }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -221,13 +210,10 @@ fun PreRotaryEventSample() {
         val focusRequester = remember { FocusRequester() }
         var interceptScroll by remember { mutableStateOf(false) }
         Column(
-            Modifier
-                .onPreRotaryScrollEvent {
+            Modifier.onPreRotaryScrollEvent {
                     // You can intercept an event before it is sent to the child.
                     if (interceptScroll) {
-                        coroutineScope.launch {
-                            rowScrollState.scrollBy(it.horizontalScrollPixels)
-                        }
+                        coroutineScope.launch { rowScrollState.scrollBy(it.horizontalScrollPixels) }
                         // return true to consume this event.
                         true
                     } else {
@@ -237,9 +223,7 @@ fun PreRotaryEventSample() {
                 }
                 .onRotaryScrollEvent {
                     // If the child does not use the scroll, we get notified here.
-                    coroutineScope.launch {
-                        rowScrollState.scrollBy(it.horizontalScrollPixels)
-                    }
+                    coroutineScope.launch { rowScrollState.scrollBy(it.horizontalScrollPixels) }
                     true
                 }
         ) {
@@ -257,11 +241,7 @@ fun PreRotaryEventSample() {
                     onCheckedChange = { interceptScroll = it },
                 )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rowScrollState)
-            ) {
+            Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rowScrollState)) {
                 repeat(100) {
                     Text(
                         text = "row item $it ",
@@ -271,17 +251,17 @@ fun PreRotaryEventSample() {
                 }
             }
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(columnScrollState)
-                    .onRotaryScrollEvent {
-                        coroutineScope.launch {
-                            columnScrollState.scrollBy(it.verticalScrollPixels)
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .verticalScroll(columnScrollState)
+                        .onRotaryScrollEvent {
+                            coroutineScope.launch {
+                                columnScrollState.scrollBy(it.verticalScrollPixels)
+                            }
+                            true
                         }
-                        true
-                    }
-                    .focusRequester(focusRequester)
-                    .focusable(),
+                        .focusRequester(focusRequester)
+                        .focusable(),
             ) {
                 repeat(100) {
                     Text(
@@ -293,8 +273,6 @@ fun PreRotaryEventSample() {
             }
         }
 
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
     }
 }

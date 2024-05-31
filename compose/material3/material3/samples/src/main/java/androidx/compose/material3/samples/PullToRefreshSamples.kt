@@ -97,9 +97,7 @@ fun PullToRefreshSample() {
             onRefresh = onRefresh,
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
-                items(itemCount) {
-                    ListItem({ Text(text = "Item ${itemCount - it}") })
-                }
+                items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
             }
         }
     }
@@ -147,7 +145,8 @@ fun PullToRefreshViewModelSample() {
                 actions = {
                     IconButton(
                         enabled = !viewModel.isRefreshing,
-                        onClick = { viewModel.refresh() }) {
+                        onClick = { viewModel.refresh() }
+                    ) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
                 }
@@ -190,16 +189,17 @@ fun PullToRefreshScalingSample() {
     }
 
     val scaleFraction = {
-        if (isRefreshing) 1f else
-            LinearOutSlowInEasing.transform(state.distanceFraction).coerceIn(0f, 1f)
+        if (isRefreshing) 1f
+        else LinearOutSlowInEasing.transform(state.distanceFraction).coerceIn(0f, 1f)
     }
 
     Scaffold(
-        modifier = Modifier.pullToRefresh(
-            state = state,
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh
-        ),
+        modifier =
+            Modifier.pullToRefresh(
+                state = state,
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
+            ),
         topBar = {
             TopAppBar(
                 title = { Text("TopAppBar") },
@@ -215,18 +215,14 @@ fun PullToRefreshScalingSample() {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!isRefreshing) {
-                    items(itemCount) {
-                        ListItem({ Text(text = "Item ${itemCount - it}") })
-                    }
+                    items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
                 }
             }
             Box(
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .graphicsLayer {
-                        scaleX = scaleFraction()
-                        scaleY = scaleFraction()
-                    }
+                Modifier.align(Alignment.TopCenter).graphicsLayer {
+                    scaleX = scaleFraction()
+                    scaleY = scaleFraction()
+                }
             ) {
                 PullToRefreshDefaults.Indicator(state = state, isRefreshing = isRefreshing)
             }
@@ -254,11 +250,12 @@ fun PullToRefreshLinearProgressIndicatorSample() {
     }
 
     Scaffold(
-        modifier = Modifier.pullToRefresh(
-            state = state,
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh
-        ),
+        modifier =
+            Modifier.pullToRefresh(
+                state = state,
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh
+            ),
         topBar = {
             TopAppBar(
                 title = { Text("TopAppBar") },
@@ -274,9 +271,7 @@ fun PullToRefreshLinearProgressIndicatorSample() {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!isRefreshing) {
-                    items(itemCount) {
-                        ListItem({ Text(text = "Item ${itemCount - it}") })
-                    }
+                    items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
                 }
             }
             if (isRefreshing) {
@@ -351,9 +346,7 @@ fun PullToRefreshSampleCustomState() {
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!isRefreshing) {
-                    items(itemCount) {
-                        ListItem({ Text(text = "Item ${itemCount - it}") })
-                    }
+                    items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
                 }
             }
         }

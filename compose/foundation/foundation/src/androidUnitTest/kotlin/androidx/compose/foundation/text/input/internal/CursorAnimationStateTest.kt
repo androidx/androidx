@@ -34,16 +34,11 @@ class CursorAnimationStateTest {
 
     private val animationState = CursorAnimationState()
 
-    @Test
-    fun alphaNotAnimatingInitially() = runTest {
-        assertNotAnimating()
-    }
+    @Test fun alphaNotAnimatingInitially() = runTest { assertNotAnimating() }
 
     @Test
     fun snapToVisibleAndAnimate_animatesAlpha() = runTest {
-        val job = launch {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job = launch { animationState.snapToVisibleAndAnimate() }
 
         // Should start immediately.
         assertThat(animationState.cursorAlpha).isEqualTo(0f)
@@ -63,9 +58,8 @@ class CursorAnimationStateTest {
 
     @Test
     fun snapToVisibleAndAnimate_suspendsWhileAnimating() = runTest {
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) { animationState.snapToVisibleAndAnimate() }
 
         // Advance a few blinks.
         repeat(10) {
@@ -78,9 +72,8 @@ class CursorAnimationStateTest {
 
     @Test
     fun snapToVisibleAndAnimate_stopsAnimating_whenCancelledImmediately() = runTest {
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) { animationState.snapToVisibleAndAnimate() }
         job.cancel()
 
         assertNotAnimating()
@@ -89,9 +82,7 @@ class CursorAnimationStateTest {
 
     @Test
     fun snapToVisibleAndAnimate_stopsAnimating_whenCancelledAsync() = runTest {
-        val job = launch {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job = launch { animationState.snapToVisibleAndAnimate() }
         job.cancel()
 
         assertNotAnimating()
@@ -100,14 +91,11 @@ class CursorAnimationStateTest {
 
     @Test
     fun snapToVisibleAndAnimate_stopsAnimating_whenCancelledAfterAWhile() = runTest {
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) { animationState.snapToVisibleAndAnimate() }
 
         // Advance a few blinks…
-        repeat(10) {
-            testScheduler.advanceTimeBy(500)
-        }
+        repeat(10) { testScheduler.advanceTimeBy(500) }
         job.cancel()
 
         assertNotAnimating()
@@ -115,9 +103,8 @@ class CursorAnimationStateTest {
 
     @Test
     fun cancelAndHide_stopsAnimating_immediately() = runTest {
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) { animationState.snapToVisibleAndAnimate() }
         animationState.cancelAndHide()
 
         assertNotAnimating()
@@ -127,9 +114,7 @@ class CursorAnimationStateTest {
     @Test
     fun cancelAndHide_beforeStart_doesntBlockAnimation() = runTest {
         animationState.cancelAndHide()
-        val job = launch {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job = launch { animationState.snapToVisibleAndAnimate() }
 
         runCurrent()
         assertThat(animationState.cursorAlpha).isEqualTo(1f)
@@ -139,14 +124,11 @@ class CursorAnimationStateTest {
 
     @Test
     fun cancelAndHide_stopsAnimating_afterAWhile() = runTest {
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            animationState.snapToVisibleAndAnimate()
-        }
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) { animationState.snapToVisibleAndAnimate() }
 
         // Advance a few blinks…
-        repeat(10) {
-            testScheduler.advanceTimeBy(500)
-        }
+        repeat(10) { testScheduler.advanceTimeBy(500) }
         animationState.cancelAndHide()
 
         assertNotAnimating()

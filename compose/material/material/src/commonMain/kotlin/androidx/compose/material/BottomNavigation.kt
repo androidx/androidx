@@ -63,11 +63,13 @@ import kotlin.math.roundToInt
 // TODO: b/149825331 add documentation references to Scaffold here and samples for using
 // BottomNavigation inside a Scaffold
 /**
- * <a href="https://material.io/components/bottom-navigation" class="external" target="_blank">Material Design bottom navigation</a>.
+ * <a href="https://material.io/components/bottom-navigation" class="external"
+ * target="_blank">Material Design bottom navigation</a>.
  *
  * Bottom navigation bars allow movement between primary destinations in an app.
  *
- * ![Bottom navigation image](https://developer.android.com/images/reference/androidx/compose/material/bottom-navigation.png)
+ * ![Bottom navigation
+ * image](https://developer.android.com/images/reference/androidx/compose/material/bottom-navigation.png)
  *
  * This particular overload provides ability to specify [WindowInsets]. Recommended value can be
  * found in [BottomNavigationDefaults.windowInsets].
@@ -88,12 +90,12 @@ import kotlin.math.roundToInt
  * @param modifier optional [Modifier] for this BottomNavigation
  * @param backgroundColor The background color for this BottomNavigation
  * @param contentColor The preferred content color provided by this BottomNavigation to its
- * children. Defaults to either the matching content color for [backgroundColor], or if
- * [backgroundColor] is not a color from the theme, this will keep the same value set above this
- * BottomNavigation.
+ *   children. Defaults to either the matching content color for [backgroundColor], or if
+ *   [backgroundColor] is not a color from the theme, this will keep the same value set above this
+ *   BottomNavigation.
  * @param elevation elevation for this BottomNavigation
  * @param content destinations inside this BottomNavigation, this should contain multiple
- * [BottomNavigationItem]s
+ *   [BottomNavigationItem]s
  */
 @Composable
 fun BottomNavigation(
@@ -111,8 +113,7 @@ fun BottomNavigation(
         modifier = modifier
     ) {
         Row(
-            Modifier
-                .fillMaxWidth()
+            Modifier.fillMaxWidth()
                 .windowInsetsPadding(windowInsets)
                 .defaultMinSize(minHeight = BottomNavigationHeight)
                 .selectableGroup(),
@@ -123,11 +124,13 @@ fun BottomNavigation(
 }
 
 /**
- * <a href="https://material.io/components/bottom-navigation" class="external" target="_blank">Material Design bottom navigation</a>.
+ * <a href="https://material.io/components/bottom-navigation" class="external"
+ * target="_blank">Material Design bottom navigation</a>.
  *
  * Bottom navigation bars allow movement between primary destinations in an app.
  *
- * ![Bottom navigation image](https://developer.android.com/images/reference/androidx/compose/material/bottom-navigation.png)
+ * ![Bottom navigation
+ * image](https://developer.android.com/images/reference/androidx/compose/material/bottom-navigation.png)
  *
  * BottomNavigation should contain multiple [BottomNavigationItem]s, each representing a singular
  * destination.
@@ -144,12 +147,12 @@ fun BottomNavigation(
  * @param modifier optional [Modifier] for this BottomNavigation
  * @param backgroundColor The background color for this BottomNavigation
  * @param contentColor The preferred content color provided by this BottomNavigation to its
- * children. Defaults to either the matching content color for [backgroundColor], or if
- * [backgroundColor] is not a color from the theme, this will keep the same value set above this
- * BottomNavigation.
+ *   children. Defaults to either the matching content color for [backgroundColor], or if
+ *   [backgroundColor] is not a color from the theme, this will keep the same value set above this
+ *   BottomNavigation.
  * @param elevation elevation for this BottomNavigation
  * @param content destinations inside this BottomNavigation, this should contain multiple
- * [BottomNavigationItem]s
+ *   [BottomNavigationItem]s
  */
 @Composable
 fun BottomNavigation(
@@ -163,35 +166,35 @@ fun BottomNavigation(
 }
 
 /**
- * <a href="https://material.io/components/bottom-navigation" class="external" target="_blank">Material Design bottom navigation</a> item.
+ * <a href="https://material.io/components/bottom-navigation" class="external"
+ * target="_blank">Material Design bottom navigation</a> item.
  *
  * The recommended configuration for a BottomNavigationItem depends on how many items there are
  * inside a [BottomNavigation]:
- *
  * - Three destinations: Display icons and text labels for all destinations.
  * - Four destinations: Active destinations display an icon and text label. Inactive destinations
- * display icons, and text labels are recommended.
+ *   display icons, and text labels are recommended.
  * - Five destinations: Active destinations display an icon and text label. Inactive destinations
- * use icons, and use text labels if space permits.
+ *   use icons, and use text labels if space permits.
  *
- * A BottomNavigationItem always shows text labels (if it exists) when selected. Showing text
- * labels if not selected is controlled by [alwaysShowLabel].
+ * A BottomNavigationItem always shows text labels (if it exists) when selected. Showing text labels
+ * if not selected is controlled by [alwaysShowLabel].
  *
  * @param selected whether this item is selected
  * @param onClick the callback to be invoked when this item is selected
  * @param icon icon for this item, typically this will be an [Icon]
  * @param modifier optional [Modifier] for this item
- * @param enabled controls the enabled state of this item. When `false`, this item will not
- * be clickable and will appear disabled to accessibility services.
+ * @param enabled controls the enabled state of this item. When `false`, this item will not be
+ *   clickable and will appear disabled to accessibility services.
  * @param label optional text label for this item
  * @param alwaysShowLabel whether to always show the label for this item. If false, the label will
- * only be shown when this item is selected.
+ *   only be shown when this item is selected.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this item. You can use this to change the item's
- * appearance or preview the item in different states. Note that if `null` is provided,
- * interactions will still happen internally.
- * @param selectedContentColor the color of the text label and icon when this item is selected,
- * and the color of the ripple.
+ *   emitting [Interaction]s for this item. You can use this to change the item's appearance or
+ *   preview the item in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param selectedContentColor the color of the text label and icon when this item is selected, and
+ *   the color of the ripple.
  * @param unselectedContentColor the color of the text label and icon when this item is not selected
  */
 @Composable
@@ -207,12 +210,13 @@ fun RowScope.BottomNavigationItem(
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor.copy(alpha = ContentAlpha.medium)
 ) {
-    val styledLabel: @Composable (() -> Unit)? = label?.let {
-        @Composable {
-            val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
-            ProvideTextStyle(style, content = label)
+    val styledLabel: @Composable (() -> Unit)? =
+        label?.let {
+            @Composable {
+                val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
+                ProvideTextStyle(style, content = label)
+            }
         }
-    }
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by BottomNavigationTransition.
@@ -231,11 +235,8 @@ fun RowScope.BottomNavigationItem(
             .weight(1f),
         contentAlignment = Alignment.Center
     ) {
-        BottomNavigationTransition(
-            selectedContentColor,
-            unselectedContentColor,
-            selected
-        ) { progress ->
+        BottomNavigationTransition(selectedContentColor, unselectedContentColor, selected) {
+            progress ->
             val animationProgress = if (alwaysShowLabel) 1f else progress
 
             BottomNavigationItemBaselineLayout(
@@ -247,22 +248,18 @@ fun RowScope.BottomNavigationItem(
     }
 }
 
-/**
- * Contains default values used for [BottomNavigation].
- */
+/** Contains default values used for [BottomNavigation]. */
 object BottomNavigationDefaults {
-    /**
-     * Default elevation used for [BottomNavigation].
-     */
+    /** Default elevation used for [BottomNavigation]. */
     val Elevation = 8.dp
 
-    /**
-     * Recommended window insets to be used and consumed by bottom navigation
-     */
+    /** Recommended window insets to be used and consumed by bottom navigation */
     val windowInsets: WindowInsets
         @Composable
-        get() = WindowInsets.systemBarsForVisualComponents
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        get() =
+            WindowInsets.systemBarsForVisualComponents.only(
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+            )
 }
 
 /**
@@ -275,7 +272,7 @@ object BottomNavigationDefaults {
  * @param inactiveColor [LocalContentColor] when this item is not [selected]
  * @param selected whether this item is selected
  * @param content the content of the [BottomNavigationItem] to animate [LocalContentColor] for,
- * where the animationProgress is the current progress of the animation from 0f to 1f.
+ *   where the animationProgress is the current progress of the animation from 0f to 1f.
  */
 @Composable
 private fun BottomNavigationTransition(
@@ -284,10 +281,11 @@ private fun BottomNavigationTransition(
     selected: Boolean,
     content: @Composable (animationProgress: Float) -> Unit
 ) {
-    val animationProgress by animateFloatAsState(
-        targetValue = if (selected) 1f else 0f,
-        animationSpec = BottomNavigationAnimationSpec
-    )
+    val animationProgress by
+        animateFloatAsState(
+            targetValue = if (selected) 1f else 0f,
+            animationSpec = BottomNavigationAnimationSpec
+        )
 
     val color = lerp(inactiveColor, activeColor, animationProgress)
 
@@ -304,40 +302,42 @@ private fun BottomNavigationTransition(
  *
  * @param icon icon for this item
  * @param label text label for this item
- * @param iconPositionAnimationProgress progress of the animation that controls icon position,
- * where 0 represents its unselected position and 1 represents its selected position. If both the
- * [icon] and [label] should be shown at all times, this will always be 1, as the icon position
- * should remain constant.
+ * @param iconPositionAnimationProgress progress of the animation that controls icon position, where
+ *   0 represents its unselected position and 1 represents its selected position. If both the [icon]
+ *   and [label] should be shown at all times, this will always be 1, as the icon position should
+ *   remain constant.
  */
 @Composable
 private fun BottomNavigationItemBaselineLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
-    @FloatRange(from = 0.0, to = 1.0)
-    iconPositionAnimationProgress: Float
+    @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
 ) {
-    Layout(
-        {
-            Box(Modifier.layoutId("icon")) { icon() }
-            if (label != null) {
-                Box(
-                    Modifier
-                        .layoutId("label")
-                        .alpha(iconPositionAnimationProgress)
-                        .padding(horizontal = BottomNavigationItemHorizontalPadding)
-                ) { label() }
+    Layout({
+        Box(Modifier.layoutId("icon")) { icon() }
+        if (label != null) {
+            Box(
+                Modifier.layoutId("label")
+                    .alpha(iconPositionAnimationProgress)
+                    .padding(horizontal = BottomNavigationItemHorizontalPadding)
+            ) {
+                label()
             }
         }
-    ) { measurables, constraints ->
+    }) { measurables, constraints ->
         val iconPlaceable = measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
 
-        val labelPlaceable = label?.let {
-            measurables.fastFirst { it.layoutId == "label" }.measure(
-                // Measure with loose constraints for height as we don't want the label to take up more
-                // space than it needs
-                constraints.copy(minHeight = 0)
-            )
-        }
+        val labelPlaceable =
+            label?.let {
+                measurables
+                    .fastFirst { it.layoutId == "label" }
+                    .measure(
+                        // Measure with loose constraints for height as we don't want the label to
+                        // take up more
+                        // space than it needs
+                        constraints.copy(minHeight = 0)
+                    )
+            }
 
         // If there is no label, just place the icon.
         if (label == null) {
@@ -353,18 +353,14 @@ private fun BottomNavigationItemBaselineLayout(
     }
 }
 
-/**
- * Places the provided [iconPlaceable] in the vertical center of the provided [constraints]
- */
+/** Places the provided [iconPlaceable] in the vertical center of the provided [constraints] */
 private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
     constraints: Constraints
 ): MeasureResult {
     val height = constraints.constrainHeight(BottomNavigationHeight.roundToPx())
     val iconY = (height - iconPlaceable.height) / 2
-    return layout(iconPlaceable.width, height) {
-        iconPlaceable.placeRelative(0, iconY)
-    }
+    return layout(iconPlaceable.width, height) { iconPlaceable.placeRelative(0, iconY) }
 }
 
 /**
@@ -384,15 +380,14 @@ private fun MeasureScope.placeIcon(
  * @param iconPlaceable icon placeable inside this item
  * @param constraints constraints of the item
  * @param iconPositionAnimationProgress the progress of the icon position animation, where 0
- * represents centered icon and no label, and 1 represents top aligned icon with label.
- * Values between 0 and 1 interpolate the icon position so we can smoothly move the icon.
+ *   represents centered icon and no label, and 1 represents top aligned icon with label. Values
+ *   between 0 and 1 interpolate the icon position so we can smoothly move the icon.
  */
 private fun MeasureScope.placeLabelAndIcon(
     labelPlaceable: Placeable,
     iconPlaceable: Placeable,
     constraints: Constraints,
-    @FloatRange(from = 0.0, to = 1.0)
-    iconPositionAnimationProgress: Float
+    @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
 ): MeasureResult {
     val firstBaseline = labelPlaceable[FirstBaseline]
     val baselineOffset = CombinedItemTextBaseline.roundToPx()
@@ -434,24 +429,18 @@ private fun MeasureScope.placeLabelAndIcon(
  * [VectorizedAnimationSpec] controlling the transition between unselected and selected
  * [BottomNavigationItem]s.
  */
-private val BottomNavigationAnimationSpec = TweenSpec<Float>(
-    durationMillis = 300,
-    easing = FastOutSlowInEasing
-)
+private val BottomNavigationAnimationSpec =
+    TweenSpec<Float>(durationMillis = 300, easing = FastOutSlowInEasing)
 
-/**
- * Height of a [BottomNavigation] component
- */
+/** Height of a [BottomNavigation] component */
 private val BottomNavigationHeight = 56.dp
 
-/**
- * Padding at the start and end of a [BottomNavigationItem]
- */
+/** Padding at the start and end of a [BottomNavigationItem] */
 private val BottomNavigationItemHorizontalPadding = 12.dp
 
 /**
- * The space between the text baseline and the bottom of the [BottomNavigationItem], and between
- * the text baseline and the bottom of the icon placed above it.
+ * The space between the text baseline and the bottom of the [BottomNavigationItem], and between the
+ * text baseline and the bottom of the icon placed above it.
  */
 private val CombinedItemTextBaseline = 12.dp
 

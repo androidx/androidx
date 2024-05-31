@@ -37,8 +37,8 @@ import androidx.compose.ui.geometry.Rect
  *
  * @param currentItem the current item to be scrolled to.
  * @param currentItemOffsetFraction the offset of the current item as a fraction of the item's size.
- * This should vary between -0.5 and 0.5 and indicates how to offset the current item from the
- * snapped position.
+ *   This should vary between -0.5 and 0.5 and indicates how to offset the current item from the
+ *   snapped position.
  * @param itemCount the number of items this Carousel will have.
  */
 @ExperimentalMaterial3Api
@@ -49,8 +49,8 @@ class CarouselState(
 ) : ScrollableState {
     var itemCountState = mutableStateOf(itemCount)
 
-    internal var pagerState: PagerState = PagerState(currentItem, currentItemOffsetFraction,
-        itemCountState.value)
+    internal var pagerState: PagerState =
+        PagerState(currentItem, currentItemOffsetFraction, itemCountState.value)
 
     override val isScrollInProgress: Boolean
         get() = pagerState.isScrollInProgress
@@ -68,25 +68,24 @@ class CarouselState(
 
     @ExperimentalMaterial3Api
     companion object {
-        /**
-         * To keep current item and item offset saved
-         */
-        val Saver: Saver<CarouselState, *> = listSaver(
-            save = {
-                listOf(
-                    it.pagerState.currentPage,
-                    it.pagerState.currentPageOffsetFraction,
-                    it.pagerState.pageCount,
-                )
-            },
-            restore = {
-                CarouselState(
-                    currentItem = it[0] as Int,
-                    currentItemOffsetFraction = it[1] as Float,
-                    itemCount = { it[2] as Int },
-                )
-            }
-        )
+        /** To keep current item and item offset saved */
+        val Saver: Saver<CarouselState, *> =
+            listSaver(
+                save = {
+                    listOf(
+                        it.pagerState.currentPage,
+                        it.pagerState.currentPageOffsetFraction,
+                        it.pagerState.pageCount,
+                    )
+                },
+                restore = {
+                    CarouselState(
+                        currentItem = it[0] as Int,
+                        currentItemOffsetFraction = it[1] as Float,
+                        itemCount = { it[2] as Int },
+                    )
+                }
+            )
     }
 }
 
@@ -103,20 +102,20 @@ fun rememberCarouselState(
     itemCount: () -> Int,
 ): CarouselState {
     return rememberSaveable(saver = CarouselState.Saver) {
-        CarouselState(
-            currentItem = initialItem,
-            currentItemOffsetFraction = 0F,
-            itemCount = itemCount
-        )
-    }.apply {
-        itemCountState.value = itemCount
-    }
+            CarouselState(
+                currentItem = initialItem,
+                currentItemOffsetFraction = 0F,
+                itemCount = itemCount
+            )
+        }
+        .apply { itemCountState.value = itemCount }
 }
 
 /**
  * Interface to hold information about a Carousel item and its size.
  *
  * Example of CarouselItemInfo usage:
+ *
  * @sample androidx.compose.material3.samples.FadingHorizontalMultiBrowseCarouselSample
  */
 @ExperimentalMaterial3Api

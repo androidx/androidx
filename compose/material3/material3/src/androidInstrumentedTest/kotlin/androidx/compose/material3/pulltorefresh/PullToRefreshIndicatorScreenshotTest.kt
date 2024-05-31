@@ -46,11 +46,9 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     private val testTag = "PullRefresh"
     private val wrap = Modifier.wrapContentSize(Alignment.TopStart)
@@ -86,19 +84,19 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
 
         assertAgainstGolden("pullRefreshIndicator_${scheme.name}_progress")
     }
+
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(testTag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, goldenName)
+        rule.onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
     }
 
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     class ColorSchemeWrapper(val name: String, val colorScheme: ColorScheme) {
@@ -107,17 +105,15 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
         }
     }
 
-    private val mockState = object : PullToRefreshState {
-        override val distanceFraction: Float
-            get() = 1f
+    private val mockState =
+        object : PullToRefreshState {
+            override val distanceFraction: Float
+                get() = 1f
 
-        override suspend fun animateToThreshold() {
-        }
+            override suspend fun animateToThreshold() {}
 
-        override suspend fun animateToHidden() {
-        }
+            override suspend fun animateToHidden() {}
 
-        override suspend fun snapTo(targetValue: Float) {
+            override suspend fun snapTo(targetValue: Float) {}
         }
-    }
 }

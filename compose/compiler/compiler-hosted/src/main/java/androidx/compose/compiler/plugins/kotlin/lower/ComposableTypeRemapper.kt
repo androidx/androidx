@@ -72,9 +72,10 @@ import org.jetbrains.kotlin.types.Variance
 internal fun IrFunction.needsComposableRemapping(): Boolean {
     if (
         dispatchReceiverParameter?.type.containsComposableAnnotation() ||
-        extensionReceiverParameter?.type.containsComposableAnnotation() ||
-        returnType.containsComposableAnnotation()
-    ) return true
+            extensionReceiverParameter?.type.containsComposableAnnotation() ||
+            returnType.containsComposableAnnotation()
+    )
+        return true
 
     for (param in valueParameters) {
         if (param.type.containsComposableAnnotation()) return true
@@ -135,9 +136,7 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
     }
 
     override fun visitProperty(declaration: IrProperty): IrProperty {
-        return super.visitProperty(declaration).also {
-            it.copyAttributes(declaration)
-        }
+        return super.visitProperty(declaration).also { it.copyAttributes(declaration) }
     }
 
     override fun visitFile(declaration: IrFile): IrFile {
@@ -149,15 +148,13 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
     override fun visitWhen(expression: IrWhen): IrWhen {
         if (expression is IrIfThenElseImpl) {
             return IrIfThenElseImpl(
-                expression.startOffset,
-                expression.endOffset,
-                expression.type.remapType(),
-                mapStatementOrigin(expression.origin),
-            ).also {
-                expression.branches.mapTo(it.branches) { branch ->
-                    branch.transform()
-                }
-            }.copyAttributes(expression)
+                    expression.startOffset,
+                    expression.endOffset,
+                    expression.type.remapType(),
+                    mapStatementOrigin(expression.origin),
+                )
+                .also { expression.branches.mapTo(it.branches) { branch -> branch.transform() } }
+                .copyAttributes(expression)
         }
         return super.visitWhen(expression)
     }
@@ -172,31 +169,32 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         // do it ourself here.
         if (
             ownerFn != null &&
-            ownerFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB &&
-            ownerFn.needsComposableRemapping()
+                ownerFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB &&
+                ownerFn.needsComposableRemapping()
         ) {
             if (symbolRemapper.getReferencedConstructor(ownerFn.symbol) == ownerFn.symbol) {
                 // Not remapped yet, so remap now.
                 // Remap only once to avoid IdSignature clash (on k/js 1.7.20).
                 symbolRemapper.visitConstructor(ownerFn)
-                super.visitConstructor(ownerFn).also {
-                    it.patchDeclarationParents(ownerFn.parent)
-                }
+                super.visitConstructor(ownerFn).also { it.patchDeclarationParents(ownerFn.parent) }
             }
             val newCallee = symbolRemapper.getReferencedConstructor(ownerFn.symbol)
 
             return IrConstructorCallImpl(
-                expression.startOffset, expression.endOffset,
-                expression.type.remapType(),
-                newCallee,
-                expression.typeArgumentsCount,
-                expression.constructorTypeArgumentsCount,
-                expression.valueArgumentsCount,
-                mapStatementOrigin(expression.origin)
-            ).apply {
-                copyRemappedTypeArgumentsFrom(expression)
-                transformValueArguments(expression)
-            }.copyAttributes(expression)
+                    expression.startOffset,
+                    expression.endOffset,
+                    expression.type.remapType(),
+                    newCallee,
+                    expression.typeArgumentsCount,
+                    expression.constructorTypeArgumentsCount,
+                    expression.valueArgumentsCount,
+                    mapStatementOrigin(expression.origin)
+                )
+                .apply {
+                    copyRemappedTypeArgumentsFrom(expression)
+                    transformValueArguments(expression)
+                }
+                .copyAttributes(expression)
         }
         return super.visitConstructorCall(expression)
     }
@@ -269,38 +267,36 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         // case, we want to update those calls as well.
         if (
             containingClass != null &&
-            ownerFn.origin == IrDeclarationOrigin.FAKE_OVERRIDE && (
+                ownerFn.origin == IrDeclarationOrigin.FAKE_OVERRIDE &&
+                (
                 // Fake override refers to composable if container is synthetic composable (K2)
                 // or function type is composable (K1)
-                containingClass.defaultType.isSyntheticComposableFunction() || (
-                    containingClass.defaultType.isFunction() &&
-                        expression.dispatchReceiver?.type?.hasComposableAnnotation() == true
-                )
-            )
+                containingClass.defaultType.isSyntheticComposableFunction() ||
+                    (containingClass.defaultType.isFunction() &&
+                        expression.dispatchReceiver?.type?.hasComposableAnnotation() == true))
         ) {
             val realParams = containingClass.typeParameters.size - 1
             // with composer and changed
             val newArgsSize = realParams + 1 + changedParamCount(realParams, 0)
             val newFnClass = context.function(newArgsSize).owner
 
-            var newFn = newFnClass
-                .functions
-                .first { it.name == ownerFn.name }
+            var newFn = newFnClass.functions.first { it.name == ownerFn.name }
 
             if (symbolRemapper.getReferencedSimpleFunction(newFn.symbol) == newFn.symbol) {
                 // Not remapped yet, so remap now.
                 // Remap only once to avoid IdSignature clash (on k/js 1.7.20).
                 symbolRemapper.visitSimpleFunction(newFn)
-                newFn = super.visitSimpleFunction(newFn).also { fn ->
-                    fn.overriddenSymbols = ownerFn.overriddenSymbols.map { it }
-                    fn.dispatchReceiverParameter = ownerFn.dispatchReceiverParameter
-                    fn.extensionReceiverParameter = ownerFn.extensionReceiverParameter
-                    newFn.valueParameters.forEach { p ->
-                        fn.addValueParameter(p.name.identifier, p.type)
+                newFn =
+                    super.visitSimpleFunction(newFn).also { fn ->
+                        fn.overriddenSymbols = ownerFn.overriddenSymbols.map { it }
+                        fn.dispatchReceiverParameter = ownerFn.dispatchReceiverParameter
+                        fn.extensionReceiverParameter = ownerFn.extensionReceiverParameter
+                        newFn.valueParameters.forEach { p ->
+                            fn.addValueParameter(p.name.identifier, p.type)
+                        }
+                        fn.patchDeclarationParents(newFnClass)
+                        assert(fn.body == null) { "expected body to be null" }
                     }
-                    fn.patchDeclarationParents(newFnClass)
-                    assert(fn.body == null) { "expected body to be null" }
-                }
             }
 
             val newCallee = symbolRemapper.getReferencedSimpleFunction(newFn.symbol)
@@ -319,16 +315,14 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         // also transform the corresponding property so that we maintain the relationship
         // `getterFun.correspondingPropertySymbol.owner.getter == getterFun`. If we do not
         // maintain this relationship inline class getters will be incorrectly compiled.
-        if (
-            ownerFn != null &&
-            ownerFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
-        ) {
+        if (ownerFn != null && ownerFn.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
             if (ownerFn.correspondingPropertySymbol != null) {
                 val property = ownerFn.correspondingPropertySymbol!!.owner
                 // avoid java properties since they go through a different lowering and it is
                 // also impossible for them to have composable types
-                if (property.origin != IrDeclarationOrigin.IR_EXTERNAL_JAVA_DECLARATION_STUB &&
-                    property.getter?.needsComposableRemapping() == true
+                if (
+                    property.origin != IrDeclarationOrigin.IR_EXTERNAL_JAVA_DECLARATION_STUB &&
+                        property.getter?.needsComposableRemapping() == true
                 ) {
                     if (symbolRemapper.getReferencedProperty(property.symbol) == property.symbol) {
                         // Not remapped yet, so remap now.
@@ -360,21 +354,19 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
             }
         }
 
-        if (
-            ownerFn != null &&
-            ownerFn.needsComposableRemapping()
-        ) {
+        if (ownerFn != null && ownerFn.needsComposableRemapping()) {
             if (symbolRemapper.getReferencedSimpleFunction(ownerFn.symbol) == ownerFn.symbol) {
                 visitSimpleFunction(ownerFn).also {
-                    it.overriddenSymbols = ownerFn.overriddenSymbols.map { override ->
-                        if (override.isBound) {
-                            visitSimpleFunction(override.owner).apply {
-                                patchDeclarationParents(override.owner.parent)
-                            }.symbol
-                        } else {
-                            override
+                    it.overriddenSymbols =
+                        ownerFn.overriddenSymbols.map { override ->
+                            if (override.isBound) {
+                                visitSimpleFunction(override.owner)
+                                    .apply { patchDeclarationParents(override.owner.parent) }
+                                    .symbol
+                            } else {
+                                override
+                            }
                         }
-                    }
                     it.patchDeclarationParents(ownerFn.parent)
                 }
             }
@@ -400,16 +392,17 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
     /* copied verbatim from DeepCopyIrTreeWithSymbols, except with newCallee as a parameter */
     private fun shallowCopyCall(expression: IrCall, newCallee: IrSimpleFunctionSymbol): IrCall {
         return IrCallImpl(
-            expression.startOffset, expression.endOffset,
-            expression.type.remapType(),
-            newCallee,
-            expression.typeArgumentsCount,
-            expression.valueArgumentsCount,
-            mapStatementOrigin(expression.origin),
-            symbolRemapper.getReferencedClassOrNull(expression.superQualifierSymbol)
-        ).apply {
-            copyRemappedTypeArgumentsFrom(expression)
-        }.copyAttributes(expression)
+                expression.startOffset,
+                expression.endOffset,
+                expression.type.remapType(),
+                newCallee,
+                expression.typeArgumentsCount,
+                expression.valueArgumentsCount,
+                mapStatementOrigin(expression.origin),
+                symbolRemapper.getReferencedClassOrNull(expression.superQualifierSymbol)
+            )
+            .apply { copyRemappedTypeArgumentsFrom(expression) }
+            .copyAttributes(expression)
     }
 
     /* copied verbatim from DeepCopyIrTreeWithSymbols */
@@ -481,21 +474,19 @@ class ComposerTypeRemapper(
 
         val oldIrArguments = type.arguments
         val realParams = oldIrArguments.size - 1
-        var extraArgs = listOf(
-            // composer param
-            makeTypeProjection(
-                composerType,
-                Variance.INVARIANT
+        var extraArgs =
+            listOf(
+                // composer param
+                makeTypeProjection(composerType, Variance.INVARIANT)
             )
-        )
         val changedParams = changedParamCount(realParams, 1)
-        extraArgs = extraArgs + (0 until changedParams).map {
-            makeTypeProjection(context.irBuiltIns.intType, Variance.INVARIANT)
-        }
+        extraArgs =
+            extraArgs +
+                (0 until changedParams).map {
+                    makeTypeProjection(context.irBuiltIns.intType, Variance.INVARIANT)
+                }
         val newIrArguments =
-            oldIrArguments.subList(0, oldIrArguments.size - 1) +
-                extraArgs +
-                oldIrArguments.last()
+            oldIrArguments.subList(0, oldIrArguments.size - 1) + extraArgs + oldIrArguments.last()
 
         val newArgSize = oldIrArguments.size - 1 + extraArgs.size
         val functionCls = context.function(newArgSize)
@@ -505,9 +496,9 @@ class ComposerTypeRemapper(
             functionCls,
             type.nullability,
             newIrArguments.map { remapTypeArgument(it) },
-            type.annotations.filter { !it.isComposableAnnotation() }.map {
-                it.transform(deepCopy, null) as IrConstructorCall
-            },
+            type.annotations
+                .filter { !it.isComposableAnnotation() }
+                .map { it.transform(deepCopy, null) as IrConstructorCall },
             null
         )
     }
@@ -526,8 +517,7 @@ class ComposerTypeRemapper(
     private fun remapTypeArgument(typeArgument: IrTypeArgument): IrTypeArgument =
         if (typeArgument is IrTypeProjection)
             makeTypeProjection(this.remapType(typeArgument.type), typeArgument.variance)
-        else
-            typeArgument
+        else typeArgument
 
     private fun IrTypeAbbreviation.remapTypeAbbreviation() =
         IrTypeAbbreviationImpl(
@@ -538,6 +528,6 @@ class ComposerTypeRemapper(
         )
 }
 
-private val KotlinFunctionsBuiltInsPackageFqName = StandardNames.BUILT_INS_PACKAGE_FQ_NAME
-    .child(Name.identifier("jvm"))
-    .child(Name.identifier("functions"))
+private val KotlinFunctionsBuiltInsPackageFqName =
+    StandardNames.BUILT_INS_PACKAGE_FQ_NAME.child(Name.identifier("jvm"))
+        .child(Name.identifier("functions"))

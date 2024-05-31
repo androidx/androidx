@@ -54,8 +54,8 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  * into your app's manifest file (usually in main/AndroidManifest.xml).
  *
  * This creates a test rule that is using [ActivityScenarioRule] as the activity launcher. If you
- * would like to use a different one you can create [AndroidComposeTestRule] directly and supply
- * it with your own launcher.
+ * would like to use a different one you can create [AndroidComposeTestRule] directly and supply it
+ * with your own launcher.
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
@@ -78,8 +78,8 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  * into your app's manifest file (usually in main/AndroidManifest.xml).
  *
  * This creates a test rule that is using [ActivityScenarioRule] as the activity launcher. If you
- * would like to use a different one you can create [AndroidComposeTestRule] directly and supply
- * it with your own launcher.
+ * would like to use a different one you can create [AndroidComposeTestRule] directly and supply it
+ * with your own launcher.
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
@@ -104,17 +104,18 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
  * into your app's manifest file (usually in main/AndroidManifest.xml).
  *
  * This creates a test rule that is using [ActivityScenarioRule] as the activity launcher. If you
- * would like to use a different one you can create [AndroidComposeTestRule] directly and supply
- * it with your own launcher.
+ * would like to use a different one you can create [AndroidComposeTestRule] directly and supply it
+ * with your own launcher.
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>
-): AndroidComposeTestRule<ActivityScenarioRule<A>, A> = AndroidComposeTestRule(
-    activityRule = ActivityScenarioRule(activityClass),
-    activityProvider = ::getActivityFromTestRule
-)
+): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
+    AndroidComposeTestRule(
+        activityRule = ActivityScenarioRule(activityClass),
+        activityProvider = ::getActivityFromTestRule
+    )
 
 /**
  * Factory method to provide android specific implementation of [createComposeRule], for a given
@@ -126,8 +127,8 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  * into your app's manifest file (usually in main/AndroidManifest.xml).
  *
  * This creates a test rule that is using [ActivityScenarioRule] as the activity launcher. If you
- * would like to use a different one you can create [AndroidComposeTestRule] directly and supply
- * it with your own launcher.
+ * would like to use a different one you can create [AndroidComposeTestRule] directly and supply it
+ * with your own launcher.
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
  */
@@ -135,20 +136,21 @@ fun <A : ComponentActivity> createAndroidComposeRule(
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext
-): AndroidComposeTestRule<ActivityScenarioRule<A>, A> = AndroidComposeTestRule(
-    activityRule = ActivityScenarioRule(activityClass),
-    activityProvider = ::getActivityFromTestRule,
-    effectContext = effectContext
-)
+): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
+    AndroidComposeTestRule(
+        activityRule = ActivityScenarioRule(activityClass),
+        activityProvider = ::getActivityFromTestRule,
+        effectContext = effectContext
+    )
 
 /**
  * Factory method to provide an implementation of [ComposeTestRule] that doesn't create a compose
  * host for you in which you can set content.
  *
- * This method is useful for tests that need to create their own compose host during the test.
- * The returned test rule will not create a host, and consequently does not provide a
- * `setContent` method. To set content in tests using this rule, use the appropriate `setContent`
- * methods from your compose host.
+ * This method is useful for tests that need to create their own compose host during the test. The
+ * returned test rule will not create a host, and consequently does not provide a `setContent`
+ * method. To set content in tests using this rule, use the appropriate `setContent` methods from
+ * your compose host.
  *
  * A typical use case on Android is when the test needs to launch an Activity (the compose host)
  * after one or more dependencies have been injected.
@@ -168,33 +170,35 @@ fun createEmptyComposeRule(): ComposeTestRule =
  * Factory method to provide an implementation of [ComposeTestRule] that doesn't create a compose
  * host for you in which you can set content.
  *
- * This method is useful for tests that need to create their own compose host during the test.
- * The returned test rule will not create a host, and consequently does not provide a
- * `setContent` method. To set content in tests using this rule, use the appropriate `setContent`
- * methods from your compose host.
+ * This method is useful for tests that need to create their own compose host during the test. The
+ * returned test rule will not create a host, and consequently does not provide a `setContent`
+ * method. To set content in tests using this rule, use the appropriate `setContent` methods from
+ * your compose host.
  *
  * A typical use case on Android is when the test needs to launch an Activity (the compose host)
  * after one or more dependencies have been injected.
  *
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
 fun createEmptyComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
-): ComposeTestRule = AndroidComposeTestRule<TestRule, ComponentActivity>(
-    activityRule = TestRule { base, _ -> base },
-    effectContext = effectContext,
-    activityProvider = {
-        error(
-            "createEmptyComposeRule() does not provide an Activity to set Compose content in." +
-                " Launch and use the Activity yourself, or use createAndroidComposeRule()."
-        )
-    }
-)
+): ComposeTestRule =
+    AndroidComposeTestRule<TestRule, ComponentActivity>(
+        activityRule = TestRule { base, _ -> base },
+        effectContext = effectContext,
+        activityProvider = {
+            error(
+                "createEmptyComposeRule() does not provide an Activity to set Compose content in." +
+                    " Launch and use the Activity yourself, or use createAndroidComposeRule()."
+            )
+        }
+    )
 
 @OptIn(ExperimentalTestApi::class)
-class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constructor(
+class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>
+private constructor(
     val activityRule: R,
     private val environment: AndroidComposeUiTestEnvironment<A>
 ) : ComposeContentTestRule {
@@ -206,10 +210,10 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
      *
      * The Activity is normally launched by the given [activityRule] before the test starts, but it
      * is possible to pass a test rule that chooses to launch an Activity on a later time. The
-     * Activity is retrieved from the [activityRule] by means of the [activityProvider], which can be
-     * thought of as a getter for the Activity on the [activityRule]. If you use an [activityRule]
-     * that launches an Activity on a later time, you should make sure that the Activity is launched
-     * by the time or while the [activityProvider] is called.
+     * Activity is retrieved from the [activityRule] by means of the [activityProvider], which can
+     * be thought of as a getter for the Activity on the [activityRule]. If you use an
+     * [activityRule] that launches an Activity on a later time, you should make sure that the
+     * Activity is launched by the time or while the [activityProvider] is called.
      *
      * The [AndroidComposeTestRule] wraps around the given [activityRule] to make sure the Activity
      * is launched _after_ the [AndroidComposeTestRule] has completed all necessary steps to control
@@ -233,10 +237,10 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
      *
      * The Activity is normally launched by the given [activityRule] before the test starts, but it
      * is possible to pass a test rule that chooses to launch an Activity on a later time. The
-     * Activity is retrieved from the [activityRule] by means of the [activityProvider], which can be
-     * thought of as a getter for the Activity on the [activityRule]. If you use an [activityRule]
-     * that launches an Activity on a later time, you should make sure that the Activity is launched
-     * by the time or while the [activityProvider] is called.
+     * Activity is retrieved from the [activityRule] by means of the [activityProvider], which can
+     * be thought of as a getter for the Activity on the [activityRule]. If you use an
+     * [activityRule] that launches an Activity on a later time, you should make sure that the
+     * Activity is launched by the time or while the [activityProvider] is called.
      *
      * The [AndroidComposeTestRule] wraps around the given [activityRule] to make sure the Activity
      * is launched _after_ the [AndroidComposeTestRule] has completed all necessary steps to control
@@ -244,7 +248,7 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
      *
      * @param activityRule Test rule to use to launch the Activity.
      * @param effectContext The [CoroutineContext] used to run the composition. The context for
-     * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+     *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
      */
     @ExperimentalTestApi
@@ -262,15 +266,14 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
      *
      * Avoid calling often as it can involve synchronization and can be slow.
      */
-    val activity: A get() = checkNotNull(composeTest.activity) { "Host activity not found" }
+    val activity: A
+        get() = checkNotNull(composeTest.activity) { "Host activity not found" }
 
     override fun apply(base: Statement, description: Description): Statement {
         val testStatement = activityRule.apply(base, description)
         return object : Statement() {
             override fun evaluate() {
-                environment.runTest {
-                    testStatement.evaluate()
-                }
+                environment.runTest { testStatement.evaluate() }
             }
         }
     }
@@ -290,9 +293,11 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
      * REPLACE ALL OVERRIDES BELOW WITH DELEGATION: ComposeTest by composeTest
      */
 
-    override val density: Density get() = composeTest.density
+    override val density: Density
+        get() = composeTest.density
 
-    override val mainClock: MainTestClock get() = composeTest.mainClock
+    override val mainClock: MainTestClock
+        get() = composeTest.mainClock
 
     override fun <T> runOnUiThread(action: () -> T): T = composeTest.runOnUiThread(action)
 
@@ -350,11 +355,10 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
     /**
      * Cancels AndroidComposeUiTestEnvironment's current Recomposer and creates a new one.
      *
-     * Recreates the CoroutineContext associated with Compose being cancelled. This happens
-     * when an app moves from a regular ("Full screen") view of the app to a "Pop up" view AND
-     * certain properties in the manifest's android:configChanges are set to prevent a
-     * full tear down of the app. This is a somewhat rare case (see
-     * [AndroidComposeUiTestEnvironment] for more details).
+     * Recreates the CoroutineContext associated with Compose being cancelled. This happens when an
+     * app moves from a regular ("Full screen") view of the app to a "Pop up" view AND certain
+     * properties in the manifest's android:configChanges are set to prevent a full tear down of the
+     * app. This is a somewhat rare case (see [AndroidComposeUiTestEnvironment] for more details).
      */
     fun cancelAndRecreateRecomposer() {
         environment.cancelAndRecreateRecomposer()

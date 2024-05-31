@@ -76,9 +76,7 @@ class TextAccessibilityBenchmark(
         if (!accessibilityEnabled) return
 
         measureRepeatedOnUiThread(
-            content = {
-                Text("Text Composable", Modifier.testTag("tag"))
-            },
+            content = { Text("Text Composable", Modifier.testTag("tag")) },
             benchmark = {
                 val semanticsId = runWithTimingDisabled { findIdByTag("tag") }
                 nodeProvider.createAccessibilityNodeInfo(semanticsId)
@@ -86,19 +84,15 @@ class TextAccessibilityBenchmark(
         )
     }
 
-    @Test fun createAccessibilityNodeInfoFromId_singleOfMultipleTextComponents() {
+    @Test
+    fun createAccessibilityNodeInfoFromId_singleOfMultipleTextComponents() {
         if (!accessibilityEnabled) return
 
         measureRepeatedOnUiThread(
             content = {
                 Column {
-                    Text(
-                        modifier = Modifier.testTag("tag"),
-                        text = "Text Composable"
-                    )
-                    repeat(9) {
-                        Text("Text Composable")
-                    }
+                    Text(modifier = Modifier.testTag("tag"), text = "Text Composable")
+                    repeat(9) { Text("Text Composable") }
                 }
             },
             benchmark = {
@@ -117,12 +111,8 @@ class TextAccessibilityBenchmark(
         if (!accessibilityEnabled) return
 
         measureRepeatedOnUiThread(
-            content = {
-                Text("Text Composable", Modifier.testTag("text"))
-            },
-            benchmark = {
-                nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
-            }
+            content = { Text("Text Composable", Modifier.testTag("text")) },
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
         )
     }
 
@@ -137,18 +127,11 @@ class TextAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = {
                 Column {
-                    Text(
-                        modifier = Modifier.testTag("text"),
-                        text = "Text Composable"
-                    )
-                    repeat(9) {
-                        Text("Text Composable")
-                    }
+                    Text(modifier = Modifier.testTag("text"), text = "Text Composable")
+                    repeat(9) { Text("Text Composable") }
                 }
             },
-            benchmark = {
-                nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
-            }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
         )
     }
 
@@ -186,9 +169,7 @@ class TextAccessibilityBenchmark(
                         setupAccessibility()
                         Column {
                             if (include) {
-                                repeat(10) {
-                                    Text("abc")
-                                }
+                                repeat(10) { Text("abc") }
                             }
                         }
                     }
@@ -212,11 +193,7 @@ class TextAccessibilityBenchmark(
                     @Composable
                     override fun Content() {
                         setupAccessibility()
-                        Column {
-                            repeat(count) {
-                                Text("abc")
-                            }
-                        }
+                        Column { repeat(count) { Text("abc") } }
                     }
 
                     override fun toggleState() {
@@ -329,9 +306,7 @@ class TextAccessibilityBenchmark(
                         coroutineScope = rememberCoroutineScope()
 
                         LazyColumn(Modifier.height(600.dp), state) {
-                            items(300) {
-                                Text("item $it", Modifier.height(60.dp))
-                            }
+                            items(300) { Text("item $it", Modifier.height(60.dp)) }
                         }
                     }
 
@@ -351,17 +326,16 @@ class TextAccessibilityBenchmark(
         @Parameterized.Parameters(
             name = "accessibilityEnabled = {0}, invalidateSemanticsOnEachRun = {1}"
         )
-        fun initParameters() = listOf(
-            arrayOf(false, false),
-            arrayOf(true, false),
-            arrayOf(true, true)
-        )
+        fun initParameters() =
+            listOf(arrayOf(false, false), arrayOf(true, false), arrayOf(true, true))
     }
 
     private fun findIdByTag(@Suppress("SameParameterValue") tag: String): Int {
-        return (view as RootForTest).semanticsOwner
+        return (view as RootForTest)
+            .semanticsOwner
             .getAllSemanticsNodes(mergingEnabled = false)
-            .find { it.config.getOrNull(SemanticsProperties.TestTag) == tag }!!.id
+            .find { it.config.getOrNull(SemanticsProperties.TestTag) == tag }!!
+            .id
     }
 
     private fun measureRepeatedOnUiThread(
@@ -381,7 +355,6 @@ class TextAccessibilityBenchmark(
                 }
             }
         ) {
-
             benchmarkRule.measureRepeatedOnUiThread {
                 runWithTimingDisabled {
                     doFrame()

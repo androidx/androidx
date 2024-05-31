@@ -158,22 +158,24 @@ class TransformedTextSelectionMovementTest {
     }
 
     private fun calculateNextCursorPosition(state: TransformedTextFieldState) {
-        val newCursor = calculateAdjacentCursorPosition(
-            state.visualText.toString(),
-            state.visualText.selection.end,
-            forward = true,
-            state
-        )
+        val newCursor =
+            calculateAdjacentCursorPosition(
+                state.visualText.toString(),
+                state.visualText.selection.end,
+                forward = true,
+                state
+            )
         state.placeCursorBeforeCharAt(newCursor)
     }
 
     private fun calculatePreviousCursorPosition(state: TransformedTextFieldState) {
-        val newCursor = calculateAdjacentCursorPosition(
-            state.visualText.toString(),
-            state.visualText.selection.end,
-            forward = false,
-            state
-        )
+        val newCursor =
+            calculateAdjacentCursorPosition(
+                state.visualText.toString(),
+                state.visualText.selection.end,
+                forward = false,
+                state
+            )
         state.placeCursorBeforeCharAt(newCursor)
     }
 }

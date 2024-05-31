@@ -44,10 +44,7 @@ fun ColorSchemeDemo() {
     Row(
         modifier = Modifier.padding(8.dp),
     ) {
-        Column(
-            Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Text("Surfaces", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(16.dp))
             SurfaceColorSwatch(
@@ -138,10 +135,7 @@ fun ColorSchemeDemo() {
             Spacer(modifier = Modifier.height(16.dp))
         }
         Spacer(modifier = Modifier.width(24.dp))
-        Column(
-            Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())) {
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Text("Content", style = MaterialTheme.typography.bodyLarge)
             ContentColorSwatch(
                 color = colorScheme.primary,
@@ -151,7 +145,8 @@ fun ColorSchemeDemo() {
                 colorContainer = colorScheme.primaryContainer,
                 colorContainerText = "Primary Container",
                 onColorContainer = colorScheme.onPrimaryContainer,
-                onColorContainerText = "On Primary Container")
+                onColorContainerText = "On Primary Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ContentColorSwatch(
                 color = colorScheme.secondary,
@@ -161,7 +156,8 @@ fun ColorSchemeDemo() {
                 colorContainer = colorScheme.secondaryContainer,
                 colorContainerText = "Secondary Container",
                 onColorContainer = colorScheme.onSecondaryContainer,
-                onColorContainerText = "On Secondary Container")
+                onColorContainerText = "On Secondary Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ContentColorSwatch(
                 color = colorScheme.tertiary,
@@ -171,7 +167,8 @@ fun ColorSchemeDemo() {
                 colorContainer = colorScheme.tertiaryContainer,
                 colorContainerText = "Tertiary Container",
                 onColorContainer = colorScheme.onTertiaryContainer,
-                onColorContainerText = "On Tertiary Container")
+                onColorContainerText = "On Tertiary Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             ContentColorSwatch(
                 color = colorScheme.error,
@@ -181,7 +178,8 @@ fun ColorSchemeDemo() {
                 colorContainer = colorScheme.errorContainer,
                 colorContainerText = "Error Container",
                 onColorContainer = colorScheme.onErrorContainer,
-                onColorContainerText = "On Error Container")
+                onColorContainerText = "On Error Container"
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text("Utility", style = MaterialTheme.typography.bodyLarge)
             DoubleTile(
@@ -231,12 +229,7 @@ private fun ContentColorSwatch(
     onColorContainerText: String,
 ) {
     DoubleTile(
-        leftTile = {
-            ColorTile(
-                text = colorText,
-                color = color
-            )
-        },
+        leftTile = { ColorTile(text = colorText, color = color) },
         rightTile = {
             ColorTile(
                 text = onColorText,
@@ -278,9 +271,7 @@ private fun ColorTile(text: String, color: Color) {
     } else if (color == Color.White) borderColor = Color.Black
 
     Surface(
-        modifier = Modifier
-            .height(48.dp)
-            .fillMaxWidth(),
+        modifier = Modifier.height(48.dp).fillMaxWidth(),
         color = color,
         border = BorderStroke(1.dp, borderColor),
     ) {
@@ -288,9 +279,9 @@ private fun ColorTile(text: String, color: Color) {
             text,
             Modifier.padding(4.dp),
             style =
-            MaterialTheme.typography.bodyMedium.copy(
-                if (color.luminance() < .25) Color.White else Color.Black
-            )
+                MaterialTheme.typography.bodyMedium.copy(
+                    if (color.luminance() < .25) Color.White else Color.Black
+                )
         )
     }
 }

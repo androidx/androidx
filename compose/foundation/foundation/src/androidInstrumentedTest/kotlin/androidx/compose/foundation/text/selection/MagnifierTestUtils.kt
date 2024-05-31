@@ -52,9 +52,9 @@ internal fun assertMagnifierExists(rule: ComposeTestRule) {
 }
 
 /**
- * Asserts that there is no magnifier being displayed. This may be because no
- * `Modifier.magnifier` modifiers are currently set on any nodes, or because all the magnifiers
- * that exist have an unspecified position.
+ * Asserts that there is no magnifier being displayed. This may be because no `Modifier.magnifier`
+ * modifiers are currently set on any nodes, or because all the magnifiers that exist have an
+ * unspecified position.
  */
 internal fun assertNoMagnifierExists(rule: ComposeTestRule) {
     // The magnifier semantics will be present whenever the modifier is, even if the modifier
@@ -67,11 +67,8 @@ internal fun assertNoMagnifierExists(rule: ComposeTestRule) {
 }
 
 internal fun getMagnifierPositions(rule: ComposeTestRule) =
-    rule.onAllNodes(SemanticsMatcher.keyIsDefined(MagnifierPositionInRoot))
+    rule
+        .onAllNodes(SemanticsMatcher.keyIsDefined(MagnifierPositionInRoot))
         .fetchSemanticsNodes(atLeastOneRootRequired = false)
         .map { it.config[MagnifierPositionInRoot] }
-        .let { positionFunctions ->
-            rule.runOnIdle {
-                positionFunctions.map { it.invoke() }
-            }
-        }
+        .let { positionFunctions -> rule.runOnIdle { positionFunctions.map { it.invoke() } } }

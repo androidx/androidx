@@ -45,11 +45,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MultiContentLayoutTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     var size: Dp = Dp.Unspecified
 
@@ -61,13 +59,10 @@ class MultiContentLayoutTest {
     @Test
     fun haveOneSlotWithOneItem() {
         rule.setContent {
-            val first = @Composable {
-                Item(0)
-            }
-            Layout(
-                contents = listOf(first),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot), constraints ->
+            val first = @Composable { Item(0) }
+            Layout(contents = listOf(first), modifier = Modifier.size(100.dp)) {
+                (firstSlot),
+                constraints ->
                 assertThat(firstSlot.size).isEqualTo(1)
                 layoutAsRow(constraints, firstSlot)
             }
@@ -80,10 +75,9 @@ class MultiContentLayoutTest {
     fun haveOneSlotWithNoItems() {
         rule.setContent {
             val first = @Composable {}
-            Layout(
-                contents = listOf(first),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot), constraints ->
+            Layout(contents = listOf(first), modifier = Modifier.size(100.dp)) {
+                (firstSlot),
+                constraints ->
                 assertThat(firstSlot.size).isEqualTo(0)
                 layoutAsRow(constraints, firstSlot)
             }
@@ -93,14 +87,14 @@ class MultiContentLayoutTest {
     @Test
     fun haveOneSlotWithTwoItems() {
         rule.setContent {
-            val first = @Composable {
-                Item(0)
-                Item(1)
-            }
-            Layout(
-                contents = listOf(first),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot), constraints ->
+            val first =
+                @Composable {
+                    Item(0)
+                    Item(1)
+                }
+            Layout(contents = listOf(first), modifier = Modifier.size(100.dp)) {
+                (firstSlot),
+                constraints ->
                 assertThat(firstSlot.size).isEqualTo(2)
                 layoutAsRow(constraints, firstSlot)
             }
@@ -112,16 +106,11 @@ class MultiContentLayoutTest {
     @Test
     fun haveTwoSlotsWithOneItem() {
         rule.setContent {
-            val first = @Composable {
-                Item(0)
-            }
-            val second = @Composable {
-                Item(1)
-            }
-            Layout(
-                contents = listOf(first, second),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot, secondSlot), constraints ->
+            val first = @Composable { Item(0) }
+            val second = @Composable { Item(1) }
+            Layout(contents = listOf(first, second), modifier = Modifier.size(100.dp)) {
+                (firstSlot, secondSlot),
+                constraints ->
                 assertThat(firstSlot.size).isEqualTo(1)
                 assertThat(secondSlot.size).isEqualTo(1)
                 layoutAsRow(constraints, firstSlot + secondSlot)
@@ -134,14 +123,11 @@ class MultiContentLayoutTest {
     @Test
     fun haveTwoSlotsWithNoItemsInOne() {
         rule.setContent {
-            val first = @Composable {
-                Item(0)
-            }
+            val first = @Composable { Item(0) }
             val second = @Composable {}
-            Layout(
-                contents = listOf(first, second),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot, secondSlot), constraints ->
+            Layout(contents = listOf(first, second), modifier = Modifier.size(100.dp)) {
+                (firstSlot, secondSlot),
+                constraints ->
                 assertThat(firstSlot.size).isEqualTo(1)
                 assertThat(secondSlot.size).isEqualTo(0)
                 layoutAsRow(constraints, firstSlot + secondSlot)
@@ -154,17 +140,15 @@ class MultiContentLayoutTest {
     @Test
     fun haveTwoSlotsWithDifferentNumberOfItems() {
         rule.setContent {
-            val first = @Composable {
-                Item(0)
-                Item(1)
-            }
-            val second = @Composable {
-                Item(2)
-            }
-            Layout(
-                contents = listOf(first, second),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot, secondSlot), constraints ->
+            val first =
+                @Composable {
+                    Item(0)
+                    Item(1)
+                }
+            val second = @Composable { Item(2) }
+            Layout(contents = listOf(first, second), modifier = Modifier.size(100.dp)) {
+                (firstSlot, secondSlot),
+                constraints ->
                 assertThat(firstSlot.size).isEqualTo(2)
                 assertThat(secondSlot.size).isEqualTo(1)
                 layoutAsRow(constraints, firstSlot + secondSlot)
@@ -177,20 +161,15 @@ class MultiContentLayoutTest {
     @Test
     fun haveFiveSlots() {
         rule.setContent {
-            val first = @Composable {
-                Item(0)
-            }
-            val second = @Composable {
-                Item(1)
-            }
-            val third = @Composable {
-                Item(2)
-                Item(3)
-            }
+            val first = @Composable { Item(0) }
+            val second = @Composable { Item(1) }
+            val third =
+                @Composable {
+                    Item(2)
+                    Item(3)
+                }
             val fourth = @Composable {}
-            val fifth = @Composable {
-                Item(4)
-            }
+            val fifth = @Composable { Item(4) }
             Layout(
                 contents = listOf(first, second, third, fourth, fifth),
                 modifier = Modifier.size(100.dp)
@@ -214,24 +193,17 @@ class MultiContentLayoutTest {
     fun updatingItemCount() {
         var itemCount by mutableStateOf(1)
         rule.setContent {
-            val first = @Composable {
-                repeat(itemCount) {
-                    Item(it)
-                }
-            }
-            Layout(
-                contents = listOf(first),
-                modifier = Modifier.size(100.dp)
-            ) { (firstSlot), constraints ->
+            val first = @Composable { repeat(itemCount) { Item(it) } }
+            Layout(contents = listOf(first), modifier = Modifier.size(100.dp)) {
+                (firstSlot),
+                constraints ->
                 layoutAsRow(constraints, firstSlot)
             }
         }
 
         assertItemsLaidOutAsRow(0..0)
 
-        rule.runOnIdle {
-            itemCount = 3
-        }
+        rule.runOnIdle { itemCount = 3 }
 
         assertItemsLaidOutAsRow(0..2)
     }
@@ -240,17 +212,9 @@ class MultiContentLayoutTest {
     fun updatingSlotCount() {
         var slotCount by mutableStateOf(1)
         rule.setContent {
-            val contents = buildList<@Composable () -> Unit> {
-                repeat(slotCount) {
-                    add {
-                        Item(it)
-                    }
-                }
-            }
-            Layout(
-                contents = contents,
-                modifier = Modifier.size(100.dp)
-            ) { slots, constraints ->
+            val contents =
+                buildList<@Composable () -> Unit> { repeat(slotCount) { add { Item(it) } } }
+            Layout(contents = contents, modifier = Modifier.size(100.dp)) { slots, constraints ->
                 assertThat(slots.size).isEqualTo(contents.size)
                 layoutAsRow(constraints, slots.flatten())
             }
@@ -258,9 +222,7 @@ class MultiContentLayoutTest {
 
         assertItemsLaidOutAsRow(0..0)
 
-        rule.runOnIdle {
-            slotCount = 3
-        }
+        rule.runOnIdle { slotCount = 3 }
 
         assertItemsLaidOutAsRow(0..2)
     }
@@ -269,20 +231,15 @@ class MultiContentLayoutTest {
     fun defaultIntrinsics() {
         rule.setContent {
             Layout({
-                val first = @Composable {
-                    BoxWithIntrinsics(1, 2, 100, 200)
-                    BoxWithIntrinsics(4, 3, 300, 400)
-                }
-                val second = @Composable {
-                    BoxWithIntrinsics(10, 11, 12, 13)
-                }
-                Layout(
-                    contents = listOf(first, second)
-                ) { (_, secondSlot), constraints ->
-                    val placeable = secondSlot.first().measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
+                val first =
+                    @Composable {
+                        BoxWithIntrinsics(1, 2, 100, 200)
+                        BoxWithIntrinsics(4, 3, 300, 400)
                     }
+                val second = @Composable { BoxWithIntrinsics(10, 11, 12, 13) }
+                Layout(contents = listOf(first, second)) { (_, secondSlot), constraints ->
+                    val placeable = secondSlot.first().measure(constraints)
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                 }
             }) { measurables, _ ->
                 val box = measurables[0]
@@ -290,7 +247,7 @@ class MultiContentLayoutTest {
                 assertThat(box.minIntrinsicHeight(1000)).isEqualTo(11)
                 assertThat(box.maxIntrinsicWidth(1000)).isEqualTo(12)
                 assertThat(box.maxIntrinsicHeight(1000)).isEqualTo(13)
-                layout(10, 10) { }
+                layout(10, 10) {}
             }
         }
     }
@@ -299,41 +256,41 @@ class MultiContentLayoutTest {
     fun customIntrinsics() {
         rule.setContent {
             Layout({
-                val first = @Composable {
-                    BoxWithIntrinsics(1, 2, 100, 200)
-                    BoxWithIntrinsics(4, 3, 300, 400)
-                }
-                val second = @Composable {
-                    BoxWithIntrinsics(10, 11, 12, 13)
-                }
+                val first =
+                    @Composable {
+                        BoxWithIntrinsics(1, 2, 100, 200)
+                        BoxWithIntrinsics(4, 3, 300, 400)
+                    }
+                val second = @Composable { BoxWithIntrinsics(10, 11, 12, 13) }
                 Layout(
                     contents = listOf(first, second),
-                    measurePolicy = object : MultiContentMeasurePolicy {
-                        override fun MeasureScope.measure(
-                            measurables: List<List<Measurable>>,
-                            constraints: Constraints
-                        ) = throw IllegalStateException("shouldn't be called")
+                    measurePolicy =
+                        object : MultiContentMeasurePolicy {
+                            override fun MeasureScope.measure(
+                                measurables: List<List<Measurable>>,
+                                constraints: Constraints
+                            ) = throw IllegalStateException("shouldn't be called")
 
-                        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                            measurables: List<List<IntrinsicMeasurable>>,
-                            height: Int
-                        ): Int = measurables[1].first().minIntrinsicWidth(height)
+                            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                measurables: List<List<IntrinsicMeasurable>>,
+                                height: Int
+                            ): Int = measurables[1].first().minIntrinsicWidth(height)
 
-                        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                            measurables: List<List<IntrinsicMeasurable>>,
-                            width: Int
-                        ): Int = measurables[1].first().minIntrinsicHeight(width)
+                            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                measurables: List<List<IntrinsicMeasurable>>,
+                                width: Int
+                            ): Int = measurables[1].first().minIntrinsicHeight(width)
 
-                        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                            measurables: List<List<IntrinsicMeasurable>>,
-                            height: Int
-                        ): Int = measurables[1].first().maxIntrinsicWidth(height)
+                            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                measurables: List<List<IntrinsicMeasurable>>,
+                                height: Int
+                            ): Int = measurables[1].first().maxIntrinsicWidth(height)
 
-                        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                            measurables: List<List<IntrinsicMeasurable>>,
-                            width: Int
-                        ): Int = measurables[1].first().maxIntrinsicHeight(width)
-                    }
+                            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                measurables: List<List<IntrinsicMeasurable>>,
+                                width: Int
+                            ): Int = measurables[1].first().maxIntrinsicHeight(width)
+                        }
                 )
             }) { measurables, _ ->
                 val box = measurables[0]
@@ -341,7 +298,7 @@ class MultiContentLayoutTest {
                 assertThat(box.minIntrinsicHeight(1000)).isEqualTo(11)
                 assertThat(box.maxIntrinsicWidth(1000)).isEqualTo(12)
                 assertThat(box.maxIntrinsicHeight(1000)).isEqualTo(13)
-                layout(10, 10) { }
+                layout(10, 10) {}
             }
         }
     }
@@ -349,24 +306,20 @@ class MultiContentLayoutTest {
     private fun assertItemsLaidOutAsRow(intRange: IntRange) {
         var currentX = 0.dp
         intRange.forEach {
-            rule.onNodeWithTag("$it")
+            rule
+                .onNodeWithTag("$it")
                 .assertLeftPositionInRootIsEqualTo(currentX)
                 .assertTopPositionInRootIsEqualTo(0.dp)
             currentX += size
         }
 
-        rule.onNodeWithTag("${intRange.first - 1}")
-            .assertDoesNotExist()
-        rule.onNodeWithTag("${intRange.last + 1}")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("${intRange.first - 1}").assertDoesNotExist()
+        rule.onNodeWithTag("${intRange.last + 1}").assertDoesNotExist()
     }
 
     @Composable
     fun Item(id: Int) {
-        Box(
-            Modifier
-                .size(size)
-                .testTag("$id"))
+        Box(Modifier.size(size).testTag("$id"))
     }
 }
 
@@ -388,32 +341,35 @@ private fun MeasureScope.layoutAsRow(
 
 @Composable
 private fun BoxWithIntrinsics(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int) {
-    Layout(measurePolicy = object : MeasurePolicy {
-        override fun MeasureScope.measure(
-            measurables: List<Measurable>,
-            constraints: Constraints
-        ): MeasureResult {
-            TODO("Not yet implemented")
-        }
+    Layout(
+        measurePolicy =
+            object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    TODO("Not yet implemented")
+                }
 
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-            measurables: List<IntrinsicMeasurable>,
-            height: Int
-        ) = minWidth
+                override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ) = minWidth
 
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-            measurables: List<IntrinsicMeasurable>,
-            width: Int
-        ) = minHeight
+                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ) = minHeight
 
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-            measurables: List<IntrinsicMeasurable>,
-            height: Int
-        ) = maxWidth
+                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ) = maxWidth
 
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-            measurables: List<IntrinsicMeasurable>,
-            width: Int
-        ) = maxHeight
-    })
+                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ) = maxHeight
+            }
+    )
 }

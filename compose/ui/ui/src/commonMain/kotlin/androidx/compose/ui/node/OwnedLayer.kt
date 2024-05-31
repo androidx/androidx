@@ -25,77 +25,60 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
-/**
- * A layer returned by [Owner.createLayer] to separate drawn content.
- */
+/** A layer returned by [Owner.createLayer] to separate drawn content. */
 internal interface OwnedLayer {
 
-    /**
-     * Applies the new layer properties, causing this layer to be redrawn.
-     */
+    /** Applies the new layer properties, causing this layer to be redrawn. */
     fun updateLayerProperties(scope: ReusableGraphicsLayerScope)
 
     /**
-     * Returns `false` if [position] is outside the clipped region or `true` if clipping
-     * is disabled or it is within the clipped region.
+     * Returns `false` if [position] is outside the clipped region or `true` if clipping is disabled
+     * or it is within the clipped region.
      */
     fun isInLayer(position: Offset): Boolean
 
-    /**
-     * Changes the position of the layer contents.
-     */
+    /** Changes the position of the layer contents. */
     fun move(position: IntOffset)
 
-    /**
-     * Changes the size of the layer's drawn area.
-     */
+    /** Changes the size of the layer's drawn area. */
     fun resize(size: IntSize)
 
-    /**
-     * Causes the layer to be drawn into [canvas]
-     */
+    /** Causes the layer to be drawn into [canvas] */
     fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?)
 
-    /**
-     * Updates the drawing on the current canvas.
-     */
+    /** Updates the drawing on the current canvas. */
     fun updateDisplayList()
 
-    /**
-     * Asks to the layer to redraw itself without forcing all of its parents to redraw.
-     */
+    /** Asks to the layer to redraw itself without forcing all of its parents to redraw. */
     fun invalidate()
 
-    /**
-     * Indicates that the layer is no longer needed.
-     */
+    /** Indicates that the layer is no longer needed. */
     fun destroy()
 
     /**
-     * Transforms [point] to this layer's bounds, returning an [Offset] with the transformed x
-     * and y values.
+     * Transforms [point] to this layer's bounds, returning an [Offset] with the transformed x and y
+     * values.
      *
      * @param point the [Offset] to transform to this layer's bounds
      * @param inverse whether to invert this layer's transform [Matrix] first, such as when
-     * converting an offset in a parent layer to be in this layer's coordinates.
+     *   converting an offset in a parent layer to be in this layer's coordinates.
      */
     fun mapOffset(point: Offset, inverse: Boolean): Offset
 
     /**
-     * Transforms the provided [rect] to this layer's bounds, then updates [rect] to match the
-     * new bounds after the transform.
+     * Transforms the provided [rect] to this layer's bounds, then updates [rect] to match the new
+     * bounds after the transform.
      *
      * @param rect the bounds to transform to this layer's bounds, and then mutate with the
-     * resulting value
+     *   resulting value
      * @param inverse whether to invert this layer's transform [Matrix] first, such as when
-     * converting bounds in a parent layer to be in this layer's coordinates.
+     *   converting bounds in a parent layer to be in this layer's coordinates.
      */
     fun mapBounds(rect: MutableRect, inverse: Boolean)
 
     /**
-     * Reuse this layer after it was [destroy]ed, setting the new
-     * [drawBlock] and [invalidateParentLayer] values. The layer will be reinitialized
-     * as new after this call.
+     * Reuse this layer after it was [destroy]ed, setting the new [drawBlock] and
+     * [invalidateParentLayer] values. The layer will be reinitialized as new after this call.
      */
     fun reuseLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
@@ -103,14 +86,14 @@ internal interface OwnedLayer {
     )
 
     /**
-     * Calculates the transform from the parent to the local coordinates and multiplies
-     * [matrix] by the transform.
+     * Calculates the transform from the parent to the local coordinates and multiplies [matrix] by
+     * the transform.
      */
     fun transform(matrix: Matrix)
 
     /**
-     * Calculates the transform from the layer to the parent and multiplies [matrix] by
-     * the transform.
+     * Calculates the transform from the layer to the parent and multiplies [matrix] by the
+     * transform.
      */
     fun inverseTransform(matrix: Matrix)
 }

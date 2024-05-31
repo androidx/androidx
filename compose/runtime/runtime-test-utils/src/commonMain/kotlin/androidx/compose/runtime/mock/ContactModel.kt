@@ -21,7 +21,8 @@ class ContactModel(
     var contacts: List<Contact>,
     var selected: Contact? = null
 ) {
-    val filtered get() = contacts.filter { it.name.contains(filter) }
+    val filtered
+        get() = contacts.filter { it.name.contains(filter) }
 
     fun add(contact: Contact, after: Contact? = null) {
         val retList = mutableListOf<Contact>().apply { addAll(contacts) }

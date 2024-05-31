@@ -55,20 +55,14 @@ class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(config) {
             InfiniteAxisRootComposable {
                 HorizontalOrVerticalPager(
                     state = rememberPagerState(pageCount = { DefaultPageCount }),
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth()
-                        .testTag(PagerTestTag),
+                    modifier = Modifier.fillMaxHeight().fillMaxWidth().testTag(PagerTestTag),
                 ) {
-                    val fillModifier = if (vertical) {
-                        Modifier
-                            .fillMaxHeight()
-                            .width(200.dp)
-                    } else {
-                        Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                    }
+                    val fillModifier =
+                        if (vertical) {
+                            Modifier.fillMaxHeight().width(200.dp)
+                        } else {
+                            Modifier.fillMaxWidth().height(200.dp)
+                        }
                     Box(fillModifier)
                 }
             }
@@ -79,11 +73,13 @@ class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(config) {
 
         // Assert: Max Cross Axis size is handled well by wrapping content
         if (vertical) {
-            rule.onNodeWithTag(PagerTestTag)
+            rule
+                .onNodeWithTag(PagerTestTag)
                 .assertHeightIsEqualTo(rootBounds.height)
                 .assertWidthIsEqualTo(200.dp)
         } else {
-            rule.onNodeWithTag(PagerTestTag)
+            rule
+                .onNodeWithTag(PagerTestTag)
                 .assertWidthIsEqualTo(rootBounds.width)
                 .assertHeightIsEqualTo(200.dp)
         }
@@ -92,19 +88,13 @@ class PagerCrossAxisTest(val config: ParamConfig) : BasePagerTest(config) {
     @Composable
     private fun InfiniteAxisRootComposable(content: @Composable () -> Unit) {
         if (vertical) {
-            Row(Modifier.horizontalScroll(rememberScrollState())) {
-                content()
-            }
+            Row(Modifier.horizontalScroll(rememberScrollState())) { content() }
         } else {
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                content()
-            }
+            Column(Modifier.verticalScroll(rememberScrollState())) { content() }
         }
     }
 
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun params() = AllOrientationsParams
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun params() = AllOrientationsParams
     }
 }

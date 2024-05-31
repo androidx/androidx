@@ -28,10 +28,11 @@ internal class LazyLayoutNearestRangeState(
     private val extraItemCount: Int
 ) : State<IntRange> {
 
-    override var value: IntRange by mutableStateOf(
-        calculateNearestItemsRange(firstVisibleItem, slidingWindowSize, extraItemCount),
-        structuralEqualityPolicy()
-    )
+    override var value: IntRange by
+        mutableStateOf(
+            calculateNearestItemsRange(firstVisibleItem, slidingWindowSize, extraItemCount),
+            structuralEqualityPolicy()
+        )
         private set
 
     private var lastFirstVisibleItem = firstVisibleItem
@@ -45,8 +46,8 @@ internal class LazyLayoutNearestRangeState(
 
     private companion object {
         /**
-         * Returns a range of indexes which contains at least [extraItemCount] items near
-         * the first visible item. It is optimized to return the same range for small changes in the
+         * Returns a range of indexes which contains at least [extraItemCount] items near the first
+         * visible item. It is optimized to return the same range for small changes in the
          * firstVisibleItem value so we do not regenerate the map on each scroll.
          */
         private fun calculateNearestItemsRange(

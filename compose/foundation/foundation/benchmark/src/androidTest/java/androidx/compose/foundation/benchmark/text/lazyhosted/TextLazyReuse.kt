@@ -37,27 +37,20 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-class TextLazyReuse(
-    private val changeText: Boolean
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class TextLazyReuse(private val changeText: Boolean) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private var flipper = false
     private var toggleText = mutableStateOf("")
     private var active = mutableStateOf(true)
     private var reuseKey = mutableStateOf(0)
 
-    private val style = TextStyle.Default.copy(
-        fontFamily = FontFamily.Monospace
-    )
+    private val style = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
 
     @Composable
     override fun MeasuredContent() {
         ReusableContentHost(active.value) {
             ReusableContent(reuseKey.value) {
-                Text(
-                    toggleText.value,
-                    style = style,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Text(toggleText.value, style = style, modifier = Modifier.fillMaxWidth())
             }
         }
     }
@@ -80,8 +73,7 @@ class TextLazyReuse(
 @RunWith(AndroidJUnit4::class)
 class TextLazyReuseSameText {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     val caseFactory = { TextLazyReuse(false) }
 
@@ -105,8 +97,7 @@ class TextLazyReuseSameText {
 @RunWith(AndroidJUnit4::class)
 class TextLazyReuseChangedText {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     val caseFactory = { TextLazyReuse(true) }
 

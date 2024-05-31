@@ -29,35 +29,35 @@ internal class MappedInteractionSource(
     underlyingInteractionSource: InteractionSource,
     private val delta: Offset
 ) : InteractionSource {
-    private val mappedPresses =
-        mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
+    private val mappedPresses = mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
 
-    override val interactions = underlyingInteractionSource.interactions.map { interaction ->
-        when (interaction) {
-            is PressInteraction.Press -> {
-                val mappedPress = mapPress(interaction)
-                mappedPresses[interaction] = mappedPress
-                mappedPress
-            }
-            is PressInteraction.Cancel -> {
-                val mappedPress = mappedPresses.remove(interaction.press)
-                if (mappedPress == null) {
-                    interaction
-                } else {
-                    PressInteraction.Cancel(mappedPress)
+    override val interactions =
+        underlyingInteractionSource.interactions.map { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> {
+                    val mappedPress = mapPress(interaction)
+                    mappedPresses[interaction] = mappedPress
+                    mappedPress
                 }
-            }
-            is PressInteraction.Release -> {
-                val mappedPress = mappedPresses.remove(interaction.press)
-                if (mappedPress == null) {
-                    interaction
-                } else {
-                    PressInteraction.Release(mappedPress)
+                is PressInteraction.Cancel -> {
+                    val mappedPress = mappedPresses.remove(interaction.press)
+                    if (mappedPress == null) {
+                        interaction
+                    } else {
+                        PressInteraction.Cancel(mappedPress)
+                    }
                 }
+                is PressInteraction.Release -> {
+                    val mappedPress = mappedPresses.remove(interaction.press)
+                    if (mappedPress == null) {
+                        interaction
+                    } else {
+                        PressInteraction.Release(mappedPress)
+                    }
+                }
+                else -> interaction
             }
-            else -> interaction
         }
-    }
 
     private fun mapPress(press: PressInteraction.Press): PressInteraction.Press =
         PressInteraction.Press(press.pressPosition - delta)

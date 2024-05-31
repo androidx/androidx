@@ -64,9 +64,9 @@ value class FontLoadingStrategy private constructor(val value: Int) {
          * a remote [Async] source. It may also be followed by other [OptionalLocal] fonts or
          * [Blocking] fonts that have less specific styling to avoid async delay.
          *
-         * Apps should expect that [OptionalLocal] fonts will fail to load on devices where the
-         * font is not available.
-         **
+         * Apps should expect that [OptionalLocal] fonts will fail to load on devices where the font
+         * is not available.
+         * *
          * This should typically not be used for fonts that are fetched from a remote source such as
          * over http, as it will block all rendering until the font loads. Instead use [Async].
          */

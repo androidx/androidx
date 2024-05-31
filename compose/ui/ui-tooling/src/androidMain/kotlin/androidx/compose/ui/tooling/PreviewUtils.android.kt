@@ -20,9 +20,7 @@ import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
-/**
- * Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN.
- */
+/** Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN. */
 internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider<*>>? {
     try {
         @Suppress("UNCHECKED_CAST")
@@ -34,11 +32,11 @@ internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider
 }
 
 /**
- * Returns an array with some values of a [PreviewParameterProvider]. If the given provider class
- * is `null`, returns an empty array. Otherwise, if the given `parameterProviderIndex` is a valid
- * index, returns a single-element array containing the value corresponding to that particular
- * index in the provider's sequence. Finally, returns an array with all the values of the
- * provider's sequence if `parameterProviderIndex` is invalid, e.g. negative.
+ * Returns an array with some values of a [PreviewParameterProvider]. If the given provider class is
+ * `null`, returns an empty array. Otherwise, if the given `parameterProviderIndex` is a valid
+ * index, returns a single-element array containing the value corresponding to that particular index
+ * in the provider's sequence. Finally, returns an array with all the values of the provider's
+ * sequence if `parameterProviderIndex` is invalid, e.g. negative.
  */
 internal fun getPreviewProviderParameters(
     parameterProviderClass: Class<out PreviewParameterProvider<*>>?,
@@ -46,15 +44,13 @@ internal fun getPreviewProviderParameters(
 ): Array<Any?> {
     if (parameterProviderClass != null) {
         try {
-            val constructor = parameterProviderClass.constructors
-                .singleOrNull { it.parameterTypes.isEmpty() }
-                ?.apply {
-                    isAccessible = true
-                }
-                ?: throw IllegalArgumentException(
-                    "PreviewParameterProvider constructor can not" +
-                        " have parameters"
-                )
+            val constructor =
+                parameterProviderClass.constructors
+                    .singleOrNull { it.parameterTypes.isEmpty() }
+                    ?.apply { isAccessible = true }
+                    ?: throw IllegalArgumentException(
+                        "PreviewParameterProvider constructor can not" + " have parameters"
+                    )
             val params = constructor.newInstance() as PreviewParameterProvider<*>
             if (parameterProviderIndex < 0) {
                 return params.values.toArray(params.count)
@@ -78,9 +74,8 @@ internal fun getPreviewProviderParameters(
 }
 
 /**
- * Checks if the object is of inlined value type.
- * If yes, unwraps and returns the packed value
- * If not, returns the object as it is
+ * Checks if the object is of inlined value type. If yes, unwraps and returns the packed value If
+ * not, returns the object as it is
  */
 private fun unwrapIfInline(classToCheck: Any?): Any? {
     // At the moment is not possible to use classToCheck::class.isValue, even if it works when
@@ -89,10 +84,11 @@ private fun unwrapIfInline(classToCheck: Any?): Any? {
     // see also https://kotlinlang.org/docs/inline-classes.html
     if (classToCheck != null && classToCheck::class.java.annotations.any { it is JvmInline }) {
         // The first primitive declared field in the class is the value wrapped
-        val fieldName: String = classToCheck::class.java.declaredFields
-            .first { it.type.isPrimitive }
-            .name
-        return classToCheck::class.java.getDeclaredField(fieldName)
+        val fieldName: String =
+            classToCheck::class.java.declaredFields.first { it.type.isPrimitive }.name
+        return classToCheck::class
+            .java
+            .getDeclaredField(fieldName)
             .also { it.isAccessible = true }
             .get(classToCheck)
     }
@@ -110,9 +106,9 @@ internal fun Group.findAll(predicate: (Group) -> Boolean): List<Group> {
 }
 
 /**
- * Search [Group]s that match a given [predicate], starting from a given [root]. An optional
- * boolean parameter can be set if we're interested in a single occurrence. If it's set, we
- * return early after finding the first matching [Group].
+ * Search [Group]s that match a given [predicate], starting from a given [root]. An optional boolean
+ * parameter can be set if we're interested in a single occurrence. If it's set, we return early
+ * after finding the first matching [Group].
  */
 @OptIn(UiToolingDataApi::class)
 private fun findGroupsThatMatchPredicate(
@@ -140,21 +136,15 @@ private fun Sequence<Any?>.toArray(size: Int): Array<Any?> {
     return Array(size) { iterator.next() }
 }
 
-/**
- * A simple wrapper to store and throw exception later in a thread-safe way.
- */
+/** A simple wrapper to store and throw exception later in a thread-safe way. */
 internal class ThreadSafeException {
     private var exception: Throwable? = null
 
-    /**
-     * A lock to take to access exception.
-     */
+    /** A lock to take to access exception. */
     private val lock = Any()
 
     fun set(throwable: Throwable) {
-        synchronized(lock) {
-            exception = throwable
-        }
+        synchronized(lock) { exception = throwable }
     }
 
     fun throwIfPresent() {

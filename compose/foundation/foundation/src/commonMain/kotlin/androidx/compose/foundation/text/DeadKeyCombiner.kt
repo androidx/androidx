@@ -27,8 +27,8 @@ internal expect class DeadKeyCombiner() {
 
     /**
      * @param event the key event received by the combiner
-     * @return a unicode code point to emit in response to the event,
-     * or null if no code point should be emitted
+     * @return a unicode code point to emit in response to the event, or null if no code point
+     *   should be emitted
      */
     fun consume(event: KeyEvent): Int?
 }

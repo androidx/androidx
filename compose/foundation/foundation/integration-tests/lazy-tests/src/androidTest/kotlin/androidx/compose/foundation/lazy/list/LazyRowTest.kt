@@ -51,8 +51,7 @@ import org.junit.runner.RunWith
 class LazyRowTest {
     private val LazyListTag = "LazyListTag"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val firstItemTag = "firstItemTag"
     private val secondItemTag = "secondItemTag"
@@ -73,14 +72,11 @@ class LazyRowTest {
             }
         }
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertIsDisplayed()
+        rule.onNodeWithTag(firstItemTag).assertIsDisplayed()
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertIsDisplayed()
+        rule.onNodeWithTag(secondItemTag).assertIsDisplayed()
 
-        val lazyRowBounds = rule.onNodeWithTag(LazyListTag)
-            .getUnclippedBoundsInRoot()
+        val lazyRowBounds = rule.onNodeWithTag(LazyListTag).getUnclippedBoundsInRoot()
 
         with(rule.density) {
             // Verify the height of the row
@@ -93,33 +89,27 @@ class LazyRowTest {
     fun lazyRowAlignmentCenterVertically() {
         prepareLazyRowForAlignment(Alignment.CenterVertically)
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertPositionInRootIsEqualTo(0.dp, 25.dp)
+        rule.onNodeWithTag(firstItemTag).assertPositionInRootIsEqualTo(0.dp, 25.dp)
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertPositionInRootIsEqualTo(50.dp, 15.dp)
+        rule.onNodeWithTag(secondItemTag).assertPositionInRootIsEqualTo(50.dp, 15.dp)
     }
 
     @Test
     fun lazyRowAlignmentTop() {
         prepareLazyRowForAlignment(Alignment.Top)
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertPositionInRootIsEqualTo(0.dp, 0.dp)
+        rule.onNodeWithTag(firstItemTag).assertPositionInRootIsEqualTo(0.dp, 0.dp)
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertPositionInRootIsEqualTo(50.dp, 0.dp)
+        rule.onNodeWithTag(secondItemTag).assertPositionInRootIsEqualTo(50.dp, 0.dp)
     }
 
     @Test
     fun lazyRowAlignmentBottom() {
         prepareLazyRowForAlignment(Alignment.Bottom)
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertPositionInRootIsEqualTo(0.dp, 50.dp)
+        rule.onNodeWithTag(firstItemTag).assertPositionInRootIsEqualTo(0.dp, 50.dp)
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertPositionInRootIsEqualTo(50.dp, 30.dp)
+        rule.onNodeWithTag(secondItemTag).assertPositionInRootIsEqualTo(50.dp, 30.dp)
     }
 
     @Test
@@ -131,17 +121,14 @@ class LazyRowTest {
                     state = rememberLazyListState()
                     LazyRow(Modifier.testTag(LazyListTag), state) {
                         items(4) {
-                            Spacer(
-                                Modifier.width(101.dp).fillParentMaxHeight().testTag("$it")
-                            )
+                            Spacer(Modifier.width(101.dp).fillParentMaxHeight().testTag("$it"))
                         }
                     }
                 }
             }
         }
 
-        rule.onNodeWithTag(LazyListTag)
-            .scrollBy(x = (-150).dp, density = rule.density)
+        rule.onNodeWithTag(LazyListTag).scrollBy(x = (-150).dp, density = rule.density)
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(1)
@@ -149,25 +136,24 @@ class LazyRowTest {
         }
     }
 
-   @Test
-   fun laysOutRtlCorrectlyWithLargerRow() {
-       val rowWidth = with(rule.density) { 300.toDp() }
-       val rowHeight = with(rule.density) { 100.toDp() }
-       val itemSize = with(rule.density) { 50.toDp() }
-       rule.setContent {
-           Column {
-               CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                   LazyRow(modifier = Modifier.size(width = rowWidth, height = rowHeight)) {
-                       items(3) { index ->
-                           val label = index.toString()
-                           BasicText(label, Modifier.size(itemSize).testTag(label))
-                       }
-                   }
-               }
-           }
-       }
+    @Test
+    fun laysOutRtlCorrectlyWithLargerRow() {
+        val rowWidth = with(rule.density) { 300.toDp() }
+        val rowHeight = with(rule.density) { 100.toDp() }
+        val itemSize = with(rule.density) { 50.toDp() }
+        rule.setContent {
+            Column {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    LazyRow(modifier = Modifier.size(width = rowWidth, height = rowHeight)) {
+                        items(3) { index ->
+                            val label = index.toString()
+                            BasicText(label, Modifier.size(itemSize).testTag(label))
+                        }
+                    }
+                }
+            }
+        }
 
-       rule.onNodeWithTag("0")
-           .assertPositionInRootIsEqualTo(rowWidth - itemSize, 0.dp)
+        rule.onNodeWithTag("0").assertPositionInRootIsEqualTo(rowWidth - itemSize, 0.dp)
     }
 }

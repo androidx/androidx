@@ -30,17 +30,16 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 /**
- * A suite of benchmarks for [BoxWithConstraints] / subcomposition behavior. In this benchmark
- * we're comparing simple Box vs BoxWithConstraints. We're also checking the performance of
+ * A suite of benchmarks for [BoxWithConstraints] / subcomposition behavior. In this benchmark we're
+ * comparing simple Box vs BoxWithConstraints. We're also checking the performance of
  * [BoxWithConstraints] in the context of an app's layout depending on available space compared to
- * just using a theoretical CompositionLocal that contains screen width.
- * This allows measuring the performance impact of subcomposition on first composition and
- * recomposition of a relatively complex screen.
+ * just using a theoretical CompositionLocal that contains screen width. This allows measuring the
+ * performance impact of subcomposition on first composition and recomposition of a relatively
+ * complex screen.
  */
 class BoxWithConstraintsBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun no_boxwithconstraints_inner_recompose() {

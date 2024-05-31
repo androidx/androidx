@@ -20,19 +20,26 @@ import androidx.compose.runtime.Applier
 
 class EmptyApplier : Applier<Unit> {
     override val current: Unit = Unit
+
     override fun down(node: Unit) {}
+
     override fun up() {}
+
     override fun insertTopDown(index: Int, instance: Unit) {
         error("Unexpected")
     }
+
     override fun insertBottomUp(index: Int, instance: Unit) {
         error("Unexpected")
     }
+
     override fun remove(index: Int, count: Int) {
         error("Unexpected")
     }
+
     override fun move(from: Int, to: Int, count: Int) {
         error("Unexpected")
     }
+
     override fun clear() {}
 }

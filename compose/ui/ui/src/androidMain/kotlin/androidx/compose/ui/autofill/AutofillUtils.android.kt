@@ -27,22 +27,21 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.semantics.Role
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(28)
 internal object AutofillApi28Helper {
     @RequiresApi(28)
     @DoNotInline
-    fun setMaxTextLength(structure: ViewStructure, length: Int) =
-        structure.setMaxTextLength(length)
+    fun setMaxTextLength(structure: ViewStructure, length: Int) = structure.setMaxTextLength(length)
 }
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(27)
 internal object AutofillApi27Helper {
@@ -59,21 +58,19 @@ internal object AutofillApi27Helper {
 }
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(26)
 internal object AutofillApi26Helper {
     @RequiresApi(26)
     @DoNotInline
-    fun newChild(structure: ViewStructure, index: Int): ViewStructure? =
-        structure.newChild(index)
+    fun newChild(structure: ViewStructure, index: Int): ViewStructure? = structure.newChild(index)
 
     @RequiresApi(26)
     @DoNotInline
-    fun addChildCount(structure: ViewStructure, num: Int) =
-        structure.addChildCount(num)
+    fun addChildCount(structure: ViewStructure, num: Int) = structure.addChildCount(num)
 
     @RequiresApi(26)
     @DoNotInline
@@ -97,25 +94,15 @@ internal object AutofillApi26Helper {
         height: Int
     ) = structure.setDimens(left, top, scrollX, scrollY, width, height)
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun getAutofillId(structure: ViewStructure) = structure.autofillId
+    @RequiresApi(26) @DoNotInline fun getAutofillId(structure: ViewStructure) = structure.autofillId
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun isDate(value: AutofillValue) = value.isDate
+    @RequiresApi(26) @DoNotInline fun isDate(value: AutofillValue) = value.isDate
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun isList(value: AutofillValue) = value.isList
+    @RequiresApi(26) @DoNotInline fun isList(value: AutofillValue) = value.isList
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun isText(value: AutofillValue) = value.isText
+    @RequiresApi(26) @DoNotInline fun isText(value: AutofillValue) = value.isText
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun isToggle(value: AutofillValue) = value.isToggle
+    @RequiresApi(26) @DoNotInline fun isToggle(value: AutofillValue) = value.isToggle
 
     @RequiresApi(26)
     @DoNotInline
@@ -148,8 +135,7 @@ internal object AutofillApi26Helper {
 
     @RequiresApi(26)
     @DoNotInline
-    fun setChecked(structure: ViewStructure, checked: Boolean) =
-        structure.setChecked(checked)
+    fun setChecked(structure: ViewStructure, checked: Boolean) = structure.setChecked(checked)
 
     @RequiresApi(26)
     @DoNotInline
@@ -196,8 +182,7 @@ internal object AutofillApi26Helper {
 
     @RequiresApi(26)
     @DoNotInline
-    fun setOpaque(structure: ViewStructure, isOpaque: Boolean) =
-        structure.setOpaque(isOpaque)
+    fun setOpaque(structure: ViewStructure, isOpaque: Boolean) = structure.setOpaque(isOpaque)
 
     @RequiresApi(26)
     @DoNotInline
@@ -223,9 +208,7 @@ internal object AutofillApi26Helper {
     @DoNotInline
     fun booleanValue(value: AutofillValue): Boolean = value.toggleValue
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun listValue(value: AutofillValue): Int = value.listValue
+    @RequiresApi(26) @DoNotInline fun listValue(value: AutofillValue): Int = value.listValue
 
     @RequiresApi(26)
     @DoNotInline
@@ -236,13 +219,14 @@ internal object AutofillApi26Helper {
     @RequiresApi(26)
     @DoNotInline
     fun setAutofillTypeForViewStruct(child: ViewStructure, dataType: ContentDataType) {
-        val autofillType = when (dataType) {
-            ContentDataType.Text -> View.AUTOFILL_TYPE_TEXT
-            ContentDataType.Date -> View.AUTOFILL_TYPE_DATE
-            ContentDataType.Toggle -> View.AUTOFILL_TYPE_TOGGLE
-            ContentDataType.List -> View.AUTOFILL_TYPE_LIST
-            else -> View.AUTOFILL_TYPE_NONE
-        }
+        val autofillType =
+            when (dataType) {
+                ContentDataType.Text -> View.AUTOFILL_TYPE_TEXT
+                ContentDataType.Date -> View.AUTOFILL_TYPE_DATE
+                ContentDataType.Toggle -> View.AUTOFILL_TYPE_TOGGLE
+                ContentDataType.List -> View.AUTOFILL_TYPE_LIST
+                else -> View.AUTOFILL_TYPE_NONE
+            }
         setAutofillType(child, autofillType)
     }
 }

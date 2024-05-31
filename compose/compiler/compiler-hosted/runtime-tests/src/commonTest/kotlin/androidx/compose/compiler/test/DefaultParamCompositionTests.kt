@@ -61,41 +61,44 @@ class DefaultParamCompositionTests {
 }
 
 private interface DefaultParamInterface {
-    @Composable fun Content(
-        content: @Composable () -> Unit = @Composable { ComposedContent() }
-    )
-    @Composable fun ComposedContent(
-        content: @Composable () -> Unit = @Composable { Text("default") }
-    ) {
+    @Composable fun Content(content: @Composable () -> Unit = @Composable { ComposedContent() })
+
+    @Composable
+    fun ComposedContent(content: @Composable () -> Unit = @Composable { Text("default") }) {
         content()
     }
 }
 
 private class DefaultParamInterfaceImpl : DefaultParamInterface {
-    @Composable override fun Content(content: @Composable () -> Unit) {
+    @Composable
+    override fun Content(content: @Composable () -> Unit) {
         content()
     }
-    @Composable override fun ComposedContent(content: @Composable () -> Unit) {
+
+    @Composable
+    override fun ComposedContent(content: @Composable () -> Unit) {
         super.ComposedContent(content)
     }
 }
 
 private abstract class DefaultParamAbstract {
-    @Composable abstract fun Content(
-        content: @Composable () -> Unit = @Composable { ComposedContent() }
-    )
-    @Composable open fun ComposedContent(
-        content: @Composable () -> Unit = @Composable { Text("default") }
-    ) {
+    @Composable
+    abstract fun Content(content: @Composable () -> Unit = @Composable { ComposedContent() })
+
+    @Composable
+    open fun ComposedContent(content: @Composable () -> Unit = @Composable { Text("default") }) {
         content()
     }
 }
 
 private class DefaultParamAbstractImpl : DefaultParamAbstract() {
-    @Composable override fun Content(content: @Composable () -> Unit) {
+    @Composable
+    override fun Content(content: @Composable () -> Unit) {
         content()
     }
-    @Composable override fun ComposedContent(content: @Composable () -> Unit) {
+
+    @Composable
+    override fun ComposedContent(content: @Composable () -> Unit) {
         super.ComposedContent(content)
     }
 }

@@ -31,8 +31,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
 
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun crossfadeBenchmarkInitialComposition() {

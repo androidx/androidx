@@ -33,5 +33,4 @@ internal value class Strings private constructor(@Suppress("unused") private val
     }
 }
 
-@Composable
-internal expect fun getString(string: Strings): String
+@Composable internal expect fun getString(string: Strings): String

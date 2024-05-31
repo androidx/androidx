@@ -30,9 +30,7 @@ class PathMeasureTest {
     fun testGetPositionAndTangent() {
         val width = 100f
         val height = 100f
-        val path = Path().apply {
-            lineTo(width, height)
-        }
+        val path = Path().apply { lineTo(width, height) }
         val pathMeasure = PathMeasure()
 
         pathMeasure.setPath(path, false)

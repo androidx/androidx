@@ -68,12 +68,9 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-/**
- * Test for [NavigationRail] and [NavigationRailItem].
- */
+/** Test for [NavigationRail] and [NavigationRailItem]. */
 class NavigationRailTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun defaultSemantics() {
@@ -81,25 +78,23 @@ class NavigationRailTest {
             NavigationRail {
                 NavigationRailItem(
                     modifier = Modifier.testTag("item"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, null)
-                    },
-                    label = {
-                        Text("ItemText")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
                     selected = true,
                     onClick = {}
                 )
             }
         }
 
-        rule.onNodeWithTag("item")
+        rule
+            .onNodeWithTag("item")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsEnabled()
             .assertHasClickAction()
 
-        rule.onNodeWithTag("item")
+        rule
+            .onNodeWithTag("item")
             .onParent()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
     }
@@ -111,19 +106,16 @@ class NavigationRailTest {
                 NavigationRailItem(
                     enabled = false,
                     modifier = Modifier.testTag("item"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, null)
-                    },
-                    label = {
-                        Text("ItemText")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
                     selected = true,
                     onClick = {}
                 )
             }
         }
 
-        rule.onNodeWithTag("item")
+        rule
+            .onNodeWithTag("item")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsNotEnabled()
@@ -136,33 +128,23 @@ class NavigationRailTest {
             NavigationRail {
                 NavigationRailItem(
                     modifier = Modifier.testTag("item1"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, "Favorite")
-                    },
-                    label = {
-                        Text("Favorite")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, "Favorite") },
+                    label = { Text("Favorite") },
                     selected = true,
                     alwaysShowLabel = false,
                     onClick = {}
                 )
                 NavigationRailItem(
                     modifier = Modifier.testTag("item2"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, "Favorite")
-                    },
-                    label = {
-                        Text("Favorite")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, "Favorite") },
+                    label = { Text("Favorite") },
                     selected = false,
                     alwaysShowLabel = false,
                     onClick = {}
                 )
                 NavigationRailItem(
                     modifier = Modifier.testTag("item3"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, "Favorite")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, "Favorite") },
                     selected = false,
                     onClick = {}
                 )
@@ -183,33 +165,33 @@ class NavigationRailTest {
     @Test
     fun navigationRail_width() {
         val defaultWidth = NavigationRailItemWidth
-        rule.setMaterialContentForSizeAssertions {
-            val items = listOf("Home", "Search", "Settings")
-            val icons = listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.Settings)
-            NavigationRail {
-                items.forEachIndexed { index, item ->
-                    NavigationRailItem(
-                        icon = { Icon(icons[index], contentDescription = item) },
-                        label = { Text(item) },
-                        selected = index == 0,
-                        onClick = { /* do something */ }
-                    )
+        rule
+            .setMaterialContentForSizeAssertions {
+                val items = listOf("Home", "Search", "Settings")
+                val icons = listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.Settings)
+                NavigationRail {
+                    items.forEachIndexed { index, item ->
+                        NavigationRailItem(
+                            icon = { Icon(icons[index], contentDescription = item) },
+                            label = { Text(item) },
+                            selected = index == 0,
+                            onClick = { /* do something */ }
+                        )
+                    }
                 }
             }
-        }.assertWidthIsEqualTo(defaultWidth)
+            .assertWidthIsEqualTo(defaultWidth)
     }
 
     @Test
     fun navigationRail_respectsContentPadding() {
         rule.setMaterialContentForSizeAssertions {
             NavigationRail(windowInsets = WindowInsets(13.dp, 13.dp, 13.dp, 13.dp)) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag("content"))
+                Box(Modifier.fillMaxSize().testTag("content"))
             }
         }
-        rule.onNodeWithTag("content")
+        rule
+            .onNodeWithTag("content")
             .assertTopPositionInRootIsEqualTo(13.dp + NavigationRailVerticalPadding)
             .assertLeftPositionInRootIsEqualTo(13.dp)
     }
@@ -226,9 +208,10 @@ class NavigationRailTest {
                             label = { Text("Item $index") },
                             selected = index == 0,
                             onClick = {},
-                            modifier = Modifier.onGloballyPositioned { coords ->
-                                itemCoords[index] = coords
-                            }
+                            modifier =
+                                Modifier.onGloballyPositioned { coords ->
+                                    itemCoords[index] = coords
+                                }
                         )
                     }
                 }
@@ -267,10 +250,9 @@ class NavigationRailTest {
         }
 
         Truth.assertThat(
-            rule.onNodeWithTag("TAG", useUnmergedTree = true)
-                .getUnclippedBoundsInRoot()
-                .height
-        ).isGreaterThan(defaultHeight)
+                rule.onNodeWithTag("TAG", useUnmergedTree = true).getUnclippedBoundsInRoot().height
+            )
+            .isGreaterThan(defaultHeight)
     }
 
     @Test
@@ -280,12 +262,8 @@ class NavigationRailTest {
                 NavigationRail {
                     NavigationRailItem(
                         modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
-                        label = {
-                            Text("ItemText", Modifier.testTag("label"))
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
+                        label = { Text("ItemText", Modifier.testTag("label")) },
                         selected = true,
                         onClick = {}
                     )
@@ -294,10 +272,10 @@ class NavigationRailTest {
         }
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
-        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
-        val textBounds = rule.onNodeWithTag("label", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val textBounds =
+            rule.onNodeWithTag("label", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         // Distance from the container bottom to the text bottom, and from the top of the icon to
         // the top of the item
@@ -309,7 +287,8 @@ class NavigationRailTest {
         // Text bottom should be `verticalPadding` from the bottom of the item
         textBottom.assertIsEqualTo(itemBottom - verticalPadding)
 
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             // The icon should be centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The top of the icon is `verticalPadding` below the top of the item
@@ -323,12 +302,8 @@ class NavigationRailTest {
                 NavigationRail {
                     NavigationRailItem(
                         modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
-                        label = {
-                            Text("ItemText")
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
+                        label = { Text("ItemText") },
                         selected = false,
                         onClick = {},
                         alwaysShowLabel = false
@@ -342,10 +317,11 @@ class NavigationRailTest {
         rule.onNodeWithText("ItemText", useUnmergedTree = true).assertIsNotDisplayed()
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
-        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The item's container has a `NavigationRailItemVerticalPadding` top-padding
             .assertTopPositionInRootIsEqualTo(
@@ -360,9 +336,7 @@ class NavigationRailTest {
                 NavigationRail {
                     NavigationRailItem(
                         modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                         label = null,
                         selected = false,
                         onClick = {}
@@ -372,11 +346,12 @@ class NavigationRailTest {
         }
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
-        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         // The icon should be centered in the item, as there is no text placeable provided
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The item's container has a `NavigationRailItemVerticalPadding` top-padding
             .assertTopPositionInRootIsEqualTo(
@@ -403,7 +378,8 @@ class NavigationRailTest {
         }
 
         // Find all items and ensure there are 3
-        rule.onAllNodes(isSelectable())
+        rule
+            .onAllNodes(isSelectable())
             .assertCountEquals(3)
             // Ensure semantics match for selected state of the items
             .apply {
@@ -412,9 +388,7 @@ class NavigationRailTest {
                 get(2).assertIsNotSelected()
             }
             // Click the last item
-            .apply {
-                get(2).performClick()
-            }
+            .apply { get(2).performClick() }
             .apply {
                 get(0).assertIsNotSelected()
                 get(1).assertIsNotSelected()
@@ -430,23 +404,16 @@ class NavigationRailTest {
                 NavigationRailItem(
                     enabled = false,
                     modifier = Modifier.testTag("item"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, null)
-                    },
-                    label = {
-                        Text("ItemText")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
                     selected = true,
                     onClick = { clicks++ }
                 )
             }
         }
 
-        rule.onNodeWithTag("item")
-            .performClick()
+        rule.onNodeWithTag("item").performClick()
 
-        rule.runOnIdle {
-            Truth.assertThat(clicks).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(clicks).isEqualTo(0) }
     }
 }

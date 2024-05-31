@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.Density
 import org.jetbrains.skia.paragraph.Paragraph
 
 /**
- * The purpose of this class is to store already built paragraph and pass it between
- * different internal entities (from SkiaParagraphIntrinsics to SkiaParagraph).
+ * The purpose of this class is to store already built paragraph and pass it between different
+ * internal entities (from SkiaParagraphIntrinsics to SkiaParagraph).
  *
  * An alternative to passing and reusing existed paragraph is to build it again, but it is 2.5x
  * slower.
@@ -40,12 +40,10 @@ import org.jetbrains.skia.paragraph.Paragraph
  *
  * Tests:
  *
- * val text = (1..100000).joinToString(" ")
- * reusedParagraph.layout(300f): 116.848500ms
+ * val text = (1..100000).joinToString(" ") reusedParagraph.layout(300f): 116.848500ms
  * builder.build().layout(300f): 288.302300ms
  *
- * text = (1..10000).joinToString(" ")
- * reusedParagraph.layout(300f): 10.004400ms
+ * text = (1..10000).joinToString(" ") reusedParagraph.layout(300f): 10.004400ms
  * builder.build().layout(300f): 23.421500ms
  */
 class ParagraphLayouter(
@@ -57,20 +55,22 @@ class ParagraphLayouter(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
 ) {
-    private val builder = ParagraphBuilder(
-        fontFamilyResolver = fontFamilyResolver,
-        text = text,
-        textStyle = style,
-        spanStyles = spanStyles,
-        placeholders = placeholders,
-        density = density,
-        textDirection = textDirection
-    )
+    private val builder =
+        ParagraphBuilder(
+            fontFamilyResolver = fontFamilyResolver,
+            text = text,
+            textStyle = style,
+            spanStyles = spanStyles,
+            placeholders = placeholders,
+            density = density,
+            textDirection = textDirection
+        )
     private var para = builder.build()
 
     private var width: Float = -1f
 
-    val defaultHeight get() = builder.defaultHeight
+    val defaultHeight
+        get() = builder.defaultHeight
 
     fun layoutParagraph(
         width: Float = this.width,
@@ -83,19 +83,20 @@ class ParagraphLayouter(
         val actualColor = color.takeOrElse { builder.textStyle.color }
         if (
             builder.maxLines != maxLines ||
-            builder.ellipsis != ellipsis ||
-            builder.textStyle.color != actualColor ||
-            builder.textStyle.shadow != shadow ||
-            builder.textStyle.textDecoration != textDecoration
+                builder.ellipsis != ellipsis ||
+                builder.textStyle.color != actualColor ||
+                builder.textStyle.shadow != shadow ||
+                builder.textStyle.textDecoration != textDecoration
         ) {
             this.width = width
             builder.maxLines = maxLines
             builder.ellipsis = ellipsis
-            builder.textStyle = builder.textStyle.copy(
-                color = actualColor,
-                shadow = shadow,
-                textDecoration = textDecoration
-            )
+            builder.textStyle =
+                builder.textStyle.copy(
+                    color = actualColor,
+                    shadow = shadow,
+                    textDecoration = textDecoration
+                )
             para = builder.build()
             para.layout(width)
         } else if (this.width != width) {

@@ -23,10 +23,11 @@ import androidx.compose.integration.demos.common.DemoCategory
  * These demos are for triggering specific elements of Compose, to enable testing the performance
  * (runtime duration, allocations, etc) of those elements.
  */
-val PerformanceDemos = DemoCategory(
-    "Performance",
-    listOf(
-        ComposableDemo("Recomposition") { RecompositionDemo() },
-        ComposableDemo("Drawing") { DrawingDemo() },
+val PerformanceDemos =
+    DemoCategory(
+        "Performance",
+        listOf(
+            ComposableDemo("Recomposition") { RecompositionDemo() },
+            ComposableDemo("Drawing") { DrawingDemo() },
+        )
     )
-)

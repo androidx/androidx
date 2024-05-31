@@ -57,36 +57,50 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnimateXAsStateClockTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun dpAnimationClock() {
-        val search = AnimationSearch.AnimateXAsStateSearch { }
+        val search = AnimationSearch.AnimateXAsStateSearch {}
         var state: State<Dp>? = null
         rule.addAnimations(search) {
-            state = animateDpAsState(
-                targetValue = 10.dp, animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateDpAsState(
+                    targetValue = 10.dp,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "DpAnimation",
+        checkInitialState(
+            clock,
+            label = "DpAnimation",
             initialValue = 10.dp,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(1.dp, 2.dp) }
-        checkUpdatedState(clock, label = "DpAnimation",
-            newInitialValue = 1.dp, newTargetValue = 2.dp,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "DpAnimation",
+            newInitialValue = 1.dp,
+            newTargetValue = 2.dp,
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(3f, 4.0) }
-        checkUpdatedState(clock, label = "DpAnimation",
-            newInitialValue = 3.dp, newTargetValue = 4.dp,
-            composeState = { state!!.value })
-        rule.runOnUiThread {
-            clock.setStateParameters(listOf(30f), listOf(40f))
-        }
-        checkUpdatedState(clock, label = "DpAnimation",
-            newInitialValue = 30.dp, newTargetValue = 40.dp,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "DpAnimation",
+            newInitialValue = 3.dp,
+            newTargetValue = 4.dp,
+            composeState = { state!!.value }
+        )
+        rule.runOnUiThread { clock.setStateParameters(listOf(30f), listOf(40f)) }
+        checkUpdatedState(
+            clock,
+            label = "DpAnimation",
+            newInitialValue = 30.dp,
+            newTargetValue = 40.dp,
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(111.dp, "")
@@ -96,32 +110,49 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(111.dp), emptyList<Dp>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "DpAnimation",
-            newInitialValue = 30.dp, newTargetValue = 40.dp,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "DpAnimation",
+            newInitialValue = 30.dp,
+            newTargetValue = 40.dp,
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun floatAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch { }
+        val search = AnimationSearch.AnimateXAsStateSearch {}
         var state: State<Float>? = null
         rule.addAnimations(search) {
-            state = animateFloatAsState(
-                targetValue = 10f, animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateFloatAsState(
+                    targetValue = 10f,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "FloatAnimation",
+        checkInitialState(
+            clock,
+            label = "FloatAnimation",
             initialValue = 10f,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(1f, 2f) }
-        checkUpdatedState(clock, label = "FloatAnimation",
-            newInitialValue = 1f, newTargetValue = 2f,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "FloatAnimation",
+            newInitialValue = 1f,
+            newTargetValue = 2f,
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f), listOf(4f)) }
-        checkUpdatedState(clock, label = "FloatAnimation",
-            newInitialValue = 3f, newTargetValue = 4f,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "FloatAnimation",
+            newInitialValue = 3f,
+            newTargetValue = 4f,
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(111f, 111)
@@ -131,35 +162,49 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(111f), emptyList<Dp>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "FloatAnimation",
-            newInitialValue = 3f, newTargetValue = 4f,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "FloatAnimation",
+            newInitialValue = 3f,
+            newTargetValue = 4f,
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun intSizeAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<IntSize>? = null
         rule.addAnimations(search) {
-            state = animateIntSizeAsState(
-                targetValue = IntSize(10, 20),
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateIntSizeAsState(
+                    targetValue = IntSize(10, 20),
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "IntSizeAnimation",
+        checkInitialState(
+            clock,
+            label = "IntSizeAnimation",
             initialValue = IntSize(10, 20),
-            composeState = { state!!.value })
-        rule.runOnUiThread {
-            clock.setStateParameters(IntSize(3, 4), IntSize(4, 5))
-        }
-        checkUpdatedState(clock, label = "IntSizeAnimation",
-            newInitialValue = IntSize(3, 4), newTargetValue = IntSize(4, 5),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
+        rule.runOnUiThread { clock.setStateParameters(IntSize(3, 4), IntSize(4, 5)) }
+        checkUpdatedState(
+            clock,
+            label = "IntSizeAnimation",
+            newInitialValue = IntSize(3, 4),
+            newTargetValue = IntSize(4, 5),
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(5, 6), listOf(7, 8)) }
-        checkUpdatedState(clock, label = "IntSizeAnimation",
-            newInitialValue = IntSize(5, 6), newTargetValue = IntSize(7, 8),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntSizeAnimation",
+            newInitialValue = IntSize(5, 6),
+            newTargetValue = IntSize(7, 8),
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(IntSize(111, 111), 111)
@@ -170,32 +215,46 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(IntSize(111, 11)), emptyList<IntOffset>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "IntSizeAnimation",
-            newInitialValue = IntSize(5, 6), newTargetValue = IntSize(7, 8),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntSizeAnimation",
+            newInitialValue = IntSize(5, 6),
+            newTargetValue = IntSize(7, 8),
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun intAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Int>? = null
         rule.addAnimations(search) {
-            state = animateIntAsState(
-                targetValue = 10, animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateIntAsState(targetValue = 10, animationSpec = TweenSpec(durationMillis = 100))
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "IntAnimation",
+        checkInitialState(
+            clock,
+            label = "IntAnimation",
             initialValue = 10,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(1, 2) }
-        checkUpdatedState(clock, label = "IntAnimation",
-            newInitialValue = 1, newTargetValue = 2,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntAnimation",
+            newInitialValue = 1,
+            newTargetValue = 2,
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3), listOf(4)) }
-        checkUpdatedState(clock, label = "IntAnimation",
-            newInitialValue = 3, newTargetValue = 4,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntAnimation",
+            newInitialValue = 3,
+            newTargetValue = 4,
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(111, 111f)
@@ -206,35 +265,49 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(111), emptyList<Int>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "IntAnimation",
-            newInitialValue = 3, newTargetValue = 4,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntAnimation",
+            newInitialValue = 3,
+            newTargetValue = 4,
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun intOffsetAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<IntOffset>? = null
         rule.addAnimations(search) {
-            state = animateIntOffsetAsState(
-                targetValue = IntOffset(10, 20),
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateIntOffsetAsState(
+                    targetValue = IntOffset(10, 20),
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "IntOffsetAnimation",
+        checkInitialState(
+            clock,
+            label = "IntOffsetAnimation",
             initialValue = IntOffset(10, 20),
-            composeState = { state!!.value })
-        rule.runOnUiThread {
-            clock.setStateParameters(IntOffset(1, 2), IntOffset(3, 4))
-        }
-        checkUpdatedState(clock, label = "IntOffsetAnimation",
-            newInitialValue = IntOffset(1, 2), newTargetValue = IntOffset(3, 4),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
+        rule.runOnUiThread { clock.setStateParameters(IntOffset(1, 2), IntOffset(3, 4)) }
+        checkUpdatedState(
+            clock,
+            label = "IntOffsetAnimation",
+            newInitialValue = IntOffset(1, 2),
+            newTargetValue = IntOffset(3, 4),
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3, 4), listOf(4, 5)) }
-        checkUpdatedState(clock, label = "IntOffsetAnimation",
-            newInitialValue = IntOffset(3, 4), newTargetValue = IntOffset(4, 5),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntOffsetAnimation",
+            newInitialValue = IntOffset(3, 4),
+            newTargetValue = IntOffset(4, 5),
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(IntOffset(111, 111), 111)
@@ -245,35 +318,49 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(IntOffset(111, 11)), emptyList<IntOffset>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "IntOffsetAnimation",
-            newInitialValue = IntOffset(3, 4), newTargetValue = IntOffset(4, 5),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "IntOffsetAnimation",
+            newInitialValue = IntOffset(3, 4),
+            newTargetValue = IntOffset(4, 5),
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun offsetAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Offset>? = null
         rule.addAnimations(search) {
-            state = animateOffsetAsState(
-                targetValue = Offset(10f, 20f),
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateOffsetAsState(
+                    targetValue = Offset(10f, 20f),
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "OffsetAnimation",
+        checkInitialState(
+            clock,
+            label = "OffsetAnimation",
             initialValue = Offset(10f, 20f),
-            composeState = { state!!.value })
-        rule.runOnUiThread {
-            clock.setStateParameters(Offset(1f, 2f), Offset(3f, 4f))
-        }
-        checkUpdatedState(clock, label = "OffsetAnimation",
-            newInitialValue = Offset(1f, 2f), newTargetValue = Offset(3f, 4f),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
+        rule.runOnUiThread { clock.setStateParameters(Offset(1f, 2f), Offset(3f, 4f)) }
+        checkUpdatedState(
+            clock,
+            label = "OffsetAnimation",
+            newInitialValue = Offset(1f, 2f),
+            newTargetValue = Offset(3f, 4f),
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f, 4f), listOf(4f, 5f)) }
-        checkUpdatedState(clock, label = "OffsetAnimation",
-            newInitialValue = Offset(3f, 4f), newTargetValue = Offset(4f, 5f),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "OffsetAnimation",
+            newInitialValue = Offset(3f, 4f),
+            newTargetValue = Offset(4f, 5f),
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(Offset(111f, 111f), 111)
@@ -284,35 +371,49 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(Offset(111f, 111f)), emptyList<Offset>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "OffsetAnimation",
-            newInitialValue = Offset(3f, 4f), newTargetValue = Offset(4f, 5f),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "OffsetAnimation",
+            newInitialValue = Offset(3f, 4f),
+            newTargetValue = Offset(4f, 5f),
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun sizeAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Size>? = null
         rule.addAnimations(search) {
-            state = animateSizeAsState(
-                targetValue = Size(10f, 20f),
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateSizeAsState(
+                    targetValue = Size(10f, 20f),
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "SizeAnimation",
+        checkInitialState(
+            clock,
+            label = "SizeAnimation",
             initialValue = Size(10f, 20f),
-            composeState = { state!!.value })
-        rule.runOnUiThread {
-            clock.setStateParameters(Size(1f, 2f), Size(3f, 4f))
-        }
-        checkUpdatedState(clock, label = "SizeAnimation",
-            newInitialValue = Size(1f, 2f), newTargetValue = Size(3f, 4f),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
+        rule.runOnUiThread { clock.setStateParameters(Size(1f, 2f), Size(3f, 4f)) }
+        checkUpdatedState(
+            clock,
+            label = "SizeAnimation",
+            newInitialValue = Size(1f, 2f),
+            newTargetValue = Size(3f, 4f),
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f, 4f), listOf(4f, 5f)) }
-        checkUpdatedState(clock, label = "SizeAnimation",
-            newInitialValue = Size(3f, 4f), newTargetValue = Size(4f, 5f),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "SizeAnimation",
+            newInitialValue = Size(3f, 4f),
+            newTargetValue = Size(4f, 5f),
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(Size(111f, 111f), 111)
@@ -323,45 +424,53 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(Size(111f, 111f)), emptyList<Size>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "SizeAnimation",
-            newInitialValue = Size(3f, 4f), newTargetValue = Size(4f, 5f),
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "SizeAnimation",
+            newInitialValue = Size(3f, 4f),
+            newTargetValue = Size(4f, 5f),
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun rectAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Rect>? = null
         rule.addAnimations(search) {
-            state = animateRectAsState(
-                targetValue = Rect(10f, 20f, 30f, 40f),
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateRectAsState(
+                    targetValue = Rect(10f, 20f, 30f, 40f),
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "RectAnimation",
+        checkInitialState(
+            clock,
+            label = "RectAnimation",
             initialValue = Rect(10f, 20f, 30f, 40f),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread {
-            clock.setStateParameters(
-                Rect(1f, 2f, 30f, 40f),
-                Rect(3f, 4f, 30f, 40f)
-            )
+            clock.setStateParameters(Rect(1f, 2f, 30f, 40f), Rect(3f, 4f, 30f, 40f))
         }
-        checkUpdatedState(clock, label = "RectAnimation",
+        checkUpdatedState(
+            clock,
+            label = "RectAnimation",
             newInitialValue = Rect(1f, 2f, 30f, 40f),
             newTargetValue = Rect(3f, 4f, 30f, 40f),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread {
-            clock.setStateParameters(
-                listOf(3f, 4f, 30f, 40f),
-                listOf(4f, 5f, 30f, 40f)
-            )
+            clock.setStateParameters(listOf(3f, 4f, 30f, 40f), listOf(4f, 5f, 30f, 40f))
         }
-        checkUpdatedState(clock, label = "RectAnimation",
+        checkUpdatedState(
+            clock,
+            label = "RectAnimation",
             newInitialValue = Rect(3f, 4f, 30f, 40f),
             newTargetValue = Rect(4f, 5f, 30f, 40f),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(Rect(42f, 42f, 42f, 42f), 42f)
@@ -372,39 +481,54 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(Rect(42f, 42f, 42f, 42f)), emptyList<Rect>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "RectAnimation",
+        checkUpdatedState(
+            clock,
+            label = "RectAnimation",
             newInitialValue = Rect(3f, 4f, 30f, 40f),
             newTargetValue = Rect(4f, 5f, 30f, 40f),
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun colorAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Color>? = null
         rule.addAnimations(search) {
-            state = animateColorAsState(
-                targetValue = Color.Black,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateColorAsState(
+                    targetValue = Color.Black,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ColorAnimation",
+        checkInitialState(
+            clock,
+            label = "ColorAnimation",
             initialValue = Color.Black,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(Color.Gray, Color.Red) }
-        checkUpdatedState(clock, label = "ColorAnimation",
-            newInitialValue = Color.Gray, newTargetValue = Color.Red,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ColorAnimation",
+            newInitialValue = Color.Gray,
+            newTargetValue = Color.Red,
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread {
             clock.setStateParameters(
                 listOf(Color.Blue.red, Color.Blue.green, Color.Blue.blue, Color.Blue.alpha),
                 listOf(Color.Yellow.red, Color.Yellow.green, Color.Yellow.blue, Color.Yellow.alpha)
             )
         }
-        checkUpdatedState(clock, label = "ColorAnimation",
-            newInitialValue = Color.Blue, newTargetValue = Color.Yellow,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ColorAnimation",
+            newInitialValue = Color.Blue,
+            newTargetValue = Color.Yellow,
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(Color.Red, 1)
@@ -417,34 +541,50 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(0f, 0f, 10f, 10f), listOf(10f, 10f, 0f, 10f))
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "ColorAnimation",
-            newInitialValue = Color.Blue, newTargetValue = Color.Yellow,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ColorAnimation",
+            newInitialValue = Color.Blue,
+            newTargetValue = Color.Yellow,
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun customFloatAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Float>? = null
         rule.addAnimations(search) {
-            state = animateValueAsState(
-                targetValue = 10f,
-                Float.VectorConverter,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateValueAsState(
+                    targetValue = 10f,
+                    Float.VectorConverter,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ValueAnimation",
+        checkInitialState(
+            clock,
+            label = "ValueAnimation",
             initialValue = 10f,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(1f, 2f) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = 1f, newTargetValue = 2f,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = 1f,
+            newTargetValue = 2f,
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f), listOf(4f)) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = 3f, newTargetValue = 4f,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = 3f,
+            newTargetValue = 4f,
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(30f, 40)
@@ -455,34 +595,50 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(emptyList<Float>(), emptyList<Float>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = 3f, newTargetValue = 4f,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = 3f,
+            newTargetValue = 4f,
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun nullableFloatAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Float?>? = null
         rule.addAnimations(search) {
-            state = animateValueAsState(
-                targetValue = 10f,
-                Utils.nullableFloatConverter,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateValueAsState(
+                    targetValue = 10f,
+                    Utils.nullableFloatConverter,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ValueAnimation",
+        checkInitialState(
+            clock,
+            label = "ValueAnimation",
             initialValue = 10f,
-            composeState = { state!!.value!! })
+            composeState = { state!!.value!! }
+        )
         rule.runOnUiThread { clock.setStateParameters(1f, 2f) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = 1f, newTargetValue = 2f,
-            composeState = { state!!.value!! })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = 1f,
+            newTargetValue = 2f,
+            composeState = { state!!.value!! }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f), listOf(4f)) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = 3f, newTargetValue = 4f,
-            composeState = { state!!.value!! })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = 3f,
+            newTargetValue = 4f,
+            composeState = { state!!.value!! }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(30f, 40)
@@ -493,34 +649,50 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(emptyList<Float>(), emptyList<Float>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = 3f, newTargetValue = 4f,
-            composeState = { state!!.value!! })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = 3f,
+            newTargetValue = 4f,
+            composeState = { state!!.value!! }
+        )
     }
 
     @Test
     fun stringAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<String>? = null
         rule.addAnimations(search) {
-            state = animateValueAsState(
-                targetValue = "10.0",
-                Utils.stringConverter,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateValueAsState(
+                    targetValue = "10.0",
+                    Utils.stringConverter,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ValueAnimation",
+        checkInitialState(
+            clock,
+            label = "ValueAnimation",
             initialValue = "10.0",
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters("20.0", "30.0") }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = "20.0", newTargetValue = "30.0",
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = "20.0",
+            newTargetValue = "30.0",
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf("40.0"), listOf("50.0")) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = "40.0", newTargetValue = "50.0",
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = "40.0",
+            newTargetValue = "50.0",
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(30f, 40)
@@ -531,51 +703,71 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(emptyList<String>(), emptyList<Int>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = "40.0", newTargetValue = "50.0",
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = "40.0",
+            newTargetValue = "50.0",
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun enumAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Utils.EnumState>? = null
         rule.addAnimations(search) {
-            state = animateValueAsState(
-                targetValue = Utils.EnumState.One,
-                Utils.enumConverter,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateValueAsState(
+                    targetValue = Utils.EnumState.One,
+                    Utils.enumConverter,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ValueAnimation",
+        checkInitialState(
+            clock,
+            label = "ValueAnimation",
             initialValue = Utils.EnumState.One,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun booleanAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Boolean>? = null
         rule.addAnimations(search) {
-            state = animateValueAsState(
-                targetValue = false,
-                Utils.booleanConverter,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateValueAsState(
+                    targetValue = false,
+                    Utils.booleanConverter,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ValueAnimation",
+        checkInitialState(
+            clock,
+            label = "ValueAnimation",
             initialValue = false,
-            composeState = { state!!.value })
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(false, true) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = false, newTargetValue = true,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = false,
+            newTargetValue = true,
+            composeState = { state!!.value }
+        )
         rule.runOnUiThread { clock.setStateParameters(listOf(true), listOf(false)) }
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = true, newTargetValue = false,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = true,
+            newTargetValue = false,
+            composeState = { state!!.value }
+        )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
             clock.setStateParameters(true, 111f)
@@ -586,30 +778,37 @@ class AnimateXAsStateClockTest {
             clock.setStateParameters(listOf(true), emptyList<Boolean>())
         }
         // State hasn't changed.
-        checkUpdatedState(clock, label = "ValueAnimation",
-            newInitialValue = true, newTargetValue = false,
-            composeState = { state!!.value })
+        checkUpdatedState(
+            clock,
+            label = "ValueAnimation",
+            newInitialValue = true,
+            newTargetValue = false,
+            composeState = { state!!.value }
+        )
     }
 
     @Test
     fun nullableEnumAnimation() {
-        val search = AnimationSearch.AnimateXAsStateSearch() { }
+        val search = AnimationSearch.AnimateXAsStateSearch() {}
         var state: State<Utils.EnumState?>? = null
         rule.addAnimations(search) {
-            state = animateValueAsState(
-                targetValue = Utils.EnumState.One,
-                Utils.nullableEnumConverter,
-                animationSpec = TweenSpec(durationMillis = 100)
-            )
+            state =
+                animateValueAsState(
+                    targetValue = Utils.EnumState.One,
+                    Utils.nullableEnumConverter,
+                    animationSpec = TweenSpec(durationMillis = 100)
+                )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
-        checkInitialState(clock, label = "ValueAnimation",
+        checkInitialState(
+            clock,
+            label = "ValueAnimation",
             initialValue = Utils.EnumState.One,
-            composeState = { state!!.value!! })
+            composeState = { state!!.value!! }
+        )
     }
 
-    private fun <T : ComposeAnimation, TState : ComposeAnimationState, V : Any>
-        checkInitialState(
+    private fun <T : ComposeAnimation, TState : ComposeAnimationState, V : Any> checkInitialState(
         clock: ComposeAnimationClock<T, TState>,
         label: String,
         initialValue: V,
@@ -635,8 +834,7 @@ class AnimateXAsStateClockTest {
         }
     }
 
-    private fun <T : ComposeAnimation, TState : ComposeAnimationState, V : Any>
-        checkUpdatedState(
+    private fun <T : ComposeAnimation, TState : ComposeAnimationState, V : Any> checkUpdatedState(
         clock: ComposeAnimationClock<T, TState>,
         label: String,
         newInitialValue: V,
@@ -666,9 +864,7 @@ class AnimateXAsStateClockTest {
             }
         }
         // Jump to the end of the animation.
-        rule.runOnUiThread {
-            clock.setClockTime(millisToNanos(300L))
-        }
+        rule.runOnUiThread { clock.setClockTime(millisToNanos(300L)) }
         // Check state at the end of the animation.
         rule.waitForIdle()
         rule.runOnUiThread {

@@ -41,10 +41,11 @@ private class TestTagModifier<T>(val name: String, val value: T) : Modifier.Elem
 
 fun <T> Modifier.testTag(name: String, value: T) = this then TestTagModifier(name, value)
 
-fun <T> Modifier.getTestTag(name: String, default: T): T = foldIn(default) { acc, element ->
-    @Suppress("UNCHECKED_CAST")
-    if (element is TestTagModifier<*> && element.name == name) element.value as T else acc
-}
+fun <T> Modifier.getTestTag(name: String, default: T): T =
+    foldIn(default) { acc, element ->
+        @Suppress("UNCHECKED_CAST")
+        if (element is TestTagModifier<*> && element.name == name) element.value as T else acc
+    }
 
 @Suppress("UnnecessaryComposedModifier")
 @OptIn(InternalComposeApi::class)
@@ -54,58 +55,56 @@ class ComposedModifierTest {
      * Confirm that a [composed] modifier correctly constructs separate instances when materialized
      */
     @Test
-    fun materializeComposedModifier() = runBlocking(TestFrameClock()) {
-        // Note: assumes single-threaded composition
-        var counter = 0
-        val sourceMod = Modifier.testTag("static", 0)
-            .composed { testTag("dynamic", ++counter) }
+    fun materializeComposedModifier() =
+        runBlocking(TestFrameClock()) {
+            // Note: assumes single-threaded composition
+            var counter = 0
+            val sourceMod = Modifier.testTag("static", 0).composed { testTag("dynamic", ++counter) }
 
-        withRunningRecomposer { recomposer ->
-            lateinit var firstMaterialized: Modifier
-            lateinit var secondMaterialized: Modifier
-            compose(recomposer) {
-                firstMaterialized = currentComposer.materialize(sourceMod)
-                secondMaterialized = currentComposer.materialize(sourceMod)
+            withRunningRecomposer { recomposer ->
+                lateinit var firstMaterialized: Modifier
+                lateinit var secondMaterialized: Modifier
+                compose(recomposer) {
+                    firstMaterialized = currentComposer.materialize(sourceMod)
+                    secondMaterialized = currentComposer.materialize(sourceMod)
+                }
+
+                assertNotEquals("I recomposed some modifiers", 0, counter)
+
+                assertEquals(
+                    "first static value equal to source",
+                    sourceMod.getTestTag("static", Int.MIN_VALUE),
+                    firstMaterialized.getTestTag("static", Int.MAX_VALUE)
+                )
+                assertEquals(
+                    "second static value equal to source",
+                    sourceMod.getTestTag("static", Int.MIN_VALUE),
+                    secondMaterialized.getTestTag("static", Int.MAX_VALUE)
+                )
+                assertEquals(
+                    "dynamic value not present in source",
+                    Int.MIN_VALUE,
+                    sourceMod.getTestTag("dynamic", Int.MIN_VALUE)
+                )
+                assertNotEquals(
+                    "dynamic value present in first materialized",
+                    Int.MIN_VALUE,
+                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
+                )
+                assertNotEquals(
+                    "dynamic value present in second materialized",
+                    Int.MIN_VALUE,
+                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
+                )
+                assertNotEquals(
+                    "first and second dynamic values must be unequal",
+                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE),
+                    secondMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
+                )
             }
-
-            assertNotEquals("I recomposed some modifiers", 0, counter)
-
-            assertEquals(
-                "first static value equal to source",
-                sourceMod.getTestTag("static", Int.MIN_VALUE),
-                firstMaterialized.getTestTag("static", Int.MAX_VALUE)
-            )
-            assertEquals(
-                "second static value equal to source",
-                sourceMod.getTestTag("static", Int.MIN_VALUE),
-                secondMaterialized.getTestTag("static", Int.MAX_VALUE)
-            )
-            assertEquals(
-                "dynamic value not present in source",
-                Int.MIN_VALUE,
-                sourceMod.getTestTag("dynamic", Int.MIN_VALUE)
-            )
-            assertNotEquals(
-                "dynamic value present in first materialized",
-                Int.MIN_VALUE,
-                firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
-            )
-            assertNotEquals(
-                "dynamic value present in second materialized",
-                Int.MIN_VALUE,
-                firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
-            )
-            assertNotEquals(
-                "first and second dynamic values must be unequal",
-                firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE),
-                secondMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
-            )
         }
-    }
 
-    /**
-     * Confirm that recomposition occurs on invalidation
-     */
+    /** Confirm that recomposition occurs on invalidation */
     @Test
     fun recomposeComposedModifier() = runBlocking {
         // Manually invalidate the composition of the modifier instead of using mutableStateOf
@@ -113,18 +112,17 @@ class ComposedModifierTest {
         var value = 0
         lateinit var scope: RecomposeScope
 
-        val sourceMod = Modifier.composed {
-            scope = currentRecomposeScope
-            testTag("changing", value)
-        }
+        val sourceMod =
+            Modifier.composed {
+                scope = currentRecomposeScope
+                testTag("changing", value)
+            }
 
         val frameClock = TestFrameClock()
         withContext(frameClock) {
             withRunningRecomposer { recomposer ->
                 lateinit var materialized: Modifier
-                compose(recomposer) {
-                    materialized = currentComposer.materialize(sourceMod)
-                }
+                compose(recomposer) { materialized = currentComposer.materialize(sourceMod) }
 
                 assertEquals(
                     "initial composition value",
@@ -148,11 +146,12 @@ class ComposedModifierTest {
     @Test
     fun rememberComposedModifier() = runBlocking {
         lateinit var scope: RecomposeScope
-        val sourceMod = Modifier.composed {
-            scope = currentRecomposeScope
-            val state = remember { Any() }
-            testTag("remembered", state)
-        }
+        val sourceMod =
+            Modifier.composed {
+                scope = currentRecomposeScope
+                val state = remember { Any() }
+                testTag("remembered", state)
+            }
 
         val frameClock = TestFrameClock()
 
@@ -181,20 +180,14 @@ class ComposedModifierTest {
 
     @Test
     fun nestedComposedModifiers() = runBlocking {
-        val mod = Modifier.composed {
-            composed {
-                testTag("nested", 10)
-            }
-        }
+        val mod = Modifier.composed { composed { testTag("nested", 10) } }
 
         val frameClock = TestFrameClock()
 
         withContext(frameClock) {
             withRunningRecomposer { recomposer ->
                 lateinit var materialized: Modifier
-                compose(recomposer) {
-                    materialized = currentComposer.materialize(mod)
-                }
+                compose(recomposer) { materialized = currentComposer.materialize(mod) }
 
                 assertEquals(
                     "fully unwrapped composed modifier value",
@@ -330,16 +323,8 @@ private fun ModifiedComposable(modifier: Modifier, onComposed: (Modifier) -> Uni
 }
 
 @OptIn(InternalComposeApi::class)
-fun compose(
-    recomposer: Recomposer,
-    block: @Composable () -> Unit
-): Composition {
-    return Composition(
-        EmptyApplier(),
-        recomposer
-    ).apply {
-        setContent(block)
-    }
+fun compose(recomposer: Recomposer, block: @Composable () -> Unit): Composition {
+    return Composition(EmptyApplier(), recomposer).apply { setContent(block) }
 }
 
 internal class TestFrameClock : MonotonicFrameClock {
@@ -355,19 +340,26 @@ internal class TestFrameClock : MonotonicFrameClock {
 
 class EmptyApplier : Applier<Unit> {
     override val current: Unit = Unit
+
     override fun down(node: Unit) {}
+
     override fun up() {}
+
     override fun insertTopDown(index: Int, instance: Unit) {
         error("Unexpected")
     }
+
     override fun insertBottomUp(index: Int, instance: Unit) {
         error("Unexpected")
     }
+
     override fun remove(index: Int, count: Int) {
         error("Unexpected")
     }
+
     override fun move(from: Int, to: Int, count: Int) {
         error("Unexpected")
     }
+
     override fun clear() {}
 }

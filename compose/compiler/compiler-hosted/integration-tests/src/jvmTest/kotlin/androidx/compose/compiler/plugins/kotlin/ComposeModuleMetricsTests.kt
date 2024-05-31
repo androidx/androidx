@@ -22,19 +22,17 @@ import org.junit.Test
 class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         // Tests in this file are about testing the output, so we want non-skippable composables
-        put(
-            ComposeConfiguration.FEATURE_FLAGS,
-            listOf(FeatureFlag.StrongSkipping.disabledName)
-        )
+        put(ComposeConfiguration.FEATURE_FLAGS, listOf(FeatureFlag.StrongSkipping.disabledName))
     }
 
     @Test
-    fun testStableAndUnstableClassesTxt() = assertClasses(
-        """
+    fun testStableAndUnstableClassesTxt() =
+        assertClasses(
+            """
             class Foo { var x: Int = 0 }
             class Bar(val x: Int = 0)
         """,
-        """
+            """
             unstable class Foo {
               stable var x: Int
               <runtime stability> = Unstable
@@ -44,11 +42,12 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
               <runtime stability> = Stable
             }
         """
-    )
+        )
 
     @Test
-    fun testComposablesTxt() = assertComposables(
-        """
+    fun testComposablesTxt() =
+        assertComposables(
+            """
             import androidx.compose.runtime.*
 
             fun makeInt(): Int = 0
@@ -62,7 +61,7 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
             @Composable fun E(e: Unstable) { used(e)}
             @Composable fun F(f: Unstable? = null) { used(f) }
         """,
-        """
+            """
             restartable skippable fun A()
             restartable skippable fun B(
               stable b: Int
@@ -80,11 +79,12 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
               unstable f: Unstable? = @static null
             )
         """
-    )
+        )
 
     @Test
-    fun testComposablesCsv() = assertComposablesCsv(
-        """
+    fun testComposablesCsv() =
+        assertComposablesCsv(
+            """
             import androidx.compose.runtime.*
 
             fun makeInt(): Int = 0
@@ -98,7 +98,7 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
             @Composable fun E(e: Unstable) { used(e)}
             @Composable fun F(f: Unstable? = null) { used(f) }
         """,
-        """
+            """
             package,name,composable,skippable,restartable,readonly,inline,isLambda,hasDefaults,defaultsGroup,groups,calls,
             A,A,1,1,1,0,0,0,0,0,1,0,
             B,B,1,1,1,0,0,0,0,0,1,0,
@@ -107,11 +107,12 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
             E,E,1,0,1,0,0,0,0,0,1,0,
             F,F,1,1,1,0,0,0,0,0,1,0,
         """
-    )
+        )
 
     @Test
-    fun testModuleJson() = assertModuleJson(
-        """
+    fun testModuleJson() =
+        assertModuleJson(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun A() {}
@@ -123,7 +124,7 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
                 }
             }
         """,
-        """
+            """
             {
              "skippableComposables": 2,
              "restartableComposables": 2,
@@ -150,5 +151,5 @@ class ComposeModuleMetricsTests(useFir: Boolean) : AbstractMetricsTransformTest(
              "totalLambdas": 0
             }
         """
-    )
+        )
 }

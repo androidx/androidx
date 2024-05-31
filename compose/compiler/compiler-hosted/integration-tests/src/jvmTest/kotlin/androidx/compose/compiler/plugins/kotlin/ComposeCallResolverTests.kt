@@ -34,8 +34,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
     @Test
-    fun testProperties() = assertInterceptions(
-        """
+    fun testProperties() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             val foo @Composable get() = 123
@@ -54,11 +55,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 a.<call>bam
             }
         """
-    )
+        )
 
     @Test
-    fun testBasicCallTypes() = assertInterceptions(
-        """
+    fun testBasicCallTypes() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
             import android.widget.TextView
 
@@ -72,11 +74,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 <normal>Bar()
             }
         """
-    )
+        )
 
     @Test
-    fun testReceiverScopeCall() = assertInterceptions(
-        """
+    fun testReceiverScopeCall() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Int.Foo() {}
@@ -91,11 +94,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testInvokeOperatorCall() = assertInterceptions(
-        """
+    fun testInvokeOperatorCall() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             @Composable operator fun Int.invoke(y: Int) {}
@@ -106,11 +110,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 <call>x(y=10)
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableLambdaCall() = assertInterceptions(
-        """
+    fun testComposableLambdaCall() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -118,11 +123,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 <call>content()
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableLambdaCallWithGenerics() = assertInterceptions(
-        """
+    fun testComposableLambdaCallWithGenerics() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun <T> A(value: T, block: @Composable (T) -> Unit) {
@@ -146,11 +152,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     // TODO(chuckj): Replace with another nested function call.
-    fun xtestMethodInvocations() = assertInterceptions(
-        """
+    fun xtestMethodInvocations() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             val x = CompositionLocal.of<Int> { 123 }
@@ -162,11 +169,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testReceiverLambdaInvocation() = assertInterceptions(
-        """
+    fun testReceiverLambdaInvocation() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             class TextSpanScope
@@ -180,11 +188,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testReceiverLambda2() = assertInterceptions(
-        """
+    fun testReceiverLambda2() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
 
             class DensityScope(val density: Density)
@@ -201,11 +210,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 DensityScope(compositionLocalDensity()).<call>block()
             }
         """
-    )
+        )
 
     @Test
-    fun testInlineContent() = assertInterceptions(
-        """
+    fun testInlineContent() =
+        assertInterceptions(
+            """
             import androidx.compose.runtime.*
             import android.widget.LinearLayout
 
@@ -221,7 +231,7 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     private fun assertInterceptions(srcText: String) {
         val (text, carets) = extractCarets(srcText)
@@ -231,11 +241,12 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
         val ktFile = analysisResult.files.single()
 
         carets.forEachIndexed { index, (offset, calltype) ->
-            val resolvedCall = ktFile.findElementAt(offset)?.getNearestResolvedCall(bindingContext)
-                ?: error(
-                    "No resolved call found at index: $index, offset: $offset. Expected " +
-                        "$calltype."
-                )
+            val resolvedCall =
+                ktFile.findElementAt(offset)?.getNearestResolvedCall(bindingContext)
+                    ?: error(
+                        "No resolved call found at index: $index, offset: $offset. Expected " +
+                            "$calltype."
+                    )
 
             when (calltype) {
                 "<normal>" -> assert(!resolvedCall.isComposableInvocation())
@@ -246,14 +257,16 @@ class ComposeCallResolverTests : AbstractCodegenTest(useFir = false) {
     }
 
     private val callPattern = Regex("(<normal>)|(<call>)")
+
     private fun extractCarets(text: String): Pair<String, List<Pair<Int, String>>> {
         val indices = mutableListOf<Pair<Int, String>>()
         var offset = 0
-        val src = callPattern.replace(text) {
-            indices.add(it.range.first - offset to it.value)
-            offset += it.range.last - it.range.first + 1
-            ""
-        }
+        val src =
+            callPattern.replace(text) {
+                indices.add(it.range.first - offset to it.value)
+                offset += it.range.last - it.range.first + 1
+                ""
+            }
         return src to indices
     }
 }

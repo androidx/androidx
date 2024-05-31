@@ -22,8 +22,8 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 
-internal open class TestInputMethodRequest(view: View) : BaseInputConnection(view, false),
-    PlatformTextInputMethodRequest {
+internal open class TestInputMethodRequest(view: View) :
+    BaseInputConnection(view, false), PlatformTextInputMethodRequest {
 
     override fun createInputConnection(outAttributes: EditorInfo): InputConnection {
         return this

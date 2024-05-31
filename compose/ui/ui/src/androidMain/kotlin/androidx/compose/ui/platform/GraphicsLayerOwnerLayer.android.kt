@@ -76,8 +76,8 @@ internal class GraphicsLayerOwnerLayer(
     private var transformOrigin: TransformOrigin = TransformOrigin.Center
     private var outline: Outline? = null
     /**
-     * Optional paint used when the RenderNode is rendered on a software backed
-     * canvas and is somewhat transparent (i.e. alpha less than 1.0f)
+     * Optional paint used when the RenderNode is rendered on a software backed canvas and is
+     * somewhat transparent (i.e. alpha less than 1.0f)
      */
     private var softwareLayerPaint: Paint? = null
 
@@ -136,10 +136,11 @@ internal class GraphicsLayerOwnerLayer(
             if (transformOrigin == TransformOrigin.Center) {
                 graphicsLayer.pivotOffset = Offset.Unspecified
             } else {
-                graphicsLayer.pivotOffset = Offset(
-                    transformOrigin.pivotFractionX * size.width,
-                    transformOrigin.pivotFractionY * size.height
-                )
+                graphicsLayer.pivotOffset =
+                    Offset(
+                        transformOrigin.pivotFractionX * size.width,
+                        transformOrigin.pivotFractionY * size.height
+                    )
             }
         }
         if (maybeChangedFields and Fields.Clip != 0) {
@@ -149,12 +150,13 @@ internal class GraphicsLayerOwnerLayer(
             graphicsLayer.renderEffect = scope.renderEffect
         }
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
-            graphicsLayer.compositingStrategy = when (scope.compositingStrategy) {
-                OldCompositingStrategy.Auto -> CompositingStrategy.Auto
-                OldCompositingStrategy.Offscreen -> CompositingStrategy.Offscreen
-                OldCompositingStrategy.ModulateAlpha -> CompositingStrategy.ModulateAlpha
-                else -> throw IllegalStateException("Not supported composition strategy")
-            }
+            graphicsLayer.compositingStrategy =
+                when (scope.compositingStrategy) {
+                    OldCompositingStrategy.Auto -> CompositingStrategy.Auto
+                    OldCompositingStrategy.Offscreen -> CompositingStrategy.Offscreen
+                    OldCompositingStrategy.ModulateAlpha -> CompositingStrategy.ModulateAlpha
+                    else -> throw IllegalStateException("Not supported composition strategy")
+                }
         }
 
         var outlineChanged = false
@@ -233,10 +235,11 @@ internal class GraphicsLayerOwnerLayer(
     override fun updateDisplayList() {
         if (isDirty) {
             if (transformOrigin != TransformOrigin.Center && graphicsLayer.size != size) {
-                graphicsLayer.pivotOffset = Offset(
-                    transformOrigin.pivotFractionX * size.width,
-                    transformOrigin.pivotFractionY * size.height
-                )
+                graphicsLayer.pivotOffset =
+                    Offset(
+                        transformOrigin.pivotFractionX * size.width,
+                        transformOrigin.pivotFractionY * size.height
+                    )
             }
             graphicsLayer.record(density, layoutDirection, size, recordLambda)
             isDirty = false
@@ -292,9 +295,10 @@ internal class GraphicsLayerOwnerLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit
     ) {
-        val context = requireNotNull(context) {
-            "currently reuse is only supported when we manage the layer lifecycle"
-        }
+        val context =
+            requireNotNull(context) {
+                "currently reuse is only supported when we manage the layer lifecycle"
+            }
 
         // recreate a layer
         graphicsLayer = context.createGraphicsLayer()
@@ -344,20 +348,26 @@ internal class GraphicsLayerOwnerLayer(
         }
     }
 
-    private fun updateMatrix() = with(graphicsLayer) {
-        val (x, y) = if (pivotOffset.isUnspecified) {
-            this@GraphicsLayerOwnerLayer.size.toSize().center
-        } else {
-            pivotOffset
-        }
+    private fun updateMatrix() =
+        with(graphicsLayer) {
+            val (x, y) =
+                if (pivotOffset.isUnspecified) {
+                    this@GraphicsLayerOwnerLayer.size.toSize().center
+                } else {
+                    pivotOffset
+                }
 
-        matrixCache.resetToPivotedTransform(
-            x, y,
-            translationX, translationY, 1.0f,
-            rotationX,
-            rotationY,
-            rotationZ,
-            scaleX, scaleY
-        )
-    }
+            matrixCache.resetToPivotedTransform(
+                x,
+                y,
+                translationX,
+                translationY,
+                1.0f,
+                rotationX,
+                rotationY,
+                rotationZ,
+                scaleX,
+                scaleY
+            )
+        }
 }

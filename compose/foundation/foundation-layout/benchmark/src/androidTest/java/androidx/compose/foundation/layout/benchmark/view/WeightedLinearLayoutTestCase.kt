@@ -24,39 +24,41 @@ import android.widget.LinearLayout
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 
-class WeightedLinearLayoutTestCase(
-    private val subLayouts: Int,
-    private val numberOfBoxes: Int
-) : AndroidTestCase, ToggleableTestCase {
+class WeightedLinearLayoutTestCase(private val subLayouts: Int, private val numberOfBoxes: Int) :
+    AndroidTestCase, ToggleableTestCase {
 
     private val rows = mutableListOf<LinearLayout>()
     private var isToggled = false
     private var linearLayout: LinearLayout? = null
+
     override fun getContent(activity: Activity): ViewGroup {
         val mainLayout = LinearLayout(activity).also { linearLayout = it }
         mainLayout.orientation = LinearLayout.VERTICAL
-        mainLayout.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
+        mainLayout.layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
 
         repeat(subLayouts) {
             val row = LinearLayout(activity)
             row.orientation = LinearLayout.HORIZONTAL
-            row.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1 / subLayouts.toFloat()
-            )
+            row.layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    1 / subLayouts.toFloat()
+                )
 
             repeat(numberOfBoxes) {
                 val box = View(activity)
                 box.setBackgroundColor(Color.BLUE)
-                box.layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    1 / numberOfBoxes.toFloat()
-                )
+                box.layoutParams =
+                    LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1 / numberOfBoxes.toFloat()
+                    )
                 row.addView(box)
             }
             rows += row

@@ -27,7 +27,7 @@ import kotlinx.coroutines.Dispatchers
  *
  * This should be Main or some other always-available dispatcher.
  *
- * It is important that this dispatcher, if it is shared with other coroutines,  implements `yield`
+ * It is important that this dispatcher, if it is shared with other coroutines, implements `yield`
  * to dispatch.
  */
 internal val FontCacheManagementDispatcher: CoroutineDispatcher = Dispatchers.Main

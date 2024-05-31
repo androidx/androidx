@@ -50,8 +50,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FocusableBoundsTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var parentCoordinates: LayoutCoordinates
     private val focusedBounds = mutableListOf<Rect?>()
@@ -64,8 +63,7 @@ class FocusableBoundsTest {
         val focusRequester = FocusRequester()
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
@@ -82,9 +80,7 @@ class FocusableBoundsTest {
             focusRequester.requestFocus()
         }
 
-        rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size))
-        }
+        rule.runOnIdle { assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size)) }
     }
 
     @Ignore // b/278258427
@@ -93,23 +89,20 @@ class FocusableBoundsTest {
         val (focusRequester1, focusRequester2) = FocusRequester.createRefs()
         rule.setContent {
             Column(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
                     }
             ) {
                 Box(
-                    Modifier
-                        .focusRequester(focusRequester1)
+                    Modifier.focusRequester(focusRequester1)
                         .focusable()
                         // Needs a size to participate in layout.
                         .size(sizeDp)
                 )
                 Box(
-                    Modifier
-                        .focusRequester(focusRequester2)
+                    Modifier.focusRequester(focusRequester2)
                         .focusable()
                         // Needs a size to participate in layout.
                         .size(sizeDp)
@@ -117,20 +110,18 @@ class FocusableBoundsTest {
             }
         }
 
-        rule.runOnIdle {
-            focusRequester1.requestFocus()
-        }
-        rule.runOnIdle {
-            focusRequester2.requestFocus()
-        }
+        rule.runOnIdle { focusRequester1.requestFocus() }
+        rule.runOnIdle { focusRequester2.requestFocus() }
 
         rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Rect(0f, 0f, size, size),
-                // First child sends null when it loses focus before the second child gains it.
-                null,
-                Rect(0f, size, size, size * 2)
-            ).inOrder()
+            assertThat(focusedBounds)
+                .containsExactly(
+                    Rect(0f, 0f, size, size),
+                    // First child sends null when it loses focus before the second child gains it.
+                    null,
+                    Rect(0f, size, size, size * 2)
+                )
+                .inOrder()
         }
     }
 
@@ -142,8 +133,7 @@ class FocusableBoundsTest {
 
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let {
@@ -164,19 +154,17 @@ class FocusableBoundsTest {
             }
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.runOnIdle { childOffset += IntOffset(1, 2) }
 
         rule.runOnIdle {
-            childOffset += IntOffset(1, 2)
-        }
-
-        rule.runOnIdle {
-            assertThat(focusedBounds).containsAtLeast(
-                Rect(Offset.Zero, Size(size, size)),
-                Rect(Offset(1f, 2f), Size(size, size))
-            ).inOrder()
+            assertThat(focusedBounds)
+                .containsAtLeast(
+                    Rect(Offset.Zero, Size(size, size)),
+                    Rect(Offset(1f, 2f), Size(size, size))
+                )
+                .inOrder()
         }
     }
 
@@ -186,8 +174,7 @@ class FocusableBoundsTest {
         var includeFocusableModifier by mutableStateOf(false)
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
@@ -198,17 +185,11 @@ class FocusableBoundsTest {
                     .size(sizeDp)
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
-        rule.runOnIdle {
-            includeFocusableModifier = true
-        }
+        rule.runOnIdle { includeFocusableModifier = true }
 
-        rule.runOnIdle {
-            assertThat(focusedBounds).isEmpty()
-        }
+        rule.runOnIdle { assertThat(focusedBounds).isEmpty() }
     }
 
     @Ignore // b/278258427
@@ -218,8 +199,7 @@ class FocusableBoundsTest {
         var includeFocusableModifier by mutableStateOf(true)
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
@@ -230,19 +210,12 @@ class FocusableBoundsTest {
                     .size(sizeDp)
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.runOnIdle { includeFocusableModifier = false }
 
         rule.runOnIdle {
-            includeFocusableModifier = false
-        }
-
-        rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Rect(0f, 0f, size, size),
-                null
-            ).inOrder()
+            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size), null).inOrder()
         }
     }
 
@@ -253,8 +226,7 @@ class FocusableBoundsTest {
         var focusableEnabled by mutableStateOf(true)
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
@@ -266,19 +238,12 @@ class FocusableBoundsTest {
             )
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.runOnIdle { focusableEnabled = false }
 
         rule.runOnIdle {
-            focusableEnabled = false
-        }
-
-        rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Rect(0f, 0f, size, size),
-                null
-            ).inOrder()
+            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size), null).inOrder()
         }
     }
 
@@ -290,8 +255,7 @@ class FocusableBoundsTest {
         rule.setContent {
             focusManager = LocalFocusManager.current
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
                         focusedBounds +=
                             childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
@@ -303,18 +267,11 @@ class FocusableBoundsTest {
             )
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
-        rule.runOnIdle {
-            focusManager.clearFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle { focusManager.clearFocus() }
 
         rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Rect(0f, 0f, size, size),
-                null
-            ).inOrder()
+            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size), null).inOrder()
         }
     }
 
@@ -325,8 +282,7 @@ class FocusableBoundsTest {
         rule.setContent {
             Column {
                 Box(
-                    Modifier
-                        .onGloballyPositioned { parentCoordinates = it }
+                    Modifier.onGloballyPositioned { parentCoordinates = it }
                         .onFocusedBoundsChanged { childCoordinates ->
                             focusedBounds +=
                                 childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
@@ -337,8 +293,7 @@ class FocusableBoundsTest {
                         .size(sizeDp)
                 )
                 Box(
-                    Modifier
-                        .focusRequester(focusRequester2)
+                    Modifier.focusRequester(focusRequester2)
                         .focusable()
                         // Needs a size to participate in layout.
                         .size(sizeDp)
@@ -346,18 +301,11 @@ class FocusableBoundsTest {
             }
         }
 
-        rule.runOnIdle {
-            focusRequester1.requestFocus()
-        }
-        rule.runOnIdle {
-            focusRequester2.requestFocus()
-        }
+        rule.runOnIdle { focusRequester1.requestFocus() }
+        rule.runOnIdle { focusRequester2.requestFocus() }
 
         rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Rect(0f, 0f, size, size),
-                null
-            ).inOrder()
+            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size), null).inOrder()
         }
     }
 
@@ -369,19 +317,20 @@ class FocusableBoundsTest {
 
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
-                        focusedBounds += Pair(
-                            0,
-                            childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
-                        )
+                        focusedBounds +=
+                            Pair(
+                                0,
+                                childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
+                            )
                     }
                     .onFocusedBoundsChanged { childCoordinates ->
-                        focusedBounds += Pair(
-                            1,
-                            childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
-                        )
+                        focusedBounds +=
+                            Pair(
+                                1,
+                                childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
+                            )
                     }
                     .focusRequester(focusRequester)
                     .focusable()
@@ -390,15 +339,15 @@ class FocusableBoundsTest {
             )
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Pair(1, Rect(0f, 0f, size, size)),
-                Pair(0, Rect(0f, 0f, size, size)),
-            ).inOrder()
+            assertThat(focusedBounds)
+                .containsExactly(
+                    Pair(1, Rect(0f, 0f, size, size)),
+                    Pair(0, Rect(0f, 0f, size, size)),
+                )
+                .inOrder()
         }
     }
 
@@ -410,8 +359,7 @@ class FocusableBoundsTest {
 
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .then(
                         if (includeObserver) {
                             Modifier.onFocusedBoundsChanged { childCoordinates ->
@@ -429,9 +377,7 @@ class FocusableBoundsTest {
             )
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.runOnIdle {
             assertThat(focusedBounds).isEmpty()
@@ -439,9 +385,7 @@ class FocusableBoundsTest {
         }
 
         rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Rect(0f, 0f, size, size)
-            ).inOrder()
+            assertThat(focusedBounds).containsExactly(Rect(0f, 0f, size, size)).inOrder()
         }
     }
 
@@ -454,27 +398,26 @@ class FocusableBoundsTest {
 
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .then(
                         if (includeSecondObserver) {
                             Modifier.onFocusedBoundsChanged { childCoordinates ->
-                                focusedBounds += Pair(
-                                    0,
-                                    childCoordinates?.let {
-                                        parentCoordinates.localBoundingBoxOf(it)
-                                    }
-                                )
+                                focusedBounds +=
+                                    Pair(
+                                        0,
+                                        childCoordinates?.let {
+                                            parentCoordinates.localBoundingBoxOf(it)
+                                        }
+                                    )
                             }
                         } else Modifier
                     )
                     .onFocusedBoundsChanged { childCoordinates ->
-                        focusedBounds += Pair(
-                            1,
-                            childCoordinates?.let {
-                                parentCoordinates.localBoundingBoxOf(it)
-                            }
-                        )
+                        focusedBounds +=
+                            Pair(
+                                1,
+                                childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
+                            )
                     }
                     .focusRequester(focusRequester)
                     .focusable()
@@ -483,20 +426,18 @@ class FocusableBoundsTest {
             )
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.runOnIdle { includeSecondObserver = true }
 
         rule.runOnIdle {
-            includeSecondObserver = true
-        }
-
-        rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Pair(1, Rect(0f, 0f, size, size)),
-                Pair(1, Rect(0f, 0f, size, size)),
-                Pair(0, Rect(0f, 0f, size, size)),
-            ).inOrder()
+            assertThat(focusedBounds)
+                .containsExactly(
+                    Pair(1, Rect(0f, 0f, size, size)),
+                    Pair(1, Rect(0f, 0f, size, size)),
+                    Pair(0, Rect(0f, 0f, size, size)),
+                )
+                .inOrder()
         }
     }
 
@@ -509,25 +450,24 @@ class FocusableBoundsTest {
 
         rule.setContent {
             Box(
-                Modifier
-                    .onGloballyPositioned { parentCoordinates = it }
+                Modifier.onGloballyPositioned { parentCoordinates = it }
                     .onFocusedBoundsChanged { childCoordinates ->
-                        focusedBounds += Pair(
-                            0,
-                            childCoordinates?.let {
-                                parentCoordinates.localBoundingBoxOf(it)
-                            }
-                        )
+                        focusedBounds +=
+                            Pair(
+                                0,
+                                childCoordinates?.let { parentCoordinates.localBoundingBoxOf(it) }
+                            )
                     }
                     .then(
                         if (includeSecondObserver) {
                             Modifier.onFocusedBoundsChanged { childCoordinates ->
-                                focusedBounds += Pair(
-                                    1,
-                                    childCoordinates?.let {
-                                        parentCoordinates.localBoundingBoxOf(it)
-                                    }
-                                )
+                                focusedBounds +=
+                                    Pair(
+                                        1,
+                                        childCoordinates?.let {
+                                            parentCoordinates.localBoundingBoxOf(it)
+                                        }
+                                    )
                             }
                         } else Modifier
                     )
@@ -538,20 +478,18 @@ class FocusableBoundsTest {
             )
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.runOnIdle { includeSecondObserver = true }
 
         rule.runOnIdle {
-            includeSecondObserver = true
-        }
-
-        rule.runOnIdle {
-            assertThat(focusedBounds).containsExactly(
-                Pair(0, Rect(0f, 0f, size, size)),
-                Pair(1, Rect(0f, 0f, size, size)),
-                Pair(0, Rect(0f, 0f, size, size)),
-            ).inOrder()
+            assertThat(focusedBounds)
+                .containsExactly(
+                    Pair(0, Rect(0f, 0f, size, size)),
+                    Pair(1, Rect(0f, 0f, size, size)),
+                    Pair(0, Rect(0f, 0f, size, size)),
+                )
+                .inOrder()
         }
     }
 }

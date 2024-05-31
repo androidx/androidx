@@ -24,41 +24,42 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 
-/**
- * Version of [CheckboxesInRowsTestCase] using Android views.
- */
-class AndroidCheckboxesInLinearLayoutTestCase(
-    private val amountOfCheckboxes: Int
-) : AndroidTestCase {
+/** Version of [CheckboxesInRowsTestCase] using Android views. */
+class AndroidCheckboxesInLinearLayoutTestCase(private val amountOfCheckboxes: Int) :
+    AndroidTestCase {
 
     private val checkboxes = mutableListOf<CheckBox>()
 
     override fun getContent(activity: Activity): ViewGroup {
         val column = LinearLayout(activity)
         column.orientation = LinearLayout.VERTICAL
-        column.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        repeat(amountOfCheckboxes) {
-            val row = LinearLayout(activity)
-            row.orientation = LinearLayout.HORIZONTAL
-            row.layoutParams = LinearLayout.LayoutParams(
+        column.layoutParams =
+            ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+        repeat(amountOfCheckboxes) {
+            val row = LinearLayout(activity)
+            row.orientation = LinearLayout.HORIZONTAL
+            row.layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
             val text = TextView(activity)
             text.text = "Check Me!"
-            text.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            text.layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
             val checkbox = CheckBox(activity)
             checkbox.isChecked = false
-            checkbox.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            checkbox.layoutParams =
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
 
             val space = View(activity)
             val layoutParams = LinearLayout.LayoutParams(0, 1)

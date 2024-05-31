@@ -17,10 +17,10 @@
 package androidx.compose.ui.test
 
 /**
- * A strategy to wait for idleness. This is typically implemented by different test frameworks,
- * to allow each framework to await idleness in their own unique way. For example, a framework
- * could sleep until the system is idle, or a framework could take control of the system and
- * execute all pending work immediately.
+ * A strategy to wait for idleness. This is typically implemented by different test frameworks, to
+ * allow each framework to await idleness in their own unique way. For example, a framework could
+ * sleep until the system is idle, or a framework could take control of the system and execute all
+ * pending work immediately.
  *
  * Normally one does not need to touch this, ever.
  */
@@ -39,15 +39,14 @@ internal interface IdlingStrategy {
     fun runUntilIdle()
 
     /**
-     * Should suspend until the system is idle. A strategy may actively push the system towards
-     * an idle state, but doesn't necessarily have to do that. Default implementation calls
+     * Should suspend until the system is idle. A strategy may actively push the system towards an
+     * idle state, but doesn't necessarily have to do that. Default implementation calls
      * [runUntilIdle] without suspending.
      */
     suspend fun awaitIdle() = runUntilIdle()
 
     /**
-     * Runs the [block] while giving implementations the option to perform setup and
-     * tear down work.
+     * Runs the [block] while giving implementations the option to perform setup and tear down work.
      */
     fun <R> withStrategy(block: () -> R): R = block()
 }

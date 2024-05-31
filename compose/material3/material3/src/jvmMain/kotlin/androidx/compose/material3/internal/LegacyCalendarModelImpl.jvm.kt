@@ -51,8 +51,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
             )
         }
 
-    override val firstDayOfWeek: Int =
-        dayInISO8601(Calendar.getInstance(locale).firstDayOfWeek)
+    override val firstDayOfWeek: Int = dayInISO8601(Calendar.getInstance(locale).firstDayOfWeek)
 
     override val weekdayNames: List<Pair<String, String>> = buildList {
         val weekdays = DateFormatSymbols(locale).weekdays
@@ -68,10 +67,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
 
     override fun getDateInputFormat(locale: CalendarLocale): DateInputFormat {
         return datePatternAsInputFormat(
-            (DateFormat.getDateInstance(
-                DateFormat.SHORT,
-                locale
-            ) as SimpleDateFormat).toPattern()
+            (DateFormat.getDateInstance(DateFormat.SHORT, locale) as SimpleDateFormat).toPattern()
         )
     }
 
@@ -185,9 +181,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
             return dateFormat.format(calendar.timeInMillis)
         }
 
-        /**
-         * Holds a UTC [TimeZone].
-         */
+        /** Holds a UTC [TimeZone]. */
         internal val utcTimeZone: TimeZone = TimeZone.getTimeZone("UTC")
 
         private fun getCachedSimpleDateFormat(
@@ -214,11 +208,12 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
 
     private fun getMonth(firstDayCalendar: Calendar): CalendarMonth {
         val difference = dayInISO8601(firstDayCalendar[Calendar.DAY_OF_WEEK]) - firstDayOfWeek
-        val daysFromStartOfWeekToFirstOfMonth = if (difference < 0) {
-            difference + DaysInWeek
-        } else {
-            difference
-        }
+        val daysFromStartOfWeekToFirstOfMonth =
+            if (difference < 0) {
+                difference + DaysInWeek
+            } else {
+                difference
+            }
         return CalendarMonth(
             year = firstDayCalendar[Calendar.YEAR],
             month = firstDayCalendar[Calendar.MONTH] + 1,

@@ -45,160 +45,157 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RestrictedSizeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tag = "tag"
 
     @Test
-    fun pointerPositionAtMeasuredSize(): Unit = with(rule.density) {
-        var point = Offset.Zero
+    fun pointerPositionAtMeasuredSize(): Unit =
+        with(rule.density) {
+            var point = Offset.Zero
 
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(Modifier.requiredSize(50.dp).testTag(tag)) {
-                    Box(
-                        Modifier.requiredSize(80.dp).pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                val event = awaitPointerEvent()
-                                point = event.changes[0].position
+            rule.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    Box(Modifier.requiredSize(50.dp).testTag(tag)) {
+                        Box(
+                            Modifier.requiredSize(80.dp).pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    val event = awaitPointerEvent()
+                                    point = event.changes[0].position
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
+
+            rule.onNodeWithTag(tag).performTouchInput { click(Offset.Zero) }
+
+            assertThat(point.x).isWithin(1f).of(15.dp.toPx())
+            assertThat(point.y).isWithin(1f).of(15.dp.toPx())
         }
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                click(Offset.Zero)
-            }
-
-        assertThat(point.x).isWithin(1f).of(15.dp.toPx())
-        assertThat(point.y).isWithin(1f).of(15.dp.toPx())
-    }
-
     @Test
-    fun pointerOutOfLayoutBounds(): Unit = with(rule.density) {
-        var point = Offset.Zero
-        var isOutOfBounds = true
+    fun pointerOutOfLayoutBounds(): Unit =
+        with(rule.density) {
+            var point = Offset.Zero
+            var isOutOfBounds = true
 
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(Modifier.requiredSize(50.dp).testTag(tag)) {
-                    Box(
-                        Modifier.requiredSize(80.dp).pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                val event = awaitPointerEvent()
-                                point = event.changes[0].position
-                                isOutOfBounds =
-                                    event.changes[0].isOutOfBounds(size, extendedTouchPadding)
+            rule.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    Box(Modifier.requiredSize(50.dp).testTag(tag)) {
+                        Box(
+                            Modifier.requiredSize(80.dp).pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    val event = awaitPointerEvent()
+                                    point = event.changes[0].position
+                                    isOutOfBounds =
+                                        event.changes[0].isOutOfBounds(size, extendedTouchPadding)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
+
+            rule.onNodeWithTag(tag).performTouchInput { click(Offset(-5f, -2f)) }
+
+            assertThat(point.x).isWithin(1f).of(15.dp.toPx() - 5f)
+            assertThat(point.y).isWithin(1f).of(15.dp.toPx() - 2f)
+            assertThat(isOutOfBounds).isFalse()
         }
 
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                click(Offset(-5f, -2f))
-            }
-
-        assertThat(point.x).isWithin(1f).of(15.dp.toPx() - 5f)
-        assertThat(point.y).isWithin(1f).of(15.dp.toPx() - 2f)
-        assertThat(isOutOfBounds).isFalse()
-    }
-
     @Test
-    fun semanticsSizeTooSmall(): Unit = with(rule.density) {
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(Modifier.requiredSize(50.dp)) {
-                    Box(
-                        Modifier.requiredSize(80.dp).testTag(tag)
-                    )
+    fun semanticsSizeTooSmall(): Unit =
+        with(rule.density) {
+            rule.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    Box(Modifier.requiredSize(50.dp)) {
+                        Box(Modifier.requiredSize(80.dp).testTag(tag))
+                    }
                 }
             }
+
+            rule.onNodeWithTag(tag).assertWidthIsEqualTo(80.dp).assertHeightIsEqualTo(80.dp)
         }
 
-        rule.onNodeWithTag(tag)
-            .assertWidthIsEqualTo(80.dp)
-            .assertHeightIsEqualTo(80.dp)
-    }
-
     @Test
-    fun clippedTouchInMinimumTouchTarget(): Unit = with(rule.density) {
-        var point = Offset.Zero
-        rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                Box(Modifier.requiredSize(20.dp).clipToBounds().testTag(tag)) {
-                    Box(
-                        Modifier.requiredSize(40.dp).pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                val event = awaitPointerEvent()
-                                point = event.changes[0].position
+    fun clippedTouchInMinimumTouchTarget(): Unit =
+        with(rule.density) {
+            var point = Offset.Zero
+            rule.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    Box(Modifier.requiredSize(20.dp).clipToBounds().testTag(tag)) {
+                        Box(
+                            Modifier.requiredSize(40.dp).pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    val event = awaitPointerEvent()
+                                    point = event.changes[0].position
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
+
+            rule.onNodeWithTag(tag).performTouchInput { click(Offset(-1f, -3f)) }
+
+            val innerPos = 10.dp.roundToPx().toFloat()
+            assertThat(point.x).isWithin(1f).of(innerPos - 1f)
+            assertThat(point.y).isWithin(1f).of(innerPos - 3f)
         }
-
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                click(Offset(-1f, -3f))
-            }
-
-        val innerPos = 10.dp.roundToPx().toFloat()
-        assertThat(point.x).isWithin(1f).of(innerPos - 1f)
-        assertThat(point.y).isWithin(1f).of(innerPos - 3f)
-    }
 
     @Test
-    fun pointerUsesDiagonalDistance() = with(rule.density) {
-        var point = Offset.Zero
+    fun pointerUsesDiagonalDistance() =
+        with(rule.density) {
+            var point = Offset.Zero
 
-        rule.setContent {
-            val viewConfiguration = LocalViewConfiguration.current
-            CompositionLocalProvider(
-                LocalViewConfiguration provides object : ViewConfiguration {
-                    override val longPressTimeoutMillis: Long
-                        get() = viewConfiguration.longPressTimeoutMillis
-                    override val doubleTapTimeoutMillis: Long
-                        get() = viewConfiguration.doubleTapTimeoutMillis
-                    override val doubleTapMinTimeMillis: Long
-                        get() = viewConfiguration.doubleTapMinTimeMillis
-                    override val touchSlop: Float
-                        get() = viewConfiguration.touchSlop
-                    override val minimumTouchTargetSize: DpSize
-                        get() = DpSize(300.dp, 300.dp)
-                }
-            ) {
-                Column(Modifier.fillMaxSize().testTag(tag)) {
-                    Box(Modifier.requiredSize(50.dp).pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            val event = awaitPointerEvent()
-                            point = event.changes[0].position
+            rule.setContent {
+                val viewConfiguration = LocalViewConfiguration.current
+                CompositionLocalProvider(
+                    LocalViewConfiguration provides
+                        object : ViewConfiguration {
+                            override val longPressTimeoutMillis: Long
+                                get() = viewConfiguration.longPressTimeoutMillis
+
+                            override val doubleTapTimeoutMillis: Long
+                                get() = viewConfiguration.doubleTapTimeoutMillis
+
+                            override val doubleTapMinTimeMillis: Long
+                                get() = viewConfiguration.doubleTapMinTimeMillis
+
+                            override val touchSlop: Float
+                                get() = viewConfiguration.touchSlop
+
+                            override val minimumTouchTargetSize: DpSize
+                                get() = DpSize(300.dp, 300.dp)
                         }
-                    })
-                    Box(Modifier.requiredSize(50.dp).pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            // Even though this is drawn after the first box, it should
-                            // be considered farther from the pointer position.
-                            awaitPointerEvent()
-                        }
-                    })
+                ) {
+                    Column(Modifier.fillMaxSize().testTag(tag)) {
+                        Box(
+                            Modifier.requiredSize(50.dp).pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    val event = awaitPointerEvent()
+                                    point = event.changes[0].position
+                                }
+                            }
+                        )
+                        Box(
+                            Modifier.requiredSize(50.dp).pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    // Even though this is drawn after the first box, it should
+                                    // be considered farther from the pointer position.
+                                    awaitPointerEvent()
+                                }
+                            }
+                        )
+                    }
                 }
             }
+
+            rule.onNodeWithTag(tag).performTouchInput { click(Offset(60.dp.toPx(), 45.dp.toPx())) }
+
+            assertThat(point.x).isWithin(1f).of(60.dp.toPx())
+            assertThat(point.y).isWithin(1f).of(45.dp.toPx())
         }
-
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                click(Offset(60.dp.toPx(), 45.dp.toPx()))
-            }
-
-        assertThat(point.x).isWithin(1f).of(60.dp.toPx())
-        assertThat(point.y).isWithin(1f).of(45.dp.toPx())
-    }
 }

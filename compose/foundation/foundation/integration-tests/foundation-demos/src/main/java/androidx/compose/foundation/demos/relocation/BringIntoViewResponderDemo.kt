@@ -55,40 +55,43 @@ fun BringIntoViewResponderDemo() {
         )
         var offset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
         Box(
-            modifier = Modifier
-                .size(100.dp)
-                .layout { measurable, constraints ->
-                    // Allow the content to be as big as it wants.
-                    val placeable = measurable.measure(
-                        constraints.copy(
-                            maxWidth = Constraints.Infinity,
-                            maxHeight = Constraints.Infinity
-                        )
-                    )
+            modifier =
+                Modifier.size(100.dp)
+                    .layout { measurable, constraints ->
+                        // Allow the content to be as big as it wants.
+                        val placeable =
+                            measurable.measure(
+                                constraints.copy(
+                                    maxWidth = Constraints.Infinity,
+                                    maxHeight = Constraints.Infinity
+                                )
+                            )
 
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        // Place the last-requested rectangle at the top-left of the box.
-                        placeable.place(offset)
-                    }
-                }
-                .bringIntoViewResponder(remember {
-                    object : BringIntoViewResponder {
-                        override fun calculateRectForParent(localRect: Rect): Rect {
-                            // Ask our parent to bring our top-left corner into view, since that's
-                            // where we're always going to position the requested content.
-                            return Rect(Offset.Zero, localRect.size)
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            // Place the last-requested rectangle at the top-left of the box.
+                            placeable.place(offset)
                         }
+                    }
+                    .bringIntoViewResponder(
+                        remember {
+                            object : BringIntoViewResponder {
+                                override fun calculateRectForParent(localRect: Rect): Rect {
+                                    // Ask our parent to bring our top-left corner into view, since
+                                    // that's
+                                    // where we're always going to position the requested content.
+                                    return Rect(Offset.Zero, localRect.size)
+                                }
 
-                        @ExperimentalFoundationApi
-                        override suspend fun bringChildIntoView(localRect: () -> Rect?) {
-                            // Offset the content right and down by the offset of the requested area
-                            // so that it will always be aligned to the top-left of the box.
-                            localRect()?.also {
-                                offset = -it.topLeft.round()
+                                @ExperimentalFoundationApi
+                                override suspend fun bringChildIntoView(localRect: () -> Rect?) {
+                                    // Offset the content right and down by the offset of the
+                                    // requested area
+                                    // so that it will always be aligned to the top-left of the box.
+                                    localRect()?.also { offset = -it.topLeft.round() }
+                                }
                             }
                         }
-                    }
-                })
+                    )
         ) {
             LargeContentWithFocusableChildren()
         }
@@ -105,11 +108,8 @@ private fun LargeContentWithFocusableChildren() {
                     val isFocused by interactionSource.collectIsFocusedAsState()
                     Text(
                         "$row x $column",
-                        Modifier
-                            .focusable(interactionSource = interactionSource)
-                            .then(
-                                if (isFocused) Modifier.border(1.dp, Color.Blue) else Modifier
-                            )
+                        Modifier.focusable(interactionSource = interactionSource)
+                            .then(if (isFocused) Modifier.border(1.dp, Color.Blue) else Modifier)
                             .padding(8.dp)
                     )
                 }

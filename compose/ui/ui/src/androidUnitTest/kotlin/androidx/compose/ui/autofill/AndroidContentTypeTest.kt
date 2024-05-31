@@ -206,8 +206,7 @@ class AndroidContentTypeTest {
 
     @Test
     fun personFirstName() {
-        assertThat(PersonFirstName)
-            .isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_GIVEN))
+        assertThat(PersonFirstName).isEqualTo(ContentType.from(AUTOFILL_HINT_PERSON_NAME_GIVEN))
     }
 
     @Test

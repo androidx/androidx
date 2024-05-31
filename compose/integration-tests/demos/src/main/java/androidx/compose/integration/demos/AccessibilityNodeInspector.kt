@@ -174,27 +174,25 @@ fun AccessibilityNodeInspectorButton(
     val state = rememberAccessibilityNodeInspectorState()
     Box(
         propagateMinConstraints = true,
-        modifier = modifier
-            // This node needs to have the same gesture modifier as the dedicated inspector overlay
-            // since when the button is dragged initially, the pointer events will all still be sent
-            // to the button, and not the overlay, even though the overlay will immediately be
-            // shown. Because node coordinates are all communicated in screen space, it doesn't
-            // actually matter which window accepts the pointer events.
-            .then(NodeSelectionGestureModifier(state, onDragStarted = { active = true }))
-            // Tag the button so the inspector can detect when the button itself is selected and
-            // show a help message.
-            .semantics(mergeDescendants = true) {
-                testTag = InspectorButtonTestTag
-            }
+        modifier =
+            modifier
+                // This node needs to have the same gesture modifier as the dedicated inspector
+                // overlay
+                // since when the button is dragged initially, the pointer events will all still be
+                // sent
+                // to the button, and not the overlay, even though the overlay will immediately be
+                // shown. Because node coordinates are all communicated in screen space, it doesn't
+                // actually matter which window accepts the pointer events.
+                .then(NodeSelectionGestureModifier(state, onDragStarted = { active = true }))
+                // Tag the button so the inspector can detect when the button itself is selected and
+                // show a help message.
+                .semantics(mergeDescendants = true) { testTag = InspectorButtonTestTag }
     ) {
         content()
 
         if (active) {
             if (Build.VERSION.SDK_INT >= 34) {
-                AccessibilityNodeInspector(
-                    state = state,
-                    onDismissRequest = { active = false }
-                )
+                AccessibilityNodeInspector(state = state, onDismissRequest = { active = false })
             } else {
                 AlertDialog(
                     onDismissRequest = { active = false },
@@ -203,9 +201,7 @@ fun AccessibilityNodeInspectorButton(
                     buttons = {
                         Button(
                             onClick = { active = false },
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth()
+                            modifier = Modifier.padding(16.dp).fillMaxWidth()
                         ) {
                             Text("DISMISS")
                         }
@@ -224,10 +220,11 @@ private val NodeInfo.isInspectorButton: Boolean
     get() {
         if (Build.VERSION.SDK_INT >= 26) {
             visitSelfAndAncestors {
-                val testTag = AccessibilityNodeInfoHelper.readExtraData(
-                    it.nodeInfo.unwrap(),
-                    TestTagExtrasKey
-                )
+                val testTag =
+                    AccessibilityNodeInfoHelper.readExtraData(
+                        it.nodeInfo.unwrap(),
+                        TestTagExtrasKey
+                    )
                 if (testTag == InspectorButtonTestTag) {
                     return true
                 }
@@ -238,9 +235,7 @@ private val NodeInfo.isInspectorButton: Boolean
 
 // region Selection UI
 
-/**
- * A popup that overlays another window and allows exploring its accessibility nodes by touch.
- */
+/** A popup that overlays another window and allows exploring its accessibility nodes by touch. */
 @Composable
 private fun AccessibilityNodeInspector(
     state: AccessibilityNodeInspectorState,
@@ -249,22 +244,22 @@ private fun AccessibilityNodeInspector(
     if (state.isReady) {
         Popup(
             popupPositionProvider = state,
-            properties = PopupProperties(
-                focusable = true,
-                excludeFromSystemGesture = false,
-            ),
+            properties =
+                PopupProperties(
+                    focusable = true,
+                    excludeFromSystemGesture = false,
+                ),
             onDismissRequest = onDismissRequest
         ) {
             Box(
                 propagateMinConstraints = true,
-                modifier = Modifier
-                    .width { state.inspectorWindowSize.width }
-                    .height { state.inspectorWindowSize.height }
+                modifier =
+                    Modifier.width { state.inspectorWindowSize.width }
+                        .height { state.inspectorWindowSize.height }
             ) {
                 // Selection UI and input handling.
                 Box(
-                    Modifier
-                        .then(NodeSelectionGestureModifier(state))
+                    Modifier.then(NodeSelectionGestureModifier(state))
                         .then(DrawSelectionOverlayModifier(state))
                 )
 
@@ -273,11 +268,11 @@ private fun AccessibilityNodeInspector(
                         // Don't use Surface here, it breaks touch input.
                         Text(
                             UsageMessage,
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .padding(16.dp)
-                                .background(MaterialTheme.colors.surface)
-                                .padding(16.dp)
+                            modifier =
+                                Modifier.wrapContentSize()
+                                    .padding(16.dp)
+                                    .background(MaterialTheme.colors.surface)
+                                    .padding(16.dp)
                         )
                     } else {
                         InspectorNodeDetailsDialog(
@@ -296,9 +291,8 @@ private fun AccessibilityNodeInspector(
  * A modifier that draws the current selection of an [AccessibilityNodeInspectorState] in an
  * [AccessibilityNodeInspector].
  */
-private data class DrawSelectionOverlayModifier(
-    val state: AccessibilityNodeInspectorState
-) : ModifierNodeElement<DrawSelectionOverlayModifierNode>() {
+private data class DrawSelectionOverlayModifier(val state: AccessibilityNodeInspectorState) :
+    ModifierNodeElement<DrawSelectionOverlayModifierNode>() {
     override fun create(): DrawSelectionOverlayModifierNode =
         DrawSelectionOverlayModifierNode(state)
 
@@ -309,9 +303,8 @@ private data class DrawSelectionOverlayModifier(
     override fun InspectorInfo.inspectableProperties() {}
 }
 
-private class DrawSelectionOverlayModifierNode(
-    val state: AccessibilityNodeInspectorState
-) : Modifier.Node(), DrawModifierNode {
+private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspectorState) :
+    Modifier.Node(), DrawModifierNode {
     override fun ContentDrawScope.draw() {
         val coords = requireLayoutCoordinates()
         state.nodesUnderCursor.let { nodes ->
@@ -342,19 +335,21 @@ private class DrawSelectionOverlayModifierNode(
             )
         }
 
-        state.selectionOffset.takeIf { it.isSpecified }?.let { screenOffset ->
-            val localOffset = coords.screenToLocal(screenOffset)
-            drawLine(
-                Color.Red,
-                start = Offset(0f, localOffset.y),
-                end = Offset(size.width, localOffset.y)
-            )
-            drawLine(
-                Color.Red,
-                start = Offset(localOffset.x, 0f),
-                end = Offset(localOffset.x, size.height)
-            )
-        }
+        state.selectionOffset
+            .takeIf { it.isSpecified }
+            ?.let { screenOffset ->
+                val localOffset = coords.screenToLocal(screenOffset)
+                drawLine(
+                    Color.Red,
+                    start = Offset(0f, localOffset.y),
+                    end = Offset(size.width, localOffset.y)
+                )
+                drawLine(
+                    Color.Red,
+                    start = Offset(localOffset.x, 0f),
+                    end = Offset(localOffset.x, size.height)
+                )
+            }
     }
 
     private fun LayoutCoordinates.screenToLocal(rect: IntRect): IntRect {
@@ -392,31 +387,36 @@ private class NodeSelectionGestureModifierNode(
     private val pass = PointerEventPass.Initial
 
     @Suppress("unused")
-    private val inputNode = delegate(SuspendingPointerInputModifierNode {
-        // Detect drag gestures but without slop.
-        val layoutCoords = requireLayoutCoordinates()
-        awaitEachGesture {
-            try {
-                val firstChange = awaitFirstDown(pass = pass)
-                state.setNodeCursor(firstChange.position, layoutCoords)
-                onDragStarted?.invoke()
-                firstChange.consume()
+    private val inputNode =
+        delegate(
+            SuspendingPointerInputModifierNode {
+                // Detect drag gestures but without slop.
+                val layoutCoords = requireLayoutCoordinates()
+                awaitEachGesture {
+                    try {
+                        val firstChange = awaitFirstDown(pass = pass)
+                        state.setNodeCursor(firstChange.position, layoutCoords)
+                        onDragStarted?.invoke()
+                        firstChange.consume()
 
-                while (true) {
-                    val event = awaitPointerEvent(pass = pass)
-                    event.changes.fastFirstOrNull { it.id == firstChange.id }?.let { change ->
-                        if (change.changedToUp()) {
-                            return@awaitEachGesture
-                        } else {
-                            state.setNodeCursor(change.position, layoutCoords)
+                        while (true) {
+                            val event = awaitPointerEvent(pass = pass)
+                            event.changes
+                                .fastFirstOrNull { it.id == firstChange.id }
+                                ?.let { change ->
+                                    if (change.changedToUp()) {
+                                        return@awaitEachGesture
+                                    } else {
+                                        state.setNodeCursor(change.position, layoutCoords)
+                                    }
+                                }
                         }
+                    } finally {
+                        state.inspectNodeUnderCursor()
                     }
                 }
-            } finally {
-                state.inspectNodeUnderCursor()
             }
-        }
-    })
+        )
 }
 
 // endregion
@@ -437,11 +437,7 @@ private fun InspectorNodeDetailsDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onBack
     ) {
-        InspectorNodeDetails(
-            leafNode = leafNode,
-            onNodeClick = onNodeClick,
-            onBack = onBack
-        )
+        InspectorNodeDetails(leafNode = leafNode, onNodeClick = onNodeClick, onBack = onBack)
     }
 }
 
@@ -455,9 +451,7 @@ private fun InspectorNodeDetails(
         val peekInteractionSource = remember { MutableInteractionSource() }
         val peeking by peekInteractionSource.collectIsPressedAsState()
         Surface(
-            modifier = Modifier
-                .padding(16.dp)
-                .alpha(if (peeking) 0f else 1f),
+            modifier = Modifier.padding(16.dp).alpha(if (peeking) 0f else 1f),
             elevation = 4.dp
         ) {
             Column {
@@ -465,10 +459,7 @@ private fun InspectorNodeDetails(
                     title = { NodeHeader(leafNode) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null
-                            )
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         }
                     },
                     actions = {
@@ -507,29 +498,27 @@ private fun NodeHeader(node: NodeInfo) {
 }
 
 @Composable
-private fun NodeProperties(
-    node: NodeInfo,
-    onNodeClick: (NodeInfo) -> Unit,
-    modifier: Modifier
-) {
+private fun NodeProperties(node: NodeInfo, onNodeClick: (NodeInfo) -> Unit, modifier: Modifier) {
     SelectionContainer {
         Column(modifier = modifier) {
             NodeAncestorLinks(node, onNodeClick)
 
-            val properties = node.getProperties()
-                .mapValues { (_, v) ->
-                    // Turn references to other nodes into links that actually open those nodes
-                    // in the inspector.
-                    if (v is AccessibilityNodeInfoCompat) {
-                        nodeLinkRepresentation(
-                            node = v,
-                            onClick = { onNodeClick(v.toNodeInfo()) }
-                        )
-                    } else {
-                        PropertyValueRepresentation(v)
+            val properties =
+                node
+                    .getProperties()
+                    .mapValues { (_, v) ->
+                        // Turn references to other nodes into links that actually open those nodes
+                        // in the inspector.
+                        if (v is AccessibilityNodeInfoCompat) {
+                            nodeLinkRepresentation(
+                                node = v,
+                                onClick = { onNodeClick(v.toNodeInfo()) }
+                            )
+                        } else {
+                            PropertyValueRepresentation(v)
+                        }
                     }
-                }
-                .toList()
+                    .toList()
             KeyValueView(
                 elements = properties,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -542,19 +531,22 @@ private fun NodeProperties(
 private fun NodeAncestorLinks(node: NodeInfo, onNodeClick: (NodeInfo) -> Unit) {
     val ancestors = remember(node) { node.selfAndAncestorsToList().dropLast(1) }
     if (ancestors.isNotEmpty()) {
-        val ancestorLinks = remember(ancestors) {
-            buildAnnotatedString {
-                ancestors.fastForEachIndexed { index, ancestorNode ->
-                    withLink(LinkAnnotation.Clickable("ancestor") { onNodeClick(ancestorNode) }) {
-                        append(ancestorNode.nodeInfo.parseClassPackageAndName().second)
-                    }
+        val ancestorLinks =
+            remember(ancestors) {
+                buildAnnotatedString {
+                    ancestors.fastForEachIndexed { index, ancestorNode ->
+                        withLink(
+                            LinkAnnotation.Clickable("ancestor") { onNodeClick(ancestorNode) }
+                        ) {
+                            append(ancestorNode.nodeInfo.parseClassPackageAndName().second)
+                        }
 
-                    if (index < ancestors.size - 1) {
-                        append(" > ")
+                        if (index < ancestors.size - 1) {
+                            append(" > ")
+                        }
                     }
                 }
             }
-        }
 
         Surface(
             color = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f),
@@ -565,16 +557,12 @@ private fun NodeAncestorLinks(node: NodeInfo, onNodeClick: (NodeInfo) -> Unit) {
     }
 }
 
-private fun nodeLinkRepresentation(
-    node: AccessibilityNodeInfoCompat,
-    onClick: () -> Unit
-) = PropertyValueRepresentation(
-    buildAnnotatedString {
-        withLink(LinkAnnotation.Clickable("node") { onClick() }) {
-            append(node.className)
+private fun nodeLinkRepresentation(node: AccessibilityNodeInfoCompat, onClick: () -> Unit) =
+    PropertyValueRepresentation(
+        buildAnnotatedString {
+            withLink(LinkAnnotation.Clickable("node") { onClick() }) { append(node.className) }
         }
-    }
-)
+    )
 
 /**
  * Shows a table of keys and their values. Values are rendered using [PropertyValueRepresentation].
@@ -584,13 +572,8 @@ private fun KeyValueView(
     elements: List<Pair<String, PropertyValueRepresentation>>,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = spacedBy(8.dp)
-    ) {
-        elements.forEach { (name, valueRepresentation) ->
-            KeyValueRow(name, valueRepresentation)
-        }
+    Column(modifier = modifier, verticalArrangement = spacedBy(8.dp)) {
+        elements.forEach { (name, valueRepresentation) -> KeyValueRow(name, valueRepresentation) }
     }
 }
 
@@ -639,17 +622,18 @@ private inline fun KeyValueRowLayout(
     var nestingIndicator: Pair<Offset, Offset>? by remember { mutableStateOf(null) }
 
     Layout(
-        modifier = Modifier.drawBehind {
-            nestingIndicator?.let { (start, end) ->
-                drawLine(
-                    start = start,
-                    end = end,
-                    color = Color.Gray,
-                    alpha = 0.3f,
-                    strokeWidth = 1.dp.toPx(),
-                )
-            }
-        },
+        modifier =
+            Modifier.drawBehind {
+                nestingIndicator?.let { (start, end) ->
+                    drawLine(
+                        start = start,
+                        end = end,
+                        color = Color.Gray,
+                        alpha = 0.3f,
+                        strokeWidth = 1.dp.toPx(),
+                    )
+                }
+            },
         content = {
             Row(content = keyContent)
             Row(content = valueContent)
@@ -660,30 +644,32 @@ private inline fun KeyValueRowLayout(
             val keyConstraints = constraints.copy(minWidth = 0, minHeight = 0)
             // contentPadding will either act as the spacing between items if they fit on the same
             // line, or indent if content wraps, so inset the constraints either way.
-            val valueConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-                .offset(horizontal = -contentPaddingPx)
+            val valueConstraints =
+                constraints.copy(minWidth = 0, minHeight = 0).offset(horizontal = -contentPaddingPx)
             val keyPlaceable = keyMeasurable.measure(keyConstraints)
             val valuePlaceable = valueMeasurable.measure(valueConstraints)
             val wrap =
                 keyPlaceable.width + contentPaddingPx + valuePlaceable.width > constraints.maxWidth
 
             val totalWidth = constraints.maxWidth
-            val totalHeight = if (wrap) {
-                keyPlaceable.height + valuePlaceable.height
-            } else {
-                maxOf(keyPlaceable.height, valuePlaceable.height)
-            }
+            val totalHeight =
+                if (wrap) {
+                    keyPlaceable.height + valuePlaceable.height
+                } else {
+                    maxOf(keyPlaceable.height, valuePlaceable.height)
+                }
 
             // Only draw the nesting indicator if the value filled its max width, which indicates it
             // will probably be taller, and harder to track the start edge visually.
-            nestingIndicator = if (wrap && valuePlaceable.width == valueConstraints.maxWidth) {
-                Pair(
-                    Offset(contentPaddingPx / 2f, keyPlaceable.height.toFloat()),
-                    Offset(contentPaddingPx / 2f, totalHeight.toFloat())
-                )
-            } else {
-                null
-            }
+            nestingIndicator =
+                if (wrap && valuePlaceable.width == valueConstraints.maxWidth) {
+                    Pair(
+                        Offset(contentPaddingPx / 2f, keyPlaceable.height.toFloat()),
+                        Offset(contentPaddingPx / 2f, totalHeight.toFloat())
+                    )
+                } else {
+                    null
+                }
 
             layout(totalWidth, totalHeight) {
                 val valueX = totalWidth - valuePlaceable.width
@@ -693,16 +679,18 @@ private inline fun KeyValueRowLayout(
                     valuePlaceable.placeRelative(valueX, keyPlaceable.height)
                 } else {
                     // Arrange horizontally.
-                    val keyY = Alignment.CenterVertically.align(
-                        size = keyPlaceable.height,
-                        space = totalHeight
-                    )
+                    val keyY =
+                        Alignment.CenterVertically.align(
+                            size = keyPlaceable.height,
+                            space = totalHeight
+                        )
                     keyPlaceable.placeRelative(0, keyY)
 
-                    val valueY = Alignment.CenterVertically.align(
-                        size = valuePlaceable.height,
-                        space = totalHeight
-                    )
+                    val valueY =
+                        Alignment.CenterVertically.align(
+                            size = valuePlaceable.height,
+                            space = totalHeight
+                        )
                     valuePlaceable.placeRelative(valueX, valueY)
                 }
             }
@@ -729,7 +717,6 @@ private val ValueTypeTextStyle = TextStyle(fontFamily = FontFamily.Monospace)
 private fun PropertyValueRepresentation(value: Any?): PropertyValueRepresentation =
     when (value) {
         is CharSequence -> PropertyValueRepresentation(value.toFormattedDebugString())
-
         is Iterable<*> -> {
             val valueType = value.javaClass.canonicalName ?: value.javaClass.name
             // No isEmpty on iterable.
@@ -739,14 +726,15 @@ private fun PropertyValueRepresentation(value: Any?): PropertyValueRepresentatio
                 PropertyValueRepresentation(AnnotatedString(value.toString())) {
                     Column {
                         Text(valueType, style = ValueTypeTextStyle)
-                        KeyValueView(value.mapIndexed { index, element ->
-                            Pair("[$index]", PropertyValueRepresentation(element))
-                        })
+                        KeyValueView(
+                            value.mapIndexed { index, element ->
+                                Pair("[$index]", PropertyValueRepresentation(element))
+                            }
+                        )
                     }
                 }
             }
         }
-
         is Map<*, *> -> {
             val valueType = value.javaClass.canonicalName ?: value.javaClass.name
             if (value.isEmpty()) {
@@ -755,50 +743,43 @@ private fun PropertyValueRepresentation(value: Any?): PropertyValueRepresentatio
                 PropertyValueRepresentation(AnnotatedString(value.toString())) {
                     Column {
                         Text(valueType, style = ValueTypeTextStyle)
-                        KeyValueView(value.entries.map { (key, value) ->
-                            Pair(key.toString(), PropertyValueRepresentation(value))
-                        })
+                        KeyValueView(
+                            value.entries.map { (key, value) ->
+                                Pair(key.toString(), PropertyValueRepresentation(value))
+                            }
+                        )
                     }
                 }
             }
         }
-
         is Bundle -> {
             if (value.isEmpty) {
                 PropertyValueRepresentation(
-                    AnnotatedString(
-                        "empty Bundle",
-                        SpanStyle(fontStyle = FontStyle.Italic)
-                    )
+                    AnnotatedString("empty Bundle", SpanStyle(fontStyle = FontStyle.Italic))
                 )
             } else {
                 PropertyValueRepresentation(AnnotatedString(value.toString())) {
-                    KeyValueView(value.keySet().map { key ->
-                        @Suppress("DEPRECATION")
-                        val rawValue = value.get(key)
-                        Pair(key, PropertyValueRepresentation(rawValue))
-                    })
+                    KeyValueView(
+                        value.keySet().map { key ->
+                            @Suppress("DEPRECATION") val rawValue = value.get(key)
+                            Pair(key, PropertyValueRepresentation(rawValue))
+                        }
+                    )
                 }
             }
         }
-
         else -> PropertyValueRepresentation(AnnotatedString(value.toString()))
     }
 
-/**
- * Returns the package and simple name parts of a FQCN by splitting at the last '.' character.
- */
+/** Returns the package and simple name parts of a FQCN by splitting at the last '.' character. */
 private fun AccessibilityNodeInfoCompat.parseClassPackageAndName(): Pair<String, String> {
     val separatorIndex = className.indexOfLast { it == '.' }
-    return Pair(
-        className.substring(0, separatorIndex),
-        className.substring(separatorIndex + 1)
-    )
+    return Pair(className.substring(0, separatorIndex), className.substring(separatorIndex + 1))
 }
 
 /**
- * A column of expandable headers. Only one header can be expanded at a time. To create an item
- * call [AccordionScope.item] in [content].
+ * A column of expandable headers. Only one header can be expanded at a time. To create an item call
+ * [AccordionScope.item] in [content].
  */
 @Composable
 private fun Accordion(
@@ -818,9 +799,7 @@ private fun Accordion(
                 headerHeight = 40.dp,
                 isExpanded = isItemSelected,
                 shrinkHeader = !isItemSelected && isSelectedIndexValid,
-                onHeaderClick = {
-                    onSelectIndex(if (selectedIndex == index) -1 else index)
-                },
+                onHeaderClick = { onSelectIndex(if (selectedIndex == index) -1 else index) },
             )
             if (index < items.size - 1) {
                 Divider()
@@ -845,26 +824,22 @@ private fun AccordionItemView(
     val headerScale by animateFloatAsState(if (shrinkHeader) 0.8f else 1f, label = "headerScale")
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .height { (headerHeight * headerScale).roundToPx() }
-            .fillMaxWidth()
-            .selectable(selected = isExpanded, onClick = onHeaderClick)
-            .graphicsLayer {
-                scaleX = headerScale
-                scaleY = headerScale
-                transformOrigin = TransformOrigin(0f, 0.5f)
-            },
+        modifier =
+            Modifier.height { (headerHeight * headerScale).roundToPx() }
+                .fillMaxWidth()
+                .selectable(selected = isExpanded, onClick = onHeaderClick)
+                .graphicsLayer {
+                    scaleX = headerScale
+                    scaleY = headerScale
+                    transformOrigin = TransformOrigin(0f, 0.5f)
+                },
     ) {
-        val iconRotation by animateFloatAsState(
-            if (isExpanded) 0f else -90f,
-            label = "iconRotation"
-        )
+        val iconRotation by
+            animateFloatAsState(if (isExpanded) 0f else -90f, label = "iconRotation")
         Icon(
             Icons.Filled.ArrowDropDown,
             contentDescription = null,
-            modifier = Modifier.graphicsLayer {
-                rotationZ = iconRotation
-            }
+            modifier = Modifier.graphicsLayer { rotationZ = iconRotation }
         )
         item.header()
     }
@@ -882,10 +857,7 @@ private interface AccordionScope {
      * Creates an accordion item with a [header] that is always visible, and a [body] that is only
      * visible when the item is expanded.
      */
-    fun item(
-        header: @Composable () -> Unit,
-        body: @Composable () -> Unit
-    )
+    fun item(header: @Composable () -> Unit, body: @Composable () -> Unit)
 }
 
 private data class AccordionItem(
@@ -895,20 +867,17 @@ private data class AccordionItem(
 
 private fun buildAccordionItems(content: AccordionScope.() -> Unit): List<AccordionItem> {
     return buildList {
-        content(object : AccordionScope {
-            override fun item(
-                header: @Composable () -> Unit,
-                body: @Composable () -> Unit
-            ) {
-                add(AccordionItem(header, body))
+        content(
+            object : AccordionScope {
+                override fun item(header: @Composable () -> Unit, body: @Composable () -> Unit) {
+                    add(AccordionItem(header, body))
+                }
             }
-        })
+        )
     }
 }
 
-/**
- * Sets [key] to [value] in this map if [value] is not [unspecifiedValue] (null by default).
- */
+/** Sets [key] to [value] in this map if [value] is not [unspecifiedValue] (null by default). */
 private fun MutableMap<String, Any?>.setIfSpecified(
     key: String,
     value: Any?,
@@ -919,9 +888,7 @@ private fun MutableMap<String, Any?>.setIfSpecified(
     }
 }
 
-/**
- * Sets [key] to [value] in this map if [value] is not [unspecifiedValue] (false by default).
- */
+/** Sets [key] to [value] in this map if [value] is not [unspecifiedValue] (false by default). */
 private fun MutableMap<String, Any?>.setIfSpecified(
     key: String,
     value: Boolean,
@@ -932,9 +899,7 @@ private fun MutableMap<String, Any?>.setIfSpecified(
     }
 }
 
-/**
- * Sets [key] to [value] in this map if [value] is not [unspecifiedValue] (0 by default).
- */
+/** Sets [key] to [value] in this map if [value] is not [unspecifiedValue] (0 by default). */
 private fun MutableMap<String, Any?>.setIfSpecified(
     key: String,
     value: Int,
@@ -951,14 +916,12 @@ private fun MutableMap<String, Any?>.setIfSpecified(
  * control characters (e.g. `'\n'`) with their stylized literal escape sequences.
  */
 private fun CharSequence.toFormattedDebugString(): AnnotatedString = buildAnnotatedString {
-    val quoteStyle = SpanStyle(
-        color = Color.Gray,
-        fontWeight = FontWeight.Bold
-    )
-    val specialStyle = SpanStyle(
-        color = Color.Red,
-        fontWeight = FontWeight.Bold,
-    )
+    val quoteStyle = SpanStyle(color = Color.Gray, fontWeight = FontWeight.Bold)
+    val specialStyle =
+        SpanStyle(
+            color = Color.Red,
+            fontWeight = FontWeight.Bold,
+        )
 
     withStyle(quoteStyle) { append('"') }
 
@@ -971,9 +934,7 @@ private fun CharSequence.toFormattedDebugString(): AnnotatedString = buildAnnota
             '\b' -> formattedChar = "\\b"
         }
         if (formattedChar != null) {
-            withStyle(specialStyle) {
-                append(formattedChar)
-            }
+            withStyle(specialStyle) { append(formattedChar) }
         } else {
             append(c)
         }
@@ -984,20 +945,14 @@ private fun CharSequence.toFormattedDebugString(): AnnotatedString = buildAnnota
 
 // endregion
 
-/**
- * Like the standard [Modifier.width] modifier but the width is only calculated at measure time.
- */
+/** Like the standard [Modifier.width] modifier but the width is only calculated at measure time. */
 private fun Modifier.width(calculateWidth: Density.() -> Int): Modifier =
     layout { measurable, constraints ->
         val calculatedWidth = calculateWidth()
-        val childConstraints = constraints.copy(
-            minWidth = calculatedWidth,
-            maxWidth = calculatedWidth
-        )
+        val childConstraints =
+            constraints.copy(minWidth = calculatedWidth, maxWidth = calculatedWidth)
         val placeable = measurable.measure(childConstraints)
-        layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
-        }
+        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
 
 /**
@@ -1006,14 +961,10 @@ private fun Modifier.width(calculateWidth: Density.() -> Int): Modifier =
 private fun Modifier.height(calculateHeight: Density.() -> Int): Modifier =
     layout { measurable, constraints ->
         val calculatedHeight = calculateHeight()
-        val childConstraints = constraints.copy(
-            minHeight = calculatedHeight,
-            maxHeight = calculatedHeight
-        )
+        val childConstraints =
+            constraints.copy(minHeight = calculatedHeight, maxHeight = calculatedHeight)
         val placeable = measurable.measure(childConstraints)
-        layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
-        }
+        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
 
 // region Accessibility node access
@@ -1031,18 +982,14 @@ private fun rememberAccessibilityNodeInspectorState(): AccessibilityNodeInspecto
 
     DisposableEffect(hostView) {
         val testRoot = hostView as RootForTest
-        onDispose {
-            testRoot.forceAccessibilityForTesting(false)
-        }
+        onDispose { testRoot.forceAccessibilityForTesting(false) }
     }
     return state
 }
 
 /** State holder for an [AccessibilityNodeInspectorButton]. */
-private class AccessibilityNodeInspectorState(
-    private val hostView: View
-) : PopupPositionProvider,
-    View.OnLayoutChangeListener {
+private class AccessibilityNodeInspectorState(private val hostView: View) :
+    PopupPositionProvider, View.OnLayoutChangeListener {
 
     var inspectorWindowSize: IntSize by mutableStateOf(calculateInspectorWindowSize())
         private set
@@ -1075,9 +1022,7 @@ private class AccessibilityNodeInspectorState(
     var highlightedNode: NodeInfo? by mutableStateOf(null)
         private set
 
-    /**
-     * If non-null, the node being shown in the inspector.
-     */
+    /** If non-null, the node being shown in the inspector. */
     var nodeUnderInspection: NodeInfo? by mutableStateOf(null)
         private set
 
@@ -1093,14 +1038,10 @@ private class AccessibilityNodeInspectorState(
         highlightedNode = nodesUnderCursor.lastOrNull()
     }
 
-    /**
-     * Opens the node under the selection cursor in the inspector and dumps it to logcat.
-     */
+    /** Opens the node under the selection cursor in the inspector and dumps it to logcat. */
     fun inspectNodeUnderCursor() {
         selectionOffset = Offset.Unspecified
-        nodeUnderInspection = highlightedNode?.also {
-            it.dumpToLog(tag = LogTag)
-        }
+        nodeUnderInspection = highlightedNode?.also { it.dumpToLog(tag = LogTag) }
     }
 
     /**
@@ -1111,21 +1052,15 @@ private class AccessibilityNodeInspectorState(
         highlightedNode = node
         nodesUnderCursor = node?.selfAndAncestorsToList() ?: emptyList()
         nodeUnderInspection = node
-        node?.also {
-            it.dumpToLog(tag = LogTag)
-        }
+        node?.also { it.dumpToLog(tag = LogTag) }
     }
 
-    /**
-     * Hides the inspector dialog to allow the user to select a different node.
-     */
+    /** Hides the inspector dialog to allow the user to select a different node. */
     fun hideInspector() {
         nodeUnderInspection = null
     }
 
-    /**
-     * Runs any coroutine effects the state holder requires while it's connected to some UI.
-     */
+    /** Runs any coroutine effects the state holder requires while it's connected to some UI. */
     suspend fun runWhileDisplayed() {
         service.initialize()
 
@@ -1164,9 +1099,9 @@ private class AccessibilityNodeInspectorState(
     ): IntOffset = IntOffset.Zero
 
     private fun calculateInspectorWindowSize(): IntSize {
-        return Rect().also {
-            hostView.getWindowVisibleDisplayFrame(it)
-        }.let { IntSize(it.width(), it.height()) }
+        return Rect()
+            .also { hostView.getWindowVisibleDisplayFrame(it) }
+            .let { IntSize(it.width(), it.height()) }
     }
 }
 
@@ -1260,22 +1195,16 @@ private fun NodeInfo.getProperties(): Map<String, Any?> = buildMap {
 private val AccessibilityNodeInfoCompat.extrasWithoutExtraData: Bundle
     get() {
         val extras = Bundle(extras)
-        availableExtraData.forEach {
-            extras.remove(it)
-        }
+        availableExtraData.forEach { extras.remove(it) }
         return extras
     }
 
 /** Class verification helper for reading extras data from an [AccessibilityNodeInfo]. */
 @RequiresApi(26)
 private object AccessibilityNodeInfoHelper {
-    fun readExtraData(
-        node: AccessibilityNodeInfo,
-        key: String
-    ): Any? {
+    fun readExtraData(node: AccessibilityNodeInfo, key: String): Any? {
         if (key in node.availableExtraData && node.refreshWithExtraData(key, Bundle())) {
-            @Suppress("DEPRECATION")
-            return node.extras.get(key)
+            @Suppress("DEPRECATION") return node.extras.get(key)
         } else {
             return null
         }
@@ -1284,6 +1213,7 @@ private object AccessibilityNodeInfoHelper {
 
 private interface InspectableTreeProvider {
     fun initialize() {}
+
     fun findNodesAt(screenOffset: Offset): List<NodeInfo>
 }
 
@@ -1292,9 +1222,8 @@ private object NoopTreeProvider : InspectableTreeProvider {
 }
 
 @RequiresApi(34)
-private class AccessibilityTreeInspectorApi34(
-    private val rootView: View
-) : InspectableTreeProvider {
+private class AccessibilityTreeInspectorApi34(private val rootView: View) :
+    InspectableTreeProvider {
 
     private val matrixCache = Matrix()
 
@@ -1364,10 +1293,11 @@ private class AccessibilityTreeInspectorApi34(
     }
 }
 
-private fun AccessibilityNodeInfoCompat.toNodeInfo(): NodeInfo = NodeInfo(
-    nodeInfo = this,
-    boundsInScreen = Rect().also(::getBoundsInScreen).toComposeIntRect(),
-)
+private fun AccessibilityNodeInfoCompat.toNodeInfo(): NodeInfo =
+    NodeInfo(
+        nodeInfo = this,
+        boundsInScreen = Rect().also(::getBoundsInScreen).toComposeIntRect(),
+    )
 
 private fun NodeInfo.dumpToLog(tag: String) {
     val indent = "  "

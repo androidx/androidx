@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AddIndexSelectorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun getFirst() {
@@ -47,10 +46,7 @@ class AddIndexSelectorTest {
             }
         }
 
-        rule.onNodeWithTag("Parent")
-            .onChildren()
-            .onFirst()
-            .assert(hasTestTag("Child1"))
+        rule.onNodeWithTag("Parent").onChildren().onFirst().assert(hasTestTag("Child1"))
     }
 
     @Test
@@ -62,9 +58,7 @@ class AddIndexSelectorTest {
             }
         }
 
-        rule.onNodeWithTag("Parent")
-            .onChildAt(1)
-            .assert(hasTestTag("Child2"))
+        rule.onNodeWithTag("Parent").onChildAt(1).assert(hasTestTag("Child2"))
     }
 
     @Test
@@ -82,28 +76,20 @@ class AddIndexSelectorTest {
                 "Can't retrieve node at index '2' of '(TestTag = 'Parent').children'\n" +
                 "There are '2' nodes only:"
         ) {
-            rule.onNodeWithTag("Parent")
-                .onChildAt(2)
-                .assertExists()
+            rule.onNodeWithTag("Parent").onChildAt(2).assertExists()
         }
     }
 
     @Test
     fun getAtIndex_noItems() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
-        rule.onNodeWithTag("Parent")
-            .onChildAt(2)
-            .assertDoesNotExist()
+        rule.onNodeWithTag("Parent").onChildAt(2).assertDoesNotExist()
     }
 
     @Test
     fun getAtIndex_noItems_fail() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
         expectErrorMessageStartsWith(
             "" +
@@ -111,9 +97,7 @@ class AddIndexSelectorTest {
                 "Can't retrieve node at index '2' of '(TestTag = 'Parent').children'\n" +
                 "There are no existing nodes for that selector."
         ) {
-            rule.onNodeWithTag("Parent")
-                .onChildAt(2)
-                .assertExists()
+            rule.onNodeWithTag("Parent").onChildAt(2).assertExists()
         }
     }
 }

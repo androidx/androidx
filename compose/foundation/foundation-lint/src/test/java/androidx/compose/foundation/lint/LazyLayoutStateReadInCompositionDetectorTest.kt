@@ -34,11 +34,13 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
             LazyLayoutStateReadInCompositionDetector.FrequentlyChangedStateReadInComposition
         )
 
-    private val lazyGridStateStub = bytecodeStub(
-        filename = "LazyGridState.kt",
-        filepath = "androidx/compose/foundation/lazy/grid",
-        checksum = 0x1f30c0f3,
-        source = """
+    private val lazyGridStateStub =
+        bytecodeStub(
+            filename = "LazyGridState.kt",
+            filepath = "androidx/compose/foundation/lazy/grid",
+            checksum = 0x1f30c0f3,
+            source =
+                """
                     package androidx.compose.foundation.lazy.grid
 
                     interface LazyGridLayoutInfo {
@@ -51,12 +53,12 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
                         val layoutInfo: LazyGridLayoutInfo get() = object : LazyGridLayoutInfo {}
                     }
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uSST8xLKcrPTKnQS87PLcgvTtVL
         yy/NS0ksyczPAzLzhdhCUotLvEuUGLQYAAC6oXVDAAAA
         """,
-        """
+            """
         androidx/compose/foundation/lazy/grid/LazyGridLayoutInfo.class:
         H4sIAAAAAAAA/52OzU4CMRSFzy3Kz/g3qCT4EhaIC4MrN5pJxphI4oZVmemQ
         wtAapkPAFc/lwrD2oYx3ML6Avcnpd3ubc8/X98cngBt0CLfKpktn0rVM3OLN
@@ -66,7 +68,7 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
         +t5a5/feRZ0T4AC/R+Bir+e45LvPxodc9TFqERoRmhFaCBhxFOEYJ2NQgVOc
         jSEKhAXaP+1d5AJ/AQAA
         """,
-        """
+            """
         androidx/compose/foundation/lazy/grid/LazyGridState＄layoutInfo＄1.class:
         H4sIAAAAAAAA/6VSTW/TQBB946R1Y1zSlo8mfH8E1PaAm8IBQYWACpAlAxJF
         ueS0sbfpNs4ustdVyyl/iRMSB5QzPwoxGxAVx5bLzJu3M7Oz++bHz2/fATzC
@@ -80,7 +82,7 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
         Akch+zrusA2Y85zCaOPujL2C6+jM6m/gHvsuZyxy1fk+ajGaMZZiLGOFIS7E
         uIhLfVCJy1jtwysdbP0CBEAxIl4DAAA=
         """,
-        """
+            """
         androidx/compose/foundation/lazy/grid/LazyGridState.class:
         H4sIAAAAAAAA/6VTW08TQRT+ZnvfFtiiaLkoKqiAygJKQpQYlQSzSYUETBPD
         07ad1qHbWbMzJeATv8VnH/SJRBPT+OiPMp5ZGm7yILgP5/LN+c45e87Mr9/f
@@ -98,13 +100,15 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
         BB7EhWj+8USGqR2T4R4ekd4g/Br97vUtJDyUPAx7GMEomRjzcAM3t8AUxnFr
         C30KtsJthbTCndjIKxQUJpQ5mlS4q9CvMPAH6p7bvDkFAAA=
         """
-    )
+        )
 
-    private val lazyListStateStub = bytecodeStub(
-        filename = "LazyListState.kt",
-        filepath = "androidx/compose/foundation/lazy",
-        checksum = 0x4e68cddf,
-        source = """
+    private val lazyListStateStub =
+        bytecodeStub(
+            filename = "LazyListState.kt",
+            filepath = "androidx/compose/foundation/lazy",
+            checksum = 0x4e68cddf,
+            source =
+                """
                     package androidx.compose.foundation.lazy
 
                     interface LazyListLayoutInfo {
@@ -117,12 +121,12 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
                         val layoutInfo: LazyListLayoutInfo get() = object : LazyListLayoutInfo {}
                     }
         """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg0uSST8xLKcrPTKnQS87PLcgvTtVL
         yy/NS0ksyczPAzLzhdhCUotLvEuUGLQYAAC6oXVDAAAA
         """,
-        """
+            """
         androidx/compose/foundation/lazy/LazyListLayoutInfo.class:
         H4sIAAAAAAAA/51OTU/CQBB9syiF+lVUEvwTFlBOnryYNKkxkcRLT0u7mIWy
         a9gtAU/8Lg+Gsz/KOMX4B5xJ3rz5yHvz9f3xCeAWXcKNNMXS6mId53bxZp2K
@@ -132,7 +136,7 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
         ZV2TzXGA3xC42OM5LrkOWPiQs5mhkSBI0ErQRsgURwmOcZKBHE5xlkE4RA6d
         H25NYfx1AQAA
         """,
-        """
+            """
         androidx/compose/foundation/lazy/LazyListState＄layoutInfo＄1.class:
         H4sIAAAAAAAA/6VSS2/TQBD+xknrxqSkLY8mvB8BtT3UTQFxKCChCiRLhkoU
         5ZLTxt6m2zi7yF5XLaf8JU5IHFDO/CjErEE8bgUu38x8ntfO5y9fP30G8BD3
@@ -146,7 +150,7 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
         7jAGzHlOUnRwt2Kv4Dq6Vf0N3GPb44xFrjo/QC1CK8JShGWssIsLES7i0gBU
         4DJWB/AK57a/AQF0+xNAAwAA
         """,
-        """
+            """
         androidx/compose/foundation/lazy/LazyListState.class:
         H4sIAAAAAAAA/51TS08UQRD+evY9u8gsii4PRQUVUJkFJZpgTJSEZJIREjCb
         GE6zu73Y7GyPme4l4Inf4tmDnkg0MRuP/ihj9bDhJQdgDvX4ur6q6qrpP39/
@@ -164,13 +168,14 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
         /JOJjFA7JsNDPCW9TvhNuu6tTaQ8VDyMeBjFGJkY93AbdzbBFCZwdxMDCrbC
         PYWswv3EKCqUFCaVOZpSeKBwTWHwHwU6zXobBQAA
         """
-    )
+        )
 
     @Test
     fun observablePropertiesUsedInComposableFunction() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.foundation.foo
 
                 import androidx.compose.runtime.Composable
@@ -191,13 +196,14 @@ class LazyLayoutStateReadInCompositionDetectorTest : LintDetectorTest() {
                     val layoutInfo = state.layoutInfo
                 }
             """
-            ),
-            lazyGridStateStub,
-            lazyListStateStub,
-            Stubs.Composable
-        )
+                ),
+                lazyGridStateStub,
+                lazyListStateStub,
+                Stubs.Composable
+            )
             .run()
-            .expect("""
+            .expect(
+                """
 src/androidx/compose/foundation/foo/test.kt:10: Warning: Frequently changing state should not be directly read in composable function [FrequentlyChangedStateReadInComposition]
                     val index = state.firstVisibleItemIndex
                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,8 +223,10 @@ src/androidx/compose/foundation/foo/test.kt:19: Warning: Frequently changing sta
                     val layoutInfo = state.layoutInfo
                                      ~~~~~~~~~~~~~~~~
 0 errors, 6 warnings
-            """)
-            .expectFixDiffs("""
+            """
+            )
+            .expectFixDiffs(
+                """
 Fix for src/androidx/compose/foundation/foo/test.kt line 10: Wrap with derivedStateOf:
 @@ -10 +10
 -                     val index = state.firstVisibleItemIndex
@@ -287,14 +295,17 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 19: Collect with snapsh
 +                         .collect { TODO("Collect the state") }
 @@ -21 +23
 +                 }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun observablePropertiesUsedInNonComposableFunction() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.foundation.foo
 
                 import androidx.compose.runtime.Composable
@@ -313,20 +324,21 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 19: Collect with snapsh
                     val layoutInfo = state.layoutInfo
                 }
             """
-            ),
-            lazyGridStateStub,
-            lazyListStateStub,
-            Stubs.Composable,
-        )
+                ),
+                lazyGridStateStub,
+                lazyListStateStub,
+                Stubs.Composable,
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun observablePropertiesUsedInComposableFunctionWithReceiver() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.foundation.foo
 
                 import androidx.compose.runtime.Composable
@@ -347,13 +359,14 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 19: Collect with snapsh
                     val layoutInfo = layoutInfo
                 }
             """
-            ),
-            lazyGridStateStub,
-            lazyListStateStub,
-            Stubs.Composable,
-        )
+                ),
+                lazyGridStateStub,
+                lazyListStateStub,
+                Stubs.Composable,
+            )
             .run()
-            .expect("""
+            .expect(
+                """
 src/androidx/compose/foundation/foo/test.kt:10: Warning: Frequently changing state should not be directly read in composable function [FrequentlyChangedStateReadInComposition]
                     val index = firstVisibleItemIndex
                                 ~~~~~~~~~~~~~~~~~~~~~
@@ -373,9 +386,11 @@ src/androidx/compose/foundation/foo/test.kt:19: Warning: Frequently changing sta
                     val layoutInfo = layoutInfo
                                      ~~~~~~~~~~
 0 errors, 6 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
-            .expectFixDiffs("""
+            .expectFixDiffs(
+                """
 Fix for src/androidx/compose/foundation/foo/test.kt line 10: Wrap with derivedStateOf:
 @@ -10 +10
 -                     val index = firstVisibleItemIndex
@@ -444,14 +459,17 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 19: Collect with snapsh
 +                         .collect { TODO("Collect the state") }
 @@ -21 +23
 +                 }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun observablePropertiesUsedInComposableLambda() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.foundation.foo
 
                 import androidx.compose.runtime.Composable
@@ -480,13 +498,14 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 19: Collect with snapsh
                     }
                 }
             """
-            ),
-            lazyGridStateStub,
-            lazyListStateStub,
-            Stubs.Composable,
-        )
+                ),
+                lazyGridStateStub,
+                lazyListStateStub,
+                Stubs.Composable,
+            )
             .run()
-            .expect("""
+            .expect(
+                """
 src/androidx/compose/foundation/foo/test.kt:15: Warning: Frequently changing state should not be directly read in composable function [FrequentlyChangedStateReadInComposition]
                         val index = state.firstVisibleItemIndex
                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -506,8 +525,11 @@ src/androidx/compose/foundation/foo/test.kt:26: Warning: Frequently changing sta
                         val layoutInfo = state.layoutInfo
                                          ~~~~~~~~~~~~~~~~
 0 errors, 6 warnings
-            """.trimIndent())
-            .expectFixDiffs("""
+            """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
 Fix for src/androidx/compose/foundation/foo/test.kt line 15: Wrap with derivedStateOf:
 @@ -15 +15
 -                         val index = state.firstVisibleItemIndex
@@ -574,14 +596,17 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 26: Collect with snapsh
 +                     androidx.compose.runtime.snapshotFlow { state.layoutInfo }
 +                         .collect { TODO("Collect the state") }
 +                 }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun observablePropertiesUsedInComposableLambdaWithReceiver() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.foundation.foo
 
                 import androidx.compose.runtime.Composable
@@ -612,13 +637,14 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 26: Collect with snapsh
                     }
                 }
             """
-            ),
-            lazyGridStateStub,
-            lazyListStateStub,
-            Stubs.Composable,
-        )
+                ),
+                lazyGridStateStub,
+                lazyListStateStub,
+                Stubs.Composable,
+            )
             .run()
-            .expect("""
+            .expect(
+                """
 src/androidx/compose/foundation/foo/test.kt:18: Warning: Frequently changing state should not be directly read in composable function [FrequentlyChangedStateReadInComposition]
                         val index = firstVisibleItemIndex
                                     ~~~~~~~~~~~~~~~~~~~~~
@@ -638,8 +664,11 @@ src/androidx/compose/foundation/foo/test.kt:28: Warning: Frequently changing sta
                         val layoutInfo = layoutInfo
                                          ~~~~~~~~~~
 0 errors, 6 warnings
-            """.trimIndent())
-            .expectFixDiffs("""
+            """
+                    .trimIndent()
+            )
+            .expectFixDiffs(
+                """
 Fix for src/androidx/compose/foundation/foo/test.kt line 18: Wrap with derivedStateOf:
 @@ -18 +18
 -                         val index = firstVisibleItemIndex
@@ -706,6 +735,8 @@ Fix for src/androidx/compose/foundation/foo/test.kt line 28: Collect with snapsh
 +                     androidx.compose.runtime.snapshotFlow { layoutInfo }
 +                         .collect { TODO("Collect the state") }
 +                 }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
     }
 }

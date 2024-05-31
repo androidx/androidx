@@ -34,14 +34,7 @@ internal actual fun ActualParagraphIntrinsics(
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
 ): ParagraphIntrinsics =
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        density,
-        fontFamilyResolver
-    )
+    SkiaParagraphIntrinsics(text, style, spanStyles, placeholders, density, fontFamilyResolver)
 
 internal class SkiaParagraphIntrinsics(
     val text: String,
@@ -61,12 +54,20 @@ internal class SkiaParagraphIntrinsics(
         return layouter
     }
 
-    private fun newLayouter() = ParagraphLayouter(
-        text, textDirection, style, spanStyles, placeholders, density, fontFamilyResolver
-    )
+    private fun newLayouter() =
+        ParagraphLayouter(
+            text,
+            textDirection,
+            style,
+            spanStyles,
+            placeholders,
+            density,
+            fontFamilyResolver
+        )
 
     override var minIntrinsicWidth = 0f
         private set
+
     override var maxIntrinsicWidth = 0f
         private set
 

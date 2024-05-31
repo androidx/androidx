@@ -26,15 +26,17 @@ internal object DynamicThemeSetting : DemoSetting<Boolean> {
     private const val IsDynamicThemeOnKey = "material3_isDynamicThemeOn"
     private val IsDynamicThemingAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    override fun createPreference(context: Context) = CheckBoxPreference(context).apply {
-        title = "Dynamic theming (android S+)"
-        isEnabled = IsDynamicThemingAvailable
-        key = IsDynamicThemeOnKey
-        setDefaultValue(IsDynamicThemingAvailable)
-    }
+    override fun createPreference(context: Context) =
+        CheckBoxPreference(context).apply {
+            title = "Dynamic theming (android S+)"
+            isEnabled = IsDynamicThemingAvailable
+            key = IsDynamicThemeOnKey
+            setDefaultValue(IsDynamicThemingAvailable)
+        }
 
     @Composable
-    fun asState() = preferenceAsState(IsDynamicThemeOnKey) {
-        getBoolean(IsDynamicThemeOnKey, IsDynamicThemingAvailable)
-    }
+    fun asState() =
+        preferenceAsState(IsDynamicThemeOnKey) {
+            getBoolean(IsDynamicThemeOnKey, IsDynamicThemingAvailable)
+        }
 }

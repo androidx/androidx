@@ -20,9 +20,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 
-/**
- * This exposes PointerInputEventData for testing purposes.
- */
+/** This exposes PointerInputEventData for testing purposes. */
 @InternalComposeUiApi
 class TestPointerInputEventData(
     val id: PointerId,

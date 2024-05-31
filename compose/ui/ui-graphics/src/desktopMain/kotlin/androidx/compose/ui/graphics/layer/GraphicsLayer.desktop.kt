@@ -85,14 +85,10 @@ actual class GraphicsLayer {
     private var roundRectCornerRadius: Float = 0f
     private var outlinePath: Path? = null
 
-    /**
-     * Tracks the amount of the parent layers currently drawing this layer as a child.
-     */
+    /** Tracks the amount of the parent layers currently drawing this layer as a child. */
     private var parentLayerUsages = 0
 
-    /**
-     * Keeps track of the child layers we currently draw into this layer.
-     */
+    /** Keeps track of the child layers we currently draw into this layer. */
     private val childDependenciesTracker = ChildLayerDependenciesTracker()
 
     actual var topLeft: IntOffset = IntOffset.Zero
@@ -113,32 +109,38 @@ actual class GraphicsLayer {
             invalidateMatrix()
             field = value
         }
+
     actual var scaleY: Float = 1f
         set(value) {
             invalidateMatrix()
             field = value
         }
+
     actual var translationX: Float = 0f
         set(value) {
             invalidateMatrix()
             field = value
         }
+
     actual var translationY: Float = 0f
         set(value) {
             invalidateMatrix()
             field = value
         }
+
     actual var shadowElevation: Float = 0f
     actual var rotationX: Float = 0f
         set(value) {
             invalidateMatrix()
             field = value
         }
+
     actual var rotationY: Float = 0f
         set(value) {
             invalidateMatrix()
             field = value
         }
+
     actual var rotationZ: Float = 0f
         set(value) {
             invalidateMatrix()
@@ -175,30 +177,19 @@ actual class GraphicsLayer {
         updateLayerConfiguration()
         val x = topLeft.x.toFloat()
         val y = topLeft.y.toFloat()
-        val bounds = SkiaRect(
-            x,
-            y,
-            x + size.width.toFloat(),
-            y + size.height.toFloat()
-        )
+        val bounds = SkiaRect(x, y, x + size.width.toFloat(), y + size.height.toFloat())
         val canvas = pictureRecorder.beginRecording(bounds)
         val skiaCanvas = canvas.asComposeCanvas() as SkiaBackedCanvas
-        skiaCanvas.alphaMultiplier = if (compositingStrategy == CompositingStrategy.ModulateAlpha) {
-            this@GraphicsLayer.alpha
-        } else {
-            1.0f
-        }
+        skiaCanvas.alphaMultiplier =
+            if (compositingStrategy == CompositingStrategy.ModulateAlpha) {
+                this@GraphicsLayer.alpha
+            } else {
+                1.0f
+            }
         childDependenciesTracker.withTracking(
             onDependencyRemoved = { it.onRemovedFromParentLayer() }
         ) {
-            pictureDrawScope.draw(
-                density,
-                layoutDirection,
-                skiaCanvas,
-                size.toSize(),
-                this,
-                block
-            )
+            pictureDrawScope.draw(density, layoutDirection, skiaCanvas, size.toSize(), this, block)
         }
         picture = pictureRecorder.finishRecordingAsPicture()
     }
@@ -216,11 +207,12 @@ actual class GraphicsLayer {
         outlineSize: Size,
         block: (Offset, Size) -> Outline
     ): Outline {
-        val targetSize = if (outlineSize.isUnspecified) {
-            this.size.toSize()
-        } else {
-            outlineSize
-        }
+        val targetSize =
+            if (outlineSize.isUnspecified) {
+                this.size.toSize()
+            } else {
+                outlineSize
+            }
         return block(outlineTopLeft, targetSize)
     }
 
@@ -228,35 +220,35 @@ actual class GraphicsLayer {
         var tmpOutline = internalOutline
         if (outlineDirty || tmpOutline == null) {
             val tmpPath = outlinePath
-            tmpOutline = if (tmpPath != null) {
-                Outline.Generic(tmpPath)
-            } else {
-                createOutlineWithPosition(
-                    roundRectOutlineTopLeft,
-                    roundRectOutlineSize
-                ) { outlineTopLeft, outlineSize ->
-                    if (roundRectCornerRadius > 0f) {
-                        Outline.Rounded(
-                            RoundRect(
-                                outlineTopLeft.x.toFloat(),
-                                outlineTopLeft.y.toFloat(),
-                                outlineTopLeft.x.toFloat() + outlineSize.width,
-                                outlineTopLeft.y.toFloat() + outlineSize.height,
-                                CornerRadius(roundRectCornerRadius)
+            tmpOutline =
+                if (tmpPath != null) {
+                    Outline.Generic(tmpPath)
+                } else {
+                    createOutlineWithPosition(roundRectOutlineTopLeft, roundRectOutlineSize) {
+                        outlineTopLeft,
+                        outlineSize ->
+                        if (roundRectCornerRadius > 0f) {
+                            Outline.Rounded(
+                                RoundRect(
+                                    outlineTopLeft.x.toFloat(),
+                                    outlineTopLeft.y.toFloat(),
+                                    outlineTopLeft.x.toFloat() + outlineSize.width,
+                                    outlineTopLeft.y.toFloat() + outlineSize.height,
+                                    CornerRadius(roundRectCornerRadius)
+                                )
                             )
-                        )
-                    } else {
-                        Outline.Rectangle(
-                            Rect(
-                                outlineTopLeft.x.toFloat(),
-                                outlineTopLeft.y.toFloat(),
-                                outlineTopLeft.x.toFloat() + outlineSize.width,
-                                outlineTopLeft.y.toFloat() + outlineSize.height
+                        } else {
+                            Outline.Rectangle(
+                                Rect(
+                                    outlineTopLeft.x.toFloat(),
+                                    outlineTopLeft.y.toFloat(),
+                                    outlineTopLeft.x.toFloat() + outlineSize.width,
+                                    outlineTopLeft.y.toFloat() + outlineSize.height
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            }
             internalOutline = tmpOutline
             outlineDirty = false
         }
@@ -286,12 +278,10 @@ actual class GraphicsLayer {
                 canvas.save()
 
                 when (val outline = internalOutline) {
-                    is Outline.Rectangle ->
-                        canvas.clipRect(outline.rect)
+                    is Outline.Rectangle -> canvas.clipRect(outline.rect)
                     is Outline.Rounded ->
                         (canvas as SkiaBackedCanvas).clipRoundRect(outline.roundRect)
-                    is Outline.Generic ->
-                        canvas.clipPath(outline.path)
+                    is Outline.Generic -> canvas.clipPath(outline.path)
                     null -> {
                         canvas.clipRect(0f, 0f, size.width.toFloat(), size.height.toFloat())
                     }
@@ -350,17 +340,16 @@ actual class GraphicsLayer {
         }
 
     /**
-     * BlendMode to use when drawing this layer to the destination in [drawLayer].
-     * The default is [BlendMode.SrcOver].
-     * Any value other than [BlendMode.SrcOver] will force this [GraphicsLayer] to use an offscreen
-     * compositing layer for rendering.
+     * BlendMode to use when drawing this layer to the destination in [drawLayer]. The default is
+     * [BlendMode.SrcOver]. Any value other than [BlendMode.SrcOver] will force this [GraphicsLayer]
+     * to use an offscreen compositing layer for rendering.
      */
     actual var blendMode: BlendMode = BlendMode.SrcOver
 
     /**
-     * ColorFilter applied when drawing this layer to the destination in [drawLayer].
-     * Setting of this to any non-null will force this [GraphicsLayer] to use an offscreen
-     * compositing layer for rendering regardless of the value of [compositingStrategy]
+     * ColorFilter applied when drawing this layer to the destination in [drawLayer]. Setting of
+     * this to any non-null will force this [GraphicsLayer] to use an offscreen compositing layer
+     * for rendering regardless of the value of [compositingStrategy]
      */
     actual var colorFilter: ColorFilter? = null
 
@@ -375,10 +364,10 @@ actual class GraphicsLayer {
 
     /**
      * Configures a rounded rect outline for this [GraphicsLayer]. By default, [topLeft] is set to
-     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
-     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
-     * is produced using an [Outline] created from the round rect parameters provided. Additionally
-     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline should match
+     * the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow is produced
+     * using an [Outline] created from the round rect parameters provided. Additionally if [clip] is
+     * true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
@@ -386,11 +375,7 @@ actual class GraphicsLayer {
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
-    actual fun setRoundRectOutline(
-        topLeft: Offset,
-        size: Size,
-        cornerRadius: Float
-    ) {
+    actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
         resetOutlineParams()
         this.roundRectOutlineTopLeft = topLeft
         this.roundRectOutlineSize = size
@@ -398,8 +383,8 @@ actual class GraphicsLayer {
     }
 
     /**
-     * Specifies the given path to be configured as the outline for this [GraphicsLayer].
-     * When [shadowElevation] is non-zero a shadow is produced using this [Outline].
+     * Specifies the given path to be configured as the outline for this [GraphicsLayer]. When
+     * [shadowElevation] is non-zero a shadow is produced using this [Outline].
      *
      * @param path Path to be used as the Outline for the [GraphicsLayer]
      *
@@ -411,29 +396,26 @@ actual class GraphicsLayer {
     }
 
     /**
-     * Returns the outline specified by either [setPathOutline] or [setRoundRectOutline].
-     * By default this will return [Outline.Rectangle] with the size of the [GraphicsLayer]
-     * specified by [record] or [IntSize.Zero] if [record] was not previously invoked.
+     * Returns the outline specified by either [setPathOutline] or [setRoundRectOutline]. By default
+     * this will return [Outline.Rectangle] with the size of the [GraphicsLayer] specified by
+     * [record] or [IntSize.Zero] if [record] was not previously invoked.
      */
     actual val outline: Outline
         get() = configureOutline()
 
     /**
      * Configures a rectangular outline for this [GraphicsLayer]. By default, [topLeft] is set to
-     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
-     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
-     * is produced using an [Outline] created from the round rect parameters provided. Additionally
-     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline should match
+     * the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow is produced
+     * using an [Outline] created from the round rect parameters provided. Additionally if [clip] is
+     * true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
      *
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
-    actual fun setRectOutline(
-        topLeft: Offset,
-        size: Size
-    ) {
+    actual fun setRectOutline(topLeft: Offset, size: Size) {
         setRoundRectOutline(topLeft, size, 0f)
     }
 
@@ -449,19 +431,16 @@ actual class GraphicsLayer {
                 pivotY = pivotOffset.y
             }
             matrix.reset()
-            matrix *= Matrix().apply {
-                translate(x = -pivotX, y = -pivotY)
-            }
-            matrix *= Matrix().apply {
-                translate(translationX, translationY)
-                rotateX(rotationX)
-                rotateY(rotationY)
-                rotateZ(rotationZ)
-                scale(scaleX, scaleY)
-            }
-            matrix *= Matrix().apply {
-                translate(x = pivotX, y = pivotY)
-            }
+            matrix *= Matrix().apply { translate(x = -pivotX, y = -pivotY) }
+            matrix *=
+                Matrix().apply {
+                    translate(translationX, translationY)
+                    rotateX(rotationX)
+                    rotateY(rotationY)
+                    rotateZ(rotationZ)
+                    scale(scaleX, scaleY)
+                }
+            matrix *= Matrix().apply { translate(x = pivotX, y = pivotY) }
             matrixDirty = false
         }
     }
@@ -474,10 +453,9 @@ actual class GraphicsLayer {
             picture?.close()
             pictureRecorder.close()
 
-            // discarding means we don't draw children layer anymore and need to remove dependencies:
-            childDependenciesTracker.removeDependencies {
-                it.onRemovedFromParentLayer()
-            }
+            // discarding means we don't draw children layer anymore and need to remove
+            // dependencies:
+            childDependenciesTracker.removeDependencies { it.onRemovedFromParentLayer() }
         }
     }
 
@@ -487,8 +465,8 @@ actual class GraphicsLayer {
      * By default the shadow color is black. Generally, this color will be opaque so the intensity
      * of the shadow is consistent between different graphics layers with different colors.
      *
-     * The opacity of the final ambient shadow is a function of the shadow caster height, the
-     * alpha channel of the [ambientShadowColor] (typically opaque), and the
+     * The opacity of the final ambient shadow is a function of the shadow caster height, the alpha
+     * channel of the [ambientShadowColor] (typically opaque), and the
      * [android.R.attr.ambientShadowAlpha] theme attribute.
      *
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
@@ -502,9 +480,9 @@ actual class GraphicsLayer {
      * By default the shadow color is black. Generally, this color will be opaque so the intensity
      * of the shadow is consistent between different graphics layers with different colors.
      *
-     * The opacity of the final spot shadow is a function of the shadow caster height, the
-     * alpha channel of the [spotShadowColor] (typically opaque), and the
-     * [android.R.attr.spotShadowAlpha] theme attribute.
+     * The opacity of the final spot shadow is a function of the shadow caster height, the alpha
+     * channel of the [spotShadowColor] (typically opaque), and the [android.R.attr.spotShadowAlpha]
+     * theme attribute.
      *
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
@@ -517,35 +495,45 @@ actual class GraphicsLayer {
         val hasBlendMode = blendMode != BlendMode.SrcOver
         val hasRenderEffect = renderEffect != null
         val offscreenBufferRequested = compositingStrategy == CompositingStrategy.Offscreen
-        return alphaNeedsLayer || hasColorFilter || hasBlendMode || hasRenderEffect ||
+        return alphaNeedsLayer ||
+            hasColorFilter ||
+            hasBlendMode ||
+            hasRenderEffect ||
             offscreenBufferRequested
     }
 
-    private fun drawShadow(canvas: Canvas) = with(density) {
-        val path = when (val tmpOutline = internalOutline) {
-            is Outline.Rectangle -> Path().apply { addRect(tmpOutline.rect) }
-            is Outline.Rounded -> Path().apply { addRoundRect(tmpOutline.roundRect) }
-            is Outline.Generic -> tmpOutline.path
-            else -> return
+    private fun drawShadow(canvas: Canvas) =
+        with(density) {
+            val path =
+                when (val tmpOutline = internalOutline) {
+                    is Outline.Rectangle -> Path().apply { addRect(tmpOutline.rect) }
+                    is Outline.Rounded -> Path().apply { addRoundRect(tmpOutline.roundRect) }
+                    is Outline.Generic -> tmpOutline.path
+                    else -> return
+                }
+
+            val zParams = Point3(0f, 0f, shadowElevation)
+
+            val lightPos = Point3(0f, -300.dp.toPx(), 600.dp.toPx())
+            val lightRad = 800.dp.toPx()
+
+            val ambientAlpha = 0.039f * alpha
+            val spotAlpha = 0.19f * alpha
+            val ambientColor = ambientShadowColor.copy(alpha = ambientAlpha)
+            val spotColor = spotShadowColor.copy(alpha = spotAlpha)
+
+            org.jetbrains.skia.ShadowUtils.drawShadow(
+                canvas.nativeCanvas,
+                path.asSkiaPath(),
+                zParams,
+                lightPos,
+                lightRad,
+                ambientColor.toArgb(),
+                spotColor.toArgb(),
+                alpha < 1f,
+                false
+            )
         }
-
-        val zParams = Point3(0f, 0f, shadowElevation)
-
-        val lightPos = Point3(0f, -300.dp.toPx(), 600.dp.toPx())
-        val lightRad = 800.dp.toPx()
-
-        val ambientAlpha = 0.039f * alpha
-        val spotAlpha = 0.19f * alpha
-        val ambientColor = ambientShadowColor.copy(alpha = ambientAlpha)
-        val spotColor = spotShadowColor.copy(alpha = spotAlpha)
-
-        org.jetbrains.skia.ShadowUtils.drawShadow(
-            canvas.nativeCanvas, path.asSkiaPath(), zParams, lightPos,
-            lightRad,
-            ambientColor.toArgb(),
-            spotColor.toArgb(), alpha < 1f, false
-        )
-    }
 
     /**
      * Create an [ImageBitmap] with the contents of this [GraphicsLayer] instance. Note that

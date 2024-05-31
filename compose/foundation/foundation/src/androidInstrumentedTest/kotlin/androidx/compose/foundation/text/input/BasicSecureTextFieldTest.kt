@@ -65,13 +65,9 @@ internal class BasicSecureTextFieldTest {
 
     // Keyboard shortcut tests for BasicSecureTextField are in TextFieldKeyEventTest
 
-    @get:Rule
-    val rule = createComposeRule().apply {
-        mainClock.autoAdvance = false
-    }
+    @get:Rule val rule = createComposeRule().apply { mainClock.autoAdvance = false }
 
-    @get:Rule
-    val immRule = ComposeInputMethodManagerTestRule()
+    @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
@@ -87,9 +83,7 @@ internal class BasicSecureTextFieldTest {
     fun passwordSemanticsAreSet() {
         inputMethodInterceptor.setContent {
             BasicSecureTextField(
-                state = remember {
-                    TextFieldState("Hello", initialSelection = TextRange(0, 1))
-                },
+                state = remember { TextFieldState("Hello", initialSelection = TextRange(0, 1)) },
                 modifier = Modifier.testTag(Tag)
             )
         }
@@ -106,10 +100,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun lastTypedCharacterIsRevealedTemporarily() {
         inputMethodInterceptor.setContent {
-            BasicSecureTextField(
-                state = rememberTextFieldState(),
-                modifier = Modifier.testTag(Tag)
-            )
+            BasicSecureTextField(state = rememberTextFieldState(), modifier = Modifier.testTag(Tag))
         }
 
         with(rule.onNodeWithTag(Tag)) {
@@ -124,10 +115,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun lastTypedCharacterIsRevealed_hidesAfterAnotherCharacterIsTyped() {
         inputMethodInterceptor.setContent {
-            BasicSecureTextField(
-                state = rememberTextFieldState(),
-                modifier = Modifier.testTag(Tag)
-            )
+            BasicSecureTextField(state = rememberTextFieldState(), modifier = Modifier.testTag(Tag))
         }
 
         with(rule.onNodeWithTag(Tag)) {
@@ -144,10 +132,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun lastTypedCharacterIsRevealed_whenInsertedInMiddle() {
         inputMethodInterceptor.setContent {
-            BasicSecureTextField(
-                state = rememberTextFieldState(),
-                modifier = Modifier.testTag(Tag)
-            )
+            BasicSecureTextField(state = rememberTextFieldState(), modifier = Modifier.testTag(Tag))
         }
 
         with(rule.onNodeWithTag(Tag)) {
@@ -171,12 +156,7 @@ internal class BasicSecureTextFieldTest {
                     state = rememberTextFieldState(),
                     modifier = Modifier.testTag(Tag)
                 )
-                Box(
-                    modifier = Modifier
-                        .size(1.dp)
-                        .testTag("otherFocusable")
-                        .focusable()
-                )
+                Box(modifier = Modifier.size(1.dp).testTag("otherFocusable").focusable())
             }
         }
 
@@ -184,8 +164,7 @@ internal class BasicSecureTextFieldTest {
             performTextInput("a")
             rule.mainClock.advanceTimeBy(200)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("a")
-            rule.onNodeWithTag("otherFocusable")
-                .requestFocus()
+            rule.onNodeWithTag("otherFocusable").requestFocus()
             rule.mainClock.advanceTimeBy(50)
             assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("\u2022")
         }
@@ -194,10 +173,7 @@ internal class BasicSecureTextFieldTest {
     @Test
     fun lastTypedCharacterIsRevealed_hidesAfterAnotherCharacterRemoved() {
         inputMethodInterceptor.setContent {
-            BasicSecureTextField(
-                state = rememberTextFieldState(),
-                modifier = Modifier.testTag(Tag)
-            )
+            BasicSecureTextField(state = rememberTextFieldState(), modifier = Modifier.testTag(Tag))
         }
 
         with(rule.onNodeWithTag(Tag)) {
@@ -226,11 +202,9 @@ internal class BasicSecureTextFieldTest {
         with(rule.onNodeWithTag(Tag)) {
             performTextInput("abc")
             rule.mainClock.advanceTimeBy(200)
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("abc")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("abc")
             rule.mainClock.advanceTimeBy(1500)
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("abc")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("abc")
         }
     }
 
@@ -252,8 +226,7 @@ internal class BasicSecureTextFieldTest {
                 .isEqualTo("\u2022\u2022\u2022")
             obfuscationMode = TextObfuscationMode.Visible
             rule.mainClock.advanceTimeByFrame()
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("abc")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("abc")
         }
     }
 
@@ -293,8 +266,7 @@ internal class BasicSecureTextFieldTest {
         with(rule.onNodeWithTag(Tag)) {
             performTextInput("abc")
             rule.mainClock.advanceTimeByFrame()
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("abc")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("abc")
             obfuscationMode = TextObfuscationMode.Hidden
             rule.mainClock.advanceTimeByFrame()
             assertThat(fetchTextLayoutResult().layoutInput.text.text)
@@ -316,12 +288,10 @@ internal class BasicSecureTextFieldTest {
         with(rule.onNodeWithTag(Tag)) {
             performTextInput("abc")
             rule.mainClock.advanceTimeByFrame()
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("&&&")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&&&")
             performTextInput("d")
             rule.mainClock.advanceTimeByFrame()
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("&&&&")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&&&&")
         }
     }
 
@@ -360,12 +330,10 @@ internal class BasicSecureTextFieldTest {
         with(rule.onNodeWithTag(Tag)) {
             performTextInput("abc")
             rule.mainClock.advanceTimeByFrame()
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("***")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("***")
             character = '&'
             rule.mainClock.advanceTimeByFrame()
-            assertThat(fetchTextLayoutResult().layoutInput.text.text)
-                .isEqualTo("&&&")
+            assertThat(fetchTextLayoutResult().layoutInput.text.text).isEqualTo("&&&")
         }
     }
 
@@ -405,19 +373,14 @@ internal class BasicSecureTextFieldTest {
         val clipboardManager = FakeClipboardManager("initial")
         inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicSecureTextField(
-                    state = state,
-                    modifier = Modifier.testTag(Tag)
-                )
+                BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
             }
         }
 
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CopyText)
 
-        rule.runOnIdle {
-            assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial")
-        }
+        rule.runOnIdle { assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial") }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -427,10 +390,7 @@ internal class BasicSecureTextFieldTest {
         val clipboardManager = FakeClipboardManager("initial")
         inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicSecureTextField(
-                    state = state,
-                    modifier = Modifier.testTag(Tag)
-                )
+                BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
             }
         }
 
@@ -448,21 +408,19 @@ internal class BasicSecureTextFieldTest {
         var copyOptionAvailable = false
         var cutOptionAvailable = false
         var showMenuRequested = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
-                showMenuRequested = true
-                copyOptionAvailable = onCopyRequested != null
-                cutOptionAvailable = onCutRequested != null
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
+                    showMenuRequested = true
+                    copyOptionAvailable = onCopyRequested != null
+                    cutOptionAvailable = onCutRequested != null
+                },
+                onHideMenu = {}
+            )
         val state = TextFieldState("Hello")
         inputMethodInterceptor.setContent {
             CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
-                BasicSecureTextField(
-                    state = state,
-                    modifier = Modifier.testTag(Tag)
-                )
+                BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
             }
         }
 
@@ -483,10 +441,7 @@ internal class BasicSecureTextFieldTest {
     fun inputMethod_doesNotRestart_inResponseToKeyEvents() {
         val state = TextFieldState("hello", initialSelection = TextRange(5))
         inputMethodInterceptor.setContent {
-            BasicSecureTextField(
-                state = state,
-                modifier = Modifier.testTag(Tag)
-            )
+            BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
         }
 
         with(rule.onNodeWithTag(Tag)) {

@@ -21,43 +21,37 @@ import androidx.compose.ui.text.findFollowingBreak
 import androidx.compose.ui.text.findPrecedingBreak
 
 /**
- * [EditCommand] is a command representation for the platform IME API function calls. The
- * commands from the IME as function calls are translated into command pattern and used by
+ * [EditCommand] is a command representation for the platform IME API function calls. The commands
+ * from the IME as function calls are translated into command pattern and used by
  * [TextInputService.startInput]. For example, as a result of commit text function call by IME
  * [CommitTextCommand] is created.
  */
 interface EditCommand {
-    /**
-     * Apply the command on the editing buffer.
-     */
+    /** Apply the command on the editing buffer. */
     fun applyTo(buffer: EditingBuffer)
 }
 
 /**
  * Commit final [text] to the text box and set the new cursor position.
  *
- * See [`commitText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)).
+ * See
+ * [`commitText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)).
  *
  * @param annotatedString The text to commit.
  * @param newCursorPosition The cursor position after inserted text.
  */
-class CommitTextCommand(
-    val annotatedString: AnnotatedString,
-    val newCursorPosition: Int
-) : EditCommand {
+class CommitTextCommand(val annotatedString: AnnotatedString, val newCursorPosition: Int) :
+    EditCommand {
 
     constructor(
-        /**
-         * The text to commit. We ignore any styles in the original API.
-         */
+        /** The text to commit. We ignore any styles in the original API. */
         text: String,
-        /**
-         * The cursor position after setting composing text.
-         */
+        /** The cursor position after setting composing text. */
         newCursorPosition: Int
     ) : this(AnnotatedString(text), newCursorPosition)
 
-    val text: String get() = annotatedString.text
+    val text: String
+        get() = annotatedString.text
 
     override fun applyTo(buffer: EditingBuffer) {
         // API description says replace ongoing composition text if there. Then, if there is no
@@ -74,11 +68,12 @@ class CommitTextCommand(
         val newCursor = buffer.cursor
 
         // See above API description for the meaning of newCursorPosition.
-        val newCursorInBuffer = if (newCursorPosition > 0) {
-            newCursor + newCursorPosition - 1
-        } else {
-            newCursor + newCursorPosition - text.length
-        }
+        val newCursorInBuffer =
+            if (newCursorPosition > 0) {
+                newCursor + newCursorPosition - 1
+            } else {
+                newCursor + newCursorPosition - text.length
+            }
 
         buffer.cursor = newCursorInBuffer.coerceIn(0, buffer.length)
     }
@@ -107,15 +102,13 @@ class CommitTextCommand(
 /**
  * Mark a certain region of text as composing text.
  *
- * See [`setComposingRegion`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)).
+ * See
+ * [`setComposingRegion`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingRegion(int,%2520int)).
  *
  * @param start The inclusive start offset of the composing region.
  * @param end The exclusive end offset of the composing region
  */
-class SetComposingRegionCommand(
-    val start: Int,
-    val end: Int
-) : EditCommand {
+class SetComposingRegionCommand(val start: Int, val end: Int) : EditCommand {
 
     override fun applyTo(buffer: EditingBuffer) {
         // The API description says, different from SetComposingText, SetComposingRegion must
@@ -161,28 +154,24 @@ class SetComposingRegionCommand(
  * Replace the currently composing text with the given text, and set the new cursor position. Any
  * composing text set previously will be removed automatically.
  *
- * See [`setComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)).
+ * See
+ * [`setComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)).
  *
  * @param annotatedString The composing text.
  * @param newCursorPosition The cursor position after setting composing text.
  */
-class SetComposingTextCommand(
-    val annotatedString: AnnotatedString,
-    val newCursorPosition: Int
-) : EditCommand {
+class SetComposingTextCommand(val annotatedString: AnnotatedString, val newCursorPosition: Int) :
+    EditCommand {
 
     constructor(
-        /**
-         * The composing text.
-         */
+        /** The composing text. */
         text: String,
-        /**
-         * The cursor position after setting composing text.
-         */
+        /** The cursor position after setting composing text. */
         newCursorPosition: Int
     ) : this(AnnotatedString(text), newCursorPosition)
 
-    val text: String get() = annotatedString.text
+    val text: String
+        get() = annotatedString.text
 
     override fun applyTo(buffer: EditingBuffer) {
         if (buffer.hasComposition()) {
@@ -207,11 +196,12 @@ class SetComposingTextCommand(
         val newCursor = buffer.cursor
 
         // See above API description for the meaning of newCursorPosition.
-        val newCursorInBuffer = if (newCursorPosition > 0) {
-            newCursor + newCursorPosition - 1
-        } else {
-            newCursor + newCursorPosition - text.length
-        }
+        val newCursorInBuffer =
+            if (newCursorPosition > 0) {
+                newCursor + newCursorPosition - 1
+            } else {
+                newCursor + newCursorPosition - text.length
+            }
 
         buffer.cursor = newCursorInBuffer.coerceIn(0, buffer.length)
     }
@@ -239,22 +229,22 @@ class SetComposingTextCommand(
 
 /**
  * Delete [lengthBeforeCursor] characters of text before the current cursor position, and delete
- * [lengthAfterCursor] characters of text after the current cursor position, excluding the selection.
+ * [lengthAfterCursor] characters of text after the current cursor position, excluding the
+ * selection.
  *
  * Before and after refer to the order of the characters in the string, not to their visual
  * representation.
  *
- * See [`deleteSurroundingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)).
+ * See
+ * [`deleteSurroundingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)).
  *
  * @param lengthBeforeCursor The number of characters in UTF-16 before the cursor to be deleted.
- * Must be non-negative.
- * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted.
- * Must be non-negative.
+ *   Must be non-negative.
+ * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted. Must
+ *   be non-negative.
  */
-class DeleteSurroundingTextCommand(
-    val lengthBeforeCursor: Int,
-    val lengthAfterCursor: Int
-) : EditCommand {
+class DeleteSurroundingTextCommand(val lengthBeforeCursor: Int, val lengthAfterCursor: Int) :
+    EditCommand {
     init {
         require(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
             "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
@@ -299,15 +289,16 @@ class DeleteSurroundingTextCommand(
 /**
  * A variant of [DeleteSurroundingTextCommand]. The difference is that
  * * The lengths are supplied in code points, not in chars.
- * * This command does nothing if there are one or more invalid surrogate pairs
- * in the requested range.
+ * * This command does nothing if there are one or more invalid surrogate pairs in the requested
+ *   range.
  *
- * See [`deleteSurroundingTextInCodePoints`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)).
+ * See
+ * [`deleteSurroundingTextInCodePoints`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)).
  *
  * @param lengthBeforeCursor The number of characters in Unicode code points before the cursor to be
- * deleted. Must be non-negative.
+ *   deleted. Must be non-negative.
  * @param lengthAfterCursor The number of characters in Unicode code points after the cursor to be
- * deleted. Must be non-negative.
+ *   deleted. Must be non-negative.
  */
 class DeleteSurroundingTextInCodePointsCommand(
     val lengthBeforeCursor: Int,
@@ -387,15 +378,13 @@ class DeleteSurroundingTextInCodePointsCommand(
  * Sets the selection on the text. When [start] and [end] have the same value, it sets the cursor
  * position.
  *
- * See [`setSelection`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setSelection(int,%2520int)).
+ * See
+ * [`setSelection`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setSelection(int,%2520int)).
  *
  * @param start The inclusive start offset of the selection region.
  * @param end The exclusive end offset of the selection region.
  */
-class SetSelectionCommand(
-    val start: Int,
-    val end: Int
-) : EditCommand {
+class SetSelectionCommand(val start: Int, val end: Int) : EditCommand {
 
     override fun applyTo(buffer: EditingBuffer) {
         // Sanitize the input: reverse if reversed, clamped into valid range.
@@ -430,11 +419,12 @@ class SetSelectionCommand(
 }
 
 /**
- * Finishes the composing text that is currently active. This simply leaves the text as-is,
- * removing any special composing styling or other state that was around it. The cursor position
- * remains unchanged.
+ * Finishes the composing text that is currently active. This simply leaves the text as-is, removing
+ * any special composing styling or other state that was around it. The cursor position remains
+ * unchanged.
  *
- * See [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
+ * See
+ * [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
  */
 class FinishComposingTextCommand : EditCommand {
 
@@ -443,6 +433,7 @@ class FinishComposingTextCommand : EditCommand {
     }
 
     override fun equals(other: Any?): Boolean = other is FinishComposingTextCommand
+
     override fun hashCode(): Int = this::class.hashCode()
 
     override fun toString(): String {
@@ -453,9 +444,9 @@ class FinishComposingTextCommand : EditCommand {
 /**
  * Represents a backspace operation at the cursor position.
  *
- * If there is composition, delete the text in the composition range.
- * If there is no composition but there is selection, delete whole selected range.
- * If there is no composition and selection, perform backspace key event at the cursor position.
+ * If there is composition, delete the text in the composition range. If there is no composition but
+ * there is selection, delete whole selected range. If there is no composition and selection,
+ * perform backspace key event at the cursor position.
  */
 class BackspaceCommand : EditCommand {
 
@@ -498,9 +489,7 @@ class BackspaceCommand : EditCommand {
  *
  * @param amount The amount of cursor movement. If you want to move backward, pass negative value.
  */
-class MoveCursorCommand(
-    val amount: Int
-) : EditCommand {
+class MoveCursorCommand(val amount: Int) : EditCommand {
 
     override fun applyTo(buffer: EditingBuffer) {
         if (buffer.cursor == -1) {
@@ -544,9 +533,7 @@ class MoveCursorCommand(
     }
 }
 
-/**
- * Deletes all the text in the buffer.
- */
+/** Deletes all the text in the buffer. */
 class DeleteAllCommand : EditCommand {
     override fun applyTo(buffer: EditingBuffer) {
         buffer.replace(0, buffer.length, "")
@@ -562,8 +549,8 @@ class DeleteAllCommand : EditCommand {
 }
 
 /**
- * Helper function that returns true when [high] is a Unicode high-surrogate code unit and [low]
- * is a Unicode low-surrogate code unit.
+ * Helper function that returns true when [high] is a Unicode high-surrogate code unit and [low] is
+ * a Unicode low-surrogate code unit.
  */
 private fun isSurrogatePair(high: Char, low: Char): Boolean =
     high.isHighSurrogate() && low.isLowSurrogate()

@@ -81,7 +81,7 @@ import org.jetbrains.kotlin.name.Name
  *     Test$DefaultsImpl.doSomething(instance)
  *     Test$DefaultsImpl.doSomething(instance, 0)
  * }
- *```
+ * ```
  */
 class ComposableDefaultParamLowering(
     context: IrPluginContext,
@@ -126,22 +126,19 @@ class ComposableDefaultParamLowering(
             return super.visitCall(expression)
         }
 
-        val newCall = irCall(
-            wrapper,
-            expression.startOffset,
-            expression.endOffset
-        ).also { newCall ->
-            var argCount = expression.valueArgumentsCount
-            for (i in 0 until argCount) {
-                newCall.putValueArgument(i, expression.getValueArgument(i))
+        val newCall =
+            irCall(wrapper, expression.startOffset, expression.endOffset).also { newCall ->
+                var argCount = expression.valueArgumentsCount
+                for (i in 0 until argCount) {
+                    newCall.putValueArgument(i, expression.getValueArgument(i))
+                }
+                if (expression.dispatchReceiver != null) {
+                    newCall.putValueArgument(argCount++, expression.dispatchReceiver)
+                }
+                if (expression.extensionReceiver != null) {
+                    newCall.putValueArgument(argCount, expression.extensionReceiver)
+                }
             }
-            if (expression.dispatchReceiver != null) {
-                newCall.putValueArgument(argCount++, expression.dispatchReceiver)
-            }
-            if (expression.extensionReceiver != null) {
-                newCall.putValueArgument(argCount, expression.extensionReceiver)
-            }
-        }
 
         return super.visitCall(newCall)
     }
@@ -158,15 +155,9 @@ class ComposableDefaultParamLowering(
             else -> error("Cannot add wrapper function to $parent")
         }
 
-        context.irTrace.record(
-            ComposeWritableSlices.IS_VIRTUAL_WITH_DEFAULT_PARAM,
-            this,
-            true
-        )
+        context.irTrace.record(ComposeWritableSlices.IS_VIRTUAL_WITH_DEFAULT_PARAM, this, true)
 
-        valueParameters.forEach {
-            it.defaultValue = null
-        }
+        valueParameters.forEach { it.defaultValue = null }
 
         return wrapper
     }
@@ -197,30 +188,27 @@ class ComposableDefaultParamLowering(
             overriddenSymbols.isEmpty() && // first in the chain of overrides
             valueParameters.any { it.defaultValue != null } // has a default parameter
 
-    private fun makeDefaultParameterWrapper(
-        source: IrSimpleFunction
-    ): IrSimpleFunction {
-        val wrapper = context.irFactory.createSimpleFunction(
-            startOffset = source.startOffset,
-            endOffset = source.endOffset,
-            origin = IrDeclarationOrigin.DEFINED,
-            name = Name.identifier("${source.name.asString()}\$default"),
-            visibility = source.visibility,
-            isInline = false,
-            isExpect = false,
-            returnType = source.returnType,
-            modality = Modality.FINAL,
-            symbol = IrSimpleFunctionSymbolImpl(),
-            isTailrec = source.isTailrec,
-            isSuspend = false,
-            isOperator = false,
-            isInfix = false,
-        )
+    private fun makeDefaultParameterWrapper(source: IrSimpleFunction): IrSimpleFunction {
+        val wrapper =
+            context.irFactory.createSimpleFunction(
+                startOffset = source.startOffset,
+                endOffset = source.endOffset,
+                origin = IrDeclarationOrigin.DEFINED,
+                name = Name.identifier("${source.name.asString()}\$default"),
+                visibility = source.visibility,
+                isInline = false,
+                isExpect = false,
+                returnType = source.returnType,
+                modality = Modality.FINAL,
+                symbol = IrSimpleFunctionSymbolImpl(),
+                isTailrec = source.isTailrec,
+                isSuspend = false,
+                isOperator = false,
+                isInfix = false,
+            )
         wrapper.copyAnnotationsFrom(source)
         wrapper.copyParametersFrom(source)
-        wrapper.valueParameters.forEach {
-            it.defaultValue?.transformChildrenVoid()
-        }
+        wrapper.valueParameters.forEach { it.defaultValue?.transformChildrenVoid() }
         // move receiver parameters to value parameters
         val dispatcherReceiver = wrapper.dispatchReceiverParameter
         var index = wrapper.valueParameters.size
@@ -236,35 +224,34 @@ class ComposableDefaultParamLowering(
             wrapper.extensionReceiverParameter = null
         }
 
-        wrapper.body = DeclarationIrBuilder(
-            context,
-            wrapper.symbol
-        ).irBlockBody {
-            +irCall(
-                source.symbol,
-                dispatchReceiver = dispatcherReceiver?.let(::irGet),
-                extensionReceiver = extensionReceiver?.let(::irGet),
-                args = Array(source.valueParameters.size) {
-                    irGet(wrapper.valueParameters[it])
-                }
-            )
-        }
+        wrapper.body =
+            DeclarationIrBuilder(context, wrapper.symbol).irBlockBody {
+                +irCall(
+                    source.symbol,
+                    dispatchReceiver = dispatcherReceiver?.let(::irGet),
+                    extensionReceiver = extensionReceiver?.let(::irGet),
+                    args = Array(source.valueParameters.size) { irGet(wrapper.valueParameters[it]) }
+                )
+            }
 
         return wrapper
     }
 
     private fun getOrCreateDefaultImpls(parent: IrClass): IrClass {
-        val cls = parent.declarations.find {
-            it is IrClass && it.name == ComposeNames.DEFAULT_IMPLS
-        } as? IrClass
+        val cls =
+            parent.declarations.find { it is IrClass && it.name == ComposeNames.DEFAULT_IMPLS }
+                as? IrClass
 
-        return cls ?: context.irFactory.buildClass {
-            startOffset = parent.startOffset
-            endOffset = parent.endOffset
-            name = ComposeNames.DEFAULT_IMPLS
-        }.apply {
-            parent.addChild(this)
-            createImplicitParameterDeclarationWithWrappedDescriptor()
-        }
+        return cls
+            ?: context.irFactory
+                .buildClass {
+                    startOffset = parent.startOffset
+                    endOffset = parent.endOffset
+                    name = ComposeNames.DEFAULT_IMPLS
+                }
+                .apply {
+                    parent.addChild(this)
+                    createImplicitParameterDeclarationWithWrappedDescriptor()
+                }
     }
 }

@@ -58,8 +58,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AndroidUiDispatcherTest {
-    @get:Rule
-    val rule = activityScenarioRule<AppCompatActivity>()
+    @get:Rule val rule = activityScenarioRule<AppCompatActivity>()
 
     @Before
     fun setup() {
@@ -67,35 +66,36 @@ class AndroidUiDispatcherTest {
     }
 
     @Test
-    fun currentThreadIsMainOnMainThread() = runBlocking(Dispatchers.Main) {
-        assertSame(AndroidUiDispatcher.Main, AndroidUiDispatcher.CurrentThread)
-    }
+    fun currentThreadIsMainOnMainThread() =
+        runBlocking(Dispatchers.Main) {
+            assertSame(AndroidUiDispatcher.Main, AndroidUiDispatcher.CurrentThread)
+        }
 
     @Test
-    fun runsBeforeFrameCallback() = runBlocking(Dispatchers.Main) {
-        rule.scenario.onActivity {
-            // Force creation of decor view to ensure we have a frame scheduled
-            it.window.decorView
+    fun runsBeforeFrameCallback() =
+        runBlocking(Dispatchers.Main) {
+            rule.scenario.onActivity {
+                // Force creation of decor view to ensure we have a frame scheduled
+                it.window.decorView
+            }
+
+            var ranOnUiDispatcher = false
+            launch(AndroidUiDispatcher.Main) { ranOnUiDispatcher = true }
+
+            val choreographerResult = CompletableDeferred<Boolean>()
+            Choreographer.getInstance().postFrameCallback {
+                choreographerResult.complete(ranOnUiDispatcher)
+            }
+
+            assertTrue("UI dispatcher ran before choreographer frame", choreographerResult.await())
         }
-
-        var ranOnUiDispatcher = false
-        launch(AndroidUiDispatcher.Main) { ranOnUiDispatcher = true }
-
-        val choreographerResult = CompletableDeferred<Boolean>()
-        Choreographer.getInstance().postFrameCallback {
-            choreographerResult.complete(ranOnUiDispatcher)
-        }
-
-        assertTrue("UI dispatcher ran before choreographer frame", choreographerResult.await())
-    }
 
     /**
-     * Verify that [AndroidUiDispatcher] will run a resumed continuation before
-     * the next frame is drawn, even if that continuation is resumed during the dispatch of
-     * batched input. Batched input is dispatched during an atomic sequence of events handled
-     * by the [Choreographer] of input => animation callbacks => measure => layout => draw,
-     * which will cause dispatchers that schedule entirely based on [android.os.Handler] messages
-     * to miss the current frame.
+     * Verify that [AndroidUiDispatcher] will run a resumed continuation before the next frame is
+     * drawn, even if that continuation is resumed during the dispatch of batched input. Batched
+     * input is dispatched during an atomic sequence of events handled by the [Choreographer] of
+     * input => animation callbacks => measure => layout => draw, which will cause dispatchers that
+     * schedule entirely based on [android.os.Handler] messages to miss the current frame.
      *
      * This test also verifies that a call to [AndroidUiDispatcher.frameClock]'s
      * [MonotonicFrameClock.withFrameNanos] will resume in time to make the current frame if called
@@ -121,12 +121,8 @@ class AndroidUiDispatcherTest {
                         // Use the frame clock provided by AndroidUiDispatcher.Main
                         launch(AndroidUiDispatcher.Main) {
                             ranInputJobOnFrame.complete(preDrawCount)
-                            withFrameNanos {
-                                withFrameOnFrame.complete(preDrawCount)
-                            }
-                            withFrameNanos {
-                                withFrameSecondCall.complete(preDrawCount)
-                            }
+                            withFrameNanos { withFrameOnFrame.complete(preDrawCount) }
+                            withFrameNanos { withFrameSecondCall.complete(preDrawCount) }
                         }
                         invalidate()
                         true
@@ -184,58 +180,50 @@ class AndroidUiDispatcherTest {
     }
 
     /**
-     * Test that an AndroidUiDispatcher can be wrapped by another ContinuationInterceptor
-     * without breaking the MonotonicFrameClock's ability to coordinate with its
-     * original dispatcher.
+     * Test that an AndroidUiDispatcher can be wrapped by another ContinuationInterceptor without
+     * breaking the MonotonicFrameClock's ability to coordinate with its original dispatcher.
      *
      * Construct a situation where the Choreographer contains three frame callbacks:
      * 1) checkpoint 1
      * 2) the AndroidUiDispatcher awaiting-frame callback
-     * 3) checkpoint 2
-     * Confirm that a call to withFrameNanos made *after* these three frame callbacks
-     * are enqueued runs *before* checkpoint 2, indicating that it ran with the original
-     * dispatcher's awaiting-frame callback, even though we wrapped the dispatcher.
+     * 3) checkpoint 2 Confirm that a call to withFrameNanos made *after* these three frame
+     *    callbacks are enqueued runs *before* checkpoint 2, indicating that it ran with the
+     *    original dispatcher's awaiting-frame callback, even though we wrapped the dispatcher.
      */
     @Test
-    fun wrappedDispatcherPostsToDispatcherFrameClock() = runBlocking(Dispatchers.Main) {
-        val uiDispatcherContext = AndroidUiDispatcher.Main
-        val uiDispatcher = uiDispatcherContext[ContinuationInterceptor] as CoroutineDispatcher
-        val wrapperDispatcher = object : CoroutineDispatcher() {
-            override fun dispatch(context: CoroutineContext, block: Runnable) {
-                uiDispatcher.dispatch(context, block)
+    fun wrappedDispatcherPostsToDispatcherFrameClock() =
+        runBlocking(Dispatchers.Main) {
+            val uiDispatcherContext = AndroidUiDispatcher.Main
+            val uiDispatcher = uiDispatcherContext[ContinuationInterceptor] as CoroutineDispatcher
+            val wrapperDispatcher =
+                object : CoroutineDispatcher() {
+                    override fun dispatch(context: CoroutineContext, block: Runnable) {
+                        uiDispatcher.dispatch(context, block)
+                    }
+                }
+
+            val choreographer = Choreographer.getInstance()
+
+            val expectCount = AtomicInteger(1)
+            fun expect(value: Int) {
+                while (true) {
+                    val old = expectCount.get()
+                    if (old != value) fail("expected sequence $old but encountered $value")
+                    if (expectCount.compareAndSet(value, value + 1)) break
+                }
+            }
+
+            choreographer.postFrameCallback { expect(1) }
+
+            launch(uiDispatcherContext, start = CoroutineStart.UNDISPATCHED) {
+                withFrameNanos { expect(2) }
+            }
+
+            choreographer.postFrameCallback { expect(4) }
+
+            withContext(uiDispatcherContext + wrapperDispatcher) {
+                withFrameNanos { expect(3) }
+                expect(5)
             }
         }
-
-        val choreographer = Choreographer.getInstance()
-
-        val expectCount = AtomicInteger(1)
-        fun expect(value: Int) {
-            while (true) {
-                val old = expectCount.get()
-                if (old != value) fail("expected sequence $old but encountered $value")
-                if (expectCount.compareAndSet(value, value + 1)) break
-            }
-        }
-
-        choreographer.postFrameCallback {
-            expect(1)
-        }
-
-        launch(uiDispatcherContext, start = CoroutineStart.UNDISPATCHED) {
-            withFrameNanos {
-                expect(2)
-            }
-        }
-
-        choreographer.postFrameCallback {
-            expect(4)
-        }
-
-        withContext(uiDispatcherContext + wrapperDispatcher) {
-            withFrameNanos {
-                expect(3)
-            }
-            expect(5)
-        }
-    }
 }

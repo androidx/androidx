@@ -106,9 +106,7 @@ fun TextFieldReceiveContentDemo() {
                 hovering = false
             }
 
-            override fun onReceive(
-                transferableContent: TransferableContent
-            ): TransferableContent? {
+            override fun onReceive(transferableContent: TransferableContent): TransferableContent? {
                 val newImageUris = mutableListOf<Uri>()
                 return transferableContent
                     .consume { item ->
@@ -129,18 +127,19 @@ fun TextFieldReceiveContentDemo() {
         }
     }
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .contentReceiver(receiveContentListener)
-            .padding(16.dp)
-            .background(
-                color = when {
-                    hovering -> MaterialTheme.colors.primary
-                    dragging -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
-                    else -> MaterialTheme.colors.background
-                },
-                shape = RoundedCornerShape(8.dp)
-            ),
+        modifier =
+            Modifier.fillMaxSize()
+                .contentReceiver(receiveContentListener)
+                .padding(16.dp)
+                .background(
+                    color =
+                        when {
+                            hovering -> MaterialTheme.colors.primary
+                            dragging -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
+                            else -> MaterialTheme.colors.background
+                        },
+                    shape = RoundedCornerShape(8.dp)
+                ),
         verticalArrangement = Arrangement.Bottom
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
@@ -157,22 +156,18 @@ fun TextFieldReceiveContentDemo() {
                         bitmap = imageBitmap,
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(4.dp)
-                            .clip(RoundedCornerShape(4.dp))
+                        modifier =
+                            Modifier.fillMaxSize().padding(4.dp).clip(RoundedCornerShape(4.dp))
                     )
                     Icon(
                         Icons.Default.Clear,
                         "remove image",
-                        modifier = Modifier
-                            .size(16.dp)
-                            .align(Alignment.TopEnd)
-                            .background(MaterialTheme.colors.background, CircleShape)
-                            .clip(CircleShape)
-                            .clickable {
-                                images = images.filterNot { it == imageBitmap }
-                            }
+                        modifier =
+                            Modifier.size(16.dp)
+                                .align(Alignment.TopEnd)
+                                .background(MaterialTheme.colors.background, CircleShape)
+                                .clip(CircleShape)
+                                .clickable { images = images.filterNot { it == imageBitmap } }
                     )
                 }
             }
@@ -195,9 +190,7 @@ fun NestedReceiveContentDemo() {
         var descriptionToggle by remember { mutableStateOf(false) }
         Text(
             if (descriptionToggle) Description else "Click to see the description...",
-            Modifier
-                .padding(8.dp)
-                .clickable { descriptionToggle = !descriptionToggle }
+            Modifier.padding(8.dp).clickable { descriptionToggle = !descriptionToggle }
         )
         Spacer(Modifier.height(8.dp))
         ReceiveContentShowcase(
@@ -217,27 +210,27 @@ fun NestedReceiveContentDemo() {
                         transferableContent
                     } else {
                         var uri: Uri? = null
-                        transferableContent.consume { item ->
-                            // only consume this item if we can read
-                            if (item.uri != null && uri == null) {
-                                uri = item.uri
-                                true
-                            } else {
-                                false
+                        transferableContent
+                            .consume { item ->
+                                // only consume this item if we can read
+                                if (item.uri != null && uri == null) {
+                                    uri = item.uri
+                                    true
+                                } else {
+                                    false
+                                }
                             }
-                        }.also {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                uri?.readImageBitmap(context)?.let { images = listOf(it) }
+                            .also {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    uri?.readImageBitmap(context)?.let { images = listOf(it) }
+                                }
                             }
-                        }
                     }
                 },
                 onClear = { images = emptyList() }
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    images.forEach {
-                        Image(it, contentDescription = null, Modifier.size(100.dp))
-                    }
+                    images.forEach { Image(it, contentDescription = null, Modifier.size(100.dp)) }
                 }
                 ReceiveContentShowcase(
                     title = "Text Consumer",
@@ -279,24 +272,19 @@ private fun ReceiveContentShowcase(
             onReceive(it)
         }
     }
-    Column(
-        modifier
-            .dropReceiveContent(receiveContentState)
-            .padding(8.dp)
-    ) {
+    Column(modifier.dropReceiveContent(receiveContentState).padding(8.dp)) {
         Card(
-            Modifier
-                .fillMaxWidth()
-                .clickable {
-                    transferableContentState.value = null
-                    onClear()
-                },
+            Modifier.fillMaxWidth().clickable {
+                transferableContentState.value = null
+                onClear()
+            },
             elevation = 4.dp,
-            backgroundColor = if (receiveContentState.hovering) {
-                MaterialTheme.colors.secondary
-            } else {
-                MaterialTheme.colors.surface
-            }
+            backgroundColor =
+                if (receiveContentState.hovering) {
+                    MaterialTheme.colors.secondary
+                } else {
+                    MaterialTheme.colors.surface
+                }
         ) {
             Column(
                 modifier = Modifier.padding(8.dp),
@@ -338,10 +326,7 @@ private fun ReceiveContentShowcase(
 }
 
 @Composable
-private fun KeyValueEntry(
-    key: String,
-    value: String
-) {
+private fun KeyValueEntry(key: String, value: String) {
     Row {
         Text(key, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.width(8.dp))
@@ -353,10 +338,11 @@ private fun KeyValueEntry(
 private fun Uri.readImageBitmap(context: Context): ImageBitmap? {
     return try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
-        } else {
-            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
-        }.asImageBitmap()
+                ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
+            } else {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+            }
+            .asImageBitmap()
     } catch (e: Exception) {
         null
     }
@@ -370,63 +356,62 @@ private fun Uri.isImageBitmap(context: Context): Boolean {
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-class ReceiveContentState(
-    private val onReceive: (TransferableContent) -> TransferableContent?
-) {
+class ReceiveContentState(private val onReceive: (TransferableContent) -> TransferableContent?) {
     internal var hovering by mutableStateOf(false)
     internal var dragging by mutableStateOf(false)
 
-    internal val listener = object : ReceiveContentListener {
-        override fun onDragEnter() {
-            hovering = true
-        }
+    internal val listener =
+        object : ReceiveContentListener {
+            override fun onDragEnter() {
+                hovering = true
+            }
 
-        override fun onDragEnd() {
-            hovering = false
-            dragging = false
-        }
+            override fun onDragEnd() {
+                hovering = false
+                dragging = false
+            }
 
-        override fun onDragStart() {
-            dragging = true
-        }
+            override fun onDragStart() {
+                dragging = true
+            }
 
-        override fun onDragExit() {
-            hovering = false
-        }
+            override fun onDragExit() {
+                hovering = false
+            }
 
-        override fun onReceive(transferableContent: TransferableContent): TransferableContent? {
-            dragging = false
-            hovering = false
-            return this@ReceiveContentState.onReceive(transferableContent)
+            override fun onReceive(transferableContent: TransferableContent): TransferableContent? {
+                dragging = false
+                hovering = false
+                return this@ReceiveContentState.onReceive(transferableContent)
+            }
         }
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-fun Modifier.dropReceiveContent(
-    state: ReceiveContentState
-) = composed {
+fun Modifier.dropReceiveContent(state: ReceiveContentState) = composed {
     contentReceiver(state.listener)
         .background(
-            color = if (state.hovering) {
-                MaterialTheme.colors.secondary
-            } else if (state.dragging) {
-                MaterialTheme.colors.primary
-            } else {
-                MaterialTheme.colors.surface
-            },
+            color =
+                if (state.hovering) {
+                    MaterialTheme.colors.secondary
+                } else if (state.dragging) {
+                    MaterialTheme.colors.primary
+                } else {
+                    MaterialTheme.colors.surface
+                },
             shape = RoundedCornerShape(8.dp)
         )
 }
 
-private const val Description = "Below setup works as follows;\n" +
-    "  - There are 3 nested receiveContent nodes.\n" +
-    "  - The outermost one consumes everything that's passed to it.\n" +
-    "  - The middle one only consumes image content.\n" +
-    "  - The innermost one only consumes text content.\n" +
-    "  - BasicTextField that's nested the deepest would delegate whatever it receives " +
-    "to all 3 parents in order of proximity.\n" +
-    "  - Each node shows all the items it receives, not just what it consumes.\n\n" +
-    "ReceiveContent works with keyboard, paste, and drag/drop.\n" +
-    "Click on any card to clear its internal state.\n" +
-    "Click on this description to hide it."
+private const val Description =
+    "Below setup works as follows;\n" +
+        "  - There are 3 nested receiveContent nodes.\n" +
+        "  - The outermost one consumes everything that's passed to it.\n" +
+        "  - The middle one only consumes image content.\n" +
+        "  - The innermost one only consumes text content.\n" +
+        "  - BasicTextField that's nested the deepest would delegate whatever it receives " +
+        "to all 3 parents in order of proximity.\n" +
+        "  - Each node shows all the items it receives, not just what it consumes.\n\n" +
+        "ReceiveContent works with keyboard, paste, and drag/drop.\n" +
+        "Click on any card to clear its internal state.\n" +
+        "Click on this description to hide it."

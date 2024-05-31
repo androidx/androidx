@@ -70,22 +70,23 @@ import java.util.UUID
 /**
  * Properties used to customize the behavior of a [Dialog].
  *
- * @property dismissOnBackPress whether the dialog can be dismissed by pressing the back button.
- * If true, pressing the back button will call onDismissRequest.
+ * @property dismissOnBackPress whether the dialog can be dismissed by pressing the back button. If
+ *   true, pressing the back button will call onDismissRequest.
  * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
- * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
+ *   dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
  * @property securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the
- * dialog's window.
+ *   dialog's window.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
- * the platform default, which is smaller than the screen width.
+ *   the platform default, which is smaller than the screen width.
  * @property decorFitsSystemWindows Sets [WindowCompat.setDecorFitsSystemWindows] value. Set to
- * `false` to use WindowInsets. If `false`, the
- * [soft input mode][WindowManager.LayoutParams.softInputMode] will be changed to
- * [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE] and `android:windowIsFloating` is
- * set to `false` for Android [R][Build.VERSION_CODES.R] and earlier.
+ *   `false` to use WindowInsets. If `false`, the
+ *   [soft input mode][WindowManager.LayoutParams.softInputMode] will be changed to
+ *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE] and `android:windowIsFloating` is set to
+ *   `false` for Android [R][Build.VERSION_CODES.R] and earlier.
  */
 @Immutable
-actual class DialogProperties constructor(
+actual class DialogProperties
+constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -143,13 +144,13 @@ actual class DialogProperties constructor(
 /**
  * Opens a dialog with the given content.
  *
- * A dialog is a small window that prompts the user to make a decision or enter
- * additional information. A dialog does not fill the screen and is normally used
- * for modal events that require users to take an action before they can proceed.
+ * A dialog is a small window that prompts the user to make a decision or enter additional
+ * information. A dialog does not fill the screen and is normally used for modal events that require
+ * users to take an action before they can proceed.
  *
- * The dialog is visible as long as it is part of the composition hierarchy.
- * In order to let the user dismiss the Dialog, the implementation of [onDismissRequest] should
- * contain a way to remove the dialog from the composition hierarchy.
+ * The dialog is visible as long as it is part of the composition hierarchy. In order to let the
+ * user dismiss the Dialog, the implementation of [onDismissRequest] should contain a way to remove
+ * the dialog from the composition hierarchy.
  *
  * Example usage:
  *
@@ -171,26 +172,22 @@ actual fun Dialog(
     val composition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val dialogId = rememberSaveable { UUID.randomUUID() }
-    val dialog = remember(view, density) {
-        DialogWrapper(
-            onDismissRequest,
-            properties,
-            view,
-            layoutDirection,
-            density,
-            dialogId
-        ).apply {
-            setContent(composition) {
-                // TODO(b/159900354): draw a scrim and add margins around the Compose Dialog, and
-                //  consume clicks so they can't pass through to the underlying UI
-                DialogLayout(
-                    Modifier.semantics { dialog() },
-                ) {
-                    currentContent()
+    val dialog =
+        remember(view, density) {
+            DialogWrapper(onDismissRequest, properties, view, layoutDirection, density, dialogId)
+                .apply {
+                    setContent(composition) {
+                        // TODO(b/159900354): draw a scrim and add margins around the Compose
+                        // Dialog, and
+                        //  consume clicks so they can't pass through to the underlying UI
+                        DialogLayout(
+                            Modifier.semantics { dialog() },
+                        ) {
+                            currentContent()
+                        }
+                    }
                 }
-            }
         }
-    }
 
     DisposableEffect(dialog) {
         dialog.show()
@@ -220,10 +217,8 @@ interface DialogWindowProvider {
 }
 
 @Suppress("ViewConstructor")
-private class DialogLayout(
-    context: Context,
-    override val window: Window
-) : AbstractComposeView(context), DialogWindowProvider {
+private class DialogLayout(context: Context, override val window: Window) :
+    AbstractComposeView(context), DialogWindowProvider {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
 
@@ -291,20 +286,23 @@ private class DialogWrapper(
     layoutDirection: LayoutDirection,
     density: Density,
     dialogId: UUID
-) : ComponentDialog(
-    /**
-     * [Window.setClipToOutline] is only available from 22+, but the style attribute exists on 21.
-     * So use a wrapped context that sets this attribute for compatibility back to 21.
-     */
-    ContextThemeWrapper(
-        composeView.context,
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || properties.decorFitsSystemWindows) {
-            R.style.DialogWindowTheme
-        } else {
-            R.style.FloatingDialogWindowTheme
-        }
-    )
-),
+) :
+    ComponentDialog(
+        /**
+         * [Window.setClipToOutline] is only available from 22+, but the style attribute exists
+         * on 21. So use a wrapped context that sets this attribute for compatibility back to 21.
+         */
+        ContextThemeWrapper(
+            composeView.context,
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || properties.decorFitsSystemWindows
+            ) {
+                R.style.DialogWindowTheme
+            } else {
+                R.style.FloatingDialogWindowTheme
+            }
+        )
+    ),
     ViewRootForInspector {
 
     private val dialogLayout: DialogLayout
@@ -313,7 +311,8 @@ private class DialogWrapper(
     // elevation, so high values of maxSupportedElevation break accessibility services: b/232788477.
     private val maxSupportedElevation = 8.dp
 
-    override val subCompositionView: AbstractComposeView get() = dialogLayout
+    override val subCompositionView: AbstractComposeView
+        get() = dialogLayout
 
     private val defaultSoftInputMode: Int
 
@@ -325,28 +324,33 @@ private class DialogWrapper(
         window.setBackgroundDrawableResource(android.R.color.transparent)
         @OptIn(ExperimentalComposeUiApi::class)
         WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
-        dialogLayout = DialogLayout(context, window).apply {
-            // Set unique id for AbstractComposeView. This allows state restoration for the state
-            // defined inside the Dialog via rememberSaveable()
-            setTag(R.id.compose_view_saveable_id_tag, "Dialog:$dialogId")
-            // Enable children to draw their shadow by not clipping them
-            clipChildren = false
-            // Allocate space for elevation
-            with(density) { elevation = maxSupportedElevation.toPx() }
-            // Simple outline to force window manager to allocate space for shadow.
-            // Note that the outline affects clickable area for the dismiss listener. In case of
-            // shapes like circle the area for dismiss might be to small (rectangular outline
-            // consuming clicks outside of the circle).
-            outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, result: Outline) {
-                    result.setRect(0, 0, view.width, view.height)
-                    // We set alpha to 0 to hide the view's shadow and let the composable to draw
-                    // its own shadow. This still enables us to get the extra space needed in the
-                    // surface.
-                    result.alpha = 0f
-                }
+        dialogLayout =
+            DialogLayout(context, window).apply {
+                // Set unique id for AbstractComposeView. This allows state restoration for the
+                // state
+                // defined inside the Dialog via rememberSaveable()
+                setTag(R.id.compose_view_saveable_id_tag, "Dialog:$dialogId")
+                // Enable children to draw their shadow by not clipping them
+                clipChildren = false
+                // Allocate space for elevation
+                with(density) { elevation = maxSupportedElevation.toPx() }
+                // Simple outline to force window manager to allocate space for shadow.
+                // Note that the outline affects clickable area for the dismiss listener. In case of
+                // shapes like circle the area for dismiss might be to small (rectangular outline
+                // consuming clicks outside of the circle).
+                outlineProvider =
+                    object : ViewOutlineProvider() {
+                        override fun getOutline(view: View, result: Outline) {
+                            result.setRect(0, 0, view.width, view.height)
+                            // We set alpha to 0 to hide the view's shadow and let the composable to
+                            // draw
+                            // its own shadow. This still enables us to get the extra space needed
+                            // in the
+                            // surface.
+                            result.alpha = 0f
+                        }
+                    }
             }
-        }
 
         /**
          * Disables clipping for [this] and all its descendant [ViewGroup]s until we reach a
@@ -385,10 +389,11 @@ private class DialogWrapper(
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
-        dialogLayout.layoutDirection = when (layoutDirection) {
-            LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
-            LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
-        }
+        dialogLayout.layoutDirection =
+            when (layoutDirection) {
+                LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
+                LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
+            }
     }
 
     // TODO(b/159900354): Make the Android Dialog full screen and the scrim fully transparent
@@ -459,19 +464,11 @@ private class DialogWrapper(
 }
 
 @Composable
-private fun DialogLayout(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Layout(
-        content = content,
-        modifier = modifier
-    ) { measurables, constraints ->
+private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Layout(content = content, modifier = modifier) { measurables, constraints ->
         val placeables = measurables.fastMap { it.measure(constraints) }
         val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
         val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-        layout(width, height) {
-            placeables.fastForEach { it.placeRelative(0, 0) }
-        }
+        layout(width, height) { placeables.fastForEach { it.placeRelative(0, 0) } }
     }
 }

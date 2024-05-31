@@ -15,5 +15,4 @@
  */
 package androidx.compose.ui.layout
 
-@DslMarker
-annotation class PlacementScopeMarker
+@DslMarker annotation class PlacementScopeMarker

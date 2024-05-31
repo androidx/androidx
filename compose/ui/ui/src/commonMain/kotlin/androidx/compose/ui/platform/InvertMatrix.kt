@@ -19,8 +19,8 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.graphics.Matrix
 
 /**
- * Sets [other] to be the inverse of this. Returns `true` if the inverse worked or `false`
- * if it failed.
+ * Sets [other] to be the inverse of this. Returns `true` if the inverse worked or `false` if it
+ * failed.
  */
 internal fun Matrix.invertTo(other: Matrix): Boolean {
     val a00 = this[0, 0]
@@ -51,8 +51,7 @@ internal fun Matrix.invertTo(other: Matrix): Boolean {
     val b09 = a21 * a32 - a22 * a31
     val b10 = a21 * a33 - a23 * a31
     val b11 = a22 * a33 - a23 * a32
-    val det =
-        (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
+    val det = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
     if (det == 0.0f) {
         return false
     }

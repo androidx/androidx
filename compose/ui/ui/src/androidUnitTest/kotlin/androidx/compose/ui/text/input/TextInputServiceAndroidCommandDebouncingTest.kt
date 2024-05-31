@@ -42,9 +42,13 @@ class TextInputServiceAndroidCommandDebouncingTest {
     private val view = mock<View>()
     private val inputMethodManager = TestInputMethodManager()
     private val executor = Executor { runnable -> scope.launch { runnable.run() } }
-    private val service = TextInputServiceAndroid(
-        view, mock(), inputMethodManager, inputCommandProcessorExecutor = executor
-    )
+    private val service =
+        TextInputServiceAndroid(
+            view,
+            mock(),
+            inputMethodManager,
+            inputCommandProcessorExecutor = executor
+        )
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher + Job())
 
@@ -162,9 +166,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun multipleShowCallsAreDebounced() {
-        repeat(10) {
-            service.showSoftwareKeyboard()
-        }
+        repeat(10) { service.showSoftwareKeyboard() }
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
@@ -172,9 +174,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
 
     @Test
     fun multipleHideCallsAreDebounced() {
-        repeat(10) {
-            service.hideSoftwareKeyboard()
-        }
+        repeat(10) { service.hideSoftwareKeyboard() }
         scope.advanceUntilIdle()
 
         assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(1)
@@ -301,18 +301,15 @@ class TextInputServiceAndroidCommandDebouncingTest {
             hideSoftInputCalls++
         }
 
-        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {
-        }
+        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
 
         override fun updateSelection(
             selectionStart: Int,
             selectionEnd: Int,
             compositionStart: Int,
             compositionEnd: Int
-        ) {
-        }
+        ) {}
 
-        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
-        }
+        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
     }
 }

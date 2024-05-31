@@ -57,7 +57,8 @@ class KeyInfo(
     val hasDuplicates: Boolean,
 ) {
     var used: Boolean = false
-    val key: Int get() = name.hashCode()
+    val key: Int
+        get() = name.hashCode()
 }
 
 /**
@@ -93,7 +94,6 @@ class KeyInfo(
  *       }
  *       endGroup()
  *     }
- *
  *     @FunctionKeyMetaClass
  *     @FunctionKeyMeta(key=123, startOffset=24, endOffset=56)
  *     @FunctionKeyMeta(key=345, startOffset=32, endOffset=43)
@@ -107,122 +107,121 @@ class DurableFunctionKeyTransformer(
     metrics: ModuleMetrics,
     stabilityInferencer: StabilityInferencer,
     featureFlags: FeatureFlags,
-) : DurableKeyTransformer(
-    DurableKeyVisitor(),
-    context,
-    symbolRemapper,
-    stabilityInferencer,
-    metrics,
-    featureFlags,
-) {
+) :
+    DurableKeyTransformer(
+        DurableKeyVisitor(),
+        context,
+        symbolRemapper,
+        stabilityInferencer,
+        metrics,
+        featureFlags,
+    ) {
     fun removeKeyMetaClasses(moduleFragment: IrModuleFragment) {
-        moduleFragment.transformChildrenVoid(object : IrElementTransformerVoid() {
-            override fun visitFile(declaration: IrFile): IrFile {
-                includeFileNameInExceptionTrace(declaration) {
-                    val children = declaration.declarations.toList().filterIsInstance<IrClass>()
-                    for (child in children) {
-                        val keys = context.irTrace[DURABLE_FUNCTION_KEYS, child]
-                        if (keys != null) {
-                            declaration.declarations.remove(child)
-                        }
-                    }
-                    return declaration
-                }
-            }
-        })
-    }
-
-    fun realizeKeyMetaAnnotations(moduleFragment: IrModuleFragment) {
-        moduleFragment.transformChildrenVoid(object : IrElementTransformerVoid() {
-            override fun visitFile(declaration: IrFile): IrFile {
-                includeFileNameInExceptionTrace(declaration) {
-                    val children = declaration.declarations.toList().filterIsInstance<IrClass>()
-                    for (child in children) {
-                        val keys = context.irTrace[DURABLE_FUNCTION_KEYS, child]
-                        if (keys != null) {
-                            val usedKeys = keys.filter { it.used }
-                            if (usedKeys.isNotEmpty()) {
-                                child.annotations += usedKeys.map { irKeyMetaAnnotation(it) }
-                            } else {
+        moduleFragment.transformChildrenVoid(
+            object : IrElementTransformerVoid() {
+                override fun visitFile(declaration: IrFile): IrFile {
+                    includeFileNameInExceptionTrace(declaration) {
+                        val children = declaration.declarations.toList().filterIsInstance<IrClass>()
+                        for (child in children) {
+                            val keys = context.irTrace[DURABLE_FUNCTION_KEYS, child]
+                            if (keys != null) {
                                 declaration.declarations.remove(child)
                             }
                         }
+                        return declaration
                     }
-                    return declaration
                 }
             }
-        })
+        )
+    }
+
+    fun realizeKeyMetaAnnotations(moduleFragment: IrModuleFragment) {
+        moduleFragment.transformChildrenVoid(
+            object : IrElementTransformerVoid() {
+                override fun visitFile(declaration: IrFile): IrFile {
+                    includeFileNameInExceptionTrace(declaration) {
+                        val children = declaration.declarations.toList().filterIsInstance<IrClass>()
+                        for (child in children) {
+                            val keys = context.irTrace[DURABLE_FUNCTION_KEYS, child]
+                            if (keys != null) {
+                                val usedKeys = keys.filter { it.used }
+                                if (usedKeys.isNotEmpty()) {
+                                    child.annotations += usedKeys.map { irKeyMetaAnnotation(it) }
+                                } else {
+                                    declaration.declarations.remove(child)
+                                }
+                            }
+                        }
+                        return declaration
+                    }
+                }
+            }
+        )
     }
 
     var currentKeys = mutableListOf<KeyInfo>()
 
-    private val keyMetaAnnotation =
-        getTopLevelClassOrNull(ComposeClassIds.FunctionKeyMeta)
-    private val metaClassAnnotation =
-        getTopLevelClassOrNull(ComposeClassIds.FunctionKeyMetaClass)
+    private val keyMetaAnnotation = getTopLevelClassOrNull(ComposeClassIds.FunctionKeyMeta)
+    private val metaClassAnnotation = getTopLevelClassOrNull(ComposeClassIds.FunctionKeyMetaClass)
 
-    private fun irKeyMetaAnnotation(
-        key: KeyInfo
-    ): IrConstructorCall = IrConstructorCallImpl(
-        UNDEFINED_OFFSET,
-        UNDEFINED_OFFSET,
-        keyMetaAnnotation!!.defaultType,
-        keyMetaAnnotation.constructors.single(),
-        0,
-        0,
-        3
-    ).apply {
-        putValueArgument(0, irConst(key.key.hashCode()))
-        putValueArgument(1, irConst(key.startOffset))
-        putValueArgument(2, irConst(key.endOffset))
-    }
+    private fun irKeyMetaAnnotation(key: KeyInfo): IrConstructorCall =
+        IrConstructorCallImpl(
+                UNDEFINED_OFFSET,
+                UNDEFINED_OFFSET,
+                keyMetaAnnotation!!.defaultType,
+                keyMetaAnnotation.constructors.single(),
+                0,
+                0,
+                3
+            )
+            .apply {
+                putValueArgument(0, irConst(key.key.hashCode()))
+                putValueArgument(1, irConst(key.startOffset))
+                putValueArgument(2, irConst(key.endOffset))
+            }
 
-    private fun irMetaClassAnnotation(
-        file: String
-    ): IrConstructorCall = IrConstructorCallImpl(
-        UNDEFINED_OFFSET,
-        UNDEFINED_OFFSET,
-        metaClassAnnotation!!.defaultType,
-        metaClassAnnotation.constructors.single(),
-        0,
-        0,
-        1
-    ).apply {
-        putValueArgument(0, irConst(file))
-    }
+    private fun irMetaClassAnnotation(file: String): IrConstructorCall =
+        IrConstructorCallImpl(
+                UNDEFINED_OFFSET,
+                UNDEFINED_OFFSET,
+                metaClassAnnotation!!.defaultType,
+                metaClassAnnotation.constructors.single(),
+                0,
+                0,
+                1
+            )
+            .apply { putValueArgument(0, irConst(file)) }
 
     private fun buildClass(filePath: String): IrClass {
         val fileName = filePath.split('/').last()
-        return context.irFactory.buildClass {
-            kind = ClassKind.CLASS
-            visibility = DescriptorVisibilities.INTERNAL
-            val shortName = PackagePartClassUtils.getFilePartShortName(fileName)
-            // the name of the LiveLiterals class is per-file, so we use the same name that
-            // the kotlin file class lowering produces, prefixed with `LiveLiterals$`.
-            name = Name.identifier("$shortName\$KeyMeta")
-        }.also {
-            it.createParameterDeclarations()
+        return context.irFactory
+            .buildClass {
+                kind = ClassKind.CLASS
+                visibility = DescriptorVisibilities.INTERNAL
+                val shortName = PackagePartClassUtils.getFilePartShortName(fileName)
+                // the name of the LiveLiterals class is per-file, so we use the same name that
+                // the kotlin file class lowering produces, prefixed with `LiveLiterals$`.
+                name = Name.identifier("$shortName\$KeyMeta")
+            }
+            .also {
+                it.createParameterDeclarations()
 
-            // store the full file path to the file that this class is associated with in an
-            // annotation on the class. This will be used by tooling to associate the keys
-            // inside of this class with actual PSI in the editor.
-            if (metaClassAnnotation != null) {
-                it.annotations += irMetaClassAnnotation(filePath)
-            }
-            it.addConstructor {
-                isPrimary = true
-            }.also { ctor ->
-                ctor.body = DeclarationIrBuilder(context, it.symbol).irBlockBody {
-                    +irDelegatingConstructorCall(
-                        context
-                            .irBuiltIns
-                            .anyClass
-                            .owner
-                            .primaryConstructor!!
-                    )
+                // store the full file path to the file that this class is associated with in an
+                // annotation on the class. This will be used by tooling to associate the keys
+                // inside of this class with actual PSI in the editor.
+                if (metaClassAnnotation != null) {
+                    it.annotations += irMetaClassAnnotation(filePath)
                 }
+                it.addConstructor { isPrimary = true }
+                    .also { ctor ->
+                        ctor.body =
+                            DeclarationIrBuilder(context, it.symbol).irBlockBody {
+                                +irDelegatingConstructorCall(
+                                    context.irBuiltIns.anyClass.owner.primaryConstructor!!
+                                )
+                            }
+                    }
             }
-        }
     }
 
     override fun visitFile(declaration: IrFile): IrFile {
@@ -247,12 +246,13 @@ class DurableFunctionKeyTransformer(
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val signature = declaration.signatureString()
         val (fullName, success) = buildKey("fun-$signature")
-        val info = KeyInfo(
-            fullName,
-            declaration.startOffset,
-            declaration.endOffset,
-            !success,
-        )
+        val info =
+            KeyInfo(
+                fullName,
+                declaration.startOffset,
+                declaration.endOffset,
+                !success,
+            )
         currentKeys.add(info)
         context.irTrace.record(DURABLE_FUNCTION_KEY, declaration, info)
         return super.visitSimpleFunction(declaration)

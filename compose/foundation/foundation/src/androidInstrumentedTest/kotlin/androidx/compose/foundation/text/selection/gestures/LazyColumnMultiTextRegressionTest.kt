@@ -71,8 +71,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class LazyColumnMultiTextRegressionTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     private val stateRestorationTester = StateRestorationTester(rule)
     private val textCount = 20
 
@@ -198,12 +197,20 @@ class LazyColumnMultiTextRegressionTest {
         private val textToolbar: TextToolbarWrapper,
     ) {
         val initialText = "Initial text"
-        val selection: Selection? get() = Snapshot.withoutReadObservation { selectionState.value }
-        val textToolbarRect: Rect? get() = textToolbar.mostRecentRect
-        val textToolbarShown: Boolean get() = textToolbar.shown
+        val selection: Selection?
+            get() = Snapshot.withoutReadObservation { selectionState.value }
 
-        val startHandlePosition get() = handlePosition(Handle.SelectionStart)
-        val endHandlePosition get() = handlePosition(Handle.SelectionEnd)
+        val textToolbarRect: Rect?
+            get() = textToolbar.mostRecentRect
+
+        val textToolbarShown: Boolean
+            get() = textToolbar.shown
+
+        val startHandlePosition
+            get() = handlePosition(Handle.SelectionStart)
+
+        val endHandlePosition
+            get() = handlePosition(Handle.SelectionEnd)
 
         fun createSelection(startLine: Int, endLine: Int) {
             performTouchInput {
@@ -214,9 +221,7 @@ class LazyColumnMultiTextRegressionTest {
         }
 
         fun createSelection(line: Int) {
-            performTouchInput {
-                longClick(positionForLineInPointerArea(line))
-            }
+            performTouchInput { longClick(positionForLineInPointerArea(line)) }
         }
 
         private fun performTouchInput(block: TouchInjectionScope.() -> Unit) {
@@ -225,8 +230,8 @@ class LazyColumnMultiTextRegressionTest {
         }
 
         fun boundingBoxForLineInPointerArea(lineNumber: Int): Rect {
-            val containerPosition = rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode()
-                .positionInRoot
+            val containerPosition =
+                rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
             return boundingBoxForLineInRoot(lineNumber).translate(-containerPosition)
         }
 
@@ -237,18 +242,19 @@ class LazyColumnMultiTextRegressionTest {
             val lineStart = textLayoutResult.getLineStart(0)
             val lineEnd = textLayoutResult.getLineEnd(0)
 
-            val rect = if (lineStart == lineEnd - 1) {
-                textLayoutResult.getBoundingBox(lineStart)
-            } else {
-                val startRect = textLayoutResult.getBoundingBox(lineStart)
-                val endRect = textLayoutResult.getBoundingBox(lineEnd - 1)
-                Rect(
-                    left = minOf(startRect.left, endRect.left),
-                    top = minOf(startRect.top, endRect.top),
-                    right = maxOf(startRect.right, endRect.right),
-                    bottom = maxOf(startRect.bottom, endRect.bottom),
-                )
-            }
+            val rect =
+                if (lineStart == lineEnd - 1) {
+                    textLayoutResult.getBoundingBox(lineStart)
+                } else {
+                    val startRect = textLayoutResult.getBoundingBox(lineStart)
+                    val endRect = textLayoutResult.getBoundingBox(lineEnd - 1)
+                    Rect(
+                        left = minOf(startRect.left, endRect.left),
+                        top = minOf(startRect.top, endRect.top),
+                        right = maxOf(startRect.right, endRect.right),
+                        bottom = maxOf(startRect.bottom, endRect.bottom),
+                    )
+                }
 
             return rect.translate(textPosition)
         }
@@ -285,15 +291,11 @@ class LazyColumnMultiTextRegressionTest {
         fun assertSelection(): Subject = assertThat(selection)
 
         fun scrollDown() {
-            performTouchInput {
-                swipe(bottomCenter - Offset(0f, 1f), topCenter + Offset(0f, 1f))
-            }
+            performTouchInput { swipe(bottomCenter - Offset(0f, 1f), topCenter + Offset(0f, 1f)) }
         }
 
         fun scrollUp() {
-            performTouchInput {
-                swipe(topCenter + Offset(0f, 1f), bottomCenter - Offset(0f, 1f))
-            }
+            performTouchInput { swipe(topCenter + Offset(0f, 1f), bottomCenter - Offset(0f, 1f)) }
         }
 
         fun scrollLines(fromLine: Int, toLine: Int) {
@@ -322,20 +324,16 @@ class LazyColumnMultiTextRegressionTest {
             val (x, y) = current!!
             val (prevX, prevY) = previous!!
 
-            assertWithMessage("x should not change")
-                .that(x)
-                .isWithin(0.1f)
-                .of(prevX)
+            assertWithMessage("x should not change").that(x).isWithin(0.1f).of(prevX)
 
-            assertWithMessage("y should have moved ${if (up) "up" else "down"}")
-                .that(y)
-                .run {
-                    if (up) isLessThan(prevY) else isGreaterThan(prevY)
-                }
+            assertWithMessage("y should have moved ${if (up) "up" else "down"}").that(y).run {
+                if (up) isLessThan(prevY) else isGreaterThan(prevY)
+            }
         }
 
         private fun handlePosition(handle: Handle): Offset? =
-            rule.onAllNodes(isSelectionHandle(handle))
+            rule
+                .onAllNodes(isSelectionHandle(handle))
                 .fetchSemanticsNodes()
                 .singleOrNull()
                 ?.config
@@ -343,9 +341,7 @@ class LazyColumnMultiTextRegressionTest {
                 ?.position
 
         fun assertTextToolbarTopAt(y: Float) {
-            assertThat(textToolbarRect?.top)
-                .isWithin(0.1f)
-                .of(y)
+            assertThat(textToolbarRect?.top).isWithin(0.1f).of(y)
         }
 
         val pointerAreaRect: Rect
@@ -355,17 +351,13 @@ class LazyColumnMultiTextRegressionTest {
     private fun runTest(block: TestScope.() -> Unit) {
         val tag = "tag"
         val selection = mutableStateOf<Selection?>(null)
-        val testViewConfiguration = TestViewConfiguration(
-            minimumTouchTargetSize = DpSize.Zero
-        )
+        val testViewConfiguration = TestViewConfiguration(minimumTouchTargetSize = DpSize.Zero)
         lateinit var clipboardManager: ClipboardManager
         lateinit var textToolbar: TextToolbarWrapper
         stateRestorationTester.setContent {
             clipboardManager = LocalClipboardManager.current
             val originalTextToolbar = LocalTextToolbar.current
-            textToolbar = remember(originalTextToolbar) {
-                TextToolbarWrapper(originalTextToolbar)
-            }
+            textToolbar = remember(originalTextToolbar) { TextToolbarWrapper(originalTextToolbar) }
             CompositionLocalProvider(
                 LocalTextToolbar provides textToolbar,
                 LocalViewConfiguration provides testViewConfiguration,
@@ -379,19 +371,13 @@ class LazyColumnMultiTextRegressionTest {
                         selection = selection.value,
                         onSelectionChange = { selection.value = it },
                     ) {
-                        LazyColumn(
-                            modifier = Modifier.testTag(tag)
-                        ) {
+                        LazyColumn(modifier = Modifier.testTag(tag)) {
                             items(count = textCount) {
                                 BasicText(
                                     text = it.toString(),
-                                    style = TextStyle(
-                                        fontSize = 15.sp,
-                                        textAlign = TextAlign.Center
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .testTag(it.toString())
+                                    style =
+                                        TextStyle(fontSize = 15.sp, textAlign = TextAlign.Center),
+                                    modifier = Modifier.fillMaxWidth().testTag(it.toString())
                                 )
                             }
                         }
@@ -408,10 +394,12 @@ class LazyColumnMultiTextRegressionTest {
 
 private class TextToolbarWrapper(private val delegate: TextToolbar) : TextToolbar {
     private var _shown: Boolean = false
-    val shown: Boolean get() = _shown
+    val shown: Boolean
+        get() = _shown
 
     private var _mostRecentRect: Rect? = null
-    val mostRecentRect: Rect? get() = _mostRecentRect
+    val mostRecentRect: Rect?
+        get() = _mostRecentRect
 
     override fun showMenu(
         rect: Rect,

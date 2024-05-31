@@ -22,21 +22,22 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * [IssueRegistry] containing animation specific lint issues.
- */
+/** [IssueRegistry] containing animation specific lint issues. */
 class AnimationIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
     override val issues
-        get() = listOf(
-            CrossfadeDetector.UnusedCrossfadeTargetStateParameter,
-            AnimatedContentDetector.UnusedContentLambdaTargetStateParameter
+        get() =
+            listOf(
+                CrossfadeDetector.UnusedCrossfadeTargetStateParameter,
+                AnimatedContentDetector.UnusedContentLambdaTargetStateParameter
+            )
+
+    override val vendor =
+        Vendor(
+            vendorName = "Jetpack Compose",
+            identifier = "androidx.compose.animation",
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
         )
-    override val vendor = Vendor(
-        vendorName = "Jetpack Compose",
-        identifier = "androidx.compose.animation",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
-    )
 }

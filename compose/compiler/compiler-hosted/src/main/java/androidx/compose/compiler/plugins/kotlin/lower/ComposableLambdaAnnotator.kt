@@ -30,9 +30,9 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
 /**
- * In K1, the frontend used to annotate inferred composable lambdas with `@Composable`.
- * The K2 frontend instead uses a different type for composable lambdas. This pass adds
- * the annotation, since the backend expects it.
+ * In K1, the frontend used to annotate inferred composable lambdas with `@Composable`. The K2
+ * frontend instead uses a different type for composable lambdas. This pass adds the annotation,
+ * since the backend expects it.
  */
 class ComposableLambdaAnnotator(context: IrPluginContext) : IrElementVisitorVoid {
     override fun visitElement(element: IrElement) {
@@ -57,10 +57,12 @@ class ComposableLambdaAnnotator(context: IrPluginContext) : IrElementVisitorVoid
 
     private fun IrFunction.mark() {
         if (!hasComposableAnnotation()) {
-            annotations = annotations + IrConstructorCallImpl.fromSymbolOwner(
-                composableSymbol.owner.defaultType,
-                composableSymbol.constructors.single(),
-            )
+            annotations =
+                annotations +
+                    IrConstructorCallImpl.fromSymbolOwner(
+                        composableSymbol.owner.defaultType,
+                        composableSymbol.constructors.single(),
+                    )
         }
     }
 }

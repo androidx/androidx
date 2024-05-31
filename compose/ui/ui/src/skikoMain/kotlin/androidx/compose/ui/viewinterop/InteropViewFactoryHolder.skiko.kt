@@ -22,7 +22,8 @@ import androidx.compose.ui.InternalComposeUiApi
 // Skiko doesn't have an intrinsic interop view type, so satisfy the expect declaration with a
 // no-op and unusable type.
 @InternalComposeUiApi
-internal actual class InteropViewFactoryHolder private constructor(
+internal actual class InteropViewFactoryHolder
+private constructor(
     // No instances allowed.
 ) : ComposeNodeLifecycleCallback {
     init {
@@ -43,8 +44,9 @@ internal actual class InteropViewFactoryHolder private constructor(
         throwUnsupportedError()
     }
 
-    private fun throwUnsupportedError(): Nothing = throw UnsupportedOperationException(
-        "InteropViewFactoryHolder cannot be used because " +
-            "interoperability views are not supported on this platform."
-    )
+    private fun throwUnsupportedError(): Nothing =
+        throw UnsupportedOperationException(
+            "InteropViewFactoryHolder cannot be used because " +
+                "interoperability views are not supported on this platform."
+        )
 }

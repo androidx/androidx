@@ -20,43 +20,35 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
-/**
- * Contains methods to standard constants used in the UI for timeouts, sizes, and distances.
- */
+/** Contains methods to standard constants used in the UI for timeouts, sizes, and distances. */
 @JvmDefaultWithCompatibility
 interface ViewConfiguration {
-    /**
-     * The duration before a press turns into a long press.
-     */
+    /** The duration before a press turns into a long press. */
     val longPressTimeoutMillis: Long
 
     /**
-     * The duration between the first tap's up event and the second tap's down
-     * event for an interaction to be considered a double-tap.
+     * The duration between the first tap's up event and the second tap's down event for an
+     * interaction to be considered a double-tap.
      */
     val doubleTapTimeoutMillis: Long
 
     /**
-     * The minimum duration between the first tap's up event and the second tap's down event for
-     * an interaction to be considered a double-tap.
+     * The minimum duration between the first tap's up event and the second tap's down event for an
+     * interaction to be considered a double-tap.
      */
     val doubleTapMinTimeMillis: Long
 
-    /**
-     * Distance in pixels a touch can wander before we think the user is scrolling.
-     */
+    /** Distance in pixels a touch can wander before we think the user is scrolling. */
     val touchSlop: Float
 
-    /**
-     * Distance in pixels a stylus touch can wander before we think the user is handwriting.
-     */
+    /** Distance in pixels a stylus touch can wander before we think the user is handwriting. */
     val handwritingSlop: Float
         get() = 2f
 
     /**
-     * The minimum touch target size. If layout has reduced the pointer input bounds below this,
-     * the touch target will be expanded evenly around the layout to ensure that it is at least
-     * this big.
+     * The minimum touch target size. If layout has reduced the pointer input bounds below this, the
+     * touch target will be expanded evenly around the layout to ensure that it is at least this
+     * big.
      */
     val minimumTouchTargetSize: DpSize
         get() = DpSize(48.dp, 48.dp)
@@ -64,7 +56,8 @@ interface ViewConfiguration {
     /**
      * The maximum velocity a fling have at any given time. This value should be in pixels/second.
      */
-    val maximumFlingVelocity: Float get() = Float.MAX_VALUE
+    val maximumFlingVelocity: Float
+        get() = Float.MAX_VALUE
 
     /**
      * Margin in pixels around text line bounds where stylus handwriting gestures should be

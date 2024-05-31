@@ -28,10 +28,7 @@ import androidx.compose.runtime.setValue
  * visible item scroll offset.
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridScrollPosition(
-    initialIndex: Int = 0,
-    initialScrollOffset: Int = 0
-) {
+internal class LazyGridScrollPosition(initialIndex: Int = 0, initialScrollOffset: Int = 0) {
     var index by mutableIntStateOf(initialIndex)
         private set
 
@@ -43,15 +40,14 @@ internal class LazyGridScrollPosition(
     /** The last known key of the first item at [index] line. */
     private var lastKnownFirstItemKey: Any? = null
 
-    val nearestRangeState = LazyLayoutNearestRangeState(
-        initialIndex,
-        NearestItemsSlidingWindowSize,
-        NearestItemsExtraItemCount
-    )
+    val nearestRangeState =
+        LazyLayoutNearestRangeState(
+            initialIndex,
+            NearestItemsSlidingWindowSize,
+            NearestItemsExtraItemCount
+        )
 
-    /**
-     * Updates the current scroll position based on the results of the last measurement.
-     */
+    /** Updates the current scroll position based on the results of the last measurement. */
     fun updateFromMeasureResult(measureResult: LazyGridMeasureResult) {
         lastKnownFirstItemKey = measureResult.firstVisibleLine?.items?.firstOrNull()?.key
         // we ignore the index and offset from measureResult until we get at least one
@@ -74,14 +70,13 @@ internal class LazyGridScrollPosition(
 
     /**
      * Updates the scroll position - the passed values will be used as a start position for
-     * composing the items during the next measure pass and will be updated by the real
-     * position calculated during the measurement. This means that there is guarantee that
-     * exactly this index and offset will be applied as it is possible that:
-     * a) there will be no item at this index in reality
-     * b) item at this index will be smaller than the asked scrollOffset, which means we would
-     * switch to the next item
-     * c) there will be not enough items to fill the viewport after the requested index, so we
-     * would have to compose few elements before the asked index, changing the first visible item.
+     * composing the items during the next measure pass and will be updated by the real position
+     * calculated during the measurement. This means that there is guarantee that exactly this index
+     * and offset will be applied as it is possible that: a) there will be no item at this index in
+     * reality b) item at this index will be smaller than the asked scrollOffset, which means we
+     * would switch to the next item c) there will be not enough items to fill the viewport after
+     * the requested index, so we would have to compose few elements before the asked index,
+     * changing the first visible item.
      */
     fun requestPositionAndForgetLastKnownKey(index: Int, scrollOffset: Int) {
         update(index, scrollOffset)
@@ -91,10 +86,10 @@ internal class LazyGridScrollPosition(
     }
 
     /**
-     * In addition to keeping the first visible item index we also store the key of this item.
-     * When the user provided custom keys for the items this mechanism allows us to detect when
-     * there were items added or removed before our current first visible item and keep this item
-     * as the first visible one even given that its index has been changed.
+     * In addition to keeping the first visible item index we also store the key of this item. When
+     * the user provided custom keys for the items this mechanism allows us to detect when there
+     * were items added or removed before our current first visible item and keep this item as the
+     * first visible one even given that its index has been changed.
      */
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyGridItemProvider,
@@ -122,7 +117,5 @@ internal class LazyGridScrollPosition(
  */
 private const val NearestItemsSlidingWindowSize = 90
 
-/**
- * The minimum amount of items near the current first visible item we want to have mapping for.
- */
+/** The minimum amount of items near the current first visible item we want to have mapping for. */
 private const val NearestItemsExtraItemCount = 200

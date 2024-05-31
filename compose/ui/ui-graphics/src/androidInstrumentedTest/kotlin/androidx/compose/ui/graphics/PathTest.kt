@@ -38,55 +38,43 @@ class PathTest {
         val height = 100
         val image = ImageBitmap(width, height)
         val canvas = Canvas(image)
-        val path1 = Path().apply {
-            addArcRad(
-                Rect(Offset.Zero, Size(width.toFloat(), height.toFloat())),
-                0.0f,
-                PI.toFloat() / 2
-            )
-        }
+        val path1 =
+            Path().apply {
+                addArcRad(
+                    Rect(Offset.Zero, Size(width.toFloat(), height.toFloat())),
+                    0.0f,
+                    PI.toFloat() / 2
+                )
+            }
 
         val arcColor = Color.Cyan
         val arcPaint = Paint().apply { color = arcColor }
         canvas.drawPath(path1, arcPaint)
 
-        val path2 = Path().apply {
-            arcToRad(
-                Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat())),
-                PI.toFloat(),
-                PI.toFloat() / 2,
-                false
-            )
-            close()
-        }
+        val path2 =
+            Path().apply {
+                arcToRad(
+                    Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat())),
+                    PI.toFloat(),
+                    PI.toFloat() / 2,
+                    false
+                )
+                close()
+            }
 
         canvas.drawPath(path2, arcPaint)
 
         val pixelmap = image.toPixelMap()
         val x = (50.0 * Math.cos(PI / 4)).toInt()
-        assertEquals(
-            arcColor,
-            pixelmap[
-                width / 2 + x - 1,
-                height / 2 + x - 1
-            ]
-        )
+        assertEquals(arcColor, pixelmap[width / 2 + x - 1, height / 2 + x - 1])
 
-        assertEquals(
-            arcColor,
-            pixelmap[
-                width / 2 - x,
-                height / 2 - x
-            ]
-        )
+        assertEquals(arcColor, pixelmap[width / 2 - x, height / 2 - x])
     }
 
     @Test
     fun testRewindPath() {
         val androidPath = TestAndroidPath()
-        val path = androidPath.asComposePath().apply {
-            addRect(Rect(0f, 0f, 100f, 200f))
-        }
+        val path = androidPath.asComposePath().apply { addRect(Rect(0f, 0f, 100f, 200f)) }
         assertFalse(path.isEmpty)
 
         path.rewind()
@@ -104,12 +92,11 @@ class PathTest {
         val image = ImageBitmap(width, height)
         val canvas = Canvas(image)
 
-        val path = Path().apply {
-            addRect(Rect(0f, 0f, 50f, 50f))
-            transform(
-                Matrix().apply { translate(50f, 50f) }
-            )
-        }
+        val path =
+            Path().apply {
+                addRect(Rect(0f, 0f, 50f, 50f))
+                transform(Matrix().apply { translate(50f, 50f) })
+            }
 
         val paint = Paint().apply { color = Color.Black }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
@@ -130,18 +117,9 @@ class PathTest {
 
     @Test
     fun testPathCopy() {
-        val r1 = Path().apply {
-            addRect(
-                Rect(0.0f, 0.0f, 10.0f, 10.0f),
-                Path.Direction.Clockwise
-            )
-        }
-        val r2 = r1.copy().apply {
-            addRect(
-                Rect(5.0f, 5.0f, 15.0f, 15.0f),
-                Path.Direction.Clockwise
-            )
-        }
+        val r1 = Path().apply { addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise) }
+        val r2 =
+            r1.copy().apply { addRect(Rect(5.0f, 5.0f, 15.0f, 15.0f), Path.Direction.Clockwise) }
 
         val r1Bounds = r1.getBounds()
 

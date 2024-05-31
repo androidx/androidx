@@ -50,10 +50,8 @@ import org.junit.runner.RunWith
 internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelectionGesturesTest() {
     private val textContent = "line1\nline2 text1 text2!\nline3"
 
-    private val texts = textContent
-        .split("\n")
-        .withIndex()
-        .map { (index, str) -> str to "testTag$index" }
+    private val texts =
+        textContent.split("\n").withIndex().map { (index, str) -> str to "testTag$index" }
 
     private val textContentIndices = texts.textContentIndices()
 
@@ -74,10 +72,11 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
                 texts.fastForEach { (str, tag) ->
                     BasicText(
                         text = str,
-                        style = TextStyle(
-                            fontFamily = fontFamily,
-                            fontSize = fontSize,
-                        ),
+                        style =
+                            TextStyle(
+                                fontFamily = fontFamily,
+                                fontSize = fontSize,
+                            ),
                         modifier = Modifier.testTag(tag),
                     )
                 }
@@ -87,23 +86,25 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
 
     @Before
     fun setupAsserter() {
-        asserter = object : TextSelectionAsserter(
-            textContent = textContent,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { selection.value }
-        ) {
-            override fun subAssert() {
-                Truth.assertAbout(MultiSelectionSubject.withContent(texts))
-                    .that(getActual())
-                    .hasSelection(
-                        expected = selection,
-                        startTextDirection = startLayoutDirection,
-                        endTextDirection = endLayoutDirection,
-                    )
+        asserter =
+            object :
+                TextSelectionAsserter(
+                    textContent = textContent,
+                    rule = rule,
+                    textToolbar = textToolbar,
+                    hapticFeedback = hapticFeedback,
+                    getActual = { selection.value }
+                ) {
+                override fun subAssert() {
+                    Truth.assertAbout(MultiSelectionSubject.withContent(texts))
+                        .that(getActual())
+                        .hasSelection(
+                            expected = selection,
+                            startTextDirection = startLayoutDirection,
+                            endTextDirection = endLayoutDirection,
+                        )
+                }
             }
-        }
     }
 
     @Suppress("SameParameterValue")
@@ -115,7 +116,8 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
             rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val nodePosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
-        return textLayoutResult.getBoundingBox(localOffset)
+        return textLayoutResult
+            .getBoundingBox(localOffset)
             .translate(nodePosition - pointerAreaPosition)
             .centerLeft
     }
@@ -135,25 +137,17 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
             press()
         }
 
-        asserter.applyAndAssert {
-            selection = 18 to 23
-        }
+        asserter.applyAndAssert { selection = 18 to 23 }
 
         mouseDragTo(topEnd)
 
-        asserter.applyAndAssert {
-            selection = 24 to 6
-        }
+        asserter.applyAndAssert { selection = 24 to 6 }
 
         mouseDragTo(bottomEnd)
 
-        asserter.applyAndAssert {
-            selection = 18 to 30
-        }
+        asserter.applyAndAssert { selection = 18 to 30 }
 
-        performMouseGesture {
-            release()
-        }
+        performMouseGesture { release() }
 
         asserter.assert()
     }

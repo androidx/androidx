@@ -45,11 +45,7 @@ fun MagnifierSample() {
         Text("Magnifier is not supported on this platform.")
     } else {
         Box(
-            Modifier
-                .magnifier(
-                    sourceCenter = { magnifierCenter },
-                    zoom = 2f
-                )
+            Modifier.magnifier(sourceCenter = { magnifierCenter }, zoom = 2f)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         // Show the magnifier at the original pointer position.
@@ -64,11 +60,7 @@ fun MagnifierSample() {
                 .drawBehind {
                     // Some concentric circles to zoom in on.
                     for (diameter in 2 until size.maxDimension.toInt() step 10) {
-                        drawCircle(
-                            color = Color.Black,
-                            radius = diameter / 2f,
-                            style = Stroke()
-                        )
+                        drawCircle(color = Color.Black, radius = diameter / 2f, style = Stroke())
                     }
                 }
         )

@@ -71,22 +71,17 @@ class BoundsAssertionsTest {
         private const val tag = "box"
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private fun composeBox() {
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(Alignment.TopStart)
-            ) {
+            Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)) {
                 Box(modifier = Modifier.padding(start = 50.dp, top = 100.dp)) {
                     Box(
-                        modifier = Modifier
-                            .testTag(tag)
-                            .requiredSize(80.dp, 100.dp)
-                            .background(color = Color.Black)
+                        modifier =
+                            Modifier.testTag(tag)
+                                .requiredSize(80.dp, 100.dp)
+                                .background(color = Color.Black)
                     )
                 }
             }
@@ -94,15 +89,10 @@ class BoundsAssertionsTest {
     }
 
     @Composable
-    private fun SmallBox(
-        modifier: Modifier = Modifier,
-        tag: String = BoundsAssertionsTest.tag
-    ) {
+    private fun SmallBox(modifier: Modifier = Modifier, tag: String = BoundsAssertionsTest.tag) {
         Box(
-            modifier = modifier
-                .testTag(tag)
-                .requiredSize(10.dp, 10.dp)
-                .background(color = Color.Black)
+            modifier =
+                modifier.testTag(tag).requiredSize(10.dp, 10.dp).background(color = Color.Black)
         )
     }
 
@@ -110,16 +100,15 @@ class BoundsAssertionsTest {
     fun assertSizeEquals() {
         composeBox()
 
-        rule.onNodeWithTag(tag)
-            .assertWidthIsEqualTo(80.dp)
-            .assertHeightIsEqualTo(100.dp)
+        rule.onNodeWithTag(tag).assertWidthIsEqualTo(80.dp).assertHeightIsEqualTo(100.dp)
     }
 
     @Test
     fun assertSizeAtLeast() {
         composeBox()
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertWidthIsAtLeast(80.dp)
             .assertWidthIsAtLeast(79.dp)
             .assertHeightIsAtLeast(100.dp)
@@ -130,69 +119,46 @@ class BoundsAssertionsTest {
     fun assertSizeEquals_fail() {
         composeBox()
 
-        expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
-                .assertWidthIsEqualTo(70.dp)
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(tag).assertWidthIsEqualTo(70.dp) }
 
-        expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
-                .assertHeightIsEqualTo(90.dp)
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(tag).assertHeightIsEqualTo(90.dp) }
     }
 
     @Test
     fun assertSizeAtLeast_fail() {
         composeBox()
 
-        expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
-                .assertWidthIsAtLeast(81.dp)
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(tag).assertWidthIsAtLeast(81.dp) }
 
-        expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
-                .assertHeightIsAtLeast(101.dp)
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(tag).assertHeightIsAtLeast(101.dp) }
     }
 
     @Test
     fun assertTouchSizeEquals() {
         rule.setContent {
-            WithMinimumTouchTargetSize(DpSize(20.dp, 20.dp)) {
-                SmallBox(Modifier.clickable {})
-            }
+            WithMinimumTouchTargetSize(DpSize(20.dp, 20.dp)) { SmallBox(Modifier.clickable {}) }
         }
 
-        rule.onNodeWithTag(tag)
-            .assertTouchWidthIsEqualTo(20.dp)
-            .assertTouchHeightIsEqualTo(20.dp)
+        rule.onNodeWithTag(tag).assertTouchWidthIsEqualTo(20.dp).assertTouchHeightIsEqualTo(20.dp)
     }
 
     @Test
     fun assertTouchSizeEquals_fail() {
         rule.setContent {
-            WithMinimumTouchTargetSize(DpSize(20.dp, 20.dp)) {
-                SmallBox(Modifier.clickable {})
-            }
+            WithMinimumTouchTargetSize(DpSize(20.dp, 20.dp)) { SmallBox(Modifier.clickable {}) }
         }
 
-        expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
-                .assertTouchWidthIsEqualTo(19.dp)
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(tag).assertTouchWidthIsEqualTo(19.dp) }
 
-        expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
-                .assertTouchHeightIsEqualTo(21.dp)
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(tag).assertTouchHeightIsEqualTo(21.dp) }
     }
 
     @Test
     fun assertPosition() {
         composeBox()
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(expectedLeft = 50.dp, expectedTop = 100.dp)
             .assertLeftPositionInRootIsEqualTo(50.dp)
             .assertTopPositionInRootIsEqualTo(100.dp)
@@ -203,12 +169,14 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
+            rule
+                .onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 51.dp, expectedTop = 101.dp)
         }
 
         expectError<AssertionError> {
-            rule.onNodeWithTag(tag)
+            rule
+                .onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 49.dp, expectedTop = 99.dp)
         }
     }
@@ -216,19 +184,16 @@ class BoundsAssertionsTest {
     private fun composeClippedBox() {
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clipToBounds()
-                    .wrapContentSize(Alignment.TopStart)
+                modifier = Modifier.fillMaxSize().clipToBounds().wrapContentSize(Alignment.TopStart)
             ) {
                 // Box is shifted 30dp to the left and 10dp to the top,
                 // so it is clipped to a size of 50 x 90
                 Box(
-                    modifier = Modifier
-                        .offset((-30).dp, (-10).dp)
-                        .testTag(tag)
-                        .requiredSize(80.dp, 100.dp)
-                        .background(color = Color.Black)
+                    modifier =
+                        Modifier.offset((-30).dp, (-10).dp)
+                            .testTag(tag)
+                            .requiredSize(80.dp, 100.dp)
+                            .background(color = Color.Black)
                 )
             }
         }
@@ -239,7 +204,8 @@ class BoundsAssertionsTest {
         composeClippedBox()
 
         // Node is clipped, but position should be unaffected
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(expectedLeft = (-30).dp, expectedTop = (-10).dp)
             .assertLeftPositionInRootIsEqualTo((-30).dp)
             .assertTopPositionInRootIsEqualTo((-10).dp)
@@ -250,19 +216,13 @@ class BoundsAssertionsTest {
         composeClippedBox()
 
         // Node is clipped, but width and height should be unaffected
-        rule.onNodeWithTag(tag)
-            .assertWidthIsEqualTo(80.dp)
-            .assertHeightIsEqualTo(100.dp)
+        rule.onNodeWithTag(tag).assertWidthIsEqualTo(80.dp).assertHeightIsEqualTo(100.dp)
     }
 
     @Test
     fun getPosition_measuredNotPlaced() {
         // When we have a node that is measure but not placed
-        getPositionTest {
-            DoNotPlace {
-                Box(Modifier.testTag(tag).requiredSize(10.dp))
-            }
-        }
+        getPositionTest { DoNotPlace { Box(Modifier.testTag(tag).requiredSize(10.dp)) } }
     }
 
     @Test
@@ -289,9 +249,7 @@ class BoundsAssertionsTest {
 
     @Composable
     private fun TouchTargetTestContent(tag: String) {
-        WithMinimumTouchTargetSize(DpSize(20.dp, 20.dp)) {
-            SmallBox(Modifier.clickable {}, tag)
-        }
+        WithMinimumTouchTargetSize(DpSize(20.dp, 20.dp)) { SmallBox(Modifier.clickable {}, tag) }
     }
 
     @Test
@@ -329,11 +287,10 @@ class BoundsAssertionsTest {
         }
 
         fun SemanticsNodeInteraction.verifyBoundsInRoot() {
-            getBoundsInRoot()
-                .let {
-                    it.left.assertIsEqualTo(20.dp)
-                    it.top.assertIsEqualTo(20.dp)
-                }
+            getBoundsInRoot().let {
+                it.left.assertIsEqualTo(20.dp)
+                it.top.assertIsEqualTo(20.dp)
+            }
         }
 
         rule.onNodeWithTag("default-density").verifyBoundsInRoot()
@@ -365,11 +322,7 @@ class BoundsAssertionsTest {
     @Test
     fun getPosition_notMeasuredNotPlaced() {
         // When we have a node that is not measure and not placed
-        getPositionTest {
-            DoNotMeasure {
-                Box(Modifier.testTag(tag).requiredSize(10.dp))
-            }
-        }
+        getPositionTest { DoNotMeasure { Box(Modifier.testTag(tag).requiredSize(10.dp)) } }
     }
 
     private fun getPositionTest(content: @Composable () -> Unit) {
@@ -404,21 +357,13 @@ class BoundsAssertionsTest {
     @Test
     fun getSize_measuredNotPlaced() {
         // When we have a node that is measure but not placed
-        getSizeTest {
-            DoNotPlace {
-                Box(Modifier.testTag(tag).requiredSize(10.dp))
-            }
-        }
+        getSizeTest { DoNotPlace { Box(Modifier.testTag(tag).requiredSize(10.dp)) } }
     }
 
     @Test
     fun getSize_notMeasuredNotPlaced() {
         // When we have a node that is not measure and not placed
-        getSizeTest {
-            DoNotMeasure {
-                Box(Modifier.testTag(tag).requiredSize(10.dp))
-            }
-        }
+        getSizeTest { DoNotMeasure { Box(Modifier.testTag(tag).requiredSize(10.dp)) } }
     }
 
     private fun getSizeTest(content: @Composable () -> Unit) {
@@ -432,8 +377,7 @@ class BoundsAssertionsTest {
         node.assertWidthIsAtLeast(Dp.Unspecified)
         node.assertHeightIsAtLeast(Dp.Unspecified)
 
-        fun notEqual(subject: String) =
-            "Actual $subject is Dp.Unspecified, expected 10.0.dp \\(.*"
+        fun notEqual(subject: String) = "Actual $subject is Dp.Unspecified, expected 10.0.dp \\(.*"
         fun notAtLeast(subject: String) =
             "Actual $subject is Dp.Unspecified, expected at least 10.0.dp \\(.*"
 
@@ -455,9 +399,7 @@ class BoundsAssertionsTest {
     fun getAlignmentLine_measuredNotPlaced() {
         // When we have a node with an alignment line that is measured but not placed
         getAlignmentLineTest(expectedPosition = TestLinePosition) {
-            DoNotPlace {
-                BoxWithAlignmentLine(Modifier.testTag(tag))
-            }
+            DoNotPlace { BoxWithAlignmentLine(Modifier.testTag(tag)) }
         }
     }
 
@@ -465,9 +407,7 @@ class BoundsAssertionsTest {
     fun getAlignmentLine_notMeasuredNotPlaced() {
         // When we have a node with an alignment line that is not measured and not placed
         getAlignmentLineTest(expectedPosition = Dp.Unspecified) {
-            DoNotMeasure {
-                BoxWithAlignmentLine(Modifier.testTag(tag))
-            }
+            DoNotMeasure { BoxWithAlignmentLine(Modifier.testTag(tag)) }
         }
     }
 
@@ -476,9 +416,7 @@ class BoundsAssertionsTest {
         rule.setContent(content)
 
         // Then we can still query the alignment line
-        rule.onNodeWithTag(tag)
-            .getAlignmentLinePosition(TestLine)
-            .assertIsEqualTo(expectedPosition)
+        rule.onNodeWithTag(tag).getAlignmentLinePosition(TestLine).assertIsEqualTo(expectedPosition)
     }
 
     @Composable

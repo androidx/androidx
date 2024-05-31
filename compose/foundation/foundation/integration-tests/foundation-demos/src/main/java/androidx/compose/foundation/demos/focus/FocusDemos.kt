@@ -32,7 +32,8 @@ fun FocusGroupDemo() {
             Use the tab key to move focus among buttons.
             Notice how all the items in column 1 are visited before focus moves to the
             second column. This is because each column is in its own focus group.
-            """.trimIndent()
+            """
+                .trimIndent()
         )
         FocusGroupSample()
         Text(
@@ -40,7 +41,8 @@ fun FocusGroupDemo() {
             The LazyRow on the bottom is an example of a focuable focus group. Notice
             how the parent gains focus first and you have to use DPad center or the Tab
             key to visit the children inside the LazyRow
-            """.trimIndent()
+            """
+                .trimIndent()
         )
         FocusableFocusGroupSample()
     }

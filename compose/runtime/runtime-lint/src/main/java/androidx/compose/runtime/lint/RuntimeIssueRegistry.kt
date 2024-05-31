@@ -22,32 +22,34 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * [IssueRegistry] containing runtime specific lint issues.
- */
+/** [IssueRegistry] containing runtime specific lint issues. */
 class RuntimeIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        AutoboxingStateValuePropertyDetector.AutoboxingStateValueProperty,
-        AutoboxingStateCreationDetector.AutoboxingStateCreation,
-        ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
-        ComposableFlowOperatorDetector.FlowOperatorInvokedInComposition,
-        ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,
-        ComposableLambdaParameterDetector.ComposableLambdaParameterPosition,
-        ComposableNamingDetector.ComposableNaming,
-        ComposableStateFlowValueDetector.StateFlowValueCalledInComposition,
-        CompositionLocalNamingDetector.CompositionLocalNaming,
-        MutableCollectionMutableStateDetector.MutableCollectionMutableState,
-        ProduceStateDetector.ProduceStateDoesNotAssignValue,
-        RememberDetector.RememberReturnType,
-        OpaqueUnitKeyDetector.OpaqueUnitKey,
-        UnrememberedStateDetector.UnrememberedState
-    )
-    override val vendor = Vendor(
-        vendorName = "Jetpack Compose",
-        identifier = "androidx.compose.runtime",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
-    )
+    override val issues
+        get() =
+            listOf(
+                AutoboxingStateValuePropertyDetector.AutoboxingStateValueProperty,
+                AutoboxingStateCreationDetector.AutoboxingStateCreation,
+                ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
+                ComposableFlowOperatorDetector.FlowOperatorInvokedInComposition,
+                ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,
+                ComposableLambdaParameterDetector.ComposableLambdaParameterPosition,
+                ComposableNamingDetector.ComposableNaming,
+                ComposableStateFlowValueDetector.StateFlowValueCalledInComposition,
+                CompositionLocalNamingDetector.CompositionLocalNaming,
+                MutableCollectionMutableStateDetector.MutableCollectionMutableState,
+                ProduceStateDetector.ProduceStateDoesNotAssignValue,
+                RememberDetector.RememberReturnType,
+                OpaqueUnitKeyDetector.OpaqueUnitKey,
+                UnrememberedStateDetector.UnrememberedState
+            )
+
+    override val vendor =
+        Vendor(
+            vendorName = "Jetpack Compose",
+            identifier = "androidx.compose.runtime",
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+        )
 }

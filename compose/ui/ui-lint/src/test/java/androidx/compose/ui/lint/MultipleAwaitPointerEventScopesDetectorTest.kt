@@ -30,8 +30,8 @@ import org.junit.runners.JUnit4
  * Detector for checking if we have multiple awaitPointerEventScope calls within the same block,
  * which is generally discouraged if we want to guarantee not losing touch events.
  *
- * For each awaitPointerEventScope we'll move to the closest boundary block (method call) and
- * search for the repeated calls inside that block.
+ * For each awaitPointerEventScope we'll move to the closest boundary block (method call) and search
+ * for the repeated calls inside that block.
  */
 @RunWith(JUnit4::class)
 class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
@@ -40,11 +40,12 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(MultipleAwaitPointerEventScopesDetector.MultipleAwaitPointerEventScopes)
 
-    private val ForEachGestureStub: TestFile = bytecodeStub(
-        filename = "ForEachGesture.kt",
-        filepath = "androidx/compose/foundation/gestures",
-        checksum = 0x1be9b2ef,
-        """
+    private val ForEachGestureStub: TestFile =
+        bytecodeStub(
+            filename = "ForEachGesture.kt",
+            filepath = "androidx/compose/foundation/gestures",
+            checksum = 0x1be9b2ef,
+            """
             package androidx.compose.foundation.gestures
             import androidx.compose.ui.input.pointer.PointerInputScope
 
@@ -52,14 +53,14 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
                 block()
             }
             """,
-"""
+            """
         META-INF/main.kotlin_module:
         H4sIAAAAAAAA/2VMQQoCMRAbUQR7EOkDBMWThzl7F1dkL4J+oGzr7oDOlHYK
         Pt/KejOQEBISAJgCwKRyAT+Yg9k59knIv7GTV5Qc8CGFvVMSxj5kLSlku2ok
         nVw3nMegVXM0m79lISSORTEKsYZk17eSY2BP3F/H6PLtG3pWW0+WZqb10c7v
         VVvdwh4+IfeLY6cAAAA=
         """,
-        """
+            """
         androidx/compose/foundation/gestures/ForEachGestureKt.class:
         H4sIAAAAAAAA/7VUzU8bRxT/zdr4C0jMBlIgjUOK2/ARsoaGNq2jqBEx7aqO
         QTGkqjhU4/XiDLZnrN1Zi944Veq/0UPPUU9tDxXKsX9U1Te2IYBpkCL1sLO/
@@ -81,17 +82,18 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
         Hwkp+j+i70aMhHSP09vVwhe9dRVf0n+TtB8R3/k9xFzkXXzs4hPcc7GARRdL
         WN4DC3EfK3tIhxgJ8SDE7RC5EE6Iuz2xECLxLyV8urHMBgAA
         """
-    )
+        )
 
-    private val stubs = arrayOf(
-        Stubs.Composable,
-        Stubs.Modifier,
-        UiStubs.Density,
-        UiStubs.PointerInputScope,
-        UiStubs.PointerEvent,
-        UiStubs.Alignment,
-        ForEachGestureStub
-    )
+    private val stubs =
+        arrayOf(
+            Stubs.Composable,
+            Stubs.Modifier,
+            UiStubs.Density,
+            UiStubs.PointerInputScope,
+            UiStubs.PointerEvent,
+            UiStubs.Alignment,
+            ForEachGestureStub
+        )
 
     @Test
     fun awaitPointerEventScope_standalone_shouldNotWarn() {
@@ -184,9 +186,10 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
 
     @Test
     fun awaitPointerEventScope_withConditionalCalls_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.Composable
@@ -208,9 +211,9 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -221,15 +224,17 @@ src/test/test.kt:16: $WarningMessage
                             awaitPointerEventScope {
                             ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun awaitPointerEventScope_fromExtensionMethodAndConditionalCalls_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -248,9 +253,9 @@ src/test/test.kt:16: $WarningMessage
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -261,15 +266,17 @@ src/test/test.kt:14: $WarningMessage
                         awaitPointerEventScope {
                         ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun multipleAwaitPointerEventScope_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
                 import androidx.compose.foundation.gestures.forEachGesture
                 import androidx.compose.runtime.Composable
@@ -291,9 +298,9 @@ src/test/test.kt:14: $WarningMessage
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -304,15 +311,17 @@ src/test/test.kt:16: $WarningMessage
                             awaitPointerEventScope {
                             ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun multipleAwaitPointerEventScope_withLambdaBlocks_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
                 import androidx.compose.foundation.gestures.forEachGesture
                 import androidx.compose.runtime.Composable
@@ -334,9 +343,9 @@ src/test/test.kt:16: $WarningMessage
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -347,15 +356,17 @@ src/test/test.kt:16: $WarningMessage
                             run { awaitPointerEventScope {
                                   ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun multipleAwaitPointerEventScope_insideExtensionMethod_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -371,9 +382,9 @@ src/test/test.kt:16: $WarningMessage
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -391,9 +402,10 @@ src/test/test.kt:12: $WarningMessage
 
     @Test
     fun awaitPointerEventScope_multipleConditionalAndCalls_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
                 import androidx.compose.runtime.Composable
                 import androidx.compose.ui.Modifier
@@ -418,9 +430,9 @@ src/test/test.kt:12: $WarningMessage
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -434,15 +446,17 @@ src/test/test.kt:19: $WarningMessage
                             awaitPointerEventScope {
                             ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 3 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun awaitPointerEventScope_multipleConditionalAndCallsInsideCondition_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.Composable
@@ -469,9 +483,9 @@ src/test/test.kt:19: $WarningMessage
                     }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -485,15 +499,17 @@ src/test/test.kt:21: $WarningMessage
                             awaitPointerEventScope {
                             ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 3 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun awaitPointerEventScope_repetitionWithinCustomModifier_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.Composable
@@ -517,9 +533,9 @@ src/test/test.kt:21: $WarningMessage
                         }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -530,15 +546,17 @@ src/test/test.kt:19: $WarningMessage
                             awaitPointerEventScope {
                             ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
     @Test
     fun awaitPointerEventScope_nestedBlocks_shouldWarn() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 import androidx.compose.runtime.Composable
@@ -585,9 +603,9 @@ src/test/test.kt:19: $WarningMessage
                         }
                 }
                  """
-            ),
-            *stubs,
-        )
+                ),
+                *stubs,
+            )
             .run()
             .expect(
                 """
@@ -598,7 +616,8 @@ src/test/Options.kt:33: $WarningMessage
                                             awaitPointerEventScope {
                                             ~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
     }
 
@@ -664,13 +683,11 @@ src/test/Options.kt:33: $WarningMessage
     }
 
     private fun expectClean(source: String) {
-        lint()
-            .files(kotlin(source), *stubs)
-            .run()
-            .expectClean()
+        lint().files(kotlin(source), *stubs).run().expectClean()
     }
 
     private val WarningMessage
-        get() = "Warning: ${MultipleAwaitPointerEventScopesDetector.ErrorMessage} " +
-            "[${MultipleAwaitPointerEventScopesDetector.IssueId}]"
+        get() =
+            "Warning: ${MultipleAwaitPointerEventScopesDetector.ErrorMessage} " +
+                "[${MultipleAwaitPointerEventScopesDetector.IssueId}]"
 }

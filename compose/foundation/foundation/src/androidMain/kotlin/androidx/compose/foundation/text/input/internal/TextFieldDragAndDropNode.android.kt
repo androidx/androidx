@@ -50,33 +50,28 @@ internal actual fun textFieldDragAndDropNode(
                 it == MediaType.All || clipDescription.hasMimeType(it.representation)
             }
         },
-        target = object : DragAndDropTarget {
-            override fun onDrop(event: DragAndDropEvent): Boolean {
-                dragAndDropRequestPermission(event)
-                return onDrop.invoke(
-                    event.toAndroidDragEvent().clipData.toClipEntry(),
-                    event.toAndroidDragEvent().clipDescription.toClipMetadata()
-                )
+        target =
+            object : DragAndDropTarget {
+                override fun onDrop(event: DragAndDropEvent): Boolean {
+                    dragAndDropRequestPermission(event)
+                    return onDrop.invoke(
+                        event.toAndroidDragEvent().clipData.toClipEntry(),
+                        event.toAndroidDragEvent().clipDescription.toClipMetadata()
+                    )
+                }
+
+                override fun onStarted(event: DragAndDropEvent) = onStarted?.invoke(event) ?: Unit
+
+                override fun onEntered(event: DragAndDropEvent) = onEntered?.invoke(event) ?: Unit
+
+                override fun onMoved(event: DragAndDropEvent) =
+                    with(event.toAndroidDragEvent()) { onMoved?.invoke(Offset(x, y)) ?: Unit }
+
+                override fun onExited(event: DragAndDropEvent) = onExited?.invoke(event) ?: Unit
+
+                override fun onChanged(event: DragAndDropEvent) = onChanged?.invoke(event) ?: Unit
+
+                override fun onEnded(event: DragAndDropEvent) = onEnded?.invoke(event) ?: Unit
             }
-
-            override fun onStarted(event: DragAndDropEvent) =
-                onStarted?.invoke(event) ?: Unit
-
-            override fun onEntered(event: DragAndDropEvent) =
-                onEntered?.invoke(event) ?: Unit
-
-            override fun onMoved(event: DragAndDropEvent) = with(event.toAndroidDragEvent()) {
-                onMoved?.invoke(Offset(x, y)) ?: Unit
-            }
-
-            override fun onExited(event: DragAndDropEvent) =
-                onExited?.invoke(event) ?: Unit
-
-            override fun onChanged(event: DragAndDropEvent) =
-                onChanged?.invoke(event) ?: Unit
-
-            override fun onEnded(event: DragAndDropEvent) =
-                onEnded?.invoke(event) ?: Unit
-        }
     )
 }
