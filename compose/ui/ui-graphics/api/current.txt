@@ -518,6 +518,7 @@ package androidx.compose.ui.graphics {
     method public androidx.compose.ui.geometry.Rect map(androidx.compose.ui.geometry.Rect rect);
     method public long map(long point);
     method public void reset();
+    method public void resetToPivotedTransform(optional float pivotX, optional float pivotY, optional float translationX, optional float translationY, optional float translationZ, optional float rotationX, optional float rotationY, optional float rotationZ, optional float scaleX, optional float scaleY, optional float scaleZ);
     method public void rotateX(float degrees);
     method public void rotateY(float degrees);
     method public void rotateZ(float degrees);
