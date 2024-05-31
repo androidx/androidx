@@ -64,6 +64,7 @@ androidx {
     inceptionYear = "2017"
     description = "AndroidX Widget ViewPager2"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

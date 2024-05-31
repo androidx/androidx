@@ -108,6 +108,7 @@ androidx {
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

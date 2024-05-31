@@ -53,4 +53,5 @@ androidx {
     inceptionYear = "2022"
     description = "Additional tracing in Compose"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

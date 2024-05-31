@@ -53,4 +53,5 @@ androidx {
     inceptionYear = "2023"
     description = "Test support for core-performance."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

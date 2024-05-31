@@ -115,6 +115,7 @@ androidx {
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 // Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc

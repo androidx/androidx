@@ -73,4 +73,5 @@ androidx {
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Runtime"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

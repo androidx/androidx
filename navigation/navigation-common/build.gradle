@@ -82,4 +82,5 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Common"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

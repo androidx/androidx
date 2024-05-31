@@ -58,6 +58,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with Activity"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
 }
 

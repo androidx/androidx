@@ -69,5 +69,6 @@ androidx {
     inceptionYear = "2020"
     description = "Classes for building Android Wear watchface editors"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:watchface:watchface-samples"))
 }

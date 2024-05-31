@@ -43,6 +43,7 @@ androidx {
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Compose Material integration with Navigation"
+    legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":compose:material:material-navigation-samples"))
 }
 

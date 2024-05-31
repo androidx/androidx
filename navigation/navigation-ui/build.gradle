@@ -65,4 +65,5 @@ androidx {
     inceptionYear = "2018"
     description = "Android Navigation-UI"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

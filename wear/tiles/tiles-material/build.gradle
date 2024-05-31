@@ -80,4 +80,5 @@ androidx {
     inceptionYear = "2021"
     description = "Material components library for Android Wear Tiles."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

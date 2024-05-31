@@ -61,4 +61,5 @@ androidx {
     inceptionYear = "2021"
     description = "WindowManager RxJava 2"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

@@ -52,6 +52,7 @@ androidx {
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

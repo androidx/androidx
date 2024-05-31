@@ -60,4 +60,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Wear Watchface hidden AIDL implementaion details"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

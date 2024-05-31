@@ -70,4 +70,5 @@ androidx {
     inceptionYear = "2015"
     description = "AndroidX Preference"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

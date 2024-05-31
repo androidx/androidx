@@ -63,4 +63,5 @@ androidx {
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

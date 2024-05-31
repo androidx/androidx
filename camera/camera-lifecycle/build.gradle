@@ -79,5 +79,6 @@ androidx {
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":camera:camera-lifecycle:camera-lifecycle-samples"))
 }

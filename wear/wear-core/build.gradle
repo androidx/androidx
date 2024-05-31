@@ -51,4 +51,5 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_CORE
     inceptionYear = "2024"
     description = "Low-level utilities for building apps and libraries for Wear OS."
+    legacyDisableKotlinStrictApiMode = true
 }

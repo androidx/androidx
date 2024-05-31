@@ -53,4 +53,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Provides components for SdkRuntime aware SDKs"
+    legacyDisableKotlinStrictApiMode = true
 }

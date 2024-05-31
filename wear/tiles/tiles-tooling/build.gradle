@@ -49,4 +49,5 @@ androidx {
     inceptionYear = "2023"
     description = "A set of tools that are used to preview Tile components in Android Studio"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
