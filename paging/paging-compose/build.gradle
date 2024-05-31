@@ -30,6 +30,8 @@ plugins {
 }
 
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     android()
 
     sourceSets {
