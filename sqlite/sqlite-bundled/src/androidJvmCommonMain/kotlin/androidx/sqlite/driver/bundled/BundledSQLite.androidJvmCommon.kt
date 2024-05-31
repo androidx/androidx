@@ -16,28 +16,6 @@
 
 package androidx.sqlite.driver.bundled
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
-
-/**
- * The flags constant that can be used with [BundledSQLiteDriver.open].
- */
-@IntDef(
-    flag = true,
-    value = [
-        SQLITE_OPEN_READONLY,
-        SQLITE_OPEN_READWRITE,
-        SQLITE_OPEN_CREATE,
-        SQLITE_OPEN_URI,
-        SQLITE_OPEN_MEMORY,
-        SQLITE_OPEN_NOMUTEX,
-        SQLITE_OPEN_FULLMUTEX,
-        SQLITE_OPEN_NOFOLLOW
-    ])
-@Retention(AnnotationRetention.SOURCE)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual annotation class OpenFlag
-
 internal object ResultCode {
     const val SQLITE_MISUSE = 21
 }
