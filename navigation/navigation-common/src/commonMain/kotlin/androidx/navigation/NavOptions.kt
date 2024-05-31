@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 
 /**
  * NavOptions stores special options for navigate actions

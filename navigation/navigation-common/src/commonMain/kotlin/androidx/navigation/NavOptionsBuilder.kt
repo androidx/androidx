@@ -16,6 +16,9 @@
 
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
+import kotlin.reflect.KClass
+
 @DslMarker
 public annotation class NavOptionsDsl
 
@@ -42,8 +45,6 @@ public expect class NavOptionsBuilder() {
      * by [PopUpToBuilder.saveState] or the `popUpToSaveState` attribute. If no state was
      * previously saved with the destination ID being navigated to, this has no effect.
      */
-    @get:Suppress("GetterOnBuilder", "GetterSetterNames")
-    @set:Suppress("SetterReturnsThis", "GetterSetterNames")
     public var restoreState: Boolean
 
     /**
@@ -54,6 +55,20 @@ public expect class NavOptionsBuilder() {
         private set
 
     /**
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
+     */
+    public var popUpToRouteClass: KClass<*>?
+        private set
+
+    /**
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
+     */
+    public var popUpToRouteObject: Any?
+        private set
+
+    /**
      * Pop up to a given destination before navigating. This pops all non-matching destination routes
      * from the back stack until the destination with a matching route is found.
      *
@@ -61,6 +76,34 @@ public expect class NavOptionsBuilder() {
      * @param popUpToBuilder builder used to construct a popUpTo operation
      */
     public fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit = {})
+
+    /**
+     * Pop up to a given destination before navigating. This pops all non-matching destination routes
+     * from the back stack until the destination with a matching route is found.
+     *
+     * @param T route from a [KClass] for the destination
+     * @param popUpToBuilder builder used to construct a popUpTo operation
+     */
+    public inline fun <reified T : Any> popUpTo(
+        noinline popUpToBuilder: PopUpToBuilder.() -> Unit = {}
+    )
+
+    // this restricted public is needed so that the public reified [popUpTo] can call
+    // private popUpToRouteClass setter
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun <T : Any> popUpTo(
+        klass: KClass<T>,
+        popUpToBuilder: PopUpToBuilder.() -> Unit
+    )
+
+    /**
+     * Pop up to a given destination before navigating. This pops all non-matching destination routes
+     * from the back stack until the destination with a matching route is found.
+     *
+     * @param route route from a Object for the destination
+     * @param popUpToBuilder builder used to construct a popUpTo operation
+     */
+    public fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit = {})
 
     internal fun build(): NavOptions
 }

@@ -16,6 +16,9 @@
 
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
+import kotlin.reflect.KClass
+
 @NavOptionsDsl
 public actual class NavOptionsBuilder {
     private val builder = NavOptions.Builder()
@@ -33,11 +36,62 @@ public actual class NavOptionsBuilder {
                 inclusive = false
             }
         }
+
+    @get:Suppress("GetterOnBuilder")
+    public actual var popUpToRouteClass: KClass<*>? = null
+        private set(value) {
+            if (value != null) {
+                field = value
+                inclusive = false
+            }
+        }
+
+    @get:Suppress("GetterOnBuilder")
+    public actual var popUpToRouteObject: Any? = null
+        private set(value) {
+            if (value != null) {
+                field = value
+                inclusive = false
+            }
+        }
+
     private var inclusive = false
     private var saveState = false
 
     public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRoute = route
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
+    }
+
+    // align with other popUpTo overloads where this is suppressed in baseline lint ignore
+    @Suppress("BuilderSetStyle")
+    public actual inline fun <reified T : Any> popUpTo(
+        noinline popUpToBuilder: PopUpToBuilder.() -> Unit
+    ) {
+        popUpTo(T::class, popUpToBuilder)
+    }
+
+    // this restricted public is needed so that the public reified [popUpTo] can call
+    // private popUpToRouteClass setter
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public actual fun <T : Any> popUpTo(
+        klass: KClass<T>,
+        popUpToBuilder: PopUpToBuilder.() -> Unit
+    ) {
+        popUpToRouteClass = klass
+        popUpToRoute = null
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
+    }
+
+    // align with other popUpTo overloads where this is suppressed in baseline lint ignore
+    @Suppress("BuilderSetStyle", "MissingJvmstatic")
+    public actual fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit) {
+        popUpToRouteObject = route
+        popUpToRoute = null
         val builder = PopUpToBuilder().apply(popUpToBuilder)
         inclusive = builder.inclusive
         saveState = builder.saveState

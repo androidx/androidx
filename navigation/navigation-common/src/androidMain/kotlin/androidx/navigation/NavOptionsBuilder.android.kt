@@ -89,7 +89,7 @@ public actual class NavOptionsBuilder {
      * from the back stack up until this destination will also be popped.
      */
     @get:Suppress("GetterOnBuilder")
-    public var popUpToRouteClass: KClass<*>? = null
+    public actual var popUpToRouteClass: KClass<*>? = null
         private set(value) {
             if (value != null) {
                 field = value
@@ -102,7 +102,7 @@ public actual class NavOptionsBuilder {
      * from the back stack up until this destination will also be popped.
      */
     @get:Suppress("GetterOnBuilder")
-    public var popUpToRouteObject: Any? = null
+    public actual var popUpToRouteObject: Any? = null
         private set(value) {
             if (value != null) {
                 field = value
@@ -146,8 +146,8 @@ public actual class NavOptionsBuilder {
      */
     // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle")
-    public inline fun <reified T : Any> popUpTo(
-        noinline popUpToBuilder: PopUpToBuilder.() -> Unit = {}
+    public actual inline fun <reified T : Any> popUpTo(
+        noinline popUpToBuilder: PopUpToBuilder.() -> Unit
     ) {
         popUpTo(T::class, popUpToBuilder)
     }
@@ -155,7 +155,7 @@ public actual class NavOptionsBuilder {
     // this restricted public is needed so that the public reified [popUpTo] can call
     // private popUpToRouteClass setter
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : Any> popUpTo(
+    public actual fun <T : Any> popUpTo(
         klass: KClass<T>,
         popUpToBuilder: PopUpToBuilder.() -> Unit
     ) {
@@ -176,7 +176,7 @@ public actual class NavOptionsBuilder {
      */
     // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle", "MissingJvmstatic")
-    public fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+    public actual fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRouteObject = route
         popUpToId = -1
         popUpToRoute = null
