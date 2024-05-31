@@ -43,86 +43,90 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
     bloodPressureMetrics: Set<AggregateMetric<*>>,
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin>
+) =
+    aggregateBloodPressure(
+        timeRangeFilter,
+        dataOriginFilter,
+        BloodPressureAggregator(bloodPressureMetrics)
+    )
+
+private suspend fun HealthConnectClient.aggregateBloodPressure(
+    timeRangeFilter: TimeRangeFilter,
+    dataOriginFilter: Set<DataOrigin>,
+    aggregator: Aggregator<BloodPressureRecord>
 ): AggregationResult {
-    check(BLOOD_PRESSURE_METRICS.containsAll(bloodPressureMetrics)) {
-        "Invalid set of blood pressure fallback aggregation metrics ${bloodPressureMetrics.map { it.metricKey }}"
+    readRecordsFlow(BloodPressureRecord::class, timeRangeFilter, dataOriginFilter).collect { records
+        ->
+        records.forEach { aggregator += it }
     }
+    return aggregator.getResult()
+}
 
-    if (bloodPressureMetrics.isEmpty()) {
-        return emptyAggregationResult()
-    }
-
-    val readRecordsFlow =
-        readRecordsFlow(BloodPressureRecord::class, timeRangeFilter, dataOriginFilter)
-
+private class BloodPressureAggregator(val bloodPressureMetrics: Set<AggregateMetric<*>>) :
+    Aggregator<BloodPressureRecord> {
     val avgDataMap = mutableMapOf<AggregateMetric<Pressure>, AvgData>()
     val minMaxMap = mutableMapOf<AggregateMetric<Pressure>, Double?>()
 
-    for (metric in bloodPressureMetrics) {
-        when (metric) {
-            BloodPressureRecord.DIASTOLIC_AVG,
-            BloodPressureRecord.SYSTOLIC_AVG -> avgDataMap[metric] = AvgData()
-            BloodPressureRecord.DIASTOLIC_MAX,
-            BloodPressureRecord.DIASTOLIC_MIN,
-            BloodPressureRecord.SYSTOLIC_MAX,
-            BloodPressureRecord.SYSTOLIC_MIN -> minMaxMap[metric] = null
-            else -> error("Invalid blood pressure fallback aggregation metric ${metric.metricKey}")
+    override val dataOrigins = mutableSetOf<DataOrigin>()
+    override val doubleValues: Map<String, Double>
+        get() = buildMap {
+            for (metric in bloodPressureMetrics) {
+                val aggregatedValue =
+                    when (metric) {
+                        BloodPressureRecord.DIASTOLIC_AVG,
+                        BloodPressureRecord.SYSTOLIC_AVG -> avgDataMap[metric]!!.average()
+                        BloodPressureRecord.DIASTOLIC_MAX,
+                        BloodPressureRecord.DIASTOLIC_MIN,
+                        BloodPressureRecord.SYSTOLIC_MAX,
+                        BloodPressureRecord.SYSTOLIC_MIN -> minMaxMap[metric]!!
+                        else ->
+                            error(
+                                "Invalid blood pressure fallback aggregation type ${metric.metricKey}"
+                            )
+                    }
+
+                put(metric.metricKey, aggregatedValue)
+            }
+        }
+
+    init {
+        check(BLOOD_PRESSURE_METRICS.containsAll(bloodPressureMetrics)) {
+            "Invalid set of blood pressure fallback aggregation metrics ${bloodPressureMetrics.map { it.metricKey }}"
+        }
+
+        for (metric in bloodPressureMetrics) {
+            when (metric) {
+                BloodPressureRecord.DIASTOLIC_AVG,
+                BloodPressureRecord.SYSTOLIC_AVG -> avgDataMap[metric] = AvgData()
+                BloodPressureRecord.DIASTOLIC_MAX,
+                BloodPressureRecord.DIASTOLIC_MIN,
+                BloodPressureRecord.SYSTOLIC_MAX,
+                BloodPressureRecord.SYSTOLIC_MIN -> minMaxMap[metric] = null
+                else ->
+                    error("Invalid blood pressure fallback aggregation metric ${metric.metricKey}")
+            }
         }
     }
 
-    val dataOrigins = mutableSetOf<DataOrigin>()
+    override fun plusAssign(value: BloodPressureRecord) {
+        val diastolic = value.diastolic.inMillimetersOfMercury
+        val systolic = value.systolic.inMillimetersOfMercury
 
-    readRecordsFlow.collect { records ->
-        records.forEach {
-            val diastolic = it.diastolic.inMillimetersOfMercury
-            val systolic = it.systolic.inMillimetersOfMercury
-
-            for (metric in bloodPressureMetrics) {
-                when (metric) {
-                    BloodPressureRecord.DIASTOLIC_AVG -> avgDataMap[metric]!! += diastolic
-                    BloodPressureRecord.DIASTOLIC_MAX ->
-                        minMaxMap[metric] = max(minMaxMap[metric] ?: diastolic, diastolic)
-                    BloodPressureRecord.DIASTOLIC_MIN ->
-                        minMaxMap[metric] = min(minMaxMap[metric] ?: diastolic, diastolic)
-                    BloodPressureRecord.SYSTOLIC_AVG -> avgDataMap[metric]!! += systolic
-                    BloodPressureRecord.SYSTOLIC_MAX ->
-                        minMaxMap[metric] = max(minMaxMap[metric] ?: systolic, systolic)
-                    BloodPressureRecord.SYSTOLIC_MIN ->
-                        minMaxMap[metric] = min(minMaxMap[metric] ?: systolic, systolic)
-                }
+        for (metric in bloodPressureMetrics) {
+            when (metric) {
+                BloodPressureRecord.DIASTOLIC_AVG -> avgDataMap[metric]!! += diastolic
+                BloodPressureRecord.DIASTOLIC_MAX ->
+                    minMaxMap[metric] = max(minMaxMap[metric] ?: diastolic, diastolic)
+                BloodPressureRecord.DIASTOLIC_MIN ->
+                    minMaxMap[metric] = min(minMaxMap[metric] ?: diastolic, diastolic)
+                BloodPressureRecord.SYSTOLIC_AVG -> avgDataMap[metric]!! += systolic
+                BloodPressureRecord.SYSTOLIC_MAX ->
+                    minMaxMap[metric] = max(minMaxMap[metric] ?: systolic, systolic)
+                BloodPressureRecord.SYSTOLIC_MIN ->
+                    minMaxMap[metric] = min(minMaxMap[metric] ?: systolic, systolic)
             }
 
-            dataOrigins += it.metadata.dataOrigin
+            dataOrigins += value.metadata.dataOrigin
         }
     }
-
-    if (dataOrigins.isEmpty()) {
-        return emptyAggregationResult()
-    }
-
-    val doubleValues = buildMap {
-        for (metric in bloodPressureMetrics) {
-            val aggregatedValue =
-                when (metric) {
-                    BloodPressureRecord.DIASTOLIC_AVG,
-                    BloodPressureRecord.SYSTOLIC_AVG -> avgDataMap[metric]!!.average()
-                    BloodPressureRecord.DIASTOLIC_MAX,
-                    BloodPressureRecord.DIASTOLIC_MIN,
-                    BloodPressureRecord.SYSTOLIC_MAX,
-                    BloodPressureRecord.SYSTOLIC_MIN -> minMaxMap[metric]!!
-                    else ->
-                        error(
-                            "Invalid blood pressure fallback aggregation type ${metric.metricKey}"
-                        )
-                }
-
-            put(metric.metricKey, aggregatedValue)
-        }
-    }
-
-    return AggregationResult(
-        longValues = mapOf(),
-        doubleValues = doubleValues,
-        dataOrigins = dataOrigins
-    )
 }

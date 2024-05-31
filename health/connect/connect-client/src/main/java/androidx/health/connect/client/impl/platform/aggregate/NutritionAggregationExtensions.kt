@@ -32,46 +32,23 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Instant
 import kotlin.math.max
-import kotlinx.coroutines.flow.fold
 
 internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin>
+) = aggregateNutrition(timeRangeFilter, dataOriginFilter, TransFatTotalAggregator(timeRangeFilter))
+
+private suspend fun HealthConnectClient.aggregateNutrition(
+    timeRangeFilter: TimeRangeFilter,
+    dataOriginFilter: Set<DataOrigin>,
+    aggregator: Aggregator<NutritionRecord>
 ): AggregationResult {
-    val readRecordsFlow =
-        readRecordsFlow(
-            NutritionRecord::class,
-            timeRangeFilter.withBufferedStart(),
-            dataOriginFilter
-        )
-
-    val aggregatedData =
-        readRecordsFlow.fold(AggregatedData(0.0)) { currentAggregatedData, records ->
-            val filteredRecords =
-                records.filter {
-                    it.overlaps(timeRangeFilter) &&
-                        it.transFat != null &&
-                        it.sliceFactor(timeRangeFilter) > 0
-                }
-
-            filteredRecords.forEach {
-                currentAggregatedData.value +=
-                    it.transFat!!.inGrams * it.sliceFactor(timeRangeFilter)
-            }
-
-            filteredRecords.mapTo(currentAggregatedData.dataOrigins) { it.metadata.dataOrigin }
-            currentAggregatedData
+    readRecordsFlow(NutritionRecord::class, timeRangeFilter.withBufferedStart(), dataOriginFilter)
+        .collect { records ->
+            records.filter { it.overlaps(timeRangeFilter) }.forEach { aggregator += it }
         }
 
-    if (aggregatedData.dataOrigins.isEmpty()) {
-        return emptyAggregationResult()
-    }
-
-    return AggregationResult(
-        longValues = mapOf(),
-        doubleValues = mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to aggregatedData.value),
-        dataOrigins = aggregatedData.dataOrigins
-    )
+    return aggregator.getResult()
 }
 
 internal fun IntervalRecord.sliceFactor(timeRangeFilter: TimeRangeFilter): Double {
@@ -91,4 +68,20 @@ internal fun IntervalRecord.sliceFactor(timeRangeFilter: TimeRangeFilter): Doubl
     }
 
     return max(0.0, (endTime - startTime) / duration)
+}
+
+private class TransFatTotalAggregator(val timeRangeFilter: TimeRangeFilter) :
+    Aggregator<NutritionRecord> {
+    var total = 0.0
+
+    override val dataOrigins = mutableSetOf<DataOrigin>()
+    override val doubleValues: Map<String, Double>
+        get() = mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to total)
+
+    override operator fun plusAssign(value: NutritionRecord) {
+        if (value.transFat != null && value.sliceFactor(timeRangeFilter) > 0) {
+            total += value.transFat.inGrams * value.sliceFactor(timeRangeFilter)
+            dataOrigins += value.metadata.dataOrigin
+        }
+    }
 }
