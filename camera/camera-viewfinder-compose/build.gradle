@@ -41,7 +41,7 @@ dependencies {
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(project(":compose:material:material-icons-core"))
+    androidTestImplementation("androidx.compose.material:material-icons-core:1.6.7")
     androidTestImplementation(project(":camera:camera-testing"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

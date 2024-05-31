@@ -47,8 +47,7 @@ dependencies {
     implementation(libs.apacheCommonIo) // used in CheckApiEquivalenceTask.kt
 
     implementation(libs.protobufGradlePlugin) // needed to compile inspection plugin
-    implementation(libs.kotlinPoet) // needed to compile material-icon-generator
-    implementation(libs.xmlpull) // needed to compile material-icon-generator
+    implementation(libs.kotlinPoet) // needed to compile glance-layout-generator
 
     implementation(libs.protobuf) // needed to compile baseline-profile gradle plugins
     implementation(libs.agpTestingPlatformCoreProto) // needed to compile baseline-profile gradle plugins

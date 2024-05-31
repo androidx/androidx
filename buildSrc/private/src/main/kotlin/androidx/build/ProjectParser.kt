@@ -91,12 +91,6 @@ fun Project.parse(): ProjectParser.ParsedProject {
 }
 
 fun Project.parseBuildFile(buildFile: File): ProjectParser.ParsedProject {
-    if (buildFile.path.contains("compose/material/material-icons-extended-")) {
-        // These projects all read from this Gradle script
-        return parseBuildFile(
-            File(buildFile.parentFile.parentFile, "material-icons-extended/generate.gradle")
-        )
-    }
     val parserProvider =
         project.rootProject.gradle.sharedServices.registerIfAbsent(
             "ProjectParser",
