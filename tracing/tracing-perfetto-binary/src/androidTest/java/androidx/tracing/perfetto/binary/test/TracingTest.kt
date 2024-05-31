@@ -30,9 +30,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TracingTest {
     /**
-     * The test verifies that the library was assembled and can be found by the system.
-     * We cannot load the library since it contains explicit JNI method registration tied to
-     * the [androidx.tracing.perfetto.jni.PerfettoNative] class.
+     * The test verifies that the library was assembled and can be found by the system. We cannot
+     * load the library since it contains explicit JNI method registration tied to the
+     * [androidx.tracing.perfetto.jni.PerfettoNative] class.
      *
      * Methods of the library are further tested in e.g.:
      * - [androidx.tracing.perfetto.jni.test.PerfettoNativeTest]
@@ -51,8 +51,8 @@ class TracingTest {
         // check that the APK contains the library file
         val context = InstrumentationRegistry.getInstrumentation().context
         val baseApk = File(context.applicationInfo.publicSourceDir!!)
-        assertTrue(ZipFile(baseApk).entries().asSequence().any {
-            it.name.endsWith("/$nativeLibraryName")
-        })
+        assertTrue(
+            ZipFile(baseApk).entries().asSequence().any { it.name.endsWith("/$nativeLibraryName") }
+        )
     }
 }

@@ -30,9 +30,7 @@ import org.junit.runner.RunWith
 class TraceTestKt {
     @Test
     fun traceTest() {
-        val x = trace("Test") {
-            10
-        }
+        val x = trace("Test") { 10 }
         assertEquals(10, x)
     }
 
@@ -50,23 +48,25 @@ class TraceTestKt {
             Trace.isEnabled()
         )
 
-        val x = trace(
-            lazyLabel = {
-                throw IllegalStateException("tracing should be disabled, with message not used")
+        val x =
+            trace(
+                lazyLabel = {
+                    throw IllegalStateException("tracing should be disabled, with message not used")
+                }
+            ) {
+                10
             }
-        ) {
-            10
-        }
         assertEquals(10, x)
     }
 
     @Test
     fun asyncTraceTest() {
         runBlocking {
-            val x = traceAsync("test", 0) {
-                delay(1)
-                10
-            }
+            val x =
+                traceAsync("test", 0) {
+                    delay(1)
+                    10
+                }
             assertEquals(10, x)
         }
     }
@@ -78,17 +78,22 @@ class TraceTestKt {
             Trace.isEnabled()
         )
         runBlocking {
-            val x = traceAsync(
-                lazyMethodName = {
-                    throw IllegalStateException("tracing should be disabled, with message not used")
-                },
-                lazyCookie = {
-                    throw IllegalStateException("tracing should be disabled, with message not used")
+            val x =
+                traceAsync(
+                    lazyMethodName = {
+                        throw IllegalStateException(
+                            "tracing should be disabled, with message not used"
+                        )
+                    },
+                    lazyCookie = {
+                        throw IllegalStateException(
+                            "tracing should be disabled, with message not used"
+                        )
+                    }
+                ) {
+                    delay(1)
+                    10
                 }
-            ) {
-                delay(1)
-                10
-            }
             assertEquals(10, x)
         }
     }

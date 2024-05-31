@@ -34,8 +34,8 @@ internal object RequestKeys {
     /**
      * Request to enable tracing in an app.
      *
-     * The action is performed straight away allowing for warm / hot tracing. For cold start
-     * tracing see [ACTION_ENABLE_TRACING_COLD_START]
+     * The action is performed straight away allowing for warm / hot tracing. For cold start tracing
+     * see [ACTION_ENABLE_TRACING_COLD_START]
      *
      * Request can include [KEY_PATH] as an optional extra.
      *
@@ -52,14 +52,13 @@ internal object RequestKeys {
      *
      * For warm / hot tracing, see [ACTION_ENABLE_TRACING].
      *
-     * The action must be performed in the following order, otherwise its effects are
-     * unspecified:
+     * The action must be performed in the following order, otherwise its effects are unspecified:
      * - the app process must be killed before performing the action
      * - the action must then follow
      * - the app process must be killed after performing the action
      *
-     * Request can include [KEY_PATH] as an optional extra.
-     * Request can include [KEY_PERSISTENT] as an optional extra.
+     * Request can include [KEY_PATH] as an optional extra. Request can include [KEY_PERSISTENT] as
+     * an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
      * - [ResponseKeys.KEY_RESULT_CODE] (always)
@@ -73,17 +72,16 @@ internal object RequestKeys {
      * Request to disable cold start tracing (previously enabled with
      * [ACTION_ENABLE_TRACING_COLD_START]).
      *
-     * The action is particularly useful when cold start tracing was enabled in
-     * [KEY_PERSISTENT] mode.
+     * The action is particularly useful when cold start tracing was enabled in [KEY_PERSISTENT]
+     * mode.
      *
-     * The action must be performed in the following order, otherwise its effects are
-     * unspecified:
+     * The action must be performed in the following order, otherwise its effects are unspecified:
      * - the app process must be killed before performing the action
      * - the action must then follow
      * - the app process must be killed after performing the action
      *
-     * Request can include [KEY_PATH] as an optional extra.
-     * Request can include [KEY_PERSISTENT] as an optional extra.
+     * Request can include [KEY_PATH] as an optional extra. Request can include [KEY_PERSISTENT] as
+     * an optional extra.
      *
      * Response to the request is a JSON string (to allow for CLI support) with the following:
      * - [ResponseKeys.KEY_RESULT_CODE] (always)
@@ -95,8 +93,8 @@ internal object RequestKeys {
     public const val KEY_PATH: String = "path"
 
     /**
-     * Boolean flag to signify whether the operation should be persistent between runs
-     * (or only performed once).
+     * Boolean flag to signify whether the operation should be persistent between runs (or only
+     * performed once).
      *
      * Applies to [ACTION_ENABLE_TRACING_COLD_START]
      */
@@ -114,36 +112,35 @@ internal object ResponseKeys {
     public const val KEY_RESULT_CODE: String = "exitCode"
 
     /**
-     * Required version of the binaries. Java and binary library versions have to match to
-     * ensure compatibility. In the Maven format, e.g. 1.2.3-beta01.
+     * Required version of the binaries. Java and binary library versions have to match to ensure
+     * compatibility. In the Maven format, e.g. 1.2.3-beta01.
      */
     public const val KEY_REQUIRED_VERSION: String = "requiredVersion"
 
     /**
-     * Message string that gives more information about the response, e.g. recovery steps
-     * if applicable.
+     * Message string that gives more information about the response, e.g. recovery steps if
+     * applicable.
      */
     public const val KEY_MESSAGE: String = "message"
 }
 
 internal object ResponseResultCodes {
     /**
-     * Indicates that the broadcast resulted in `result=0`, which is an equivalent
-     * of [android.app.Activity.RESULT_CANCELED].
+     * Indicates that the broadcast resulted in `result=0`, which is an equivalent of
+     * [android.app.Activity.RESULT_CANCELED].
      *
      * This most likely means that the app does not expose a [PerfettoSdkHandshake] compatible
      * receiver.
      */
-    @Suppress("KDocUnresolvedReference")
-    public const val RESULT_CODE_CANCELLED: Int = 0
+    @Suppress("KDocUnresolvedReference") public const val RESULT_CODE_CANCELLED: Int = 0
 
     public const val RESULT_CODE_SUCCESS: Int = 1
     public const val RESULT_CODE_ALREADY_ENABLED: Int = 2
 
     /**
-     * Required version described in [Response.requiredVersion].
-     * A follow-up [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.enableTracingImmediate]
-     * request expected with binaries to sideload specified.
+     * Required version described in [Response.requiredVersion]. A follow-up
+     * [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.enableTracingImmediate] request
+     * expected with binaries to sideload specified.
      */
     public const val RESULT_CODE_ERROR_BINARY_MISSING: Int = 11
 
@@ -151,9 +148,8 @@ internal object ResponseResultCodes {
     public const val RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH: Int = 12
 
     /**
-     * Could be a result of a stale version of the binary cached locally.
-     * Retrying with a freshly downloaded library likely to fix the issue.
-     * More specific information in [Response.message]
+     * Could be a result of a stale version of the binary cached locally. Retrying with a freshly
+     * downloaded library likely to fix the issue. More specific information in [Response.message]
      */
     public const val RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR: Int = 13
 
@@ -173,16 +169,17 @@ internal object ResponseResultCodes {
 )
 private annotation class ResultCode
 
-internal class Response @RestrictTo(LIBRARY_GROUP) constructor(
+internal class Response
+@RestrictTo(LIBRARY_GROUP)
+constructor(
     @ResultCode public val resultCode: Int,
 
     /**
      * This can be `null` iff we cannot communicate with the broadcast receiver of the target
-     * process (e.g. app does not offer Perfetto tracing) or if we cannot parse the response
-     * from the receiver. In either case, tracing is unlikely to work under these circumstances,
-     * and more context on how to proceed can be found in [resultCode] or [message] properties.
+     * process (e.g. app does not offer Perfetto tracing) or if we cannot parse the response from
+     * the receiver. In either case, tracing is unlikely to work under these circumstances, and more
+     * context on how to proceed can be found in [resultCode] or [message] properties.
      */
     public val requiredVersion: String?,
-
     public val message: String?
 )
