@@ -17,8 +17,9 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -90,8 +91,14 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * Example of a [Button]:
  * @sample androidx.wear.compose.material3.samples.SimpleButtonSample
  *
+ * Example of a [Button] with onLongClick:
+ * @sample androidx.wear.compose.material3.samples.ButtonWithOnLongClick
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -112,6 +119,8 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
 fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
@@ -122,6 +131,8 @@ fun Button(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     enabled = enabled,
     shape = shape,
     labelFont = FilledButtonTokens.LabelFont.value,
@@ -161,8 +172,14 @@ fun Button(
  * Example of a [FilledTonalButton]:
  * @sample androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
  *
+ * Example of a [FilledTonalButton] with onLongClick:
+ * @sample androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClick
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -183,6 +200,8 @@ fun Button(
 fun FilledTonalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
@@ -193,6 +212,8 @@ fun FilledTonalButton(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     enabled = enabled,
     shape = shape,
     labelFont = FilledTonalButtonTokens.LabelFont.value,
@@ -231,8 +252,14 @@ fun FilledTonalButton(
  * Example of an [OutlinedButton]:
  * @sample androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
  *
+ * Example of a [OutlinedButton] with onLongClick:
+ * @sample androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClick
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -253,6 +280,8 @@ fun FilledTonalButton(
 fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
@@ -263,6 +292,8 @@ fun OutlinedButton(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     enabled = enabled,
     shape = shape,
     labelFont = OutlinedButtonTokens.LabelFont.value,
@@ -301,8 +332,14 @@ fun OutlinedButton(
  * Example of a [ChildButton]:
  * @sample androidx.wear.compose.material3.samples.SimpleChildButtonSample
  *
+ * Example of a [ChildButton] with onLongClick:
+ * @sample androidx.wear.compose.material3.samples.ChildButtonWithOnLongClick
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
@@ -323,6 +360,8 @@ fun OutlinedButton(
 fun ChildButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
@@ -333,6 +372,8 @@ fun ChildButton(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     enabled = enabled,
     shape = shape,
     labelFont = OutlinedButtonTokens.LabelFont.value,
@@ -377,6 +418,9 @@ fun ChildButton(
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
  * expected to be text which is "start" aligned if there is an icon preset and
  * "start" or "center" aligned if not.
@@ -406,6 +450,8 @@ fun ChildButton(
 fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
@@ -418,6 +464,8 @@ fun Button(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -470,6 +518,9 @@ fun Button(
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
  * expected to be text which is "start" aligned if there is an icon preset and
  * "start" or "center" aligned if not.
@@ -498,6 +549,8 @@ fun Button(
 fun FilledTonalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
@@ -510,6 +563,8 @@ fun FilledTonalButton(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -557,6 +612,9 @@ fun FilledTonalButton(
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
  * expected to be text which is "start" aligned if there is an icon preset and
  * "start" or "center" aligned if not.
@@ -585,6 +643,8 @@ fun FilledTonalButton(
 fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
@@ -597,6 +657,8 @@ fun OutlinedButton(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -643,6 +705,9 @@ fun OutlinedButton(
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
  * expected to be text which is "start" aligned if there is an icon preset and
  * "start" or "center" aligned if not.
@@ -671,6 +736,8 @@ fun OutlinedButton(
 fun ChildButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
@@ -683,6 +750,8 @@ fun ChildButton(
 ) = ButtonImpl(
     onClick = onClick,
     modifier = modifier.buttonSizeModifier(),
+    onLongClick = onLongClick,
+    onLongClickLabel = onLongClickLabel,
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -748,8 +817,14 @@ fun ChildButton(
  * [ButtonDefaults.outlinedButtonBorder] and [ButtonDefaults.outlinedButtonColors]
  * @sample androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
  *
+ * Example of a [CompactButton] with onLongClick:
+ * @sample androidx.wear.compose.material3.samples.CompactButtonWithOnLongClick
+ *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback
+ * is set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param label A slot for providing the button's main label. The contents are expected to be text
  * which is "start" aligned if there is an icon preset and "center" aligned if not.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
@@ -774,6 +849,8 @@ fun ChildButton(
 fun CompactButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.compactButtonShape,
@@ -789,6 +866,8 @@ fun CompactButton(
             modifier = modifier
                 .compactButtonModifier()
                 .padding(ButtonDefaults.CompactButtonTapTargetPadding),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
             secondaryLabel = null,
             icon = icon,
             enabled = enabled,
@@ -810,6 +889,8 @@ fun CompactButton(
                 .compactButtonModifier()
                 .width(ButtonDefaults.IconOnlyCompactButtonWidth)
                 .padding(ButtonDefaults.CompactButtonTapTargetPadding),
+            onLongClick = onLongClick,
+            onLongClickLabel = onLongClickLabel,
             enabled = enabled,
             shape = shape,
             labelFont = CompactButtonTokens.LabelFont.value,
@@ -820,9 +901,11 @@ fun CompactButton(
         ) {
             // Use a box to fill and center align the icon into the single slot of the
             // Button
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize(align = Alignment.Center)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(align = Alignment.Center)
+            ) {
                 if (icon != null) {
                     icon()
                 }
@@ -1483,10 +1566,13 @@ private fun Modifier.compactButtonModifier(): Modifier =
  * Button with label. This allows to use the token values for
  * individual buttons instead of relying on common values.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ButtonImpl(
     onClick: () -> Unit,
     modifier: Modifier,
+    onLongClick: (() -> Unit)?,
+    onLongClickLabel: String?,
     enabled: Boolean,
     shape: Shape,
     labelFont: TextStyle,
@@ -1509,9 +1595,11 @@ private fun ButtonImpl(
                 painter = colors.containerPainter(enabled = enabled),
                 contentScale = ContentScale.Crop
             )
-            .clickable(
+            .combinedClickable(
                 enabled = enabled,
                 onClick = onClick,
+                onLongClick = onLongClick,
+                onLongClickLabel = onLongClickLabel,
                 role = Role.Button,
                 indication = rippleOrFallbackImplementation(),
                 interactionSource = interactionSource,
@@ -1533,6 +1621,8 @@ private fun ButtonImpl(
 private fun ButtonImpl(
     onClick: () -> Unit,
     modifier: Modifier,
+    onLongClick: (() -> Unit)?,
+    onLongClickLabel: String?,
     secondaryLabel: (@Composable RowScope.() -> Unit)?,
     icon: (@Composable BoxScope.() -> Unit)?,
     enabled: Boolean,
@@ -1548,6 +1638,8 @@ private fun ButtonImpl(
     ButtonImpl(
         onClick = onClick,
         modifier = modifier,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
         enabled = enabled,
         shape = shape,
         labelFont = labelFont,

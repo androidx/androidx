@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Button
@@ -38,11 +41,16 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonSample
+import androidx.wear.compose.material3.samples.ButtonWithOnLongClick
 import androidx.wear.compose.material3.samples.ChildButtonSample
+import androidx.wear.compose.material3.samples.ChildButtonWithOnLongClick
 import androidx.wear.compose.material3.samples.CompactButtonSample
+import androidx.wear.compose.material3.samples.CompactButtonWithOnLongClick
 import androidx.wear.compose.material3.samples.FilledTonalButtonSample
+import androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClick
 import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
 import androidx.wear.compose.material3.samples.OutlinedButtonSample
+import androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClick
 import androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleButtonSample
 import androidx.wear.compose.material3.samples.SimpleChildButtonSample
@@ -51,6 +59,7 @@ import androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
 
 @Composable
 fun ButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,6 +71,11 @@ fun ButtonDemo() {
         }
         item {
             SimpleButtonSample()
+        }
+        item {
+            ButtonWithOnLongClick({ showOnClickToast(context) }) {
+                showOnLongClickToast(context)
+            }
         }
         item {
             Button(
@@ -98,6 +112,7 @@ fun ButtonDemo() {
 
 @Composable
 fun FilledTonalButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -109,6 +124,11 @@ fun FilledTonalButtonDemo() {
         }
         item {
             SimpleFilledTonalButtonSample()
+        }
+        item {
+            FilledTonalButtonWithOnLongClick({ showOnClickToast(context) }) {
+                showOnLongClickToast(context)
+            }
         }
         item {
             FilledTonalButton(
@@ -145,6 +165,7 @@ fun FilledTonalButtonDemo() {
 
 @Composable
 fun OutlinedButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -156,6 +177,11 @@ fun OutlinedButtonDemo() {
         }
         item {
             SimpleOutlinedButtonSample()
+        }
+        item {
+            OutlinedButtonWithOnLongClick({ showOnClickToast(context) }) {
+                showOnLongClickToast(context)
+            }
         }
         item {
             OutlinedButton(
@@ -192,6 +218,7 @@ fun OutlinedButtonDemo() {
 
 @Composable
 fun ChildButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -203,6 +230,11 @@ fun ChildButtonDemo() {
         }
         item {
             SimpleChildButtonSample()
+        }
+        item {
+            ChildButtonWithOnLongClick({ showOnClickToast(context) }) {
+                showOnLongClickToast(context)
+            }
         }
         item {
             ChildButton(
@@ -239,6 +271,7 @@ fun ChildButtonDemo() {
 
 @Composable
 fun CompactButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -250,6 +283,11 @@ fun CompactButtonDemo() {
         }
         item {
             CompactButtonSample()
+        }
+        item {
+            CompactButtonWithOnLongClick({ showOnClickToast(context) }) {
+                showOnLongClickToast(context)
+            }
         }
         item {
             FilledTonalCompactButtonSample()
@@ -482,4 +520,12 @@ private fun Multiline3SlotButton(
         enabled = enabled,
         colors = colors,
     )
+}
+
+private fun showOnClickToast(context: Context) {
+    Toast.makeText(context, "onClick triggered", Toast.LENGTH_SHORT).show()
+}
+
+private fun showOnLongClickToast(context: Context) {
+    Toast.makeText(context, "onLongClick triggered", Toast.LENGTH_SHORT).show()
 }
