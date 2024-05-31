@@ -321,7 +321,8 @@ private fun rememberLazyListMeasurePolicy(
             emptyList()
         }
 
-        val measureResult = Snapshot.withMutableSnapshot {
+        // todo: wrap with snapshot when b/341782245 is resolved
+        val measureResult =
             measureLazyList(
                 itemsCount = itemsCount,
                 measuredItemProvider = measuredItemProvider,
@@ -357,7 +358,6 @@ private fun rememberLazyListMeasurePolicy(
                     )
                 }
             )
-        }
         state.applyMeasureResult(measureResult, isLookingAhead)
         measureResult
     }

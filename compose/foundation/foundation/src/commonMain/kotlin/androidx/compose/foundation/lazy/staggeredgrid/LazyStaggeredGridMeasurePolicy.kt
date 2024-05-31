@@ -26,7 +26,6 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -101,7 +100,8 @@ internal fun rememberStaggeredGridMeasurePolicy(
             state.beyondBoundsInfo
         )
 
-        val measureResult = Snapshot.withMutableSnapshot {
+        // todo: wrap with snapshot when b/341782245 is resolved
+        val measureResult =
             measureStaggeredGrid(
                 state = state,
                 pinnedItems = pinnedItems,
@@ -121,7 +121,6 @@ internal fun rememberStaggeredGridMeasurePolicy(
                 coroutineScope = coroutineScope,
                 graphicsContext = graphicsContext
             )
-        }
         state.applyMeasureResult(measureResult)
         measureResult
     }
