@@ -345,25 +345,19 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     private fun updateMatrix() = with(graphicsLayer) {
-        val pivot = if (pivotOffset.isUnspecified) {
+        val (x, y) = if (pivotOffset.isUnspecified) {
             this@GraphicsLayerOwnerLayer.size.toSize().center
         } else {
             pivotOffset
         }
 
-        matrixCache.reset()
-        matrixCache *= Matrix().apply {
-            translate(x = -pivot.x, y = -pivot.y)
-        }
-        matrixCache *= Matrix().apply {
-            translate(translationX, translationY)
-            rotateX(rotationX)
-            rotateY(rotationY)
-            rotateZ(rotationZ)
-            scale(scaleX, scaleY)
-        }
-        matrixCache *= Matrix().apply {
-            translate(x = pivot.x, y = pivot.y)
-        }
+        matrixCache.resetToPivotedTransform(
+            x, y,
+            translationX, translationY, 1.0f,
+            rotationX,
+            rotationY,
+            rotationZ,
+            scaleX, scaleY
+        )
     }
 }
