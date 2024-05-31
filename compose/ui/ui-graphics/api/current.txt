@@ -1080,6 +1080,8 @@ package androidx.compose.ui.graphics.colorspace {
     method public androidx.compose.ui.graphics.colorspace.Rgb getAcescg();
     method public androidx.compose.ui.graphics.colorspace.Rgb getAdobeRgb();
     method public androidx.compose.ui.graphics.colorspace.Rgb getBt2020();
+    method public androidx.compose.ui.graphics.colorspace.Rgb getBt2020Hlg();
+    method public androidx.compose.ui.graphics.colorspace.Rgb getBt2020Pq();
     method public androidx.compose.ui.graphics.colorspace.Rgb getBt709();
     method public androidx.compose.ui.graphics.colorspace.ColorSpace getCieLab();
     method public androidx.compose.ui.graphics.colorspace.ColorSpace getCieXyz();
@@ -1098,6 +1100,8 @@ package androidx.compose.ui.graphics.colorspace {
     property public final androidx.compose.ui.graphics.colorspace.Rgb Acescg;
     property public final androidx.compose.ui.graphics.colorspace.Rgb AdobeRgb;
     property public final androidx.compose.ui.graphics.colorspace.Rgb Bt2020;
+    property public final androidx.compose.ui.graphics.colorspace.Rgb Bt2020Hlg;
+    property public final androidx.compose.ui.graphics.colorspace.Rgb Bt2020Pq;
     property public final androidx.compose.ui.graphics.colorspace.Rgb Bt709;
     property public final androidx.compose.ui.graphics.colorspace.ColorSpace CieLab;
     property public final androidx.compose.ui.graphics.colorspace.ColorSpace CieXyz;

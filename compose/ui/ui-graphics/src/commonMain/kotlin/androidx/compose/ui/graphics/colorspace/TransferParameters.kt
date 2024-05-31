@@ -61,36 +61,54 @@ data class TransferParameters(
             throw IllegalArgumentException("Parameters cannot be NaN")
         }
 
-        // Next representable float after 1.0
-        // We use doubles here but the representation inside our native code is often floats
-        if (!(d >= 0.0 && d <= 1.0)) {
-            throw IllegalArgumentException("Parameter d must be in the range [0..1], was " + "$d")
-        }
+        if (!isSpecialG(gamma)) {
+            // Next representable float after 1.0
+            // We use doubles here but the representation inside our native code is often floats
+            if (!(d >= 0.0 && d <= 1.0)) {
+                throw IllegalArgumentException(
+                    "Parameter d must be in the range [0..1], was " + "$d"
+                )
+            }
 
-        if (d == 0.0 && (a == 0.0 || gamma == 0.0)) {
-            throw IllegalArgumentException(
-                "Parameter a or g is zero, the transfer function is constant"
-            )
-        }
+            if (d == 0.0 && (a == 0.0 || gamma == 0.0)) {
+                throw IllegalArgumentException(
+                    "Parameter a or g is zero, the transfer function is constant"
+                )
+            }
 
-        if (d >= 1.0 && c == 0.0) {
-            throw IllegalArgumentException("Parameter c is zero, the transfer function is constant")
-        }
+            if (d >= 1.0 && c == 0.0) {
+                throw IllegalArgumentException(
+                    "Parameter c is zero, the transfer function is constant"
+                )
+            }
 
-        if ((a == 0.0 || gamma == 0.0) && c == 0.0) {
-            throw IllegalArgumentException(
-                "Parameter a or g is zero," + " and c is zero, the transfer function is constant"
-            )
-        }
+            if ((a == 0.0 || gamma == 0.0) && c == 0.0) {
+                throw IllegalArgumentException(
+                    "Parameter a or g is zero," +
+                        " and c is zero, the transfer function is constant"
+                )
+            }
 
-        if (c < 0.0) {
-            throw IllegalArgumentException("The transfer function must be increasing")
-        }
+            if (c < 0.0) {
+                throw IllegalArgumentException("The transfer function must be increasing")
+            }
 
-        if (a < 0.0 || gamma < 0.0) {
-            throw IllegalArgumentException(
-                ("The transfer function must be " + "positive or increasing")
-            )
+            if (a < 0.0 || gamma < 0.0) {
+                throw IllegalArgumentException(
+                    ("The transfer function must be " + "positive or increasing")
+                )
+            }
         }
     }
+
+    internal val isHLGish: Boolean
+        get() = gamma == TypeHLGish
+
+    internal val isPQish: Boolean
+        get() = gamma == TypePQish
 }
+
+internal const val TypePQish = -2.0
+internal const val TypeHLGish = -3.0
+
+private fun isSpecialG(gamma: Double) = gamma == TypePQish || gamma == TypeHLGish
