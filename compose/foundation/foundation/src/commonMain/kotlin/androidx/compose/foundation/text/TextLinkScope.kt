@@ -47,6 +47,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -67,8 +68,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
 
     /**
-     * [initialText] with applied links styling to it (i.e. [LinkAnnotation.style],
-     * [LinkAnnotation.hoveredStyle] or [LinkAnnotation.focusedStyle])
+     * [initialText] with applied links styling [LinkAnnotation.styles] to it].
      */
     internal var text: AnnotatedString = initialText
 
@@ -145,7 +145,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun LinksComposables() {
+    fun LinksComposables(textStyle: TextStyle) {
         val uriHandler = LocalUriHandler.current
 
         val links = text.getLinkAnnotations(0, text.length)
@@ -174,20 +174,27 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 isHovered,
                 isFocused,
                 isPressed,
-                range.item.style,
-                range.item.focusedStyle,
-                range.item.hoveredStyle,
-                range.item.pressedStyle
+                range.item.styles?.style,
+                range.item.styles?.focusedStyle,
+                range.item.styles?.hoveredStyle,
+                range.item.styles?.pressedStyle,
+                textStyle.linkStyles
             ) {
+                // merge styling from the link annotation (in case it's set directly) and from the
+                // theming (aka TextStyle). If a link annotation has defined its styling, the
+                // theming will not fully override it but instead apply on top the _missing_ fields
+                val themedLinkStyle =
+                    textStyle.linkStyles?.merge(range.item.styles) ?: range.item.styles
+
                 // we calculate the latest style based on the link state and apply it to the
                 // initialText's style. This allows us to merge the style with the original instead
                 // of fully replacing it
-                val mergedStyle = range.item.style.mergeOrUse(
-                    if (isFocused) range.item.focusedStyle else null
+                val mergedStyle = themedLinkStyle?.style.mergeOrUse(
+                    if (isFocused) themedLinkStyle?.focusedStyle else null
                 ).mergeOrUse(
-                    if (isHovered) range.item.hoveredStyle else null
+                    if (isHovered) themedLinkStyle?.hoveredStyle else null
                 ).mergeOrUse(
-                    if (isPressed) range.item.pressedStyle else null
+                    if (isPressed) themedLinkStyle?.pressedStyle else null
                 )
                 mergedStyle?.let {
                     replaceStyle(it, range.start, range.end)

@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireView
 import androidx.compose.ui.platform.InspectorInfo
+import kotlinx.coroutines.launch
 
 /**
  * Configures an element to act as a stylus handwriting handler which can handle text input from a
@@ -73,7 +74,9 @@ private class HandwritingHandlerNode : FocusEventModifierNode, Modifier.Node() {
         if (this.focusState != focusState) {
             this.focusState = focusState
             if (focusState.hasFocus) {
-                composeImm.acceptStylusHandwritingDelegation()
+                // Launch so that the InputMethodManager call is made after the input connection is
+                // created.
+                coroutineScope.launch { composeImm.acceptStylusHandwritingDelegation() }
             }
         }
     }

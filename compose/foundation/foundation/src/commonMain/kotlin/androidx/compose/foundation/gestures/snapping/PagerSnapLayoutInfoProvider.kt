@@ -172,13 +172,26 @@ internal fun SnapLayoutInfoProvider(
                 upperBoundOffset = lowerBoundOffset
             }
 
-            // Do not move if we can't scroll
+            // Don't move if we are at the bounds
+
+            val isDragging = pagerState.dragGestureDelta() != 0f
+
             if (!pagerState.canScrollForward) {
                 upperBoundOffset = 0.0f
+                // If we can not scroll forward but are trying to move towards the bound, set both
+                // bounds to 0 as we don't want to move
+                if (isDragging && pagerState.isScrollingForward()) {
+                    lowerBoundOffset = 0.0f
+                }
             }
 
             if (!pagerState.canScrollBackward) {
                 lowerBoundOffset = 0.0f
+                // If we can not scroll backward but are trying to move towards the bound, set both
+                // bounds to 0 as we don't want to move
+                if (isDragging && !pagerState.isScrollingForward()) {
+                    upperBoundOffset = 0.0f
+                }
             }
             return lowerBoundOffset to upperBoundOffset
         }
@@ -192,7 +205,6 @@ private fun PagerState.isScrollingForward(): Boolean {
         !isLtrDragging() && !reverseScrollDirection)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun PagerState.dragGestureDelta() = if (layoutInfo.orientation == Orientation.Horizontal) {
     upDownDifference.x
 } else {

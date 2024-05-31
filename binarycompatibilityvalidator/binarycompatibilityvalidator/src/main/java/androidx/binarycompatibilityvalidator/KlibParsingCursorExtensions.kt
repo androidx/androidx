@@ -95,6 +95,8 @@ internal fun Cursor.hasPropertyKind(): Boolean {
     return subCursor.parsePropertyKind() != null
 }
 
+internal fun Cursor.hasEnumEntry(): Boolean = parseEnumEntryKind(peek = true) != null
+
 internal fun Cursor.hasGetter() = hasPropertyAccessor(GetterOrSetter.GETTER)
 internal fun Cursor.hasSetter() = hasPropertyAccessor(GetterOrSetter.SETTER)
 
@@ -248,7 +250,7 @@ fun Cursor.parseTypeParams(peek: Boolean = false): List<AbiTypeParameter>? {
     return typeParams
 }
 
-fun Cursor.parseTypeParam(peek: Boolean = false): AbiTypeParameter? {
+internal fun Cursor.parseTypeParam(peek: Boolean = false): AbiTypeParameter? {
     val cursor = subCursor(peek)
     val tag = cursor.parseTag() ?: return null
     cursor.parseSymbol("^:")
@@ -334,6 +336,10 @@ internal fun Cursor.parseTargets(): List<String> {
     parseSymbol("^\\]")
     return targets
 }
+
+internal fun Cursor.parseEnumEntryKind(peek: Boolean = false) = parseSymbol("enum\\sentry", peek)
+
+internal fun Cursor.parseEnumName() = parseSymbol("^[A-Z_]+")
 
 /**
  * Used to check if declarations after a property are getter / setter methods which should be

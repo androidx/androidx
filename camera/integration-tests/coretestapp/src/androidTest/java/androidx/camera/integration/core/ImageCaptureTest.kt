@@ -75,6 +75,7 @@ import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.integration.core.util.CameraPipeUtil
+import androidx.camera.integration.core.util.CameraPipeUtil.ignoreTestForCameraPipe
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
@@ -201,6 +202,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun capturedImageHasCorrectSize_whenOutputFormatIsUltraHdr() {
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
+        )
+
         takeImageAndVerifySize(outputFormat = OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
@@ -270,6 +275,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canCaptureMultipleImages_whenOutputFormatIsUltraHdr() {
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
+        )
+
         canTakeImages(defaultBuilder.setOutputFormat(OUTPUT_FORMAT_JPEG_ULTRA_HDR), numImages = 5) {
             assumeUltraHdrSupported(BACK_SELECTOR)
         }
@@ -286,6 +295,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canCaptureMultipleImagesWithMaxQuality_whenOutputFormatIsUltraHdr() {
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
+        )
+
         val builder = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
             .setOutputFormat(OUTPUT_FORMAT_JPEG_ULTRA_HDR)
@@ -457,6 +470,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canSaveToFile_withGainmapInfoInMetadata_whenOutputFormatIsUltraHdr(): Unit = runBlocking {
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
+        )
+
         val cameraSelector = BACK_SELECTOR
         assumeUltraHdrSupported(cameraSelector)
 
@@ -494,6 +511,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canSaveToUri_whenOutputFormatIsUltraHdr() {
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
+        )
+
         saveToUri(outputFormat = OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
@@ -547,6 +568,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canSaveToOutputStream_whenOutputFormatIsUltraHdr() {
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
+        )
+
         saveToOutputStream(outputFormat = OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
@@ -1691,9 +1716,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet() = runBlocking {
-        assumeTrue(
-            "TODO(b/275493663): Enable when camera-pipe has extensions support",
-            implName != CameraPipeConfig::class.simpleName
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/275493663): Enable when camera-pipe has extensions support"
         )
 
         val builder = ImageCapture.Builder()
@@ -1734,9 +1758,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet_outputFormatJpeg() = runBlocking {
-        assumeTrue(
-            "TODO(b/275493663): Enable when camera-pipe has extensions support",
-            implName != CameraPipeConfig::class.simpleName
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/275493663): Enable when camera-pipe has extensions support"
         )
 
         assumeFalse(
@@ -1937,9 +1960,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 28)
     fun getRealtimeCaptureLatencyEstimate_whenSessionProcessorSupportsRealtimeLatencyEstimate() =
         runBlocking {
-            assumeTrue(
-                "TODO(b/275493663, b/328022142): Enable when camera-pipe has extensions support",
-                implName != CameraPipeConfig::class.simpleName
+            implName.ignoreTestForCameraPipe(
+                "TODO(b/275493663, b/328022142): Enable when camera-pipe has extensions support"
             )
 
             val expectedCaptureLatencyMillis = 1000L
@@ -2003,9 +2025,10 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         preview: Preview? = null,
         imageAnalysis: ImageAnalysis? = null
     ) = runBlocking {
-        // TODO(b/247492645) Remove camera-pipe-integration restriction after porting
-        //  ResolutionSelector logic
-        assumeTrue(implName != CameraPipeConfig::class.simpleName)
+        implName.ignoreTestForCameraPipe(
+            "TODO(b/247492645) Remove camera-pipe-integration restriction after porting" +
+                " ResolutionSelector logic"
+        )
 
         val cameraInfo = withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(

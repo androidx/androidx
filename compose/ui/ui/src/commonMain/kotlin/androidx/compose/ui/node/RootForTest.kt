@@ -58,7 +58,7 @@ interface RootForTest {
      * @param enable force enable accessibility if true.
      */
     @ExperimentalComposeUiApi
-    fun forceAccessibilityForTesting(enable: Boolean)
+    fun forceAccessibilityForTesting(enable: Boolean) { }
 
     /**
      * Set the time interval between sending accessibility events in milliseconds.
@@ -66,10 +66,10 @@ interface RootForTest {
      * This is the delay before dispatching a recurring accessibility event in milliseconds. It
      * delays the loop that sends events to the accessibility and content capture framework
      * in batches. A recurring event will be sent at most once during the
-     * [accessibilityInterval] timeframe. The default time delay is 100 milliseconds.
+     * [intervalMillis] timeframe. The default time delay is 100 milliseconds.
      */
     @ExperimentalComposeUiApi
-    fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long)
+    fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) { }
 
     /**
      * Requests another layout (measure + placement) pass be performed for any nodes that need it.

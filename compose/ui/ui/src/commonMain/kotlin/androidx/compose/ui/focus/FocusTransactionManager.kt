@@ -89,12 +89,13 @@ internal class FocusTransactionManager {
         }
         states.clear()
         ongoingTransaction = false
+        cancellationListener.clear()
     }
 
     private fun cancelTransaction() {
-        cancellationListener.forEach { it() }
-        cancellationListener.clear()
         states.clear()
         ongoingTransaction = false
+        cancellationListener.forEach { it() }
+        cancellationListener.clear()
     }
 }

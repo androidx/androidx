@@ -45,7 +45,7 @@ class EntityUpsertAdapter<T>(
      */
     fun upsert(
         connection: SQLiteConnection,
-        entity: T
+        entity: T?
     ) {
         try {
             entityInsertAdapter.insert(connection, entity)
@@ -64,8 +64,9 @@ class EntityUpsertAdapter<T>(
      */
     fun upsert(
         connection: SQLiteConnection,
-        entities: Array<out T>
+        entities: Array<out T?>?
     ) {
+        if (entities == null) return
         entities.forEach { entity ->
             try {
                 entityInsertAdapter.insert(connection, entity)
@@ -78,8 +79,9 @@ class EntityUpsertAdapter<T>(
 
     fun upsert(
         connection: SQLiteConnection,
-        entities: Iterable<T>
+        entities: Iterable<T?>?
     ) {
+        if (entities == null) return
         entities.forEach { entity ->
             try {
                 entityInsertAdapter.insert(connection, entity)
@@ -100,7 +102,7 @@ class EntityUpsertAdapter<T>(
      */
     fun upsertAndReturnId(
         connection: SQLiteConnection,
-        entity: T
+        entity: T?
     ): Long {
         return try {
             entityInsertAdapter.insertAndReturnId(connection, entity)
@@ -119,8 +121,9 @@ class EntityUpsertAdapter<T>(
      */
     fun upsertAndReturnIdsArray(
         connection: SQLiteConnection,
-        entities: Array<out T>
+        entities: Array<out T?>?
     ): LongArray {
+        if (entities == null) return longArrayOf()
         return LongArray(entities.size) { index ->
             try {
                 entityInsertAdapter.insertAndReturnId(connection, entities[index])
@@ -134,8 +137,9 @@ class EntityUpsertAdapter<T>(
 
     fun upsertAndReturnIdsArray(
         connection: SQLiteConnection,
-        entities: Collection<T>
+        entities: Collection<T?>?
     ): LongArray {
+        if (entities == null) return longArrayOf()
         return LongArray(entities.size) { index ->
             try {
                 entityInsertAdapter.insertAndReturnId(connection, entities.elementAt(index))
@@ -149,8 +153,9 @@ class EntityUpsertAdapter<T>(
 
     fun upsertAndReturnIdsList(
         connection: SQLiteConnection,
-        entities: Array<out T>
+        entities: Array<out T?>?
     ): List<Long> {
+        if (entities == null) return emptyList()
         return buildList {
             entities.forEach { entity ->
                 try {
@@ -166,8 +171,9 @@ class EntityUpsertAdapter<T>(
 
     fun upsertAndReturnIdsList(
         connection: SQLiteConnection,
-        entities: Collection<T>
+        entities: Collection<T?>?
     ): List<Long> {
+        if (entities == null) return emptyList()
         return buildList {
             entities.forEach { entity ->
                 try {
@@ -183,8 +189,9 @@ class EntityUpsertAdapter<T>(
 
     fun upsertAndReturnIdsArrayBox(
         connection: SQLiteConnection,
-        entities: Array<out T>
+        entities: Array<out T?>?
     ): Array<out Long> {
+        if (entities == null) return emptyArray()
         return Array(entities.size) { index ->
             try {
                 entityInsertAdapter.insertAndReturnId(connection, entities[index])
@@ -198,8 +205,9 @@ class EntityUpsertAdapter<T>(
 
     fun upsertAndReturnIdsArrayBox(
         connection: SQLiteConnection,
-        entities: Collection<T>
+        entities: Collection<T?>?
     ): Array<out Long> {
+        if (entities == null) return emptyArray()
         return Array(entities.size) { index ->
             try {
                 entityInsertAdapter.insertAndReturnId(connection, entities.elementAt(index))

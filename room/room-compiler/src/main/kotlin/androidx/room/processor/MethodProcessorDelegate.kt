@@ -63,14 +63,14 @@ abstract class MethodProcessorDelegate(
     abstract fun extractParams(): List<XExecutableParameterElement>
 
     fun extractQueryParams(query: ParsedQuery): List<QueryParameter> {
-        return extractParams().map { variableElement ->
+        return extractParams().map { parameterElement ->
             QueryParameterProcessor(
                 baseContext = context,
                 containing = containing,
-                element = variableElement,
-                sqlName = variableElement.name,
+                element = parameterElement,
+                sqlName = parameterElement.name,
                 bindVarSection = query.bindSections.firstOrNull {
-                    it.varName == variableElement.name
+                    it.varName == parameterElement.name
                 }
             ).process()
         }

@@ -81,8 +81,6 @@ internal fun measureLazyGrid(
             consumedScroll = 0,
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
             positionedItems = mutableListOf(),
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
@@ -90,6 +88,8 @@ internal fun measureLazyGrid(
             laneCount = slotsPerLine,
             isLookingAhead = false,
             hasLookaheadOccurred = false,
+            layoutMinOffset = 0,
+            layoutMaxOffset = 0,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext
         )
@@ -321,8 +321,6 @@ internal fun measureLazyGrid(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
             positionedItems = positionedItems,
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
@@ -330,6 +328,8 @@ internal fun measureLazyGrid(
             laneCount = slotsPerLine,
             isLookingAhead = false,
             hasLookaheadOccurred = false,
+            layoutMinOffset = currentFirstLineScrollOffset,
+            layoutMaxOffset = currentMainAxisOffset,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext
         )

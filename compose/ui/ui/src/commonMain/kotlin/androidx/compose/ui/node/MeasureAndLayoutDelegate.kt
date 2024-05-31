@@ -58,6 +58,11 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * Flag to indicate that we're currently measuring.
      */
     private var duringMeasureLayout = false
+    /**
+     * True when we are currently executing a full measure/layout pass, which mean we will iterate
+     * through all the nodes in [relayoutNodes].
+     */
+    private var duringFullMeasureLayoutPass = false
 
     /**
      * Dispatches on positioned callbacks.
@@ -174,7 +179,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                         ) {
                             relayoutNodes.add(layoutNode, false)
                         }
-                        !duringMeasureLayout
+                        !duringFullMeasureLayoutPass
                     }
                 }
             }
@@ -221,8 +226,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                             if (layoutNode.parent?.measurePending != true) {
                                 relayoutNodes.add(layoutNode, false)
                             }
+                            !duringFullMeasureLayoutPass
+                        } else {
+                            false // it can't affect parent
                         }
-                        !duringMeasureLayout
                     }
                 }
             }
@@ -274,7 +281,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                         ) {
                             relayoutNodes.add(layoutNode, false)
                         }
-                        !duringMeasureLayout
+                        !duringFullMeasureLayoutPass
                     }
                 }
             }
@@ -315,8 +322,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                             if (parent?.layoutPending != true && parent?.measurePending != true) {
                                 relayoutNodes.add(layoutNode, false)
                             }
+                            !duringFullMeasureLayoutPass
+                        } else {
+                            false // the node can't affect parent
                         }
-                        !duringMeasureLayout
                     }
                 }
             }
@@ -343,11 +352,11 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         val parent = layoutNode.parent
         if (lookaheadSizeChanged && parent != null) {
             if (parent.lookaheadRoot == null) {
-                requestRemeasure(parent)
+                parent.requestRemeasure(invalidateIntrinsics = false)
             } else if (layoutNode.measuredByParentInLookahead == InMeasureBlock) {
-                requestLookaheadRemeasure(parent)
+                parent.requestLookaheadRemeasure(invalidateIntrinsics = false)
             } else if (layoutNode.measuredByParentInLookahead == InLayoutBlock) {
-                requestLookaheadRelayout(parent)
+                parent.requestLookaheadRelayout()
             }
         }
         return lookaheadSizeChanged
@@ -362,9 +371,9 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         val parent = layoutNode.parent
         if (sizeChanged && parent != null) {
             if (layoutNode.measuredByParent == InMeasureBlock) {
-                requestRemeasure(parent)
+                parent.requestRemeasure(invalidateIntrinsics = false)
             } else if (layoutNode.measuredByParent == InLayoutBlock) {
-                requestRelayout(parent)
+                parent.requestRelayout()
             }
         }
         return sizeChanged
@@ -375,7 +384,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun measureAndLayout(onLayout: (() -> Unit)? = null): Boolean {
         var rootNodeResized = false
-        performMeasureAndLayout {
+        performMeasureAndLayout(fullPass = true) {
             if (relayoutNodes.isNotEmpty()) {
                 relayoutNodes.popEach { layoutNode, affectsLookahead ->
                     val sizeChanged = remeasureAndRelayoutIfNeeded(layoutNode, affectsLookahead)
@@ -396,7 +405,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun measureOnly() {
         if (relayoutNodes.isNotEmpty()) {
-            performMeasureAndLayout {
+            performMeasureAndLayout(fullPass = false) {
                 if (!relayoutNodes.isEmpty(affectsLookahead = true)) {
                     if (root.lookaheadRoot != null) {
                         // This call will walk the tree to look for lookaheadMeasurePending nodes and
@@ -435,7 +444,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             return
         }
         requirePrecondition(layoutNode != root) { "measureAndLayout called on root" }
-        performMeasureAndLayout {
+        performMeasureAndLayout(fullPass = false) {
             relayoutNodes.remove(layoutNode)
             // we don't check for the layoutState as even if the node doesn't need remeasure
             // it could be remeasured because the constraints changed.
@@ -474,7 +483,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         }
     }
 
-    private inline fun performMeasureAndLayout(block: () -> Unit) {
+    private inline fun performMeasureAndLayout(fullPass: Boolean, block: () -> Unit) {
         requirePrecondition(root.isAttached) {
             "performMeasureAndLayout called with unattached root"
         }
@@ -487,10 +496,12 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         // we don't need to measure any children unless we have the correct root constraints
         if (rootConstraints != null) {
             duringMeasureLayout = true
+            duringFullMeasureLayoutPass = fullPass
             try {
                 block()
             } finally {
                 duringMeasureLayout = false
+                duringFullMeasureLayoutPass = false
             }
             consistencyChecker?.assertConsistent()
         }
@@ -580,9 +591,15 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
             postponedMeasureRequests.forEach { request ->
                 if (request.node.isAttached) {
                     if (!request.isLookahead) {
-                        requestRemeasure(request.node, request.isForced)
+                        request.node.requestRemeasure(
+                            forceRequest = request.isForced,
+                            invalidateIntrinsics = false
+                        )
                     } else {
-                        requestLookaheadRemeasure(request.node, request.isForced)
+                        request.node.requestLookaheadRemeasure(
+                            forceRequest = request.isForced,
+                            invalidateIntrinsics = false
+                        )
                     }
                 }
             }

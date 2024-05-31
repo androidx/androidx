@@ -40,7 +40,7 @@ dependencies {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     aaptOptions {

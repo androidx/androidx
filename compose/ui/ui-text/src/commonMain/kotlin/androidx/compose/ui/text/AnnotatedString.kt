@@ -591,18 +591,6 @@ class AnnotatedString internal constructor(
         }
 
         /**
-         * Replaces the LinkAnnotation with a [new] LinkAnnotation at the same range.
-         * If the original annotation range is not found (including if the range matches but the
-         * attached annotation is different and visa versa), this method will be a no-op.
-         */
-        fun replace(old: Range<LinkAnnotation>, new: LinkAnnotation) {
-            val removed = annotations.remove(MutableRange(old.item, old.start, old.end))
-            if (removed) {
-                annotations.add(MutableRange(new, old.start, old.end))
-            }
-        }
-
-        /**
          * Applies the given [SpanStyle] to any appended text until a corresponding [pop] is
          * called.
          *

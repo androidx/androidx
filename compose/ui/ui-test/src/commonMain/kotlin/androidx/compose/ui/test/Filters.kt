@@ -442,9 +442,10 @@ fun hasScrollToNodeAction() =
 /**
  * Returns whether the node is editable.
  *
- * @see SemanticsProperties.Editable
+ * @see SemanticsProperties.IsEditable
  */
-fun isEditable() = hasKey(SemanticsProperties.Editable)
+fun isEditable() =
+    SemanticsMatcher.expectValue(SemanticsProperties.IsEditable, true)
 
 /**
  * Return whether the node is the root semantics node.

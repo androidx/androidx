@@ -24,6 +24,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -67,12 +68,17 @@ class LazyGridPrefetcherTest(
     private val scheduler = TestPrefetchScheduler()
 
     @OptIn(ExperimentalFoundationApi::class)
+    private val strategy = object : LazyGridPrefetchStrategy by LazyGridPrefetchStrategy() {
+        override val prefetchScheduler: PrefetchScheduler = scheduler
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun rememberState(
         initialFirstVisibleItemIndex: Int = 0,
         initialFirstVisibleItemScrollOffset: Int = 0
     ): LazyGridState = remember {
-        LazyGridState(initialFirstVisibleItemIndex, initialFirstVisibleItemScrollOffset, scheduler)
+        LazyGridState(initialFirstVisibleItemIndex, initialFirstVisibleItemScrollOffset, strategy)
     }
 
     @Test

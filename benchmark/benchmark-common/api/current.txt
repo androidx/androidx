@@ -18,10 +18,26 @@ package androidx.benchmark {
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public static @interface BenchmarkState.Companion.ExperimentalExternalReport {
   }
 
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBlackHoleApi public final class BlackHole {
+    method public static void consume(boolean value);
+    method public static void consume(byte value);
+    method public static void consume(char value);
+    method public static void consume(double value);
+    method public static void consume(float value);
+    method public static void consume(int value);
+    method public static void consume(Object value);
+    method public static void consume(long value);
+    method public static void consume(short value);
+    field public static final androidx.benchmark.BlackHole INSTANCE;
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkConfigApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBenchmarkStateApi {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBlackHoleApi {
   }
 
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public abstract class MetricCapture {
@@ -51,6 +67,11 @@ package androidx.benchmark {
 
   public static final class ProfilerConfig.MethodTracing extends androidx.benchmark.ProfilerConfig {
     ctor public ProfilerConfig.MethodTracing();
+    field public static final androidx.benchmark.ProfilerConfig.MethodTracing.Companion Companion;
+    field public static final boolean affectsMeasurementOnThisDevice;
+  }
+
+  public static final class ProfilerConfig.MethodTracing.Companion {
   }
 
   public static final class ProfilerConfig.StackSampling extends androidx.benchmark.ProfilerConfig {

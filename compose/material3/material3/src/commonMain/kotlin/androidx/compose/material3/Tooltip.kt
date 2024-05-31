@@ -40,6 +40,7 @@ import androidx.compose.material3.tokens.RichTooltipTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -93,7 +94,7 @@ import kotlinx.coroutines.withTimeout
  *
  * @sample androidx.compose.material3.samples.PlainTooltipWithCaret
  *
- * Plain tooltip shown on long press with a custom [CaretProperties]
+ * Plain tooltip shown on long press with a custom caret:
  *
  * @sample androidx.compose.material3.samples.PlainTooltipWithCustomCaret
  *
@@ -140,19 +141,12 @@ fun TooltipBox(
 ) {
     @Suppress("DEPRECATION")
     val transition = updateTransition(state.transition, label = "tooltip transition")
-    var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
-    val scope = remember {
-        object : TooltipScope {
-            override fun Modifier.drawCaret(
-                draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
-            ): Modifier =
-                this.drawWithCache { draw(anchorBounds) }
-        }
-    }
+    val anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
+    val scope = remember { TooltipScopeImpl { anchorBounds.value } }
 
     val wrappedContent: @Composable () -> Unit = {
         Box(
-            modifier = Modifier.onGloballyPositioned { anchorBounds = it }
+            modifier = Modifier.onGloballyPositioned { anchorBounds.value = it }
         ) {
             content()
         }
@@ -174,7 +168,7 @@ fun TooltipBox(
  * anchor content, and to draw a caret for the tooltip.
  */
 @ExperimentalMaterial3Api
-interface TooltipScope {
+sealed interface TooltipScope {
     /**
      * [Modifier] that is used to draw the caret for the tooltip. A [LayoutCoordinates] will
      * be provided that can be used to obtain the bounds of the anchor content, which can be used
@@ -184,6 +178,17 @@ interface TooltipScope {
     fun Modifier.drawCaret(
         draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
     ): Modifier
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+internal class TooltipScopeImpl(
+    val getAnchorBounds: () -> LayoutCoordinates?
+) : TooltipScope {
+    override fun Modifier.drawCaret(
+        draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
+    ): Modifier = this.drawWithCache {
+        draw(getAnchorBounds())
+    }
 }
 
 /**

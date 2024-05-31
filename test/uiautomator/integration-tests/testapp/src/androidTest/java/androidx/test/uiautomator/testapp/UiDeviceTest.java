@@ -355,14 +355,10 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    public void testSetOrientations() throws Exception {
+    public void testSetOrientation_leftRight() throws Exception {
         launchTestActivity(MainActivity.class);
 
         try {
-            mDevice.setOrientationNatural();
-            assertTrue("Failed to set natural orientation",
-                    mDevice.wait(d -> d.getDisplayRotation() == Surface.ROTATION_0, TIMEOUT_MS));
-
             mDevice.setOrientationLeft();
             assertTrue("Failed to set left orientation",
                     mDevice.wait(d -> d.getDisplayRotation() == Surface.ROTATION_90, TIMEOUT_MS));
@@ -370,16 +366,29 @@ public class UiDeviceTest extends BaseTest {
             mDevice.setOrientationRight();
             assertTrue("Failed to set right orientation",
                     mDevice.wait(d -> d.getDisplayRotation() == Surface.ROTATION_270, TIMEOUT_MS));
+        } finally {
+            mDevice.setOrientationNatural();
+            assertTrue("Failed to set natural orientation",
+                    mDevice.wait(d -> d.getDisplayRotation() == Surface.ROTATION_0, TIMEOUT_MS));
+        }
+    }
+
+    @Test
+    public void testSetOrientation_landscapePortrait() throws Exception {
+        launchTestActivity(MainActivity.class);
+
+        try {
+            mDevice.setOrientationLandscape();
+            assertTrue("Failed to set landscape orientation",
+                    mDevice.wait(d -> d.getDisplayHeight() <= d.getDisplayWidth(), TIMEOUT_MS));
 
             mDevice.setOrientationPortrait();
             assertTrue("Failed to set portrait orientation",
                     mDevice.wait(d -> d.getDisplayHeight() >= d.getDisplayWidth(), TIMEOUT_MS));
-
-            mDevice.setOrientationLandscape();
-            assertTrue("Failed to set landscape orientation",
-                    mDevice.wait(d -> d.getDisplayHeight() <= d.getDisplayWidth(), TIMEOUT_MS));
         } finally {
             mDevice.setOrientationNatural();
+            assertTrue("Failed to set natural orientation",
+                    mDevice.wait(d -> d.getDisplayRotation() == Surface.ROTATION_0, TIMEOUT_MS));
         }
     }
 

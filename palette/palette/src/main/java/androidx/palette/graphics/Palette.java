@@ -321,6 +321,7 @@ public final class Palette {
     /**
      * Returns the selected color for the given target from the palette as an RGB packed int.
      *
+     * @param target target that describes the properties of the color
      * @param defaultColor value to return if the swatch isn't available
      */
     @ColorInt

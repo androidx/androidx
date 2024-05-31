@@ -57,4 +57,10 @@ internal fun PaneExpansionDragHandle(
 
 @ExperimentalMaterial3AdaptiveApi
 internal fun Modifier.paneExpansionDragHandle(state: PaneExpansionState): Modifier =
-    this.draggable(state, Orientation.Horizontal)
+    this.draggable(
+        state = state,
+        orientation = Orientation.Horizontal,
+        onDragStopped = { velocity -> state.settleToAnchorIfNeeded(velocity) }
+    ).systemGestureExclusion()
+
+internal expect fun Modifier.systemGestureExclusion(): Modifier

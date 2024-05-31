@@ -594,8 +594,6 @@ internal constructor(
 
             try {
                 deferredComplicationPreviewDataAvailable.await()
-                val previousDataSourceInfo: ComplicationDataSourceInfo? =
-                    complicationsDataSourceInfo.value[complicationSlotId]
 
                 // Emit an updated complicationsDataSourceInfoMap.
                 complicationsDataSourceInfo.value =
@@ -615,11 +613,8 @@ internal constructor(
                     HashMap(complicationsPreviewData.value).apply {
                         this[complicationSlotId] = previewData ?: EmptyComplicationData()
                     }
-                onComplicationUpdated(
-                    complicationSlotId,
-                    from = previousDataSourceInfo,
-                    to = complicationDataSourceChooserResult.dataSourceInfo,
-                )
+
+                onComplicationDataSourceForSlotSelected(complicationSlotId)
 
                 return ChosenComplicationDataSource(
                     complicationSlotId,
@@ -811,11 +806,8 @@ internal constructor(
 
     protected open val showComplicationRationaleDialogIntent: Intent? = null
 
-    protected open fun onComplicationUpdated(
-        complicationSlotId: Int,
-        from: ComplicationDataSourceInfo?,
-        to: ComplicationDataSourceInfo?,
-    ) {}
+    /** Called when the user has selected a complication for a slot. */
+    open fun onComplicationDataSourceForSlotSelected(slotId: Int) {}
 }
 
 /**
@@ -977,12 +969,6 @@ internal class OnWatchFaceEditorSessionImpl(
         if (!commitChangesOnClose && this::previousWatchFaceUserStyle.isInitialized) {
             userStyle.value = previousWatchFaceUserStyle
         }
-        if (this::editorDelegate.isInitialized) {
-            editorDelegate.complicationSlotsManager.unfreezeAllSlotsForEdit(
-                clearData = commitChangesOnClose
-            )
-        }
-
         if (this::fetchComplicationsDataJob.isInitialized) {
             // Wait until the fetchComplicationsDataJob has finished and released the
             // complicationDataSourceInfoRetriever. This is important because if the service
@@ -1001,6 +987,9 @@ internal class OnWatchFaceEditorSessionImpl(
         // Note this has to be done last to ensure tests are not racy.
         if (this::editorDelegate.isInitialized) {
             editorDelegate.setComplicationSlotConfigExtrasChangeCallback(null)
+            if (!commitChangesOnClose) {
+                editorDelegate.dontClearAnyComplicationSlotsAfterEditing()
+            }
             editorDelegate.onDestroy()
         }
     }
@@ -1042,16 +1031,8 @@ internal class OnWatchFaceEditorSessionImpl(
         return editorDelegate.complicationSlotsManager.getComplicationSlotAt(x, y)?.id
     }
 
-    override fun onComplicationUpdated(
-        complicationSlotId: Int,
-        from: ComplicationDataSourceInfo?,
-        to: ComplicationDataSourceInfo?,
-    ) {
-        editorDelegate.complicationSlotsManager.freezeSlotForEdit(
-            complicationSlotId,
-            from = from,
-            to = to,
-        )
+    override fun onComplicationDataSourceForSlotSelected(slotId: Int) {
+        editorDelegate.clearComplicationSlotAfterEditing(slotId)
     }
 }
 

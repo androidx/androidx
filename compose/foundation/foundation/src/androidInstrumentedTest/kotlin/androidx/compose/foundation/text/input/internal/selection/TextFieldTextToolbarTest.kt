@@ -457,15 +457,17 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
         }
 
-        rule.onNodeWithTag(TAG).performTouchInput { swipeLeft(startX = fontSizePx * 3, endX = 0f) }
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
+        rule.onNodeWithTag(TAG).performTouchInput {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
+            swipeLeft(startX = fontSizePx * 3, endX = 0f)
         }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
 
-        rule.onNodeWithTag(TAG).performTouchInput { swipeRight(startX = 0f, endX = fontSizePx * 3) }
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
+        rule.onNodeWithTag(TAG).performTouchInput {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
+            swipeRight(startX = 0f, endX = fontSizePx * 3)
         }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
     }
 
     @Test
@@ -490,6 +492,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         rule.onNodeWithTag(TAG).performTouchInput {
+            advanceEventTime(1_000) // avoid this being interpreted as a multi-tap
             down(center)
             moveBy(Offset(-viewConfiguration.touchSlop - fontSizePx, 0f))
             up()

@@ -73,8 +73,8 @@ class StringColumnTypeAdapter private constructor(
             val stringType = env.requireType(CommonTypeNames.STRING)
             return if (env.backend == XProcessingEnv.Backend.KSP) {
                 listOf(
-                    StringColumnTypeAdapter(stringType.makeNonNullable()),
                     StringColumnTypeAdapter(stringType.makeNullable()),
+                    StringColumnTypeAdapter(stringType.makeNonNullable()),
                 )
             } else {
                 listOf(

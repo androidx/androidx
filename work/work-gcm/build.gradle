@@ -30,7 +30,7 @@ plugins {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.work.impl.background.gcm"

@@ -82,7 +82,7 @@ internal val captureSequenceProcessorDebugIds = atomic(0)
 internal val captureSequenceDebugIds = atomic(0L)
 internal val requestTags = atomic(0L)
 
-internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
+internal fun nextRequestNumber(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
 
 private const val REQUIRE_SURFACE_FOR_ALL_STREAMS = false
 
@@ -114,10 +114,7 @@ internal class Camera2CaptureSequenceProcessor(
         listeners: List<Request.Listener>,
         sequenceListener: CaptureSequence.CaptureSequenceListener
     ): Camera2CaptureSequence? {
-
-        val requestMap = ArrayMap<RequestNumber, Camera2RequestMetadata>(requests.size)
         val requestList = ArrayList<Camera2RequestMetadata>(requests.size)
-
         val captureRequests = ArrayList<CaptureRequest>(requests.size)
 
         val surfaceToStreamMap = ArrayMap<Surface, StreamId>()
@@ -132,17 +129,19 @@ internal class Camera2CaptureSequenceProcessor(
         }
 
         for (request in requests) {
-
             Log.debug { "Building CaptureRequest for $request" }
 
             val requestTemplate = request.template ?: template
-
             val requestBuilder = buildCaptureRequestBuilder(request, requestTemplate) ?: return null
+
+            val tag = requiredParameters[CameraPipeKeys.camera2CaptureRequestTag]
+                ?: defaultParameters[CameraPipeKeys.camera2CaptureRequestTag]
+            requestBuilder.setTag(tag)
 
             // Apply the output surfaces to the requestBuilder
             var hasSurface = false
-            for (stream in request.streams) {
-                val surface = streamToSurfaceMap[stream]
+            for (i in request.streams.indices) {
+                val surface = streamToSurfaceMap[request.streams[i]]
                 if (surface != null) {
                     requestBuilder.addTarget(surface)
                     hasSurface = true
@@ -190,11 +189,7 @@ internal class Camera2CaptureSequenceProcessor(
                 // internal 3A state machine in sync.
                 requestBuilder.writeParameters(requiredParameters)
             }
-
-            // The tag must be set for every request. We use it to lookup listeners for the
-            // individual requests so that each request can specify individual listeners.
-            val requestTag = nextRequestTag()
-            requestBuilder.setTag(requestTag)
+            val requestNumber = nextRequestNumber()
 
             // Create the camera2 captureRequest and add it to our list of requests.
             val captureRequest = requestBuilder.build()
@@ -218,30 +213,42 @@ internal class Camera2CaptureSequenceProcessor(
                 // (e.g. zoom crop rectangle), the same request is repeated for 4/30 frames at
                 // the same value instead of smoothly changing across each frame.
                 if (!containsVideoStream) {
+                    val metadata =
+                        Camera2RequestMetadata(
+                            session,
+                            highSpeedRequestList[0],
+                            defaultParameters,
+                            requiredParameters,
+                            streamToSurfaceMap,
+                            requestTemplate,
+                            isRepeating,
+                            request,
+                            requestNumber
+                        )
                     captureRequests.add(highSpeedRequestList[0])
-                    // If recording video with or without preview stream, then add all requests to
-                    // list
+                    requestList.add(metadata)
                 } else {
-                    captureRequests.addAll(highSpeedRequestList)
+                    // If the recording stream is present, add all captureRequests from
+                    // createHighSpeedRequestList to the list of captureRequests.
+                    for (i in highSpeedRequestList.indices) {
+                        val metadata =
+                            Camera2RequestMetadata(
+                                session,
+                                highSpeedRequestList[i],
+                                defaultParameters,
+                                requiredParameters,
+                                streamToSurfaceMap,
+                                requestTemplate,
+                                isRepeating,
+                                request,
+                                requestNumber
+                            )
+
+                        captureRequests.add(highSpeedRequestList[i])
+                        requestList.add(metadata)
+                    }
                 }
-
-                val metadata =
-                    Camera2RequestMetadata(
-                        session,
-                        highSpeedRequestList[0],
-                        defaultParameters,
-                        requiredParameters,
-                        streamToSurfaceMap,
-                        requestTemplate,
-                        isRepeating,
-                        request,
-                        requestTag
-                    )
-                requestMap[requestTag] = metadata
-                requestList.add(metadata)
             } else {
-                captureRequests.add(captureRequest)
-
                 val metadata =
                     Camera2RequestMetadata(
                         session,
@@ -252,9 +259,9 @@ internal class Camera2CaptureSequenceProcessor(
                         requestTemplate,
                         isRepeating,
                         request,
-                        requestTag
+                        requestNumber
                     )
-                requestMap[requestTag] = metadata
+                captureRequests.add(captureRequest)
                 requestList.add(metadata)
             }
         }
@@ -267,7 +274,6 @@ internal class Camera2CaptureSequenceProcessor(
             requestList,
             listeners,
             sequenceListener,
-            requestMap,
             surfaceToStreamMap
         )
     }

@@ -197,7 +197,7 @@ internal class TextFieldSelectionManager(
         }
 
         override fun onStart(startPoint: Offset) {
-            if (draggingHandle != null) return
+            if (!enabled || draggingHandle != null) return
             // While selecting by long-press-dragging, the "end" of the selection is always the one
             // being controlled by the drag.
             draggingHandle = Handle.SelectionEnd
@@ -250,7 +250,7 @@ internal class TextFieldSelectionManager(
 
         override fun onDrag(delta: Offset) {
             // selection never started, did not consume any drag
-            if (value.text.isEmpty()) return
+            if (!enabled || value.text.isEmpty()) return
 
             dragTotalDistance += delta
             state?.layoutResult?.let { layoutResult ->
@@ -336,6 +336,7 @@ internal class TextFieldSelectionManager(
         override fun onExtend(downPosition: Offset): Boolean {
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
+            if (!enabled) return false
             previousRawDragOffset = -1
             updateMouseSelection(
                 value = value,
@@ -347,7 +348,7 @@ internal class TextFieldSelectionManager(
         }
 
         override fun onExtendDrag(dragPosition: Offset): Boolean {
-            if (value.text.isEmpty()) return false
+            if (!enabled || value.text.isEmpty()) return false
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
 
@@ -364,7 +365,7 @@ internal class TextFieldSelectionManager(
             downPosition: Offset,
             adjustment: SelectionAdjustment
         ): Boolean {
-            if (value.text.isEmpty()) return false
+            if (!enabled || value.text.isEmpty()) return false
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
 
@@ -382,7 +383,7 @@ internal class TextFieldSelectionManager(
         }
 
         override fun onDrag(dragPosition: Offset, adjustment: SelectionAdjustment): Boolean {
-            if (value.text.isEmpty()) return false
+            if (!enabled || value.text.isEmpty()) return false
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
 
@@ -813,7 +814,7 @@ internal class TextFieldSelectionManager(
      * the copy, paste and cut method as callbacks when "copy", "cut" or "paste" is clicked.
      */
     internal fun showSelectionToolbar() {
-        if (state?.isInTouchMode == false) return
+        if (!enabled || state?.isInTouchMode == false) return
         val isPassword = visualTransformation is PasswordVisualTransformation
         val copy: (() -> Unit)? = if (!value.selection.collapsed && !isPassword) {
             {

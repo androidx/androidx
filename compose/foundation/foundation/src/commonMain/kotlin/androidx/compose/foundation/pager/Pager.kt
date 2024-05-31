@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -32,7 +33,6 @@ import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -52,6 +52,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -293,7 +294,10 @@ object PagerDefaults {
         state: PagerState,
         pagerSnapDistance: PagerSnapDistance = PagerSnapDistance.atMost(1),
         decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
-        snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+        snapAnimationSpec: AnimationSpec<Float> = spring(
+            stiffness = Spring.StiffnessMediumLow,
+            visibilityThreshold = Int.VisibilityThreshold.toFloat()
+        ),
         @FloatRange(from = 0.0, to = 1.0) snapPositionalThreshold: Float = 0.5f
     ): TargetedFlingBehavior {
         require(snapPositionalThreshold in 0f..1f) {
@@ -396,7 +400,7 @@ private class DefaultPagerNestedScrollConnection(
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         return if (
         // rounding error and drag only
-            source == NestedScrollSource.UserInput && abs(state.currentPageOffsetFraction) > 0e-6
+            source == NestedScrollSource.UserInput && abs(state.currentPageOffsetFraction) > 1e-6
         ) {
             // find the current and next page (in the direction of dragging)
             val currentPageOffset = state.currentPageOffsetFraction * state.pageSize
@@ -447,10 +451,12 @@ private class DefaultPagerNestedScrollConnection(
         if (orientation == Orientation.Horizontal) this.x else this.y
 }
 
-@Suppress("ComposableModifierFactory")
-@Composable
-internal fun Modifier.pagerSemantics(state: PagerState, isVertical: Boolean): Modifier {
-    val scope = rememberCoroutineScope()
+internal fun Modifier.pagerSemantics(
+    state: PagerState,
+    isVertical: Boolean,
+    scope: CoroutineScope,
+    userScrollEnabled: Boolean
+): Modifier {
     fun performForwardPaging(): Boolean {
         return if (state.canScrollForward) {
             scope.launch {
@@ -473,15 +479,19 @@ internal fun Modifier.pagerSemantics(state: PagerState, isVertical: Boolean): Mo
         }
     }
 
-    return this.then(Modifier.semantics {
-        if (isVertical) {
-            pageUp { performBackwardPaging() }
-            pageDown { performForwardPaging() }
-        } else {
-            pageLeft { performBackwardPaging() }
-            pageRight { performForwardPaging() }
-        }
-    })
+    return if (userScrollEnabled) {
+        this.then(Modifier.semantics {
+            if (isVertical) {
+                pageUp { performBackwardPaging() }
+                pageDown { performForwardPaging() }
+            } else {
+                pageLeft { performBackwardPaging() }
+                pageRight { performForwardPaging() }
+            }
+        })
+    } else {
+        this then Modifier
+    }
 }
 
 private inline fun debugLog(generateMsg: () -> String) {

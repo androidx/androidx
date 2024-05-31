@@ -25,9 +25,9 @@ import android.os.Bundle
  * @property allowedUserIds a optional set of user ids with which the credentials associated are
  * requested; leave as empty if you want to request all the available user credentials
  * @property typePriorityHint always sets the priority of this entry to
- * [PriorityHints.PRIORITY_PASSWORD_OR_SIMILAR], which defines how it appears in the credential
+ * [CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR], which defines how it appears in the credential
  * selector, with less precedence than account ordering but more precedence than last used time;
- * see [PriorityHints] and [CredentialOption] for more information
+ * see [CredentialOption] for more information
  */
 class GetPasswordOption private constructor(
     val allowedUserIds: Set<String>,
@@ -35,8 +35,7 @@ class GetPasswordOption private constructor(
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
     candidateQueryData: Bundle,
-    typePriorityHint: @PriorityHints Int =
-        PASSWORD_OPTION_PRIORITY_CATEGORY,
+    typePriorityHint: @PriorityHints Int = PRIORITY_PASSWORD_OR_SIMILAR,
 ) : CredentialOption(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     requestData = requestData,
@@ -76,9 +75,6 @@ class GetPasswordOption private constructor(
         internal const val BUNDLE_KEY_ALLOWED_USER_IDS =
             "androidx.credentials.BUNDLE_KEY_ALLOWED_USER_IDS"
 
-        internal const val PASSWORD_OPTION_PRIORITY_CATEGORY =
-            PriorityHints.PRIORITY_PASSWORD_OR_SIMILAR
-
         @JvmStatic
         internal fun createFrom(
             data: Bundle,
@@ -93,7 +89,7 @@ class GetPasswordOption private constructor(
                 requestData = data,
                 candidateQueryData = candidateQueryData,
                 typePriorityHint = data.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-                    PASSWORD_OPTION_PRIORITY_CATEGORY),
+                    PRIORITY_PASSWORD_OR_SIMILAR),
             )
         }
 

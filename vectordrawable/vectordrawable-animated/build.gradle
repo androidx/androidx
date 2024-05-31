@@ -34,7 +34,7 @@ android {
     aaptOptions {
         additionalParameters("--no-version-vectors")
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.vectordrawable.animated"

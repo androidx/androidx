@@ -87,7 +87,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.ArgumentMatchers.isNull
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
@@ -639,23 +638,6 @@ class CameraUseCaseAdapterTest {
         adapter.addUseCases(listOf(fakeUseCase))
         adapter.removeUseCases(listOf(fakeUseCase))
         verify(fakeUseCase).unbindFromCamera(fakeCamera)
-    }
-
-    @Test
-    fun eventCallbackOnBind() {
-        val callback = mock(UseCase.EventCallback::class.java)
-        val fakeUseCase = FakeUseCaseConfig.Builder().setUseCaseEventCallback(callback).build()
-        adapter.addUseCases(listOf(fakeUseCase))
-        verify(callback).onBind(fakeCamera.cameraInfoInternal)
-    }
-
-    @Test
-    fun eventCallbackOnUnbind() {
-        val callback = mock(UseCase.EventCallback::class.java)
-        val fakeUseCase = FakeUseCaseConfig.Builder().setUseCaseEventCallback(callback).build()
-        adapter.addUseCases(listOf(fakeUseCase))
-        adapter.removeUseCases(listOf(fakeUseCase))
-        verify(callback).onUnbind()
     }
 
     @Test

@@ -169,7 +169,7 @@ open class SingleParamBasePagerTest {
                     if (orientation == Orientation.Vertical) it.size.height else it.size.width
             }
             .fillMaxSize()
-            .background(Color.Blue)
+            .background(if (index % 2 == 0) Color.Blue else Color.Red)
             .testTag("$index")
             .onFocusChanged {
                 if (it.isFocused) {

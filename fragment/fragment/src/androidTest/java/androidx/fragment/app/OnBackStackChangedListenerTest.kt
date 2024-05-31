@@ -539,6 +539,7 @@ class OnBackStackChangedListenerTest {
             var startedCount = 0
             var committedCount = 0
             var cancelledCount = 0
+            var backStackChangedCount = 0
 
             withActivity {
                 fragmentManager.beginTransaction()
@@ -558,8 +559,13 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
+            var beforeOnBackStackChanged = false
+
             val listener = object : OnBackStackChangedListener {
-                override fun onBackStackChanged() { /* nothing */ }
+                override fun onBackStackChanged() {
+                    beforeOnBackStackChanged = false
+                    backStackChangedCount++
+                }
 
                 override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
                     startedCount++
@@ -570,7 +576,9 @@ class OnBackStackChangedListenerTest {
                 }
 
                 override fun onBackStackChangeCancelled() {
-                    cancelledCount++
+                    if (beforeOnBackStackChanged) {
+                        cancelledCount++
+                    }
                 }
             }
             fragmentManager.addOnBackStackChangedListener(listener)
@@ -585,7 +593,10 @@ class OnBackStackChangedListenerTest {
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
+            assertThat(backStackChangedCount).isEqualTo(1)
             assertThat(committedCount).isEqualTo(0)
+
+            beforeOnBackStackChanged = true
 
             withActivity {
                 onBackPressedDispatcher.dispatchOnBackCancelled()
@@ -598,6 +609,8 @@ class OnBackStackChangedListenerTest {
                 assertThat(startedCount).isEqualTo(0)
             }
             assertThat(committedCount).isEqualTo(0)
+            assertThat(backStackChangedCount).isEqualTo(2)
+            assertThat(beforeOnBackStackChanged).isFalse()
 
             assertThat(fragment2).isSameInstanceAs(fragmentManager.findFragmentById(R.id.content))
         }

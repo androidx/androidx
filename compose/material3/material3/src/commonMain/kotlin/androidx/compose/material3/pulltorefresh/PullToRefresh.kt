@@ -109,6 +109,7 @@ import kotlinx.coroutines.launch
  * requesting a refresh.
  * @param modifier the [Modifier] to be applied to this container
  * @param state the state that keeps track of distance pulled
+ * @param contentAlignment The default alignment inside the Box.
  * @param indicator the indicator that will be drawn on top of the content when the user begins
  * a pull or a refresh is occurring
  * @param content the content of the pull refresh container, typically a scrollable layout such as
@@ -121,6 +122,7 @@ fun PullToRefreshBox(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     state: PullToRefreshState = rememberPullToRefreshState(),
+    contentAlignment: Alignment = Alignment.TopStart,
     indicator: @Composable BoxScope.() -> Unit = {
         Indicator(
             modifier = Modifier.align(Alignment.TopCenter),
@@ -131,12 +133,12 @@ fun PullToRefreshBox(
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
-        modifier
-            .pullToRefresh(
-                state = state,
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh
-            )
+        modifier.pullToRefresh(
+            state = state,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh
+        ),
+        contentAlignment = contentAlignment
     ) {
         content()
         indicator()
@@ -155,6 +157,7 @@ fun PullToRefreshBox(
  *  is triggered on release
  *  @param shape the [Shape] of this indicator
  *  @param containerColor the container color of this indicator
+ *  @param elevation the elevation for the indicator
  */
 @ExperimentalMaterial3Api
 fun Modifier.pullToRefreshIndicator(
@@ -163,6 +166,7 @@ fun Modifier.pullToRefreshIndicator(
     threshold: Dp = PullToRefreshDefaults.PositionalThreshold,
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = Color.Unspecified,
+    elevation: Dp = PullToRefreshDefaults.Elevation,
 ): Modifier = this
     .size(SpinnerContainerSize)
     .drawWithContent {
@@ -178,7 +182,7 @@ fun Modifier.pullToRefreshIndicator(
     .graphicsLayer {
         val showElevation = state.distanceFraction > 0f || isRefreshing
         translationY = state.distanceFraction * threshold.roundToPx() - size.height
-        shadowElevation = if (showElevation) Elevation.toPx() else 0f
+        shadowElevation = if (showElevation) elevation.toPx() else 0f
         this.shape = shape
         clip = true
     }
@@ -202,7 +206,7 @@ fun Modifier.pullToRefreshIndicator(
 fun Modifier.pullToRefresh(
     isRefreshing: Boolean,
     state: PullToRefreshState,
-    enabled: () -> Boolean = { true },
+    enabled: Boolean = true,
     threshold: Dp = PullToRefreshDefaults.PositionalThreshold,
     onRefresh: () -> Unit,
 ): Modifier = this then PullToRefreshElement(
@@ -217,7 +221,7 @@ fun Modifier.pullToRefresh(
 internal data class PullToRefreshElement(
     val isRefreshing: Boolean,
     val onRefresh: () -> Unit,
-    val enabled: () -> Boolean,
+    val enabled: Boolean,
     val state: PullToRefreshState,
     val threshold: Dp,
 ) : ModifierNodeElement<PullToRefreshModifierNode>() {
@@ -254,7 +258,7 @@ internal data class PullToRefreshElement(
 internal class PullToRefreshModifierNode(
     var isRefreshing: Boolean,
     var onRefresh: () -> Unit,
-    var enabled: () -> Boolean,
+    var enabled: Boolean,
     var state: PullToRefreshState,
     var threshold: Dp,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode, NestedScrollConnection {
@@ -283,7 +287,7 @@ internal class PullToRefreshModifierNode(
         source: NestedScrollSource,
     ): Offset = when {
         state.isAnimating -> Offset.Zero
-        !enabled() -> Offset.Zero
+        !enabled -> Offset.Zero
         // Swiping up
         source == NestedScrollSource.UserInput && available.y < 0 -> {
             consumeAvailableOffset(available)
@@ -298,7 +302,7 @@ internal class PullToRefreshModifierNode(
         source: NestedScrollSource
     ): Offset = when {
         state.isAnimating -> Offset.Zero
-        !enabled() -> Offset.Zero
+        !enabled -> Offset.Zero
         // Swiping down
         source == NestedScrollSource.UserInput -> {
             val newOffset = consumeAvailableOffset(available)
@@ -408,6 +412,9 @@ object PullToRefreshDefaults {
 
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
+
+    /** The default elevation for [pullToRefreshIndicator] */
+    val Elevation = ElevationTokens.Level2
 
     /**
      * The default indicator for [PullToRefreshBox].
@@ -666,7 +673,6 @@ private val StrokeWidth = 2.5.dp
 private val ArcRadius = 5.5.dp
 internal val SpinnerSize = 16.dp // (ArcRadius + PullRefreshIndicatorDefaults.StrokeWidth).times(2)
 internal val SpinnerContainerSize = 40.dp
-private val Elevation = ElevationTokens.Level2
 private val ArrowWidth = 10.dp
 private val ArrowHeight = 5.dp
 

@@ -74,14 +74,10 @@ class QueryWriterTest {
                 @Query("SELECT id FROM users WHERE name LIKE :name")
                 abstract java.util.List<Integer> selectAllIds(String name);
                 """
-        ) { isKsp, writer ->
+        ) { _, writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            val expectedStringBind = if (isKsp) {
-                """
-                _stmt.bindString(_argIndex, name);
-                """.trimIndent()
-            } else {
+            val expectedStringBind =
                 """
                 if (name == null) {
                   _stmt.bindNull(_argIndex);
@@ -89,7 +85,6 @@ class QueryWriterTest {
                   _stmt.bindString(_argIndex, name);
                 }
                 """.trimIndent()
-            }
             assertThat(scope.generate().toString().trim()).isEqualTo(
                 """
                 |final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";

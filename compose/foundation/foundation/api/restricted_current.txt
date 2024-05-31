@@ -32,15 +32,7 @@ package androidx.compose.foundation {
 
   public final class BasicMarqueeKt {
     method public static androidx.compose.foundation.MarqueeSpacing MarqueeSpacing(float spacing);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int delayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
-    method public static int getDefaultMarqueeDelayMillis();
-    method public static int getDefaultMarqueeIterations();
-    method public static androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
-    method public static float getDefaultMarqueeVelocity();
-    property public static final int DefaultMarqueeDelayMillis;
-    property public static final int DefaultMarqueeIterations;
-    property public static final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
-    property public static final float DefaultMarqueeVelocity;
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int repeatDelayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class BasicTooltipDefaults {
@@ -181,6 +173,18 @@ package androidx.compose.foundation {
     method public int getWhileFocused();
     property public final int Immediately;
     property public final int WhileFocused;
+  }
+
+  public final class MarqueeDefaults {
+    method public int getDefaultMarqueeIterations();
+    method public int getDefaultMarqueeRepeatDelayMillis();
+    method public androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
+    method public float getDefaultMarqueeVelocity();
+    property public final int DefaultMarqueeIterations;
+    property public final int DefaultMarqueeRepeatDelayMillis;
+    property public final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
+    property public final float DefaultMarqueeVelocity;
+    field public static final androidx.compose.foundation.MarqueeDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Stable public fun interface MarqueeSpacing {
@@ -1006,6 +1010,22 @@ package androidx.compose.foundation.lazy.grid {
     property public abstract java.util.List<androidx.compose.foundation.lazy.grid.LazyGridItemInfo> visibleItemsInfo;
   }
 
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyGridPrefetchScope {
+    method public java.util.List<androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle> scheduleLinePrefetch(int lineIndex);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyGridPrefetchStrategy {
+    method public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? getPrefetchScheduler();
+    method public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
+    method public void onScroll(androidx.compose.foundation.lazy.grid.LazyGridPrefetchScope, float delta, androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo);
+    method public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.grid.LazyGridPrefetchScope, androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo layoutInfo);
+    property public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler;
+  }
+
+  public final class LazyGridPrefetchStrategyKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy LazyGridPrefetchStrategy(optional int nestedPrefetchItemCount);
+  }
+
   @androidx.compose.foundation.lazy.grid.LazyGridScopeMarker public sealed interface LazyGridScope {
     method public void item(optional Object? key, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope,androidx.compose.foundation.lazy.grid.GridItemSpan>? span, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.grid.LazyGridItemScope,kotlin.Unit> content);
     method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope,? super java.lang.Integer,androidx.compose.foundation.lazy.grid.GridItemSpan>? span, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.grid.LazyGridItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
@@ -1020,6 +1040,7 @@ package androidx.compose.foundation.lazy.grid {
 
   @androidx.compose.runtime.Stable public final class LazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor public LazyGridState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
+    ctor @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public LazyGridState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset, optional androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy prefetchStrategy);
     method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getFirstVisibleItemIndex();
@@ -1049,6 +1070,7 @@ package androidx.compose.foundation.lazy.grid {
 
   public final class LazyGridStateKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.foundation.lazy.grid.LazyGridState rememberLazyGridState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.lazy.grid.LazyGridState rememberLazyGridState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset, optional androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy prefetchStrategy);
   }
 
 }

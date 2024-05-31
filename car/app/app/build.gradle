@@ -99,7 +99,7 @@ android {
         resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
         consumerProguardFiles "proguard-rules.pro"
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         stableAidl {
             version 1
         }

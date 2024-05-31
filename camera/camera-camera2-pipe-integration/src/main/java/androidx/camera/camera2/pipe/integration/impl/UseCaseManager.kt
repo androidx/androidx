@@ -816,11 +816,17 @@ class UseCaseManager @Inject constructor(
                     videoStabilizationMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
                 }
             }
-            val defaultParameters: Map<*, Any?> = if (isExtensions) {
-                mapOf(CameraPipeKeys.ignore3ARequiredParameters to true)
-            } else {
-                emptyMap<Any, Any?>()
-            } + mapOf(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to videoStabilizationMode)
+
+            val defaultParameters = buildMap<Any, Any?> {
+                if (isExtensions) {
+                    set(CameraPipeKeys.ignore3ARequiredParameters, true)
+                }
+                set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode)
+                set(
+                    CameraPipeKeys.camera2CaptureRequestTag,
+                    "android.hardware.camera2.CaptureRequest.setTag.CX"
+                )
+            }
 
             // TODO: b/327517884 - Add a quirk to not abort captures on stop for certain OEMs during
             //   extension sessions.

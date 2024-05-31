@@ -18,6 +18,7 @@ package androidx.build.importMaven
 
 import androidx.build.importMaven.KmpConfig.SUPPORTED_HOSTS
 import androidx.build.importMaven.KmpConfig.SUPPORTED_KONAN_TARGETS
+import java.util.Properties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -30,7 +31,6 @@ import okio.FileSystem
 import okio.Path
 import org.apache.logging.log4j.kotlin.logger
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.plugin.KotlinApiPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.konan.properties.resolvablePropertyList
@@ -39,7 +39,6 @@ import org.jetbrains.kotlin.konan.target.Architecture
 import org.jetbrains.kotlin.konan.target.Distribution
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
-import java.util.Properties
 
 typealias KonanProperties = org.jetbrains.kotlin.konan.properties.Properties
 
@@ -174,7 +173,8 @@ class KonanPrebuiltsDownloader(
         val gccDeps = SUPPORTED_HOST_NAMES.flatMap { host ->
             listOf("gccToolchain.$host")
         }
-        return (hostDeps + dependencies + gccDeps).flatMap {
+        val emulatorDependencies = buildHostAndTargetKeys("emulatorDependency")
+        return (hostDeps + dependencies + gccDeps + emulatorDependencies).flatMap {
             konanProperties.resolvablePropertyList(it)
         }.distinct()
     }

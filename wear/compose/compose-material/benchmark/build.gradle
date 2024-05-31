@@ -35,7 +35,7 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "benchmark-proguard-rules.pro"
     }
     namespace "androidx.wear.compose.material.benchmark"

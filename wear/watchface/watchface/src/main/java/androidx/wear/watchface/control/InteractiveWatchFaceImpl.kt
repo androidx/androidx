@@ -232,6 +232,26 @@ internal class InteractiveWatchFaceImpl(
             }
         }
 
+    override fun updateWatchfaceInstanceSync(
+        newInstanceId: String,
+        userStyle: UserStyleWireFormat
+    ): Unit =
+        aidlMethod(TAG, "updateWatchfaceInstanceSync") {
+            /**
+             * This is blocking to ensure ordering with respect to any subsequent [getInstanceId]
+             * and [getPreviewReferenceTimeMillis] calls.
+             */
+            uiThreadCoroutineScope.runBlockingWithTracing(
+                "InteractiveWatchFaceImpl.updateWatchfaceInstanceSync"
+            ) {
+                if (instanceId != newInstanceId) {
+                    engine?.updateInstance(newInstanceId)
+                    instanceId = newInstanceId
+                }
+                engine?.setUserStyle(userStyle)
+            }
+        }
+
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? =
         aidlMethod(TAG, "getComplicationDetails") {
             val engineCopy = engine
@@ -296,7 +316,7 @@ internal class InteractiveWatchFaceImpl(
     override fun overrideComplicationData(
         complicationDatumWireFormats: List<IdAndComplicationDataWireFormat>
     ): Unit = aidlMethod(TAG, "overrideComplicationData") {
-        engine?.overrideComplications(
+        engine?.overrideComplicationsForEditing(
             complicationDatumWireFormats.associateBy(
                 { it.id },
                 { it.complicationData.toApiComplicationData() }
@@ -306,7 +326,7 @@ internal class InteractiveWatchFaceImpl(
 
     override fun clearComplicationDataOverride(): Unit =
         aidlMethod(TAG, "overrideComplicationData") {
-            engine?.removeAnyComplicationOverrides()
+            engine?.onEditSessionFinished()
         }
 
     fun onDestroy() {

@@ -41,7 +41,9 @@ import androidx.compose.ui.node.requireOwner
 internal fun FocusTargetNode.requestFocus(): Boolean = requestFocus(Enter) ?: false
 
 internal fun FocusTargetNode.requestFocus(focusDirection: FocusDirection): Boolean? {
-    return requireTransactionManager().withNewTransaction {
+    return requireTransactionManager().withNewTransaction(
+        onCancelled = { if (node.isAttached) refreshFocusEventNodes() }
+    ) {
         when (performCustomRequestFocus(focusDirection)) {
             None -> performRequestFocus()
             Redirected -> true

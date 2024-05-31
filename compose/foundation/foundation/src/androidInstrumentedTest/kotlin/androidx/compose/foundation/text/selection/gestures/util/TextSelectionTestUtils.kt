@@ -154,7 +154,7 @@ internal abstract class SelectionAsserter<S>(
     var startLayoutDirection = ResolvedTextDirection.Ltr
     var endLayoutDirection = ResolvedTextDirection.Ltr
 
-    fun assert() {
+    open fun assert() {
         subAssert()
         rule.assertSelectionHandlesShown(
             startShown = startSelectionHandleShown ?: selectionHandlesShown,

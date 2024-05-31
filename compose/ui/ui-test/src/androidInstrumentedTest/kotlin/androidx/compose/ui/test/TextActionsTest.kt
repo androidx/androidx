@@ -26,8 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.editable
 import androidx.compose.ui.semantics.insertTextAtCursor
+import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
@@ -82,7 +82,7 @@ class TextActionsTest {
     fun sendText_requestFocusNotSupported_shouldFail() {
         rule.setContent {
             BoundaryNode(testTag = "node", Modifier.semantics {
-                editable()
+                isEditable = true
                 setText { true }
             })
         }
@@ -101,7 +101,7 @@ class TextActionsTest {
     fun performTextInput_setTextNotSupported_shouldFail() {
         rule.setContent {
             BoundaryNode(fieldTag, Modifier.semantics {
-                editable()
+                isEditable = true
                 insertTextAtCursor { true }
             })
         }
@@ -120,7 +120,7 @@ class TextActionsTest {
     fun performTextInput_insertTextAtCursorNotSupported_shouldFail() {
         rule.setContent {
             BoundaryNode(fieldTag, Modifier.semantics {
-                editable()
+                isEditable = true
                 setText { true }
                 requestFocus { true }
             })
@@ -315,7 +315,7 @@ class TextActionsTest {
     fun performImeAction_actionReturnsFalse_shouldFail() {
         rule.setContent {
             BoundaryNode(fieldTag, Modifier.semantics {
-                editable()
+                isEditable = true
                 setText { true }
                 requestFocus { true }
                 insertTextAtCursor { true }
@@ -352,7 +352,7 @@ class TextActionsTest {
     fun performImeAction_focusNotSupported_shouldFail() {
         rule.setContent {
             BoundaryNode(testTag = "node", Modifier.semantics {
-                editable()
+                isEditable = true
                 setText { true }
                 onImeAction(ImeAction.Done) { true }
             })

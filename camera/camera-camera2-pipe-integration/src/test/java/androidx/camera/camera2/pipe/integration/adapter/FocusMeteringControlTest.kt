@@ -81,6 +81,7 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -150,7 +151,9 @@ class FocusMeteringControlTest {
             testScope,
             testDispatcher.asExecutor(),
             testDispatcher
-        )
+        ).apply {
+            sequentialScope = testScope
+        }
     }
 
     private val pointFactory = SurfaceOrientedMeteringPointFactory(1f, 1f)
@@ -162,7 +165,7 @@ class FocusMeteringControlTest {
 
     private val cameraPropertiesMap = mutableMapOf<String, CameraProperties>()
 
-    private val fakeRequestControl = FakeUseCaseCameraRequestControl()
+    private val fakeRequestControl = FakeUseCaseCameraRequestControl(testScope)
 
     @Before
     fun setUp() {
@@ -842,17 +845,20 @@ class FocusMeteringControlTest {
         val result3 = focusMeteringControl.startFocusAndMetering(action)
 
         // Simulate CompletableDeferred completion is delayed and all tasks completing before then
-        advanceUntilIdle()
-        fakeRequestControl.focusMeteringResult.complete(
-            Result3A(
-                status = Result3A.Status.OK,
-                frameMetadata = FakeFrameMetadata(
-                    extraMetadata = mapOf(
-                        CONTROL_AF_STATE to CONTROL_AF_STATE_FOCUSED_LOCKED
+        testScope.launch {
+            delay(500)
+            fakeRequestControl.focusMeteringResult.complete(
+                Result3A(
+                    status = Result3A.Status.OK,
+                    frameMetadata = FakeFrameMetadata(
+                        extraMetadata = mapOf(
+                            CONTROL_AF_STATE to CONTROL_AF_STATE_FOCUSED_LOCKED
+                        )
                     )
                 )
             )
-        )
+        }
+        advanceUntilIdle()
 
         assertFutureFailedWithOperationCancellation(result1)
         assertFutureFailedWithOperationCancellation(result2)
@@ -1085,7 +1091,7 @@ class FocusMeteringControlTest {
             // Arrange.
             // Set an incomplete CompletableDeferred
             fakeRequestControl.focusMeteringResult = CompletableDeferred()
-            fakeRequestControl.awaitFocusMetering = false // simulates async
+            fakeRequestControl.focusAutoCompletesAfterTimeout = false // simulates manual complete
             val autoCancelDuration: Long = 500
             val action = FocusMeteringAction.Builder(point1)
                 .setAutoCancelDuration(autoCancelDuration, TimeUnit.MILLISECONDS)
@@ -1162,6 +1168,24 @@ class FocusMeteringControlTest {
         assertFutureFocusCompleted(future, false)
     }
 
+    @MediumTest
+    @Test
+    fun defaultAutoCancelDurationAndFocusTimeout_completesWithIsFocusSuccessfulFalse() = runTest {
+        // Arrange.
+        // Set an incomplete CompletableDeferred
+        fakeRequestControl.focusMeteringResult = CompletableDeferred()
+
+        val action = FocusMeteringAction.Builder(point1)
+            .build()
+
+        // Act.
+        val future = focusMeteringControl.startFocusAndMetering(action)
+
+        // Assert.
+        // default focus timeout is 5s, so waiting for 6s here
+        assertFutureFocusCompleted(future, false, 6)
+    }
+
     @Test
     fun startFocusMetering_afAutoModeIsSet() = runTest {
         // Arrange.
@@ -1195,6 +1219,7 @@ class FocusMeteringControlTest {
         // Arrange.
         val action = FocusMeteringAction
             .Builder(point1, FocusMeteringAction.FLAG_AF)
+            .setAutoCancelDuration(3, TimeUnit.SECONDS)
             .build()
         val state3AControl = createState3AControl(CAMERA_ID_0)
         focusMeteringControl = initFocusMeteringControl(
@@ -1411,10 +1436,11 @@ class FocusMeteringControlTest {
 
     private fun TestScope.assertFutureFocusCompleted(
         future: ListenableFuture<FocusMeteringResult>,
-        isFocused: Boolean
+        isFocused: Boolean,
+        timeoutSeconds: Long = 3
     ) {
         advanceUntilIdle()
-        val focusMeteringResult = future[3, TimeUnit.SECONDS]
+        val focusMeteringResult = future[timeoutSeconds, TimeUnit.SECONDS]
         assertThat(focusMeteringResult.isFocusSuccessful).isEqualTo(isFocused)
     }
 

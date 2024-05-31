@@ -29,6 +29,7 @@ class KlibDumpParserTest {
 
     private val collectionDump = getJavaResource("collection.txt").readText()
     private val datastoreCoreDump = getJavaResource("datastore.txt").readText()
+    private val annotationDump = getJavaResource("annotation.txt").readText()
     private val uniqueTargetDump = getJavaResource("unique_targets.txt").readText()
 
     @Test
@@ -192,6 +193,20 @@ class KlibDumpParserTest {
     }
 
     @Test
+    fun parseAnEnumEntry() {
+        val input = "enum entry GROUP_ID // androidx.annotation/RestrictTo.Scope.GROUP_ID|null[0]"
+        val parsed = KlibDumpParser(input).parseEnumEntry(
+            AbiQualifiedName(
+                AbiCompoundName("androidx.annotation"),
+                AbiCompoundName("RestrictTo.Scope")
+            )
+        )
+        assertThat(parsed.qualifiedName.toString()).isEqualTo(
+            "androidx.annotation/RestrictTo.Scope.GROUP_ID"
+        )
+    }
+
+    @Test
     fun parseFullCollectionKlibDumpSucceeds() {
         val parsed = KlibDumpParser(collectionDump).parse()
         assertThat(parsed).isNotNull()
@@ -200,6 +215,11 @@ class KlibDumpParserTest {
     @Test
     fun parseFullDatastoreKlibDumpSucceeds() {
         val parsed = KlibDumpParser(datastoreCoreDump).parse()
+        assertThat(parsed).isNotNull()
+    }
+    @Test
+    fun parseFullAnnotationKlibDumpSucceeds() {
+        val parsed = KlibDumpParser(annotationDump).parse()
         assertThat(parsed).isNotNull()
     }
 

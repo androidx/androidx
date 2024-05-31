@@ -904,7 +904,17 @@ public abstract class FragmentTransaction {
      */
     @NonNull
     public FragmentTransaction runOnCommit(@NonNull Runnable runnable) {
-        disallowAddToBackStack();
+        return runOnCommitInternal(false, runnable);
+    }
+
+    @NonNull
+    FragmentTransaction runOnCommitInternal(
+            boolean allowAddToBackStack,
+            @NonNull Runnable runnable
+    ) {
+        if (!allowAddToBackStack) {
+            disallowAddToBackStack();
+        }
         if (mCommitRunnables == null) {
             mCommitRunnables = new ArrayList<>();
         }

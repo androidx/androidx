@@ -1050,6 +1050,10 @@ public final class Recorder implements VideoOutput {
 
         if (newState == SourceState.INACTIVE) {
             if (mActiveSurface == null) {
+                if (mSetupVideoTask != null) {
+                    mSetupVideoTask.cancelFailedRetry();
+                    mSetupVideoTask = null;
+                }
                 // If we're inactive and have no active surface, we'll reset the encoder directly.
                 // Otherwise, we'll wait for the active surface's surface request listener to
                 // reset the encoder.
@@ -1175,7 +1179,7 @@ public final class Recorder implements VideoOutput {
             }
         }
         if (mSetupVideoTask != null) {
-            mSetupVideoTask.cancel();
+            mSetupVideoTask.cancelFailedRetry();
         }
         mSetupVideoTask = new SetupVideoTask(surfaceRequest, videoSourceTimebase,
                 enableRetrySetupVideo ? sRetrySetupVideoMaxCount : 0);
@@ -1188,7 +1192,7 @@ public final class Recorder implements VideoOutput {
         private final Timebase mTimebase;
         private final int mMaxRetryCount;
 
-        private boolean mIsComplete = false;
+        private boolean mIsFailedRetryCanceled = false;
         private int mRetryCount = 0;
         @Nullable
         private ScheduledFuture<?> mRetryFuture = null;
@@ -1202,19 +1206,15 @@ public final class Recorder implements VideoOutput {
 
         @ExecutedBy("mSequentialExecutor")
         void start() {
-            if (mIsComplete) {
-                Logger.w(TAG, "Task has been completed before start");
-                return;
-            }
             setupVideo(mSurfaceRequest, mTimebase);
         }
 
         @ExecutedBy("mSequentialExecutor")
-        void cancel() {
-            if (mIsComplete) {
+        void cancelFailedRetry() {
+            if (mIsFailedRetryCanceled) {
                 return;
             }
-            mIsComplete = true;
+            mIsFailedRetryCanceled = true;
             if (mRetryFuture != null) {
                 mRetryFuture.cancel(false);
                 mRetryFuture = null;
@@ -1225,17 +1225,15 @@ public final class Recorder implements VideoOutput {
         @ExecutedBy("mSequentialExecutor")
         private void setupVideo(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
             safeToCloseVideoEncoder().addListener(() -> {
-                if (request.isServiced() || mIsComplete
+                if (request.isServiced()
                         || (mVideoEncoderSession.isConfiguredSurfaceRequest(request)
                         && !isPersistentRecordingInProgress())) {
                     // Ignore the surface request if it's already serviced. Or the video encoder
                     // session is already configured, unless there's a persistent recording is
                     // running. Or the task has been completed.
                     Logger.w(TAG, "Ignore the SurfaceRequest " + request + " isServiced: "
-                            + request.isServiced() + " is setup video complete: " + mIsComplete
-                            + " VideoEncoderSession: " + mVideoEncoderSession
+                            + request.isServiced() + " VideoEncoderSession: " + mVideoEncoderSession
                             + " has been configured with a persistent in-progress recording.");
-                    mIsComplete = true;
                     return;
                 }
                 VideoEncoderSession videoEncoderSession =
@@ -1250,13 +1248,6 @@ public final class Recorder implements VideoOutput {
                     @Override
                     public void onSuccess(@Nullable Encoder result) {
                         Logger.d(TAG, "VideoEncoder is created. " + result);
-                        if (mIsComplete) {
-                            if (result != null) {
-                                result.release();
-                            }
-                            return;
-                        }
-                        mIsComplete = true;
                         if (result == null) {
                             return;
                         }
@@ -1269,19 +1260,15 @@ public final class Recorder implements VideoOutput {
                     @Override
                     public void onFailure(@NonNull Throwable t) {
                         Logger.w(TAG, "VideoEncoder Setup error: " + t, t);
-                        if (mIsComplete) {
-                            return;
-                        }
                         if (mRetryCount < mMaxRetryCount) {
                             mRetryCount++;
                             mRetryFuture = scheduleTask(() -> {
-                                if (!mIsComplete) {
+                                if (!mIsFailedRetryCanceled) {
                                     Logger.d(TAG, "Retry setupVideo #" + mRetryCount);
                                     setupVideo(mSurfaceRequest, mTimebase);
                                 }
                             }, mSequentialExecutor, sRetrySetupVideoDelayMs, TimeUnit.MILLISECONDS);
                         } else {
-                            mIsComplete = true;
                             onEncoderSetupError(t);
                         }
                     }
@@ -2310,10 +2297,6 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void resetVideo() {
-        if (mSetupVideoTask != null) {
-            mSetupVideoTask.cancel();
-            mSetupVideoTask = null;
-        }
         if (mVideoEncoder != null) {
             Logger.d(TAG, "Releasing video encoder.");
             tryReleaseVideoEncoder();

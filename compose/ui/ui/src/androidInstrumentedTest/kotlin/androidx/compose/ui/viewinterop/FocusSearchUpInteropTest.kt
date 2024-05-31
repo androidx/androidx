@@ -46,6 +46,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -193,6 +194,7 @@ class FocusSearchUpInteropTest(private val moveFocusProgrammatically: Boolean) {
         rule.runOnIdle { assertThat(view.isFocused).isTrue() }
     }
 
+    @FlakyTest(bugId = 332542822)
     @Test
     fun focusedComposableWithFocusableView_view_inLinearLayout() {
         // Arrange.

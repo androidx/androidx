@@ -47,6 +47,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Velocity
@@ -346,6 +347,72 @@ class PagerNestedScrollContentTest(
 
         rule.onNodeWithTag(TestTag).performTouchInput {
             up()
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun nestedScrollContent_shouldEnsurePagerIsSettled_WhenCrossDirectionScrolls() {
+        // Arrange
+        val lazyListState = LazyListState(9)
+        var touchSlop = 0f
+        createPager(pageCount = { DefaultPageCount }) { page ->
+            touchSlop = LocalViewConfiguration.current.touchSlop
+            LazyList(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("InnerListPage$page"),
+                contentPadding = PaddingValues(0.dp),
+                flingBehavior = ScrollableDefaults.flingBehavior(),
+                isVertical = !vertical, // scrollable content on opposite direction of pager
+                reverseLayout = false,
+                state = lazyListState,
+                userScrollEnabled = true,
+                verticalArrangement = Arrangement.Top,
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                items(10) {
+                    Box(modifier = Modifier.size(100.dp)) {
+                        BasicText(text = it.toString())
+                    }
+                }
+            }
+        }
+
+        val forwardDelta = pagerSize * 0.4f * scrollForwardSign.toFloat()
+        val firstLazyListItem = lazyListState.firstVisibleItemIndex
+        val firstLazyListItemOffset = lazyListState.firstVisibleItemScrollOffset
+        rule.onNodeWithTag(TestTag).performTouchInput {
+            down(center)
+            val toMove = forwardDelta + touchSlop * scrollForwardSign.toFloat()
+            moveBy(if (vertical) Offset(x = 0f, y = toMove) else Offset(x = toMove, y = 0f))
+            up()
+        }
+
+        // Assert: Inner list won't consume scroll and pager moved
+        rule.runOnIdle {
+            assertThat(abs(pagerState.currentPageOffsetFraction)).isLessThan(0.001f)
+            assertThat(
+                lazyListState.firstVisibleItemScrollOffset
+            ).isEqualTo(firstLazyListItemOffset)
+            assertThat(lazyListState.firstVisibleItemIndex).isEqualTo(firstLazyListItem)
+        }
+
+        // try to move inner list
+        rule.onNodeWithTag("InnerListPage0").performTouchInput {
+            down(center)
+            moveBy(
+                if (vertical) Offset(x = -forwardDelta / 2, y = 0f)
+                else Offset(x = 0f, y = -forwardDelta / 2)
+            )
+            up()
+        }
+
+        // assert: pager did not move
+        rule.runOnIdle {
+            assertThat(abs(pagerState.currentPageOffsetFraction)).isLessThan(0.001f)
         }
     }
 

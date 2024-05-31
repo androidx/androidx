@@ -27,7 +27,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
  */
 public class SystemDataSources private constructor() {
     public companion object {
-        // NEXT AVAILABLE DATA SOURCE ID: 17
+        // NEXT AVAILABLE DATA SOURCE ID: 18
 
         /** Specifies that no complication data source should be used. */
         public const val NO_DATA_SOURCE: Int = -1
@@ -76,8 +76,13 @@ public class SystemDataSources private constructor() {
          *
          * This complication data source is only guaranteed to support [ComplicationType.SHORT_TEXT]
          * and [ComplicationType.GOAL_PROGRESS], although it's a good idea for the slot to support
-         * [ComplicationType.SMALL_IMAGE] too since OEMs may choose to serve a shortcut to their
-         * health app instead of the live value.
+         * [ComplicationType.SMALL_IMAGE] and [ComplicationType.ICON] too since OEMs may choose to
+         * serve a shortcut to their health app instead of the live value.
+         *
+         * Starting in Wear OS 5, this complication data source can only be configured with
+         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
+         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
+         * type may or may not be available.
          */
         public const val DATA_SOURCE_STEP_COUNT: Int = 4
 
@@ -126,8 +131,13 @@ public class SystemDataSources private constructor() {
          * will receive data of TYPE_NO_PERMISSION until the user has granted the
          * RECEIVE_COMPLICATION_DATA.
          *
-         * This complication data source supports the following types:
+         * This complication data source is guaranteed to support the following types:
          * [ComplicationType.SHORT_TEXT], [ComplicationType.LONG_TEXT].
+         *
+         * Starting in Wear OS 5, this complication data source can only be configured with
+         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
+         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
+         * type may or may not be available.
          */
         public const val DATA_SOURCE_NEXT_EVENT: Int = 9
 
@@ -143,7 +153,13 @@ public class SystemDataSources private constructor() {
          * This complication data source shows next sunrise or sunset time according to current
          * timezone and location.
          *
-         * This complication data source supports only [ComplicationType.SHORT_TEXT].
+         * This complication data source is guaranteed to support only
+         * [ComplicationType.SHORT_TEXT].
+         *
+         * Starting in Wear OS 5, this complication data source can only be configured with
+         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
+         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
+         * type may or may not be available.
          */
         public const val DATA_SOURCE_SUNRISE_SUNSET: Int = 12
 
@@ -165,7 +181,13 @@ public class SystemDataSources private constructor() {
          * will receive data of TYPE_NO_PERMISSION until the user has granted the
          * RECEIVE_COMPLICATION_DATA.
          *
-         * This complication data source supports only [ComplicationType.SMALL_IMAGE].
+         * This complication data source is guaranteed to support only
+         * [ComplicationType.SMALL_IMAGE].
+         *
+         * Starting in Wear OS 5, this complication data source can only be configured with
+         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
+         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
+         * type may or may not be available.
          */
         public const val DATA_SOURCE_FAVORITE_CONTACT: Int = 14
 
@@ -187,8 +209,14 @@ public class SystemDataSources private constructor() {
          * Id for the 'heart rate' complication data source.
          *
          * This complication data source is only guaranteed to support [ComplicationType.SHORT_TEXT]
-         * although it's a good idea for the slot to support [ComplicationType.SMALL_IMAGE] too
-         * since OEMs may choose to serve a shortcut to their health app instead of the live value.
+         * although it's a good idea for the slot to support [ComplicationType.SMALL_IMAGE] and
+         * [ComplicationType.ICON] too since OEMs may choose to serve a shortcut to their health app
+         * instead of the live value.
+         *
+         *  Starting in Wear OS 5, this complication data source can only be configured with
+         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
+         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
+         * type may or may not be available.
          */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public const val DATA_SOURCE_HEART_RATE: Int = 17

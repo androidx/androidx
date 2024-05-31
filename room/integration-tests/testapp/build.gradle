@@ -34,7 +34,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         // Need to make sure certain classes are put in primary dex as they're used early in
         // process creation, and would fail to load on non-native-multidex API versions
         multiDexKeepProguard file('multidex-rules.pro')

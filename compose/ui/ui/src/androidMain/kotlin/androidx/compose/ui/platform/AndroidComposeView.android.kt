@@ -486,6 +486,11 @@ internal class AndroidComposeView(
             if (_androidViewsHandler == null) {
                 _androidViewsHandler = AndroidViewsHandler(context)
                 addView(_androidViewsHandler)
+                // Ensure that AndroidViewsHandler is measured and laid out after creation, so that
+                // it can report correct bounds on screen (for semantics, etc).
+                // Normally this is done by addView, but here we disabled it for optimization
+                // purposes.
+                requestLayout()
             }
             return _androidViewsHandler!!
         }
@@ -961,9 +966,9 @@ internal class AndroidComposeView(
      * This function is used by the delegate file to set the time interval between sending
      * accessibility events in milliseconds.
      */
-    override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) {
+    override fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {
         composeAccessibilityDelegate.SendRecurringAccessibilityEventsIntervalMillis =
-            accessibilityInterval
+            intervalMillis
     }
 
     override fun onAttach(node: LayoutNode) {

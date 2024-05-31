@@ -1781,7 +1781,10 @@ class AndroidViewTest {
             root.addView(composeView)
             composeView.setContent {
                 Box(Modifier.fillMaxSize()) {
+                    // this view will create AndroidViewsHandler (causes relayout)
+                    AndroidView({ View(it) })
                     if (showAndroidView) {
+                        // attaching this view should not cause relayout
                         AndroidView({ viewInsideCompose })
                     }
                 }

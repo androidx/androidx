@@ -66,8 +66,7 @@ class GetCustomCredentialOptionTest {
 
     @Test
     fun constructor_priorityPassedIn_setPriorityRetrievedSuccess() {
-        val expectedOverwrittenPriorityHint: @PriorityHints Int =
-            PriorityHints.PRIORITY_OIDC_OR_SIMILAR
+        val expectedOverwrittenPriorityHint = CredentialOption.PRIORITY_OIDC_OR_SIMILAR
 
         val customCredentialOption = GetCustomCredentialOption(
             "T",
@@ -135,7 +134,7 @@ class GetCustomCredentialOptionTest {
             ComponentName("pkg", "cls"),
             ComponentName("pkg2", "cls2")
         )
-        val expectedPriorityHint: @PriorityHints Int = PriorityHints.PRIORITY_OIDC_OR_SIMILAR
+        val expectedPriorityHint = CredentialOption.PRIORITY_OIDC_OR_SIMILAR
         val option = GetCustomCredentialOption(
             expectedType,
             expectedBundle,
@@ -169,7 +168,6 @@ class GetCustomCredentialOptionTest {
     }
 
     private companion object {
-        private const val EXPECTED_CUSTOM_DEFAULT_PRIORITY: @PriorityHints Int =
-            PriorityHints.PRIORITY_DEFAULT
+        private const val EXPECTED_CUSTOM_DEFAULT_PRIORITY = CredentialOption.PRIORITY_DEFAULT
     }
 }

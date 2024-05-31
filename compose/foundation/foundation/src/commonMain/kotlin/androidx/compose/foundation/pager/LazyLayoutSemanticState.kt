@@ -17,7 +17,6 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.ui.semantics.CollectionInfo
 
@@ -29,8 +28,6 @@ internal fun LazyLayoutSemanticState(
         get() = state.currentAbsoluteScrollOffset().toFloat()
     override val maxScrollOffset: Float
         get() = state.layoutInfo.calculateNewMaxScrollOffset(state.pageCount).toFloat()
-
-    override suspend fun animateScrollBy(delta: Float): Float = state.animateScrollBy(delta)
 
     override suspend fun scrollToItem(index: Int) {
         state.scrollToPage(index)

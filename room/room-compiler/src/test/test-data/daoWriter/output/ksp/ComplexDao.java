@@ -59,7 +59,11 @@ public final class ComplexDao_Impl extends ComplexDao {
         while (_stmt.step()) {
           final ComplexDao.FullName _item;
           _item = new ComplexDao.FullName();
-          _item.fullName = _stmt.getText(_cursorIndexOfFullName);
+          if (_stmt.isNull(_cursorIndexOfFullName)) {
+            _item.fullName = null;
+          } else {
+            _item.fullName = _stmt.getText(_cursorIndexOfFullName);
+          }
           _item.id = (int) (_stmt.getLong(_cursorIndexOfId));
           _result.add(_item);
         }
@@ -86,9 +90,17 @@ public final class ComplexDao_Impl extends ComplexDao {
         if (_stmt.step()) {
           _result = new User();
           _result.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
-          _result.name = _stmt.getText(_cursorIndexOfName);
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _result.name = null;
+          } else {
+            _result.name = _stmt.getText(_cursorIndexOfName);
+          }
           final String _tmpLastName;
-          _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+          if (_stmt.isNull(_cursorIndexOfLastName)) {
+            _tmpLastName = null;
+          } else {
+            _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+          }
           _result.setLastName(_tmpLastName);
           _result.age = (int) (_stmt.getLong(_cursorIndexOfAge));
         } else {
@@ -108,9 +120,17 @@ public final class ComplexDao_Impl extends ComplexDao {
       final SQLiteStatement _stmt = _connection.prepare(_sql);
       try {
         int _argIndex = 1;
-        _stmt.bindText(_argIndex, name);
+        if (name == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindText(_argIndex, name);
+        }
         _argIndex = 2;
-        _stmt.bindText(_argIndex, lastName);
+        if (lastName == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindText(_argIndex, lastName);
+        }
         final int _cursorIndexOfUid = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "uid");
         final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
         final int _cursorIndexOfLastName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastName");
@@ -119,9 +139,17 @@ public final class ComplexDao_Impl extends ComplexDao {
         if (_stmt.step()) {
           _result = new User();
           _result.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
-          _result.name = _stmt.getText(_cursorIndexOfName);
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _result.name = null;
+          } else {
+            _result.name = _stmt.getText(_cursorIndexOfName);
+          }
           final String _tmpLastName;
-          _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+          if (_stmt.isNull(_cursorIndexOfLastName)) {
+            _tmpLastName = null;
+          } else {
+            _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+          }
           _result.setLastName(_tmpLastName);
           _result.age = (int) (_stmt.getLong(_cursorIndexOfAge));
         } else {
@@ -163,9 +191,17 @@ public final class ComplexDao_Impl extends ComplexDao {
           final User _item_1;
           _item_1 = new User();
           _item_1.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
-          _item_1.name = _stmt.getText(_cursorIndexOfName);
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _item_1.name = null;
+          } else {
+            _item_1.name = _stmt.getText(_cursorIndexOfName);
+          }
           final String _tmpLastName;
-          _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+          if (_stmt.isNull(_cursorIndexOfLastName)) {
+            _tmpLastName = null;
+          } else {
+            _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
+          }
           _item_1.setLastName(_tmpLastName);
           _item_1.age = (int) (_stmt.getLong(_cursorIndexOfAge));
           _result.add(_item_1);
@@ -365,9 +401,17 @@ public final class ComplexDao_Impl extends ComplexDao {
           if (_cursor.moveToFirst()) {
             _result = new User();
             _result.uid = _cursor.getInt(_cursorIndexOfUid);
-            _result.name = _cursor.getString(_cursorIndexOfName);
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _result.name = null;
+            } else {
+              _result.name = _cursor.getString(_cursorIndexOfName);
+            }
             final String _tmpLastName;
-            _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+            if (_cursor.isNull(_cursorIndexOfLastName)) {
+              _tmpLastName = null;
+            } else {
+              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+            }
             _result.setLastName(_tmpLastName);
             _result.age = _cursor.getInt(_cursorIndexOfAge);
           } else {
@@ -420,9 +464,17 @@ public final class ComplexDao_Impl extends ComplexDao {
             final User _item_1;
             _item_1 = new User();
             _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
-            _item_1.name = _cursor.getString(_cursorIndexOfName);
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _item_1.name = null;
+            } else {
+              _item_1.name = _cursor.getString(_cursorIndexOfName);
+            }
             final String _tmpLastName;
-            _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+            if (_cursor.isNull(_cursorIndexOfLastName)) {
+              _tmpLastName = null;
+            } else {
+              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+            }
             _item_1.setLastName(_tmpLastName);
             _item_1.age = _cursor.getInt(_cursorIndexOfAge);
             _result.add(_item_1);
@@ -456,12 +508,20 @@ public final class ComplexDao_Impl extends ComplexDao {
           final int _tmpId;
           _tmpId = (int) (_stmt.getLong(_cursorIndexOfId));
           final String _tmpName;
-          _tmpName = _stmt.getText(_cursorIndexOfName);
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_cursorIndexOfName);
+          }
           final Info _tmpInfo;
           if (!(_stmt.isNull(_cursorIndexOfSerial) && _stmt.isNull(_cursorIndexOfCode))) {
             _tmpInfo = new Info();
             _tmpInfo.serial = (int) (_stmt.getLong(_cursorIndexOfSerial));
-            _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+            if (_stmt.isNull(_cursorIndexOfCode)) {
+              _tmpInfo.code = null;
+            } else {
+              _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+            }
           } else {
             _tmpInfo = null;
           }
@@ -491,12 +551,20 @@ public final class ComplexDao_Impl extends ComplexDao {
           final int _tmpId;
           _tmpId = (int) (_stmt.getLong(_cursorIndexOfId));
           final String _tmpName;
-          _tmpName = _stmt.getText(_cursorIndexOfName);
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_cursorIndexOfName);
+          }
           final Info _tmpInfo;
           if (!(_stmt.isNull(_cursorIndexOfSerial) && _stmt.isNull(_cursorIndexOfCode))) {
             _tmpInfo = new Info();
             _tmpInfo.serial = (int) (_stmt.getLong(_cursorIndexOfSerial));
-            _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+            if (_stmt.isNull(_cursorIndexOfCode)) {
+              _tmpInfo.code = null;
+            } else {
+              _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+            }
           } else {
             _tmpInfo = null;
           }
@@ -530,12 +598,20 @@ public final class ComplexDao_Impl extends ComplexDao {
             final int _tmpId;
             _tmpId = _cursor.getInt(_cursorIndexOfId);
             final String _tmpName;
-            _tmpName = _cursor.getString(_cursorIndexOfName);
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _tmpName = null;
+            } else {
+              _tmpName = _cursor.getString(_cursorIndexOfName);
+            }
             final Info _tmpInfo;
             if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
               _tmpInfo = new Info();
               _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
-              _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
+              if (_cursor.isNull(_cursorIndexOfCode)) {
+                _tmpInfo.code = null;
+              } else {
+                _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
+              }
             } else {
               _tmpInfo = null;
             }
@@ -563,7 +639,11 @@ public final class ComplexDao_Impl extends ComplexDao {
           final UserSummary _item;
           _item = new UserSummary();
           _item.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
-          _item.name = _stmt.getText(_cursorIndexOfName);
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _item.name = null;
+          } else {
+            _item.name = _stmt.getText(_cursorIndexOfName);
+          }
           _result.add(_item);
         }
         return _result;
@@ -606,11 +686,19 @@ public final class ComplexDao_Impl extends ComplexDao {
       _entity.uid = cursor.getInt(_cursorIndexOfUid);
     }
     if (_cursorIndexOfName != -1) {
-      _entity.name = cursor.getString(_cursorIndexOfName);
+      if (cursor.isNull(_cursorIndexOfName)) {
+        _entity.name = null;
+      } else {
+        _entity.name = cursor.getString(_cursorIndexOfName);
+      }
     }
     if (_cursorIndexOfLastName != -1) {
       final String _tmpLastName;
-      _tmpLastName = cursor.getString(_cursorIndexOfLastName);
+      if (cursor.isNull(_cursorIndexOfLastName)) {
+        _tmpLastName = null;
+      } else {
+        _tmpLastName = cursor.getString(_cursorIndexOfLastName);
+      }
       _entity.setLastName(_tmpLastName);
     }
     if (_cursorIndexOfAge != -1) {

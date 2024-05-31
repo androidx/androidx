@@ -51,7 +51,7 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
 }

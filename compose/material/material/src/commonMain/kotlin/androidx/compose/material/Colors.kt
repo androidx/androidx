@@ -160,8 +160,6 @@ class Colors(
             append(")")
         }
     }
-
-    internal var defaultTextLinkStylesCached: TextLinkStyles? = null
 }
 
 /**

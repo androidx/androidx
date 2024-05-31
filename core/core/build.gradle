@@ -78,7 +78,7 @@ android {
     aaptOptions {
         noCompress "ttf"
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
 
         stableAidl {

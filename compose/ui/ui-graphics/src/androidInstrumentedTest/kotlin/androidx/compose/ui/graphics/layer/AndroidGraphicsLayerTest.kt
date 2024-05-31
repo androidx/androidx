@@ -429,6 +429,46 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testRectOutlineWithNonZeroTopLeft() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                var layerSize = Size.Zero
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        layerSize = this.size
+                        drawRect(Color.Red, size = this.size / 2f)
+                    }
+                    topLeft = IntOffset(20, 30)
+                    setRectOutline()
+                }
+                drawLayer(layer)
+                val outline = layer.outline
+                assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
+            }
+        )
+    }
+
+    @Test
+    fun testRoundRectOutlineWithNonZeroTopLeft() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                var layerSize = Size.Zero
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        layerSize = this.size
+                        drawRect(Color.Red, size = this.size / 2f)
+                    }
+                    topLeft = IntOffset(20, 30)
+                    setRoundRectOutline()
+                }
+                drawLayer(layer)
+                val outline = layer.outline
+                assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
+            }
+        )
+    }
+
+    @Test
     fun testRecordOverwritesPreviousRecord() {
         graphicsLayerTest(
             block = { graphicsContext ->

@@ -116,7 +116,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 private const val TAG = "Camera2ExtensionsAct~"
-private const val EXTENSION_MODE_INVALID = -1
 private const val FRAMES_UNTIL_VIEW_IS_READY = 10
 private const val KEY_CAMERA2_LATENCY = "camera2"
 private const val KEY_CAMERA_EXTENSION_LATENCY = "camera_extension"
@@ -181,8 +180,8 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     /**
      * Track current extension type and index.
      */
-    private var currentExtensionMode = EXTENSION_MODE_INVALID
-    private var currentExtensionIdx = -1
+    private var currentExtensionMode = EXTENSION_MODE_NONE
+    private var currentExtensionIdx = 0
     private val supportedExtensionModes = mutableListOf<Int>()
 
     private lateinit var containerView: View
@@ -537,29 +536,23 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         )
         extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(currentCameraId)
         supportedExtensionModes.clear()
+        supportedExtensionModes.add(EXTENSION_MODE_NONE)
         supportedExtensionModes.addAll(extensionCharacteristics.supportedExtensions)
 
         cameraSensorRotationDegrees = cameraManager.getCameraCharacteristics(
             currentCameraId)[CameraCharacteristics.SENSOR_ORIENTATION] ?: 0
 
-        currentExtensionIdx = -1
+        currentExtensionIdx = 0
 
         // Checks whether the original selected extension mode is supported by the new target camera
-        if (currentExtensionMode != EXTENSION_MODE_INVALID) {
-            for (i in 0..supportedExtensionModes.size) {
-                if (supportedExtensionModes[i] == currentExtensionMode) {
-                    currentExtensionIdx = i
-                    break
-                }
+        for (i in 0..supportedExtensionModes.size) {
+            if (supportedExtensionModes[i] == currentExtensionMode) {
+                currentExtensionIdx = i
+                break
             }
         }
 
-        // Switches to the first supported extension mode if the original selected mode is not
-        // supported
-        if (currentExtensionIdx == -1) {
-            currentExtensionIdx = 0
-            currentExtensionMode = supportedExtensionModes[0]
-        }
+        extensionModeEnabled = currentExtensionMode != EXTENSION_MODE_NONE
     }
 
     private fun setupTextureView() {
@@ -622,6 +615,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             enableUiControl(false)
             currentExtensionIdx = (currentExtensionIdx + 1) % supportedExtensionModes.size
             currentExtensionMode = supportedExtensionModes[currentExtensionIdx]
+            extensionModeEnabled = currentExtensionMode != EXTENSION_MODE_NONE
             restartPreview = true
             extensionModeToggleButton.text =
                 getCamera2ExtensionModeStringFromId(currentExtensionMode)
@@ -1116,6 +1110,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
     private fun setupImageReader(): ImageReader {
         val (size, format) = pickStillImageResolution(
+            cameraManager.getCameraCharacteristics(currentCameraId),
             extensionCharacteristics,
             currentExtensionMode
         )

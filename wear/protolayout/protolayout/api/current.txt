@@ -575,13 +575,16 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static interface LayoutElementBuilders.FontSetting {
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(@FloatRange(from=1, to=1000) float);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting tabularNum();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(float);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting width(float);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class LayoutElementBuilders.FontStyle {
     method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
     method public androidx.wear.protolayout.TypeBuilders.BoolProp? getItalic();
     method public androidx.wear.protolayout.DimensionBuilders.EmProp? getLetterSpacing();
+    method public java.util.List<java.lang.String!> getPreferredFontFamilies();
     method public java.util.List<androidx.wear.protolayout.LayoutElementBuilders.FontSetting!> getSettings();
     method public androidx.wear.protolayout.DimensionBuilders.SpProp? getSize();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public java.util.List<androidx.wear.protolayout.DimensionBuilders.SpProp!> getSizes();
@@ -597,6 +600,7 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setItalic(androidx.wear.protolayout.TypeBuilders.BoolProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setItalic(boolean);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setLetterSpacing(androidx.wear.protolayout.DimensionBuilders.EmProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setPreferredFontFamilies(String, java.lang.String!...);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setSettings(androidx.wear.protolayout.LayoutElementBuilders.FontSetting!...);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setSize(androidx.wear.protolayout.DimensionBuilders.SpProp);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setSizes(@Dimension(unit=androidx.annotation.Dimension.SP) @IntRange(from=1) int...);
@@ -606,6 +610,9 @@ package androidx.wear.protolayout {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setVariant(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.protolayout.LayoutElementBuilders.FontWeightProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(int);
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String DEFAULT_SYSTEM_FONT = "default";
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FLEX_FONT = "roboto-flex";
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FONT = "roboto";
   }
 
   @Deprecated public static final class LayoutElementBuilders.FontStyles {
@@ -958,13 +965,35 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ModifiersBuilders.Corner {
+    method public androidx.wear.protolayout.ModifiersBuilders.CornerRadius getBottomLeftRadius();
+    method public androidx.wear.protolayout.ModifiersBuilders.CornerRadius getBottomRightRadius();
     method public androidx.wear.protolayout.DimensionBuilders.DpProp? getRadius();
+    method public androidx.wear.protolayout.ModifiersBuilders.CornerRadius getTopLeftRadius();
+    method public androidx.wear.protolayout.ModifiersBuilders.CornerRadius getTopRightRadius();
   }
 
   public static final class ModifiersBuilders.Corner.Builder {
     ctor public ModifiersBuilders.Corner.Builder();
     method public androidx.wear.protolayout.ModifiersBuilders.Corner build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setBottomLeftRadius(androidx.wear.protolayout.DimensionBuilders.DpProp, androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setBottomLeftRadius(androidx.wear.protolayout.ModifiersBuilders.CornerRadius);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setBottomRightRadius(androidx.wear.protolayout.DimensionBuilders.DpProp, androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setBottomRightRadius(androidx.wear.protolayout.ModifiersBuilders.CornerRadius);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setRadius(androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setTopLeftRadius(androidx.wear.protolayout.DimensionBuilders.DpProp, androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setTopLeftRadius(androidx.wear.protolayout.ModifiersBuilders.CornerRadius);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setTopRightRadius(androidx.wear.protolayout.DimensionBuilders.DpProp, androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public androidx.wear.protolayout.ModifiersBuilders.Corner.Builder setTopRightRadius(androidx.wear.protolayout.ModifiersBuilders.CornerRadius);
+  }
+
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final class ModifiersBuilders.CornerRadius {
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getX();
+    method public androidx.wear.protolayout.DimensionBuilders.DpProp getY();
+  }
+
+  public static final class ModifiersBuilders.CornerRadius.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public ModifiersBuilders.CornerRadius.Builder(androidx.wear.protolayout.DimensionBuilders.DpProp, androidx.wear.protolayout.DimensionBuilders.DpProp);
+    method public androidx.wear.protolayout.ModifiersBuilders.CornerRadius build();
   }
 
   @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.DefaultContentTransitions {

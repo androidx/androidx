@@ -35,18 +35,15 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
@@ -263,6 +260,17 @@ internal fun Carousel(
         ) { page ->
             val carouselItemInfo = remember { CarouselItemInfoImpl() }
             val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
+            val clipShape = remember {
+                object : Shape {
+                    override fun createOutline(
+                        size: Size,
+                        layoutDirection: LayoutDirection,
+                        density: Density
+                    ): Outline {
+                        return Outline.Rectangle(carouselItemInfo.maskRect)
+                    }
+                }
+            }
 
             Box(
                 modifier = Modifier.carouselItem(
@@ -270,6 +278,7 @@ internal fun Carousel(
                     state = state,
                     strategy = { pageSize.strategy },
                     carouselItemInfo = carouselItemInfo,
+                    clipShape = clipShape
                 )
             ) {
                 scope.content(page)
@@ -292,6 +301,17 @@ internal fun Carousel(
         ) { page ->
             val carouselItemInfo = remember { CarouselItemInfoImpl() }
             val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
+            val clipShape = remember {
+                object : Shape {
+                    override fun createOutline(
+                        size: Size,
+                        layoutDirection: LayoutDirection,
+                        density: Density
+                    ): Outline {
+                        return Outline.Rectangle(carouselItemInfo.maskRect)
+                    }
+                }
+            }
 
             Box(
                 modifier = Modifier.carouselItem(
@@ -299,6 +319,7 @@ internal fun Carousel(
                     state = state,
                     strategy = { pageSize.strategy },
                     carouselItemInfo = carouselItemInfo,
+                    clipShape = clipShape
                 )
             ) {
                 scope.content(page)
@@ -391,6 +412,9 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param state the carousel state
  * @param strategy the strategy used to mask and translate items in the carousel
  * @param carouselItemInfo the item info that should be updated with the changes in this modifier
+ * @param clipShape the shape the item will clip itself to. This should be a rectangle with a bounds
+ * that match the carousel item info's mask rect. Corner radii and other shape customizations can
+ * be done by the client using [CarouselItemScope.maskClip] and [CarouselItemScope.maskBorder].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun Modifier.carouselItem(
@@ -398,6 +422,7 @@ internal fun Modifier.carouselItem(
     state: CarouselState,
     strategy: () -> Strategy,
     carouselItemInfo: CarouselItemInfoImpl,
+    clipShape: Shape,
 ): Modifier {
     return layout { measurable, constraints ->
         val strategyResult = strategy.invoke()
@@ -481,33 +506,8 @@ internal fun Modifier.carouselItem(
                 carouselItemInfo.maskRectState = maskRect
 
                 // Clip the item
-                clip = true
-                shape = object : Shape {
-                    // TODO: Find a way to use the shape of the item set by the client for each item
-                    // TODO: Allow corner size customization
-                    val roundedCornerShape = RoundedCornerShape(ShapeDefaults.ExtraLarge.topStart)
-                    override fun createOutline(
-                        size: Size,
-                        layoutDirection: LayoutDirection,
-                        density: Density
-                    ): Outline {
-                        val cornerSize =
-                            roundedCornerShape.topStart.toPx(
-                                Size(maskRect.width, maskRect.height),
-                                density
-                            )
-                        val cornerRadius = CornerRadius(cornerSize)
-                        return Outline.Rounded(
-                            RoundRect(
-                                rect = maskRect,
-                                topLeft = cornerRadius,
-                                topRight = cornerRadius,
-                                bottomRight = cornerRadius,
-                                bottomLeft = cornerRadius
-                            )
-                        )
-                    }
-                }
+                clip = maskRect != Rect(0f, 0f, size.width, size.height)
+                shape = clipShape
 
                 // After clipping, the items will have white space between them. Translate the
                 // items to pin their edges together

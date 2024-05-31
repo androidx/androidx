@@ -81,7 +81,14 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
          * another internal CanvasContext instance owned by the internal HwuiContext instance of
          * a Surface. This is only necessary for Android M and above.
          */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && layers.isNotEmpty()) {
+        val requiredOsVersion = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+        // On Robolectric even Surface#lockHardwareCanvas is not hardware accelerated and
+        // drawing render nodes are not supported. Additionally robolectric mistakenly flags
+        // surfaces as not being released even though the owning ImageReader does release the
+        // surface in ImageReader#close
+        // See b/340578758
+        val shouldPersistLayers = requiredOsVersion && layers.isNotEmpty() && !isRobolectric
+        if (shouldPersistLayers) {
             val reader = imageReader ?: ImageReader.newInstance(
                 1,
                 1,
@@ -94,15 +101,12 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             }.also { imageReader = it }
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
-            // on Robolectric even this canvas is not hardware accelerated and drawing render nodes
-            // are not supported
-            if (canvas.isHardwareAccelerated) {
-                canvasHolder.drawInto(canvas) {
-                    canvas.save()
-                    canvas.clipRect(0, 0, 1, 1)
-                    layers.forEach { layer -> layer.drawForPersistence(this) }
-                    canvas.restore()
-                }
+
+            canvasHolder.drawInto(canvas) {
+                canvas.save()
+                canvas.clipRect(0, 0, 1, 1)
+                layers.forEach { layer -> layer.drawForPersistence(this) }
+                canvas.restore()
             }
             surface.unlockCanvasAndPost(canvas)
         }
@@ -122,6 +126,10 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     fun updateLayerPersistence() {
         destroy()
         persistLayers(layerList)
+    }
+
+    companion object {
+        private val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
     }
 }
 

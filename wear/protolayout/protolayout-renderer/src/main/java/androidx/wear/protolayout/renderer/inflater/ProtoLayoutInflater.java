@@ -72,7 +72,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewOutlineProvider;
 import android.view.ViewParent;
-import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
@@ -92,6 +91,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.AnimationsHelper;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
@@ -186,7 +186,6 @@ import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.LayoutDiff;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.TreeNodeWithChange;
 import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
 import androidx.wear.protolayout.renderer.common.RenderingArtifact;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.LayoutInfo;
 import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.LinearLayoutProperties;
@@ -1641,7 +1640,7 @@ public final class ProtoLayoutInflater {
 
     private enum PivotType {
         X,
-        Y;
+        Y
     }
 
     private void setPivotInOffsetDp(View view, float pivot, PivotType type) {
@@ -2736,8 +2735,10 @@ public final class ProtoLayoutInflater {
         applyTextOverflow(textView, overflow, text.getMarqueeParameters());
 
         if (overflow.getValue() == TextOverflow.TEXT_OVERFLOW_ELLIPSIZE
-                && !text.getText().hasDynamicValue()) {
-            adjustMaxLinesForEllipsize(textView);
+                && !text.getText().hasDynamicValue()
+                // There's no need for any optimizations if max lines is already 1.
+                && textView.getMaxLines() != 1) {
+            OneOffPreDrawListener.add(textView, () -> adjustMaxLinesForEllipsize(textView));
         }
 
         // Text auto size is not supported for dynamic text.
@@ -2836,40 +2837,32 @@ public final class ProtoLayoutInflater {
      * different than what TEXT_OVERFLOW_ELLIPSIZE_END does, as that option just ellipsizes the last
      * line of text.
      */
-    private void adjustMaxLinesForEllipsize(@NonNull TextView textView) {
-        textView.getViewTreeObserver()
-                .addOnPreDrawListener(
-                        new OnPreDrawListener() {
-                            @Override
-                            public boolean onPreDraw() {
-                                ViewParent maybeParent = textView.getParent();
-                                if (!(maybeParent instanceof View)) {
-                                    Log.d(
-                                            TAG,
-                                            "Couldn't adjust max lines for ellipsizing as"
-                                                    + "there's no View/ViewGroup parent.");
-                                    return false;
-                                }
+    private static boolean adjustMaxLinesForEllipsize(@NonNull TextView textView) {
+        ViewParent maybeParent = textView.getParent();
+        if (!(maybeParent instanceof View)) {
+            Log.d(
+                    TAG,
+                    "Couldn't adjust max lines for ellipsizing as there's no View/ViewGroup"
+                            + " parent.");
+            return true;
+        }
 
-                                textView.getViewTreeObserver().removeOnPreDrawListener(this);
+        View parent = (View) maybeParent;
+        int availableHeight = parent.getHeight();
+        int oneLineHeight = textView.getLineHeight();
+        // This is what was set in proto, we shouldn't exceed it.
+        int maxMaxLines = textView.getMaxLines();
+        // Avoid having maxLines as 0 in case the space is really tight.
+        int availableLines = max(availableHeight / oneLineHeight, 1);
 
-                                View parent = (View) maybeParent;
-                                int availableHeight = parent.getHeight();
-                                int oneLineHeight = textView.getLineHeight();
-                                // This is what was set in proto, we shouldn't exceed it.
-                                int maxMaxLines = textView.getMaxLines();
-                                // Avoid having maxLines as 0 in case the space is really tight.
-                                int availableLines = max(availableHeight / oneLineHeight, 1);
+        // Update only if changed.
+        if (availableLines < maxMaxLines) {
+            textView.setMaxLines(availableLines);
+            // Cancel the current drawing pass.
+            return false;
+        }
 
-                                // Update only if changed.
-                                if (availableLines < maxMaxLines) {
-                                    textView.setMaxLines(availableLines);
-                                }
-
-                                // Cancel the current drawing pass.
-                                return false;
-                            }
-                        });
+        return true;
     }
 
     /**
@@ -4252,11 +4245,8 @@ public final class ProtoLayoutInflater {
                 && !containsMeasurableWidth(containerHeight, elements)) {
             return false;
         }
-        if (containerHeight.hasWrappedDimension()
-                && !containsMeasurableHeight(containerWidth, elements)) {
-            return false;
-        }
-        return true;
+        return !containerHeight.hasWrappedDimension()
+                || containsMeasurableHeight(containerWidth, elements);
     }
 
     private boolean containsMeasurableWidth(

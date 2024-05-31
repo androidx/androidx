@@ -3059,6 +3059,34 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun clearComplicationSlotAfterEditing() {
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
+
+        engineWrapper.clearComplicationSlotAfterEditing(MOCK_COMPLICATION_ID)
+        engineWrapper.onEditSessionFinished()
+
+        verify(mockCanvasComplication)
+            .loadData(EmptyComplicationData(), loadDrawablesAsynchronous = true)
+    }
+
+    @Test
+    public fun clearComplicationSlotAfterEditing_doesNotBlockOverrideComplicationData() {
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
+        val data =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
+                .build()
+        interactiveWatchFaceInstance.overrideComplicationData(
+            listOf(IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID, data))
+        )
+
+        engineWrapper.clearComplicationSlotAfterEditing(MOCK_COMPLICATION_ID)
+
+        verify(mockCanvasComplication)
+            .loadData(data.toApiComplicationData(), loadDrawablesAsynchronous = true)
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.O_MR1])
     public fun setComplicationDataUpdateForScreenshot_restoresAndDoesNotChangeHistoryOrDirtyFlag() {
         // Arrange
@@ -6344,7 +6372,7 @@ public class WatchFaceServiceTest {
 
         engineWrapper.setComplicationDataList(listOf(leftComplication1, rightComplication1))
 
-        engineWrapper.overrideComplications(
+        engineWrapper.overrideComplicationsForEditing(
             mapOf(
                 leftComplication2.id to leftComplication2.complicationData.toApiComplicationData(),
                 rightComplication2.id to rightComplication2.complicationData.toApiComplicationData()
@@ -6358,7 +6386,7 @@ public class WatchFaceServiceTest {
             rightComplication2.complicationData.toApiComplicationData()
         )
 
-        engineWrapper.removeAnyComplicationOverrides()
+        engineWrapper.onEditSessionFinished()
 
         assertThat(engineWrapper.complicationsFlow.value).containsExactly(
             leftComplication1.id,
@@ -6377,7 +6405,7 @@ public class WatchFaceServiceTest {
             UserStyleSchema(emptyList())
         )
         engineWrapper.setComplicationDataList(listOf(leftComplication1))
-        engineWrapper.overrideComplications(
+        engineWrapper.overrideComplicationsForEditing(
             mapOf(
                 leftComplication2.id to leftComplication2.complicationData.toApiComplicationData(),
                 rightComplication2.id to rightComplication2.complicationData.toApiComplicationData()
@@ -6394,7 +6422,7 @@ public class WatchFaceServiceTest {
             rightComplication2.complicationData.toApiComplicationData()
         )
 
-        engineWrapper.removeAnyComplicationOverrides()
+        engineWrapper.onEditSessionFinished()
 
         assertThat(engineWrapper.complicationsFlow.value).containsExactly(
             leftComplication1.id,
