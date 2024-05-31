@@ -36,9 +36,10 @@ class InterfaceParserTest {
 
     @Test
     fun parseServiceInterface_ok() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt",
-            """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -48,48 +49,55 @@ class InterfaceParserTest {
                         fun doMoreStuff()
                     }
                 """,
-        )
-        assertThat(parseSources(source)).isEqualTo(
-            ParsedApi(
-                services = mutableSetOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                        methods = listOf(
-                            Method(
-                                name = "doStuff",
-                                parameters = listOf(
-                                    Parameter(
-                                        name = "x",
-                                        type = Types.int,
-                                    ), Parameter(
-                                        name = "y",
-                                        type = Types.int.asNullable(),
+            )
+        assertThat(parseSources(source))
+            .isEqualTo(
+                ParsedApi(
+                    services =
+                        mutableSetOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                                methods =
+                                    listOf(
+                                        Method(
+                                            name = "doStuff",
+                                            parameters =
+                                                listOf(
+                                                    Parameter(
+                                                        name = "x",
+                                                        type = Types.int,
+                                                    ),
+                                                    Parameter(
+                                                        name = "y",
+                                                        type = Types.int.asNullable(),
+                                                    )
+                                                ),
+                                            returnType = Types.string,
+                                            isSuspend = true,
+                                        ),
+                                        Method(
+                                            name = "processList",
+                                            parameters =
+                                                listOf(
+                                                    Parameter(
+                                                        name = "list",
+                                                        type = Types.list(Types.int),
+                                                    )
+                                                ),
+                                            returnType = Types.list(Types.string),
+                                            isSuspend = true,
+                                        ),
+                                        Method(
+                                            name = "doMoreStuff",
+                                            parameters = listOf(),
+                                            returnType = Types.unit,
+                                            isSuspend = false,
+                                        )
                                     )
-                                ),
-                                returnType = Types.string,
-                                isSuspend = true,
-                            ),
-                            Method(
-                                name = "processList",
-                                parameters = listOf(
-                                    Parameter(
-                                        name = "list",
-                                        type = Types.list(Types.int),
-                                    )
-                                ),
-                                returnType = Types.list(Types.string),
-                                isSuspend = true,
-                            ), Method(
-                                name = "doMoreStuff",
-                                parameters = listOf(),
-                                returnType = Types.unit,
-                                isSuspend = false,
                             )
                         )
-                    )
                 )
             )
-        )
     }
 
     @Test
@@ -117,43 +125,53 @@ class InterfaceParserTest {
                     |@PrivacySandboxInterface
                     |interface MyUiInterface : SUiAdapter {
                     |}
-                """.trimMargin()
+                """
+                    .trimMargin()
             )
-        assertThat(parseSources(serviceSource, interfaceSource)).isEqualTo(
-            ParsedApi(
-                services = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                        methods = listOf(
-                            Method(
-                                name = "doStuff",
-                                parameters = listOf(),
-                                returnType = Type(
-                                    packageName = "com.mysdk",
-                                    simpleName = "MyUiInterface"
-                                ),
-                                isSuspend = true,
-                            ),
-                        )
-                    )
-                ),
-                interfaces = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MyUiInterface"),
-                        superTypes = listOf(
-                            Types.sandboxedUiAdapter,
+        assertThat(parseSources(serviceSource, interfaceSource))
+            .isEqualTo(
+                ParsedApi(
+                    services =
+                        setOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                                methods =
+                                    listOf(
+                                        Method(
+                                            name = "doStuff",
+                                            parameters = listOf(),
+                                            returnType =
+                                                Type(
+                                                    packageName = "com.mysdk",
+                                                    simpleName = "MyUiInterface"
+                                                ),
+                                            isSuspend = true,
+                                        ),
+                                    )
+                            )
                         ),
-                        methods = listOf()
-                    )
+                    interfaces =
+                        setOf(
+                            AnnotatedInterface(
+                                type =
+                                    Type(packageName = "com.mysdk", simpleName = "MyUiInterface"),
+                                superTypes =
+                                    listOf(
+                                        Types.sandboxedUiAdapter,
+                                    ),
+                                methods = listOf()
+                            )
+                        )
                 )
             )
-        )
     }
 
     @Test
     fun serviceAnnotatedClass_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -161,7 +179,7 @@ class InterfaceParserTest {
                         abstract fun doStuff(x: Int, y: Int): String
                     }
                 """
-        )
+            )
 
         checkSourceFails(source)
             .containsError("Only interfaces can be annotated with @PrivacySandboxService.")
@@ -169,22 +187,26 @@ class InterfaceParserTest {
 
     @Test
     fun multipleServices_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk
                 """
-        )
-        val source2 = Source.kotlin(
-            "com/mysdk/MySdk2.kt", """
+            )
+        val source2 =
+            Source.kotlin(
+                "com/mysdk/MySdk2.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
                     interface MySdk2
                 """
-        )
+            )
 
         checkSourceFails(source, source2)
             .containsError(
@@ -195,74 +217,83 @@ class InterfaceParserTest {
 
     @Test
     fun privateInterface_fails() {
-        checkSourceFails(
-            serviceInterface("private interface MySdk")
-        ).containsError("Error in com.mysdk.MySdk: annotated interfaces should be public.")
+        checkSourceFails(serviceInterface("private interface MySdk"))
+            .containsError("Error in com.mysdk.MySdk: annotated interfaces should be public.")
     }
 
     @Test
     fun interfaceWithProperties_fails() {
         checkSourceFails(
-            serviceInterface(
-                """public interface MySdk {
+                serviceInterface(
+                    """public interface MySdk {
                     |   val x: Int
                     |}
-                """.trimMargin()
+                """
+                        .trimMargin()
+                )
             )
-        ).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interfaces cannot declare properties."
-        )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare properties."
+            )
     }
 
     @Test
     fun interfaceWithCompanionObject_fails() {
         checkSourceFails(
-            serviceInterface(
-                """interface MySdk {
+                serviceInterface(
+                    """interface MySdk {
                     |   companion object {
                     |       fun foo() {}
                     |   }
                     |}
-                """.trimMargin()
+                """
+                        .trimMargin()
+                )
             )
-        ).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interfaces cannot declare companion objects."
-        )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare companion objects."
+            )
     }
 
     @Test
     fun interfaceWithInvalidModifier_fails() {
         checkSourceFails(
-            serviceInterface(
-                """external fun interface MySdk {
+                serviceInterface(
+                    """external fun interface MySdk {
                     |   suspend fun apply()
                     |}
-                """.trimMargin()
+                """
+                        .trimMargin()
+                )
             )
-        ).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interface contains invalid modifiers (external, " +
-                "fun)."
-        )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interface contains invalid modifiers (external, " +
+                    "fun)."
+            )
     }
 
     @Test
     fun interfaceWithGenerics_fails() {
         checkSourceFails(
-            serviceInterface(
-                """interface MySdk<T, U> {
+                serviceInterface(
+                    """interface MySdk<T, U> {
                     |   suspend fun getT()
                     |}
-                """.trimMargin()
+                """
+                        .trimMargin()
+                )
             )
-        ).containsExactlyErrors(
-            "Error in com.mysdk.MySdk: annotated interfaces cannot declare type parameters (T, U)."
-        )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare type parameters (T, U)."
+            )
     }
 
     @Test
     fun interfaceInheritance_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxInterface
@@ -276,17 +307,20 @@ class InterfaceParserTest {
                     interface MyInterface : FooInterface {
                         suspend fun foo(): Int
                     }"""
-        )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (" +
-                "FooInterface)."
-        )
+            )
+        checkSourceFails(source)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (" +
+                    "FooInterface)."
+            )
     }
 
     @Test
     fun interfaceInheritsManyInterfaces_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxInterface
@@ -303,17 +337,20 @@ class InterfaceParserTest {
                     interface MyInterface : B, C, D, A {
                         suspend fun foo(): Int
                     }"""
-        )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (A, " +
-                "B, C, ...)."
-        )
+            )
+        checkSourceFails(source)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MyInterface: annotated interface inherits prohibited types (A, " +
+                    "B, C, ...)."
+            )
     }
 
     @Test
     fun callbackInheritance_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxCallback
@@ -326,39 +363,44 @@ class InterfaceParserTest {
                     @PrivacySandboxCallback
                     interface MyCallback : FooInterface {}
             """
-        )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MyCallback: annotated interface inherits prohibited types (" +
-                "FooInterface)."
-        )
+            )
+        checkSourceFails(source)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MyCallback: annotated interface inherits prohibited types (" +
+                    "FooInterface)."
+            )
     }
 
     @Test
     fun methodWithImplementation_fails() {
-        checkSourceFails(serviceMethod("suspend fun foo(): Int = 1")).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: method cannot have default implementation."
-        )
+        checkSourceFails(serviceMethod("suspend fun foo(): Int = 1"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: method cannot have default implementation."
+            )
     }
 
     @Test
     fun methodWithGenerics_fails() {
-        checkSourceFails(serviceMethod("suspend fun <T> foo()")).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: method cannot declare type parameters (<T>)."
-        )
+        checkSourceFails(serviceMethod("suspend fun <T> foo()"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: method cannot declare type parameters (<T>)."
+            )
     }
 
     @Test
     fun methodWithInvalidModifiers_fails() {
-        checkSourceFails(serviceMethod("suspend inline fun foo()")).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: method contains invalid modifiers (inline)."
-        )
+        checkSourceFails(serviceMethod("suspend inline fun foo()"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: method contains invalid modifiers (inline)."
+            )
     }
 
     @Test
     fun parameterWithDefaultValue_fails() {
-        checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)")).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: parameters cannot have default values."
-        )
+        checkSourceFails(serviceMethod("suspend fun foo(x: Int = 5)"))
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: parameters cannot have default values."
+            )
     }
 
     @Test
@@ -386,15 +428,18 @@ class InterfaceParserTest {
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdk.foo: only primitives, lists, data/enum classes " +
                     "annotated with @PrivacySandboxValue, interfaces annotated with " +
-                    "@PrivacySandboxCallback " + "or @PrivacySandboxInterface, and " +
+                    "@PrivacySandboxCallback " +
+                    "or @PrivacySandboxInterface, and " +
                     "SdkActivityLaunchers are supported as parameter types."
             )
     }
 
     @Test
     fun returnTypeCustomClass_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     @PrivacySandboxService
@@ -404,12 +449,13 @@ class InterfaceParserTest {
 
                     class CustomClass
                 """
-        )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: only primitives, lists, data/enum classes annotated " +
-                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
-                "and SdkActivityLaunchers are supported as return types."
-        )
+            )
+        checkSourceFails(source)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk.foo: only primitives, lists, data/enum classes annotated " +
+                    "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
+                    "and SdkActivityLaunchers are supported as return types."
+            )
     }
 
     @Test
@@ -436,37 +482,42 @@ class InterfaceParserTest {
                     }
                 """
             )
-        assertThat(parseSources(serviceSource, callbackSource)).isEqualTo(
-            ParsedApi(
-                services = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                    )
-                ),
-                callbacks = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MyCallback"),
-                        methods = listOf(
-                            Method(
-                                name = "onComplete",
-                                parameters = listOf(
-                                    Parameter(
-                                        name = "x",
-                                        type = Types.int,
-                                    ),
-                                    Parameter(
-                                        name = "y",
-                                        type = Types.int,
+        assertThat(parseSources(serviceSource, callbackSource))
+            .isEqualTo(
+                ParsedApi(
+                    services =
+                        setOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                            )
+                        ),
+                    callbacks =
+                        setOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MyCallback"),
+                                methods =
+                                    listOf(
+                                        Method(
+                                            name = "onComplete",
+                                            parameters =
+                                                listOf(
+                                                    Parameter(
+                                                        name = "x",
+                                                        type = Types.int,
+                                                    ),
+                                                    Parameter(
+                                                        name = "y",
+                                                        type = Types.int,
+                                                    )
+                                                ),
+                                            returnType = Types.unit,
+                                            isSuspend = false,
+                                        ),
                                     )
-                                ),
-                                returnType = Types.unit,
-                                isSuspend = false,
-                            ),
+                            )
                         )
-                    )
                 )
             )
-        )
     }
 
     @Test
@@ -495,72 +546,84 @@ class InterfaceParserTest {
                     }
                 """
             )
-        assertThat(parseSources(serviceSource, interfaceSource)).isEqualTo(
-            ParsedApi(
-                services = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                        methods = listOf(
-                            Method(
-                                name = "doStuff",
-                                parameters = listOf(
-                                    Parameter(
-                                        name = "request",
-                                        type = Type(
-                                            packageName = "com.mysdk",
-                                            simpleName = "MyInterface"
+        assertThat(parseSources(serviceSource, interfaceSource))
+            .isEqualTo(
+                ParsedApi(
+                    services =
+                        setOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                                methods =
+                                    listOf(
+                                        Method(
+                                            name = "doStuff",
+                                            parameters =
+                                                listOf(
+                                                    Parameter(
+                                                        name = "request",
+                                                        type =
+                                                            Type(
+                                                                packageName = "com.mysdk",
+                                                                simpleName = "MyInterface"
+                                                            ),
+                                                    )
+                                                ),
+                                            returnType =
+                                                Type(
+                                                    packageName = "com.mysdk",
+                                                    simpleName = "MyInterface"
+                                                ),
+                                            isSuspend = true,
                                         ),
                                     )
-                                ),
-                                returnType = Type(
-                                    packageName = "com.mysdk",
-                                    simpleName = "MyInterface"
-                                ),
-                                isSuspend = true,
-                            ),
-                        )
-                    )
-                ),
-                interfaces = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
-                        methods = listOf(
-                            Method(
-                                name = "doMoreStuff",
-                                parameters = listOf(
-                                    Parameter(
-                                        name = "x",
-                                        type = Types.int,
-                                    ),
-                                    Parameter(
-                                        name = "y",
-                                        type = Types.int,
+                            )
+                        ),
+                    interfaces =
+                        setOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
+                                methods =
+                                    listOf(
+                                        Method(
+                                            name = "doMoreStuff",
+                                            parameters =
+                                                listOf(
+                                                    Parameter(
+                                                        name = "x",
+                                                        type = Types.int,
+                                                    ),
+                                                    Parameter(
+                                                        name = "y",
+                                                        type = Types.int,
+                                                    )
+                                                ),
+                                            returnType = Types.string,
+                                            isSuspend = true,
+                                        ),
                                     )
-                                ),
-                                returnType = Types.string,
-                                isSuspend = true,
-                            ),
+                            )
                         )
-                    )
                 )
             )
-        )
     }
 
-    private fun serviceInterface(declaration: String) = Source.kotlin(
-        "com/mysdk/MySdk.kt", """
+    private fun serviceInterface(declaration: String) =
+        Source.kotlin(
+            "com/mysdk/MySdk.kt",
+            """
             package com.mysdk
             import androidx.privacysandbox.tools.PrivacySandboxService
             @PrivacySandboxService
             $declaration
         """
-    )
+        )
 
-    private fun serviceMethod(declaration: String) = serviceInterface(
-        """
+    private fun serviceMethod(declaration: String) =
+        serviceInterface(
+            """
             interface MySdk {
                 $declaration
             }
         """
-    )
+        )
 }

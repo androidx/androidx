@@ -34,53 +34,58 @@ import org.junit.runners.JUnit4
 class AidlServiceGeneratorTest {
     @Test
     fun generate() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                    methods = listOf(
-                        Method(
-                            name = "suspendMethodWithReturnValue",
-                            parameters = listOf(
-                                Parameter("a", Types.boolean),
-                                Parameter("b", Types.int),
-                                Parameter("c", Types.long),
-                                Parameter("d", Types.float),
-                                Parameter("e", Types.double),
-                                Parameter("f", Types.char),
-                                Parameter("g", Types.int)
-                            ),
-                            returnType = Types.string,
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "suspendMethodWithoutReturnValue",
-                            parameters = listOf(),
-                            returnType = Types.unit,
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "suspendMethodWithLists",
-                            parameters = listOf(Parameter("l", Types.list(Types.int))),
-                            returnType = Types.list(Types.string),
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "suspendMethodWithNullables",
-                            parameters = listOf(Parameter("maybeInt", Types.int.asNullable())),
-                            returnType = Types.string.asNullable(),
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "methodWithoutReturnValue",
-                            parameters = listOf(),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        ),
+        val api =
+            ParsedApi(
+                services =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                            methods =
+                                listOf(
+                                    Method(
+                                        name = "suspendMethodWithReturnValue",
+                                        parameters =
+                                            listOf(
+                                                Parameter("a", Types.boolean),
+                                                Parameter("b", Types.int),
+                                                Parameter("c", Types.long),
+                                                Parameter("d", Types.float),
+                                                Parameter("e", Types.double),
+                                                Parameter("f", Types.char),
+                                                Parameter("g", Types.int)
+                                            ),
+                                        returnType = Types.string,
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithoutReturnValue",
+                                        parameters = listOf(),
+                                        returnType = Types.unit,
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithLists",
+                                        parameters = listOf(Parameter("l", Types.list(Types.int))),
+                                        returnType = Types.list(Types.string),
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithNullables",
+                                        parameters =
+                                            listOf(Parameter("maybeInt", Types.int.asNullable())),
+                                        returnType = Types.string.asNullable(),
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "methodWithoutReturnValue",
+                                        parameters = listOf(),
+                                        returnType = Types.unit,
+                                        isSuspend = false,
+                                    ),
+                                )
+                        )
                     )
-                )
             )
-        )
 
         val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)
         assertThat(javaGeneratedSources.map { it.packageName to it.interfaceName })

@@ -22,8 +22,7 @@ import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
 import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
-class AppOwnedMediateeSdkApi(val sdkContext: Context) :
-    IAppOwnedMediateeSdkApi.Stub() {
+class AppOwnedMediateeSdkApi(val sdkContext: Context) : IAppOwnedMediateeSdkApi.Stub() {
     private val mTestAdapters = TestAdapters(sdkContext)
 
     override fun loadTestAdWithWaitInsideOnDraw(text: String): Bundle {

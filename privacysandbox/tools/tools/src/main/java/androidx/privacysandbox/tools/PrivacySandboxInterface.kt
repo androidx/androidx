@@ -24,10 +24,10 @@ import java.util.concurrent.CancellationException
  * Functions in a [PrivacySandboxInterface] annotated interface must obey the following rules:
  * - Functions with return values must suspend
  * - Parameter types may be primitives, [PrivacySandboxValue], [PrivacySandboxCallback],
- *   [PrivacySandboxInterface], or lists of primitives or [PrivacySandboxValue]. Nullable types
- *   are allowed.
- * - Return types may be primitives, [PrivacySandboxValue], [PrivacySandboxInterface], or lists
- *   of primitives or [PrivacySandboxValue]. Nullable types are allowed.
+ *   [PrivacySandboxInterface], or lists of primitives or [PrivacySandboxValue]. Nullable types are
+ *   allowed.
+ * - Return types may be primitives, [PrivacySandboxValue], [PrivacySandboxInterface], or lists of
+ *   primitives or [PrivacySandboxValue]. Nullable types are allowed.
  *
  * Suspend functions operate as follows:
  * - The main thread is used by default

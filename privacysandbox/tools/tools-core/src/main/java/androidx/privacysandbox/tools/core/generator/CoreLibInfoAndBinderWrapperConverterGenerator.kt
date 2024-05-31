@@ -25,26 +25,32 @@ import com.squareup.kotlinpoet.TypeSpec
 object CoreLibInfoAndBinderWrapperConverterGenerator {
     fun generate(annotatedInterface: AnnotatedInterface) =
         FileSpec.builder(
-            annotatedInterface.type.packageName,
-            annotatedInterface.coreLibInfoConverterName()
-        ).build {
-            addCommonSettings()
-            addType(generateConverter(annotatedInterface))
-        }
+                annotatedInterface.type.packageName,
+                annotatedInterface.coreLibInfoConverterName()
+            )
+            .build {
+                addCommonSettings()
+                addType(generateConverter(annotatedInterface))
+            }
 
     private fun generateConverter(annotatedInterface: AnnotatedInterface) =
         TypeSpec.objectBuilder(annotatedInterface.coreLibInfoConverterName()).build {
-            addFunction(FunSpec.builder("toParcelable").build {
-                addParameter("coreLibInfo", bundleClass)
-                addParameter("interface", annotatedInterface.aidlType().innerType.poetTypeName())
-                returns(annotatedInterface.uiAdapterAidlWrapper().poetTypeName())
-                addStatement(
-                    "val parcelable = %T()",
-                    annotatedInterface.uiAdapterAidlWrapper().poetTypeName()
-                )
-                addStatement("parcelable.coreLibInfo = coreLibInfo")
-                addStatement("parcelable.binder = %N", "interface")
-                addStatement("return parcelable")
-            })
+            addFunction(
+                FunSpec.builder("toParcelable").build {
+                    addParameter("coreLibInfo", bundleClass)
+                    addParameter(
+                        "interface",
+                        annotatedInterface.aidlType().innerType.poetTypeName()
+                    )
+                    returns(annotatedInterface.uiAdapterAidlWrapper().poetTypeName())
+                    addStatement(
+                        "val parcelable = %T()",
+                        annotatedInterface.uiAdapterAidlWrapper().poetTypeName()
+                    )
+                    addStatement("parcelable.coreLibInfo = coreLibInfo")
+                    addStatement("parcelable.binder = %N", "interface")
+                    addStatement("return parcelable")
+                }
+            )
         }
 }

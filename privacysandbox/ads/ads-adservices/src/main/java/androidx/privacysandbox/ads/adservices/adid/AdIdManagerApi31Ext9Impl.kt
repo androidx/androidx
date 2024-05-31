@@ -25,5 +25,5 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-class AdIdManagerApi31Ext9Impl(context: Context) : AdIdManagerImplCommon(
-    android.adservices.adid.AdIdManager.get(context))
+class AdIdManagerApi31Ext9Impl(context: Context) :
+    AdIdManagerImplCommon(android.adservices.adid.AdIdManager.get(context))

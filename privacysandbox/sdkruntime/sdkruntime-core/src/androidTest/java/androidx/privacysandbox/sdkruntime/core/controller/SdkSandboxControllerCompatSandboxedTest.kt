@@ -59,11 +59,11 @@ class SdkSandboxControllerCompatSandboxedTest {
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val sdkSandboxController = mock(SdkSandboxController::class.java)
         doReturn(sdkSandboxController)
-            .`when`(context).getSystemService(SdkSandboxController::class.java)
+            .`when`(context)
+            .getSystemService(SdkSandboxController::class.java)
 
         val sandboxedSdk = SandboxedSdk(Binder())
-        `when`(sdkSandboxController.sandboxedSdks)
-            .thenReturn(listOf(sandboxedSdk))
+        `when`(sdkSandboxController.sandboxedSdks).thenReturn(listOf(sandboxedSdk))
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val sandboxedSdks = controllerCompat.getSandboxedSdks()
@@ -79,21 +79,21 @@ class SdkSandboxControllerCompatSandboxedTest {
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val sdkSandboxController = mock(SdkSandboxController::class.java)
         doReturn(sdkSandboxController)
-            .`when`(context).getSystemService(SdkSandboxController::class.java)
+            .`when`(context)
+            .getSystemService(SdkSandboxController::class.java)
 
-        val platformRegisteredHandlerCaptor = ArgumentCaptor.forClass(
-            SdkSandboxActivityHandler::class.java)
+        val platformRegisteredHandlerCaptor =
+            ArgumentCaptor.forClass(SdkSandboxActivityHandler::class.java)
         doReturn(Binder())
-            .`when`(sdkSandboxController).registerSdkSandboxActivityHandler(
-                platformRegisteredHandlerCaptor.capture())
+            .`when`(sdkSandboxController)
+            .registerSdkSandboxActivityHandler(platformRegisteredHandlerCaptor.capture())
 
         val handlerCompat = mock(SdkSandboxActivityHandlerCompat::class.java)
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
 
-        verify(sdkSandboxController).registerSdkSandboxActivityHandler(
-            platformRegisteredHandlerCaptor.value
-        )
+        verify(sdkSandboxController)
+            .registerSdkSandboxActivityHandler(platformRegisteredHandlerCaptor.value)
 
         val activityMock = mock(Activity::class.java)
         val onBackInvokedDispatcher = mock(OnBackInvokedDispatcher::class.java)
@@ -111,37 +111,36 @@ class SdkSandboxControllerCompatSandboxedTest {
         var activityLifecycleCallbackCaptor:
             ArgumentCaptor<Application.ActivityLifecycleCallbacks> =
             ArgumentCaptor.forClass(Application.ActivityLifecycleCallbacks::class.java)
-        verify(activityMock).registerActivityLifecycleCallbacks(
-            activityLifecycleCallbackCaptor.capture()
-        )
+        verify(activityMock)
+            .registerActivityLifecycleCallbacks(activityLifecycleCallbackCaptor.capture())
         var bundleMock = mock(Bundle::class.java)
         UiThreadStatement.runOnUiThread {
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.INITIALIZED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.INITIALIZED)
 
             activityLifecycleCallbackCaptor.value.onActivityPostCreated(activityMock, bundleMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.CREATED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
 
             activityLifecycleCallbackCaptor.value.onActivityPostStarted(activityMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.STARTED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
 
             activityLifecycleCallbackCaptor.value.onActivityPostResumed(activityMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.RESUMED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
 
             activityLifecycleCallbackCaptor.value.onActivityPrePaused(activityMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.STARTED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
 
             activityLifecycleCallbackCaptor.value.onActivityPreStopped(activityMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.CREATED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.CREATED)
 
             activityLifecycleCallbackCaptor.value.onActivityPreDestroyed(activityMock)
-            assertThat(activityHolderCaptor.value.lifecycle.currentState).isEqualTo(
-                Lifecycle.State.DESTROYED)
+            assertThat(activityHolderCaptor.value.lifecycle.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
         }
     }
 
@@ -151,26 +150,26 @@ class SdkSandboxControllerCompatSandboxedTest {
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val sdkSandboxController = mock(SdkSandboxController::class.java)
         doReturn(sdkSandboxController)
-            .`when`(context).getSystemService(SdkSandboxController::class.java)
+            .`when`(context)
+            .getSystemService(SdkSandboxController::class.java)
 
         val registeredHandlerCaptor = ArgumentCaptor.forClass(SdkSandboxActivityHandler::class.java)
         doReturn(Binder())
-            .`when`(sdkSandboxController).registerSdkSandboxActivityHandler(
-                registeredHandlerCaptor.capture())
+            .`when`(sdkSandboxController)
+            .registerSdkSandboxActivityHandler(registeredHandlerCaptor.capture())
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val handlerCompat = mock(SdkSandboxActivityHandlerCompat::class.java)
 
         controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
-        verify(sdkSandboxController).registerSdkSandboxActivityHandler(
-            registeredHandlerCaptor.value)
+        verify(sdkSandboxController)
+            .registerSdkSandboxActivityHandler(registeredHandlerCaptor.value)
 
-        val unregisteredHandlerCaptor = ArgumentCaptor.forClass(
-            SdkSandboxActivityHandler::class.java
-        )
+        val unregisteredHandlerCaptor =
+            ArgumentCaptor.forClass(SdkSandboxActivityHandler::class.java)
         controllerCompat.unregisterSdkSandboxActivityHandler(handlerCompat)
-        verify(sdkSandboxController).unregisterSdkSandboxActivityHandler(
-            unregisteredHandlerCaptor.capture())
+        verify(sdkSandboxController)
+            .unregisterSdkSandboxActivityHandler(unregisteredHandlerCaptor.capture())
 
         assertThat(unregisteredHandlerCaptor.value).isEqualTo(registeredHandlerCaptor.value)
     }

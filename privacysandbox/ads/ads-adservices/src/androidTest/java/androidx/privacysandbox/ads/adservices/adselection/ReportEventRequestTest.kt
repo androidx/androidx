@@ -38,35 +38,39 @@ class ReportEventRequestTest {
 
     @Test
     fun testToString() {
-        val result = "ReportEventRequest: adSelectionId=$adSelectionId, eventKey=$eventKey, " +
-            "eventData=$eventData, reportingDestinations=$reportingDestinations" +
-            "inputEvent=$inputEvent"
-        val request = ReportEventRequest(
-            adSelectionId,
-            eventKey,
-            eventData,
-            reportingDestinations,
-            inputEvent
-        )
+        val result =
+            "ReportEventRequest: adSelectionId=$adSelectionId, eventKey=$eventKey, " +
+                "eventData=$eventData, reportingDestinations=$reportingDestinations" +
+                "inputEvent=$inputEvent"
+        val request =
+            ReportEventRequest(
+                adSelectionId,
+                eventKey,
+                eventData,
+                reportingDestinations,
+                inputEvent
+            )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val reportEventRequest = ReportEventRequest(
-            adSelectionId,
-            eventKey,
-            eventData,
-            reportingDestinations,
-            inputEvent
-        )
-        var reportEventRequest2 = ReportEventRequest(
-            1234L,
-            "click",
-            "{\"key\":\"value\"}",
-            ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER,
-            inputEvent
-        )
+        val reportEventRequest =
+            ReportEventRequest(
+                adSelectionId,
+                eventKey,
+                eventData,
+                reportingDestinations,
+                inputEvent
+            )
+        var reportEventRequest2 =
+            ReportEventRequest(
+                1234L,
+                "click",
+                "{\"key\":\"value\"}",
+                ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER,
+                inputEvent
+            )
 
         Truth.assertThat(reportEventRequest == reportEventRequest2).isTrue()
     }
@@ -74,21 +78,25 @@ class ReportEventRequestTest {
     @Test
     fun testInvalidReportingDestinations() {
         assertThrows<IllegalArgumentException> {
-            ReportEventRequest(
-                adSelectionId,
-                eventKey,
-                eventData,
-                0 /* unset reporting destinations */
-            )
-        }.hasMessageThat().contains("Invalid reporting destinations bitfield.")
+                ReportEventRequest(
+                    adSelectionId,
+                    eventKey,
+                    eventData,
+                    0 /* unset reporting destinations */
+                )
+            }
+            .hasMessageThat()
+            .contains("Invalid reporting destinations bitfield.")
 
         assertThrows<IllegalArgumentException> {
-            ReportEventRequest(
-                adSelectionId,
-                eventKey,
-                eventData,
-                4 /* undefined reporting destinations */
-            )
-        }.hasMessageThat().contains("Invalid reporting destinations bitfield.")
+                ReportEventRequest(
+                    adSelectionId,
+                    eventKey,
+                    eventData,
+                    4 /* undefined reporting destinations */
+                )
+            }
+            .hasMessageThat()
+            .contains("Invalid reporting destinations bitfield.")
     }
 }

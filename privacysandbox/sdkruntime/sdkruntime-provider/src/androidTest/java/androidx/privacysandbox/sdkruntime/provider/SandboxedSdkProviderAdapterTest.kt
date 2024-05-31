@@ -50,9 +50,8 @@ class SandboxedSdkProviderAdapterTest {
 
     @Test
     fun testAdapterGetCompatClassNameFromAsset() {
-        val expectedClassName = context.assets
-            .open("SandboxedSdkProviderCompatClassName.txt")
-            .use { inputStream ->
+        val expectedClassName =
+            context.assets.open("SandboxedSdkProviderCompatClassName.txt").use { inputStream ->
                 inputStream.bufferedReader().readLine()
             }
 
@@ -62,8 +61,7 @@ class SandboxedSdkProviderAdapterTest {
         adapter.onLoadSdk(Bundle())
 
         val delegate = adapter.extractDelegate<SandboxedSdkProviderCompat>()
-        assertThat(delegate.javaClass.name)
-            .isEqualTo(expectedClassName)
+        assertThat(delegate.javaClass.name).isEqualTo(expectedClassName)
     }
 
     @Test
@@ -73,8 +71,7 @@ class SandboxedSdkProviderAdapterTest {
         adapter.onLoadSdk(Bundle())
 
         val delegate = adapter.extractDelegate<TestOnLoadReturnResultSdkProvider>()
-        assertThat(delegate.context)
-            .isSameInstanceAs(context)
+        assertThat(delegate.context).isSameInstanceAs(context)
     }
 
     @Test
@@ -85,34 +82,26 @@ class SandboxedSdkProviderAdapterTest {
         val result = adapter.onLoadSdk(params)
 
         val delegate = adapter.extractDelegate<TestOnLoadReturnResultSdkProvider>()
-        assertThat(delegate.mLastOnLoadSdkBundle)
-            .isSameInstanceAs(params)
-        assertThat(result.getInterface())
-            .isEqualTo(delegate.mResult.getInterface())
+        assertThat(delegate.mLastOnLoadSdkBundle).isSameInstanceAs(params)
+        assertThat(result.getInterface()).isEqualTo(delegate.mResult.getInterface())
     }
 
     @Test
     fun loadSdk_shouldRethrowExceptionFromCompatClass() {
         val adapter = createAdapterFor(TestOnLoadThrowSdkProvider::class)
 
-        val ex = assertThrows(LoadSdkException::class.java) {
-            adapter.onLoadSdk(Bundle())
-        }
+        val ex = assertThrows(LoadSdkException::class.java) { adapter.onLoadSdk(Bundle()) }
 
         val delegate = adapter.extractDelegate<TestOnLoadThrowSdkProvider>()
-        assertThat(ex.cause)
-            .isSameInstanceAs(delegate.mError.cause)
-        assertThat(ex.extraInformation)
-            .isSameInstanceAs(delegate.mError.extraInformation)
+        assertThat(ex.cause).isSameInstanceAs(delegate.mError.cause)
+        assertThat(ex.extraInformation).isSameInstanceAs(delegate.mError.extraInformation)
     }
 
     @Test
     fun loadSdk_shouldThrowIfCompatClassNotExists() {
         val adapter = createAdapterFor("NOTEXISTS")
 
-        assertThrows(ClassNotFoundException::class.java) {
-            adapter.onLoadSdk(Bundle())
-        }
+        assertThrows(ClassNotFoundException::class.java) { adapter.onLoadSdk(Bundle()) }
     }
 
     @Test
@@ -122,8 +111,7 @@ class SandboxedSdkProviderAdapterTest {
         adapter.beforeUnloadSdk()
 
         val delegate = adapter.extractDelegate<TestOnBeforeUnloadDelegateSdkProvider>()
-        assertThat(delegate.mBeforeUnloadSdkCalled)
-            .isTrue()
+        assertThat(delegate.mBeforeUnloadSdkCalled).isTrue()
     }
 
     @Test
@@ -137,16 +125,11 @@ class SandboxedSdkProviderAdapterTest {
         val result = adapter.getView(windowContext, params, width, height)
 
         val delegate = adapter.extractDelegate<TestGetViewSdkProvider>()
-        assertThat(result)
-            .isSameInstanceAs(delegate.mView)
-        assertThat(delegate.mLastWindowContext)
-            .isSameInstanceAs(windowContext)
-        assertThat(delegate.mLastParams)
-            .isSameInstanceAs(params)
-        assertThat(delegate.mLastWidth)
-            .isSameInstanceAs(width)
-        assertThat(delegate.mLastHeigh)
-            .isSameInstanceAs(height)
+        assertThat(result).isSameInstanceAs(delegate.mView)
+        assertThat(delegate.mLastWindowContext).isSameInstanceAs(windowContext)
+        assertThat(delegate.mLastParams).isSameInstanceAs(params)
+        assertThat(delegate.mLastWidth).isSameInstanceAs(width)
+        assertThat(delegate.mLastHeigh).isSameInstanceAs(height)
     }
 
     private fun createAdapterFor(
@@ -154,18 +137,20 @@ class SandboxedSdkProviderAdapterTest {
     ): SandboxedSdkProviderAdapter = createAdapterFor(clazz.java.name)
 
     private fun createAdapterFor(delegateClassName: String): SandboxedSdkProviderAdapter {
-        val adapter = SandboxedSdkProviderAdapter(
-            object : SandboxedSdkProviderAdapter.CompatClassNameProvider {
-                override fun getCompatProviderClassName(context: Context): String {
-                    return delegateClassName
+        val adapter =
+            SandboxedSdkProviderAdapter(
+                object : SandboxedSdkProviderAdapter.CompatClassNameProvider {
+                    override fun getCompatProviderClassName(context: Context): String {
+                        return delegateClassName
+                    }
                 }
-            })
+            )
         adapter.attachContext(context)
         return adapter
     }
 
-    private inline fun <reified T : SandboxedSdkProviderCompat>
-        SandboxedSdkProviderAdapter.extractDelegate(): T = delegate as T
+    private inline fun <reified T : SandboxedSdkProviderCompat> SandboxedSdkProviderAdapter
+        .extractDelegate(): T = delegate as T
 
     class TestOnLoadReturnResultSdkProvider : SandboxedSdkProviderCompat() {
         var mResult = SandboxedSdkCompat(Binder())

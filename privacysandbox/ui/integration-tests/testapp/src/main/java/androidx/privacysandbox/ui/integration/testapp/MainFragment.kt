@@ -80,13 +80,14 @@ class MainFragment : BaseFragment() {
 
         // Supply the mediation_option array to the mediationDropDownMenu spinner.
         ArrayAdapter.createFromResource(
-            this.requireContext(),
-            R.array.mediation_dropdown_menu_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            mediationDropDownMenu.adapter = adapter
-        }
+                this.requireContext(),
+                R.array.mediation_dropdown_menu_array,
+                android.R.layout.simple_spinner_item
+            )
+            .also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                mediationDropDownMenu.adapter = adapter
+            }
 
         loadWebViewBannerAd()
         loadBottomBannerAd()
@@ -96,45 +97,43 @@ class MainFragment : BaseFragment() {
     private fun loadWebViewBannerAd() {
         webViewBannerView.addStateChangedListener()
         webViewBannerView.setAdapter(
-            SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadLocalWebViewAd()
-        ))
+            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadLocalWebViewAd())
+        )
 
         localWebViewToggle.setOnCheckedChangeListener { _: View, isChecked: Boolean ->
             if (isChecked) {
                 webViewBannerView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                    sdkApi.loadLocalWebViewAd()
-                ))
+                    SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadLocalWebViewAd())
+                )
             } else {
                 webViewBannerView.setAdapter(
-                    SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                    sdkApi.loadWebViewAd()
-                ))
+                    SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadWebViewAd())
+                )
             }
         }
     }
 
     private fun loadBottomBannerAd() {
         bottomBannerView.addStateChangedListener()
-        bottomBannerView.layoutParams = inflatedView.findViewById<LinearLayout>(
-            R.id.bottom_banner_container).layoutParams
+        bottomBannerView.layoutParams =
+            inflatedView.findViewById<LinearLayout>(R.id.bottom_banner_container).layoutParams
         requireActivity().runOnUiThread {
-            inflatedView.findViewById<LinearLayout>(
-                R.id.bottom_banner_container).addView(bottomBannerView)
+            inflatedView
+                .findViewById<LinearLayout>(R.id.bottom_banner_container)
+                .addView(bottomBannerView)
         }
         bottomBannerView.setAdapter(
-            SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadTestAd(/*text=*/ "Hey!")
-        ))
+            SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkApi.loadTestAd(/* text= */ "Hey!"))
+        )
     }
 
     private fun loadResizableBannerAd() {
         resizableBannerView.addStateChangedListener()
         resizableBannerView.setAdapter(
             SandboxedUiAdapterFactory.createFromCoreLibInfo(
-            sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Resizable View")
-        ))
+                sdkApi.loadTestAdWithWaitInsideOnDraw(/* text= */ "Resizable View")
+            )
+        )
 
         var count = 1
         newAdButton.setOnClickListener {
@@ -143,19 +142,21 @@ class MainFragment : BaseFragment() {
             val selectedMediationOptionId = mediationDropDownMenu.selectedItemId
             val mediationEnabled =
                 selectedMediationOptionId == MediationOption.RUNTIME_RUNTIME.ordinal.toLong() ||
-                        selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
+                    selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
             val appOwnedMediationEnabled =
                 selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
             if (mediationEnabled) {
                 resizableBannerView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
                         sdkApi.loadMediatedTestAd(count, appOwnedMediationEnabled)
-                    ))
+                    )
+                )
             } else {
                 resizableBannerView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadTestAdWithWaitInsideOnDraw(/*text=*/ "Ad #$count")
-                    ))
+                        sdkApi.loadTestAdWithWaitInsideOnDraw(/* text= */ "Ad #$count")
+                    )
+                )
             }
             count++
         }

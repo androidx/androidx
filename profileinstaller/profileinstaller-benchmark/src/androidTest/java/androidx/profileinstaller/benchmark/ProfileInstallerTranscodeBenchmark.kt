@@ -39,8 +39,7 @@ class ProfileInstallerTranscodeBenchmark {
 
     private var mTempCurFile: File? = null
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
     private val assets: AssetManager = InstrumentationRegistry.getInstrumentation().context.assets
     private val APK_NAME = "base.apk"
 
@@ -60,7 +59,25 @@ class ProfileInstallerTranscodeBenchmark {
     ): DeviceProfileWriter {
         var transcoder: DeviceProfileWriter? = null
         runWithTimingDisabled {
-            transcoder = DeviceProfileWriter(
+            transcoder =
+                DeviceProfileWriter(
+                        assets,
+                        Runnable::run,
+                        Diagnostics(),
+                        APK_NAME,
+                        PROFILE_LOCATION,
+                        PROFILE_META_LOCATION,
+                        mTempCurFile!!
+                    )
+                    .also(block)
+        }
+        return transcoder!!
+    }
+
+    @SuppressLint("NewApi")
+    private fun assumeDeviceSupportsAot() {
+        val transcoder =
+            DeviceProfileWriter(
                 assets,
                 Runnable::run,
                 Diagnostics(),
@@ -68,22 +85,7 @@ class ProfileInstallerTranscodeBenchmark {
                 PROFILE_LOCATION,
                 PROFILE_META_LOCATION,
                 mTempCurFile!!
-            ).also(block)
-        }
-        return transcoder!!
-    }
-
-    @SuppressLint("NewApi")
-    private fun assumeDeviceSupportsAot() {
-        val transcoder = DeviceProfileWriter(
-            assets,
-            Runnable::run,
-            Diagnostics(),
-            APK_NAME,
-            PROFILE_LOCATION,
-            PROFILE_META_LOCATION,
-            mTempCurFile!!
-        )
+            )
         assumeTrue(
             "Device must support AOT to run this benchmark",
             transcoder.deviceAllowsProfileInstallerAotWrites()
@@ -93,18 +95,17 @@ class ProfileInstallerTranscodeBenchmark {
     @Test
     @SuppressLint("NewApi")
     fun deviceAllowsProfileInstallerAotWrites() {
-        val transcoder = DeviceProfileWriter(
-            assets,
-            Runnable::run,
-            Diagnostics(),
-            APK_NAME,
-            PROFILE_LOCATION,
-            PROFILE_META_LOCATION,
-            mTempCurFile!!
-        )
-        benchmarkRule.measureRepeated {
-            transcoder.deviceAllowsProfileInstallerAotWrites()
-        }
+        val transcoder =
+            DeviceProfileWriter(
+                assets,
+                Runnable::run,
+                Diagnostics(),
+                APK_NAME,
+                PROFILE_LOCATION,
+                PROFILE_META_LOCATION,
+                mTempCurFile!!
+            )
+        benchmarkRule.measureRepeated { transcoder.deviceAllowsProfileInstallerAotWrites() }
     }
 
     @Test
@@ -112,9 +113,7 @@ class ProfileInstallerTranscodeBenchmark {
     fun copyProfileOrRead() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
-            val transcoder = newTranscoderUntimed {
-                it.deviceAllowsProfileInstallerAotWrites()
-            }
+            val transcoder = newTranscoderUntimed { it.deviceAllowsProfileInstallerAotWrites() }
             // this measures a trace which costs about 15us
             transcoder.read()
         }
@@ -152,21 +151,20 @@ class ProfileInstallerTranscodeBenchmark {
     fun fullProfileReadTranscodeWrite() {
         assumeDeviceSupportsAot()
         benchmarkRule.measureRepeated {
-            val transcoder = DeviceProfileWriter(
-                assets,
-                Runnable::run,
-                Diagnostics(),
-                APK_NAME,
-                PROFILE_LOCATION,
-                PROFILE_META_LOCATION,
-                mTempCurFile!!
-            )
+            val transcoder =
+                DeviceProfileWriter(
+                    assets,
+                    Runnable::run,
+                    Diagnostics(),
+                    APK_NAME,
+                    PROFILE_LOCATION,
+                    PROFILE_META_LOCATION,
+                    mTempCurFile!!
+                )
             transcoder.deviceAllowsProfileInstallerAotWrites()
 
             // this measures a trace which costs about 15us
-            transcoder.read()
-                .transcodeIfNeeded()
-                .write()
+            transcoder.read().transcodeIfNeeded().write()
         }
     }
 

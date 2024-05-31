@@ -20,10 +20,7 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParser.END_TAG
 import org.xmlpull.v1.XmlPullParser.START_TAG
 
-/**
- * Skip current tag (including inner tags)
- *
- */
+/** Skip current tag (including inner tags) */
 internal fun XmlPullParser.skipCurrentTag() {
     require(START_TAG, null, null)
     var depth = 1

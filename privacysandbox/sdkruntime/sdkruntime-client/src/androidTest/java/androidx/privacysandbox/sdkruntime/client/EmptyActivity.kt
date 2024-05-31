@@ -19,8 +19,8 @@ package androidx.privacysandbox.sdkruntime.client
 import androidx.activity.ComponentActivity
 
 /**
- * Activity for components tests.
- * [androidx.privacysandbox.sdkruntime.client.activity.SdkActivity] can't be used for most tests as
- * it will be moved to finished state during creation when no valid token provided.
+ * Activity for components tests. [androidx.privacysandbox.sdkruntime.client.activity.SdkActivity]
+ * can't be used for most tests as it will be moved to finished state during creation when no valid
+ * token provided.
  */
 class EmptyActivity : ComponentActivity()

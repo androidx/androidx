@@ -25,11 +25,9 @@ import org.gradle.process.CommandLineArgumentProvider
 
 internal abstract class FrameworkAidlInputs : CommandLineArgumentProvider {
 
-    @get:Internal
-    abstract val frameworkAidl: RegularFileProperty
+    @get:Internal abstract val frameworkAidl: RegularFileProperty
 
-    @get:Input
-    abstract val platformSdk: Property<String>
+    @get:Input abstract val platformSdk: Property<String>
 
     override fun asArguments(): Iterable<String> {
         val frameworkAidlFile = frameworkAidl.get().asFile

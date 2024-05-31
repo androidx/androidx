@@ -33,11 +33,11 @@ class PrivacySandboxApiPackager {
      * Extracts API descriptors from SDKs annotated with Privacy Sandbox annotations.
      *
      * This function will output a file with SDK interface descriptors, which can later be used to
-     * generate the client-side sources for communicating with this SDK over IPC through the
-     * privacy sandbox.
+     * generate the client-side sources for communicating with this SDK over IPC through the privacy
+     * sandbox.
      *
      * @param sdkClasspath path to the root directory that contains the SDK's compiled classes.
-     *      Non-class files will be safely ignored.
+     *   Non-class files will be safely ignored.
      * @param sdkInterfaceDescriptorsOutput output path for SDK Interface descriptors file.
      */
     fun packageSdkDescriptors(
@@ -51,13 +51,16 @@ class PrivacySandboxApiPackager {
             "$sdkInterfaceDescriptorsOutput already exists."
         }
 
-        val outputFile = sdkInterfaceDescriptorsOutput.toFile().also {
-            it.parentFile.mkdirs()
-            it.createNewFile()
-        }
+        val outputFile =
+            sdkInterfaceDescriptorsOutput.toFile().also {
+                it.parentFile.mkdirs()
+                it.createNewFile()
+            }
 
         ZipOutputStream(outputFile.outputStream()).use { zipOutputStream ->
-            sdkClasspath.toFile().walk()
+            sdkClasspath
+                .toFile()
+                .walk()
                 .map { it.toPath() }
                 .filter { shouldKeepFile(sdkClasspath, it) }
                 .forEach { file ->

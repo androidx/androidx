@@ -36,8 +36,9 @@ abstract class AbstractDiffTest {
 
     /**
      * Generates the sources and stores them in the given [outputDirectory].
+     *
      * @param inputSources List of input sources read from the test-data directory with
-     * [subdirectoryName].
+     *   [subdirectoryName].
      */
     abstract fun generateSources(
         inputSources: List<Source>,
@@ -59,8 +60,7 @@ abstract class AbstractDiffTest {
     @Test
     fun generatedSourcesHaveExpectedContents() {
         val expectedSourcesPath = "src/test/test-data/$subdirectoryName/output"
-        val expectedKotlinSources =
-            loadSourcesFromDirectory(File(expectedSourcesPath))
+        val expectedKotlinSources = loadSourcesFromDirectory(File(expectedSourcesPath))
 
         val expectedRelativePaths =
             expectedKotlinSources.map(Source::relativePath) + relativePathsToExpectedAidlClasses
@@ -70,21 +70,27 @@ abstract class AbstractDiffTest {
         val actualRelativePathMap = generatedSources.associateBy(Source::relativePath)
         for (expectedKotlinSource in expectedKotlinSources) {
             val outputFilePath = "$outputDir/${expectedKotlinSource.relativePath}"
-            val goldenPath = System.getProperty("user.dir") + "/" + expectedSourcesPath + "/" +
-                expectedKotlinSource.relativePath
+            val goldenPath =
+                System.getProperty("user.dir") +
+                    "/" +
+                    expectedSourcesPath +
+                    "/" +
+                    expectedKotlinSource.relativePath
             Truth.assertWithMessage(
-                "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
-                    "match golden.\n" +
-                    "Approval command:\n" +
-                    "cp $outputFilePath $goldenPath"
-            ).that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
+                    "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
+                        "match golden.\n" +
+                        "Approval command:\n" +
+                        "cp $outputFilePath $goldenPath"
+                )
+                .that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
                 .isEqualTo(expectedKotlinSource.contents)
         }
     }
 
     private val outputDir: Path by lazy {
         requireNotNull(System.getProperty("test_output_dir")) {
-            "test_output_dir not set for diff test."
-        }.let { Path(it).resolve(subdirectoryName) }
+                "test_output_dir not set for diff test."
+            }
+            .let { Path(it).resolve(subdirectoryName) }
     }
 }

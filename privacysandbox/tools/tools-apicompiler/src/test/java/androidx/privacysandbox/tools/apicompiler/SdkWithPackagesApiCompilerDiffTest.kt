@@ -20,24 +20,25 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 /**
- *  Test the Privacy Sandbox API Compiler with an SDK that defines an interface in another package.
+ * Test the Privacy Sandbox API Compiler with an SDK that defines an interface in another package.
  */
 @RunWith(JUnit4::class)
 class SdkWithPackagesApiCompilerDiffTest : AbstractApiCompilerDiffTest() {
     override val subdirectoryName = "sdkwithpackages"
-    override val relativePathsToExpectedAidlClasses = listOf(
-        "com/myotherpackage/IMyOtherPackageInterface.java",
-        "com/myotherpackage/ParcelableMyOtherPackageDataClass.java",
-        "com/mysdk/ICancellationSignal.java",
-        "com/mysdk/IListIntTransactionCallback.java",
-        "com/mysdk/IMyOtherPackageDataClassTransactionCallback.java",
-        "com/mysdk/IUnitTransactionCallback.java",
-        "com/mysdk/IMyOtherPackageInterfaceTransactionCallback.java",
-        "com/mysdk/IMySdk.java",
-        "com/mysdk/ParcelableStackFrame.java",
-        "com/mysdk/IStringTransactionCallback.java",
-        "com/mysdk/IMyMainPackageInterfaceTransactionCallback.java",
-        "com/mysdk/IMyMainPackageInterface.java",
-        "com/mysdk/PrivacySandboxThrowableParcel.java"
-    )
+    override val relativePathsToExpectedAidlClasses =
+        listOf(
+            "com/myotherpackage/IMyOtherPackageInterface.java",
+            "com/myotherpackage/ParcelableMyOtherPackageDataClass.java",
+            "com/mysdk/ICancellationSignal.java",
+            "com/mysdk/IListIntTransactionCallback.java",
+            "com/mysdk/IMyOtherPackageDataClassTransactionCallback.java",
+            "com/mysdk/IUnitTransactionCallback.java",
+            "com/mysdk/IMyOtherPackageInterfaceTransactionCallback.java",
+            "com/mysdk/IMySdk.java",
+            "com/mysdk/ParcelableStackFrame.java",
+            "com/mysdk/IStringTransactionCallback.java",
+            "com/mysdk/IMyMainPackageInterfaceTransactionCallback.java",
+            "com/mysdk/IMyMainPackageInterface.java",
+            "com/mysdk/PrivacySandboxThrowableParcel.java"
+        )
 }

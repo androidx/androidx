@@ -25,12 +25,10 @@ import org.gradle.process.CommandLineArgumentProvider
 
 internal abstract class AidlExecutableInputs : CommandLineArgumentProvider {
 
-    @get:Internal
-    abstract val aidl: RegularFileProperty
+    @get:Internal abstract val aidl: RegularFileProperty
 
     // Use the version of the build tools as the input to allow caching across platforms
-    @get:Input
-    abstract val buildToolsVersion: Property<String>
+    @get:Input abstract val buildToolsVersion: Property<String>
 
     override fun asArguments(): Iterable<String> {
         val aidlExecutable = aidl.get().asFile
@@ -38,8 +36,6 @@ internal abstract class AidlExecutableInputs : CommandLineArgumentProvider {
         if (!aidlExecutable.exists()) {
             throw FileNotFoundException("Aidl executable not found at $aidlExecutablePath")
         }
-        return listOf(
-            "aidl_compiler_path=$aidlExecutablePath"
-        )
+        return listOf("aidl_compiler_path=$aidlExecutablePath")
     }
 }

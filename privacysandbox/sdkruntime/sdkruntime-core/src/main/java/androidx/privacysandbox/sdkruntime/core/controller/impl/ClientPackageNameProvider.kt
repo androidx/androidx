@@ -24,17 +24,15 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 
-/**
- * Retrieves client app package name from [SdkSandboxController].
- */
+/** Retrieves client app package name from [SdkSandboxController]. */
 @RequiresApi(34)
 internal class ClientPackageNameProvider(
     private val controller: SdkSandboxController,
     private val sdkContext: Context
 ) {
     /**
-     * When supported (Api 34 Extension 8) returns result from SdkSandboxController.
-     * Otherwise parses data dir path to find client package name.
+     * When supported (Api 34 Extension 8) returns result from SdkSandboxController. Otherwise
+     * parses data dir path to find client package name.
      */
     fun getClientPackageName(): String {
         return if (BuildCompat.AD_SERVICES_EXTENSION_INT >= 8) {

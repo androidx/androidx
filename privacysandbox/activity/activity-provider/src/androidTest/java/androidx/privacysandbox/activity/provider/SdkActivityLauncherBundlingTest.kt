@@ -63,8 +63,7 @@ class SdkActivityLauncherBundlingTest {
 
         var tokensReceived = mutableListOf<IBinder>()
 
-        override suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder):
-            Boolean {
+        override suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean {
             tokensReceived.add(sdkActivityHandlerToken)
             return allowActivityLaunches
         }

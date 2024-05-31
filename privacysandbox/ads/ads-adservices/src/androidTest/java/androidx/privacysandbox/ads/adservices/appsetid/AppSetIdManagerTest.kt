@@ -59,9 +59,10 @@ class AppSetIdManagerTest {
         if (mValidAdExtServicesSdkExtVersion) {
             // setup a mockitoSession to return the mocked manager
             // when the static method .get() is called
-            mSession = ExtendedMockito.mockitoSession()
-                .mockStatic(android.adservices.appsetid.AppSetIdManager::class.java)
-                .startMocking();
+            mSession =
+                ExtendedMockito.mockitoSession()
+                    .mockStatic(android.adservices.appsetid.AppSetIdManager::class.java)
+                    .startMocking()
         }
     }
 
@@ -80,27 +81,26 @@ class AppSetIdManagerTest {
 
     @Test
     fun testAppSetIdManagerNoClassDefFoundError() {
-        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion)
 
-        `when`(android.adservices.appsetid.AppSetIdManager.get(any())).thenThrow(
-            NoClassDefFoundError()
-        )
+        `when`(android.adservices.appsetid.AppSetIdManager.get(any()))
+            .thenThrow(NoClassDefFoundError())
         assertThat(AppSetIdManager.obtain(mContext)).isNull()
     }
 
     @Test
     fun testAppSetIdAsync() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion)
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion
+        )
 
         val appSetIdManager = mockAppSetIdManager(mContext, mValidAdExtServicesSdkExtVersion)
         setupResponse(appSetIdManager)
         val managerCompat = AppSetIdManager.obtain(mContext)
 
         // Actually invoke the compat code.
-        val result = runBlocking {
-            managerCompat!!.getAppSetId()
-        }
+        val result = runBlocking { managerCompat!!.getAppSetId() }
 
         // Verify that the compat code was invoked correctly.
         verify(appSetIdManager).getAppSetId(any(), any())
@@ -124,8 +124,11 @@ class AppSetIdManagerTest {
                 `when`(android.adservices.appsetid.AppSetIdManager.get(any()))
                     .thenReturn(appSetIdManager)
             } else {
-                `when`(spyContext.getSystemService(
-                    android.adservices.appsetid.AppSetIdManager::class.java))
+                `when`(
+                        spyContext.getSystemService(
+                            android.adservices.appsetid.AppSetIdManager::class.java
+                        )
+                    )
                     .thenReturn(appSetIdManager)
             }
             return appSetIdManager
@@ -133,20 +136,22 @@ class AppSetIdManagerTest {
 
         private fun setupResponse(appSetIdManager: android.adservices.appsetid.AppSetIdManager) {
             // Set up the response that AdIdManager will return when the compat code calls it.
-            val appSetId = android.adservices.appsetid.AppSetId(
-                "1234",
-                android.adservices.appsetid.AppSetId.SCOPE_APP)
+            val appSetId =
+                android.adservices.appsetid.AppSetId(
+                    "1234",
+                    android.adservices.appsetid.AppSetId.SCOPE_APP
+                )
             val answer = { args: InvocationOnMock ->
-                val receiver = args.getArgument<
-                    OutcomeReceiver<android.adservices.appsetid.AppSetId, Exception>>(1)
+                val receiver =
+                    args.getArgument<
+                        OutcomeReceiver<android.adservices.appsetid.AppSetId, Exception>
+                    >(
+                        1
+                    )
                 receiver.onResult(appSetId)
                 null
             }
-            doAnswer(answer)
-                .`when`(appSetIdManager).getAppSetId(
-                    any(),
-                    any()
-                )
+            doAnswer(answer).`when`(appSetIdManager).getAppSetId(any(), any())
         }
 
         private fun verifyResponse(appSetId: AppSetId) {

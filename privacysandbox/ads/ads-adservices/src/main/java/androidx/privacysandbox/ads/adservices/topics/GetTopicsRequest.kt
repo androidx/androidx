@@ -17,19 +17,19 @@
 package androidx.privacysandbox.ads.adservices.topics
 
 /**
- * Represents the request for the getTopics API (which takes a [GetTopicsRequest] and
- * returns a [GetTopicsResponse].
+ * Represents the request for the getTopics API (which takes a [GetTopicsRequest] and returns a
+ * [GetTopicsResponse].
  *
  * @param adsSdkName The Ads SDK name. This must be called by SDKs running outside of the Sandbox.
- * Other clients must not call it.
+ *   Other clients must not call it.
  * @param shouldRecordObservation whether to record that the caller has observed the topics of the
- *     host app or not. This will be used to determine if the caller can receive the topic
- *     in the next epoch.
+ *   host app or not. This will be used to determine if the caller can receive the topic in the next
+ *   epoch.
  */
-class GetTopicsRequest public constructor(
+class GetTopicsRequest
+public constructor(
     val adsSdkName: String = "",
-    @get:JvmName("shouldRecordObservation")
-    val shouldRecordObservation: Boolean = false
+    @get:JvmName("shouldRecordObservation") val shouldRecordObservation: Boolean = false
 ) {
     override fun toString(): String {
         return "GetTopicsRequest: " +
@@ -49,9 +49,7 @@ class GetTopicsRequest public constructor(
         return hash
     }
 
-    /**
-     * Builder for [GetTopicsRequest].
-     */
+    /** Builder for [GetTopicsRequest]. */
     public class Builder() {
         private var adsSdkName: String = ""
         private var shouldRecordObservation: Boolean = true
@@ -72,9 +70,9 @@ class GetTopicsRequest public constructor(
         /**
          * Set the Record Observation.
          *
-         * @param shouldRecordObservation whether to record that the caller has observed the topics of the
-         *     host app or not. This will be used to determine if the caller can receive the topic
-         *     in the next epoch.
+         * @param shouldRecordObservation whether to record that the caller has observed the topics
+         *   of the host app or not. This will be used to determine if the caller can receive the
+         *   topic in the next epoch.
          */
         @Suppress("MissingGetterMatchingBuilder")
         fun setShouldRecordObservation(shouldRecordObservation: Boolean): Builder = apply {

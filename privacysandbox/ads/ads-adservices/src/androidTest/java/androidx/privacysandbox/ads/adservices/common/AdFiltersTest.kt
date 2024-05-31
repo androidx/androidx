@@ -30,13 +30,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 31)
 class AdFiltersTest {
-    private val frequencyCapFilters: FrequencyCapFilters = FrequencyCapFilters(
-        listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
-        listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
-        listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
-        listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
-            KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))))
+    private val frequencyCapFilters: FrequencyCapFilters =
+        FrequencyCapFilters(
+            listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
+            listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
+            listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
+            listOf(
+                KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
+                KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
+                KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
+            )
+        )
 
     @Test
     fun testToString() {
@@ -48,13 +52,19 @@ class AdFiltersTest {
     @Test
     fun testEquals() {
         val adFilters1 = AdFilters(frequencyCapFilters)
-        var adFilters2 = AdFilters(FrequencyCapFilters(
-            listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
-            listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
-            listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
-            listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
-                KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)))))
+        var adFilters2 =
+            AdFilters(
+                FrequencyCapFilters(
+                    listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
+                    listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
+                    listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
+                    listOf(
+                        KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
+                        KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
+                        KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
+                    )
+                )
+            )
         Truth.assertThat(adFilters1 == adFilters2).isTrue()
     }
 }

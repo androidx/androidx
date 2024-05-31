@@ -45,24 +45,26 @@ internal object AnnotatedClassReader {
         val values = mutableSetOf<KmClass>()
         val callbacks = mutableSetOf<KmClass>()
         val interfaces = mutableSetOf<KmClass>()
-        stubClassPath.toFile().walk()
+        stubClassPath
+            .toFile()
+            .walk()
             .filter { it.extension == "class" }
             .map { toClassNode(it.readBytes()) }
             .forEach { classNode ->
-            if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
-                services.add(parseKotlinMetadata(classNode))
+                if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
+                    services.add(parseKotlinMetadata(classNode))
+                }
+                // TODO(b/323369085): Validate that enum variants don't have methods
+                if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
+                    values.add(parseKotlinMetadata(classNode))
+                }
+                if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
+                    callbacks.add(parseKotlinMetadata(classNode))
+                }
+                if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
+                    interfaces.add(parseKotlinMetadata(classNode))
+                }
             }
-            // TODO(b/323369085): Validate that enum variants don't have methods
-            if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
-                values.add(parseKotlinMetadata(classNode))
-            }
-            if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
-                callbacks.add(parseKotlinMetadata(classNode))
-            }
-            if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
-                interfaces.add(parseKotlinMetadata(classNode))
-            }
-        }
         return AnnotatedClasses(
             services = services.toSet(),
             values = values.toSet(),
@@ -92,22 +94,24 @@ internal object AnnotatedClassReader {
         // ASM models annotation attributes as flat List<Objects>, so the unchecked cast is
         // inevitable when some of these objects have type parameters, like the lists below.
         @Suppress("UNCHECKED_CAST")
-        val metadataAnnotation = Metadata(
-            kind = metadataValues["k"] as Int?,
-            metadataVersion = (metadataValues["mv"] as? List<Int>?)?.toIntArray(),
-            data1 = (metadataValues["d1"] as? List<String>?)?.toTypedArray(),
-            data2 = (metadataValues["d2"] as? List<String>?)?.toTypedArray(),
-            extraInt = metadataValues["xi"] as? Int?,
-            packageName = metadataValues["pn"] as? String?,
-            extraString = metadataValues["xs"] as? String?,
-        )
+        val metadataAnnotation =
+            Metadata(
+                kind = metadataValues["k"] as Int?,
+                metadataVersion = (metadataValues["mv"] as? List<Int>?)?.toIntArray(),
+                data1 = (metadataValues["d1"] as? List<String>?)?.toTypedArray(),
+                data2 = (metadataValues["d2"] as? List<String>?)?.toTypedArray(),
+                extraInt = metadataValues["xi"] as? Int?,
+                packageName = metadataValues["pn"] as? String?,
+                extraString = metadataValues["xs"] as? String?,
+            )
 
         return when (val metadata = KotlinClassMetadata.readStrict(metadataAnnotation)) {
             is KotlinClassMetadata.Class -> metadata.kmClass
-            else -> throw PrivacySandboxParsingException(
-                "Unable to parse Kotlin metadata from ${classNode.name}. " +
-                    "Is this a valid Kotlin class?"
-            )
+            else ->
+                throw PrivacySandboxParsingException(
+                    "Unable to parse Kotlin metadata from ${classNode.name}. " +
+                        "Is this a valid Kotlin class?"
+                )
         }
     }
 

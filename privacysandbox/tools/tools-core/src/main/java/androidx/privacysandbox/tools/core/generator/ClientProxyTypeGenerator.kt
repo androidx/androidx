@@ -49,7 +49,7 @@ class ClientProxyTypeGenerator(
      *
      * This allows a client to call remote methods on a server using a binder named 'remote'.
      *
-     * If  [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
+     * If [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
      * Context that will be the SDK context.
      */
     fun generate(annotatedInterface: AnnotatedInterface, target: GenerationTarget): FileSpec {
@@ -57,42 +57,51 @@ class ClientProxyTypeGenerator(
         val remoteBinderClassName = annotatedInterface.aidlType().innerType.poetTypeName()
         val inheritsUiAdapter = annotatedInterface.superTypes.contains(Types.sandboxedUiAdapter)
 
-        val classSpec = TypeSpec.classBuilder(className).build {
-            addSuperinterface(annotatedInterface.type.poetTypeName())
+        val classSpec =
+            TypeSpec.classBuilder(className).build {
+                addSuperinterface(annotatedInterface.type.poetTypeName())
 
-            primaryConstructor(buildList {
-                add(
-                    PropertySpec.builder("remote", remoteBinderClassName)
-                        .addModifiers(KModifier.PUBLIC).build()
-                )
-                if (target == SERVER) {
-                    add(
-                        PropertySpec.builder(contextPropertyName, contextClass)
-                            .addModifiers(KModifier.PUBLIC).build()
-                    )
-                }
-                if (inheritsUiAdapter) add(
-                    PropertySpec.builder("coreLibInfo", SpecNames.bundleClass)
-                        .addModifiers(KModifier.PUBLIC).build()
-                )
-            })
-
-            addFunctions(annotatedInterface.methods.map(::toFunSpec))
-
-            if (inheritsUiAdapter) {
-                addProperty(
-                    PropertySpec.builder(
-                        sandboxedUiAdapterPropertyName, Types.sandboxedUiAdapter.poetTypeName()
-                    ).addModifiers(KModifier.PUBLIC)
-                        .initializer(
-                            "%T.createFromCoreLibInfo(coreLibInfo)",
-                            sandboxedUiAdapterFactoryClass
+                primaryConstructor(
+                    buildList {
+                        add(
+                            PropertySpec.builder("remote", remoteBinderClassName)
+                                .addModifiers(KModifier.PUBLIC)
+                                .build()
                         )
-                        .build()
+                        if (target == SERVER) {
+                            add(
+                                PropertySpec.builder(contextPropertyName, contextClass)
+                                    .addModifiers(KModifier.PUBLIC)
+                                    .build()
+                            )
+                        }
+                        if (inheritsUiAdapter)
+                            add(
+                                PropertySpec.builder("coreLibInfo", SpecNames.bundleClass)
+                                    .addModifiers(KModifier.PUBLIC)
+                                    .build()
+                            )
+                    }
                 )
-                addFunction(generateOpenSession())
+
+                addFunctions(annotatedInterface.methods.map(::toFunSpec))
+
+                if (inheritsUiAdapter) {
+                    addProperty(
+                        PropertySpec.builder(
+                                sandboxedUiAdapterPropertyName,
+                                Types.sandboxedUiAdapter.poetTypeName()
+                            )
+                            .addModifiers(KModifier.PUBLIC)
+                            .initializer(
+                                "%T.createFromCoreLibInfo(coreLibInfo)",
+                                sandboxedUiAdapterFactoryClass
+                            )
+                            .build()
+                    )
+                    addFunction(generateOpenSession())
+                }
             }
-        }
 
         return FileSpec.builder(annotatedInterface.type.packageName, className).build {
             addCommonSettings()
@@ -135,64 +144,69 @@ class ClientProxyTypeGenerator(
             addCode(generateRemoteCall(method))
         }
 
-    private fun generateOpenSession() = FunSpec.builder("openSession").build {
-        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-        addParameters(
-            listOf(
-                ParameterSpec(contextPropertyName, contextClass),
-                ParameterSpec("windowInputToken", ClassName("android.os", "IBinder")),
-                ParameterSpec("initialWidth", Types.int.poetClassName()),
-                ParameterSpec("initialHeight", Types.int.poetClassName()),
-                ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
-                ParameterSpec("clientExecutor", ClassName("java.util.concurrent", "Executor")),
-                ParameterSpec(
-                    "client", ClassName(
-                        "androidx.privacysandbox.ui.core", "SandboxedUiAdapter.SessionClient"
-                    )
-                ),
-            )
-        )
-        addStatement(
-            "$sandboxedUiAdapterPropertyName.openSession(%N, windowInputToken, initialWidth, " +
-                "initialHeight, isZOrderOnTop, clientExecutor, client)",
-            contextPropertyName,
-        )
-    }
-
-    private fun generateTransactionCallbackObject(method: Method) = CodeBlock.builder().build {
-        val transactionCallbackClassName = ClassName(
-            basePackageName,
-            wrapWithListIfNeeded(method.returnType).transactionCallbackName(),
-            "Stub"
-        )
-
-        addControlFlow("val transactionCallback = object: %T()", transactionCallbackClassName) {
-            addControlFlow(
-                "override fun onCancellable(cancellationSignal: %T)",
-                cancellationSignalClassName
-            ) {
-                addControlFlow("if (it.isCancelled)") {
-                    addStatement("cancellationSignal.cancel()")
-                }
-                addStatement("mCancellationSignal = cancellationSignal")
-            }
-
-            add(generateTransactionCallbackOnSuccess(method))
-
-            addControlFlow(
-                "override fun onFailure(throwableParcel: %T)",
-                ClassName(basePackageName, throwableParcelName)
-            ) {
-                addStatement(
-                    "it.%M(%M(throwableParcel))",
-                    resumeWithExceptionMethod,
-                    ThrowableParcelConverterFileGenerator.fromThrowableParcelNameSpec(
-                        basePackageName
-                    )
+    private fun generateOpenSession() =
+        FunSpec.builder("openSession").build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameters(
+                listOf(
+                    ParameterSpec(contextPropertyName, contextClass),
+                    ParameterSpec("windowInputToken", ClassName("android.os", "IBinder")),
+                    ParameterSpec("initialWidth", Types.int.poetClassName()),
+                    ParameterSpec("initialHeight", Types.int.poetClassName()),
+                    ParameterSpec("isZOrderOnTop", Types.boolean.poetClassName()),
+                    ParameterSpec("clientExecutor", ClassName("java.util.concurrent", "Executor")),
+                    ParameterSpec(
+                        "client",
+                        ClassName(
+                            "androidx.privacysandbox.ui.core",
+                            "SandboxedUiAdapter.SessionClient"
+                        )
+                    ),
                 )
+            )
+            addStatement(
+                "$sandboxedUiAdapterPropertyName.openSession(%N, windowInputToken, initialWidth, " +
+                    "initialHeight, isZOrderOnTop, clientExecutor, client)",
+                contextPropertyName,
+            )
+        }
+
+    private fun generateTransactionCallbackObject(method: Method) =
+        CodeBlock.builder().build {
+            val transactionCallbackClassName =
+                ClassName(
+                    basePackageName,
+                    wrapWithListIfNeeded(method.returnType).transactionCallbackName(),
+                    "Stub"
+                )
+
+            addControlFlow("val transactionCallback = object: %T()", transactionCallbackClassName) {
+                addControlFlow(
+                    "override fun onCancellable(cancellationSignal: %T)",
+                    cancellationSignalClassName
+                ) {
+                    addControlFlow("if (it.isCancelled)") {
+                        addStatement("cancellationSignal.cancel()")
+                    }
+                    addStatement("mCancellationSignal = cancellationSignal")
+                }
+
+                add(generateTransactionCallbackOnSuccess(method))
+
+                addControlFlow(
+                    "override fun onFailure(throwableParcel: %T)",
+                    ClassName(basePackageName, throwableParcelName)
+                ) {
+                    addStatement(
+                        "it.%M(%M(throwableParcel))",
+                        resumeWithExceptionMethod,
+                        ThrowableParcelConverterFileGenerator.fromThrowableParcelNameSpec(
+                            basePackageName
+                        )
+                    )
+                }
             }
         }
-    }
 
     private fun generateTransactionCallbackOnSuccess(method: Method): CodeBlock {
         if (method.returnsUnit) {
@@ -219,16 +233,18 @@ class ClientProxyTypeGenerator(
     private fun generateRemoteCall(
         method: Method,
         extraParameters: List<CodeBlock> = emptyList(),
-    ) = CodeBlock.builder().build {
-        val parameters =
-            method.parameters.map { binderCodeConverter.convertToBinderCode(it.type, it.name) } +
-                extraParameters
-        addStatement {
-            add("remote.${method.name}(")
-            add(parameters.joinToCode())
-            add(")")
+    ) =
+        CodeBlock.builder().build {
+            val parameters =
+                method.parameters.map {
+                    binderCodeConverter.convertToBinderCode(it.type, it.name)
+                } + extraParameters
+            addStatement {
+                add("remote.${method.name}(")
+                add(parameters.joinToCode())
+                add(")")
+            }
         }
-    }
 
     private val Method.returnsUnit: Boolean
         get() {

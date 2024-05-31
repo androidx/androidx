@@ -48,12 +48,11 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
                 .addFunction(generateGetViewFunction())
                 .addFunction(generateCreateServiceFunction(api.getOnlyService()))
 
-        return FileSpec.builder(packageName, className)
-            .addType(classSpec.build())
-            .build()
+        return FileSpec.builder(packageName, className).addType(classSpec.build()).build()
     }
 
     abstract val superclassName: ClassName
+
     abstract fun generateOnLoadSdkFunction(): FunSpec
 
     protected fun createServiceFunctionName(service: AnnotatedInterface) =

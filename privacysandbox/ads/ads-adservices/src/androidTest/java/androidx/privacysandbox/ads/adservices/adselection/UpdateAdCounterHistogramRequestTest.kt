@@ -36,32 +36,32 @@ class UpdateAdCounterHistogramRequestTest {
 
     @Test
     fun testToString() {
-        val result = "UpdateAdCounterHistogramRequest: adSelectionId=$adSelectionId, " +
-            "adEventType=AD_EVENT_TYPE_CLICK, callerAdTech=$callerAdTech"
+        val result =
+            "UpdateAdCounterHistogramRequest: adSelectionId=$adSelectionId, " +
+                "adEventType=AD_EVENT_TYPE_CLICK, callerAdTech=$callerAdTech"
         val request = UpdateAdCounterHistogramRequest(adSelectionId, adEventType, callerAdTech)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val updateAdCounterHistogramRequest1 = UpdateAdCounterHistogramRequest(
-            adSelectionId,
-            adEventType,
-            callerAdTech
-        )
-        var updateAdCounterHistogramRequest2 = UpdateAdCounterHistogramRequest(
-            1234L,
-            FrequencyCapFilters.AD_EVENT_TYPE_CLICK,
-            AdTechIdentifier("1234")
-        )
+        val updateAdCounterHistogramRequest1 =
+            UpdateAdCounterHistogramRequest(adSelectionId, adEventType, callerAdTech)
+        var updateAdCounterHistogramRequest2 =
+            UpdateAdCounterHistogramRequest(
+                1234L,
+                FrequencyCapFilters.AD_EVENT_TYPE_CLICK,
+                AdTechIdentifier("1234")
+            )
         Truth.assertThat(updateAdCounterHistogramRequest1 == updateAdCounterHistogramRequest2)
             .isTrue()
 
-        var updateAdCounterHistogramRequest3 = UpdateAdCounterHistogramRequest(
-            1234L,
-            FrequencyCapFilters.AD_EVENT_TYPE_VIEW,
-            AdTechIdentifier("1234")
-        )
+        var updateAdCounterHistogramRequest3 =
+            UpdateAdCounterHistogramRequest(
+                1234L,
+                FrequencyCapFilters.AD_EVENT_TYPE_VIEW,
+                AdTechIdentifier("1234")
+            )
         Truth.assertThat(updateAdCounterHistogramRequest1 == updateAdCounterHistogramRequest3)
             .isFalse()
     }
@@ -69,25 +69,29 @@ class UpdateAdCounterHistogramRequestTest {
     @Test
     fun testInvalidAdEventType() {
         assertThrows<IllegalArgumentException> {
-            UpdateAdCounterHistogramRequest(
-                1234L,
-                -1 /* Invalid adEventType */,
-                AdTechIdentifier("1234")
+                UpdateAdCounterHistogramRequest(
+                    1234L,
+                    -1 /* Invalid adEventType */,
+                    AdTechIdentifier("1234")
+                )
+            }
+            .hasMessageThat()
+            .contains(
+                "Ad event type must be one of AD_EVENT_TYPE_IMPRESSION, " +
+                    "AD_EVENT_TYPE_VIEW, or AD_EVENT_TYPE_CLICK"
             )
-        }.hasMessageThat().contains(
-            "Ad event type must be one of AD_EVENT_TYPE_IMPRESSION, " +
-                "AD_EVENT_TYPE_VIEW, or AD_EVENT_TYPE_CLICK"
-        )
     }
 
     @Test
     fun testExceptionWinAdEventType() {
         assertThrows<IllegalArgumentException> {
-            UpdateAdCounterHistogramRequest(
-                1234L,
-                FrequencyCapFilters.AD_EVENT_TYPE_WIN,
-                AdTechIdentifier("1234")
-            )
-        }.hasMessageThat().contains("Win event types cannot be manually updated.")
+                UpdateAdCounterHistogramRequest(
+                    1234L,
+                    FrequencyCapFilters.AD_EVENT_TYPE_WIN,
+                    AdTechIdentifier("1234")
+                )
+            }
+            .hasMessageThat()
+            .contains("Win event types cannot be manually updated.")
     }
 }

@@ -43,22 +43,21 @@ internal class InterfaceParser(
         check(interfaceDeclaration.classKind == ClassKind.INTERFACE) {
             "${interfaceDeclaration.qualifiedName} is not an interface."
         }
-        val name = interfaceDeclaration.qualifiedName?.getFullName()
-            ?: interfaceDeclaration.simpleName.getFullName()
+        val name =
+            interfaceDeclaration.qualifiedName?.getFullName()
+                ?: interfaceDeclaration.simpleName.getFullName()
         if (!interfaceDeclaration.isPublic()) {
             logger.error("Error in $name: annotated interfaces should be public.")
         }
         if (interfaceDeclaration.getDeclaredProperties().any()) {
-            logger.error(
-                "Error in $name: annotated interfaces cannot declare properties."
-            )
+            logger.error("Error in $name: annotated interfaces cannot declare properties.")
         }
-        if (interfaceDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
+        if (
+            interfaceDeclaration.declarations
+                .filterIsInstance<KSClassDeclaration>()
                 .any(KSClassDeclaration::isCompanionObject)
         ) {
-            logger.error(
-                "Error in $name: annotated interfaces cannot declare companion objects."
-            )
+            logger.error("Error in $name: annotated interfaces cannot declare companion objects.")
         }
         val invalidModifiers =
             interfaceDeclaration.modifiers.filterNot(validInterfaceModifiers::contains)
@@ -77,11 +76,12 @@ internal class InterfaceParser(
                 })."
             )
         }
-        val superTypes = interfaceDeclaration.superTypes.map {
-            typeParser.parseFromDeclaration(it.resolve().declaration)
-        }.filterNot { it == any }.toList()
-        val invalidSuperTypes =
-            superTypes.filterNot { validInterfaceSuperTypes.contains(it) }
+        val superTypes =
+            interfaceDeclaration.superTypes
+                .map { typeParser.parseFromDeclaration(it.resolve().declaration) }
+                .filterNot { it == any }
+                .toList()
+        val invalidSuperTypes = superTypes.filterNot { validInterfaceSuperTypes.contains(it) }
         if (invalidSuperTypes.isNotEmpty()) {
             logger.error(
                 "Error in $name: annotated interface inherits prohibited types (${
@@ -104,9 +104,11 @@ internal class InterfaceParser(
             logger.error("Error in $name: method cannot have default implementation.")
         }
         if (method.typeParameters.isNotEmpty()) {
-            logger.error("Error in $name: method cannot declare type parameters (<${
+            logger.error(
+                "Error in $name: method cannot declare type parameters (<${
                 method.typeParameters.joinToString(limit = 3) { it.name.getShortName() }
-            }>).")
+            }>)."
+            )
         }
         val invalidModifiers = method.modifiers.filterNot(validMethodModifiers::contains)
         if (invalidModifiers.isNotEmpty()) {
@@ -139,9 +141,7 @@ internal class InterfaceParser(
     ): Parameter {
         val name = method.qualifiedName?.getFullName() ?: method.simpleName.getFullName()
         if (parameter.hasDefault) {
-            logger.error(
-                "Error in $name: parameters cannot have default values."
-            )
+            logger.error("Error in $name: parameters cannot have default values.")
         }
 
         return Parameter(

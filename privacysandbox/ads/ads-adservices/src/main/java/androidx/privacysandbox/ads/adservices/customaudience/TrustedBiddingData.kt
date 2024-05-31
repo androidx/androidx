@@ -24,17 +24,13 @@ import android.net.Uri
  * by buyer JavaScript logic running in an isolated execution environment.
  *
  * @param trustedBiddingUri the URI pointing to the trusted key-value server holding bidding
- * signals. The URI must use HTTPS.
+ *   signals. The URI must use HTTPS.
  * @param trustedBiddingKeys the list of keys to query from the trusted key-value server holding
- * bidding signals.
+ *   bidding signals.
  */
-class TrustedBiddingData public constructor(
-    val trustedBiddingUri: Uri,
-    val trustedBiddingKeys: List<String>
-    ) {
-    /**
-     * @return `true` if two [TrustedBiddingData] objects contain the same information
-     */
+class TrustedBiddingData
+public constructor(val trustedBiddingUri: Uri, val trustedBiddingKeys: List<String>) {
+    /** @return `true` if two [TrustedBiddingData] objects contain the same information */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TrustedBiddingData) return false
@@ -42,9 +38,7 @@ class TrustedBiddingData public constructor(
             this.trustedBiddingKeys == other.trustedBiddingKeys
     }
 
-    /**
-     * @return the hash of the [TrustedBiddingData] object's data
-     */
+    /** @return the hash of the [TrustedBiddingData] object's data */
     override fun hashCode(): Int {
         return (31 * trustedBiddingUri.hashCode()) + trustedBiddingKeys.hashCode()
     }

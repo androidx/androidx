@@ -39,27 +39,26 @@ internal class CompatSdkProviderGenerator(parsedApi: ParsedApi) :
     override val superclassName =
         ClassName("androidx.privacysandbox.sdkruntime.core", "SandboxedSdkProviderCompat")
 
-    override fun generateOnLoadSdkFunction() = FunSpec.builder("onLoadSdk").build {
-        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-        addParameter("params", bundleClass)
-        returns(sandboxedSdkCompatClass)
+    override fun generateOnLoadSdkFunction() =
+        FunSpec.builder("onLoadSdk").build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameter("params", bundleClass)
+            returns(sandboxedSdkCompatClass)
 
-        addStatement("val ctx = %N", contextPropertyName)
-        addCode {
-            addControlFlow("if (ctx == null)") {
-                addStatement(
-                    "throw IllegalStateException(\"Context must not be null. " +
-                        "Do you need to call attachContext()?\")"
-                )
+            addStatement("val ctx = %N", contextPropertyName)
+            addCode {
+                addControlFlow("if (ctx == null)") {
+                    addStatement(
+                        "throw IllegalStateException(\"Context must not be null. " +
+                            "Do you need to call attachContext()?\")"
+                    )
+                }
             }
+            addStatement("val sdk = ${createServiceFunctionName(api.getOnlyService())}(ctx)")
+            addStatement(
+                "return %T(%T(sdk, ctx))",
+                sandboxedSdkCompatClass,
+                api.getOnlyService().stubDelegateNameSpec(),
+            )
         }
-        addStatement(
-            "val sdk = ${createServiceFunctionName(api.getOnlyService())}(ctx)"
-        )
-        addStatement(
-            "return %T(%T(sdk, ctx))",
-            sandboxedSdkCompatClass,
-            api.getOnlyService().stubDelegateNameSpec(),
-        )
-    }
 }

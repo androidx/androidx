@@ -22,12 +22,12 @@ import android.os.IBinder
  * Interface that allows SDKs running in the Privacy Sandbox to launch activities.
  *
  * Apps can create launchers by calling
- * [createActivityLauncher][androidx.privacysandbox.activity.client.createSdkActivityLauncher]
- * from one of their activities.
+ * [createActivityLauncher][androidx.privacysandbox.activity.client.createSdkActivityLauncher] from
+ * one of their activities.
  *
  * To send an [SdkActivityLauncher] to another process, they can call
- * [toLauncherInfo][androidx.privacysandbox.activity.client.toLauncherInfo]
- * and send the resulting bundle.
+ * [toLauncherInfo][androidx.privacysandbox.activity.client.toLauncherInfo] and send the resulting
+ * bundle.
  *
  * SDKs can create launchers from an app-provided bundle by calling
  * [fromLauncherInfo][androidx.privacysandbox.activity.provider.SdkActivityLauncherFactory.fromLauncherInfo].

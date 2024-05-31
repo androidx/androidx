@@ -35,8 +35,10 @@ class GetTopicsRequestHelperTest {
 
     @Test
     fun testRequestWithoutRecordObservation() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExtVersion)
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+            mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExtVersion
+        )
 
         var request = GetTopicsRequest("sdk1")
         var convertedRequest =
@@ -47,8 +49,10 @@ class GetTopicsRequestHelperTest {
 
     @Test
     fun testRequestWithRecordObservation() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExtVersion)
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
+            mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExtVersion
+        )
 
         var request = GetTopicsRequest("sdk1", true)
         var convertedRequest = GetTopicsRequestHelper.convertRequestWithRecordObservation(request)

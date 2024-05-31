@@ -36,37 +36,36 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
     @Before
     fun setUp() {
         appClassloader = javaClass.classLoader!!
-        factoryUnderTest = JavaResourcesLoadingClassLoaderFactory(
-            appClassloader,
-            codeClassLoaderFactory = object : SdkLoader.ClassLoaderFactory {
-                override fun createClassLoaderFor(sdkConfig: LocalSdkConfig, parent: ClassLoader) =
-                    parent
-            }
-        )
+        factoryUnderTest =
+            JavaResourcesLoadingClassLoaderFactory(
+                appClassloader,
+                codeClassLoaderFactory =
+                    object : SdkLoader.ClassLoaderFactory {
+                        override fun createClassLoaderFor(
+                            sdkConfig: LocalSdkConfig,
+                            parent: ClassLoader
+                        ) = parent
+                    }
+            )
         testSdkConfig = TestSdkConfigs.CURRENT_WITH_RESOURCES
     }
 
     @Test
     fun getResource_delegateToAppClassloaderWithPrefix() {
-        val classLoader = factoryUnderTest.createClassLoaderFor(
-            testSdkConfig,
-            appClassloader.parent!!
-        )
+        val classLoader =
+            factoryUnderTest.createClassLoaderFor(testSdkConfig, appClassloader.parent!!)
         val resource = classLoader.getResource("test.txt")
 
-        val appResource = appClassloader.getResource(
-            "assets/RuntimeEnabledSdks/javaresources/test.txt"
-        )
+        val appResource =
+            appClassloader.getResource("assets/RuntimeEnabledSdks/javaresources/test.txt")
         assertThat(resource).isNotNull()
         assertThat(resource).isEqualTo(appResource)
     }
 
     @Test
     fun getResource_whenAppResource_returnNull() {
-        val classLoader = factoryUnderTest.createClassLoaderFor(
-            testSdkConfig,
-            appClassloader.parent!!
-        )
+        val classLoader =
+            factoryUnderTest.createClassLoaderFor(testSdkConfig, appClassloader.parent!!)
 
         val resource = classLoader.getResource("assets/RuntimeEnabledSdkTable.xml")
         val appResource = appClassloader.getResource("assets/RuntimeEnabledSdkTable.xml")
@@ -77,29 +76,22 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
 
     @Test
     fun getResources_delegateToAppClassloaderWithPrefix() {
-        val classLoader = factoryUnderTest.createClassLoaderFor(
-            testSdkConfig,
-            appClassloader.parent!!
-        )
+        val classLoader =
+            factoryUnderTest.createClassLoaderFor(testSdkConfig, appClassloader.parent!!)
 
-        val resources = classLoader
-            .getResources("test.txt")
-            .toList()
+        val resources = classLoader.getResources("test.txt").toList()
         assertThat(resources.isEmpty()).isFalse()
 
-        val appResources = appClassloader
-            .getResources("assets/RuntimeEnabledSdks/javaresources/test.txt")
-            .toList()
+        val appResources =
+            appClassloader.getResources("assets/RuntimeEnabledSdks/javaresources/test.txt").toList()
 
         assertThat(appResources).isEqualTo(resources)
     }
 
     @Test
     fun getResources_whenAppResource_returnEmpty() {
-        val classLoader = factoryUnderTest.createClassLoaderFor(
-            testSdkConfig,
-            appClassloader.parent!!
-        )
+        val classLoader =
+            factoryUnderTest.createClassLoaderFor(testSdkConfig, appClassloader.parent!!)
 
         val resources = classLoader.getResources("assets/RuntimeEnabledSdkTable.xml")
         val appResources = appClassloader.getResources("assets/RuntimeEnabledSdkTable.xml")

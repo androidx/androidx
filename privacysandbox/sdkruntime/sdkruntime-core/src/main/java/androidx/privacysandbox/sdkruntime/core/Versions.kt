@@ -24,19 +24,17 @@ import org.jetbrains.annotations.TestOnly
 /**
  * Store internal API version (for Client-Core communication).
  *
- * DO NOT CHANGE THIS CLASS.
- * Methods invoked via reflection from previously released versions of sdkruntime-client.
+ * DO NOT CHANGE THIS CLASS. Methods invoked via reflection from previously released versions of
+ * sdkruntime-client.
  */
 @Suppress("unused")
 @Keep
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Versions {
 
-    @JvmField
-    val API_VERSION = ClientApiVersion.CURRENT_VERSION.apiLevel
+    @JvmField val API_VERSION = ClientApiVersion.CURRENT_VERSION.apiLevel
 
-    @JvmField
-    var CLIENT_VERSION: Int? = null
+    @JvmField var CLIENT_VERSION: Int? = null
 
     @JvmStatic
     fun handShake(clientVersion: Int): Int {

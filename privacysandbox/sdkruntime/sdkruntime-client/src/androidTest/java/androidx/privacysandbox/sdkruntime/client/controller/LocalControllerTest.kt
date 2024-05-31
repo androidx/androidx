@@ -88,11 +88,8 @@ class LocalControllerTest {
 
     @Test
     fun getAppOwnedSdkSandboxInterfaces_returnsResultsFromAppOwnedSdkRegistry() {
-        val appOwnedInterface = AppOwnedSdkSandboxInterfaceCompat(
-            name = "TestSDK",
-            version = 1,
-            binder = Binder()
-        )
+        val appOwnedInterface =
+            AppOwnedSdkSandboxInterfaceCompat(name = "TestSDK", version = 1, binder = Binder())
         appOwnedSdkRegistry.appOwnedSdks = listOf(appOwnedInterface)
 
         val result = controller.getAppOwnedSdkSandboxInterfaces()
@@ -101,11 +98,12 @@ class LocalControllerTest {
 
     @Test
     fun registerSdkSandboxActivityHandler_delegateToLocalSdkActivityHandlerRegistry() {
-        val handler = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {
-                // do nothing
+        val handler =
+            object : SdkSandboxActivityHandlerCompat {
+                override fun onActivityCreated(activityHolder: ActivityHolder) {
+                    // do nothing
+                }
             }
-        }
 
         val token = controller.registerSdkSandboxActivityHandler(handler)
 
@@ -116,22 +114,22 @@ class LocalControllerTest {
     @Test
     fun registerSdkSandboxActivityHandler_registerWithCorrectSdkPackageName() {
         val token =
-            controller.registerSdkSandboxActivityHandler(object : SdkSandboxActivityHandlerCompat {
+            controller.registerSdkSandboxActivityHandler(
+                object : SdkSandboxActivityHandlerCompat {
+                    override fun onActivityCreated(activityHolder: ActivityHolder) {
+                        // do nothing
+                    }
+                }
+            )
+
+        val anotherSdkController =
+            LocalController("LocalControllerTest.anotherSdk", localSdkRegistry, appOwnedSdkRegistry)
+        val anotherSdkHandler =
+            object : SdkSandboxActivityHandlerCompat {
                 override fun onActivityCreated(activityHolder: ActivityHolder) {
                     // do nothing
                 }
-            })
-
-        val anotherSdkController = LocalController(
-            "LocalControllerTest.anotherSdk",
-            localSdkRegistry,
-            appOwnedSdkRegistry
-        )
-        val anotherSdkHandler = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {
-                // do nothing
             }
-        }
         val anotherSdkToken =
             anotherSdkController.registerSdkSandboxActivityHandler(anotherSdkHandler)
 
@@ -143,11 +141,12 @@ class LocalControllerTest {
 
     @Test
     fun unregisterSdkSandboxActivityHandler_delegateToLocalSdkActivityHandlerRegistry() {
-        val handler = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {
-                // do nothing
+        val handler =
+            object : SdkSandboxActivityHandlerCompat {
+                override fun onActivityCreated(activityHolder: ActivityHolder) {
+                    // do nothing
+                }
             }
-        }
 
         val token = controller.registerSdkSandboxActivityHandler(handler)
         controller.unregisterSdkSandboxActivityHandler(handler)

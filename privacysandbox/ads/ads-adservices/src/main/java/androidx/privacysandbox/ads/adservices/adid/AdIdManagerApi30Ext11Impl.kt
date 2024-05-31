@@ -41,14 +41,10 @@ open class AdIdManagerApi30Ext11Impl(context: Context) : AdIdManager() {
     }
 
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
-    private suspend fun
-        getAdIdAsyncInternal(): android.adservices.adid.AdId = suspendCancellableCoroutine {
-            continuation ->
-        mAdIdManager.getAdId(
-            Runnable::run,
-            continuation.asAdServicesOutcomeReceiver()
-        )
-    }
+    private suspend fun getAdIdAsyncInternal(): android.adservices.adid.AdId =
+        suspendCancellableCoroutine { continuation ->
+            mAdIdManager.getAdId(Runnable::run, continuation.asAdServicesOutcomeReceiver())
+        }
 
     private fun convertResponse(response: android.adservices.adid.AdId): AdId {
         return AdId(response.adId, response.isLimitAdTrackingEnabled)

@@ -41,8 +41,7 @@ internal class SandboxedSdkContextCompatTest(
     @Test
     fun getClassloader_returnSdkClassloader() {
         val sdkClassLoader = javaClass.classLoader!!.parent!!
-        assertThat(sdkContextCompat.classLoader)
-            .isEqualTo(sdkClassLoader)
+        assertThat(sdkContextCompat.classLoader).isEqualTo(sdkClassLoader)
     }
 
     @Test
@@ -50,8 +49,7 @@ internal class SandboxedSdkContextCompatTest(
         val expectedSdksRoot = appStorageContext.getDir(SDK_ROOT_FOLDER, Context.MODE_PRIVATE)
         val expectedSdkDataDir = File(expectedSdksRoot, SDK_PACKAGE_NAME)
 
-        assertThat(sdkContextCompat.dataDir)
-            .isEqualTo(expectedSdkDataDir)
+        assertThat(sdkContextCompat.dataDir).isEqualTo(expectedSdkDataDir)
 
         assertThat(expectedSdkDataDir.exists()).isTrue()
     }
@@ -61,8 +59,7 @@ internal class SandboxedSdkContextCompatTest(
         val expectedSdksCacheRoot = File(appStorageContext.cacheDir, SDK_ROOT_FOLDER)
         val expectedSdkCache = File(expectedSdksCacheRoot, SDK_PACKAGE_NAME)
 
-        assertThat(sdkContextCompat.cacheDir)
-            .isEqualTo(expectedSdkCache)
+        assertThat(sdkContextCompat.cacheDir).isEqualTo(expectedSdkCache)
 
         assertThat(expectedSdkCache.exists()).isTrue()
     }
@@ -73,8 +70,7 @@ internal class SandboxedSdkContextCompatTest(
         val expectedSdksCodeCacheRoot = File(appStorageContext.codeCacheDir, SDK_ROOT_FOLDER)
         val expectedSdkCodeCache = File(expectedSdksCodeCacheRoot, SDK_PACKAGE_NAME)
 
-        assertThat(sdkContextCompat.codeCacheDir)
-            .isEqualTo(expectedSdkCodeCache)
+        assertThat(sdkContextCompat.codeCacheDir).isEqualTo(expectedSdkCodeCache)
 
         assertThat(expectedSdkCodeCache.exists()).isTrue()
     }
@@ -85,8 +81,7 @@ internal class SandboxedSdkContextCompatTest(
         val expectedSdksNoBackupRoot = File(appStorageContext.noBackupFilesDir, SDK_ROOT_FOLDER)
         val expectedSdkNoBackupDir = File(expectedSdksNoBackupRoot, SDK_PACKAGE_NAME)
 
-        assertThat(sdkContextCompat.noBackupFilesDir)
-            .isEqualTo(expectedSdkNoBackupDir)
+        assertThat(sdkContextCompat.noBackupFilesDir).isEqualTo(expectedSdkNoBackupDir)
 
         assertThat(expectedSdkNoBackupDir.exists()).isTrue()
     }
@@ -95,8 +90,7 @@ internal class SandboxedSdkContextCompatTest(
     fun getDir_returnDirWithPrefixInSdkDataDir() {
         val expectedDir = File(sdkContextCompat.dataDir, "app_test")
 
-        assertThat(sdkContextCompat.getDir("test", Context.MODE_PRIVATE))
-            .isEqualTo(expectedDir)
+        assertThat(sdkContextCompat.getDir("test", Context.MODE_PRIVATE)).isEqualTo(expectedDir)
 
         assertThat(expectedDir.exists()).isTrue()
     }
@@ -105,8 +99,7 @@ internal class SandboxedSdkContextCompatTest(
     fun getFilesDir_returnFilesDirInSdkDataDir() {
         val expectedFilesDir = File(sdkContextCompat.dataDir, "files")
 
-        assertThat(sdkContextCompat.filesDir)
-            .isEqualTo(expectedFilesDir)
+        assertThat(sdkContextCompat.filesDir).isEqualTo(expectedFilesDir)
 
         assertThat(expectedFilesDir.exists()).isTrue()
     }
@@ -115,77 +108,60 @@ internal class SandboxedSdkContextCompatTest(
     fun openFileInput_openFileInSdkFilesDir() {
         val fileToOpen = File(sdkContextCompat.filesDir, "testOpenFileInput")
         fileToOpen.outputStream().use { outputStream ->
-            DataOutputStream(outputStream).use { dataStream ->
-                dataStream.writeInt(42)
-            }
+            DataOutputStream(outputStream).use { dataStream -> dataStream.writeInt(42) }
         }
 
-        val content = sdkContextCompat.openFileInput("testOpenFileInput")
-            .use { inputStream ->
-                DataInputStream(inputStream).use { dataStream ->
-                    dataStream.readInt()
-                }
+        val content =
+            sdkContextCompat.openFileInput("testOpenFileInput").use { inputStream ->
+                DataInputStream(inputStream).use { dataStream -> dataStream.readInt() }
             }
 
-        assertThat(content)
-            .isEqualTo(42)
+        assertThat(content).isEqualTo(42)
     }
 
     @Test
     fun openFileInput_whenFileNameContainsFileSeparator_throwsIllegalArgumentException() {
-        assertThrows<IllegalArgumentException> {
-            sdkContextCompat.openFileInput("folder/file")
-        }
+        assertThrows<IllegalArgumentException> { sdkContextCompat.openFileInput("folder/file") }
     }
 
     @Test
     fun openFileOutput_openFileInSdkFilesDir() {
-        sdkContextCompat.openFileOutput("testOpenFileOutput", Context.MODE_PRIVATE)
-            .use { outputStream ->
-                DataOutputStream(outputStream).use { dataStream ->
-                    dataStream.writeInt(42)
-                }
-            }
-
-        val expectedFile = File(sdkContextCompat.filesDir, "testOpenFileOutput")
-        val content = expectedFile.inputStream().use { inputStream ->
-            DataInputStream(inputStream).use { dataStream ->
-                dataStream.readInt()
-            }
+        sdkContextCompat.openFileOutput("testOpenFileOutput", Context.MODE_PRIVATE).use {
+            outputStream ->
+            DataOutputStream(outputStream).use { dataStream -> dataStream.writeInt(42) }
         }
 
-        assertThat(content)
-            .isEqualTo(42)
+        val expectedFile = File(sdkContextCompat.filesDir, "testOpenFileOutput")
+        val content =
+            expectedFile.inputStream().use { inputStream ->
+                DataInputStream(inputStream).use { dataStream -> dataStream.readInt() }
+            }
+
+        assertThat(content).isEqualTo(42)
     }
 
     @Test
     fun openFileOutput_whenAppendFlagSet_appendToFileInSdkFilesDir() {
-        sdkContextCompat.openFileOutput(
-            "testOpenFileOutputAppend",
-            Context.MODE_PRIVATE or Context.MODE_APPEND
-        ).use { outputStream ->
-            DataOutputStream(outputStream).use { dataStream ->
-                dataStream.writeInt(42)
+        sdkContextCompat
+            .openFileOutput("testOpenFileOutputAppend", Context.MODE_PRIVATE or Context.MODE_APPEND)
+            .use { outputStream ->
+                DataOutputStream(outputStream).use { dataStream -> dataStream.writeInt(42) }
             }
-        }
-        sdkContextCompat.openFileOutput(
-            "testOpenFileOutputAppend",
-            Context.MODE_PRIVATE or Context.MODE_APPEND
-        ).use { outputStream ->
-            DataOutputStream(outputStream).use { dataStream ->
-                dataStream.writeInt(1)
+        sdkContextCompat
+            .openFileOutput("testOpenFileOutputAppend", Context.MODE_PRIVATE or Context.MODE_APPEND)
+            .use { outputStream ->
+                DataOutputStream(outputStream).use { dataStream -> dataStream.writeInt(1) }
             }
-        }
 
         val expectedFile = File(sdkContextCompat.filesDir, "testOpenFileOutputAppend")
-        val content = expectedFile.inputStream().use { inputStream ->
-            DataInputStream(inputStream).use { dataStream ->
-                dataStream.readInt() + dataStream.readInt()
+        val content =
+            expectedFile.inputStream().use { inputStream ->
+                DataInputStream(inputStream).use { dataStream ->
+                    dataStream.readInt() + dataStream.readInt()
+                }
             }
-        }
 
-        assertThat(content)
-            .isEqualTo(43)
+        assertThat(content).isEqualTo(43)
     }
 
     @Test
@@ -207,9 +183,7 @@ internal class SandboxedSdkContextCompatTest(
 
     @Test
     fun deleteFile_whenFileNameContainsFileSeparator_throwsIllegalArgumentException() {
-        assertThrows<IllegalArgumentException> {
-            sdkContextCompat.deleteFile("folder/file")
-        }
+        assertThrows<IllegalArgumentException> { sdkContextCompat.deleteFile("folder/file") }
     }
 
     @Test
@@ -222,9 +196,7 @@ internal class SandboxedSdkContextCompatTest(
 
     @Test
     fun getFileStreamPath_whenFileNameContainsFileSeparator_throwsIllegalArgumentException() {
-        assertThrows<IllegalArgumentException> {
-            sdkContextCompat.getFileStreamPath("folder/file")
-        }
+        assertThrows<IllegalArgumentException> { sdkContextCompat.getFileStreamPath("folder/file") }
     }
 
     @Test
@@ -239,10 +211,7 @@ internal class SandboxedSdkContextCompatTest(
 
     @Test
     fun getDatabasePath_whenDataBaseNamePassed_returnPathToDatabaseInSdkDatabasesDir() {
-        val expectedDatabasePath = File(
-            sdkContextCompat.dataDir,
-            "databases/testGetDatabasePath"
-        )
+        val expectedDatabasePath = File(sdkContextCompat.dataDir, "databases/testGetDatabasePath")
 
         assertThat(sdkContextCompat.getDatabasePath("testGetDatabasePath"))
             .isEqualTo(expectedDatabasePath)
@@ -250,10 +219,8 @@ internal class SandboxedSdkContextCompatTest(
 
     @Test
     fun getDatabasePath_whenDataBasePathPassed_returnSamePath() {
-        val expectedDatabasePath = File(
-            sdkContextCompat.dataDir,
-            "databases/testGetDatabasePathAbsolute"
-        )
+        val expectedDatabasePath =
+            File(sdkContextCompat.dataDir, "databases/testGetDatabasePathAbsolute")
 
         assertThat(sdkContextCompat.getDatabasePath(expectedDatabasePath.absolutePath))
             .isEqualTo(expectedDatabasePath)
@@ -264,26 +231,27 @@ internal class SandboxedSdkContextCompatTest(
         val databaseName = "testOpenDataBase.db"
 
         sdkContextCompat.deleteDatabase(databaseName)
-        val database = sdkContextCompat.openOrCreateDatabase(
-            name = databaseName,
-            mode = Context.MODE_PRIVATE,
-            factory = null
-        )
+        val database =
+            sdkContextCompat.openOrCreateDatabase(
+                name = databaseName,
+                mode = Context.MODE_PRIVATE,
+                factory = null
+            )
 
         database.execSQL("CREATE TABLE test (data int)")
         database.execSQL("INSERT INTO test (data) values (42)")
 
-        val databaseFrom4ParamMethod = sdkContextCompat.openOrCreateDatabase(
-            name = databaseName,
-            mode = Context.MODE_PRIVATE,
-            factory = null,
-            errorHandler = null
-        )
+        val databaseFrom4ParamMethod =
+            sdkContextCompat.openOrCreateDatabase(
+                name = databaseName,
+                mode = Context.MODE_PRIVATE,
+                factory = null,
+                errorHandler = null
+            )
 
         val result = databaseFrom4ParamMethod.rawQuery("SELECT * FROM test", null)
         result.moveToFirst()
-        assertThat(result.getInt(0))
-            .isEqualTo(42)
+        assertThat(result.getInt(0)).isEqualTo(42)
 
         val databasePath = sdkContextCompat.getDatabasePath(databaseName)
         assertThat(databasePath.exists()).isTrue()
@@ -315,33 +283,34 @@ internal class SandboxedSdkContextCompatTest(
 
         val result = sdkContextCompat.databaseList().asList()
         assertThat(result).contains(databaseName)
-        assertThat(result).isEqualTo(
-            File(sdkContextCompat.dataDir, "databases").list()!!.asList()
-        )
+        assertThat(result).isEqualTo(File(sdkContextCompat.dataDir, "databases").list()!!.asList())
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun moveDatabaseFrom_migrateDatabaseToSdkDatabasesDir() {
-        val sourceAppStorageContext = if (sdkContextCompat.isDeviceProtectedStorage) {
-            ApplicationProvider.getApplicationContext()
-        } else {
-            appStorageContext.createDeviceProtectedStorageContext()
-        }
-        val sourceContext = SandboxedSdkContextCompat(
-            sourceAppStorageContext,
-            sdkPackageName = SDK_PACKAGE_NAME,
-            classLoader = javaClass.classLoader!!.parent!!
-        )
+        val sourceAppStorageContext =
+            if (sdkContextCompat.isDeviceProtectedStorage) {
+                ApplicationProvider.getApplicationContext()
+            } else {
+                appStorageContext.createDeviceProtectedStorageContext()
+            }
+        val sourceContext =
+            SandboxedSdkContextCompat(
+                sourceAppStorageContext,
+                sdkPackageName = SDK_PACKAGE_NAME,
+                classLoader = javaClass.classLoader!!.parent!!
+            )
 
         val databaseName = "testMoveTo$contextType.db"
 
         sourceContext.deleteDatabase(databaseName)
-        val database = sourceContext.openOrCreateDatabase(
-            name = databaseName,
-            mode = Context.MODE_PRIVATE,
-            factory = null
-        )
+        val database =
+            sourceContext.openOrCreateDatabase(
+                name = databaseName,
+                mode = Context.MODE_PRIVATE,
+                factory = null
+            )
 
         database.execSQL("CREATE TABLE test (data int)")
         database.execSQL("INSERT INTO test (data) values (42)")
@@ -349,16 +318,16 @@ internal class SandboxedSdkContextCompatTest(
         val moveResult = sdkContextCompat.moveDatabaseFrom(sourceContext, databaseName)
         assertThat(moveResult).isTrue()
 
-        val migratedDatabase = sdkContextCompat.openOrCreateDatabase(
-            name = databaseName,
-            mode = Context.MODE_PRIVATE,
-            factory = null
-        )
+        val migratedDatabase =
+            sdkContextCompat.openOrCreateDatabase(
+                name = databaseName,
+                mode = Context.MODE_PRIVATE,
+                factory = null
+            )
 
         val result = migratedDatabase.rawQuery("SELECT * FROM test", null)
         result.moveToFirst()
-        assertThat(result.getInt(0))
-            .isEqualTo(42)
+        assertThat(result.getInt(0)).isEqualTo(42)
 
         val oldDatabasePath = sourceContext.getDatabasePath(databaseName)
         assertThat(oldDatabasePath.exists()).isFalse()
@@ -367,17 +336,16 @@ internal class SandboxedSdkContextCompatTest(
     @Test
     fun getSharedPreferences_returnPrefixedSharedPreferencesFromApp() {
         val sdkSharedPreferencesName = "getSharedPreferencesTest"
-        val sdkSharedPreferences = sdkContextCompat.getSharedPreferences(
-            sdkSharedPreferencesName,
-            Context.MODE_PRIVATE
-        )
+        val sdkSharedPreferences =
+            sdkContextCompat.getSharedPreferences(sdkSharedPreferencesName, Context.MODE_PRIVATE)
 
         sdkSharedPreferences.edit().putInt("test", 42).commit()
 
-        val appSharedPreferences = appStorageContext.getSharedPreferences(
-            "${SDK_SHARED_PREFERENCES_PREFIX}_${SDK_PACKAGE_NAME}_$sdkSharedPreferencesName",
-            Context.MODE_PRIVATE
-        )
+        val appSharedPreferences =
+            appStorageContext.getSharedPreferences(
+                "${SDK_SHARED_PREFERENCES_PREFIX}_${SDK_PACKAGE_NAME}_$sdkSharedPreferencesName",
+                Context.MODE_PRIVATE
+            )
         val result = appSharedPreferences.getInt("test", 0)
         assertThat(result).isEqualTo(42)
     }
@@ -386,63 +354,52 @@ internal class SandboxedSdkContextCompatTest(
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun deleteSharedPreferences() {
         val sdkSharedPreferencesName = "deleteSharedPreferencesTest"
-        val sdkSharedPreferences = sdkContextCompat.getSharedPreferences(
-            sdkSharedPreferencesName,
-            Context.MODE_PRIVATE
-        )
+        val sdkSharedPreferences =
+            sdkContextCompat.getSharedPreferences(sdkSharedPreferencesName, Context.MODE_PRIVATE)
         sdkSharedPreferences.edit().putInt("test", 42).commit()
 
         sdkContextCompat.deleteSharedPreferences(sdkSharedPreferencesName)
 
-        val sdkSharedPreferencesAfterDelete = sdkContextCompat.getSharedPreferences(
-            sdkSharedPreferencesName,
-            Context.MODE_PRIVATE
-        )
+        val sdkSharedPreferencesAfterDelete =
+            sdkContextCompat.getSharedPreferences(sdkSharedPreferencesName, Context.MODE_PRIVATE)
         assertThat(sdkSharedPreferencesAfterDelete.contains("test")).isFalse()
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun moveSharedPreferencesFrom_migrateSharedPreferencesFromAnotherSdkContext() {
-        val sourceAppStorageContext = if (sdkContextCompat.isDeviceProtectedStorage) {
-            ApplicationProvider.getApplicationContext()
-        } else {
-            appStorageContext.createDeviceProtectedStorageContext()
-        }
-        val sourceContext = SandboxedSdkContextCompat(
-            sourceAppStorageContext,
-            sdkPackageName = SDK_PACKAGE_NAME,
-            classLoader = javaClass.classLoader!!.parent!!
-        )
+        val sourceAppStorageContext =
+            if (sdkContextCompat.isDeviceProtectedStorage) {
+                ApplicationProvider.getApplicationContext()
+            } else {
+                appStorageContext.createDeviceProtectedStorageContext()
+            }
+        val sourceContext =
+            SandboxedSdkContextCompat(
+                sourceAppStorageContext,
+                sdkPackageName = SDK_PACKAGE_NAME,
+                classLoader = javaClass.classLoader!!.parent!!
+            )
 
         val sdkSharedPreferencesName = "testMoveTo$contextType"
 
         sourceContext.deleteSharedPreferences(sdkSharedPreferencesName)
-        val sourceSharedPreferences = sourceContext.getSharedPreferences(
-            sdkSharedPreferencesName,
-            Context.MODE_PRIVATE
-        )
+        val sourceSharedPreferences =
+            sourceContext.getSharedPreferences(sdkSharedPreferencesName, Context.MODE_PRIVATE)
         sourceSharedPreferences.edit().putInt("test", 42).commit()
 
-        val moveResult = sdkContextCompat.moveSharedPreferencesFrom(
-            sourceContext,
-            sdkSharedPreferencesName
-        )
+        val moveResult =
+            sdkContextCompat.moveSharedPreferencesFrom(sourceContext, sdkSharedPreferencesName)
         assertThat(moveResult).isTrue()
 
-        val migratedSharedPreferences = sdkContextCompat.getSharedPreferences(
-            sdkSharedPreferencesName,
-            Context.MODE_PRIVATE
-        )
+        val migratedSharedPreferences =
+            sdkContextCompat.getSharedPreferences(sdkSharedPreferencesName, Context.MODE_PRIVATE)
 
         val result = migratedSharedPreferences.getInt("test", 0)
-        assertThat(result)
-            .isEqualTo(42)
+        assertThat(result).isEqualTo(42)
 
-        val oldSharedPreferences = sourceContext.getSharedPreferences(
-            sdkSharedPreferencesName,
-            Context.MODE_PRIVATE
-        )
+        val oldSharedPreferences =
+            sourceContext.getSharedPreferences(sdkSharedPreferencesName, Context.MODE_PRIVATE)
         assertThat(oldSharedPreferences.contains("test")).isFalse()
     }
 
@@ -456,18 +413,13 @@ internal class SandboxedSdkContextCompatTest(
         fun params(): List<Array<Any>> = buildList {
             val appContext = ApplicationProvider.getApplicationContext<Context>()
 
-            val sdkContext = SandboxedSdkContextCompat(
-                appContext,
-                sdkPackageName = SDK_PACKAGE_NAME,
-                classLoader = javaClass.classLoader!!.parent!!
-            )
-            add(
-                arrayOf(
-                    "SimpleContext",
-                    sdkContext,
-                    appContext
+            val sdkContext =
+                SandboxedSdkContextCompat(
+                    appContext,
+                    sdkPackageName = SDK_PACKAGE_NAME,
+                    classLoader = javaClass.classLoader!!.parent!!
                 )
-            )
+            add(arrayOf("SimpleContext", sdkContext, appContext))
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val deviceProtectedSdkContext = sdkContext.createDeviceProtectedStorageContext()

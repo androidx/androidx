@@ -39,12 +39,8 @@ open class AppSetIdManagerImplCommon(
     }
 
     private suspend fun getAppSetIdAsyncInternal(): android.adservices.appsetid.AppSetId =
-        suspendCancellableCoroutine {
-                continuation ->
-            mAppSetIdManager.getAppSetId(
-                Runnable::run,
-                continuation.asOutcomeReceiver()
-            )
+        suspendCancellableCoroutine { continuation ->
+            mAppSetIdManager.getAppSetId(Runnable::run, continuation.asOutcomeReceiver())
         }
 
     private fun convertResponse(response: android.adservices.appsetid.AppSetId): AppSetId {

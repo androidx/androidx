@@ -70,14 +70,15 @@ class TestAdapters(val sdkContext: Context) {
         ) {
             sessionClientExecutor = clientExecutor
             sessionClient = client
-            Handler(Looper.getMainLooper()).post(Runnable lambda@{
-                Log.d(TAG, "Session requested")
-                val adView: View = buildAdView(context) ?: return@lambda
-                adView.layoutParams = ViewGroup.LayoutParams(initialWidth, initialHeight)
-                clientExecutor.execute {
-                    client.onSessionOpened(BannerAdSession(adView))
-                }
-            })
+            Handler(Looper.getMainLooper())
+                .post(
+                    Runnable lambda@{
+                        Log.d(TAG, "Session requested")
+                        val adView: View = buildAdView(context) ?: return@lambda
+                        adView.layoutParams = ViewGroup.LayoutParams(initialWidth, initialHeight)
+                        clientExecutor.execute { client.onSessionOpened(BannerAdSession(adView)) }
+                    }
+                )
         }
 
         private inner class BannerAdSession(private val adView: View) : SandboxedUiAdapter.Session {
@@ -107,15 +108,16 @@ class TestAdapters(val sdkContext: Context) {
     inner class WebViewBannerAd() : BannerAd() {
         private fun isAirplaneModeOn(): Boolean {
             return Settings.Global.getInt(
-                sdkContext.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
+                sdkContext.contentResolver,
+                Settings.Global.AIRPLANE_MODE_ON,
+                0
+            ) != 0
         }
 
         override fun buildAdView(sessionContext: Context): View? {
             if (isAirplaneModeOn()) {
                 sessionClientExecutor.execute {
-                    sessionClient.onSessionError(
-                        Throwable("Cannot load WebView in airplane mode.")
-                    )
+                    sessionClient.onSessionError(Throwable("Cannot load WebView in airplane mode."))
                 }
                 return null
             }
@@ -129,10 +131,11 @@ class TestAdapters(val sdkContext: Context) {
     inner class LocalViewBannerAd() : BannerAd() {
         override fun buildAdView(sessionContext: Context): View {
             val webView = WebView(sessionContext)
-            val assetLoader = WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(sdkContext))
-                .addPathHandler("/res/", WebViewAssetLoader.ResourcesPathHandler(sdkContext))
-                .build()
+            val assetLoader =
+                WebViewAssetLoader.Builder()
+                    .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(sdkContext))
+                    .addPathHandler("/res/", WebViewAssetLoader.ResourcesPathHandler(sdkContext))
+                    .build()
             webView.webViewClient = LocalContentWebViewClient(assetLoader)
             customizeWebViewSettings(webView.settings)
             webView.loadUrl(LOCAL_WEB_VIEW_URL)
@@ -146,8 +149,7 @@ class TestAdapters(val sdkContext: Context) {
         private val text: String
     ) : View(context) {
 
-        private val viewColor = Color
-            .rgb((0..255).random(), (0..255).random(), (0..255).random())
+        private val viewColor = Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
 
         @SuppressLint("BanThreadSleep")
         override fun onDraw(canvas: Canvas) {
@@ -176,20 +178,17 @@ class TestAdapters(val sdkContext: Context) {
 
     private inner class LocalContentWebViewClient(private val assetLoader: WebViewAssetLoader) :
         WebViewClientCompat() {
-            override fun shouldInterceptRequest(
-                view: WebView,
-                request: WebResourceRequest
-            ): WebResourceResponse? {
-                return assetLoader.shouldInterceptRequest(request.url)
-            }
+        override fun shouldInterceptRequest(
+            view: WebView,
+            request: WebResourceRequest
+        ): WebResourceResponse? {
+            return assetLoader.shouldInterceptRequest(request.url)
+        }
 
-            @Deprecated("Deprecated in Java")
-            override fun shouldInterceptRequest(
-                view: WebView,
-                url: String
-            ): WebResourceResponse? {
-                return assetLoader.shouldInterceptRequest(Uri.parse(url))
-            }
+        @Deprecated("Deprecated in Java")
+        override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
+            return assetLoader.shouldInterceptRequest(Uri.parse(url))
+        }
     }
 
     private fun customizeWebViewSettings(settings: WebSettings) {
@@ -211,6 +210,6 @@ class TestAdapters(val sdkContext: Context) {
         private const val TAG = "TestSandboxSdk"
         private const val GOOGLE_URL = "https://www.google.com/"
         private const val LOCAL_WEB_VIEW_URL =
-                "https://appassets.androidplatform.net/assets/www/webview-test.html"
+            "https://appassets.androidplatform.net/assets/www/webview-test.html"
     }
 }

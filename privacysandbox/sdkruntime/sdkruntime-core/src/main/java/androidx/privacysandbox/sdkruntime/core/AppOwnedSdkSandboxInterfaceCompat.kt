@@ -26,15 +26,15 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 /**
  * Represents a channel for an SDK in the sandbox process to interact with the app.
  *
- * The SDK and the app can agree on a binder interface to be implemented by the app and shared
- * via an object of [AppOwnedSdkSandboxInterfaceCompat].
+ * The SDK and the app can agree on a binder interface to be implemented by the app and shared via
+ * an object of [AppOwnedSdkSandboxInterfaceCompat].
  *
- * The app registers the AppOwnedSdkSandboxInterfaces using SdkSandboxManagerCompat.
- * The SDK can then query the list of registered interfaces using SdkSandboxControllerCompat.
+ * The app registers the AppOwnedSdkSandboxInterfaces using SdkSandboxManagerCompat. The SDK can
+ * then query the list of registered interfaces using SdkSandboxControllerCompat.
  *
  * Once SDK has the [AppOwnedSdkSandboxInterfaceCompat] it wants to communicate with, it will have
- * to cast the binder object from [getInterface] to the prearranged interface before initiating
- * the communication.
+ * to cast the binder object from [getInterface] to the prearranged interface before initiating the
+ * communication.
  */
 class AppOwnedSdkSandboxInterfaceCompat(
     private val name: String,
@@ -49,7 +49,9 @@ class AppOwnedSdkSandboxInterfaceCompat(
      */
     @RequiresExtension(extension = AD_SERVICES, version = 8)
     @RestrictTo(LIBRARY_GROUP)
-    constructor(appOwnedSdkInterface: AppOwnedSdkSandboxInterface) : this(
+    constructor(
+        appOwnedSdkInterface: AppOwnedSdkSandboxInterface
+    ) : this(
         name = appOwnedSdkInterface.getName(),
         version = appOwnedSdkInterface.getVersion(),
         binder = appOwnedSdkInterface.getInterface(),
@@ -65,19 +67,19 @@ class AppOwnedSdkSandboxInterfaceCompat(
     /**
      * Returns the version used to register the [AppOwnedSdkSandboxInterfaceCompat].
      *
-     * A version may be chosen by an app, and used to communicate any updates the app makes to
-     * this implementation.
+     * A version may be chosen by an app, and used to communicate any updates the app makes to this
+     * implementation.
      */
     fun getVersion(): Long = version
 
     /**
      * Returns binder object associated with [AppOwnedSdkSandboxInterfaceCompat].
      *
-     * The SDK and the app can agree on a binder interface to be implemented by the app and
-     * shared via this object.
+     * The SDK and the app can agree on a binder interface to be implemented by the app and shared
+     * via this object.
      *
-     * The SDK in the sandbox will have to cast the binder object received from this method to
-     * the agreed upon interface before using it.
+     * The SDK in the sandbox will have to cast the binder object received from this method to the
+     * agreed upon interface before using it.
      */
     fun getInterface(): IBinder = binder
 

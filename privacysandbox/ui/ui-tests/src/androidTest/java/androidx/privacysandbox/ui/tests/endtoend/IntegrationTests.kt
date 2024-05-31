@@ -57,8 +57,7 @@ import org.junit.runners.Parameterized
 @MediumTest
 class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
-    @get:Rule
-    var activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
+    @get:Rule var activityScenarioRule = ActivityScenarioRule(MainActivity::class.java)
 
     companion object {
         const val INITIAL_HEIGHT = 100
@@ -66,10 +65,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
         @JvmStatic
         @Parameterized.Parameters(name = "invokeBackwardsCompatFlow={0}")
-        fun data(): Array<Any> = arrayOf(
-            arrayOf(true),
-            arrayOf(false),
-        )
+        fun data(): Array<Any> =
+            arrayOf(
+                arrayOf(true),
+                arrayOf(false),
+            )
     }
 
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -99,10 +99,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             stateChangeListener = TestStateChangeListener(errorLatch)
             view.addStateChangedListener(stateChangeListener)
             linearLayout = LinearLayout(context)
-            linearLayout.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-            )
+            linearLayout.layoutParams =
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                )
             linearLayout.setBackgroundColor(Color.RED)
             setContentView(linearLayout)
             view.layoutParams = LinearLayout.LayoutParams(INITIAL_WIDTH, INITIAL_HEIGHT)
@@ -118,14 +119,14 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         val layoutChangeLatch = CountDownLatch(1)
         val childAddedLatch = CountDownLatch(1)
 
-        val hierarchyChangeListener = object : ViewGroup.OnHierarchyChangeListener {
-            override fun onChildViewAdded(parent: View, child: View) {
-                childAddedLatch.countDown()
-            }
+        val hierarchyChangeListener =
+            object : ViewGroup.OnHierarchyChangeListener {
+                override fun onChildViewAdded(parent: View, child: View) {
+                    childAddedLatch.countDown()
+                }
 
-            override fun onChildViewRemoved(p0: View?, p1: View?) {
+                override fun onChildViewRemoved(p0: View?, p1: View?) {}
             }
-        }
         view.setOnHierarchyChangeListener(hierarchyChangeListener)
 
         val onLayoutChangeListener: OnLayoutChangeListener =
@@ -176,13 +177,12 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         }
 
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
-        assertWithMessage("Configuration changed").that(testSession.config?.orientation)
-                .isEqualTo(Configuration.ORIENTATION_LANDSCAPE)
+        assertWithMessage("Configuration changed")
+            .that(testSession.config?.orientation)
+            .isEqualTo(Configuration.ORIENTATION_LANDSCAPE)
     }
 
-    /**
-     * Tests that the provider receives Z-order change updates.
-     */
+    /** Tests that the provider receives Z-order change updates. */
     @Test
     @Ignore("b/302090927")
     fun testZOrderChanged() {
@@ -193,9 +193,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         assertThat(testSession.zOrderChanged).isTrue()
     }
 
-    /**
-     * Tests that the provider does not receive Z-order updates if the Z-order is unchanged.
-     */
+    /** Tests that the provider does not receive Z-order updates if the Z-order is unchanged. */
     @Test
     fun testZOrderUnchanged() {
         val adapter = sessionManager.createAdapterAndEstablishSession(viewForSession = view)
@@ -210,10 +208,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         // TODO(b/301976432): Stop skipping this for backwards compat flow
         assumeTrue(!invokeBackwardsCompatFlow)
 
-        val adapter = sessionManager.createAdapterAndWaitToBeActive(
-            viewForSession = view,
-            initialZOrder = true
-        )
+        val adapter =
+            sessionManager.createAdapterAndWaitToBeActive(
+                viewForSession = view,
+                initialZOrder = true
+            )
         injectInputEventOnView()
         // the injected touch should be handled by the provider in Z-above mode
         assertThat(adapter.touchedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
@@ -225,10 +224,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         // TODO(b/300396631): Skip for backward compat
         assumeTrue(!invokeBackwardsCompatFlow)
 
-        val adapter = sessionManager.createAdapterAndWaitToBeActive(
-            viewForSession = view,
-            initialZOrder = false
-        )
+        val adapter =
+            sessionManager.createAdapterAndWaitToBeActive(
+                viewForSession = view,
+                initialZOrder = false
+            )
         injectInputEventOnView()
         // the injected touch should not reach the provider in Z-below mode
         assertThat(adapter.touchedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
@@ -246,13 +246,16 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
     }
 
     /**
-     * Tests that a provider-initiated resize is accepted if the view's parent does not impose
-     * exact restrictions on the view's size.
+     * Tests that a provider-initiated resize is accepted if the view's parent does not impose exact
+     * restrictions on the view's size.
      */
     @Test
     fun testResizeRequested_requestedAccepted_atMostMeasureSpec() {
-        view.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        view.layoutParams =
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
         val sdkAdapter = sessionManager.createAdapterAndWaitToBeActive(viewForSession = view)
 
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
@@ -266,7 +269,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         assertWithMessage("Resized width").that(testSession.resizedHeight).isEqualTo(newHeight)
         testSession.assertResizeOccurred(
             /* expectedWidth=*/ newWidth,
-            /* expectedHeight=*/ newHeight)
+            /* expectedHeight=*/ newHeight
+        )
     }
 
     /**
@@ -295,13 +299,12 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         }
 
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
-        assertWithMessage("Resized width").that(testSession.resizedWidth)
-            .isEqualTo(newWidth)
-        assertWithMessage("Resized height").that(testSession.resizedHeight)
-            .isEqualTo(newHeight)
+        assertWithMessage("Resized width").that(testSession.resizedWidth).isEqualTo(newWidth)
+        assertWithMessage("Resized height").that(testSession.resizedHeight).isEqualTo(newHeight)
         testSession.assertResizeOccurred(
             /* expectedWidth=*/ newWidth,
-            /* expectedHeight=*/ newHeight)
+            /* expectedHeight=*/ newHeight
+        )
     }
 
     @Test
@@ -310,10 +313,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         assumeTrue(invokeBackwardsCompatFlow)
 
         val testSessionClient = TestSessionClient()
-        val sdkAdapter = sessionManager.createAdapterAndEstablishSession(
-            viewForSession = null,
-            testSessionClient = testSessionClient
-        )
+        val sdkAdapter =
+            sessionManager.createAdapterAndEstablishSession(
+                viewForSession = null,
+                testSessionClient = testSessionClient
+            )
 
         // Verify toString, hashCode and equals have been implemented for dynamic proxy
         val testSession = sdkAdapter.session as TestSandboxedUiAdapter.TestSession
@@ -331,9 +335,11 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
      */
     @Test
     fun testViewGroup_ChildViewIsLaidOut() {
-        val adapter = sessionManager.createAdapterAndWaitToBeActive(
-            viewForSession = view,
-            placeViewInsideFrameLayout = true)
+        val adapter =
+            sessionManager.createAdapterAndWaitToBeActive(
+                viewForSession = view,
+                placeViewInsideFrameLayout = true
+            )
         val session = adapter.session as TestSandboxedUiAdapter.TestSession
 
         // Force a layout pass by changing the size of the view
@@ -347,16 +353,19 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         activityScenarioRule.withActivity {
             val location = IntArray(2)
             view.getLocationOnScreen(location)
-            InstrumentationRegistry.getInstrumentation().uiAutomation.injectInputEvent(
-                MotionEvent.obtain(
-                    SystemClock.uptimeMillis(),
-                    SystemClock.uptimeMillis(),
-                    MotionEvent.ACTION_DOWN,
-                    (location[0] + 1).toFloat(),
-                    (location[1] + 1).toFloat(),
-                    0
-                ), false
-            )
+            InstrumentationRegistry.getInstrumentation()
+                .uiAutomation
+                .injectInputEvent(
+                    MotionEvent.obtain(
+                        SystemClock.uptimeMillis(),
+                        SystemClock.uptimeMillis(),
+                        MotionEvent.ACTION_DOWN,
+                        (location[0] + 1).toFloat(),
+                        (location[1] + 1).toFloat(),
+                        0
+                    ),
+                    false
+                )
         }
     }
 

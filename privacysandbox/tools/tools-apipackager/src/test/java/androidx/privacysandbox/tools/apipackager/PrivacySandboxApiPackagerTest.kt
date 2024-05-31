@@ -41,9 +41,11 @@ class PrivacySandboxApiPackagerTest {
 
     @Test
     fun validSdkClasspath_onlyAnnotatedClassesAreReturned() {
-        val packagedSdkClasspath = compileAndReturnUnzippedPackagedClasspath(
-            Source.kotlin(
-                "com/mysdk/TestSandboxSdk.kt", """
+        val packagedSdkClasspath =
+            compileAndReturnUnzippedPackagedClasspath(
+                Source.kotlin(
+                    "com/mysdk/TestSandboxSdk.kt",
+                    """
                     |package com.mysdk
                     |
                     |import androidx.privacysandbox.tools.PrivacySandboxCallback
@@ -64,27 +66,32 @@ class PrivacySandboxApiPackagerTest {
                     |}
                     |
                     |data class DataClassThatShouldBeIgnored(val id: Int)
-                """.trimMargin()
+                """
+                        .trimMargin()
+                )
             )
-        )
 
-        val relativeDescriptorPaths = packagedSdkClasspath
-            .walk()
-            .filter { it.isFile }
-            .map { packagedSdkClasspath.toPath().relativize(it.toPath()).toString() }
-            .toList()
-        assertThat(relativeDescriptorPaths).containsExactly(
-            "com/mysdk/MySdk.class",
-            "com/mysdk/MySdkCallback.class",
-            "com/mysdk/Value.class",
-        )
+        val relativeDescriptorPaths =
+            packagedSdkClasspath
+                .walk()
+                .filter { it.isFile }
+                .map { packagedSdkClasspath.toPath().relativize(it.toPath()).toString() }
+                .toList()
+        assertThat(relativeDescriptorPaths)
+            .containsExactly(
+                "com/mysdk/MySdk.class",
+                "com/mysdk/MySdkCallback.class",
+                "com/mysdk/Value.class",
+            )
     }
 
     @Test
     fun validSdkClasspath_packagedDescriptorsCanBeLinkedAgainst() {
-        val packagedSdkClasspath = compileAndReturnUnzippedPackagedClasspath(
-            Source.kotlin(
-                "com/mysdk/TestSandboxSdk.kt", """
+        val packagedSdkClasspath =
+            compileAndReturnUnzippedPackagedClasspath(
+                Source.kotlin(
+                    "com/mysdk/TestSandboxSdk.kt",
+                    """
                     |package com.mysdk
                     |
                     |import androidx.privacysandbox.tools.PrivacySandboxCallback
@@ -105,13 +112,15 @@ class PrivacySandboxApiPackagerTest {
                     |object MySdkFactory {
                     |    fun wrapToMySdk(): MySdk = throw RuntimeException("Stub!")
                     |}
-                """.trimMargin()
+                """
+                        .trimMargin()
+                )
             )
-        )
 
         val appSource =
             Source.kotlin(
-                "com/exampleapp/App.kt", """
+                "com/exampleapp/App.kt",
+                """
                 |package com.exampleapp
                 |
                 |import com.mysdk.MySdk
@@ -124,39 +133,42 @@ class PrivacySandboxApiPackagerTest {
                 |    val sdkValue: Value,
                 |    val callback: MySdkCallback,
                 |)
-            """.trimMargin()
+            """
+                    .trimMargin()
             )
         assertThat(compileWithExtraClasspath(appSource, packagedSdkClasspath)).succeeds()
     }
+
     @Test
     fun sdkClasspathWithMetadataFile_isKeptInDescriptor() {
-        val metadata = ToolMetadata.newBuilder()
-            .setCodeGenerationVersion(42)
-            .build()
-        val source = Source.kotlin(
-            "com/mysdk/Valid.kt", """
+        val metadata = ToolMetadata.newBuilder().setCodeGenerationVersion(42).build()
+        val source =
+            Source.kotlin(
+                "com/mysdk/Valid.kt",
+                """
             |package com.mysdk
             |interface Valid
-        """.trimMargin()
-        )
-        val sdkClasspath = compileAll(listOf(source))
-            .outputClasspath.first().toPath()
+        """
+                    .trimMargin()
+            )
+        val sdkClasspath = compileAll(listOf(source)).outputClasspath.first().toPath()
 
-        val metadataPath = sdkClasspath.resolve(Metadata.filePath).also {
-            it.parent.createDirectories()
-            it.createFile()
-        }
+        val metadataPath =
+            sdkClasspath.resolve(Metadata.filePath).also {
+                it.parent.createDirectories()
+                it.createFile()
+            }
         metadata.writeTo(metadataPath.outputStream())
 
         val sdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")
         PrivacySandboxApiPackager().packageSdkDescriptors(sdkClasspath, sdkDescriptor)
         val packagedMetadata =
             ZipInputStream(sdkDescriptor.inputStream()).use { input ->
-            generateSequence { input.nextEntry }
-                .filter { it.name == Metadata.filePath.toString() }
-                .map { ToolMetadata.parseFrom(input.readAllBytes()) }
-                .toList()
-        }
+                generateSequence { input.nextEntry }
+                    .filter { it.name == Metadata.filePath.toString() }
+                    .map { ToolMetadata.parseFrom(input.readAllBytes()) }
+                    .toList()
+            }
 
         assertThat(packagedMetadata).containsExactly(metadata)
     }
@@ -166,43 +178,39 @@ class PrivacySandboxApiPackagerTest {
         val invalidClasspathFile = makeTestDirectory().resolve("dir_that_does_not_exist")
         val validSdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")
         assertThrows<IllegalArgumentException> {
-            PrivacySandboxApiPackager().packageSdkDescriptors(
-                invalidClasspathFile, validSdkDescriptor
-            )
+            PrivacySandboxApiPackager()
+                .packageSdkDescriptors(invalidClasspathFile, validSdkDescriptor)
         }
     }
 
     @Test
     fun sdkClasspathNotADirectory_throwException() {
-        val invalidClasspathFile = makeTestDirectory().resolve("invalid-file.txt").also {
-            it.createFile()
-        }
+        val invalidClasspathFile =
+            makeTestDirectory().resolve("invalid-file.txt").also { it.createFile() }
         val validSdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")
         assertThrows<IllegalArgumentException> {
-            PrivacySandboxApiPackager().packageSdkDescriptors(
-                invalidClasspathFile, validSdkDescriptor
-            )
+            PrivacySandboxApiPackager()
+                .packageSdkDescriptors(invalidClasspathFile, validSdkDescriptor)
         }
     }
 
     @Test
     fun outputAlreadyExists_throwException() {
-        val source = Source.kotlin(
-            "com/mysdk/Valid.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/Valid.kt",
+                """
             |package com.mysdk
             |interface Valid
-        """.trimMargin()
-        )
-        val sdkClasspath = compileAll(listOf(source))
-            .outputClasspath.first().toPath()
-        val descriptorPathThatAlreadyExists =
-            makeTestDirectory().resolve("sdk-descriptors.jar").also {
-                it.createFile()
-            }
-        assertThrows<IllegalArgumentException> {
-            PrivacySandboxApiPackager().packageSdkDescriptors(
-                sdkClasspath, descriptorPathThatAlreadyExists
+        """
+                    .trimMargin()
             )
+        val sdkClasspath = compileAll(listOf(source)).outputClasspath.first().toPath()
+        val descriptorPathThatAlreadyExists =
+            makeTestDirectory().resolve("sdk-descriptors.jar").also { it.createFile() }
+        assertThrows<IllegalArgumentException> {
+            PrivacySandboxApiPackager()
+                .packageSdkDescriptors(sdkClasspath, descriptorPathThatAlreadyExists)
         }
     }
 
@@ -230,14 +238,13 @@ class PrivacySandboxApiPackagerTest {
     }
 
     private fun makeTestDirectory(): Path {
-        return Files.createTempDirectory("test")
-            .also {
-                it.toFile().deleteOnExit()
-            }
+        return Files.createTempDirectory("test").also { it.toFile().deleteOnExit() }
     }
 
-    private fun compileWithExtraClasspath(source: Source, extraClasspath: File):
-        TestCompilationResult {
+    private fun compileWithExtraClasspath(
+        source: Source,
+        extraClasspath: File
+    ): TestCompilationResult {
         return compileAll(
             listOf(source),
             extraClasspath = listOf(extraClasspath),

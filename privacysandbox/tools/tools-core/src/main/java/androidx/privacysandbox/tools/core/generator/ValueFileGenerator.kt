@@ -24,9 +24,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
-/**
- * Generates a file that defines a previously declared SDK value.
- */
+/** Generates a file that defines a previously declared SDK value. */
 class ValueFileGenerator {
     fun generate(value: AnnotatedValue) =
         FileSpec.builder(value.type.packageName, value.type.simpleName).build {
@@ -39,13 +37,14 @@ class ValueFileGenerator {
             is AnnotatedDataClass ->
                 TypeSpec.classBuilder(value.type.poetClassName()).build {
                     addModifiers(KModifier.DATA)
-                    primaryConstructor(value.properties.map {
-                        PropertySpec.builder(it.name, it.type.poetTypeName())
-                            .mutable(false)
-                            .build()
-                    })
+                    primaryConstructor(
+                        value.properties.map {
+                            PropertySpec.builder(it.name, it.type.poetTypeName())
+                                .mutable(false)
+                                .build()
+                        }
+                    )
                 }
-
             is AnnotatedEnumClass ->
                 TypeSpec.enumBuilder(value.type.poetClassName()).build {
                     value.variants.forEach(::addEnumConstant)

@@ -29,22 +29,23 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  * @param seller AdTechIdentifier of the seller, for example "www.example-ssp.com".
  */
 @ExperimentalFeatures.Ext10OptIn
-class GetAdSelectionDataRequest public constructor(
+class GetAdSelectionDataRequest
+public constructor(
     val seller: AdTechIdentifier? = null,
 ) {
-    /** Checks whether two [GetAdSelectionDataRequest] objects contain the same information.  */
+    /** Checks whether two [GetAdSelectionDataRequest] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GetAdSelectionDataRequest) return false
         return this.seller == other.seller
     }
 
-    /** Returns the hash of the [GetAdSelectionDataRequest] object's data.  */
+    /** Returns the hash of the [GetAdSelectionDataRequest] object's data. */
     override fun hashCode(): Int {
         return seller.hashCode()
     }
 
-    /** Overrides the toString method.  */
+    /** Overrides the toString method. */
     override fun toString(): String {
         return "GetAdSelectionDataRequest: seller=$seller"
     }

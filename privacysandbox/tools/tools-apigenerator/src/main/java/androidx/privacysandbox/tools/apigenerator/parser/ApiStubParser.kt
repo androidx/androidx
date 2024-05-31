@@ -50,15 +50,17 @@ internal object ApiStubParser {
     internal fun parse(sdkStubsClasspath: Path): ParsedApi {
         val (services, values, callbacks, interfaces) =
             AnnotatedClassReader.readAnnotatedClasses(sdkStubsClasspath)
-        if (services.isEmpty()) throw PrivacySandboxParsingException(
-            "Unable to find valid interfaces annotated with @PrivacySandboxService."
-        )
+        if (services.isEmpty())
+            throw PrivacySandboxParsingException(
+                "Unable to find valid interfaces annotated with @PrivacySandboxService."
+            )
         return ParsedApi(
-            services.map { parseInterface(it, "PrivacySandboxService") }.toSet(),
-            values.map(::parseValue).toSet(),
-            callbacks.map { parseInterface(it, "PrivacySandboxCallback") }.toSet(),
-            interfaces.map { parseInterface(it, "PrivacySandboxInterface") }.toSet(),
-        ).also(::validate)
+                services.map { parseInterface(it, "PrivacySandboxService") }.toSet(),
+                values.map(::parseValue).toSet(),
+                callbacks.map { parseInterface(it, "PrivacySandboxCallback") }.toSet(),
+                interfaces.map { parseInterface(it, "PrivacySandboxInterface") }.toSet(),
+            )
+            .also(::validate)
     }
 
     private fun parseInterface(service: KmClass, annotationName: String): AnnotatedInterface {
@@ -89,11 +91,15 @@ internal object ApiStubParser {
                     "annotated with @PrivacySandboxValue."
             )
         }
-        val superTypes = value.supertypes.asSequence().map { it.classifier }
-            .filterIsInstance<KmClassifier.Class>()
-            .map { it.name }
-            .filter { it !in listOf("kotlin/Enum", "kotlin/Any") }
-            .map { parseClassName(it) }.toList()
+        val superTypes =
+            value.supertypes
+                .asSequence()
+                .map { it.classifier }
+                .filterIsInstance<KmClassifier.Class>()
+                .map { it.name }
+                .filter { it !in listOf("kotlin/Enum", "kotlin/Any") }
+                .map { parseClassName(it) }
+                .toList()
         if (superTypes.isNotEmpty()) {
             throw PrivacySandboxParsingException(
                 "Error in ${type.qualifiedName}: values annotated with @PrivacySandboxValue may " +
@@ -111,10 +117,7 @@ internal object ApiStubParser {
     }
 
     /** Parses properties and sorts them based on the order of constructor parameters. */
-    private fun parseProperties(
-        type: Type,
-        valueClass: KmClass
-    ): List<ValueProperty> {
+    private fun parseProperties(type: Type, valueClass: KmClass): List<ValueProperty> {
         // TODO: handle multiple constructors.
         if (valueClass.constructors.size != 1) {
             throw PrivacySandboxParsingException("Multiple constructors for values not supported.")
@@ -161,9 +164,8 @@ internal object ApiStubParser {
     ): Type {
         // Package names are separated with slashes and nested classes are separated with dots.
         // (e.g com/example/OuterClass.InnerClass).
-        val (packageName, simpleName) = className.split('/').run {
-            dropLast(1).joinToString(separator = ".") to last()
-        }
+        val (packageName, simpleName) =
+            className.split('/').run { dropLast(1).joinToString(separator = ".") to last() }
 
         if (simpleName.contains('.')) {
             throw PrivacySandboxParsingException(
@@ -179,8 +181,7 @@ internal object ApiStubParser {
         val validationResult = ModelValidator.validate(api)
         if (validationResult.isFailure) {
             throw PrivacySandboxParsingException(
-                "Invalid API descriptors:\n" +
-                    validationResult.errors.joinToString("\n")
+                "Invalid API descriptors:\n" + validationResult.errors.joinToString("\n")
             )
         }
     }

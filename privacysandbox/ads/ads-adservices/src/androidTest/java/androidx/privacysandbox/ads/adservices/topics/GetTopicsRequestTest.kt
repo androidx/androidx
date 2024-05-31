@@ -33,10 +33,11 @@ class GetTopicsRequestTest {
         Truth.assertThat(request.toString()).isEqualTo(result)
 
         // Verify Builder.
-        val request2 = GetTopicsRequest.Builder()
-            .setAdsSdkName("sdk1")
-            .setShouldRecordObservation(false)
-            .build()
+        val request2 =
+            GetTopicsRequest.Builder()
+                .setAdsSdkName("sdk1")
+                .setShouldRecordObservation(false)
+                .build()
         Truth.assertThat(request.toString()).isEqualTo(result)
 
         // Verify equality.
@@ -50,9 +51,7 @@ class GetTopicsRequestTest {
         Truth.assertThat(request.toString()).isEqualTo(result)
 
         // Verify Builder.
-        val request2 = GetTopicsRequest.Builder()
-            .setShouldRecordObservation(true)
-            .build()
+        val request2 = GetTopicsRequest.Builder().setShouldRecordObservation(true).build()
         Truth.assertThat(request.toString()).isEqualTo(result)
 
         // Verify equality.
@@ -62,10 +61,7 @@ class GetTopicsRequestTest {
     @Test
     fun testBuilder_setEmptyAdsSdkName_throwsError() {
         assertThrows(IllegalStateException::class.java) {
-            GetTopicsRequest.Builder()
-                .setAdsSdkName("")
-                .setShouldRecordObservation(true)
-                .build()
+            GetTopicsRequest.Builder().setAdsSdkName("").setShouldRecordObservation(true).build()
         }
     }
 }

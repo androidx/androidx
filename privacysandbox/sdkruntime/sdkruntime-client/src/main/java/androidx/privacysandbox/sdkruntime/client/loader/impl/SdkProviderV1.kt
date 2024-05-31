@@ -27,16 +27,12 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-/**
- * Provides interface for interaction with locally loaded SDK with ApiVersion 1.
- *
- */
-internal class SdkProviderV1 private constructor(
+/** Provides interface for interaction with locally loaded SDK with ApiVersion 1. */
+internal class SdkProviderV1
+private constructor(
     sdkProvider: Any,
-
     private val onLoadSdkMethod: Method,
     private val beforeUnloadSdkMethod: Method,
-
     private val sandboxedSdkCompatBuilder: SandboxedSdkCompatBuilderV1,
     private val loadSdkCompatExceptionBuilder: LoadSdkCompatExceptionBuilderV1
 ) : LocalSdkProvider(sdkProvider) {
@@ -62,7 +58,8 @@ internal class SdkProviderV1 private constructor(
         beforeUnloadSdkMethod.invoke(sdkProvider)
     }
 
-    internal class SandboxedSdkCompatBuilderV1 private constructor(
+    internal class SandboxedSdkCompatBuilderV1
+    private constructor(
         private val sdkInfo: SandboxedSdkInfo?,
         private val getInterfaceMethod: Method
     ) {
@@ -79,11 +76,12 @@ internal class SdkProviderV1 private constructor(
                 classLoader: ClassLoader,
                 sdkConfig: LocalSdkConfig
             ): SandboxedSdkCompatBuilderV1 {
-                val sandboxedSdkCompatClass = Class.forName(
-                    SandboxedSdkCompat::class.java.name,
-                    /* initialize = */ false,
-                    classLoader
-                )
+                val sandboxedSdkCompatClass =
+                    Class.forName(
+                        SandboxedSdkCompat::class.java.name,
+                        /* initialize = */ false,
+                        classLoader
+                    )
                 val getInterfaceMethod = sandboxedSdkCompatClass.getMethod("getInterface")
                 val sdkInfo = sdkInfo(sdkConfig)
                 return SandboxedSdkCompatBuilderV1(sdkInfo, getInterfaceMethod)
@@ -99,7 +97,8 @@ internal class SdkProviderV1 private constructor(
         }
     }
 
-    internal class LoadSdkCompatExceptionBuilderV1 private constructor(
+    internal class LoadSdkCompatExceptionBuilderV1
+    private constructor(
         private val getLoadSdkErrorCodeMethod: Method,
         private val getExtraInformationMethod: Method
     ) {
@@ -130,17 +129,16 @@ internal class SdkProviderV1 private constructor(
 
         companion object {
             fun create(classLoader: ClassLoader): LoadSdkCompatExceptionBuilderV1 {
-                val loadSdkCompatExceptionClass = Class.forName(
-                    LoadSdkCompatException::class.java.name,
-                    /* initialize = */ false,
-                    classLoader
-                )
-                val getLoadSdkErrorCodeMethod = loadSdkCompatExceptionClass.getMethod(
-                    "getLoadSdkErrorCode"
-                )
-                val getExtraInformationMethod = loadSdkCompatExceptionClass.getMethod(
-                    "getExtraInformation"
-                )
+                val loadSdkCompatExceptionClass =
+                    Class.forName(
+                        LoadSdkCompatException::class.java.name,
+                        /* initialize = */ false,
+                        classLoader
+                    )
+                val getLoadSdkErrorCodeMethod =
+                    loadSdkCompatExceptionClass.getMethod("getLoadSdkErrorCode")
+                val getExtraInformationMethod =
+                    loadSdkCompatExceptionClass.getMethod("getExtraInformation")
                 return LoadSdkCompatExceptionBuilderV1(
                     getLoadSdkErrorCodeMethod,
                     getExtraInformationMethod
@@ -157,26 +155,19 @@ internal class SdkProviderV1 private constructor(
             sdkConfig: LocalSdkConfig,
             appContext: Context
         ): SdkProviderV1 {
-            val sdkProviderClass = Class.forName(
-                sdkConfig.entryPoint,
-                /* initialize = */ false,
-                classLoader
-            )
+            val sdkProviderClass =
+                Class.forName(sdkConfig.entryPoint, /* initialize= */ false, classLoader)
             val attachContextMethod =
                 sdkProviderClass.getMethod("attachContext", Context::class.java)
             val onLoadSdkMethod = sdkProviderClass.getMethod("onLoadSdk", Bundle::class.java)
             val beforeUnloadSdkMethod = sdkProviderClass.getMethod("beforeUnloadSdk")
             val sandboxedSdkCompatBuilder =
                 SandboxedSdkCompatBuilderV1.create(classLoader, sdkConfig)
-            val loadSdkCompatExceptionBuilder =
-                LoadSdkCompatExceptionBuilderV1.create(classLoader)
+            val loadSdkCompatExceptionBuilder = LoadSdkCompatExceptionBuilderV1.create(classLoader)
 
             val sdkProvider = sdkProviderClass.getConstructor().newInstance()
-            val sandboxedSdkContextCompat = SandboxedSdkContextCompat(
-                appContext,
-                sdkConfig.packageName,
-                classLoader
-            )
+            val sandboxedSdkContextCompat =
+                SandboxedSdkContextCompat(appContext, sdkConfig.packageName, classLoader)
             attachContextMethod.invoke(sdkProvider, sandboxedSdkContextCompat)
 
             return SdkProviderV1(

@@ -30,31 +30,27 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  * [AdSelectionManager#selectAds] call.
  *
  * @param adSelectionId An ID unique only to a device user that identifies a successful ad
- *     selection.
+ *   selection.
  * @param renderUri A render URL for the winning ad.
  */
 @SuppressLint("ClassVerificationFailure")
-class AdSelectionOutcome public constructor(
-    val adSelectionId: Long,
-    val renderUri: Uri
-) {
+class AdSelectionOutcome public constructor(val adSelectionId: Long, val renderUri: Uri) {
 
-    /** Checks whether two [AdSelectionOutcome] objects contain the same information.  */
+    /** Checks whether two [AdSelectionOutcome] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AdSelectionOutcome) return false
-        return this.adSelectionId == other.adSelectionId &&
-            this.renderUri == other.renderUri
+        return this.adSelectionId == other.adSelectionId && this.renderUri == other.renderUri
     }
 
-    /** Returns the hash of the [AdSelectionOutcome] object's data.  */
+    /** Returns the hash of the [AdSelectionOutcome] object's data. */
     override fun hashCode(): Int {
         var hash = adSelectionId.hashCode()
         hash = 31 * hash + renderUri.hashCode()
         return hash
     }
 
-    /** Overrides the toString method.  */
+    /** Overrides the toString method. */
     override fun toString(): String {
         return "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"
     }
@@ -68,7 +64,8 @@ class AdSelectionOutcome public constructor(
     companion object {
         /** Represents an AdSelectionOutcome with empty results. */
         @ExperimentalFeatures.Ext10OptIn
-        @JvmField public val NO_OUTCOME = AdSelectionOutcome(0, Uri.EMPTY)
+        @JvmField
+        public val NO_OUTCOME = AdSelectionOutcome(0, Uri.EMPTY)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

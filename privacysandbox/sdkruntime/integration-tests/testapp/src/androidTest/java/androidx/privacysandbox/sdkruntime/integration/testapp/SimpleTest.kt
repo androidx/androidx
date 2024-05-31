@@ -36,24 +36,16 @@ class SimpleTest {
     fun setUp() {
         // TODO (b/305232796): Replace with tradefed preparer in config or rule
         val uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation()
-        uiAutomation.executeShellCommand(
-            "cmd sdk_sandbox set-state --enabled"
-        )
-        uiAutomation.executeShellCommand(
-            "device_config set_sync_disabled_for_tests persistent"
-        )
+        uiAutomation.executeShellCommand("cmd sdk_sandbox set-state --enabled")
+        uiAutomation.executeShellCommand("device_config set_sync_disabled_for_tests persistent")
     }
 
     @After
     fun tearDown() {
         // TODO (b/305232796): Replace with tradefed preparer in config or rule
         val uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation()
-        uiAutomation.executeShellCommand(
-            "device_config set_sync_disabled_for_tests none"
-        )
-        uiAutomation.executeShellCommand(
-            "cmd sdk_sandbox set-state --reset"
-        )
+        uiAutomation.executeShellCommand("device_config set_sync_disabled_for_tests none")
+        uiAutomation.executeShellCommand("cmd sdk_sandbox set-state --reset")
     }
 
     @Test

@@ -25,9 +25,7 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import androidx.privacysandbox.ads.adservices.internal.BackCompatManager
 
-/**
- * This class provides APIs for app and ad-SDKs to join / leave custom audiences.
- */
+/** This class provides APIs for app and ad-SDKs to join / leave custom audiences. */
 abstract class CustomAudienceManager internal constructor() {
     /**
      * Adds the user to the given [CustomAudience].
@@ -39,25 +37,22 @@ abstract class CustomAudienceManager internal constructor() {
      * Note that the ads list can be completely overwritten by the daily background fetch job.
      *
      * This call fails with an [SecurityException] if
-     *
      * <ol>
-     *   <li>the {@code ownerPackageName} is not calling app's package name and/or
-     *   <li>the buyer is not authorized to use the API.
+     * <li>the {@code ownerPackageName} is not calling app's package name and/or
+     * <li>the buyer is not authorized to use the API.
      * </ol>
      *
      * This call fails with an [IllegalArgumentException] if
-     *
      * <ol>
-     *   <li>the storage limit has been exceeded by the calling application and/or
-     *   <li>any URI parameters in the [CustomAudience] given are not authenticated with the
-     *       [CustomAudience] buyer.
+     * <li>the storage limit has been exceeded by the calling application and/or
+     * <li>any URI parameters in the [CustomAudience] given are not authenticated with the
+     *   [CustomAudience] buyer.
      * </ol>
      *
-     * This call fails with [LimitExceededException] if the calling package exceeds the
-     * allowed rate limits and is throttled.
+     * This call fails with [LimitExceededException] if the calling package exceeds the allowed rate
+     * limits and is throttled.
      *
-     * This call fails with an [IllegalStateException] if an internal service error is
-     * encountered.
+     * This call fails with an [IllegalStateException] if an internal service error is encountered.
      *
      * @param request The request to join custom audience.
      */
@@ -74,22 +69,20 @@ abstract class CustomAudienceManager internal constructor() {
      * Note that the ads list can be completely overwritten by the daily background fetch job.
      *
      * This call fails with an [SecurityException] if
-     *
      * <ol>
-     *   <li>the {@code ownerPackageName} is not calling app's package name and/or
-     *   <li>the buyer is not authorized to use the API.
+     * <li>the {@code ownerPackageName} is not calling app's package name and/or
+     * <li>the buyer is not authorized to use the API.
      * </ol>
      *
      * This call fails with an [IllegalArgumentException] if
-     *
      * <ol>
-     *   <li>the storage limit has been exceeded by the calling application and/or
-     *   <li>any URI parameters in the [CustomAudience] given are not authenticated with the
-     *       [CustomAudience] buyer.
+     * <li>the storage limit has been exceeded by the calling application and/or
+     * <li>any URI parameters in the [CustomAudience] given are not authenticated with the
+     *   [CustomAudience] buyer.
      * </ol>
      *
-     * This call fails with [LimitExceededException] if the calling package exceeds the
-     * allowed rate limits and is throttled.
+     * This call fails with [LimitExceededException] if the calling package exceeds the allowed rate
+     * limits and is throttled.
      *
      * This call fails with an [IllegalStateException] if an internal service error is encountered.
      *
@@ -104,18 +97,16 @@ abstract class CustomAudienceManager internal constructor() {
 
     /**
      * Attempts to remove a user from a custom audience by deleting any existing [CustomAudience]
-     * data, identified by {@code ownerPackageName}, {@code buyer}, and {@code
-     * name}.
+     * data, identified by {@code ownerPackageName}, {@code buyer}, and {@code name}.
      *
      * This call fails with an [SecurityException] if
-     *
      * <ol>
-     *   <li>the {@code ownerPackageName} is not calling app's package name; and/or
-     *   <li>the buyer is not authorized to use the API.
+     * <li>the {@code ownerPackageName} is not calling app's package name; and/or
+     * <li>the buyer is not authorized to use the API.
      * </ol>
      *
-     * This call fails with [LimitExceededException] if the calling package exceeds the
-     * allowed rate limits and is throttled.
+     * This call fails with [LimitExceededException] if the calling package exceeds the allowed rate
+     * limits and is throttled.
      *
      * This call does not inform the caller whether the custom audience specified existed in
      * on-device storage. In other words, it will fail silently when a buyer attempts to leave a
@@ -128,10 +119,10 @@ abstract class CustomAudienceManager internal constructor() {
 
     companion object {
         /**
-         *  Creates [CustomAudienceManager].
+         * Creates [CustomAudienceManager].
          *
-         *  @return CustomAudienceManager object. If the device is running an incompatible
-         *  build, the value returned is null.
+         * @return CustomAudienceManager object. If the device is running an incompatible build, the
+         *   value returned is null.
          */
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")

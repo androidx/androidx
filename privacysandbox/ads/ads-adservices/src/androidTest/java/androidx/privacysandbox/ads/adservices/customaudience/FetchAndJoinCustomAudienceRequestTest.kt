@@ -40,34 +40,39 @@ class FetchAndJoinCustomAudienceRequestTest {
 
     @Test
     fun testToString() {
-        val request = FetchAndJoinCustomAudienceRequest(
-            fetchUri,
-            name,
-            activationTime,
-            expirationTime,
-            userBiddingSignals)
-        val result = "FetchAndJoinCustomAudienceRequest: fetchUri=$fetchUri, " +
-            "name=$name, activationTime=$activationTime, " +
-            "expirationTime=$expirationTime, userBiddingSignals=$userBiddingSignals"
+        val request =
+            FetchAndJoinCustomAudienceRequest(
+                fetchUri,
+                name,
+                activationTime,
+                expirationTime,
+                userBiddingSignals
+            )
+        val result =
+            "FetchAndJoinCustomAudienceRequest: fetchUri=$fetchUri, " +
+                "name=$name, activationTime=$activationTime, " +
+                "expirationTime=$expirationTime, userBiddingSignals=$userBiddingSignals"
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val fetchAndJoinCustomAudienceRequest1 = FetchAndJoinCustomAudienceRequest(
-            fetchUri,
-            name,
-            activationTime,
-            expirationTime,
-            userBiddingSignals
-        )
-        var fetchAndJoinCustomAudienceRequest2 = FetchAndJoinCustomAudienceRequest(
-            Uri.parse("abc.com"),
-            "abc",
-            Instant.ofEpochSecond(5),
-            Instant.ofEpochSecond(10),
-            AdSelectionSignals("signals")
-        )
+        val fetchAndJoinCustomAudienceRequest1 =
+            FetchAndJoinCustomAudienceRequest(
+                fetchUri,
+                name,
+                activationTime,
+                expirationTime,
+                userBiddingSignals
+            )
+        var fetchAndJoinCustomAudienceRequest2 =
+            FetchAndJoinCustomAudienceRequest(
+                Uri.parse("abc.com"),
+                "abc",
+                Instant.ofEpochSecond(5),
+                Instant.ofEpochSecond(10),
+                AdSelectionSignals("signals")
+            )
         Truth.assertThat(fetchAndJoinCustomAudienceRequest1 == fetchAndJoinCustomAudienceRequest2)
             .isTrue()
     }

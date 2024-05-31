@@ -50,18 +50,18 @@ abstract class AdIdManagerFutures internal constructor() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_AD_ID)
         override fun getAdIdAsync(): ListenableFuture<AdId> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdIdManager.getAdId()
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async { mAdIdManager.getAdId() }
+                .asListenableFuture()
         }
     }
 
     companion object {
         /**
-         *  Creates [AdIdManagerFutures].
+         * Creates [AdIdManagerFutures].
          *
-         *  @return AdIdManagerFutures object. If the device is running an incompatible
-         *  build, the value returned is null.
+         * @return AdIdManagerFutures object. If the device is running an incompatible build, the
+         *   value returned is null.
          */
         @JvmStatic
         fun from(context: Context): AdIdManagerFutures? {

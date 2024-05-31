@@ -38,9 +38,8 @@ import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import java.util.concurrent.Executor
 
 /**
- * Provides a [Bundle] containing a Binder which represents a [SandboxedUiAdapter]. The Bundle
- * is shuttled to the host app in order for the [SandboxedUiAdapter] to be used to retrieve
- * content.
+ * Provides a [Bundle] containing a Binder which represents a [SandboxedUiAdapter]. The Bundle is
+ * shuttled to the host app in order for the [SandboxedUiAdapter] to be used to retrieve content.
  */
 fun SandboxedUiAdapter.toCoreLibInfo(@Suppress("ContextFirst") context: Context): Bundle {
     val binderAdapter = BinderAdapterDelegate(context, this)
@@ -71,7 +70,12 @@ private class BinderAdapterDelegate(
         client: SandboxedUiAdapter.SessionClient
     ) {
         adapter.openSession(
-            context, windowInputToken, initialWidth, initialHeight, isZOrderOnTop, clientExecutor,
+            context,
+            windowInputToken,
+            initialWidth,
+            initialHeight,
+            isZOrderOnTop,
+            clientExecutor,
             client
         )
     }
@@ -92,20 +96,31 @@ private class BinderAdapterDelegate(
                     sandboxContext.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
                 val windowContext =
                     sandboxContext.createDisplayContext(mDisplayManager.getDisplay(displayId))
-                val surfaceControlViewHost = CompatImpl.createSurfaceControlViewHost(
-                    windowContext,
-                    mDisplayManager.getDisplay(displayId), windowInputToken
-                )
+                val surfaceControlViewHost =
+                    CompatImpl.createSurfaceControlViewHost(
+                        windowContext,
+                        mDisplayManager.getDisplay(displayId),
+                        windowInputToken
+                    )
                 checkNotNull(surfaceControlViewHost) {
                     "SurfaceControlViewHost must be available when provider is remote"
                 }
-                val sessionClient = SessionClientProxy(
-                    surfaceControlViewHost, initialWidth, initialHeight, isZOrderOnTop,
-                    remoteSessionClient
-                )
+                val sessionClient =
+                    SessionClientProxy(
+                        surfaceControlViewHost,
+                        initialWidth,
+                        initialHeight,
+                        isZOrderOnTop,
+                        remoteSessionClient
+                    )
                 openSession(
-                    windowContext, windowInputToken, initialWidth, initialHeight, isZOrderOnTop,
-                    Runnable::run, sessionClient
+                    windowContext,
+                    windowInputToken,
+                    initialWidth,
+                    initialHeight,
+                    isZOrderOnTop,
+                    Runnable::run,
+                    sessionClient
                 )
             } catch (exception: Throwable) {
                 remoteSessionClient.onRemoteSessionError(exception.message)
@@ -124,8 +139,8 @@ private class BinderAdapterDelegate(
 
         override fun onSessionOpened(session: SandboxedUiAdapter.Session) {
             val view = session.view
-            val touchTransferringView = TouchFocusTransferringView(
-                sandboxContext, surfaceControlViewHost)
+            val touchTransferringView =
+                TouchFocusTransferringView(sandboxContext, surfaceControlViewHost)
             touchTransferringView.addView(view)
             surfaceControlViewHost.setView(touchTransferringView, initialWidth, initialHeight)
 
@@ -141,13 +156,17 @@ private class BinderAdapterDelegate(
 
             // If a frame commit callback is not triggered within the timeout (such as when the
             // screen is off), open the session anyway.
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (!alreadyOpenedSession) {
-                    Log.w(TAG, "Frame not committed within $FRAME_TIMEOUT_MILLIS ms.")
-                    alreadyOpenedSession = true
-                    sendRemoteSessionOpened(session)
-                }
-            }, FRAME_TIMEOUT_MILLIS)
+            Handler(Looper.getMainLooper())
+                .postDelayed(
+                    {
+                        if (!alreadyOpenedSession) {
+                            Log.w(TAG, "Frame not committed within $FRAME_TIMEOUT_MILLIS ms.")
+                            alreadyOpenedSession = true
+                            sendRemoteSessionOpened(session)
+                        }
+                    },
+                    FRAME_TIMEOUT_MILLIS
+                )
         }
 
         override fun onSessionError(throwable: Throwable) {
@@ -160,10 +179,10 @@ private class BinderAdapterDelegate(
 
         private fun sendRemoteSessionOpened(session: SandboxedUiAdapter.Session) {
             val surfacePackage = surfaceControlViewHost.surfacePackage
-            val remoteSessionController =
-                RemoteSessionController(surfaceControlViewHost, session)
+            val remoteSessionController = RemoteSessionController(surfaceControlViewHost, session)
             remoteSessionClient.onRemoteSessionOpened(
-                surfacePackage, remoteSessionController,
+                surfacePackage,
+                remoteSessionController,
                 isZOrderOnTop
             )
         }
@@ -219,30 +238,30 @@ private class BinderAdapterDelegate(
      */
     private object CompatImpl {
 
-         fun createSurfaceControlViewHost(
-             context: Context,
-             display: Display,
-             hostToken: IBinder
-         ): SurfaceControlViewHost? {
+        fun createSurfaceControlViewHost(
+            context: Context,
+            display: Display,
+            hostToken: IBinder
+        ): SurfaceControlViewHost? {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return Api34PlusImpl.createSurfaceControlViewHost(context, display, hostToken)
             } else {
                 null
             }
-         }
+        }
 
-         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-         private object Api34PlusImpl {
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        private object Api34PlusImpl {
 
-             @JvmStatic
-             @DoNotInline
-             fun createSurfaceControlViewHost(
-                 context: Context,
-                 display: Display,
-                 hostToken: IBinder
-             ): SurfaceControlViewHost {
-                 return SurfaceControlViewHost(context, display, hostToken)
-             }
-         }
+            @JvmStatic
+            @DoNotInline
+            fun createSurfaceControlViewHost(
+                context: Context,
+                display: Display,
+                hostToken: IBinder
+            ): SurfaceControlViewHost {
+                return SurfaceControlViewHost(context, display, hostToken)
+            }
+        }
     }
 }

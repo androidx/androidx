@@ -24,18 +24,12 @@ import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
-/**
- * Implementation backed by [SdkSandboxManager].
- */
+/** Implementation backed by [SdkSandboxManager]. */
 @RequiresApi(33)
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
-internal class PlatformAppOwnedSdkRegistry(
-    context: Context
-) : AppOwnedSdkRegistry {
+internal class PlatformAppOwnedSdkRegistry(context: Context) : AppOwnedSdkRegistry {
 
-    private val sdkSandboxManager = context.getSystemService(
-        SdkSandboxManager::class.java
-    )
+    private val sdkSandboxManager = context.getSystemService(SdkSandboxManager::class.java)
 
     override fun registerAppOwnedSdkSandboxInterface(
         appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat

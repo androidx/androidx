@@ -25,10 +25,10 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
 /**
- * Create instance of [OnBackPressedDispatcher] class loaded by SDK Classloader.
- * Set callback for [OnBackPressedDispatcher.onHasEnabledCallbacksChanged] and enable/disable
- * callback in original [OnBackPressedDispatcher].
- * Proxy [OnBackPressedDispatcher.onBackPressed] from original dispatcher to proxy.
+ * Create instance of [OnBackPressedDispatcher] class loaded by SDK Classloader. Set callback for
+ * [OnBackPressedDispatcher.onHasEnabledCallbacksChanged] and enable/disable callback in original
+ * [OnBackPressedDispatcher]. Proxy [OnBackPressedDispatcher.onBackPressed] from original dispatcher
+ * to proxy.
  */
 internal class BackPressedDispatcherProxyFactory(
     private val onBackPressedDispatcherConstructor: Constructor<out Any>,
@@ -36,20 +36,16 @@ internal class BackPressedDispatcherProxyFactory(
     private val dispatcherOnBackPressedMethod: Method,
     private val sdkClassLoader: ClassLoader
 ) {
-    fun setupOnBackPressedDispatcherProxy(
-        sourceDispatcher: OnBackPressedDispatcher
-    ): Any {
+    fun setupOnBackPressedDispatcherProxy(sourceDispatcher: OnBackPressedDispatcher): Any {
         val enabledChangedHandler = OnHasEnabledCallbacksChangedHandler()
 
-        val onHasEnabledCallbacksChangedCallback = Proxy.newProxyInstance(
-            sdkClassLoader,
-            arrayOf(consumerClass),
-            enabledChangedHandler
-        )
-        val dispatcherProxy = onBackPressedDispatcherConstructor.newInstance(
-            /* parameter1 */ null,
-            /* parameter2 */ onHasEnabledCallbacksChangedCallback
-        )
+        val onHasEnabledCallbacksChangedCallback =
+            Proxy.newProxyInstance(sdkClassLoader, arrayOf(consumerClass), enabledChangedHandler)
+        val dispatcherProxy =
+            onBackPressedDispatcherConstructor.newInstance(
+                /* parameter1 */ null,
+                /* parameter2 */ onHasEnabledCallbacksChangedCallback
+            )
 
         val sourceDispatcherCallback =
             SourceDispatcherCallback(dispatcherProxy, dispatcherOnBackPressedMethod)
@@ -93,25 +89,24 @@ internal class BackPressedDispatcherProxyFactory(
 
     companion object {
         fun createFor(classLoader: ClassLoader): BackPressedDispatcherProxyFactory {
-            val onBackPressedDispatcherClass = Class.forName(
-                "androidx.activity.OnBackPressedDispatcher",
-                /* initialize = */ false,
-                classLoader
-            )
+            val onBackPressedDispatcherClass =
+                Class.forName(
+                    "androidx.activity.OnBackPressedDispatcher",
+                    /* initialize = */ false,
+                    classLoader
+                )
 
-            val consumerClass = Class.forName(
-                "androidx.core.util.Consumer",
-                /* initialize = */ false,
-                classLoader
-            )
+            val consumerClass =
+                Class.forName("androidx.core.util.Consumer", /* initialize= */ false, classLoader)
 
-            val onBackPressedDispatcherConstructor = onBackPressedDispatcherClass.getConstructor(
-                /* parameter1 */ Runnable::class.java,
-                /* parameter2 */ consumerClass
-            )
+            val onBackPressedDispatcherConstructor =
+                onBackPressedDispatcherClass.getConstructor(
+                    /* parameter1 */ Runnable::class.java,
+                    /* parameter2 */ consumerClass
+                )
 
-            val dispatcherOnBackPressedMethod = onBackPressedDispatcherClass
-                .getMethod("onBackPressed")
+            val dispatcherOnBackPressedMethod =
+                onBackPressedDispatcherClass.getMethod("onBackPressed")
 
             return BackPressedDispatcherProxyFactory(
                 onBackPressedDispatcherConstructor,

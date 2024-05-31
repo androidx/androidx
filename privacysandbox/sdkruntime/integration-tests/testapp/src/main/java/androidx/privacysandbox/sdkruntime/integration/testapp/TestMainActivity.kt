@@ -50,8 +50,11 @@ class TestMainActivity : Activity() {
                     onLoadedSdk(loadedSdk)
                 } catch (e: LoadSdkCompatException) {
                     Log.i(
-                        TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
-                            " and errorMsg: " + e.message
+                        TAG,
+                        "loadSdk failed with errorCode: " +
+                            e.loadSdkErrorCode +
+                            " and errorMsg: " +
+                            e.message
                     )
                 }
             }
@@ -72,9 +75,7 @@ class TestMainActivity : Activity() {
     companion object {
         private const val TAG = "TestMainActivity"
 
-        /**
-         * Name of the SDK to be loaded.
-         */
+        /** Name of the SDK to be loaded. */
         private const val SDK_NAME = "androidx.privacysandbox.sdkruntime.integrationtest.sdk"
     }
 }

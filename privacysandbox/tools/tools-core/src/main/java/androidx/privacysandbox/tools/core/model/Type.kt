@@ -17,16 +17,16 @@
 package androidx.privacysandbox.tools.core.model
 
 data class Type(
-  val packageName: String,
-  val simpleName: String,
-  val typeParameters: List<Type> = emptyList(),
-  val isNullable: Boolean = false
+    val packageName: String,
+    val simpleName: String,
+    val typeParameters: List<Type> = emptyList(),
+    val isNullable: Boolean = false
 ) {
-  val qualifiedName: String
-    get() {
-      if (packageName.isEmpty()) {
-        return simpleName
-      }
-      return "$packageName.$simpleName"
-    }
+    val qualifiedName: String
+        get() {
+            if (packageName.isEmpty()) {
+                return simpleName
+            }
+            return "$packageName.$simpleName"
+        }
 }

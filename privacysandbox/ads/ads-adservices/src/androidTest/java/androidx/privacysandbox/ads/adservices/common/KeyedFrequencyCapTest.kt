@@ -35,8 +35,9 @@ class KeyedFrequencyCapTest {
 
     @Test
     fun testToString() {
-        val result = "KeyedFrequencyCap: adCounterKey=$adCounterKey, maxCount=$maxCount, " +
-            "interval=$interval"
+        val result =
+            "KeyedFrequencyCap: adCounterKey=$adCounterKey, maxCount=$maxCount, " +
+                "interval=$interval"
         val request = KeyedFrequencyCap(adCounterKey, maxCount, interval)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }

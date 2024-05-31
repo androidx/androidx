@@ -25,15 +25,20 @@ internal interface AidlFileSpec {
     val typesToImport: Set<Type>
     val innerContent: String
 
-    fun getFileContent(): String = buildList {
-        add("package ${type.packageName};")
+    fun getFileContent(): String =
+        buildList {
+                add("package ${type.packageName};")
 
-        if (typesToImport.isNotEmpty()) {
-            add(typesToImport.map {
-                "import ${it.qualifiedName};"
-            }.sorted().joinToString(separator = "\n"))
-        }
+                if (typesToImport.isNotEmpty()) {
+                    add(
+                        typesToImport
+                            .map { "import ${it.qualifiedName};" }
+                            .sorted()
+                            .joinToString(separator = "\n")
+                    )
+                }
 
-        add(innerContent)
-    }.joinToString(separator = "\n\n")
+                add(innerContent)
+            }
+            .joinToString(separator = "\n\n")
 }

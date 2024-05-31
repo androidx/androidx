@@ -76,16 +76,9 @@ class SdkSandboxManagerCompatSandboxedTest {
         val sdkName = "test"
         val params = Bundle()
 
-        runBlocking {
-            managerCompat.loadSdk(sdkName, params)
-        }
+        runBlocking { managerCompat.loadSdk(sdkName, params) }
 
-        verify(sdkSandboxManager).loadSdk(
-            eq(sdkName),
-            eq(params),
-            any(),
-            any()
-        )
+        verify(sdkSandboxManager).loadSdk(eq(sdkName), eq(params), any(), any())
     }
 
     @Test
@@ -97,9 +90,7 @@ class SdkSandboxManagerCompatSandboxedTest {
 
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
-        val result = runBlocking {
-            managerCompat.loadSdk("test", Bundle())
-        }
+        val result = runBlocking { managerCompat.loadSdk("test", Bundle()) }
 
         assertThat(result.getInterface()).isEqualTo(sandboxedSdk.getInterface())
     }
@@ -108,19 +99,15 @@ class SdkSandboxManagerCompatSandboxedTest {
     fun loadSdk_whenNoLocalSdkExistsAndSandboxAvailable_rethrowsExceptionFromPlatformLoadSdk() {
         val sdkSandboxManager = mockSandboxManager(mContext)
 
-        val loadSdkException = LoadSdkException(
-            RuntimeException(),
-            Bundle()
-        )
+        val loadSdkException = LoadSdkException(RuntimeException(), Bundle())
         setupLoadSdkAnswer(sdkSandboxManager, loadSdkException)
 
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
-        val result = assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                managerCompat.loadSdk("test", Bundle())
+        val result =
+            assertThrows(LoadSdkCompatException::class.java) {
+                runBlocking { managerCompat.loadSdk("test", Bundle()) }
             }
-        }
 
         assertThat(result.cause).isEqualTo(loadSdkException.cause)
         assertThat(result.extraInformation).isEqualTo(loadSdkException.extraInformation)
@@ -136,9 +123,7 @@ class SdkSandboxManagerCompatSandboxedTest {
 
         managerCompat.unloadSdk(sdkName)
 
-        verify(sdkSandboxManager).unloadSdk(
-            eq(sdkName)
-        )
+        verify(sdkSandboxManager).unloadSdk(eq(sdkName))
     }
 
     @Test
@@ -149,11 +134,9 @@ class SdkSandboxManagerCompatSandboxedTest {
         val callback = mock(SdkSandboxProcessDeathCallbackCompat::class.java)
 
         managerCompat.addSdkSandboxProcessDeathCallback(Runnable::run, callback)
-        val argumentCaptor = ArgumentCaptor.forClass(
-            SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java
-        )
-        verify(sdkSandboxManager)
-            .addSdkSandboxProcessDeathCallback(any(), argumentCaptor.capture())
+        val argumentCaptor =
+            ArgumentCaptor.forClass(SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java)
+        verify(sdkSandboxManager).addSdkSandboxProcessDeathCallback(any(), argumentCaptor.capture())
         val platformCallback = argumentCaptor.value
 
         platformCallback.onSdkSandboxDied()
@@ -180,17 +163,15 @@ class SdkSandboxManagerCompatSandboxedTest {
         val callback = mock(SdkSandboxProcessDeathCallbackCompat::class.java)
 
         managerCompat.addSdkSandboxProcessDeathCallback(Runnable::run, callback)
-        val addArgumentCaptor = ArgumentCaptor.forClass(
-            SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java
-        )
+        val addArgumentCaptor =
+            ArgumentCaptor.forClass(SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java)
         verify(sdkSandboxManager)
             .addSdkSandboxProcessDeathCallback(any(), addArgumentCaptor.capture())
         val addedPlatformCallback = addArgumentCaptor.value
 
         managerCompat.removeSdkSandboxProcessDeathCallback(callback)
-        val removeArgumentCaptor = ArgumentCaptor.forClass(
-            SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java
-        )
+        val removeArgumentCaptor =
+            ArgumentCaptor.forClass(SdkSandboxManager.SdkSandboxProcessDeathCallback::class.java)
         verify(sdkSandboxManager)
             .removeSdkSandboxProcessDeathCallback(removeArgumentCaptor.capture())
         val removedPlatformCallback = removeArgumentCaptor.value
@@ -206,44 +187,33 @@ class SdkSandboxManagerCompatSandboxedTest {
         val callback = mock(SdkSandboxProcessDeathCallbackCompat::class.java)
         managerCompat.removeSdkSandboxProcessDeathCallback(callback)
 
-        verify(sdkSandboxManager, never())
-            .removeSdkSandboxProcessDeathCallback(any())
+        verify(sdkSandboxManager, never()).removeSdkSandboxProcessDeathCallback(any())
     }
 
     @Test
     fun getSandboxedSdks_whenSandboxAvailable_returnCombinedLocalAndPlatformResult() {
         val sdkSandboxManager = mockSandboxManager(mContext)
         val sandboxedSdk = SandboxedSdk(Binder())
-        `when`(sdkSandboxManager.sandboxedSdks)
-            .thenReturn(listOf(sandboxedSdk))
+        `when`(sdkSandboxManager.sandboxedSdks).thenReturn(listOf(sandboxedSdk))
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk(
-                TestSdkConfigs.CURRENT.packageName,
-                Bundle()
-            )
+            managerCompat.loadSdk(TestSdkConfigs.CURRENT.packageName, Bundle())
         }
 
         val result = managerCompat.getSandboxedSdks().map { it.getInterface() }
-        assertThat(result).containsExactly(
-            sandboxedSdk.getInterface(), localSdk.getInterface()
-        )
+        assertThat(result).containsExactly(sandboxedSdk.getInterface(), localSdk.getInterface())
     }
 
     @Test
     fun sdkController_getSandboxedSdks_dontIncludeSandboxedSdk() {
         val sdkSandboxManager = mockSandboxManager(mContext)
         val sandboxedSdk = SandboxedSdk(Binder())
-        `when`(sdkSandboxManager.sandboxedSdks)
-            .thenReturn(listOf(sandboxedSdk))
+        `when`(sdkSandboxManager.sandboxedSdks).thenReturn(listOf(sandboxedSdk))
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk(
-                TestSdkConfigs.forSdkName("v2").packageName,
-                Bundle()
-            )
+            managerCompat.loadSdk(TestSdkConfigs.forSdkName("v2").packageName, Bundle())
         }
 
         val testSdk = localSdk.asTestSdk()
@@ -271,13 +241,7 @@ class SdkSandboxManagerCompatSandboxedTest {
             receiver.onResult(sandboxedSdk)
             null
         }
-        doAnswer(answer)
-            .`when`(sdkSandboxManager).loadSdk(
-                any(),
-                any(),
-                any(),
-                any()
-            )
+        doAnswer(answer).`when`(sdkSandboxManager).loadSdk(any(), any(), any(), any())
     }
 
     private fun setupLoadSdkAnswer(
@@ -289,12 +253,6 @@ class SdkSandboxManagerCompatSandboxedTest {
             receiver.onError(loadSdkException)
             null
         }
-        doAnswer(answer)
-            .`when`(sdkSandboxManager).loadSdk(
-                any(),
-                any(),
-                any(),
-                any()
-            )
+        doAnswer(answer).`when`(sdkSandboxManager).loadSdk(any(), any(), any(), any())
     }
 }

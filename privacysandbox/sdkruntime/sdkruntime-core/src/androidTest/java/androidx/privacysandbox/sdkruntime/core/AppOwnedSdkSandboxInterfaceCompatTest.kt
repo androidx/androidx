@@ -48,11 +48,8 @@ class AppOwnedSdkSandboxInterfaceCompatTest {
 
     @Test
     fun toAppOwnedSdkSandboxInterfaceTest() {
-        val compatObj = AppOwnedSdkSandboxInterfaceCompat(
-            name = "SDK",
-            version = 1,
-            binder = Binder()
-        )
+        val compatObj =
+            AppOwnedSdkSandboxInterfaceCompat(name = "SDK", version = 1, binder = Binder())
 
         val platformObj = compatObj.toAppOwnedSdkSandboxInterface()
 
@@ -63,9 +60,7 @@ class AppOwnedSdkSandboxInterfaceCompatTest {
 
     @Test
     fun fromAppOwnedSdkSandboxInterfaceTest() {
-        val platformObj = AppOwnedSdkSandboxInterface(
-            "SDK", 1, Binder()
-        )
+        val platformObj = AppOwnedSdkSandboxInterface("SDK", 1, Binder())
         val compatObj = AppOwnedSdkSandboxInterfaceCompat(platformObj)
 
         assertThat(compatObj.getName()).isEqualTo(platformObj.getName())

@@ -40,29 +40,27 @@ import kotlinx.coroutines.withContext
  * activity as a starting context.
  *
  * @param T the current activity from which new SDK activities will be launched. If this activity is
- * destroyed any further SDK activity launches will simply be ignored.
- * @param allowLaunch predicate called each time an activity is about to be launched by the
- * SDK, the activity will only be launched if it returns true.
+ *   destroyed any further SDK activity launches will simply be ignored.
+ * @param allowLaunch predicate called each time an activity is about to be launched by the SDK, the
+ *   activity will only be launched if it returns true.
  */
-fun <T> T.createSdkActivityLauncher(
-    allowLaunch: () -> Boolean
-): LocalSdkActivityLauncher<T>
-    where T : Activity, T : LifecycleOwner {
+fun <T> T.createSdkActivityLauncher(allowLaunch: () -> Boolean): LocalSdkActivityLauncher<T> where
+T : Activity,
+T : LifecycleOwner {
     val cancellationJob = Job(parent = lifecycleScope.coroutineContext[Job])
-    val launcher = LocalSdkActivityLauncherImpl(
-        activity = this,
-        allowLaunch = allowLaunch,
-        onDispose = { cancellationJob.cancel() },
-    )
-    cancellationJob.invokeOnCompletion {
-        launcher.dispose()
-    }
+    val launcher =
+        LocalSdkActivityLauncherImpl(
+            activity = this,
+            allowLaunch = allowLaunch,
+            onDispose = { cancellationJob.cancel() },
+        )
+    cancellationJob.invokeOnCompletion { launcher.dispose() }
     return launcher
 }
 
 /**
- * Returns a [Bundle] with the information necessary to recreate this launcher.
- * Possibly in a different process.
+ * Returns a [Bundle] with the information necessary to recreate this launcher. Possibly in a
+ * different process.
  */
 fun SdkActivityLauncher.toLauncherInfo(): Bundle {
     val binderDelegate = SdkActivityLauncherBinderDelegate(this)
@@ -102,17 +100,15 @@ private class LocalSdkActivityLauncherImpl<T>(
 
     private val stateReference: AtomicReference<LocalLauncherState<T>?> =
         AtomicReference<LocalLauncherState<T>?>(
-        LocalLauncherState(
-            activity,
-            allowLaunch,
-            SdkSandboxManagerCompat.from(activity),
-            onDispose
+            LocalLauncherState(
+                activity,
+                allowLaunch,
+                SdkSandboxManagerCompat.from(activity),
+                onDispose
+            )
         )
-    )
 
-    override suspend fun launchSdkActivity(
-        sdkActivityHandlerToken: IBinder
-    ): Boolean {
+    override suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean {
         val state = stateReference.get() ?: return false
         return withContext(Dispatchers.Main.immediate) {
             state.run {
@@ -126,9 +122,7 @@ private class LocalSdkActivityLauncherImpl<T>(
     }
 
     override fun dispose() {
-        stateReference.getAndSet(null)?.run {
-            onDispose()
-        }
+        stateReference.getAndSet(null)?.run { onDispose() }
     }
 }
 
@@ -145,12 +139,13 @@ private class SdkActivityLauncherBinderDelegate(private val launcher: SdkActivit
         requireNotNull(callback)
 
         coroutineScope.launch {
-            val accepted = try {
-                launcher.launchSdkActivity(sdkActivityHandlerToken)
-            } catch (t: Throwable) {
-                callback.onLaunchError(t.message ?: "Unknown error launching SDK activity.")
-                return@launch
-            }
+            val accepted =
+                try {
+                    launcher.launchSdkActivity(sdkActivityHandlerToken)
+                } catch (t: Throwable) {
+                    callback.onLaunchError(t.message ?: "Unknown error launching SDK activity.")
+                    return@launch
+                }
 
             if (accepted) {
                 callback.onLaunchAccepted(sdkActivityHandlerToken)

@@ -48,50 +48,51 @@ class CustomAudienceTest {
     private val trustedBiddingSignals: TrustedBiddingData = TrustedBiddingData(uri, keys)
     private val adCounterKeys: Set<Int> = setOf<Int>(1, 2, 3)
     private val interval = Duration.ofSeconds(1)
-    private val adFilters: AdFilters = AdFilters(
-        FrequencyCapFilters(
-            keyedFrequencyCapsForViewEvents =
-            listOf(KeyedFrequencyCap(1, 3, interval)),
+    private val adFilters: AdFilters =
+        AdFilters(
+            FrequencyCapFilters(
+                keyedFrequencyCapsForViewEvents = listOf(KeyedFrequencyCap(1, 3, interval)),
+            )
         )
-    )
-    private val ads: List<AdData> = listOf(
-        AdData(uri, "metadata", adCounterKeys, adFilters)
-    )
+    private val ads: List<AdData> = listOf(AdData(uri, "metadata", adCounterKeys, adFilters))
 
     @Test
     fun testToStringAndEquals() {
-        val result = "CustomAudience: buyer=abc.com, name=abc, activationTime=$activationTime, " +
-            "expirationTime=$expirationTime, dailyUpdateUri=abc.com, " +
-            "userBiddingSignals=AdSelectionSignals: signals, " +
-            "trustedBiddingSignals=TrustedBiddingData: trustedBiddingUri=abc.com " +
-            "trustedBiddingKeys=[key1, key2], biddingLogicUri=abc.com, " +
-            "ads=[AdData: renderUri=abc.com, metadata='metadata', adCounterKeys=[1, 2, 3], " +
-            "adFilters=AdFilters: frequencyCapFilters=FrequencyCapFilters: " +
-            "keyedFrequencyCapsForWinEvents=[], " +
-            "keyedFrequencyCapsForImpressionEvents=[], " +
-            "keyedFrequencyCapsForViewEvents=" +
-            "[KeyedFrequencyCap: adCounterKey=1, maxCount=3, interval=$interval], " +
-            "keyedFrequencyCapsForClickEvents=[], adRenderId=null]"
+        val result =
+            "CustomAudience: buyer=abc.com, name=abc, activationTime=$activationTime, " +
+                "expirationTime=$expirationTime, dailyUpdateUri=abc.com, " +
+                "userBiddingSignals=AdSelectionSignals: signals, " +
+                "trustedBiddingSignals=TrustedBiddingData: trustedBiddingUri=abc.com " +
+                "trustedBiddingKeys=[key1, key2], biddingLogicUri=abc.com, " +
+                "ads=[AdData: renderUri=abc.com, metadata='metadata', adCounterKeys=[1, 2, 3], " +
+                "adFilters=AdFilters: frequencyCapFilters=FrequencyCapFilters: " +
+                "keyedFrequencyCapsForWinEvents=[], " +
+                "keyedFrequencyCapsForImpressionEvents=[], " +
+                "keyedFrequencyCapsForViewEvents=" +
+                "[KeyedFrequencyCap: adCounterKey=1, maxCount=3, interval=$interval], " +
+                "keyedFrequencyCapsForClickEvents=[], adRenderId=null]"
 
-        val customAudience = CustomAudience(
-            buyer,
-            name,
-            uri,
-            uri,
-            ads,
-            activationTime,
-            expirationTime,
-            userBiddingSignals,
-            trustedBiddingSignals
-        )
+        val customAudience =
+            CustomAudience(
+                buyer,
+                name,
+                uri,
+                uri,
+                ads,
+                activationTime,
+                expirationTime,
+                userBiddingSignals,
+                trustedBiddingSignals
+            )
         Truth.assertThat(customAudience.toString()).isEqualTo(result)
 
         // Verify Builder.
-        val customAudienceBuilder2 = CustomAudience.Builder(buyer, name, uri, uri, ads)
-            .setActivationTime(activationTime)
-            .setExpirationTime(expirationTime)
-            .setUserBiddingSignals(userBiddingSignals)
-            .setTrustedBiddingData(trustedBiddingSignals)
+        val customAudienceBuilder2 =
+            CustomAudience.Builder(buyer, name, uri, uri, ads)
+                .setActivationTime(activationTime)
+                .setExpirationTime(expirationTime)
+                .setUserBiddingSignals(userBiddingSignals)
+                .setTrustedBiddingData(trustedBiddingSignals)
         Truth.assertThat(customAudienceBuilder2.build().toString()).isEqualTo(result)
 
         // Test equality.
