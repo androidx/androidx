@@ -206,7 +206,7 @@ class ViewPager2ActivityTest(
 
             scenario.moveToState(State.CREATED)
             scenario.moveToState(State.RESUMED)
-            mDevice.waitForIdle(ACTION_IDLE_TIMEOUT)
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
             // After resume, switch back to CameraFragment, to check Preview in stream state
             onView(withId(ViewPager2Activity.CAMERA_VIEW_ID)).perform(click())
