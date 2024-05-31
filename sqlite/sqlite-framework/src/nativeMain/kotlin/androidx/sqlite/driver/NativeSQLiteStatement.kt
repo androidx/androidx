@@ -58,7 +58,7 @@ import sqlite3.sqlite3_step
 
 /**
  * TODO:
- *  * (b/304295573) busy / locked handling
+ *     * (b/304295573) busy / locked handling
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
@@ -67,19 +67,12 @@ class NativeSQLiteStatement(
     private val stmtPointer: CPointer<sqlite3_stmt>
 ) : SQLiteStatement {
 
-    @OptIn(ExperimentalStdlibApi::class)
-    @Volatile
-    private var isClosed = false
+    @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
 
     override fun bindBlob(index: Int, value: ByteArray) {
         throwIfClosed()
-        val resultCode = sqlite3_bind_blob(
-            stmtPointer,
-            index,
-            value.toCValues(),
-            value.size,
-            SQLITE_TRANSIENT
-        )
+        val resultCode =
+            sqlite3_bind_blob(stmtPointer, index, value.toCValues(), value.size, SQLITE_TRANSIENT)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
         }
@@ -109,9 +102,14 @@ class NativeSQLiteStatement(
         // value.utf16 returning a C string that is zero-terminated, we use 'valueUtf16.size - 1' as
         // the fourth parameter.
         val valueUtf16 = value.utf16
-        val resultCode = sqlite3_bind_text16(
-            stmtPointer, index, valueUtf16, valueUtf16.size - 1, SQLITE_TRANSIENT
-        )
+        val resultCode =
+            sqlite3_bind_text16(
+                stmtPointer,
+                index,
+                valueUtf16,
+                valueUtf16.size - 1,
+                SQLITE_TRANSIENT
+            )
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
         }

@@ -38,27 +38,30 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 
-private const val OPEN_DATABASE_COMMAND_SIGNATURE_API11: String = "openDatabase" +
-    "(" +
-    "Ljava/lang/String;" +
-    "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
-    "I" +
-    "Landroid/database/DatabaseErrorHandler;" +
-    ")" +
-    "Landroid/database/sqlite/SQLiteDatabase;"
+private const val OPEN_DATABASE_COMMAND_SIGNATURE_API11: String =
+    "openDatabase" +
+        "(" +
+        "Ljava/lang/String;" +
+        "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
+        "I" +
+        "Landroid/database/DatabaseErrorHandler;" +
+        ")" +
+        "Landroid/database/sqlite/SQLiteDatabase;"
 
-private const val OPEN_DATABASE_COMMAND_SIGNATURE_API27: String = "openDatabase" +
-    "(" +
-    "Ljava/io/File;" +
-    "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
-    ")" +
-    "Landroid/database/sqlite/SQLiteDatabase;"
+private const val OPEN_DATABASE_COMMAND_SIGNATURE_API27: String =
+    "openDatabase" +
+        "(" +
+        "Ljava/io/File;" +
+        "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
+        ")" +
+        "Landroid/database/sqlite/SQLiteDatabase;"
 
-private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27 = "createInMemory" +
-    "(" +
-    "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
-    ")" +
-    "Landroid/database/sqlite/SQLiteDatabase;"
+private const val CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27 =
+    "createInMemory" +
+        "(" +
+        "Landroid/database/sqlite/SQLiteDatabase\$OpenParams;" +
+        ")" +
+        "Landroid/database/sqlite/SQLiteDatabase;"
 
 private const val ALL_REFERENCES_RELEASED_COMMAND_SIGNATURE = "onAllReferencesReleased()V"
 
@@ -67,18 +70,17 @@ private const val RELEASE_REFERENCE_COMMAND_SIGNATURE = "releaseReference()V"
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TrackDatabasesTest {
-    @get:Rule
-    val testEnvironment = SqliteInspectorTestEnvironment()
+    @get:Rule val testEnvironment = SqliteInspectorTestEnvironment()
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
+    @get:Rule val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
     fun test_track_databases() = runBlocking {
-        val alreadyOpenDatabases = listOf(
-            Database("db1").createInstance(temporaryFolder),
-            Database("db2").createInstance(temporaryFolder)
-        )
+        val alreadyOpenDatabases =
+            listOf(
+                Database("db1").createInstance(temporaryFolder),
+                Database("db2").createInstance(temporaryFolder)
+            )
 
         testEnvironment.registerAlreadyOpenDatabases(alreadyOpenDatabases)
 
@@ -97,22 +99,27 @@ class TrackDatabasesTest {
         }
 
         // evaluate registered hooks
-        val possibleSignatures = listOf(
-            OPEN_DATABASE_COMMAND_SIGNATURE_API11,
-            OPEN_DATABASE_COMMAND_SIGNATURE_API27,
-            CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
-        )
-        val wantedSignatures = when {
-            Build.VERSION.SDK_INT < 27 -> listOf(OPEN_DATABASE_COMMAND_SIGNATURE_API11)
-            else -> listOf(
+        val possibleSignatures =
+            listOf(
                 OPEN_DATABASE_COMMAND_SIGNATURE_API11,
                 OPEN_DATABASE_COMMAND_SIGNATURE_API27,
                 CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
             )
-        }
+        val wantedSignatures =
+            when {
+                Build.VERSION.SDK_INT < 27 -> listOf(OPEN_DATABASE_COMMAND_SIGNATURE_API11)
+                else ->
+                    listOf(
+                        OPEN_DATABASE_COMMAND_SIGNATURE_API11,
+                        OPEN_DATABASE_COMMAND_SIGNATURE_API27,
+                        CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API27
+                    )
+            }
 
-        val hookEntries = testEnvironment.consumeRegisteredHooks()
-            .filter { possibleSignatures.contains(it.originMethod) }
+        val hookEntries =
+            testEnvironment.consumeRegisteredHooks().filter {
+                possibleSignatures.contains(it.originMethod)
+            }
         assertThat(hookEntries).hasSize(wantedSignatures.size)
         assertThat(hookEntries.map { it.originMethod }.containsAll(wantedSignatures)).isTrue()
         hookEntries.forEachIndexed { ix, entry ->
@@ -122,8 +129,7 @@ class TrackDatabasesTest {
 
             // verify that executing the registered hook will result in tracking events
             testEnvironment.assertNoQueuedEvents()
-            @Suppress("UNCHECKED_CAST")
-            val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
+            @Suppress("UNCHECKED_CAST") val exitHook = entry.asExitHook as ExitHook<SQLiteDatabase>
             val database = Database("db3_$ix").createInstance(temporaryFolder)
             assertThat(exitHook.onExit(database)).isSameInstanceAs(database)
             testEnvironment.receiveEvent().let { event ->
@@ -138,8 +144,10 @@ class TrackDatabasesTest {
     fun test_track_databases_the_same_database_opened_multiple_times() = runBlocking {
         // given
         testEnvironment.sendCommand(createTrackDatabasesCommand())
-        val onOpenHook = testEnvironment.consumeRegisteredHooks()
-            .first { it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE_API11 }
+        val onOpenHook =
+            testEnvironment.consumeRegisteredHooks().first {
+                it.originMethod == OPEN_DATABASE_COMMAND_SIGNATURE_API11
+            }
         @Suppress("UNCHECKED_CAST")
         val onOpen = (onOpenHook.asExitHook as ExitHook<SQLiteDatabase>)::onExit
 
@@ -212,11 +220,12 @@ class TrackDatabasesTest {
         assertNoQueuedEvents()
 
         // with inspecting (now keepOpen = true)
-        val dbs = listOf("db3", null).map { path ->
-            val db = openDatabase(path, hooks)
-            val id = receiveOpenedEventId(db)
-            id to db
-        }
+        val dbs =
+            listOf("db3", null).map { path ->
+                val db = openDatabase(path, hooks)
+                val id = receiveOpenedEventId(db)
+                id to db
+            }
         dbs.forEach { (_, db) ->
             closeDatabase(db, hooks)
             assertOpen(db) // keep-open has worked
@@ -235,9 +244,7 @@ class TrackDatabasesTest {
 
         // keepOpen = true with some of the same databases as before (they are not revived)
         issueKeepDatabasesOpenCommand(true)
-        dbs.forEach { (_, db) ->
-            assertClosed(db)
-        }
+        dbs.forEach { (_, db) -> assertClosed(db) }
         assertNoQueuedEvents()
 
         // keepOpen = false with a database with more than one reference
@@ -319,12 +326,14 @@ class TrackDatabasesTest {
     fun test_findInstances_disk() = runBlocking {
         val db1a = Database("db1").createInstance(temporaryFolder)
         val db2 = Database("db2").createInstance(temporaryFolder)
-        val application = object : Application() {
-            override fun databaseList(): Array<String> =
-                arrayOf(db1a.absolutePath, db2.absolutePath)
-            override fun getDatabasePath(name: String?) =
-                getInstrumentation().context.getDatabasePath(name)
-        }
+        val application =
+            object : Application() {
+                override fun databaseList(): Array<String> =
+                    arrayOf(db1a.absolutePath, db2.absolutePath)
+
+                override fun getDatabasePath(name: String?) =
+                    getInstrumentation().context.getDatabasePath(name)
+            }
 
         testEnvironment.registerApplication(application)
         val hooks = startTracking()
@@ -350,13 +359,13 @@ class TrackDatabasesTest {
     fun test_findInstances_disk_filters_helper_files() = runBlocking {
         val db = Database("db1").createInstance(temporaryFolder, false)
 
-        val application = object : Application() {
-            override fun databaseList(): Array<String> =
-                temporaryFolder.root.list() as Array<String>
+        val application =
+            object : Application() {
+                override fun databaseList(): Array<String> =
+                    temporaryFolder.root.list() as Array<String>
 
-            override fun getDatabasePath(name: String) =
-                File(temporaryFolder.root, name)
-        }
+                override fun getDatabasePath(name: String) = File(temporaryFolder.root, name)
+            }
 
         // trigger some query to establish connection
         val cursor = db.rawQuery("select * from sqlite_master", emptyArray())
@@ -458,9 +467,12 @@ class TrackDatabasesTest {
         assertNoQueuedEvents()
 
         var count = 0
-        closeDatabase(db, hooks); count++
-        closeDatabase(db, hooks); count++
-        closeDatabase(db, hooks); count++
+        closeDatabase(db, hooks)
+        count++
+        closeDatabase(db, hooks)
+        count++
+        closeDatabase(db, hooks)
+        count++
         assertNoQueuedEvents()
 
         issueKeepDatabasesOpenCommand(false)
@@ -477,9 +489,9 @@ class TrackDatabasesTest {
     }
 
     /**
-     * #dbRef -- the number of references as seen by the SQLiteDatabase object
-     * #kpoRef=0 -- the number of references acquired by KeepOpen objects
-     * #usrRef=1 -- the 'balance' of references the user owns
+     * #dbRef -- the number of references as seen by the SQLiteDatabase object #kpoRef=0 -- the
+     * number of references acquired by KeepOpen objects #usrRef=1 -- the 'balance' of references
+     * the user owns
      */
     @Test
     fun test_keep_open_keeps_count() = runBlocking {
@@ -496,11 +508,14 @@ class TrackDatabasesTest {
         assertNoQueuedEvents()
 
         var count = 0
-        closeDatabase(db, hooks); count++ // #dbRef=1 | #kpoRef=1 | #usrRef=0
+        closeDatabase(db, hooks)
+        count++ // #dbRef=1 | #kpoRef=1 | #usrRef=0
         assertThat(db.referenceCount).isEqualTo(1)
-        closeDatabase(db, hooks); count++ // #dbRef=1 | #kpoRef=2 | #usrRef=-1
+        closeDatabase(db, hooks)
+        count++ // #dbRef=1 | #kpoRef=2 | #usrRef=-1
         assertThat(db.referenceCount).isEqualTo(1)
-        closeDatabase(db, hooks); count++ // #dbRef=1 | #kpoRef=3 | #usrRef=-2
+        closeDatabase(db, hooks)
+        count++ // #dbRef=1 | #kpoRef=3 | #usrRef=-2
         assertThat(db.referenceCount).isEqualTo(1)
         assertNoQueuedEvents()
 
@@ -521,9 +536,9 @@ class TrackDatabasesTest {
     }
 
     /**
-     * #dbRef -- the number of references as seen by the SQLiteDatabase object
-     * #kpoRef=0 -- the number of references acquired by KeepOpen objects
-     * #usrRef=1 -- the 'balance' of references the user owns
+     * #dbRef -- the number of references as seen by the SQLiteDatabase object #kpoRef=0 -- the
+     * number of references acquired by KeepOpen objects #usrRef=1 -- the 'balance' of references
+     * the user owns
      */
     @Test
     fun test_keep_open_off_on_off() = runBlocking {
@@ -583,8 +598,7 @@ class TrackDatabasesTest {
         val field = clazz.declaredFields.first { it.name == fieldName }
         field.isAccessible = true
         val result = field.get(target)
-        @Suppress("UNCHECKED_CAST")
-        return result as T
+        @Suppress("UNCHECKED_CAST") return result as T
     }
 
     private fun assertNoQueuedEvents() {

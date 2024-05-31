@@ -20,5 +20,4 @@ package androidx.sqlite.driver.bundled
 
 import androidx.annotation.RestrictTo
 
-actual typealias BundledSQLiteStatement =
-    androidx.sqlite.driver.NativeSQLiteStatement
+actual typealias BundledSQLiteStatement = androidx.sqlite.driver.NativeSQLiteStatement

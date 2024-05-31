@@ -41,5 +41,6 @@ data class Column(
     val isNotNull: Boolean = false,
     val isUnique: Boolean = false
 ) {
-    val isPrimaryKey: Boolean get() = primaryKey > 0
+    val isPrimaryKey: Boolean
+        get() = primaryKey > 0
 }

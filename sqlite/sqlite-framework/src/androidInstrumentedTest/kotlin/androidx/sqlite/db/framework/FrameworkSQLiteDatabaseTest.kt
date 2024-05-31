@@ -30,13 +30,14 @@ import org.junit.Test
 class FrameworkSQLiteDatabaseTest {
     private val dbName = "test.db"
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val openHelper = FrameworkSQLiteOpenHelper(
-        context,
-        dbName,
-        OpenHelperRecoveryTest.EmptyCallback(),
-        useNoBackupDirectory = false,
-        allowDataLossOnRecovery = false
-    )
+    private val openHelper =
+        FrameworkSQLiteOpenHelper(
+            context,
+            dbName,
+            OpenHelperRecoveryTest.EmptyCallback(),
+            useNoBackupDirectory = false,
+            allowDataLossOnRecovery = false
+        )
 
     @Before
     fun setup() {
@@ -48,18 +49,13 @@ class FrameworkSQLiteDatabaseTest {
         val db = openHelper.writableDatabase
         db.execSQL("create table user (idk int)")
 
-        val statement = db
-            .compileStatement("insert into user (idk) values (1)")
+        val statement = db.compileStatement("insert into user (idk) values (1)")
         statement.executeInsert() // This should succeed
 
         val cursor1 = db.query("select * from user")
         assertThat(cursor1.count).isEqualTo(1)
 
-        db.delete(
-            "user",
-            null,
-            null
-        )
+        db.delete("user", null, null)
 
         val cursor2 = db.query("select * from user")
         assertThat(cursor2.count).isEqualTo(0)
@@ -70,8 +66,7 @@ class FrameworkSQLiteDatabaseTest {
         val db = openHelper.writableDatabase
         db.execSQL("create table user (idk int)")
 
-        val statement = db
-            .compileStatement("insert into user (idk) values (1)")
+        val statement = db.compileStatement("insert into user (idk) values (1)")
         statement.executeInsert() // This should succeed
 
         val cursor1 = db.query("select * from user where idk=1")
@@ -85,26 +80,26 @@ class FrameworkSQLiteDatabaseTest {
 
     @Test
     fun testFrameWorkSQLiteDatabase_attachDbWorks() {
-        val openHelper2 = FrameworkSQLiteOpenHelper(
-            context,
-            "test2.db",
-            OpenHelperRecoveryTest.EmptyCallback(),
-            useNoBackupDirectory = false,
-            allowDataLossOnRecovery = false
-        )
+        val openHelper2 =
+            FrameworkSQLiteOpenHelper(
+                context,
+                "test2.db",
+                OpenHelperRecoveryTest.EmptyCallback(),
+                useNoBackupDirectory = false,
+                allowDataLossOnRecovery = false
+            )
         val db1 = openHelper.writableDatabase
         val db2 = openHelper2.writableDatabase
 
-        db1.execSQL(
-            "ATTACH DATABASE '${db2.path}' AS database2"
-        )
+        db1.execSQL("ATTACH DATABASE '${db2.path}' AS database2")
 
         val cursor = db1.query("pragma database_list")
-        val expected = buildList<Pair<String, String>> {
-            while (cursor.moveToNext()) {
-                add(cursor.getString(1) to cursor.getString(2))
+        val expected =
+            buildList<Pair<String, String>> {
+                while (cursor.moveToNext()) {
+                    add(cursor.getString(1) to cursor.getString(2))
+                }
             }
-        }
         cursor.close()
         openHelper2.close()
 
@@ -122,43 +117,48 @@ class FrameworkSQLiteDatabaseTest {
         }
 
         FrameworkSQLiteOpenHelper(
-            context,
-            dbName,
-            object : SupportSQLiteOpenHelper.Callback(10) {
-                override fun onCreate(db: SupportSQLiteDatabase) {}
+                context,
+                dbName,
+                object : SupportSQLiteOpenHelper.Callback(10) {
+                    override fun onCreate(db: SupportSQLiteDatabase) {}
 
-                override fun onUpgrade(
-                    db: SupportSQLiteDatabase,
-                    oldVersion: Int,
-                    newVersion: Int
-                ) {
-                    // Do a query, this query will get cached, but we expect it to get evicted if
-                    // androidx.sqlite workarounds this issue by reducing the cache size.
-                    db.query("SELECT * FROM Foo").let { c ->
-                        assertThat(c.moveToNext()).isTrue()
-                        assertThat(c.getString(1)).isEqualTo("bar")
-                        c.close()
+                    override fun onUpgrade(
+                        db: SupportSQLiteDatabase,
+                        oldVersion: Int,
+                        newVersion: Int
+                    ) {
+                        // Do a query, this query will get cached, but we expect it to get evicted
+                        // if
+                        // androidx.sqlite workarounds this issue by reducing the cache size.
+                        db.query("SELECT * FROM Foo").let { c ->
+                            assertThat(c.moveToNext()).isTrue()
+                            assertThat(c.getString(1)).isEqualTo("bar")
+                            c.close()
+                        }
+                        // Alter table, specifically make it so that using a cached query will be
+                        // troublesome.
+                        db.execSQL("ALTER TABLE Foo RENAME TO Foo_old")
+                        db.execSQL("CREATE TABLE Foo (id INTEGER NOT NULL PRIMARY KEY)")
+                        // Do an irrelevant query to evict the last SELECT statement, sadly this is
+                        // required because we can only reduce the cache size to 1, and only SELECT
+                        // or
+                        // UPDATE statement are cache.
+                        // See
+                        // frameworks/base/core/java/android/database/sqlite/SQLiteConnection.java;l=1209
+                        db.query("SELECT * FROM Foo_old").close()
+                        // Do earlier query, checking it is not cached
+                        db.query("SELECT * FROM Foo").let { c ->
+                            assertThat(c.columnNames.toList()).containsExactly("id")
+                            assertThat(c.count).isEqualTo(0)
+                            c.close()
+                        }
                     }
-                    // Alter table, specifically make it so that using a cached query will be
-                    // troublesome.
-                    db.execSQL("ALTER TABLE Foo RENAME TO Foo_old")
-                    db.execSQL("CREATE TABLE Foo (id INTEGER NOT NULL PRIMARY KEY)")
-                    // Do an irrelevant query to evict the last SELECT statement, sadly this is
-                    // required because we can only reduce the cache size to 1, and only SELECT or
-                    // UPDATE statement are cache.
-                    // See frameworks/base/core/java/android/database/sqlite/SQLiteConnection.java;l=1209
-                    db.query("SELECT * FROM Foo_old").close()
-                    // Do earlier query, checking it is not cached
-                    db.query("SELECT * FROM Foo").let { c ->
-                        assertThat(c.columnNames.toList()).containsExactly("id")
-                        assertThat(c.count).isEqualTo(0)
-                        c.close()
-                    }
-                }
-            },
-            useNoBackupDirectory = false,
-            allowDataLossOnRecovery = false
-        ).writableDatabase.close()
+                },
+                useNoBackupDirectory = false,
+                allowDataLossOnRecovery = false
+            )
+            .writableDatabase
+            .close()
     }
 
     @Test
@@ -168,9 +168,9 @@ class FrameworkSQLiteDatabaseTest {
         val database = openHelper.writableDatabase
         assertThat(database.isWriteAheadLoggingEnabled).isTrue()
 
-        database.execSQL("CREATE TABLE t1 (i int);");
-        database.execSQL("INSERT INTO t1 (i) VALUES (2)");
-        database.execSQL("INSERT INTO t1 (i) VALUES (3)");
+        database.execSQL("CREATE TABLE t1 (i int);")
+        database.execSQL("INSERT INTO t1 (i) VALUES (2)")
+        database.execSQL("INSERT INTO t1 (i) VALUES (3)")
 
         // Begin read only transaction in test thread, should not block secondary thread from
         // performing a query.

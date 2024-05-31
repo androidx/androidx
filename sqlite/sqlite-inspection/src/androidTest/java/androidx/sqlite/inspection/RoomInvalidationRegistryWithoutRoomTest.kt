@@ -34,11 +34,12 @@ class RoomInvalidationRegistryWithoutRoomTest {
     fun noOpTest() {
         // this does not really assert anything, we just want to make sure it does not crash and
         // never makes a call to the environment if Room is not available.
-        val env = object : InspectorEnvironment {
-            override fun artTooling(): ArtTooling {
-                throw AssertionError("should never call environment")
+        val env =
+            object : InspectorEnvironment {
+                override fun artTooling(): ArtTooling {
+                    throw AssertionError("should never call environment")
+                }
             }
-        }
         val tracker = RoomInvalidationRegistry(env)
         tracker.triggerInvalidations()
         tracker.invalidateCache()

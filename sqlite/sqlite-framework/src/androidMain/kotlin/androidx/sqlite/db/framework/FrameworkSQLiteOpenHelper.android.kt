@@ -29,7 +29,9 @@ import androidx.sqlite.util.ProcessLock
 import java.io.File
 import java.util.UUID
 
-internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
+internal class FrameworkSQLiteOpenHelper
+@JvmOverloads
+constructor(
     private val context: Context,
     private val name: String?,
     private val callback: SupportSQLiteOpenHelper.Callback,
@@ -43,29 +45,26 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
         val openHelper: OpenHelper
 
         if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                name != null &&
-                useNoBackupDirectory
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && name != null && useNoBackupDirectory
         ) {
-            val file = File(
-                SupportSQLiteCompat.Api21Impl.getNoBackupFilesDir(context),
-                name
-            )
-            openHelper = OpenHelper(
-                context = context,
-                name = file.absolutePath,
-                dbRef = DBRefHolder(null),
-                callback = callback,
-                allowDataLossOnRecovery = allowDataLossOnRecovery
-            )
+            val file = File(SupportSQLiteCompat.Api21Impl.getNoBackupFilesDir(context), name)
+            openHelper =
+                OpenHelper(
+                    context = context,
+                    name = file.absolutePath,
+                    dbRef = DBRefHolder(null),
+                    callback = callback,
+                    allowDataLossOnRecovery = allowDataLossOnRecovery
+                )
         } else {
-            openHelper = OpenHelper(
-                context = context,
-                name = name,
-                dbRef = DBRefHolder(null),
-                callback = callback,
-                allowDataLossOnRecovery = allowDataLossOnRecovery
-            )
+            openHelper =
+                OpenHelper(
+                    context = context,
+                    name = name,
+                    dbRef = DBRefHolder(null),
+                    callback = callback,
+                    allowDataLossOnRecovery = allowDataLossOnRecovery
+                )
         }
         openHelper.setWriteAheadLoggingEnabled(writeAheadLoggingEnabled)
         return@lazy openHelper
@@ -109,32 +108,30 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
         val context: Context,
         name: String?,
         /**
-         * This is used as an Object reference so that we can access the wrapped database inside
-         * the constructor. SQLiteOpenHelper requires the error handler to be passed in the
-         * constructor.
+         * This is used as an Object reference so that we can access the wrapped database inside the
+         * constructor. SQLiteOpenHelper requires the error handler to be passed in the constructor.
          */
         val dbRef: DBRefHolder,
         val callback: SupportSQLiteOpenHelper.Callback,
         val allowDataLossOnRecovery: Boolean
-    ) : SQLiteOpenHelper(
-        context, name, null, callback.version,
-        DatabaseErrorHandler { dbObj ->
-            callback.onCorruption(
-                getWrappedDb(
-                    dbRef,
-                    dbObj
-                )
-            )
-        }) {
+    ) :
+        SQLiteOpenHelper(
+            context,
+            name,
+            null,
+            callback.version,
+            DatabaseErrorHandler { dbObj -> callback.onCorruption(getWrappedDb(dbRef, dbObj)) }
+        ) {
         // see b/78359448
         private var migrated = false
 
         // see b/193182592
-        private val lock: ProcessLock = ProcessLock(
-            name = name ?: UUID.randomUUID().toString(),
-            lockDir = context.cacheDir,
-            processLock = false
-        )
+        private val lock: ProcessLock =
+            ProcessLock(
+                name = name ?: UUID.randomUUID().toString(),
+                lockDir = context.cacheDir,
+                processLock = false
+            )
         private var opened = false
 
         fun getSupportDatabase(writable: Boolean): SupportSQLiteDatabase {
@@ -178,11 +175,12 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
             } catch (e: InterruptedException) {
                 // Ignore, and continue
             }
-            val openRetryError: Throwable = try {
-                return getWritableOrReadableDatabase(writable)
-            } catch (t: Throwable) {
-                t
-            }
+            val openRetryError: Throwable =
+                try {
+                    return getWritableOrReadableDatabase(writable)
+                } catch (t: Throwable) {
+                    t
+                }
             if (openRetryError is CallbackException) {
                 // Callback error (onCreate, onUpgrade, onOpen, etc), possibly user error.
                 val cause = openRetryError.cause
@@ -301,7 +299,11 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
         ) : RuntimeException(cause)
 
         internal enum class CallbackName {
-            ON_CONFIGURE, ON_CREATE, ON_UPGRADE, ON_DOWNGRADE, ON_OPEN
+            ON_CONFIGURE,
+            ON_CREATE,
+            ON_UPGRADE,
+            ON_DOWNGRADE,
+            ON_OPEN
         }
 
         companion object {
@@ -324,9 +326,8 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
     }
 
     /**
-     * This is used as an Object reference so that we can access the wrapped database inside
-     * the constructor. SQLiteOpenHelper requires the error handler to be passed in the
-     * constructor.
+     * This is used as an Object reference so that we can access the wrapped database inside the
+     * constructor. SQLiteOpenHelper requires the error handler to be passed in the constructor.
      */
     private class DBRefHolder(var db: FrameworkSQLiteDatabase?)
 }

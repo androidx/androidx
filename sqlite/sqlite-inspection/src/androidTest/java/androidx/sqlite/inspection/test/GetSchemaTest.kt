@@ -35,11 +35,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 26)
 class GetSchemaTest {
-    @get:Rule
-    val testEnvironment = SqliteInspectorTestEnvironment()
+    @get:Rule val testEnvironment = SqliteInspectorTestEnvironment()
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
+    @get:Rule val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
     @Test
     fun test_get_schema_complex_tables() {
@@ -55,17 +53,8 @@ class GetSchemaTest {
                         Column("r", "REAL"),
                         Column("b", "BLOB")
                     ),
-                    Table(
-                        "table2",
-                        Column("id", "INTEGER"),
-                        Column("name", "TEXT")
-
-                    ),
-                    Table(
-                        "table3a",
-                        Column("c1", "INT"),
-                        Column("c2", "INT", primaryKey = 1)
-                    ),
+                    Table("table2", Column("id", "INTEGER"), Column("name", "TEXT")),
+                    Table("table3a", Column("c1", "INT"), Column("c2", "INT", primaryKey = 1)),
                     Table(
                         "table3b", // compound-primary-key
                         Column("c1", "INT", primaryKey = 2),
@@ -95,11 +84,10 @@ class GetSchemaTest {
             onDatabaseCreated = { db ->
                 // compound-unique-constraint-indices
                 listOf(
-                    "create index index6_12 on 'table6' ('c1', 'c2uuu')",
-                    "create index index6_23 on 'table6' ('c2uuu', 'c3')"
-                ).forEach { query ->
-                    db.execSQL(query, emptyArray())
-                }
+                        "create index index6_12 on 'table6' ('c1', 'c2uuu')",
+                        "create index index6_23 on 'table6' ('c2uuu', 'c3')"
+                    )
+                    .forEach { query -> db.execSQL(query, emptyArray()) }
 
                 // sanity check: verifies if the above index adding operations succeeded
                 val indexCountTable6 =
@@ -138,7 +126,9 @@ class GetSchemaTest {
                     Table("t1", c1, c2),
                     Table("t2", c1, c2, c3),
                     Table(
-                        "v1", listOf(c1, c2), isView = true,
+                        "v1",
+                        listOf(c1, c2),
+                        isView = true,
                         viewQuery = "select t1.c1, t2.c2 from t1 inner join t2 on t1.c1 = t2.c2"
                     )
                 )
@@ -148,12 +138,13 @@ class GetSchemaTest {
 
     @Test
     fun test_get_schema_auto_increment() = runBlocking {
-        val databaseId = testEnvironment.inspectDatabase(
-            Database("db1").createInstance(temporaryFolder).also {
-                it.execSQL("CREATE TABLE t1 (c2 INTEGER PRIMARY KEY AUTOINCREMENT)")
-                it.execSQL("INSERT INTO t1 VALUES(3)")
-            }
-        )
+        val databaseId =
+            testEnvironment.inspectDatabase(
+                Database("db1").createInstance(temporaryFolder).also {
+                    it.execSQL("CREATE TABLE t1 (c2 INTEGER PRIMARY KEY AUTOINCREMENT)")
+                    it.execSQL("INSERT INTO t1 VALUES(3)")
+                }
+            )
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
             val tableNames = response.getSchema.tablesList.map { it.name }
             assertThat(tableNames).isEqualTo(listOf("t1"))
@@ -166,80 +157,73 @@ class GetSchemaTest {
         testEnvironment.sendCommand(createGetSchemaCommand(databaseId)).let { response ->
             assertThat(response.hasErrorOccurred()).isEqualTo(true)
             val error = response.errorOccurred.content
-            assertThat(error.message).contains(
-                "Unable to perform an operation on database (id=$databaseId)."
-            )
+            assertThat(error.message)
+                .contains("Unable to perform an operation on database (id=$databaseId).")
             assertThat(error.message).contains("The database may have already been closed.")
             assertThat(error.recoverability.isRecoverable).isEqualTo(true)
-            assertThat(error.errorCodeValue).isEqualTo(
-                ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE
-            )
+            assertThat(error.errorCodeValue)
+                .isEqualTo(ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE)
         }
     }
 
     private fun test_get_schema(
         alreadyOpenDatabases: List<Database>,
         onDatabaseCreated: (SQLiteDatabase) -> Unit = {}
-    ) =
-        runBlocking {
-            assertThat(alreadyOpenDatabases).isNotEmpty() // sanity check
+    ) = runBlocking {
+        assertThat(alreadyOpenDatabases).isNotEmpty() // sanity check
 
-            testEnvironment.registerAlreadyOpenDatabases(
-                alreadyOpenDatabases.map {
-                    it.createInstance(temporaryFolder).also { db -> onDatabaseCreated(db) }
+        testEnvironment.registerAlreadyOpenDatabases(
+            alreadyOpenDatabases.map {
+                it.createInstance(temporaryFolder).also { db -> onDatabaseCreated(db) }
+            }
+        )
+        testEnvironment.sendCommand(createTrackDatabasesCommand())
+        val databaseConnections =
+            alreadyOpenDatabases.indices.map { testEnvironment.receiveEvent().databaseOpened }
+
+        val schemas =
+            databaseConnections
+                .sortedBy { it.path }
+                .map {
+                    testEnvironment.sendCommand(createGetSchemaCommand(it.databaseId)).getSchema
                 }
-            )
-            testEnvironment.sendCommand(createTrackDatabasesCommand())
-            val databaseConnections =
-                alreadyOpenDatabases.indices.map { testEnvironment.receiveEvent().databaseOpened }
 
-            val schemas =
-                databaseConnections
-                    .sortedBy { it.path }
-                    .map {
-                        testEnvironment.sendCommand(createGetSchemaCommand(it.databaseId)).getSchema
-                    }
+        alreadyOpenDatabases
+            .sortedBy { it.name }
+            .zipSameSize(schemas)
+            .forEach { (expectedSchema, actualSchema) ->
+                val expectedTables = expectedSchema.tables.sortedBy { it.name }
+                val actualTables = actualSchema.tablesList.sortedBy { it.name }
 
-            alreadyOpenDatabases
-                .sortedBy { it.name }
-                .zipSameSize(schemas)
-                .forEach { (expectedSchema, actualSchema) ->
-                    val expectedTables = expectedSchema.tables.sortedBy { it.name }
-                    val actualTables = actualSchema.tablesList.sortedBy { it.name }
+                expectedTables.zipSameSize(actualTables).forEach { (expectedTable, actualTable) ->
+                    assertThat(actualTable.name).isEqualTo(expectedTable.name)
+                    assertThat(actualTable.isView).isEqualTo(expectedTable.isView)
 
-                    expectedTables
-                        .zipSameSize(actualTables)
-                        .forEach { (expectedTable, actualTable) ->
-                            assertThat(actualTable.name).isEqualTo(expectedTable.name)
-                            assertThat(actualTable.isView).isEqualTo(expectedTable.isView)
+                    val expectedColumns = expectedTable.columns.sortedBy { it.name }
+                    val actualColumns = actualTable.columnsList.sortedBy { it.name }
 
-                            val expectedColumns = expectedTable.columns.sortedBy { it.name }
-                            val actualColumns = actualTable.columnsList.sortedBy { it.name }
-
-                            expectedColumns
-                                .adjustForSinglePrimaryKey()
-                                .zipSameSize(actualColumns)
-                                .forEach { (expectedColumn, actualColumnProto) ->
-                                    val actualColumn = Column(
-                                        name = actualColumnProto.name,
-                                        type = actualColumnProto.type,
-                                        primaryKey = actualColumnProto.primaryKey,
-                                        isNotNull = actualColumnProto.isNotNull,
-                                        isUnique = actualColumnProto.isUnique
-                                    )
-                                    assertThat(actualColumn).isEqualTo(expectedColumn)
-                                }
+                    expectedColumns
+                        .adjustForSinglePrimaryKey()
+                        .zipSameSize(actualColumns)
+                        .forEach { (expectedColumn, actualColumnProto) ->
+                            val actualColumn =
+                                Column(
+                                    name = actualColumnProto.name,
+                                    type = actualColumnProto.type,
+                                    primaryKey = actualColumnProto.primaryKey,
+                                    isNotNull = actualColumnProto.isNotNull,
+                                    isUnique = actualColumnProto.isUnique
+                                )
+                            assertThat(actualColumn).isEqualTo(expectedColumn)
                         }
                 }
-        }
+            }
+    }
 
     // The sole primary key in a table is by definition unique
     private fun List<Column>.adjustForSinglePrimaryKey(): List<Column> =
         if (this.count { it.isPrimaryKey } > 1) this
-        else this.map {
-            if (it.isPrimaryKey) it.copy(isUnique = true)
-            else it
-        }
+        else this.map { if (it.isPrimaryKey) it.copy(isUnique = true) else it }
 
     /** Same as [List.zip] but ensures both lists are the same size. */
     private fun <A, B> List<A>.zipSameSize(other: List<B>): List<Pair<A, B>> {

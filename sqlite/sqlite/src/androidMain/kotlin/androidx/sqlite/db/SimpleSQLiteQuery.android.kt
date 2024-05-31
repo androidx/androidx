@@ -16,19 +16,18 @@
 package androidx.sqlite.db
 
 /**
- * A basic implementation of [SupportSQLiteQuery] which receives a query and its args and
- * binds args based on the passed in Object type.
+ * A basic implementation of [SupportSQLiteQuery] which receives a query and its args and binds args
+ * based on the passed in Object type.
  *
- * @constructor Creates an SQL query with the sql string and the bind arguments.
- *
- * @param query    The query string, can include bind arguments (.e.g ?).
+ * @param query The query string, can include bind arguments (.e.g ?).
  * @param bindArgs The bind argument value that will replace the placeholders in the query.
+ * @constructor Creates an SQL query with the sql string and the bind arguments.
  */
 class SimpleSQLiteQuery(
     private val query: String,
     @Suppress("ArrayReturn") // Due to legacy API
     private val bindArgs: Array<out Any?>?
-    ) : SupportSQLiteQuery {
+) : SupportSQLiteQuery {
 
     /**
      * Creates an SQL query without any bind arguments.
@@ -57,7 +56,7 @@ class SimpleSQLiteQuery(
          * Binds the given arguments into the given sqlite statement.
          *
          * @param [statement] The sqlite statement
-         * @param [bindArgs]  The list of bind arguments
+         * @param [bindArgs] The list of bind arguments
          */
         @JvmStatic
         fun bind(

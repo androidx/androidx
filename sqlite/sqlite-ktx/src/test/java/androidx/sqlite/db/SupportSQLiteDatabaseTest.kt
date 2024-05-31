@@ -23,25 +23,29 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
 class SupportSQLiteDatabaseTest {
-    @Test fun exclusiveDefault() {
+    @Test
+    fun exclusiveDefault() {
         val db = mock(SupportSQLiteDatabase::class.java)
         db.transaction {}
         verify(db).beginTransaction()
     }
 
-    @Test fun exclusiveFalse() {
+    @Test
+    fun exclusiveFalse() {
         val db = mock(SupportSQLiteDatabase::class.java)
         db.transaction(exclusive = false) {}
         verify(db).beginTransactionNonExclusive()
     }
 
-    @Test fun exclusiveTrue() {
+    @Test
+    fun exclusiveTrue() {
         val db = mock(SupportSQLiteDatabase::class.java)
         db.transaction(exclusive = true) {}
         verify(db).beginTransaction()
     }
 
-    @Test fun bodyNormalCallsSuccessAndEnd() {
+    @Test
+    fun bodyNormalCallsSuccessAndEnd() {
         val db = mock(SupportSQLiteDatabase::class.java)
         db.transaction {}
         verify(db).setTransactionSuccessful()
@@ -49,27 +53,27 @@ class SupportSQLiteDatabaseTest {
     }
 
     @Suppress("UNREACHABLE_CODE") // A programming error might not invoke the lambda.
-    @Test fun bodyThrowsDoesNotCallSuccess() {
+    @Test
+    fun bodyThrowsDoesNotCallSuccess() {
         val db = mock(SupportSQLiteDatabase::class.java)
         try {
-            db.transaction {
-                throw IllegalStateException()
-            }
+            db.transaction { throw IllegalStateException() }
             fail()
-        } catch (e: IllegalStateException) {
-        }
+        } catch (e: IllegalStateException) {}
         verify(db, times(0)).setTransactionSuccessful()
         verify(db).endTransaction()
     }
 
-    @Test fun bodyNonLocalReturnCallsSuccessAndEnd() {
+    @Test
+    fun bodyNonLocalReturnCallsSuccessAndEnd() {
         val db = mock(SupportSQLiteDatabase::class.java)
         callTransactionWithNonLocalReturnBody(db)
         verify(db).setTransactionSuccessful()
         verify(db).endTransaction()
     }
 
-    @Test fun bodyLocalReturnCallsSuccessAndEnd() {
+    @Test
+    fun bodyLocalReturnCallsSuccessAndEnd() {
         val db = mock(SupportSQLiteDatabase::class.java)
         callTransactionWithLocalReturnBody(db)
         verify(db).setTransactionSuccessful()
