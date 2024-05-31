@@ -8,7 +8,6 @@ import androidx.room.util.performBlocking
 import androidx.room.util.query
 import androidx.room.util.wrapMappedColumns
 import androidx.sqlite.SQLiteStatement
-import java.util.ArrayList
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Int
@@ -20,6 +19,7 @@ import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
 import kotlin.collections.MutableMap
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -53,7 +53,7 @@ public class MyDao_Impl(
           if (_result.containsKey(_key)) {
             _values = _result.getValue(_key)
           } else {
-            _values = ArrayList<Comment>()
+            _values = mutableListOf()
             _result.put(_key, _values)
           }
           if (_stmt.isNull(_cursorIndices[1][0]) && _stmt.isNull(_cursorIndices[1][1]) &&
@@ -97,7 +97,7 @@ public class MyDao_Impl(
           if (_result.containsKey(_key)) {
             _values = _result.getValue(_key)
           } else {
-            _values = ArrayList<Comment>()
+            _values = mutableListOf()
             _result.put(_key, _values)
           }
           if (_stmt.isNull(_cursorIndices[1][0]) && _stmt.isNull(_cursorIndices[1][1]) &&
@@ -143,7 +143,7 @@ public class MyDao_Impl(
         if (_result.containsKey(_key)) {
           _values = _result.getValue(_key)
         } else {
-          _values = ArrayList<Comment>()
+          _values = mutableListOf()
           _result.put(_key, _values)
         }
         if (_cursor.isNull(_cursorIndices[1][0]) && _cursor.isNull(_cursorIndices[1][1]) &&

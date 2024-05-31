@@ -3,7 +3,6 @@ import androidx.room.RoomDatabase
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
 import java.nio.ByteBuffer
-import java.util.ArrayList
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Int
@@ -15,6 +14,7 @@ import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
 import kotlin.collections.MutableMap
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -68,7 +68,7 @@ public class MyDao_Impl(
           if (_values.containsKey(_key_1)) {
             _values_1 = _values.getValue(_key_1)
           } else {
-            _values_1 = ArrayList<Comment>()
+            _values_1 = mutableListOf()
             _values.put(_key_1, _values_1)
           }
           if (_stmt.isNull(_cursorIndices[2][0]) && _stmt.isNull(_cursorIndices[2][1]) &&
