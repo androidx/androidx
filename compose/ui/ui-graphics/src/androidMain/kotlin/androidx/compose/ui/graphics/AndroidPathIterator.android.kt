@@ -52,6 +52,8 @@ private class AndroidPathIterator(
 
     override fun next(): PathSegment {
         val p = segmentPoints
+        // Compiler hint to bypass bound checks
+        if (p.size < 8) return DoneSegment
 
         val type = implementation.next(p, 0).toPathSegmentType()
         if (type == PathSegment.Type.Done) return DoneSegment

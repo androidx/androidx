@@ -385,6 +385,7 @@ internal fun fillSnake(
     reverse: Boolean,
     data: IntArray,
 ) {
+    if (data.size < 5) return
     data[0] = startX
     data[1] = startY
     data[2] = endX

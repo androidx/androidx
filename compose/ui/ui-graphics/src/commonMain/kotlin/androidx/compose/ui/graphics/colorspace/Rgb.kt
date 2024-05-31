@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.annotation.Size
@@ -829,6 +831,8 @@ internal constructor(
      */
     @Size(min = 3)
     fun toLinear(@Size(min = 3) v: FloatArray): FloatArray {
+        // Compiler hint to avoid extra bounds checks
+        if (v.size < 3) return v
         v[0] = eotfFunc(v[0].toDouble()).toFloat()
         v[1] = eotfFunc(v[1].toDouble()).toFloat()
         v[2] = eotfFunc(v[2].toDouble()).toFloat()
@@ -876,6 +880,8 @@ internal constructor(
      */
     @Size(min = 3)
     fun fromLinear(@Size(min = 3) v: FloatArray): FloatArray {
+        // Compiler hint to avoid extra bounds checks
+        if (v.size < 3) return v
         v[0] = oetfFunc(v[0].toDouble()).toFloat()
         v[1] = oetfFunc(v[1].toDouble()).toFloat()
         v[2] = oetfFunc(v[2].toDouble()).toFloat()
@@ -883,6 +889,8 @@ internal constructor(
     }
 
     override fun toXyz(v: FloatArray): FloatArray {
+        // Compiler hint to avoid extra bounds checks
+        if (v.size < 3) return v
         v[0] = eotfFunc(v[0].toDouble()).toFloat()
         v[1] = eotfFunc(v[1].toDouble()).toFloat()
         v[2] = eotfFunc(v[2].toDouble()).toFloat()
@@ -894,6 +902,8 @@ internal constructor(
         val v10 = eotfFunc(v1.toDouble()).toFloat()
         val v20 = eotfFunc(v2.toDouble()).toFloat()
 
+        // Compiler hint to skip bounds checks
+        if (transform.size < 9) return 0L
         val x = mul3x3Float3_0(transform, v00, v10, v20)
         val y = mul3x3Float3_1(transform, v00, v10, v20)
 
@@ -930,6 +940,8 @@ internal constructor(
 
     override fun fromXyz(v: FloatArray): FloatArray {
         mul3x3Float3(inverseTransform, v)
+        // Compiler hint to avoid extra bounds checks
+        if (v.size < 3) return v
         v[0] = oetfFunc(v[0].toDouble()).toFloat()
         v[1] = oetfFunc(v[1].toDouble()).toFloat()
         v[2] = oetfFunc(v[2].toDouble()).toFloat()
@@ -1085,12 +1097,16 @@ internal constructor(
          * Computes the area of the triangle represented by a set of RGB primaries
          * in the CIE xyY space.
          *
+         * If [primaries] does not contain at least 6 elements, returns 0.0.
+         *
          * @param primaries The triangle's vertices, as RGB primaries in an array of 6 floats
          * @return The area of the triangle
          *
          * @see isWideGamut
          */
         private fun area(primaries: FloatArray): Float {
+            // Compiler hint to remove bound checks
+            if (primaries.size < 6) return 0.0f
             val rx = primaries[0]
             val ry = primaries[1]
             val gx = primaries[2]
@@ -1111,7 +1127,7 @@ internal constructor(
          * @param by The y coordinate of the second vector
          * @return The result of a x b
          */
-        private fun cross(ax: Float, ay: Float, bx: Float, by: Float): Float {
+        private inline fun cross(ax: Float, ay: Float, bx: Float, by: Float): Float {
             return ax * by - ay * bx
         }
 
@@ -1184,38 +1200,36 @@ internal constructor(
                 p1[4] - p2[4], p1[5] - p2[5]
             )
             // Check the first vertex of p1
-            if ((
+            if (
                 cross(
-                        p0[0],
-                        p0[1],
-                        p2[0] - p2[4],
-                        p2[1] - p2[5]
-                    ) < 0 ||
-                    cross(
-                        p2[0] - p2[2],
-                        p2[1] - p2[3],
-                        p0[0],
-                        p0[1]
-                    ) < 0
-                )
+                    p0[0],
+                    p0[1],
+                    p2[0] - p2[4],
+                    p2[1] - p2[5]
+                ) < 0 ||
+                cross(
+                    p2[0] - p2[2],
+                    p2[1] - p2[3],
+                    p0[0],
+                    p0[1]
+                ) < 0
             ) {
                 return false
             }
             // Check the second vertex of p1
-            if ((
+            if (
                 cross(
-                        p0[2],
-                        p0[3],
-                        p2[2] - p2[0],
-                        p2[3] - p2[1]
-                    ) < 0 ||
-                    cross(
-                        p2[2] - p2[4],
-                        p2[3] - p2[5],
-                        p0[2],
-                        p0[3]
-                    ) < 0
-                )
+                    p0[2],
+                    p0[3],
+                    p2[2] - p2[0],
+                    p2[3] - p2[1]
+                ) < 0 ||
+                cross(
+                    p2[2] - p2[4],
+                    p2[3] - p2[5],
+                    p0[2],
+                    p0[3]
+                ) < 0
             ) {
                 return false
             }
@@ -1227,13 +1241,13 @@ internal constructor(
                     p2[4] - p2[2],
                     p2[5] - p2[3]
                 ) < 0 ||
-                    cross(
+                cross(
                     p2[4] - p2[0],
                     p2[5] - p2[1],
                     p0[4],
                     p0[5]
                 ) < 0
-                )
+            )
         }
 
         /**
