@@ -85,11 +85,7 @@ class WindowAreaControllerImplTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             activityScenario.scenario.onActivity {
                 val extensionComponent = FakeWindowAreaComponent()
-                val controller =
-                    WindowAreaControllerImpl(
-                        windowAreaComponent = extensionComponent,
-                        presentationSupported = true
-                    )
+                val controller = WindowAreaControllerImpl(windowAreaComponent = extensionComponent)
                 extensionComponent.currentRearDisplayStatus = STATUS_UNAVAILABLE
                 extensionComponent.currentRearDisplayPresentationStatus = STATUS_UNAVAILABLE
                 val collector = TestWindowAreaInfoListConsumer()
@@ -169,11 +165,7 @@ class WindowAreaControllerImplTest {
         testScope.runTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             val extensions = FakeWindowAreaComponent()
-            val controller =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
             extensions.currentRearDisplayStatus = STATUS_AVAILABLE
             val callback = TestWindowAreaSessionCallback()
             val windowAreaInfo: WindowAreaInfo? =
@@ -244,11 +236,7 @@ class WindowAreaControllerImplTest {
         testScope.runTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             val extensions = FakeWindowAreaComponent()
-            val controller =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
             extensions.currentRearDisplayStatus = initialState
             val callback = TestWindowAreaSessionCallback()
             val windowAreaInfo: WindowAreaInfo? =
@@ -292,11 +280,7 @@ class WindowAreaControllerImplTest {
         testScope.runTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             val extensions = FakeWindowAreaComponent()
-            val controller =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
 
             extensions.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             extensions.updateRearDisplayPresentationStatusListeners(STATUS_AVAILABLE)
@@ -346,11 +330,7 @@ class WindowAreaControllerImplTest {
         testScope.runTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             val extensions = FakeWindowAreaComponent()
-            val controller =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
 
             extensions.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             extensions.updateRearDisplayPresentationStatusListeners(STATUS_AVAILABLE)
@@ -370,11 +350,7 @@ class WindowAreaControllerImplTest {
             }
 
             // Create a new controller to start the presentation.
-            val controller2 =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller2 = WindowAreaControllerImpl(windowAreaComponent = extensions)
 
             val callback = TestWindowAreaPresentationSessionCallback()
             activityScenario.scenario.onActivity { testActivity ->
@@ -408,11 +384,7 @@ class WindowAreaControllerImplTest {
         testScope.runTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             val extensions = FakeWindowAreaComponent()
-            val controller =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
             extensions.currentRearDisplayStatus = STATUS_AVAILABLE
             val callback = TestWindowAreaSessionCallback()
             val windowAreaInfo =
@@ -436,11 +408,7 @@ class WindowAreaControllerImplTest {
             }
 
             // Create a new controller to start the transfer.
-            val controller2 =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensions,
-                    presentationSupported = true
-                )
+            val controller2 = WindowAreaControllerImpl(windowAreaComponent = extensions)
 
             activityScenario.scenario.onActivity { testActivity ->
                 assert(
@@ -477,11 +445,7 @@ class WindowAreaControllerImplTest {
         testScope.runTest {
             assumeAtLeastVendorApiLevel(minVendorApiLevel)
             val extensionComponent = FakeWindowAreaComponent()
-            val controller =
-                WindowAreaControllerImpl(
-                    windowAreaComponent = extensionComponent,
-                    presentationSupported = true
-                )
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensionComponent)
 
             extensionComponent.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             extensionComponent.updateRearDisplayPresentationStatusListeners(STATUS_UNAVAILABLE)
@@ -593,7 +557,7 @@ class WindowAreaControllerImplTest {
             rearDisplayPresentationSessionConsumer?.accept(SESSION_STATE_INACTIVE)
         }
 
-        override fun getRearDisplayPresentation(): ExtensionWindowAreaPresentation? {
+        override fun getRearDisplayPresentation(): ExtensionWindowAreaPresentation {
             return TestExtensionWindowAreaPresentation(
                 testActivity!!,
                 rearDisplayPresentationSessionConsumer!!

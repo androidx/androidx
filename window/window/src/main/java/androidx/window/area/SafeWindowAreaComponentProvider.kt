@@ -56,15 +56,7 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
                             ExtensionsUtil.safeVendorApiLevel
                         )
                 ) {
-                    if (ExtensionsUtil.safeVendorApiLevel >= 3) {
-                        windowExtensions.windowAreaComponent
-                    } else {
-                        // Use reflection to get WindowAreaComponent if the WindowExtensions AAR
-                        // on device does not have the #getWindowAreaComponent method.
-                        windowExtensions.javaClass
-                            .getMethod("getWindowAreaComponent")
-                            .invoke(windowExtensions) as WindowAreaComponent
-                    }
+                    windowExtensions.windowAreaComponent
                 } else {
                     null
                 }

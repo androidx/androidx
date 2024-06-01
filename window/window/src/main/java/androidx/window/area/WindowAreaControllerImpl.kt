@@ -27,7 +27,6 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNKNOWN
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.area.adapter.WindowAreaAdapter
-import androidx.window.area.utils.DeviceMetricsCompatUtils
 import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
@@ -59,11 +58,10 @@ import kotlinx.coroutines.launch
  * functionality.
  */
 @ExperimentalWindowApi
-@RequiresWindowSdkExtension(2)
+@RequiresWindowSdkExtension(3)
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class WindowAreaControllerImpl(
     private val windowAreaComponent: WindowAreaComponent,
-    private val presentationSupported: Boolean,
 ) : WindowAreaController {
 
     private lateinit var rearDisplaySessionConsumer: Consumer<Int>
@@ -92,41 +90,24 @@ internal class WindowAreaControllerImpl(
                     }
 
                 windowAreaComponent.addRearDisplayStatusListener(rearDisplayListener)
-
-                if (presentationSupported) {
-                    windowAreaComponent.addRearDisplayPresentationStatusListener(
-                        rearDisplayPresentationListener
-                    )
-                }
+                windowAreaComponent.addRearDisplayPresentationStatusListener(
+                    rearDisplayPresentationListener
+                )
 
                 awaitClose {
                     windowAreaComponent.removeRearDisplayStatusListener(rearDisplayListener)
-
-                    if (presentationSupported) {
-                        windowAreaComponent.removeRearDisplayPresentationStatusListener(
-                            rearDisplayPresentationListener
-                        )
-                    }
+                    windowAreaComponent.removeRearDisplayPresentationStatusListener(
+                        rearDisplayPresentationListener
+                    )
                 }
             }
         }
 
     private fun updateRearDisplayAvailability(status: @WindowAreaComponent.WindowAreaStatus Int) {
         val windowMetrics =
-            if (presentationSupported) {
-                WindowMetricsCalculator.fromDisplayMetrics(
-                    displayMetrics = windowAreaComponent.rearDisplayMetrics
-                )
-            } else {
-                val displayMetrics = DeviceMetricsCompatUtils.getDeviceMetrics()?.rearDisplayMetrics
-                if (displayMetrics != null) {
-                    WindowMetricsCalculator.fromDisplayMetrics(displayMetrics = displayMetrics)
-                } else {
-                    throw IllegalArgumentException(
-                        "DeviceUtils rear display metrics entry should not be null"
-                    )
-                }
-            }
+            WindowMetricsCalculator.fromDisplayMetrics(
+                displayMetrics = windowAreaComponent.rearDisplayMetrics
+            )
 
         currentRearDisplayModeStatus = WindowAreaAdapter.translate(status, activeWindowAreaSession)
         updateRearDisplayWindowArea(
