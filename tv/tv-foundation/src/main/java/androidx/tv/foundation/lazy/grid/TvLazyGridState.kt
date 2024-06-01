@@ -55,7 +55,7 @@ import kotlin.math.abs
  *
  * @param initialFirstVisibleItemIndex the initial value for [TvLazyGridState.firstVisibleItemIndex]
  * @param initialFirstVisibleItemScrollOffset the initial value for
- * [TvLazyGridState.firstVisibleItemScrollOffset]
+ *   [TvLazyGridState.firstVisibleItemScrollOffset]
  */
 @Composable
 fun rememberTvLazyGridState(
@@ -63,10 +63,7 @@ fun rememberTvLazyGridState(
     initialFirstVisibleItemScrollOffset: Int = 0
 ): TvLazyGridState {
     return rememberSaveable(saver = TvLazyGridState.Saver) {
-        TvLazyGridState(
-            initialFirstVisibleItemIndex,
-            initialFirstVisibleItemScrollOffset
-        )
+        TvLazyGridState(initialFirstVisibleItemIndex, initialFirstVisibleItemScrollOffset)
     }
 }
 
@@ -77,95 +74,86 @@ fun rememberTvLazyGridState(
  *
  * @param firstVisibleItemIndex the initial value for [TvLazyGridState.firstVisibleItemIndex]
  * @param firstVisibleItemScrollOffset the initial value for
- * [TvLazyGridState.firstVisibleItemScrollOffset]
+ *   [TvLazyGridState.firstVisibleItemScrollOffset]
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-class TvLazyGridState constructor(
-    firstVisibleItemIndex: Int = 0,
-    firstVisibleItemScrollOffset: Int = 0
-) : ScrollableState {
-    /**
-     * The holder class for the current scroll position.
-     */
+class TvLazyGridState
+constructor(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOffset: Int = 0) :
+    ScrollableState {
+    /** The holder class for the current scroll position. */
     private val scrollPosition =
         LazyGridScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
     /**
      * The index of the first item that is visible.
      *
-     * Note that this property is observable and if you use it in the composable function it will
-     * be recomposed on every change causing potential performance issues.
+     * Note that this property is observable and if you use it in the composable function it will be
+     * recomposed on every change causing potential performance issues.
      */
-    val firstVisibleItemIndex: Int get() = scrollPosition.index
+    val firstVisibleItemIndex: Int
+        get() = scrollPosition.index
 
     /**
-     * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the
-     * amount that the item is offset backwards
+     * The scroll offset of the first visible item. Scrolling forward is positive - i.e., the amount
+     * that the item is offset backwards
      */
-    val firstVisibleItemScrollOffset: Int get() = scrollPosition.scrollOffset
+    val firstVisibleItemScrollOffset: Int
+        get() = scrollPosition.scrollOffset
 
     /** Backing state for [layoutInfo] */
     private val layoutInfoState = mutableStateOf<TvLazyGridLayoutInfo>(EmptyTvLazyGridLayoutInfo)
 
     /**
-     * The object of [TvLazyGridLayoutInfo] calculated during the last layout pass. For example,
-     * you can use it to calculate what items are currently visible.
+     * The object of [TvLazyGridLayoutInfo] calculated during the last layout pass. For example, you
+     * can use it to calculate what items are currently visible.
      *
-     * Note that this property is observable and is updated after every scroll or remeasure.
-     * If you use it in the composable function it will be recomposed on every change causing
-     * potential performance issues including infinity recomposition loop.
-     * Therefore, avoid using it in the composition.
+     * Note that this property is observable and is updated after every scroll or remeasure. If you
+     * use it in the composable function it will be recomposed on every change causing potential
+     * performance issues including infinity recomposition loop. Therefore, avoid using it in the
+     * composition.
      */
-    val layoutInfo: TvLazyGridLayoutInfo get() = layoutInfoState.value
+    val layoutInfo: TvLazyGridLayoutInfo
+        get() = layoutInfoState.value
 
     /**
-     * [InteractionSource] that will be used to dispatch drag events when this
-     * grid is being dragged. If you want to know whether the fling (or animated scroll) is in
-     * progress, use [isScrollInProgress].
+     * [InteractionSource] that will be used to dispatch drag events when this grid is being
+     * dragged. If you want to know whether the fling (or animated scroll) is in progress, use
+     * [isScrollInProgress].
      */
-    val interactionSource: InteractionSource get() = internalInteractionSource
+    val interactionSource: InteractionSource
+        get() = internalInteractionSource
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
 
     /**
-     * The amount of scroll to be consumed in the next layout pass.  Scrolling forward is negative
+     * The amount of scroll to be consumed in the next layout pass. Scrolling forward is negative
      * - that is, it is the amount that the items are offset in y
      */
     internal var scrollToBeConsumed = 0f
         private set
 
-    /**
-     * Needed for [animateScrollToItem]. Updated on every measure.
-     */
+    /** Needed for [animateScrollToItem]. Updated on every measure. */
     internal var slotsPerLine: Int by mutableIntStateOf(0)
 
-    /**
-     * Needed for [animateScrollToItem]. Updated on every measure.
-     */
+    /** Needed for [animateScrollToItem]. Updated on every measure. */
     internal var density: Density = Density(1f, 1f)
 
-    /**
-     * Needed for [notifyPrefetch].
-     */
+    /** Needed for [notifyPrefetch]. */
     internal var isVertical: Boolean = true
 
     /**
-     * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
-     * we reached the end of the grid.
+     * The ScrollableController instance. We keep it as we need to call stopAnimation on it once we
+     * reached the end of the grid.
      */
     private val scrollableState = ScrollableState { -onScroll(-it) }
 
-    /**
-     * Only used for testing to confirm that we're not making too many measure passes
-     */
+    /** Only used for testing to confirm that we're not making too many measure passes */
     /*@VisibleForTesting*/
     internal var numMeasurePasses: Int = 0
         private set
 
-    /**
-     * Only used for testing to disable prefetching when needed to test the main logic.
-     */
+    /** Only used for testing to disable prefetching when needed to test the main logic. */
     /*@VisibleForTesting*/
     internal var prefetchingEnabled: Boolean = true
 
@@ -174,15 +162,13 @@ class TvLazyGridState constructor(
      */
     private var lineToPrefetch = -1
 
-    /**
-     * The list of handles associated with the items from the [lineToPrefetch] line.
-     */
+    /** The list of handles associated with the items from the [lineToPrefetch] line. */
     private val currentLinePrefetchHandles =
         mutableVectorOf<LazyLayoutPrefetchState.PrefetchHandle>()
 
     /**
-     * Keeps the scrolling direction during the previous calculation in order to be able to
-     * detect the scrolling direction change.
+     * Keeps the scrolling direction during the previous calculation in order to be able to detect
+     * the scrolling direction change.
      */
     private var wasScrollingForward = false
 
@@ -192,26 +178,23 @@ class TvLazyGridState constructor(
      */
     internal var remeasurement: Remeasurement? = null
 
-    /**
-     * The modifier which provides [remeasurement].
-     */
-    internal val remeasurementModifier = object : RemeasurementModifier {
-        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-            this@TvLazyGridState.remeasurement = remeasurement
+    /** The modifier which provides [remeasurement]. */
+    internal val remeasurementModifier =
+        object : RemeasurementModifier {
+            override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                this@TvLazyGridState.remeasurement = remeasurement
+            }
         }
-    }
 
     /**
-     * Provides a modifier which allows to delay some interactions (e.g. scroll)
-     * until layout is ready.
+     * Provides a modifier which allows to delay some interactions (e.g. scroll) until layout is
+     * ready.
      */
     internal val awaitLayoutModifier = AwaitFirstLayoutModifier()
 
-    /**
-     * Finds items on a line and their measurement constraints. Used for prefetching.
-     */
+    /** Finds items on a line and their measurement constraints. Used for prefetching. */
     internal var prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>> by
-    mutableStateOf({ emptyList() })
+        mutableStateOf({ emptyList() })
 
     internal val placementAnimator = LazyGridItemPlacementAnimator()
 
@@ -219,9 +202,7 @@ class TvLazyGridState constructor(
 
     private val animateScrollScope = LazyGridAnimateScrollScope(this)
 
-    /**
-     * Stores currently pinned items which are always composed.
-     */
+    /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
     internal val nearestRange: IntRange by scrollPosition.nearestRangeState
@@ -232,17 +213,15 @@ class TvLazyGridState constructor(
      *
      * @param index the index to which to scroll. Must be non-negative.
      * @param scrollOffset the offset that the item should end up after the scroll. Note that
-     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
-     * scroll the item further upward (taking it partly offscreen).
+     *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     *   scroll the item further upward (taking it partly offscreen).
      */
     suspend fun scrollToItem(
         /*@IntRange(from = 0)*/
         index: Int,
         scrollOffset: Int = 0
     ) {
-        scroll {
-            snapToItemIndexInternal(index, scrollOffset)
-        }
+        scroll { snapToItemIndexInternal(index, scrollOffset) }
     }
 
     internal fun snapToItemIndexInternal(index: Int, scrollOffset: Int) {
@@ -255,8 +234,8 @@ class TvLazyGridState constructor(
     /**
      * Call this function to take control of scrolling and gain the ability to send scroll events
      * via [ScrollScope.scrollBy]. All actions that change the logical scroll position must be
-     * performed within a [scroll] block (even if they don't call any other methods on this
-     * object) in order to guarantee that mutual exclusion is enforced.
+     * performed within a [scroll] block (even if they don't call any other methods on this object)
+     * in order to guarantee that mutual exclusion is enforced.
      *
      * If [scroll] is called from elsewhere, this will be canceled.
      */
@@ -268,14 +247,14 @@ class TvLazyGridState constructor(
         scrollableState.scroll(scrollPriority, block)
     }
 
-    override fun dispatchRawDelta(delta: Float): Float =
-        scrollableState.dispatchRawDelta(delta)
+    override fun dispatchRawDelta(delta: Float): Float = scrollableState.dispatchRawDelta(delta)
 
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
 
     override var canScrollForward: Boolean by mutableStateOf(false)
         private set
+
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
 
@@ -327,18 +306,17 @@ class TvLazyGridState constructor(
             val lineToPrefetch: Int
             val closestNextItemToPrefetch: Int
             if (scrollingForward) {
-                lineToPrefetch = 1 + info.visibleItemsInfo.last().let {
-                    if (isVertical) it.row else it.column
-                }
+                lineToPrefetch =
+                    1 + info.visibleItemsInfo.last().let { if (isVertical) it.row else it.column }
                 closestNextItemToPrefetch = info.visibleItemsInfo.last().index + 1
             } else {
-                lineToPrefetch = -1 + info.visibleItemsInfo.first().let {
-                    if (isVertical) it.row else it.column
-                }
+                lineToPrefetch =
+                    -1 + info.visibleItemsInfo.first().let { if (isVertical) it.row else it.column }
                 closestNextItemToPrefetch = info.visibleItemsInfo.first().index - 1
             }
-            if (lineToPrefetch != this.lineToPrefetch &&
-                closestNextItemToPrefetch in 0 until info.totalItemsCount
+            if (
+                lineToPrefetch != this.lineToPrefetch &&
+                    closestNextItemToPrefetch in 0 until info.totalItemsCount
             ) {
                 if (wasScrollingForward != scrollingForward) {
                     // the scrolling direction has been changed which means the last prefetched
@@ -361,15 +339,12 @@ class TvLazyGridState constructor(
 
     private fun cancelPrefetchIfVisibleItemsChanged(info: TvLazyGridLayoutInfo) {
         if (lineToPrefetch != -1 && info.visibleItemsInfo.isNotEmpty()) {
-            val expectedLineToPrefetch = if (wasScrollingForward) {
-                info.visibleItemsInfo.last().let {
-                    if (isVertical) it.row else it.column
-                } + 1
-            } else {
-                info.visibleItemsInfo.first().let {
-                    if (isVertical) it.row else it.column
-                } - 1
-            }
+            val expectedLineToPrefetch =
+                if (wasScrollingForward) {
+                    info.visibleItemsInfo.last().let { if (isVertical) it.row else it.column } + 1
+                } else {
+                    info.visibleItemsInfo.first().let { if (isVertical) it.row else it.column } - 1
+                }
             if (lineToPrefetch != expectedLineToPrefetch) {
                 lineToPrefetch = -1
                 currentLinePrefetchHandles.forEach { it.cancel() }
@@ -385,8 +360,8 @@ class TvLazyGridState constructor(
      *
      * @param index the index to which to scroll. Must be non-negative.
      * @param scrollOffset the offset that the item should end up after the scroll. Note that
-     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
-     * scroll the item further upward (taking it partly offscreen).
+     *   positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     *   scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(
         /*@IntRange(from = 0)*/
@@ -396,9 +371,7 @@ class TvLazyGridState constructor(
         animateScrollScope.animateScrollToItem(index, scrollOffset)
     }
 
-    /**
-     *  Updates the state with the new calculated scroll position and consumed scroll.
-     */
+    /** Updates the state with the new calculated scroll position and consumed scroll. */
     internal fun applyMeasureResult(result: TvLazyGridMeasureResult) {
         scrollPosition.updateFromMeasureResult(result)
         scrollToBeConsumed -= result.consumedScroll
@@ -414,9 +387,9 @@ class TvLazyGridState constructor(
     }
 
     /**
-     * When the user provided custom keys for the items we can try to detect when there were
-     * items added or removed before our current first visible item and keep this item
-     * as the first visible one even given that its index has been changed.
+     * When the user provided custom keys for the items we can try to detect when there were items
+     * added or removed before our current first visible item and keep this item as the first
+     * visible one even given that its index has been changed.
      */
     internal fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyGridItemProvider,
@@ -424,18 +397,17 @@ class TvLazyGridState constructor(
     ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     companion object {
-        /**
-         * The default [Saver] implementation for [TvLazyGridState].
-         */
-        val Saver: Saver<TvLazyGridState, *> = listSaver(
-            save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
-            restore = {
-                TvLazyGridState(
-                    firstVisibleItemIndex = it[0],
-                    firstVisibleItemScrollOffset = it[1]
-                )
-            }
-        )
+        /** The default [Saver] implementation for [TvLazyGridState]. */
+        val Saver: Saver<TvLazyGridState, *> =
+            listSaver(
+                save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
+                restore = {
+                    TvLazyGridState(
+                        firstVisibleItemIndex = it[0],
+                        firstVisibleItemScrollOffset = it[1]
+                    )
+                }
+            )
     }
 }
 

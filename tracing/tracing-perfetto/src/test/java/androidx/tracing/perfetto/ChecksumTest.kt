@@ -32,13 +32,16 @@ class ChecksumTest {
 
         // get the AAR from resources
 
-        val allFiles = javaClass.classLoader!!.getResources("").asSequence()
-            .filter { it.protocol == "file" }
-            .map { File(it.path) }
-            .flatMap { curr ->
-                if (curr.isFile) listOf(curr)
-                else curr.walkTopDown().filter { it.isFile }.toList()
-            }
+        val allFiles =
+            javaClass.classLoader!!
+                .getResources("")
+                .asSequence()
+                .filter { it.protocol == "file" }
+                .map { File(it.path) }
+                .flatMap { curr ->
+                    if (curr.isFile) listOf(curr)
+                    else curr.walkTopDown().filter { it.isFile }.toList()
+                }
 
         val fileNameRx = Regex("tracing-perfetto-binary-(\\d+.*)\\.aar")
         val aarFile = allFiles.single { it.name.matches(fileNameRx) }
@@ -52,10 +55,12 @@ class ChecksumTest {
 
         val libName = "libtracing_perfetto.so"
         val zipFile = ZipFile(aarFile)
-        val soFiles = zipFile.entries()
-            .asSequence()
-            .filter { it.name.matches(Regex("jni/[^/]+/$libName")) }
-            .toList()
+        val soFiles =
+            zipFile
+                .entries()
+                .asSequence()
+                .filter { it.name.matches(Regex("jni/[^/]+/$libName")) }
+                .toList()
 
         assertThat(soFiles.size).isEqualTo(PerfettoNative.Metadata.checksums.size)
 

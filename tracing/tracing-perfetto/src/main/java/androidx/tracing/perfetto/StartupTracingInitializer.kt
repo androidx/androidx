@@ -36,8 +36,9 @@ class StartupTracingInitializer : Initializer<Unit> {
 
         suppressStrictModeDiskWrites {
             // read startup tracing config if present
-            val config = StartupTracingConfigStore.load(context)
-                ?: return // early exit if no config is found
+            val config =
+                StartupTracingConfigStore.load(context)
+                    ?: return // early exit if no config is found
 
             // delete config if not meant to be preserved between runs
             if (!config.isPersistent) StartupTracingConfigStore.clear(context)
@@ -49,11 +50,14 @@ class StartupTracingInitializer : Initializer<Unit> {
                 else PerfettoSdkTrace.enable(File(libFilePath), context)
 
             // log the result for debuggability
-            Log.d(TAG, "${Response::class.java.name}: { " +
-                "resultCode: ${enableTracingResponse.resultCode}, " +
-                "message: ${enableTracingResponse.message}, " +
-                "requiredVersion: ${enableTracingResponse.requiredVersion} " +
-                "}")
+            Log.d(
+                TAG,
+                "${Response::class.java.name}: { " +
+                    "resultCode: ${enableTracingResponse.resultCode}, " +
+                    "message: ${enableTracingResponse.message}, " +
+                    "requiredVersion: ${enableTracingResponse.requiredVersion} " +
+                    "}"
+            )
         }
     }
 

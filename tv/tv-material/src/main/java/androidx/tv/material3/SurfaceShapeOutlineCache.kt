@@ -22,9 +22,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-/**
- * Caches the shape's outline across re-compositions
- */
+/** Caches the shape's outline across re-compositions */
 internal class SurfaceShapeOutlineCache(
     private var shape: Shape,
     private var size: Size,
@@ -34,8 +32,8 @@ internal class SurfaceShapeOutlineCache(
     private var outline: Outline? = null
 
     /**
-     * If there are updates to the arguments, creates a new outline
-     * based on the updated values, else, returns the cached value
+     * If there are updates to the arguments, creates a new outline based on the updated values,
+     * else, returns the cached value
      */
     fun updatedOutline(
         shape: Shape,
@@ -51,11 +49,8 @@ internal class SurfaceShapeOutlineCache(
     }
 
     private fun createNewOutline() {
-        outline = shape.createOutline(
-            size = size,
-            layoutDirection = layoutDirection,
-            density = density
-        )
+        outline =
+            shape.createOutline(size = size, layoutDirection = layoutDirection, density = density)
     }
 
     private fun syncUpdates(

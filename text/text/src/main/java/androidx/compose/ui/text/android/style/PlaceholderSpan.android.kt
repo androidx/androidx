@@ -26,30 +26,26 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * A span that is used to reserve empty spaces for inline element. It's used only to tell the
- * text processor the size and vertical alignment of the inline element.
+ * A span that is used to reserve empty spaces for inline element. It's used only to tell the text
+ * processor the size and vertical alignment of the inline element.
  *
  * @param width The width needed by the inline element.
- * @param widthUnit The unit of the [width]; can be Sp, Em or inherit, if it's inherit, by
- * default it will be 1.em
+ * @param widthUnit The unit of the [width]; can be Sp, Em or inherit, if it's inherit, by default
+ *   it will be 1.em
  * @param height The height needed by the inline element.
- * @param heightUnit The unit of the [height]; can be Sp, Em or inherit, if it's inherit, by
- * default it will be computed from the context FontMetrics by
- * height = fontMetrics.descent - fontMetrics.ascent.
+ * @param heightUnit The unit of the [height]; can be Sp, Em or inherit, if it's inherit, by default
+ *   it will be computed from the context FontMetrics by height = fontMetrics.descent -
+ *   fontMetrics.ascent.
  * @param pxPerSp The number of pixels 1 Sp equals to.
  * @param verticalAlign How the inline element is aligned with the text.
- *
  */
 internal class PlaceholderSpan(
     private val width: Float,
-    @Unit
-    private val widthUnit: Int,
+    @Unit private val widthUnit: Int,
     private val height: Float,
-    @Unit
-    private val heightUnit: Int,
+    @Unit private val heightUnit: Int,
     private val pxPerSp: Float,
-    @VerticalAlign
-    val verticalAlign: Int
+    @VerticalAlign val verticalAlign: Int
 ) : ReplacementSpan() {
     companion object {
         const val ALIGN_ABOVE_BASELINE = 0
@@ -77,11 +73,7 @@ internal class PlaceholderSpan(
         const val UNIT_UNSPECIFIED = 2
 
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(
-            UNIT_SP,
-            UNIT_EM,
-            UNIT_UNSPECIFIED
-        )
+        @IntDef(UNIT_SP, UNIT_EM, UNIT_UNSPECIFIED)
         internal annotation class Unit
     }
 
@@ -123,17 +115,19 @@ internal class PlaceholderSpan(
             "Invalid fontMetrics: line height can not be negative."
         }
 
-        widthPx = when (widthUnit) {
-            UNIT_SP -> width * pxPerSp
-            UNIT_EM -> width * fontSize
-            else -> throw IllegalArgumentException("Unsupported unit.")
-        }.ceilToInt()
+        widthPx =
+            when (widthUnit) {
+                UNIT_SP -> width * pxPerSp
+                UNIT_EM -> width * fontSize
+                else -> throw IllegalArgumentException("Unsupported unit.")
+            }.ceilToInt()
 
-        heightPx = when (heightUnit) {
-            UNIT_SP -> (height * pxPerSp).ceilToInt()
-            UNIT_EM -> (height * fontSize).ceilToInt()
-            else -> throw IllegalArgumentException("Unsupported unit.")
-        }
+        heightPx =
+            when (heightUnit) {
+                UNIT_SP -> (height * pxPerSp).ceilToInt()
+                UNIT_EM -> (height * fontSize).ceilToInt()
+                else -> throw IllegalArgumentException("Unsupported unit.")
+            }
 
         fm?.apply {
             ascent = fontMetrics.ascent
@@ -142,22 +136,29 @@ internal class PlaceholderSpan(
 
             when (verticalAlign) {
                 // If align top and inline element is too tall, expand descent.
-                ALIGN_TOP, ALIGN_TEXT_TOP -> if (ascent + heightPx > descent) {
-                    descent = ascent + heightPx
-                }
+                ALIGN_TOP,
+                ALIGN_TEXT_TOP ->
+                    if (ascent + heightPx > descent) {
+                        descent = ascent + heightPx
+                    }
                 // If align bottom and inline element is too tall, expand ascent.
-                ALIGN_BOTTOM, ALIGN_TEXT_BOTTOM -> if (ascent > descent - heightPx) {
-                    ascent = descent - heightPx
-                }
+                ALIGN_BOTTOM,
+                ALIGN_TEXT_BOTTOM ->
+                    if (ascent > descent - heightPx) {
+                        ascent = descent - heightPx
+                    }
                 // If align center and inline element is too tall, evenly expand ascent and descent.
-                ALIGN_CENTER, ALIGN_TEXT_CENTER -> if (descent - ascent < heightPx) {
-                    ascent -= (heightPx - (descent - ascent)) / 2
-                    descent = ascent + heightPx
-                }
+                ALIGN_CENTER,
+                ALIGN_TEXT_CENTER ->
+                    if (descent - ascent < heightPx) {
+                        ascent -= (heightPx - (descent - ascent)) / 2
+                        descent = ascent + heightPx
+                    }
                 // If align baseline and inline element is too tall, expand ascent
-                ALIGN_ABOVE_BASELINE -> if (ascent > -heightPx) {
-                    ascent = -heightPx
-                }
+                ALIGN_ABOVE_BASELINE ->
+                    if (ascent > -heightPx) {
+                        ascent = -heightPx
+                    }
                 else -> throw IllegalArgumentException("Unknown verticalAlign.")
             }
             // make top/bottom at least same as ascent/descent.

@@ -26,8 +26,8 @@ import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 
 /**
- * LayoutCompat class which provides all supported attributes by framework, and also defines
- * default value of those attributes for Compose.
+ * LayoutCompat class which provides all supported attributes by framework, and also defines default
+ * value of those attributes for Compose.
  */
 internal object LayoutCompat {
     const val ALIGN_NORMAL = 0
@@ -37,13 +37,7 @@ internal object LayoutCompat {
     const val ALIGN_RIGHT = 4
 
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        ALIGN_NORMAL,
-        ALIGN_CENTER,
-        ALIGN_OPPOSITE,
-        ALIGN_LEFT,
-        ALIGN_RIGHT
-    )
+    @IntDef(ALIGN_NORMAL, ALIGN_CENTER, ALIGN_OPPOSITE, ALIGN_LEFT, ALIGN_RIGHT)
     internal annotation class TextLayoutAlignment
 
     const val JUSTIFICATION_MODE_NONE = LineBreaker.JUSTIFICATION_MODE_NONE
@@ -66,7 +60,6 @@ internal object LayoutCompat {
         HYPHENATION_FREQUENCY_NORMAL_FAST,
         HYPHENATION_FREQUENCY_FULL,
         HYPHENATION_FREQUENCY_FULL_FAST
-
     )
     internal annotation class HyphenationFrequency
 
@@ -75,11 +68,7 @@ internal object LayoutCompat {
     const val BREAK_STRATEGY_BALANCED = LineBreaker.BREAK_STRATEGY_BALANCED
 
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        BREAK_STRATEGY_SIMPLE,
-        BREAK_STRATEGY_HIGH_QUALITY,
-        BREAK_STRATEGY_BALANCED
-    )
+    @IntDef(BREAK_STRATEGY_SIMPLE, BREAK_STRATEGY_HIGH_QUALITY, BREAK_STRATEGY_BALANCED)
     internal annotation class BreakStrategy
 
     const val LINE_BREAK_STYLE_NONE = LineBreakConfig.LINE_BREAK_STYLE_NONE
@@ -100,10 +89,7 @@ internal object LayoutCompat {
     const val LINE_BREAK_WORD_STYLE_PHRASE = LineBreakConfig.LINE_BREAK_WORD_STYLE_PHRASE
 
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        LINE_BREAK_WORD_STYLE_NONE,
-        LINE_BREAK_WORD_STYLE_PHRASE
-    )
+    @IntDef(LINE_BREAK_WORD_STYLE_NONE, LINE_BREAK_WORD_STYLE_PHRASE)
     internal annotation class LineBreakWordStyle
 
     const val TEXT_DIRECTION_LTR = 0
@@ -131,7 +117,6 @@ internal object LayoutCompat {
     @IntDef(
         TEXT_GRANULARITY_CHARACTER,
         TEXT_GRANULARITY_WORD,
-
     )
     internal annotation class TextGranularity
 
@@ -169,17 +154,16 @@ internal object LayoutCompat {
  * Returns the line number at the offset
  *
  * If the automatic line break didn't happen at the given offset, this returns the 0 origin line
- * number that contains the given offset character.
- * If the automatic line break happened at the given offset, this returns the preceding 0 origin
- * line number that contains the given offset character if upstream is true. Otherwise, returns
- * the line number that contains the given offset character.
+ * number that contains the given offset character. If the automatic line break happened at the
+ * given offset, this returns the preceding 0 origin line number that contains the given offset
+ * character if upstream is true. Otherwise, returns the line number that contains the given offset
+ * character.
  *
  * @param offset a character offset in the text
- * @param upstream true if you want to get preceding line number for the line broken offset.
- * false if you want to get the following line number for the line broken offset. This is ignored
- * if the offset it not a line broken offset.
+ * @param upstream true if you want to get preceding line number for the line broken offset. false
+ *   if you want to get the following line number for the line broken offset. This is ignored if the
+ *   offset it not a line broken offset.
  * @return the line number
- *
  */
 internal fun Layout.getLineForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean): Int {
     if (offset <= 0) return 0

@@ -21,12 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+
 // import coil.compose.AsyncImage
 // import com.google.gson.Gson
 
 fun getRootDataFromJson(jsonData: String): RootData {
     Log.d("LOL", "getRootDataFromJson: $jsonData")
-//    return Gson().fromJson(jsonData, RootData::class.java)
+    //    return Gson().fromJson(jsonData, RootData::class.java)
     return RootData(listOf(), listOf(), "")
 }
 
@@ -42,11 +43,11 @@ fun AppAsyncImage(
         "LOL",
         "AppAsyncImage: $imageUrl, $modifier, $contentScale, $alignment, $contentDescription"
     )
-//    AsyncImage(
-//        model = imageUrl,
-//        contentScale = contentScale,
-//        alignment = alignment,
-//        modifier = modifier,
-//        contentDescription = contentDescription
-//    )
+    //    AsyncImage(
+    //        model = imageUrl,
+    //        contentScale = contentScale,
+    //        alignment = alignment,
+    //        modifier = modifier,
+    //        contentDescription = contentDescription
+    //    )
 }

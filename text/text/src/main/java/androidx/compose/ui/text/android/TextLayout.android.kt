@@ -78,9 +78,7 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * We swap canvas delegates, and can share the wrapper.
- */
+/** We swap canvas delegates, and can share the wrapper. */
 private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
 
 /**
@@ -90,36 +88,34 @@ private val SharedTextAndroidCanvas: TextAndroidCanvas = TextAndroidCanvas()
  * @param width the maximum width for the text
  * @param textPaint base paint used for text layout
  * @param alignment text alignment for the text layout. One of [TextLayoutAlignment].
- * @param ellipsize whether the text needs to be ellipsized. If the maxLines is set and text
- * cannot fit in the provided number of lines.
+ * @param ellipsize whether the text needs to be ellipsized. If the maxLines is set and text cannot
+ *   fit in the provided number of lines.
  * @param textDirectionHeuristic the heuristics to be applied while deciding on the text direction.
  * @param lineSpacingMultiplier the multiplier to be applied to each line of the text.
  * @param lineSpacingExtra the extra height to be added to each line of the text.
  * @param includePadding defines whether the extra space to be applied beyond font ascent and
- * descent
- * @param fallbackLineSpacing Sets Android TextView#setFallbackLineSpacing. This value should
- * be set to true in most cases and it is the default on platform; otherwise tall scripts such
- * as Burmese or Tibetan result in clippings on top and bottom sometimes making the text
- * not-readable.
+ *   descent
+ * @param fallbackLineSpacing Sets Android TextView#setFallbackLineSpacing. This value should be set
+ *   to true in most cases and it is the default on platform; otherwise tall scripts such as Burmese
+ *   or Tibetan result in clippings on top and bottom sometimes making the text not-readable.
  * @param maxLines the maximum number of lines to be laid out.
  * @param breakStrategy the strategy to be used for line breaking
  * @param hyphenationFrequency set the frequency to control the amount of automatic hyphenation
- * applied.
+ *   applied.
  * @param justificationMode whether to justify the text.
  * @param leftIndents the indents to be applied to the left of the text as pixel values. Each
- * element in the array is applied to the corresponding line. For lines past the last element in
- * array, the last element repeats.
+ *   element in the array is applied to the corresponding line. For lines past the last element in
+ *   array, the last element repeats.
  * @param rightIndents the indents to be applied to the right of the text as pixel values. Each
- * element in the array is applied to the corresponding line. For lines past the last element in
- * array, the last element repeats.
+ *   element in the array is applied to the corresponding line. For lines past the last element in
+ *   array, the last element repeats.
  * @param layoutIntrinsics previously calculated [LayoutIntrinsics] for this text
- *
  * @see StaticLayoutFactory
  * @see BoringLayoutFactory
- *
  */
 @OptIn(InternalPlatformTextApi::class)
-internal class TextLayout constructor(
+internal class TextLayout
+constructor(
     charSequence: CharSequence,
     width: Float,
     val textPaint: TextPaint,
@@ -138,11 +134,8 @@ internal class TextLayout constructor(
     @JustificationMode justificationMode: Int = DEFAULT_JUSTIFICATION_MODE,
     leftIndents: IntArray? = null,
     rightIndents: IntArray? = null,
-    val layoutIntrinsics: LayoutIntrinsics = LayoutIntrinsics(
-        charSequence,
-        textPaint,
-        textDirectionHeuristic
-    )
+    val layoutIntrinsics: LayoutIntrinsics =
+        LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
 ) {
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
@@ -157,21 +150,13 @@ internal class TextLayout constructor(
         get() {
             val finalWordIterator = backingWordIterator
             if (finalWordIterator != null) return finalWordIterator
-            return WordIterator(
-                layout.text,
-                0,
-                layout.text.length,
-                textPaint.textLocale
-            ).also {
+            return WordIterator(layout.text, 0, layout.text.length, textPaint.textLocale).also {
                 backingWordIterator = it
             }
         }
 
-    /**
-     * Please do not access this object directly from runtime code.
-     */
-    @VisibleForTesting
-    val layout: Layout
+    /** Please do not access this object directly from runtime code. */
+    @VisibleForTesting val layout: Layout
 
     /**
      * Resolved line count. If maxLines smaller than the real number of lines in the text, this
@@ -180,13 +165,12 @@ internal class TextLayout constructor(
     val lineCount: Int
 
     /**
-     * Top padding is added for backporting fallbackLineSpacing behavior. If a tall script is
-     * being laid out, topPadding might be non zero (based on Android version and support in
-     * StaticLayout and BoringLayout). When top padding is non-zero, the height of the TextLayout
-     * will increase with top padding to prevent clipping of the top of the first line.
+     * Top padding is added for backporting fallbackLineSpacing behavior. If a tall script is being
+     * laid out, topPadding might be non zero (based on Android version and support in StaticLayout
+     * and BoringLayout). When top padding is non-zero, the height of the TextLayout will increase
+     * with top padding to prevent clipping of the top of the first line.
      */
-    @VisibleForTesting
-    internal val topPadding: Int
+    @VisibleForTesting internal val topPadding: Int
 
     /**
      * Bottom padding is added for backporting fallbackLineSpacing behavior. If a tall script is
@@ -194,13 +178,12 @@ internal class TextLayout constructor(
      * StaticLayout and BoringLayout). When bottom padding is non-zero, the height of the TextLayout
      * will increase with bottom padding to prevent clipping of the bottom if the last line.
      */
-    @VisibleForTesting
-    internal val bottomPadding: Int
+    @VisibleForTesting internal val bottomPadding: Int
 
     /**
      * When letter spacing, align and ellipsize applied to text, the ellipsized line is indented
-     * wrong. For example for an LTR text, the last line is indented in a way where the beginning
-     * of the line is less than 0 and the text is cut at the beginning.
+     * wrong. For example for an LTR text, the last line is indented in a way where the beginning of
+     * the line is less than 0 and the text is cut at the beginning.
      *
      * This attribute is used to fix the line left pixel positions accordingly.
      */
@@ -208,23 +191,21 @@ internal class TextLayout constructor(
 
     /**
      * When letter spacing, align and ellipsize applied to text, the ellipsized line is indented
-     * wrong. For example for an RTL text, the last line is indented in a way where the beginning
-     * of the line is more than layout width and the text is cut at the beginning.
+     * wrong. For example for an RTL text, the last line is indented in a way where the beginning of
+     * the line is more than layout width and the text is cut at the beginning.
      *
      * This attribute is used to fix the line right pixel positions accordingly.
      */
     private val rightPadding: Float
 
-    /**
-     * When true the wrapped layout that was created is a BoringLayout.
-     */
+    /** When true the wrapped layout that was created is a BoringLayout. */
     private val isBoringLayout: Boolean
 
     /**
      * When the last line of the text is empty, ParagraphStyle's are not applied. This becomes
      * visible during edit operations when the text field is empty or user inputs an new line
-     * character. This layout contains the text layout that would be applied if the last line
-     * was not empty.
+     * character. This layout contains the text layout that would be applied if the last line was
+     * not empty.
      */
     private val lastLineFontMetrics: FontMetricsInt?
 
@@ -244,75 +225,79 @@ internal class TextLayout constructor(
 
         // BoringLayout won't adjust line height for baselineShift,
         // use StaticLayout for those spans.
-        val hasBaselineShiftSpans = if (charSequence is Spanned) {
-            // nextSpanTransition returns limit if there isn't any span.
-            charSequence.nextSpanTransition(-1, end, BaselineShiftSpan::class.java) < end
-        } else {
-            false
-        }
+        val hasBaselineShiftSpans =
+            if (charSequence is Spanned) {
+                // nextSpanTransition returns limit if there isn't any span.
+                charSequence.nextSpanTransition(-1, end, BaselineShiftSpan::class.java) < end
+            } else {
+                false
+            }
 
         Trace.beginSection("TextLayout:initLayout")
         try {
             val boringMetrics = layoutIntrinsics.boringMetrics
 
             val widthInt = ceil(width).toInt()
-            layout = if (boringMetrics != null && layoutIntrinsics.maxIntrinsicWidth <= width &&
-                !hasBaselineShiftSpans
-            ) {
-                isBoringLayout = true
-                BoringLayoutFactory.create(
-                    text = charSequence,
-                    paint = textPaint,
-                    width = widthInt,
-                    metrics = boringMetrics,
-                    alignment = frameworkAlignment,
-                    includePadding = includePadding,
-                    useFallbackLineSpacing = fallbackLineSpacing,
-                    ellipsize = ellipsize,
-                    ellipsizedWidth = widthInt
-                )
-            } else {
-                isBoringLayout = false
-                StaticLayoutFactory.create(
-                    text = charSequence,
-                    paint = textPaint,
-                    width = widthInt,
-                    start = 0,
-                    end = charSequence.length,
-                    textDir = frameworkTextDir,
-                    alignment = frameworkAlignment,
-                    maxLines = maxLines,
-                    ellipsize = ellipsize,
-                    ellipsizedWidth = ceil(width).toInt(),
-                    lineSpacingMultiplier = lineSpacingMultiplier,
-                    lineSpacingExtra = lineSpacingExtra,
-                    justificationMode = justificationMode,
-                    includePadding = includePadding,
-                    useFallbackLineSpacing = fallbackLineSpacing,
-                    breakStrategy = breakStrategy,
-                    lineBreakStyle = lineBreakStyle,
-                    lineBreakWordStyle = lineBreakWordStyle,
-                    hyphenationFrequency = hyphenationFrequency,
-                    leftIndents = leftIndents,
-                    rightIndents = rightIndents
-                )
-            }
+            layout =
+                if (
+                    boringMetrics != null &&
+                        layoutIntrinsics.maxIntrinsicWidth <= width &&
+                        !hasBaselineShiftSpans
+                ) {
+                    isBoringLayout = true
+                    BoringLayoutFactory.create(
+                        text = charSequence,
+                        paint = textPaint,
+                        width = widthInt,
+                        metrics = boringMetrics,
+                        alignment = frameworkAlignment,
+                        includePadding = includePadding,
+                        useFallbackLineSpacing = fallbackLineSpacing,
+                        ellipsize = ellipsize,
+                        ellipsizedWidth = widthInt
+                    )
+                } else {
+                    isBoringLayout = false
+                    StaticLayoutFactory.create(
+                        text = charSequence,
+                        paint = textPaint,
+                        width = widthInt,
+                        start = 0,
+                        end = charSequence.length,
+                        textDir = frameworkTextDir,
+                        alignment = frameworkAlignment,
+                        maxLines = maxLines,
+                        ellipsize = ellipsize,
+                        ellipsizedWidth = ceil(width).toInt(),
+                        lineSpacingMultiplier = lineSpacingMultiplier,
+                        lineSpacingExtra = lineSpacingExtra,
+                        justificationMode = justificationMode,
+                        includePadding = includePadding,
+                        useFallbackLineSpacing = fallbackLineSpacing,
+                        breakStrategy = breakStrategy,
+                        lineBreakStyle = lineBreakStyle,
+                        lineBreakWordStyle = lineBreakWordStyle,
+                        hyphenationFrequency = hyphenationFrequency,
+                        leftIndents = leftIndents,
+                        rightIndents = rightIndents
+                    )
+                }
         } finally {
             Trace.endSection()
         }
 
         /* When ellipsis is false:
-          1. Before API 25(include 25), if the number of the actual text lines in the layout is
-          greater than the maxLines, layout.lineCount will be set to the maxLines.
-          2. After API 25(exclude 25), the layout.lineCount will be the actual number of the text
-          lines in the layout even if layout.lineCount > maxLines.
-          When ellipsis is true:
-          If the number of the actual text lines in the layout is greater than maxLines,
-          layout.lineCount will be set to the maxLines.
-          To unify the behavior of lineCount, no matter ellipsis is on or off, when the number of
-          the actual text lines in the layout is greater than the maxLines, the maxLines is
-          always returned.
-         */
+         1. Before API 25(include 25), if the number of the actual text lines in the layout is
+         greater than the maxLines, layout.lineCount will be set to the maxLines.
+         2. After API 25(exclude 25), the layout.lineCount will be the actual number of the text
+         lines in the layout even if layout.lineCount > maxLines.
+         When ellipsis is true:
+         If the number of the actual text lines in the layout is greater than maxLines,
+         layout.lineCount will be set to the maxLines.
+         To unify the behavior of lineCount, no matter ellipsis is on or off, when the number of
+         the actual text lines in the layout is greater than the maxLines, the maxLines is
+         always returned.
+        */
         lineCount = min(layout.lineCount, maxLines)
         val lastLine = lineCount - 1
 
@@ -329,13 +314,13 @@ internal class TextLayout constructor(
                 false
             } else {
                 /* When maxLines exceeds
-                  1. if ellipsis is applied, ellipsisCount of lastLine is greater than 0.
-                  2. if ellipsis is not applies, lineEnd of the last line is unequals to
-                  charSequence.length.
-                  On certain cases, even though ellipsize is set, text overflow might still be
-                  handled by truncating.
-                  So we have to check both cases, no matter what ellipsis parameter is passed.
-                 */
+                 1. if ellipsis is applied, ellipsisCount of lastLine is greater than 0.
+                 2. if ellipsis is not applies, lineEnd of the last line is unequals to
+                 charSequence.length.
+                 On certain cases, even though ellipsize is set, text overflow might still be
+                 handled by truncating.
+                 So we have to check both cases, no matter what ellipsis parameter is passed.
+                */
                 layout.getEllipsisCount(lastLine) > 0 ||
                     layout.getLineEnd(lastLine) != charSequence.length
             }
@@ -348,11 +333,12 @@ internal class TextLayout constructor(
         bottomPadding = max(verticalPaddings.bottomPadding, lineHeightPaddings.bottomPadding)
 
         val fontMetrics = getLastLineMetrics(textPaint, frameworkTextDir, lineHeightSpans)
-        lastLineExtra = if (fontMetrics != null) {
-            fontMetrics.bottom - getLineHeight(lastLine).toInt()
-        } else {
-            0
-        }
+        lastLineExtra =
+            if (fontMetrics != null) {
+                fontMetrics.bottom - getLineHeight(lastLine).toInt()
+            } else {
+                0
+            }
         // Set lastLineFontMetrics after calling getLineHeight() above, as the metrics
         // are different when lastLineFontMetrics is null
         lastLineFontMetrics = fontMetrics
@@ -374,11 +360,12 @@ internal class TextLayout constructor(
         get() = layout.text
 
     val height: Int
-        get() = if (didExceedMaxLines) {
-            layout.getLineBottom(lineCount - 1)
-        } else {
-            layout.height
-        } + topPadding + bottomPadding + lastLineExtra
+        get() =
+            if (didExceedMaxLines) {
+                layout.getLineBottom(lineCount - 1)
+            } else {
+                layout.height
+            } + topPadding + bottomPadding + lastLineExtra
 
     private fun getHorizontalPadding(line: Int): Float {
         return if (line == lineCount - 1) {
@@ -388,14 +375,12 @@ internal class TextLayout constructor(
         }
     }
 
-    fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex) +
-        if (lineIndex == lineCount - 1) leftPadding else 0f
+    fun getLineLeft(lineIndex: Int): Float =
+        layout.getLineLeft(lineIndex) + if (lineIndex == lineCount - 1) leftPadding else 0f
 
-    /**
-     * Return the horizontal leftmost position of the line in pixels.
-     */
-    fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex) +
-        if (lineIndex == lineCount - 1) rightPadding else 0f
+    /** Return the horizontal leftmost position of the line in pixels. */
+    fun getLineRight(lineIndex: Int): Float =
+        layout.getLineRight(lineIndex) + if (lineIndex == lineCount - 1) rightPadding else 0f
 
     /**
      * Return the vertical position of the top of the line in pixels. If the line is equal to the
@@ -406,9 +391,7 @@ internal class TextLayout constructor(
         return top + if (line == 0) 0 else topPadding
     }
 
-    /**
-     * Return the vertical position of the bottom of the line in pixels.
-     */
+    /** Return the vertical position of the bottom of the line in pixels. */
     fun getLineBottom(line: Int): Float {
         if (line == lineCount - 1 && lastLineFontMetrics != null) {
             return layout.getLineBottom(line - 1).toFloat() + lastLineFontMetrics.bottom
@@ -433,15 +416,14 @@ internal class TextLayout constructor(
         }
     }
 
-    /**
-     * Return the vertical position of the baseline of the line in pixels.
-     */
+    /** Return the vertical position of the baseline of the line in pixels. */
     fun getLineBaseline(line: Int): Float {
-        return topPadding + if (line == lineCount - 1 && lastLineFontMetrics != null) {
-            getLineTop(line) - lastLineFontMetrics.ascent
-        } else {
-            layout.getLineBaseline(line).toFloat()
-        }
+        return topPadding +
+            if (line == lineCount - 1 && lastLineFontMetrics != null) {
+                getLineTop(line) - lastLineFontMetrics.ascent
+            } else {
+                layout.getLineBaseline(line).toFloat()
+            }
     }
 
     /**
@@ -460,9 +442,7 @@ internal class TextLayout constructor(
 
     fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 
-    /**
-     * Return the width of the line in pixels.
-     */
+    /** Return the width of the line in pixels. */
     fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
     /**
@@ -509,16 +489,15 @@ internal class TextLayout constructor(
     }
 
     /**
-     * Returns horizontal position for an offset from the drawing origin of a new character would
-     * be inserted at that offset.
+     * Returns horizontal position for an offset from the drawing origin of a new character would be
+     * inserted at that offset.
      *
-     * *primary* means that the inserting character's direction will be resolved to the
-     * *same* direction to the paragraph direction. For example, the insertion position for an LTR
+     * *primary* means that the inserting character's direction will be resolved to the *same*
+     * direction to the paragraph direction. For example, the insertion position for an LTR
      * character in an LTR paragraph or RTL character in an RTL paragraph.
      *
      * The location that is being queried can also be different based on line breaks. Consider the
      * following example:
-     *
      * <pre>
      *    aa
      *    bb
@@ -547,16 +526,15 @@ internal class TextLayout constructor(
     }
 
     /**
-     * Returns horizontal position for an offset from the drawing origin of a new character would
-     * be inserted at that offset.
+     * Returns horizontal position for an offset from the drawing origin of a new character would be
+     * inserted at that offset.
      *
-     * *secondary* means that the inserting character's direction will be resolved to the
-     * *opposite* direction to the paragraph direction. For example, the insertion position for an
-     * RTL character in an LTR paragraph or LTR character in an RTL paragraph.
+     * *secondary* means that the inserting character's direction will be resolved to the *opposite*
+     * direction to the paragraph direction. For example, the insertion position for an RTL
+     * character in an LTR paragraph or LTR character in an RTL paragraph.
      *
      * The location that is being queried can also be different based on line breaks. Consider the
      * following example:
-     *
      * <pre>
      *    aa
      *    bb
@@ -583,6 +561,7 @@ internal class TextLayout constructor(
             upstream = upstream
         ) + getHorizontalPadding(getLineForOffset(offset))
     }
+
     fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
     fun isRtlCharAt(offset: Int): Boolean = layout.isRtlCharAt(offset)
@@ -602,21 +581,16 @@ internal class TextLayout constructor(
         inclusionStrategy: (RectF, RectF) -> Boolean
     ): IntArray? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return AndroidLayoutApi34.getRangeForRect(
-                this,
-                rect,
-                granularity,
-                inclusionStrategy
-            )
+            return AndroidLayoutApi34.getRangeForRect(this, rect, granularity, inclusionStrategy)
         }
         return getRangeForRect(layout, layoutHelper, rect, granularity, inclusionStrategy)
     }
 
     /**
      * A lightweight version of fillBoundingBoxes that only fills the horizontal bounds of
-     * characters in the line referred by the given [lineIndex]. The result will be filled into
-     * the given [array] where the left or right bounds i-th character in the line is stored as
-     * the (i * 2)-th or (i * 2 + 1)-th element respectively.
+     * characters in the line referred by the given [lineIndex]. The result will be filled into the
+     * given [array] where the left or right bounds i-th character in the line is stored as the (i *
+     * 2)-th or (i * 2 + 1)-th element respectively.
      */
     internal fun fillLineHorizontalBounds(
         lineIndex: Int,
@@ -689,16 +663,11 @@ internal class TextLayout constructor(
      * @param startOffset inclusive startOffset, must be smaller than [endOffset]
      * @param endOffset exclusive end offset, must be greater than [startOffset]
      * @param array the array to fill in the values. The array divided into segments of four where
-     * each index in that segment represents left, top, right, bottom of the character.
+     *   each index in that segment represents left, top, right, bottom of the character.
      * @param arrayStart the inclusive start index in the array where the function will start
-     * filling in the values from
+     *   filling in the values from
      */
-    fun fillBoundingBoxes(
-        startOffset: Int,
-        endOffset: Int,
-        array: FloatArray,
-        arrayStart: Int
-    ) {
+    fun fillBoundingBoxes(startOffset: Int, endOffset: Int, array: FloatArray, arrayStart: Int) {
         val textLength = text.length
         require(startOffset >= 0) { "startOffset must be > 0" }
         require(startOffset < textLength) { "startOffset must be less than text length" }
@@ -762,9 +731,7 @@ internal class TextLayout constructor(
         }
     }
 
-    /**
-     * Returns the bounding box as Rect of the character for given character offset.
-     */
+    /** Returns the bounding box as Rect of the character for given character offset. */
     fun getBoundingBox(offset: Int): RectF {
         // Although this function shares its core logic with [fillBoundingBoxes], there is no
         // need to use a [HorizontalPositionCache]. Hence, [getBoundingBox] runs the same algorithm
@@ -843,9 +810,9 @@ internal class TextLayout constructor(
  * This class is intended to be used *only* by [TextLayout.fillBoundingBoxes]. It is tightly coupled
  * to the code in callee. Do not use.
  *
- * Assumes that downstream calls always called with offset followed by offset+1 in upstream
- * case. Therefore it does not add the downstream calls to the result to the cache but check if
- * it already exists in the cache for early return.
+ * Assumes that downstream calls always called with offset followed by offset+1 in upstream case.
+ * Therefore it does not add the downstream calls to the result to the cache but check if it already
+ * exists in the cache for early return.
  *
  * On the other hand upstream calls will be cached, since the same offset+1 might be needed on the
  * next character.
@@ -876,8 +843,8 @@ private class HorizontalPositionCache(val layout: TextLayout) {
     }
 
     /**
-     * Returns the primary/secondary horizontal position for upstream or downstream.
-     * Very tightly coupled to how get is called from the [TextLayout.fillBoundingBoxes] function.
+     * Returns the primary/secondary horizontal position for upstream or downstream. Very tightly
+     * coupled to how get is called from the [TextLayout.fillBoundingBoxes] function.
      *
      * Everytime that function calls either with offset or offset+1. While calling offset, it will
      * set the cache param to false, while calling with offset+1 it will set the cache param to
@@ -888,37 +855,36 @@ private class HorizontalPositionCache(val layout: TextLayout) {
      *
      * For the cached version, the cache is populated if the value has not been calculated.
      */
-    private fun get(
-        offset: Int,
-        upstream: Boolean,
-        cache: Boolean,
-        primary: Boolean
-    ): Float {
+    private fun get(offset: Int, upstream: Boolean, cache: Boolean, primary: Boolean): Float {
         // even if upstream is requested, if the character is not on a line start/end upstream
         // and downstream results will be the same
-        val upstreamFinal = if (upstream) {
-            val lineNo = layout.layout.getLineForOffset(offset, upstream)
-            val lineStart = layout.getLineStart(lineNo)
-            val lineEnd = layout.getLineEnd(lineNo)
-            offset == lineStart || offset == lineEnd
-        } else {
-            false
-        }
+        val upstreamFinal =
+            if (upstream) {
+                val lineNo = layout.layout.getLineForOffset(offset, upstream)
+                val lineStart = layout.getLineStart(lineNo)
+                val lineEnd = layout.getLineEnd(lineNo)
+                offset == lineStart || offset == lineEnd
+            } else {
+                false
+            }
 
         // key for the current request
-        val tmpKey = (offset) * 4 + if (primary) {
-            if (upstreamFinal) 0 else 1
-        } else {
-            if (upstreamFinal) 2 else 3
-        }
+        val tmpKey =
+            (offset) * 4 +
+                if (primary) {
+                    if (upstreamFinal) 0 else 1
+                } else {
+                    if (upstreamFinal) 2 else 3
+                }
 
         if (cachedKey == tmpKey) return cachedValue
 
-        val result = if (primary) {
-            layout.getPrimaryHorizontal(offset, upstream = upstream)
-        } else {
-            layout.getSecondaryHorizontal(offset, upstream = upstream)
-        }
+        val result =
+            if (primary) {
+                layout.getPrimaryHorizontal(offset, upstream = upstream)
+            } else {
+                layout.getSecondaryHorizontal(offset, upstream = upstream)
+            }
 
         if (cache) {
             cachedKey = tmpKey
@@ -930,18 +896,19 @@ private class HorizontalPositionCache(val layout: TextLayout) {
 }
 
 @OptIn(InternalPlatformTextApi::class)
-internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
-    TextDirectionHeuristic {
-        return when (textDirectionHeuristic) {
-            TEXT_DIRECTION_LTR -> TextDirectionHeuristics.LTR
-            TEXT_DIRECTION_LOCALE -> TextDirectionHeuristics.LOCALE
-            TEXT_DIRECTION_RTL -> TextDirectionHeuristics.RTL
-            TEXT_DIRECTION_FIRST_STRONG_RTL -> TextDirectionHeuristics.FIRSTSTRONG_RTL
-            TEXT_DIRECTION_ANY_RTL_LTR -> TextDirectionHeuristics.ANYRTL_LTR
-            TEXT_DIRECTION_FIRST_STRONG_LTR -> TextDirectionHeuristics.FIRSTSTRONG_LTR
-            else -> TextDirectionHeuristics.FIRSTSTRONG_LTR
-        }
+internal fun getTextDirectionHeuristic(
+    @TextDirection textDirectionHeuristic: Int
+): TextDirectionHeuristic {
+    return when (textDirectionHeuristic) {
+        TEXT_DIRECTION_LTR -> TextDirectionHeuristics.LTR
+        TEXT_DIRECTION_LOCALE -> TextDirectionHeuristics.LOCALE
+        TEXT_DIRECTION_RTL -> TextDirectionHeuristics.RTL
+        TEXT_DIRECTION_FIRST_STRONG_RTL -> TextDirectionHeuristics.FIRSTSTRONG_RTL
+        TEXT_DIRECTION_ANY_RTL_LTR -> TextDirectionHeuristics.ANYRTL_LTR
+        TEXT_DIRECTION_FIRST_STRONG_LTR -> TextDirectionHeuristics.FIRSTSTRONG_LTR
+        else -> TextDirectionHeuristics.FIRSTSTRONG_LTR
     }
+}
 
 @OptIn(InternalPlatformTextApi::class)
 internal object TextAlignmentAdapter {
@@ -980,19 +947,17 @@ internal object TextAlignmentAdapter {
     }
 }
 
-internal fun VerticalPaddings(
-    topPadding: Int,
-    bottomPadding: Int
-) = VerticalPaddings(packInts(topPadding, bottomPadding))
+internal fun VerticalPaddings(topPadding: Int, bottomPadding: Int) =
+    VerticalPaddings(packInts(topPadding, bottomPadding))
 
 @kotlin.jvm.JvmInline
 internal value class VerticalPaddings internal constructor(internal val packedValue: Long) {
 
-  val topPadding: Int
-      get() = unpackInt1(packedValue)
+    val topPadding: Int
+        get() = unpackInt1(packedValue)
 
-  val bottomPadding: Int
-      get() = unpackInt2(packedValue)
+    val bottomPadding: Int
+        get() = unpackInt2(packedValue)
 }
 
 @OptIn(InternalPlatformTextApi::class)
@@ -1002,37 +967,37 @@ private fun TextLayout.getVerticalPaddings(): VerticalPaddings {
     val paint = layout.paint
     val text = layout.text
 
-    val firstLineTextBounds = paint.getCharSequenceBounds(
-        text,
-        layout.getLineStart(0),
-        layout.getLineEnd(0)
-    )
+    val firstLineTextBounds =
+        paint.getCharSequenceBounds(text, layout.getLineStart(0), layout.getLineEnd(0))
     val ascent = layout.getLineAscent(0)
 
     // when textBounds.top is "higher" than ascent, we need to add the difference into account
     // since includeFontPadding is false, ascent is at the top of Layout
-    val topPadding = if (firstLineTextBounds.top < ascent) {
-        ascent - firstLineTextBounds.top
-    } else {
-        layout.topPadding
-    }
+    val topPadding =
+        if (firstLineTextBounds.top < ascent) {
+            ascent - firstLineTextBounds.top
+        } else {
+            layout.topPadding
+        }
 
-    val lastLineTextBounds = if (lineCount == 1) {
-        // reuse the existing rect since there is single line
-        firstLineTextBounds
-    } else {
-        val line = lineCount - 1
-        paint.getCharSequenceBounds(text, layout.getLineStart(line), layout.getLineEnd(line))
-    }
+    val lastLineTextBounds =
+        if (lineCount == 1) {
+            // reuse the existing rect since there is single line
+            firstLineTextBounds
+        } else {
+            val line = lineCount - 1
+            paint.getCharSequenceBounds(text, layout.getLineStart(line), layout.getLineEnd(line))
+        }
     val descent = layout.getLineDescent(lineCount - 1)
 
     // when textBounds.bottom is "lower" than descent, we need to add the difference into account
     // since includeFontPadding is false, descent is at the bottom of Layout
-    val bottomPadding = if (lastLineTextBounds.bottom > descent) {
-        lastLineTextBounds.bottom - descent
-    } else {
-        layout.bottomPadding
-    }
+    val bottomPadding =
+        if (lastLineTextBounds.bottom > descent) {
+            lastLineTextBounds.bottom - descent
+        } else {
+            layout.bottomPadding
+        }
 
     return if (topPadding == 0 && bottomPadding == 0) {
         ZeroVerticalPadding
@@ -1072,45 +1037,45 @@ private fun TextLayout.getLastLineMetrics(
 ): FontMetricsInt? {
     val lastLine = lineCount - 1
     // did not check for "\n" since the last line might include zero width characters
-    if (layout.getLineStart(lastLine) == layout.getLineEnd(lastLine) &&
-        !lineHeightSpans.isNullOrEmpty()
+    if (
+        layout.getLineStart(lastLine) == layout.getLineEnd(lastLine) &&
+            !lineHeightSpans.isNullOrEmpty()
     ) {
         val emptyText = SpannableString("\u200B")
         val lineHeightSpan = lineHeightSpans.first()
-        val newLineHeightSpan = lineHeightSpan.copy(
-            startIndex = 0,
-            endIndex = emptyText.length,
-            trimFirstLineTop = if (lastLine != 0 && lineHeightSpan.trimLastLineBottom) {
-                false
-            } else {
-                lineHeightSpan.trimLastLineBottom
+        val newLineHeightSpan =
+            lineHeightSpan.copy(
+                startIndex = 0,
+                endIndex = emptyText.length,
+                trimFirstLineTop =
+                    if (lastLine != 0 && lineHeightSpan.trimLastLineBottom) {
+                        false
+                    } else {
+                        lineHeightSpan.trimLastLineBottom
+                    }
+            )
+
+        emptyText.setSpan(newLineHeightSpan, 0, emptyText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        val tmpLayout =
+            StaticLayoutFactory.create(
+                text = emptyText,
+                paint = textPaint,
+                width = Int.MAX_VALUE,
+                start = 0,
+                end = emptyText.length,
+                textDir = frameworkTextDir,
+                includePadding = includePadding,
+                useFallbackLineSpacing = fallbackLineSpacing
+            )
+
+        val lastLineFontMetrics =
+            FontMetricsInt().apply {
+                ascent = tmpLayout.getLineAscent(0)
+                descent = tmpLayout.getLineDescent(0)
+                top = tmpLayout.getLineTop(0)
+                bottom = tmpLayout.getLineBottom(0)
             }
-        )
-
-        emptyText.setSpan(
-            newLineHeightSpan,
-            0,
-            emptyText.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
-        val tmpLayout = StaticLayoutFactory.create(
-            text = emptyText,
-            paint = textPaint,
-            width = Int.MAX_VALUE,
-            start = 0,
-            end = emptyText.length,
-            textDir = frameworkTextDir,
-            includePadding = includePadding,
-            useFallbackLineSpacing = fallbackLineSpacing
-        )
-
-        val lastLineFontMetrics = FontMetricsInt().apply {
-            ascent = tmpLayout.getLineAscent(0)
-            descent = tmpLayout.getLineDescent(0)
-            top = tmpLayout.getLineTop(0)
-            bottom = tmpLayout.getLineBottom(0)
-        }
 
         return lastLineFontMetrics
     }
@@ -1125,9 +1090,8 @@ private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan>? {
     if (!(text as Spanned).hasSpan(LineHeightStyleSpan::class.java) && text.isNotEmpty()) {
         return null
     }
-    val lineHeightStyleSpans = (text as Spanned).getSpans(
-        0, text.length, LineHeightStyleSpan::class.java
-    )
+    val lineHeightStyleSpans =
+        (text as Spanned).getSpans(0, text.length, LineHeightStyleSpan::class.java)
     return lineHeightStyleSpans
 }
 
@@ -1143,11 +1107,12 @@ internal object AndroidLayoutApi34 {
         inclusionStrategy: (RectF, RectF) -> Boolean
     ): IntArray? {
 
-        val segmentFinder = when (granularity) {
-            TEXT_GRANULARITY_WORD ->
-                WordSegmentFinder(layout.text, layout.wordIterator).toAndroidSegmentFinder()
-            else -> GraphemeClusterSegmentFinder(layout.text, layout.textPaint)
-        }
+        val segmentFinder =
+            when (granularity) {
+                TEXT_GRANULARITY_WORD ->
+                    WordSegmentFinder(layout.text, layout.wordIterator).toAndroidSegmentFinder()
+                else -> GraphemeClusterSegmentFinder(layout.text, layout.textPaint)
+            }
 
         return layout.layout.getRangeForRect(rectF, segmentFinder, inclusionStrategy)
     }

@@ -34,40 +34,33 @@ import androidx.compose.ui.layout.onGloballyPositioned
 
 @Composable
 fun LandscapeImageBackground(movie: Movie, aspect: String = "orientation/iconic_16x9") {
-    val navigationGradient = Brush.verticalGradient(
-        colors = listOf(pageColor, Color.Transparent),
-        startY = 0f,
-        endY = 200f
-    )
-    var height by remember {
-        mutableStateOf(0f)
-    }
+    val navigationGradient =
+        Brush.verticalGradient(
+            colors = listOf(pageColor, Color.Transparent),
+            startY = 0f,
+            endY = 200f
+        )
+    var height by remember { mutableStateOf(0f) }
 
-    val navigationGradientBottom = Brush.verticalGradient(
-        colors = listOf(
-            Color.Transparent,
-            pageColor
-        ),
-        startY = 50f,
-        endY = height,
-    )
+    val navigationGradientBottom =
+        Brush.verticalGradient(
+            colors = listOf(Color.Transparent, pageColor),
+            startY = 50f,
+            endY = height,
+        )
 
-    val horizontalGradient = Brush.horizontalGradient(
-        colors = listOf(pageColor, Color.Transparent),
-        startX = 1400f,
-        endX = 900f,
-    )
+    val horizontalGradient =
+        Brush.horizontalGradient(
+            colors = listOf(pageColor, Color.Transparent),
+            startX = 1400f,
+            endX = 900f,
+        )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .onGloballyPositioned { height = it.size.height.toFloat() }
+        modifier = Modifier.fillMaxSize().onGloballyPositioned { height = it.size.height.toFloat() }
     ) {
         AppAsyncImage(
-            imageUrl = getMovieImageUrl(
-                movie = movie,
-                aspect = aspect
-            ),
+            imageUrl = getMovieImageUrl(movie = movie, aspect = aspect),
             contentScale = ContentScale.FillWidth,
             alignment = Alignment.Center,
             modifier = Modifier.fillMaxWidth(),
@@ -75,11 +68,11 @@ fun LandscapeImageBackground(movie: Movie, aspect: String = "orientation/iconic_
         )
 
         Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(navigationGradientBottom)
-                .background(navigationGradient)
-                .background(horizontalGradient)
+            modifier =
+                Modifier.matchParentSize()
+                    .background(navigationGradientBottom)
+                    .background(navigationGradient)
+                    .background(horizontalGradient)
         )
     }
 }

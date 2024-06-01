@@ -27,7 +27,6 @@ private const val LINE_FEED = '\n'
  * Provide utilities for Layout class
  *
  * This class is not thread-safe. Do not share an instance with multiple threads.
- *
  */
 internal class LayoutHelper(val layout: Layout) {
 
@@ -65,15 +64,15 @@ internal class LayoutHelper(val layout: Layout) {
     }
 
     /**
-     *  Analyze the BiDi runs for the paragraphs and returns result object.
+     * Analyze the BiDi runs for the paragraphs and returns result object.
      *
-     *  Layout#isRtlCharAt or Layout#getLineDirection is not useful for determining preceding or
-     *  following run in visual order. We need to analyze by ourselves.
+     * Layout#isRtlCharAt or Layout#getLineDirection is not useful for determining preceding or
+     * following run in visual order. We need to analyze by ourselves.
      *
-     *  This may return null if the Bidi process is not necessary, i.e. there is only single bidi
-     *  run.
+     * This may return null if the Bidi process is not necessary, i.e. there is only single bidi
+     * run.
      *
-     *  @param paragraphIndex a paragraph index
+     * @param paragraphIndex a paragraph index
      */
     fun analyzeBidi(paragraphIndex: Int): Bidi? {
         // If we already analyzed target paragraph, just return the result.
@@ -95,66 +94,67 @@ internal class LayoutHelper(val layout: Layout) {
         // using lineBidi but this is internal implementation details, so share memory as
         // much as possible and allocate new buffer if we need Bidi object.
         var buffer = tmpBuffer
-        buffer = if (buffer == null || buffer.size < paragraphLength) {
-            CharArray(paragraphLength)
-        } else {
-            buffer
-        }
+        buffer =
+            if (buffer == null || buffer.size < paragraphLength) {
+                CharArray(paragraphLength)
+            } else {
+                buffer
+            }
         TextUtils.getChars(layout.text, paragraphStart, paragraphEnd, buffer, 0)
 
-        val result = if (Bidi.requiresBidi(buffer, 0, paragraphLength)) {
-            val flag = if (isRtlParagraph(paragraphIndex)) {
-                Bidi.DIRECTION_RIGHT_TO_LEFT
-            } else {
-                Bidi.DIRECTION_LEFT_TO_RIGHT
-            }
-            val bidi = Bidi(buffer, 0, null, 0, paragraphLength, flag)
+        val result =
+            if (Bidi.requiresBidi(buffer, 0, paragraphLength)) {
+                val flag =
+                    if (isRtlParagraph(paragraphIndex)) {
+                        Bidi.DIRECTION_RIGHT_TO_LEFT
+                    } else {
+                        Bidi.DIRECTION_LEFT_TO_RIGHT
+                    }
+                val bidi = Bidi(buffer, 0, null, 0, paragraphLength, flag)
 
-            if (bidi.runCount == 1) {
-                // This corresponds to the all text is Right-to-Left case. We don't need to keep
-                // Bidi object
-                null
+                if (bidi.runCount == 1) {
+                    // This corresponds to the all text is Right-to-Left case. We don't need to keep
+                    // Bidi object
+                    null
+                } else {
+                    bidi
+                }
             } else {
-                bidi
+                null
             }
-        } else {
-            null
-        }
 
         paragraphBidi[paragraphIndex] = result
         bidiProcessedParagraphs[paragraphIndex] = true
 
-        tmpBuffer = if (result != null) {
-            // The ownership of buffer is now passed to Bidi object.
-            // Release tmpBuffer if we didn't allocated in this time.
-            if (buffer === tmpBuffer) null else tmpBuffer
-        } else {
-            // We might allocate larger buffer in this time. Update tmpBuffer with latest one.
-            // (the latest buffer may be same as tmpBuffer)
-            buffer
-        }
+        tmpBuffer =
+            if (result != null) {
+                // The ownership of buffer is now passed to Bidi object.
+                // Release tmpBuffer if we didn't allocated in this time.
+                if (buffer === tmpBuffer) null else tmpBuffer
+            } else {
+                // We might allocate larger buffer in this time. Update tmpBuffer with latest one.
+                // (the latest buffer may be same as tmpBuffer)
+                buffer
+            }
         return result
     }
 
-    /**
-     * Retrieve the number of the paragraph in this layout.
-     */
+    /** Retrieve the number of the paragraph in this layout. */
     val paragraphCount = paragraphEnds.size
 
     /**
      * Returns the zero based paragraph number at the offset.
      *
      * The paragraphs are divided by line feed character (U+000A) and line feed character is
-     * included in the preceding paragraph, i.e. if the offset points the line feed character,
-     * this function returns preceding paragraph index.
+     * included in the preceding paragraph, i.e. if the offset points the line feed character, this
+     * function returns preceding paragraph index.
      *
      * @param offset a character offset in the text
      * @return the paragraph number
      */
     fun getParagraphForOffset(@IntRange(from = 0) offset: Int, upstream: Boolean = false): Int {
-        val paragraphIndex = paragraphEnds.binarySearch(offset).let {
-            if (it < 0) -(it + 1) else it + 1
-        }
+        val paragraphIndex =
+            paragraphEnds.binarySearch(offset).let { if (it < 0) -(it + 1) else it + 1 }
 
         if (upstream && paragraphIndex > 0 && offset == paragraphEnds[paragraphIndex - 1]) {
             return paragraphIndex - 1
@@ -198,24 +198,22 @@ internal class LayoutHelper(val layout: Layout) {
      * broken offset, this return the insertion offset of preceding line if upstream is true.
      * Otherwise returns the following line's insertion offset.
      *
-     * In case of Bi-Directional text, the offset may points graphically different location.
-     * Here primary means that the inserting character's direction will be resolved to the
-     * same direction to the paragraph direction. For example, set usePrimaryHorizontal to true if
-     * you want to get LTR character insertion position for the LTR paragraph, or if you want to get
-     * RTL character insertion position for the RTL paragraph.
-     * Set usePrimaryDirection to false if you want to get RTL character insertion position for the
-     * LTR paragraph, or if you want to get LTR character insertion position for the RTL paragraph.
+     * In case of Bi-Directional text, the offset may points graphically different location. Here
+     * primary means that the inserting character's direction will be resolved to the same direction
+     * to the paragraph direction. For example, set usePrimaryHorizontal to true if you want to get
+     * LTR character insertion position for the LTR paragraph, or if you want to get RTL character
+     * insertion position for the RTL paragraph. Set usePrimaryDirection to false if you want to get
+     * RTL character insertion position for the LTR paragraph, or if you want to get LTR character
+     * insertion position for the RTL paragraph.
      *
      * @param offset an offset to be insert a character
      * @param usePrimaryDirection no effect if the given offset does not point the directionally
-     *                            transition point. If offset points the directional transition
-     *                            point and this argument is true, treat the given offset as the
-     *                            offset of the Bidi run that has the same direction to the
-     *                            paragraph direction. Otherwise treat the given offset  as the
-     *                            offset of the Bidi run that has the different direction to the
-     *                            paragraph direction.
+     *   transition point. If offset points the directional transition point and this argument is
+     *   true, treat the given offset as the offset of the Bidi run that has the same direction to
+     *   the paragraph direction. Otherwise treat the given offset as the offset of the Bidi run
+     *   that has the different direction to the paragraph direction.
      * @param upstream if offset points the line broken offset, use upstream offset if true,
-     *                 otherwise false.
+     *   otherwise false.
      * @return the horizontal offset from the drawing origin.
      */
     fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean, upstream: Boolean): Float {
@@ -252,27 +250,29 @@ internal class LayoutHelper(val layout: Layout) {
         val lineBidi = analyzeBidi(paraNo)?.createLineBidi(bidiStart, bidiEnd)
         if (lineBidi == null || lineBidi.runCount == 1) { // easy case. All directions are the same
             val runDirection = layout.isRtlCharAt(lineStart)
-            val isStartLeft = if (usePrimaryDirection || isParaRtl == runDirection) {
-                !isParaRtl
-            } else {
-                isParaRtl
-            }
+            val isStartLeft =
+                if (usePrimaryDirection || isParaRtl == runDirection) {
+                    !isParaRtl
+                } else {
+                    isParaRtl
+                }
             val isOffsetLeft = if (offset == lineStart) isStartLeft else !isStartLeft
             return if (isOffsetLeft) layout.getLineLeft(lineNo) else layout.getLineRight(lineNo)
         }
 
         // Somehow need to find the character's position without using getPrimaryHorizontal.
-        val runs = Array(lineBidi.runCount) {
-            // We may be able to reduce this Bidi Run allocation by using run indices
-            // but unfortunately, Bidi#reorderVisually only accepts array of Object. So auto
-            // boxing happens anyway. Also, looks like Bidi#getRunStart and Bidi#getRunLimit
-            // does non-trivial amount of work. So we save the result into BidiRun.
-            BidiRun(
-                start = lineStart + lineBidi.getRunStart(it),
-                end = lineStart + lineBidi.getRunLimit(it),
-                isRtl = lineBidi.getRunLevel(it) % 2 == 1
-            )
-        }
+        val runs =
+            Array(lineBidi.runCount) {
+                // We may be able to reduce this Bidi Run allocation by using run indices
+                // but unfortunately, Bidi#reorderVisually only accepts array of Object. So auto
+                // boxing happens anyway. Also, looks like Bidi#getRunStart and Bidi#getRunLimit
+                // does non-trivial amount of work. So we save the result into BidiRun.
+                BidiRun(
+                    start = lineStart + lineBidi.getRunStart(it),
+                    end = lineStart + lineBidi.getRunLimit(it),
+                    isRtl = lineBidi.getRunLevel(it) % 2 == 1
+                )
+            }
         val levels = ByteArray(lineBidi.runCount) { lineBidi.getRunLevel(it).toByte() }
         Bidi.reorderVisually(levels, 0, runs, 0, runs.size)
 
@@ -281,11 +281,12 @@ internal class LayoutHelper(val layout: Layout) {
             val index = runs.indexOfFirst { it.start == offset }
             val run = runs[index]
             // True if the requesting end offset is left edge of the run.
-            val isLeftRequested = if (usePrimaryDirection || isParaRtl == run.isRtl) {
-                !isParaRtl
-            } else {
-                isParaRtl
-            }
+            val isLeftRequested =
+                if (usePrimaryDirection || isParaRtl == run.isRtl) {
+                    !isParaRtl
+                } else {
+                    isParaRtl
+                }
 
             if (index == 0 && isLeftRequested) {
                 // Requesting most left run's left offset, just use line left.
@@ -311,20 +312,22 @@ internal class LayoutHelper(val layout: Layout) {
             // If the requested offset is a white space at the end of the line, it would be
             // out of bounds for the runs in this Bidi. We are adjusting the requested offset
             // to the visible end of line.
-            val lineEndAdjustedOffset = if (offset > lineVisibleEnd) {
-                lineEndToVisibleEnd(offset, lineStart)
-            } else {
-                offset
-            }
+            val lineEndAdjustedOffset =
+                if (offset > lineVisibleEnd) {
+                    lineEndToVisibleEnd(offset, lineStart)
+                } else {
+                    offset
+                }
             // find the visual position of the last character
             val index = runs.indexOfFirst { it.end == lineEndAdjustedOffset }
             val run = runs[index]
             // True if the requesting end offset is left edge of the run.
-            val isLeftRequested = if (usePrimaryDirection || isParaRtl == run.isRtl) {
-                isParaRtl
-            } else {
-                !isParaRtl
-            }
+            val isLeftRequested =
+                if (usePrimaryDirection || isParaRtl == run.isRtl) {
+                    isParaRtl
+                } else {
+                    !isParaRtl
+                }
             if (index == 0 && isLeftRequested) {
                 // Requesting most left run's left offset, just use line left.
                 return layout.getLineLeft(lineNo)
@@ -401,8 +404,9 @@ internal class LayoutHelper(val layout: Layout) {
 
         val bidiStart = lineStart - paragraphStart
         val bidiEnd = lineEnd - paragraphStart
-        val lineBidi = analyzeBidi(paragraphIndex)?.createLineBidi(bidiStart, bidiEnd)
-            ?: return arrayOf(BidiRun(lineStart, lineEnd, layout.isRtlCharAt(lineStart)))
+        val lineBidi =
+            analyzeBidi(paragraphIndex)?.createLineBidi(bidiStart, bidiEnd)
+                ?: return arrayOf(BidiRun(lineStart, lineEnd, layout.isRtlCharAt(lineStart)))
 
         return Array(lineBidi.runCount) {
             BidiRun(
@@ -416,6 +420,11 @@ internal class LayoutHelper(val layout: Layout) {
     // The spaces that will not be rendered if they are placed at the line end. In most case, it is
     // whitespace or line feed character, hence checking linearly should be enough.
     @Suppress("ConvertTwoComparisonsToRangeCheck")
-    fun isLineEndSpace(c: Char) = c == ' ' || c == '\n' || c == '\u1680' ||
-        (c >= '\u2000' && c <= '\u200A' && c != '\u2007') || c == '\u205F' || c == '\u3000'
+    fun isLineEndSpace(c: Char) =
+        c == ' ' ||
+            c == '\n' ||
+            c == '\u1680' ||
+            (c >= '\u2000' && c <= '\u200A' && c != '\u2007') ||
+            c == '\u205F' ||
+            c == '\u3000'
 }

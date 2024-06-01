@@ -17,8 +17,8 @@
 package androidx.tracing
 
 /**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label])
- * and [Trace.endSection].
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label]) and
+ * [Trace.endSection].
  *
  * @param label A name of the code section to appear in the trace.
  * @param block A block of code which is being traced.
@@ -33,19 +33,16 @@ public inline fun <T> trace(label: String, block: () -> T): T {
 }
 
 /**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with a lazy-computed
- * [lazyLabel], only if tracing is enabled - [Trace.isEnabled]) and [Trace.endSection].
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with a lazy-computed [lazyLabel],
+ * only if tracing is enabled - [Trace.isEnabled]) and [Trace.endSection].
  *
- * This variant allows you to build a dynamic label, but only when tracing is enabled, avoiding
- * the cost of String construction otherwise.
+ * This variant allows you to build a dynamic label, but only when tracing is enabled, avoiding the
+ * cost of String construction otherwise.
  *
  * @param lazyLabel A name of the code section to appear in the trace, computed lazily if needed.
  * @param block A block of code which is being traced.
  */
-public inline fun <T> trace(
-    lazyLabel: () -> String,
-    block: () -> T
-): T {
+public inline fun <T> trace(lazyLabel: () -> String, block: () -> T): T {
     val isEnabled = Trace.isEnabled()
     if (isEnabled) {
         Trace.beginSection(lazyLabel())
@@ -85,8 +82,8 @@ public suspend inline fun <T> traceAsync(
  * enabled - [Trace.isEnabled].
  *
  * @param lazyMethodName The method name to appear in the trace, computed lazily if needed.
- * @param lazyCookie Unique identifier for distinguishing simultaneous events,
- *         computed lazily if needed.
+ * @param lazyCookie Unique identifier for distinguishing simultaneous events, computed lazily if
+ *   needed.
  */
 public inline fun <T> traceAsync(
     lazyMethodName: () -> String,

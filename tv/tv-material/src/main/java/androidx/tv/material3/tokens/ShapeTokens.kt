@@ -38,12 +38,13 @@ internal object ShapeTokens {
             bottomStart = 0.0.dp
         )
     val CornerExtraSmall = RoundedCornerShape(4.0.dp)
-    val CornerExtraSmallTop = RoundedCornerShape(
-        topStart = 4.0.dp,
-        topEnd = 4.0.dp,
-        bottomEnd = 0.0.dp,
-        bottomStart = 0.0.dp
-    )
+    val CornerExtraSmallTop =
+        RoundedCornerShape(
+            topStart = 4.0.dp,
+            topEnd = 4.0.dp,
+            bottomEnd = 0.0.dp,
+            bottomStart = 0.0.dp
+        )
     val CornerFull = CircleShape
     val CornerLarge = RoundedCornerShape(16.0.dp)
     val CornerLargeEnd =

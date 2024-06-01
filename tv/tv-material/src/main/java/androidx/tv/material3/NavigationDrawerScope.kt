@@ -21,13 +21,8 @@ package androidx.tv.material3
  * [NavigationDrawerItem] composable
  */
 interface NavigationDrawerScope {
-    /**
-     * Whether any item within the [NavigationDrawer] or [ModalNavigationDrawer] is focused
-     */
-    @get:Suppress("GetterSetterNames")
-    val hasFocus: Boolean
+    /** Whether any item within the [NavigationDrawer] or [ModalNavigationDrawer] is focused */
+    @get:Suppress("GetterSetterNames") val hasFocus: Boolean
 }
 
-internal class NavigationDrawerScopeImpl(
-    override val hasFocus: Boolean
-) : NavigationDrawerScope
+internal class NavigationDrawerScopeImpl(override val hasFocus: Boolean) : NavigationDrawerScope

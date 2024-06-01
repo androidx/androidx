@@ -37,22 +37,18 @@ import org.junit.runner.RunWith
 @MediumTest
 class ScreenshotTestRuleTest {
 
-    @get:Rule
-    val rule = ScreenshotTestRule()
+    @get:Rule val rule = ScreenshotTestRule()
 
     @Before
     fun setup() {
-        rule.setCustomGoldenIdResolver { goldenId ->
-            "$goldenId.png"
-        }
+        rule.setCustomGoldenIdResolver { goldenId -> "$goldenId.png" }
     }
 
     @Test
     fun performDiff_sameBitmaps() {
         val first = loadBitmap("round_rect_gray")
 
-        first
-            .assertAgainstGolden(rule, "round_rect_gray", matcher = PixelPerfectMatcher())
+        first.assertAgainstGolden(rule, "round_rect_gray", matcher = PixelPerfectMatcher())
 
         val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
         val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
@@ -72,8 +68,7 @@ class ScreenshotTestRuleTest {
                 "Image mismatch! Comparison stats: '[MSSIM] Required SSIM: 0.98, Actual SSIM: " +
                 "0.951'"
         ) {
-            first
-                .assertAgainstGolden(rule, "round_rect_green")
+            first.assertAgainstGolden(rule, "round_rect_green")
         }
 
         val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
@@ -94,8 +89,7 @@ class ScreenshotTestRuleTest {
                 "Image mismatch! Comparison stats: '[PixelPerfect] Same pixels: 1748, " +
                 "Different pixels: 556'"
         ) {
-            first
-                .assertAgainstGolden(rule, "round_rect_green", matcher = PixelPerfectMatcher())
+            first.assertAgainstGolden(rule, "round_rect_green", matcher = PixelPerfectMatcher())
         }
 
         val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
@@ -109,12 +103,10 @@ class ScreenshotTestRuleTest {
 
     @Test
     fun performDiff_differentSizes() {
-        val first =
-            loadBitmap("fullscreen_rect_gray")
+        val first = loadBitmap("fullscreen_rect_gray")
 
         expectErrorMessage("Sizes are different! Expected: [48, 48], Actual: [720, 1184]") {
-            first
-                .assertAgainstGolden(rule, "round_rect_gray")
+            first.assertAgainstGolden(rule, "round_rect_gray")
         }
 
         val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
@@ -128,11 +120,9 @@ class ScreenshotTestRuleTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun performDiff_incorrectGoldenName() {
-        val first =
-            loadBitmap("fullscreen_rect_gray")
+        val first = loadBitmap("fullscreen_rect_gray")
 
-        first
-            .assertAgainstGolden(rule, "round_rect_gray #")
+        first.assertAgainstGolden(rule, "round_rect_gray #")
     }
 
     @Test
@@ -140,11 +130,9 @@ class ScreenshotTestRuleTest {
         val first = loadBitmap("round_rect_gray")
 
         expectErrorMessage(
-            "Missing golden image 'does_not_exist.png'. Did you mean to check in " +
-                "a new image?"
+            "Missing golden image 'does_not_exist.png'. Did you mean to check in " + "a new image?"
         ) {
-            first
-                .assertAgainstGolden(rule, "does_not_exist")
+            first.assertAgainstGolden(rule, "does_not_exist")
         }
 
         val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)

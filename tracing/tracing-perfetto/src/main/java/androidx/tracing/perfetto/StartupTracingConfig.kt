@@ -34,9 +34,9 @@ import java.util.Properties
 internal data class StartupTracingConfig(val libFilePath: String?, val isPersistent: Boolean)
 
 /**
- * Hack used by [StartupTracingConfigStore] to perform a fast check whether there is
- * a [StartupTracingConfig] present. Relies on [PackageManager.getComponentEnabledSetting] and a
- * dummy [BroadcastReceiver] component.
+ * Hack used by [StartupTracingConfigStore] to perform a fast check whether there is a
+ * [StartupTracingConfig] present. Relies on [PackageManager.getComponentEnabledSetting] and a dummy
+ * [BroadcastReceiver] component.
  */
 private abstract class StartupTracingConfigStoreIsEnabledGate : BroadcastReceiver() {
     companion object {
@@ -57,10 +57,7 @@ private abstract class StartupTracingConfigStoreIsEnabledGate : BroadcastReceive
                 COMPONENT_ENABLED_STATE_ENABLED
 
         private val Context.componentName
-            get() = ComponentName(
-                this,
-                StartupTracingConfigStoreIsEnabledGate::class.java.name
-            )
+            get() = ComponentName(this, StartupTracingConfigStoreIsEnabledGate::class.java.name)
     }
 }
 
@@ -90,14 +87,14 @@ internal object StartupTracingConfigStore {
 
     /** Stores the config */
     fun StartupTracingConfig.store(context: Context) {
-        startupConfigFileForPackageName(context.packageName)
-            .bufferedWriter()
-            .use { writer ->
-                Properties().also {
+        startupConfigFileForPackageName(context.packageName).bufferedWriter().use { writer ->
+            Properties()
+                .also {
                     it.setProperty(KEY_LIB_FILE_PATH, libFilePath)
                     it.setProperty(KEY_IS_PERSISTENT, isPersistent.toString())
-                }.store(writer, null)
-            }
+                }
+                .store(writer, null)
+        }
         StartupTracingConfigStoreIsEnabledGate.enable(context) // update the fast-check-gate value
     }
 

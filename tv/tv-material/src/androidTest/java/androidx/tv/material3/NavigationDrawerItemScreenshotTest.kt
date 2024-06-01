@@ -47,16 +47,14 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalTvMaterial3Api::class)
 class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
-    val wrapperModifier = Modifier
-        .testTag(NavigationDrawerItemWrapperTag)
-        .background(scheme.colorScheme.surface)
-        .padding(20.dp)
+    val wrapperModifier =
+        Modifier.testTag(NavigationDrawerItemWrapperTag)
+            .background(scheme.colorScheme.surface)
+            .padding(20.dp)
 
     @Test
     fun navigationDrawerItem_customColor() {
@@ -150,9 +148,7 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemWrapperTag)
-            .onChild()
-            .requestFocus()
+        rule.onNodeWithTag(NavigationDrawerItemWrapperTag).onChild().requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("navigationDrawerItem_${scheme.name}_twoLine_focused")
@@ -205,9 +201,7 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemWrapperTag)
-            .onChild()
-            .requestFocus()
+        rule.onNodeWithTag(NavigationDrawerItemWrapperTag).onChild().requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("navigationDrawerItem_${scheme.name}_twoLine_focusedDisabled")
@@ -258,9 +252,7 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
             }
         }
 
-        rule.onNodeWithTag(NavigationDrawerItemWrapperTag)
-            .onChild()
-            .requestFocus()
+        rule.onNodeWithTag(NavigationDrawerItemWrapperTag).onChild().requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("navigationDrawerItem_${scheme.name}_twoLine_focusedSelected")
@@ -327,9 +319,7 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
                         )
                     },
                     supportingContent = { Text("You like this") },
-                    trailingContent = {
-                        NavigationDrawerItemDefaults.TrailingBadge("NEW")
-                    }
+                    trailingContent = { NavigationDrawerItemDefaults.TrailingBadge("NEW") }
                 ) {
                     Text("Favourite")
                 }
@@ -340,7 +330,8 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(NavigationDrawerItemWrapperTag)
+        rule
+            .onNodeWithTag(NavigationDrawerItemWrapperTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -351,10 +342,11 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     class ColorSchemeWrapper constructor(val name: String, val colorScheme: ColorScheme) {
@@ -369,9 +361,7 @@ class NavigationDrawerItemScreenshotTest(private val scheme: ColorSchemeWrapper)
         content: @Composable NavigationDrawerScope.() -> Unit
     ) {
         Box(wrapperModifier) {
-            NavigationDrawerScopeImpl(doesNavigationDrawerHaveFocus).apply {
-                content()
-            }
+            NavigationDrawerScopeImpl(doesNavigationDrawerHaveFocus).apply { content() }
         }
     }
 }

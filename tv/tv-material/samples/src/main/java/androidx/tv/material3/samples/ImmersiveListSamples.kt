@@ -45,21 +45,12 @@ fun SampleImmersiveList() {
     val selectedItem = remember { mutableStateOf<Color?>(null) }
 
     // Container
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(400.dp)
-    ) {
+    Box(modifier = Modifier.fillMaxWidth().height(400.dp)) {
         val bgColor = selectedItem.value
 
         // Background
         if (bgColor != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(20f / 7)
-                    .background(bgColor)
-            ) {}
+            Box(modifier = Modifier.fillMaxWidth().aspectRatio(20f / 7).background(bgColor)) {}
         }
 
         // Rows
@@ -70,25 +61,26 @@ fun SampleImmersiveList() {
         ) {
             items(items) { color ->
                 Surface(
-                    onClick = { },
-                    modifier = Modifier
-                        .width(200.dp)
-                        .aspectRatio(16f / 9)
-                        .onFocusChanged {
+                    onClick = {},
+                    modifier =
+                        Modifier.width(200.dp).aspectRatio(16f / 9).onFocusChanged {
                             if (it.hasFocus) {
                                 selectedItem.value = color
                             }
                         },
-                    colors = ClickableSurfaceDefaults.colors(
-                        containerColor = color,
-                        focusedContainerColor = color,
-                    ),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = BorderStroke(2.dp, Color.White),
-                            inset = 4.dp,
+                    colors =
+                        ClickableSurfaceDefaults.colors(
+                            containerColor = color,
+                            focusedContainerColor = color,
+                        ),
+                    border =
+                        ClickableSurfaceDefaults.border(
+                            focusedBorder =
+                                Border(
+                                    border = BorderStroke(2.dp, Color.White),
+                                    inset = 4.dp,
+                                )
                         )
-                    )
                 ) {}
             }
         }

@@ -23,15 +23,13 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Defines the shadow for a TV component.
+ *
  * @param elevationColor [Color] to be applied on the shadow
- * @param elevation defines how strong should be the shadow. Larger its value, further the
- * shadow goes from the center of the component.
+ * @param elevation defines how strong should be the shadow. Larger its value, further the shadow
+ *   goes from the center of the component.
  */
 @Immutable
-class Glow(
-    val elevationColor: Color,
-    val elevation: Dp
-) {
+class Glow(val elevationColor: Color, val elevation: Dp) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -54,22 +52,17 @@ class Glow(
         return "Glow(elevationColor=$elevationColor, elevation=$elevation)"
     }
 
-    fun copy(
-        glowColor: Color? = null,
-        glowElevation: Dp? = null
-    ): Glow = Glow(
-        elevationColor = glowColor ?: this.elevationColor,
-        elevation = glowElevation ?: this.elevation
-    )
+    fun copy(glowColor: Color? = null, glowElevation: Dp? = null): Glow =
+        Glow(
+            elevationColor = glowColor ?: this.elevationColor,
+            elevation = glowElevation ?: this.elevation
+        )
 
     companion object {
         /**
          * Signifies the absence of a glow in TV Components. Use this if you do not want to display
          * a glow indication in any of the Leanback TV Components.
          */
-        val None = Glow(
-            elevationColor = Color.Transparent,
-            elevation = 0.dp
-        )
+        val None = Glow(elevationColor = Color.Transparent, elevation = 0.dp)
     }
 }

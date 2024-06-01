@@ -51,72 +51,68 @@ class TextLayoutIntrinsicWidthTest {
     @Before
     fun setup() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        defaultPaint = TextPaint().apply {
-            typeface = ResourcesCompat.getFont(instrumentation.context, R.font.sample_font)!!
-            textSize = fontSize
-        }
+        defaultPaint =
+            TextPaint().apply {
+                typeface = ResourcesCompat.getFont(instrumentation.context, R.font.sample_font)!!
+                textSize = fontSize
+            }
     }
 
     @Test
     fun intrinsicWidth_with_letterSpacing_and_lineHeight_createsOneLine() {
-        val text = defaultText.apply {
-            setLineHeight(lineHeight)
-            setSpan(LetterSpacingSpanPx(letterSpacingPx))
-        }
+        val text =
+            defaultText.apply {
+                setLineHeight(lineHeight)
+                setSpan(LetterSpacingSpanPx(letterSpacingPx))
+            }
 
         assertLineCount(text)
     }
 
     @Test
     fun intrinsicWidth_with_letterSpacing_and_lineHeight_createsOneLine_multipleSpans() {
-        val text = defaultText.apply {
-            for (i in 0..8) {
-                val end = i + 1
-                setLineHeight(lineHeight, i, end)
-                setSpan(LetterSpacingSpanPx(letterSpacingPx), i, end)
+        val text =
+            defaultText.apply {
+                for (i in 0..8) {
+                    val end = i + 1
+                    setLineHeight(lineHeight, i, end)
+                    setSpan(LetterSpacingSpanPx(letterSpacingPx), i, end)
+                }
             }
-        }
 
         assertLineCount(text)
     }
 
     @Test
     fun intrinsicWidth_with_letterSpacingEm_and_lineHeight_createsOneLine() {
-        val text = defaultText.apply {
-            setLineHeight(lineHeight)
-            setSpan(LetterSpacingSpanEm(letterSpacingEm))
-        }
+        val text =
+            defaultText.apply {
+                setLineHeight(lineHeight)
+                setSpan(LetterSpacingSpanEm(letterSpacingEm))
+            }
 
         assertLineCount(text)
     }
 
     @Test
     fun intrinsicWidth_with_paintLetterSpacing_and_lineHeight_createsOneLine() {
-        val text = defaultText.apply {
-            setLineHeight(lineHeight)
-        }
+        val text = defaultText.apply { setLineHeight(lineHeight) }
 
-        val paint = defaultPaint.apply {
-            letterSpacing = letterSpacingEm
-        }
+        val paint = defaultPaint.apply { letterSpacing = letterSpacingEm }
 
         assertLineCount(text, paint)
     }
 
     @Test
     fun intrinsicWidth_with_letterSpacing_and_noLineHeight_createsOneLine() {
-        val text = defaultText.apply {
-            setSpan(LetterSpacingSpanPx(letterSpacingPx))
-        }
+        val text = defaultText.apply { setSpan(LetterSpacingSpanPx(letterSpacingPx)) }
 
         assertLineCount(text)
     }
 
     @Test
     fun intrinsicWidth_with_noLetterSpacing_and_withLineHeight_createsOneLine() {
-        val text = defaultText.apply {
-            setLineHeight(lineHeight)
-        }
+        val text = defaultText.apply { setLineHeight(lineHeight) }
 
         assertLineCount(text)
     }
@@ -138,9 +134,7 @@ class TextLayoutIntrinsicWidthTest {
 
     @Test
     fun intrinsicWidth_sameInLtrAndRtl_withLetterSpacing() {
-        val text = SpannableString("asdf").apply {
-            setSpan(LetterSpacingSpanPx(letterSpacingPx))
-        }
+        val text = SpannableString("asdf").apply { setSpan(LetterSpacingSpanPx(letterSpacingPx)) }
 
         val intrinsicsLtr = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_LTR)
         val intrinsicsRtl = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_RTL)
@@ -151,12 +145,14 @@ class TextLayoutIntrinsicWidthTest {
     private fun assertLineCount(text: CharSequence, paint: TextPaint = defaultPaint) {
         val intrinsics = LayoutIntrinsics(text, paint, LayoutCompat.TEXT_DIRECTION_LTR)
         assertThat(
-            TextLayout(
-                charSequence = text,
-                width = intrinsics.maxIntrinsicWidth,
-                textPaint = paint
-            ).lineCount
-        ).isEqualTo(1)
+                TextLayout(
+                        charSequence = text,
+                        width = intrinsics.maxIntrinsicWidth,
+                        textPaint = paint
+                    )
+                    .lineCount
+            )
+            .isEqualTo(1)
     }
 
     private fun Spannable.setSpan(span: Any, start: Int = 0, end: Int = length) {
@@ -166,14 +162,15 @@ class TextLayoutIntrinsicWidthTest {
     private fun Float.spToPx(): Float = this * fontScale * density
 
     private fun Spannable.setLineHeight(lineHeight: Float, start: Int = 0, end: Int = length) {
-        val span = LineHeightStyleSpan(
-            lineHeight = lineHeight,
-            startIndex = start,
-            endIndex = end,
-            trimFirstLineTop = true,
-            trimLastLineBottom = true,
-            topRatio = -1f /* default: proportional */
-        )
+        val span =
+            LineHeightStyleSpan(
+                lineHeight = lineHeight,
+                startIndex = start,
+                endIndex = end,
+                trimFirstLineTop = true,
+                trimLastLineBottom = true,
+                topRatio = -1f /* default: proportional */
+            )
         setSpan(span, start, end)
     }
 }

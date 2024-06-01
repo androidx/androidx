@@ -22,11 +22,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 
-/**
- * Defines [Shape] for all TV [Interaction] states of Button.
- */
+/** Defines [Shape] for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonShape internal constructor(
+class ButtonShape
+internal constructor(
     internal val shape: Shape,
     internal val focusedShape: Shape,
     internal val pressedShape: Shape,
@@ -64,11 +63,10 @@ class ButtonShape internal constructor(
     }
 }
 
-/**
- * Defines [Color]s for all TV [Interaction] states of Button.
- */
+/** Defines [Color]s for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonColors internal constructor(
+class ButtonColors
+internal constructor(
     internal val containerColor: Color,
     internal val contentColor: Color,
     internal val focusedContainerColor: Color,
@@ -119,11 +117,10 @@ class ButtonColors internal constructor(
     }
 }
 
-/**
- * Defines [Color]s for all TV [Interaction] states of a WideButton
- */
+/** Defines [Color]s for all TV [Interaction] states of a WideButton */
 @Immutable
-class WideButtonContentColor internal constructor(
+class WideButtonContentColor
+internal constructor(
     internal val contentColor: Color,
     internal val focusedContentColor: Color,
     internal val pressedContentColor: Color,
@@ -159,11 +156,10 @@ class WideButtonContentColor internal constructor(
     }
 }
 
-/**
- * Defines the scale for all TV [Interaction] states of Button.
- */
+/** Defines the scale for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonScale internal constructor(
+class ButtonScale
+internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
     @FloatRange(from = 0.0) internal val focusedScale: Float,
     @FloatRange(from = 0.0) internal val pressedScale: Float,
@@ -201,24 +197,22 @@ class ButtonScale internal constructor(
     }
 
     companion object {
-        /**
-         * Signifies the absence of a [ScaleIndication] in Button component.
-         */
-        val None = ButtonScale(
-            scale = 1f,
-            focusedScale = 1f,
-            pressedScale = 1f,
-            disabledScale = 1f,
-            focusedDisabledScale = 1f
-        )
+        /** Signifies the absence of a [ScaleIndication] in Button component. */
+        val None =
+            ButtonScale(
+                scale = 1f,
+                focusedScale = 1f,
+                pressedScale = 1f,
+                disabledScale = 1f,
+                focusedDisabledScale = 1f
+            )
     }
 }
 
-/**
- * Defines [Border] for all TV [Interaction] states of Button.
- */
+/** Defines [Border] for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonBorder internal constructor(
+class ButtonBorder
+internal constructor(
     internal val border: Border,
     internal val focusedBorder: Border,
     internal val pressedBorder: Border,
@@ -257,11 +251,10 @@ class ButtonBorder internal constructor(
     }
 }
 
-/**
- * Defines [Glow] for all TV [Interaction] states of Button.
- */
+/** Defines [Glow] for all TV [Interaction] states of Button. */
 @Immutable
-class ButtonGlow internal constructor(
+class ButtonGlow
+internal constructor(
     internal val glow: Glow,
     internal val focusedGlow: Glow,
     internal val pressedGlow: Glow
@@ -294,13 +287,14 @@ class ButtonGlow internal constructor(
 
 private val WideButtonContainerColor = Color.Transparent
 
-internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape = ClickableSurfaceShape(
-    shape = shape,
-    focusedShape = focusedShape,
-    pressedShape = pressedShape,
-    disabledShape = disabledShape,
-    focusedDisabledShape = focusedDisabledShape
-)
+internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape =
+    ClickableSurfaceShape(
+        shape = shape,
+        focusedShape = focusedShape,
+        pressedShape = pressedShape,
+        disabledShape = disabledShape,
+        focusedDisabledShape = focusedDisabledShape
+    )
 
 internal fun ButtonColors.toClickableSurfaceColors(): ClickableSurfaceColors =
     ClickableSurfaceColors(
@@ -326,24 +320,23 @@ internal fun WideButtonContentColor.toClickableSurfaceColors(): ClickableSurface
         disabledContentColor = disabledContentColor
     )
 
-internal fun ButtonScale.toClickableSurfaceScale() = ClickableSurfaceScale(
-    scale = scale,
-    focusedScale = focusedScale,
-    pressedScale = pressedScale,
-    disabledScale = disabledScale,
-    focusedDisabledScale = focusedDisabledScale
-)
+internal fun ButtonScale.toClickableSurfaceScale() =
+    ClickableSurfaceScale(
+        scale = scale,
+        focusedScale = focusedScale,
+        pressedScale = pressedScale,
+        disabledScale = disabledScale,
+        focusedDisabledScale = focusedDisabledScale
+    )
 
-internal fun ButtonBorder.toClickableSurfaceBorder() = ClickableSurfaceBorder(
-    border = border,
-    focusedBorder = focusedBorder,
-    pressedBorder = pressedBorder,
-    disabledBorder = disabledBorder,
-    focusedDisabledBorder = focusedDisabledBorder
-)
+internal fun ButtonBorder.toClickableSurfaceBorder() =
+    ClickableSurfaceBorder(
+        border = border,
+        focusedBorder = focusedBorder,
+        pressedBorder = pressedBorder,
+        disabledBorder = disabledBorder,
+        focusedDisabledBorder = focusedDisabledBorder
+    )
 
-internal fun ButtonGlow.toClickableSurfaceGlow() = ClickableSurfaceGlow(
-    glow = glow,
-    focusedGlow = focusedGlow,
-    pressedGlow = pressedGlow
-)
+internal fun ButtonGlow.toClickableSurfaceGlow() =
+    ClickableSurfaceGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)

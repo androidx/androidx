@@ -40,10 +40,7 @@ fun App() {
 
     MaterialTheme(colorScheme = darkColorScheme()) {
         Column(
-            modifier = Modifier
-                .background(pageColor)
-                .fillMaxSize()
-                .padding(20.dp),
+            modifier = Modifier.background(pageColor).fillMaxSize().padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             TopNavigation(
@@ -51,9 +48,7 @@ fun App() {
                 updateSelectedTab = {
                     if (it.toRouteValue() != navController.currentDestination?.route) {
                         navController.navigate(it.toRouteValue()) {
-                            popUpTo(initialSelectedTab.toRouteValue()) {
-                                saveState = true
-                            }
+                            popUpTo(initialSelectedTab.toRouteValue()) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -66,9 +61,7 @@ fun App() {
                 startDestination = initialSelectedTab.toRouteValue()
             ) {
                 Navigation.values().forEach { routeNavigation ->
-                    composable(routeNavigation.toRouteValue()) {
-                        routeNavigation.action()
-                    }
+                    composable(routeNavigation.toRouteValue()) { routeNavigation.action() }
                 }
             }
         }

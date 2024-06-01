@@ -18,9 +18,7 @@ package androidx.tv.integration.playground
 
 import androidx.compose.ui.Modifier
 
-/**
- * Thanks, Plex 🦄 :)
- */
+/** Thanks, Plex 🦄 :) */
 fun Modifier.ifElse(
     condition: () -> Boolean,
     ifTrueModifier: Modifier,

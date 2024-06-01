@@ -40,17 +40,17 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyListPrefetcherTest(
-    orientation: Orientation
-) : BaseLazyListTestWithOrientation(orientation) {
+class LazyListPrefetcherTest(orientation: Orientation) :
+    BaseLazyListTestWithOrientation(orientation) {
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(
-            Orientation.Vertical,
-            Orientation.Horizontal,
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                Orientation.Vertical,
+                Orientation.Horizontal,
+            )
     }
 
     val itemsSizePx = 30
@@ -62,70 +62,50 @@ class LazyListPrefetcherTest(
     fun notPrefetchingForwardInitially() {
         composeList()
 
-        rule.onNodeWithTag("2")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2").assertDoesNotExist()
     }
 
     @Test
     fun notPrefetchingBackwardInitially() {
         composeList(firstItem = 2)
 
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardAfterSmallScroll() {
         composeList()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(2)
 
-        rule.onNodeWithTag("2")
-            .assertExists()
-        rule.onNodeWithTag("3")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2").assertExists()
+        rule.onNodeWithTag("3").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingBackwardAfterSmallScroll() {
         composeList(firstItem = 2, itemOffset = 10)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(-5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(-5f) } }
 
         waitForPrefetch(1)
 
-        rule.onNodeWithTag("1")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("1").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardAndBackward() {
         composeList(firstItem = 1)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(3)
 
-        rule.onNodeWithTag("3")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("3").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
 
         rule.runOnIdle {
             runBlocking {
@@ -136,21 +116,15 @@ class LazyListPrefetcherTest(
 
         waitForPrefetch(0)
 
-        rule.onNodeWithTag("0")
-            .assertExists()
-        rule.onNodeWithTag("3")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("0").assertExists()
+        rule.onNodeWithTag("3").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardTwice() {
         composeList()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(2)
 
@@ -163,23 +137,16 @@ class LazyListPrefetcherTest(
 
         waitForPrefetch(3)
 
-        rule.onNodeWithTag("2")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("3")
-            .assertExists()
-        rule.onNodeWithTag("4")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        rule.onNodeWithTag("3").assertExists()
+        rule.onNodeWithTag("4").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingBackwardTwice() {
         composeList(firstItem = 4)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(-5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(-5f) } }
 
         waitForPrefetch(2)
 
@@ -192,30 +159,21 @@ class LazyListPrefetcherTest(
 
         waitForPrefetch(1)
 
-        rule.onNodeWithTag("2")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("1")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        rule.onNodeWithTag("1").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardAndBackwardReverseLayout() {
         composeList(firstItem = 1, reverseLayout = true)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(3)
 
-        rule.onNodeWithTag("3")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("3").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
 
         rule.runOnIdle {
             runBlocking {
@@ -226,10 +184,8 @@ class LazyListPrefetcherTest(
 
         waitForPrefetch(0)
 
-        rule.onNodeWithTag("0")
-            .assertExists()
-        rule.onNodeWithTag("3")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("0").assertExists()
+        rule.onNodeWithTag("3").assertDoesNotExist()
     }
 
     @Test
@@ -241,40 +197,24 @@ class LazyListPrefetcherTest(
             contentPadding = PaddingValues(mainAxis = halfItemSize)
         )
 
-        rule.onNodeWithTag("1")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("2")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("3")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
-        rule.onNodeWithTag("4")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        rule.onNodeWithTag("3").assertIsDisplayed()
+        rule.onNodeWithTag("0").assertDoesNotExist()
+        rule.onNodeWithTag("4").assertDoesNotExist()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(3)
 
-        rule.onNodeWithTag("4")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("4").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(-2f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(-2f) } }
 
         waitForPrefetch(0)
 
-        rule.onNodeWithTag("0")
-            .assertExists()
+        rule.onNodeWithTag("0").assertExists()
     }
 
     @Test
@@ -283,48 +223,47 @@ class LazyListPrefetcherTest(
         lateinit var remeasure: Remeasurement
         rule.setContent {
             SubcomposeLayout(
-                modifier = object : RemeasurementModifier {
-                    override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-                        remeasure = remeasurement
-                    }
-                }
-            ) { constraints ->
-                val placeable = if (emit) {
-                    subcompose(Unit) {
-                        state = rememberTvLazyListState()
-                        LazyColumnOrRow(
-                            Modifier.mainAxisSize(itemsSizeDp * 1.5f),
-                            state,
-                        ) {
-                            items(1000) {
-                                Spacer(
-                                    Modifier
-                                        .mainAxisSize(itemsSizeDp)
-                                        .then(fillParentMaxCrossAxis())
-                                )
-                            }
+                modifier =
+                    object : RemeasurementModifier {
+                        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                            remeasure = remeasurement
                         }
-                    }.first().measure(constraints)
-                } else {
-                    null
-                }
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeable?.place(0, 0)
-                }
+                    }
+            ) { constraints ->
+                val placeable =
+                    if (emit) {
+                        subcompose(Unit) {
+                                state = rememberTvLazyListState()
+                                LazyColumnOrRow(
+                                    Modifier.mainAxisSize(itemsSizeDp * 1.5f),
+                                    state,
+                                ) {
+                                    items(1000) {
+                                        Spacer(
+                                            Modifier.mainAxisSize(itemsSizeDp)
+                                                .then(fillParentMaxCrossAxis())
+                                        )
+                                    }
+                                }
+                            }
+                            .first()
+                            .measure(constraints)
+                    } else {
+                        null
+                    }
+                layout(constraints.maxWidth, constraints.maxHeight) { placeable?.place(0, 0) }
             }
         }
 
         rule.runOnIdle {
             // this will schedule the prefetching
-            runBlocking(AutoTestFrameClock()) {
-                state.scrollBy(itemsSizePx.toFloat())
-            }
+            runBlocking(AutoTestFrameClock()) { state.scrollBy(itemsSizePx.toFloat()) }
             // then we synchronously dispose LazyColumn
             emit = false
             remeasure.forceRemeasure()
         }
 
-        rule.runOnIdle { }
+        rule.runOnIdle {}
     }
 
     @Test
@@ -356,15 +295,11 @@ class LazyListPrefetcherTest(
             }
         }
 
-        rule.runOnIdle {
-            assertThat(activeNodes).doesNotContain(3)
-        }
+        rule.runOnIdle { assertThat(activeNodes).doesNotContain(3) }
     }
 
     private fun waitForPrefetch(index: Int) {
-        rule.waitUntil {
-            activeNodes.contains(index) && activeMeasuredNodes.contains(index)
-        }
+        rule.waitUntil { activeNodes.contains(index) && activeMeasuredNodes.contains(index) }
     }
 
     private val activeNodes = mutableSetOf<Int>()
@@ -377,10 +312,11 @@ class LazyListPrefetcherTest(
         contentPadding: PaddingValues = PaddingValues(0.dp)
     ) {
         rule.setContent {
-            state = rememberTvLazyListState(
-                initialFirstVisibleItemIndex = firstItem,
-                initialFirstVisibleItemScrollOffset = itemOffset
-            )
+            state =
+                rememberTvLazyListState(
+                    initialFirstVisibleItemIndex = firstItem,
+                    initialFirstVisibleItemScrollOffset = itemOffset
+                )
             LazyColumnOrRow(
                 Modifier.mainAxisSize(itemsSizeDp * 1.5f),
                 state,
@@ -396,16 +332,13 @@ class LazyListPrefetcherTest(
                         }
                     }
                     Spacer(
-                        Modifier
-                            .mainAxisSize(itemsSizeDp)
+                        Modifier.mainAxisSize(itemsSizeDp)
                             .fillMaxCrossAxis()
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
                                 activeMeasuredNodes.add(it)
-                                layout(placeable.width, placeable.height) {
-                                    placeable.place(0, 0)
-                                }
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                             }
                     )
                 }

@@ -18,9 +18,9 @@ package androidx.compose.ui.text.android.selection
 import java.text.BreakIterator
 
 /**
- * Returns the start of the word at the given offset. Characters not part of a word, such as
- * spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this method will
- * return offset.
+ * Returns the start of the word at the given offset. Characters not part of a word, such as spaces,
+ * symbols, and punctuation, have word breaks on both sides. In such cases, this method will return
+ * offset.
  *
  * @param offset the interested offset.
  * @return the offset of the start of the word.
@@ -43,9 +43,9 @@ internal fun WordIterator.getWordStart(offset: Int): Int {
 }
 
 /**
- * Returns the end of the word at the given offset. Characters not part of a word, such as
- * spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this method will
- * return offset + 1.
+ * Returns the end of the word at the given offset. Characters not part of a word, such as spaces,
+ * symbols, and punctuation, have word breaks on both sides. In such cases, this method will return
+ * offset + 1.
  *
  * @param offset the interested offset.
  * @return the offset of the end of the word.

@@ -49,8 +49,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTvMaterial3Api::class)
 class CheckboxTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val defaultTag = "checkbox"
 
@@ -65,12 +64,14 @@ class CheckboxTest {
             }
         }
 
-        rule.onNodeWithTag("checkboxUnchecked")
+        rule
+            .onNodeWithTag("checkboxUnchecked")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertIsOff()
 
-        rule.onNodeWithTag("checkboxChecked")
+        rule
+            .onNodeWithTag("checkboxChecked")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertIsOn()
@@ -85,10 +86,7 @@ class CheckboxTest {
             }
         }
 
-        rule.onNodeWithTag(defaultTag)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(defaultTag).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -100,7 +98,8 @@ class CheckboxTest {
             }
         }
 
-        rule.onNodeWithTag(defaultTag)
+        rule
+            .onNodeWithTag(defaultTag)
             .assertIsOff()
             .performClick()
             .assertIsOn()
@@ -115,28 +114,21 @@ class CheckboxTest {
         rule.setContent {
             LightMaterialTheme {
                 val (checked, _) = remember { mutableStateOf(false) }
-                Box(
-                    Modifier
-                        .semantics(mergeDescendants = true) {}
-                        .testTag(parentTag)) {
+                Box(Modifier.semantics(mergeDescendants = true) {}.testTag(parentTag)) {
                     Checkbox(
                         checked,
                         {},
                         enabled = false,
-                        modifier = Modifier
-                            .testTag(defaultTag)
-                            .semantics { focused = true }
+                        modifier = Modifier.testTag(defaultTag).semantics { focused = true }
                     )
                 }
             }
         }
 
-        rule.onNodeWithTag(defaultTag)
-            .assertHasClickAction()
+        rule.onNodeWithTag(defaultTag).assertHasClickAction()
 
         // Check not merged into parent
-        rule.onNodeWithTag(parentTag)
-            .assert(isNotFocusable())
+        rule.onNodeWithTag(parentTag).assert(isNotFocusable())
     }
 
     @Test
@@ -144,20 +136,14 @@ class CheckboxTest {
         rule.setContent {
             LightMaterialTheme {
                 val (checked, _) = remember { mutableStateOf(false) }
-                Box(
-                    Modifier
-                        .semantics(mergeDescendants = true) {}
-                        .testTag(defaultTag)) {
-                    Checkbox(
-                        checked,
-                        null,
-                        modifier = Modifier.semantics { focused = true }
-                    )
+                Box(Modifier.semantics(mergeDescendants = true) {}.testTag(defaultTag)) {
+                    Checkbox(checked, null, modifier = Modifier.semantics { focused = true })
                 }
             }
         }
 
-        rule.onNodeWithTag(defaultTag)
+        rule
+            .onNodeWithTag(defaultTag)
             .assertHasNoClickAction()
             .assert(isFocusable()) // Check merged into parent
     }

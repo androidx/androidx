@@ -33,7 +33,6 @@ import org.junit.runner.RunWith
 
 /**
  * In this test cases, use following notations:
- *
  * - L1-LF shows an example strong LTR character.
  * - R1-RF shows an example strong RTL character
  * - SP shows whitespace character (U+0020)
@@ -43,10 +42,11 @@ import org.junit.runner.RunWith
 @OptIn(InternalPlatformTextApi::class)
 @RunWith(AndroidJUnit4::class)
 class SegmentBreakerBreakSegmentTest {
-    private val sampleTypeface = ResourcesCompat.getFont(
-        InstrumentationRegistry.getInstrumentation().targetContext,
-        R.font.sample_font
-    )
+    private val sampleTypeface =
+        ResourcesCompat.getFont(
+            InstrumentationRegistry.getInstrumentation().targetContext,
+            R.font.sample_font
+        )
 
     // Reference Strong LTR character. All characters are supported by sample_font.ttf and they
     // have 1em width.
@@ -85,21 +85,20 @@ class SegmentBreakerBreakSegmentTest {
     private val TEXT_SIZE = 10f
     private val LINE_HEIGHT = TEXT_SIZE.toInt()
 
-    private fun getLayout(
-        text: String,
-        dir: TextDirectionHeuristic
-    ): LayoutHelper {
-        val paint = TextPaint().apply {
-            textSize = TEXT_SIZE
-            typeface = sampleTypeface
-        }
-        val layout = StaticLayoutFactory.create(
-            text = text,
-            paint = paint,
-            width = 50,
-            textDir = dir,
-            includePadding = false
-        )
+    private fun getLayout(text: String, dir: TextDirectionHeuristic): LayoutHelper {
+        val paint =
+            TextPaint().apply {
+                textSize = TEXT_SIZE
+                typeface = sampleTypeface
+            }
+        val layout =
+            StaticLayoutFactory.create(
+                text = text,
+                paint = paint,
+                width = 50,
+                textDir = dir,
+                includePadding = false
+            )
         return LayoutHelper(layout)
     }
 
@@ -111,7 +110,9 @@ class SegmentBreakerBreakSegmentTest {
     ): List<Segment> {
         val layout = getLayout(text = text, dir = dir)
         return SegmentBreaker.breakSegments(
-            layoutHelper = layout, segmentType = type, dropSpaces = dropSpaces
+            layoutHelper = layout,
+            segmentType = type,
+            dropSpaces = dropSpaces
         )
     }
 
@@ -127,16 +128,17 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$SP$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Document, dropSpaces = false)
         assertThat(segments.size).isEqualTo(1)
-        assertThat(segments[0]).isEqualTo(
-            Segment(
-                startOffset = 0,
-                endOffset = text.length,
-                left = 0,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT * 3
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment(
+                    startOffset = 0,
+                    endOffset = text.length,
+                    left = 0,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT * 3
+                )
             )
-        )
     }
 
     @Test
@@ -152,16 +154,17 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$SP$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Document, dropSpaces = false)
         assertThat(segments.size).isEqualTo(1)
-        assertThat(segments[0]).isEqualTo(
-            Segment(
-                startOffset = 0,
-                endOffset = text.length,
-                left = 0,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT * 3
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment(
+                    startOffset = 0,
+                    endOffset = text.length,
+                    left = 0,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT * 3
+                )
             )
-        )
     }
 
     @Test
@@ -177,16 +180,17 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$SP$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Document, dropSpaces = false)
         assertThat(segments.size).isEqualTo(1)
-        assertThat(segments[0]).isEqualTo(
-            Segment(
-                startOffset = 0,
-                endOffset = text.length,
-                left = 0,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT * 3
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment(
+                    startOffset = 0,
+                    endOffset = text.length,
+                    left = 0,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT * 3
+                )
             )
-        )
     }
 
     @Test
@@ -202,16 +206,17 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$SP$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Document, dropSpaces = false)
         assertThat(segments.size).isEqualTo(1)
-        assertThat(segments[0]).isEqualTo(
-            Segment(
-                startOffset = 0,
-                endOffset = text.length,
-                left = 0,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT * 3
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment(
+                    startOffset = 0,
+                    endOffset = text.length,
+                    left = 0,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT * 3
+                )
             )
-        )
     }
 
     @Test
@@ -227,26 +232,27 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Paragraph, dropSpaces = false)
         assertThat(segments.size).isEqualTo(2)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -262,26 +268,27 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Paragraph, dropSpaces = false)
         assertThat(segments.size).isEqualTo(2)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -297,26 +304,27 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Paragraph, dropSpaces = false)
         assertThat(segments.size).isEqualTo(2)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -332,26 +340,27 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Paragraph, dropSpaces = false)
         assertThat(segments.size).isEqualTo(2)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -367,34 +376,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Line, dropSpaces = false)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -410,34 +420,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Line, dropSpaces = false)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -453,34 +464,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Line, dropSpaces = false)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -496,34 +508,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Line, dropSpaces = false)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -539,34 +552,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Line, dropSpaces = true)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -582,34 +596,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Line, dropSpaces = true)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 30,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 30,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -625,34 +640,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Line, dropSpaces = true)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -668,34 +684,35 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Line, dropSpaces = true)
         assertThat(segments.size).isEqualTo(3)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 30,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 30,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -710,26 +727,27 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$R1$R2$SP$R3$R4$SP$L3$L4"
         val segments = getSegments(text, LTR, SegmentType.Line, dropSpaces = false)
         assertThat(segments.size).isEqualTo(2)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 6, // 2nd SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 6, // 2nd SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -745,50 +763,51 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Word, dropSpaces = false)
         assertThat(segments.size).isEqualTo(5)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 30,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 30,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 30,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 30,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 30,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 30,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 30,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 30,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -804,50 +823,51 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Word, dropSpaces = false)
         assertThat(segments.size).isEqualTo(5)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 30,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 30,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 30,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 30,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 30,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 30,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 30,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 30,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 30,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 30,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -863,59 +883,60 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Word, dropSpaces = false)
         assertThat(segments.size).isEqualTo(6)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 20,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 20,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 8,
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                // Bidi assigns LF character to LTR. Do we want to include preceding run?
-                Segment(
-                    startOffset = 8,
-                    endOffset = 9,
-                    left = 20,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 20,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 20,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 20,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 8,
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    // Bidi assigns LF character to LTR. Do we want to include preceding run?
+                    Segment(
+                        startOffset = 8,
+                        endOffset = 9,
+                        left = 20,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 20,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -931,50 +952,51 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Word, dropSpaces = false)
         assertThat(segments.size).isEqualTo(5)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 20,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 20,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 30,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 20,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 20,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 20,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 30,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 20,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -990,50 +1012,51 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Word, dropSpaces = true)
         assertThat(segments.size).isEqualTo(5)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 20,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 30,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 30,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 20,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 30,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 30,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -1049,50 +1072,51 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Word, dropSpaces = true)
         assertThat(segments.size).isEqualTo(5)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 20,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 30,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 30,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 30,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 20,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 30,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 30,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 30,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -1108,59 +1132,60 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Word, dropSpaces = true)
         assertThat(segments.size).isEqualTo(6)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 30,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 20,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 8,
-                    left = 0,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                // Bidi assigns LF character to LTR. Do we want to include preceding run?
-                Segment(
-                    startOffset = 8,
-                    endOffset = 9,
-                    left = 20,
-                    top = LINE_HEIGHT,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 30,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 30,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 20,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 8,
+                        left = 0,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    // Bidi assigns LF character to LTR. Do we want to include preceding run?
+                    Segment(
+                        startOffset = 8,
+                        endOffset = 9,
+                        left = 20,
+                        top = LINE_HEIGHT,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 30,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -1176,50 +1201,51 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Word, dropSpaces = true)
         assertThat(segments.size).isEqualTo(5)
-        assertThat(segments).isEqualTo(
-            listOf(
-                Segment(
-                    startOffset = 0,
-                    endOffset = 3, // 1st SP char offset
-                    left = 30,
-                    top = 0,
-                    right = 50,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 3,
-                    endOffset = 6, // 2st SP char offset
-                    left = 0,
-                    top = 0,
-                    right = 20,
-                    bottom = LINE_HEIGHT
-                ),
-                Segment(
-                    startOffset = 6,
-                    endOffset = 9, // LF char offset
-                    left = 30,
-                    top = LINE_HEIGHT,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 2
-                ),
-                Segment(
-                    startOffset = 9,
-                    endOffset = 12, // 3rd SP char offset
-                    left = 30,
-                    top = LINE_HEIGHT * 2,
-                    right = 50,
-                    bottom = LINE_HEIGHT * 3
-                ),
-                Segment(
-                    startOffset = 12,
-                    endOffset = text.length,
-                    left = 0,
-                    top = LINE_HEIGHT * 2,
-                    right = 20,
-                    bottom = LINE_HEIGHT * 3
+        assertThat(segments)
+            .isEqualTo(
+                listOf(
+                    Segment(
+                        startOffset = 0,
+                        endOffset = 3, // 1st SP char offset
+                        left = 30,
+                        top = 0,
+                        right = 50,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 3,
+                        endOffset = 6, // 2st SP char offset
+                        left = 0,
+                        top = 0,
+                        right = 20,
+                        bottom = LINE_HEIGHT
+                    ),
+                    Segment(
+                        startOffset = 6,
+                        endOffset = 9, // LF char offset
+                        left = 30,
+                        top = LINE_HEIGHT,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 2
+                    ),
+                    Segment(
+                        startOffset = 9,
+                        endOffset = 12, // 3rd SP char offset
+                        left = 30,
+                        top = LINE_HEIGHT * 2,
+                        right = 50,
+                        bottom = LINE_HEIGHT * 3
+                    ),
+                    Segment(
+                        startOffset = 12,
+                        endOffset = text.length,
+                        left = 0,
+                        top = LINE_HEIGHT * 2,
+                        right = 20,
+                        bottom = LINE_HEIGHT * 3
+                    )
                 )
             )
-        )
     }
 
     @Test
@@ -1235,36 +1261,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Character, dropSpaces = false)
         assertThat(segments.size).isEqualTo(14)
-        assertThat(segments[0]).isEqualTo(
-            Segment( // L1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 0,
-                top = 0,
-                right = 10,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // L1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 0,
+                    top = 0,
+                    right = 10,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP location
-                startOffset = 2,
-                endOffset = 3,
-                left = 20,
-                top = 0,
-                right = 30,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP location
+                    startOffset = 2,
+                    endOffset = 3,
+                    left = 20,
+                    top = 0,
+                    right = 30,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[5]).isEqualTo(
-            Segment( // 2nd SP location. not rendered.
-                startOffset = 5,
-                endOffset = 6,
-                left = 50,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT
+        assertThat(segments[5])
+            .isEqualTo(
+                Segment( // 2nd SP location. not rendered.
+                    startOffset = 5,
+                    endOffset = 6,
+                    left = 50,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
     }
 
     @Test
@@ -1280,36 +1309,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Character, dropSpaces = false)
         assertThat(segments.size).isEqualTo(14)
-        assertThat(segments[0]).isEqualTo(
-            Segment( // L1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 0,
-                top = 0,
-                right = 10,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // L1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 0,
+                    top = 0,
+                    right = 10,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP location
-                startOffset = 2,
-                endOffset = 3,
-                left = 20,
-                top = 0,
-                right = 30,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP location
+                    startOffset = 2,
+                    endOffset = 3,
+                    left = 20,
+                    top = 0,
+                    right = 30,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[5]).isEqualTo(
-            Segment( // 2nd SP location. not rendered.
-                startOffset = 5,
-                endOffset = 6,
-                left = 0,
-                top = 0,
-                right = 0,
-                bottom = LINE_HEIGHT
+        assertThat(segments[5])
+            .isEqualTo(
+                Segment( // 2nd SP location. not rendered.
+                    startOffset = 5,
+                    endOffset = 6,
+                    left = 0,
+                    top = 0,
+                    right = 0,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
     }
 
     @Test
@@ -1325,36 +1357,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Character, dropSpaces = false)
         assertThat(segments.size).isEqualTo(14)
-        assertThat(segments[0]).isEqualTo(
-            Segment( // R1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 40,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // R1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 40,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP location
-                startOffset = 2,
-                endOffset = 3,
-                left = 20,
-                top = 0,
-                right = 30,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP location
+                    startOffset = 2,
+                    endOffset = 3,
+                    left = 20,
+                    top = 0,
+                    right = 30,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[5]).isEqualTo(
-            Segment( // 2nd SP location. not rendered.
-                startOffset = 5,
-                endOffset = 6,
-                left = 50,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT
+        assertThat(segments[5])
+            .isEqualTo(
+                Segment( // 2nd SP location. not rendered.
+                    startOffset = 5,
+                    endOffset = 6,
+                    left = 50,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
     }
 
     @Test
@@ -1370,36 +1405,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Character, dropSpaces = false)
         assertThat(segments.size).isEqualTo(14)
-        assertThat(segments[0]).isEqualTo(
-            Segment( // R1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 40,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // R1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 40,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP location
-                startOffset = 2,
-                endOffset = 3,
-                left = 20,
-                top = 0,
-                right = 30,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP location
+                    startOffset = 2,
+                    endOffset = 3,
+                    left = 20,
+                    top = 0,
+                    right = 30,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[5]).isEqualTo(
-            Segment( // 2nd SP location. not rendered.
-                startOffset = 5,
-                endOffset = 6,
-                left = 0,
-                top = 0,
-                right = 0,
-                bottom = LINE_HEIGHT
+        assertThat(segments[5])
+            .isEqualTo(
+                Segment( // 2nd SP location. not rendered.
+                    startOffset = 5,
+                    endOffset = 6,
+                    left = 0,
+                    top = 0,
+                    right = 0,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
     }
 
     @Test
@@ -1415,36 +1453,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, LTR, SegmentType.Character, dropSpaces = true)
         assertThat(segments.size).isEqualTo(10) // three spaces and one line feeds are excluded
-        assertThat(segments[0]).isEqualTo(
-            Segment( // L1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 0,
-                top = 0,
-                right = 10,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // L1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 0,
+                    top = 0,
+                    right = 10,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP is skipped. L3 character
-                startOffset = 3,
-                endOffset = 4,
-                left = 30,
-                top = 0,
-                right = 40,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP is skipped. L3 character
+                    startOffset = 3,
+                    endOffset = 4,
+                    left = 30,
+                    top = 0,
+                    right = 40,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[4]).isEqualTo(
-            Segment( // 2nd SP is skipped. L5 character
-                startOffset = 6,
-                endOffset = 7,
-                left = 0,
-                top = LINE_HEIGHT,
-                right = 10,
-                bottom = LINE_HEIGHT * 2
+        assertThat(segments[4])
+            .isEqualTo(
+                Segment( // 2nd SP is skipped. L5 character
+                    startOffset = 6,
+                    endOffset = 7,
+                    left = 0,
+                    top = LINE_HEIGHT,
+                    right = 10,
+                    bottom = LINE_HEIGHT * 2
+                )
             )
-        )
     }
 
     @Test
@@ -1460,36 +1501,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$L1$L2$SP$L3$L4$SP$L5$L6$LF$L7$L8$SP$L9$LA"
         val segments = getSegments(text, RTL, SegmentType.Character, dropSpaces = true)
         assertThat(segments.size).isEqualTo(10) // three spaces and one line feeds are excluded
-        assertThat(segments[0]).isEqualTo(
-            Segment( // L1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 0,
-                top = 0,
-                right = 10,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // L1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 0,
+                    top = 0,
+                    right = 10,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP is skipped. L3 character
-                startOffset = 3,
-                endOffset = 4,
-                left = 30,
-                top = 0,
-                right = 40,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP is skipped. L3 character
+                    startOffset = 3,
+                    endOffset = 4,
+                    left = 30,
+                    top = 0,
+                    right = 40,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[4]).isEqualTo(
-            Segment( // 2nd SP is skipped. L5 character
-                startOffset = 6,
-                endOffset = 7,
-                left = 30,
-                top = LINE_HEIGHT,
-                right = 40,
-                bottom = LINE_HEIGHT * 2
+        assertThat(segments[4])
+            .isEqualTo(
+                Segment( // 2nd SP is skipped. L5 character
+                    startOffset = 6,
+                    endOffset = 7,
+                    left = 30,
+                    top = LINE_HEIGHT,
+                    right = 40,
+                    bottom = LINE_HEIGHT * 2
+                )
             )
-        )
     }
 
     @Test
@@ -1505,36 +1549,39 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, LTR, SegmentType.Character, dropSpaces = true)
         assertThat(segments.size).isEqualTo(10) // three spaces and one line feeds are excluded
-        assertThat(segments[0]).isEqualTo(
-            Segment( // R1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 40,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // R1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 40,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP is skipped. R3 character
-                startOffset = 3,
-                endOffset = 4,
-                left = 10,
-                top = 0,
-                right = 20,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP is skipped. R3 character
+                    startOffset = 3,
+                    endOffset = 4,
+                    left = 10,
+                    top = 0,
+                    right = 20,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[4]).isEqualTo(
-            Segment( // 2nd SP is skipped. R5 character
-                startOffset = 6,
-                endOffset = 7,
-                left = 10,
-                top = LINE_HEIGHT,
-                right = 20,
-                bottom = LINE_HEIGHT * 2
+        assertThat(segments[4])
+            .isEqualTo(
+                Segment( // 2nd SP is skipped. R5 character
+                    startOffset = 6,
+                    endOffset = 7,
+                    left = 10,
+                    top = LINE_HEIGHT,
+                    right = 20,
+                    bottom = LINE_HEIGHT * 2
+                )
             )
-        )
     }
 
     @Test
@@ -1550,35 +1597,38 @@ class SegmentBreakerBreakSegmentTest {
         val text = "$R1$R2$SP$R3$R4$SP$R5$R6$LF$R7$R8$SP$R9$RA"
         val segments = getSegments(text, RTL, SegmentType.Character, dropSpaces = true)
         assertThat(segments.size).isEqualTo(10) // three spaces and one line feeds are excluded
-        assertThat(segments[0]).isEqualTo(
-            Segment( // R1 character
-                startOffset = 0,
-                endOffset = 1,
-                left = 40,
-                top = 0,
-                right = 50,
-                bottom = LINE_HEIGHT
+        assertThat(segments[0])
+            .isEqualTo(
+                Segment( // R1 character
+                    startOffset = 0,
+                    endOffset = 1,
+                    left = 40,
+                    top = 0,
+                    right = 50,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[2]).isEqualTo(
-            Segment( // 1st SP is skipped. R3 character
-                startOffset = 3,
-                endOffset = 4,
-                left = 10,
-                top = 0,
-                right = 20,
-                bottom = LINE_HEIGHT
+        assertThat(segments[2])
+            .isEqualTo(
+                Segment( // 1st SP is skipped. R3 character
+                    startOffset = 3,
+                    endOffset = 4,
+                    left = 10,
+                    top = 0,
+                    right = 20,
+                    bottom = LINE_HEIGHT
+                )
             )
-        )
-        assertThat(segments[4]).isEqualTo(
-            Segment( // 2nd SP is skipped. R5 character
-                startOffset = 6,
-                endOffset = 7,
-                left = 40,
-                top = LINE_HEIGHT,
-                right = 50,
-                bottom = LINE_HEIGHT * 2
+        assertThat(segments[4])
+            .isEqualTo(
+                Segment( // 2nd SP is skipped. R5 character
+                    startOffset = 6,
+                    endOffset = 7,
+                    left = 40,
+                    top = LINE_HEIGHT,
+                    right = 50,
+                    bottom = LINE_HEIGHT * 2
+                )
             )
-        )
     }
 }

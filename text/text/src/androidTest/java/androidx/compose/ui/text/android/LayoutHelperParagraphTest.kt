@@ -36,15 +36,12 @@ class LayoutHelperParagraphTest {
 
     private fun buildLayoutHelper(text: String): LayoutHelper =
         if (Build.VERSION.SDK_INT < 23) {
-            @Suppress("DEPRECATION") StaticLayout(
-                text, TEXT_PAINT, WIDTH,
-                Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false
-            )
-        } else {
-            StaticLayout.Builder.obtain(text, 0, text.length, TEXT_PAINT, WIDTH).build()
-        }.let {
-            LayoutHelper(it)
-        }
+                @Suppress("DEPRECATION")
+                StaticLayout(text, TEXT_PAINT, WIDTH, Layout.Alignment.ALIGN_NORMAL, 1f, 0f, false)
+            } else {
+                StaticLayout.Builder.obtain(text, 0, text.length, TEXT_PAINT, WIDTH).build()
+            }
+            .let { LayoutHelper(it) }
 
     @Test
     fun testParagraphInfo() {

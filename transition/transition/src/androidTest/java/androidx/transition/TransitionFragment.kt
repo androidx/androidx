@@ -28,12 +28,9 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/**
- * A fragment that has transitions that can be tracked.
- */
-open class TransitionFragment(
-    @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
-) : StrictViewFragment(contentLayoutId) {
+/** A fragment that has transitions that can be tracked. */
+open class TransitionFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
+    StrictViewFragment(contentLayoutId) {
     val enterTransition = TrackingVisibility()
     val reenterTransition = TrackingVisibility()
     var exitTransition = TrackingVisibility()
@@ -43,18 +40,13 @@ open class TransitionFragment(
     var startTransitionCountDownLatch = CountDownLatch(1)
     var endTransitionCountDownLatch = CountDownLatch(1)
 
-    @Suppress("LeakingThis")
-    val listener = TestTransitionFragmentListener(this)
+    @Suppress("LeakingThis") val listener = TestTransitionFragmentListener(this)
 
     init {
-        @Suppress("LeakingThis")
-        setEnterTransition(enterTransition)
-        @Suppress("LeakingThis")
-        setReenterTransition(reenterTransition)
-        @Suppress("LeakingThis")
-        setExitTransition(exitTransition)
-        @Suppress("LeakingThis")
-        setReturnTransition(returnTransition)
+        @Suppress("LeakingThis") setEnterTransition(enterTransition)
+        @Suppress("LeakingThis") setReenterTransition(reenterTransition)
+        @Suppress("LeakingThis") setExitTransition(exitTransition)
+        @Suppress("LeakingThis") setReturnTransition(returnTransition)
         sharedElementEnterTransition = sharedElementEnter
         sharedElementReturnTransition = sharedElementReturn
         enterTransition.addListener(listener)
@@ -69,8 +61,7 @@ open class TransitionFragment(
         assertWithMessage("Timed out waiting for onTransitionEnd")
             .that(endTransitionCountDownLatch.await(1, TimeUnit.SECONDS))
             .isTrue()
-        assertThat(listener.lifecycleInTransitionEnd)
-            .isNotEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(listener.lifecycleInTransitionEnd).isNotEqualTo(Lifecycle.State.DESTROYED)
         endTransitionCountDownLatch = CountDownLatch(1)
     }
 
@@ -79,9 +70,8 @@ open class TransitionFragment(
     }
 }
 
-open class StrictViewFragment(
-    @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
-) : StrictFragment(contentLayoutId) {
+open class StrictViewFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
+    StrictFragment(contentLayoutId) {
 
     internal var onCreateViewCalled: Boolean = false
     internal var onViewCreatedCalled: Boolean = false
@@ -95,7 +85,8 @@ open class StrictViewFragment(
         checkGetActivity()
         checkState("onCreateView", State.CREATED)
         assertWithMessage("Fragment should not have a view when calling onCreateView")
-            .that(view).isNull()
+            .that(view)
+            .isNull()
         return super.onCreateView(inflater, container, savedInstanceState).also {
             onCreateViewCalled = true
         }
@@ -109,9 +100,7 @@ open class StrictViewFragment(
 
     override fun onDestroyView() {
         super.onDestroyView()
-        assertWithMessage("getView returned null in onDestroyView")
-            .that(view)
-            .isNotNull()
+        assertWithMessage("getView returned null in onDestroyView").that(view).isNotNull()
         checkGetActivity()
         checkState("onDestroyView", State.CREATED)
         onDestroyViewCalled = true
@@ -127,18 +116,18 @@ open class StrictViewFragment(
     }
 }
 
-open class TestTransitionFragmentListener(
-    val fragment: TransitionFragment
-) : Transition.TransitionListener {
+open class TestTransitionFragmentListener(val fragment: TransitionFragment) :
+    Transition.TransitionListener {
 
     lateinit var lifecycleInTransitionEnd: Lifecycle.State
 
     override fun onTransitionEnd(transition: Transition) {
-        lifecycleInTransitionEnd = if (fragment.view == null) {
-            Lifecycle.State.DESTROYED
-        } else {
-            fragment.viewLifecycleOwner.lifecycle.currentState
-        }
+        lifecycleInTransitionEnd =
+            if (fragment.view == null) {
+                Lifecycle.State.DESTROYED
+            } else {
+                fragment.viewLifecycleOwner.lifecycle.currentState
+            }
         fragment.endTransitionCountDownLatch.countDown()
         fragment.startTransitionCountDownLatch = CountDownLatch(1)
     }

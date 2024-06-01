@@ -42,100 +42,89 @@ class PaintBoundsTest {
 
     @Test
     fun emptyString() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
 
         val text = ""
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, text.length)
-        ).isEqualTo(
-            paint.getStringBounds(text, 0, text.length)
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, text.length))
+            .isEqualTo(paint.getStringBounds(text, 0, text.length))
     }
 
     @Test
     fun singleLineLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = "abc"
 
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, text.length)
-        ).isEqualTo(
-            paint.getStringBounds(text, 0, text.length)
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, text.length))
+            .isEqualTo(paint.getStringBounds(text, 0, text.length))
     }
 
     @Test
     fun singleLineRtl() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = "\u05D0\u05D0\u05D0"
 
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, text.length)
-        ).isEqualTo(
-            paint.getStringBounds(text, 0, text.length)
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, text.length))
+            .isEqualTo(paint.getStringBounds(text, 0, text.length))
     }
 
     @Test
     fun multiLineLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = "abc\ndef"
 
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, "abc".length)
-        ).isEqualTo(
-            paint.getStringBounds(text, 0, "abc".length)
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, "abc".length))
+            .isEqualTo(paint.getStringBounds(text, 0, "abc".length))
     }
 
     @Test
     fun multiLineRtl() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = "\u05D0\u05D0\u05D0\n\u05D0\u05D0\u05D0"
 
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, text.indexOf('\n'))
-        ).isEqualTo(
-            paint.getStringBounds(text, 0, text.indexOf('\n'))
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, text.indexOf('\n')))
+            .isEqualTo(paint.getStringBounds(text, 0, text.indexOf('\n')))
     }
 
     @Test
     fun spannedNoSpansLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannedString("abc")
 
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, text.length)
-        ).isEqualTo(
-            paint.getStringBounds(text.toString(), 0, text.length)
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, text.length))
+            .isEqualTo(paint.getStringBounds(text.toString(), 0, text.length))
     }
 
     @Test
     fun singleSpanLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannableString("abc")
         text.setSpan(RelativeSizeSpan(2f), 1, 2, 0)
 
@@ -147,10 +136,11 @@ class PaintBoundsTest {
 
     @Test
     fun singleSpanRtl() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannableString("\u05D0\u05D0\u05D0")
         text.setSpan(RelativeSizeSpan(2f), 1, 2, 0)
 
@@ -162,26 +152,25 @@ class PaintBoundsTest {
 
     @Test
     fun zeroLengthSpanLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannableString("abc")
         text.setSpan(RelativeSizeSpan(2f), 1, 1, 0)
 
-        assertThat(
-            paint.getCharSequenceBounds(text, 0, text.length)
-        ).isEqualTo(
-            paint.getStringBounds(text.toString(), 0, text.length)
-        )
+        assertThat(paint.getCharSequenceBounds(text, 0, text.length))
+            .isEqualTo(paint.getStringBounds(text.toString(), 0, text.length))
     }
 
     @Test
     fun spanCoveringTextLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannableString("abc")
         text.setSpan(RelativeSizeSpan(2f), 0, text.length, 0)
 
@@ -193,10 +182,11 @@ class PaintBoundsTest {
 
     @Test
     fun spanCoveringTextRtl() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannableString("\u05D0\u05D0\u05D0")
         text.setSpan(RelativeSizeSpan(2f), 0, text.length, 0)
 
@@ -208,10 +198,11 @@ class PaintBoundsTest {
 
     @Test
     fun multipleSpansIntersectingLtr() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
         val text = SpannableString("abaaba")
         text.setSpan(AbsoluteSizeSpan((fontSize * 2).toInt()), 1, 5, 0)
         text.setSpan(AbsoluteSizeSpan((fontSize * 3).toInt()), 2, 4, 0)
@@ -223,10 +214,11 @@ class PaintBoundsTest {
 
     @Test
     fun multipleSpansIntersectingRtl() {
-        val paint = TextPaint().apply {
-            textSize = fontSize
-            typeface = latinTypeface
-        }
+        val paint =
+            TextPaint().apply {
+                textSize = fontSize
+                typeface = latinTypeface
+            }
 
         val text = SpannableString("\u05D0\u05D0\u05D0\u05D0\u05D0\u05D0")
         text.setSpan(AbsoluteSizeSpan((fontSize * 2).toInt()), 1, 5, 0)

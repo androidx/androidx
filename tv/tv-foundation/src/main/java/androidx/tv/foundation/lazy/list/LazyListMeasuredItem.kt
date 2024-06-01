@@ -26,10 +26,12 @@ import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.lazy.grid.LazyLayoutAnimateItemModifierNode
 
 /**
- * Represents one measured item of the lazy list. It can in fact consist of multiple placeables
- * if the user emit multiple layout nodes in the item callback.
+ * Represents one measured item of the lazy list. It can in fact consist of multiple placeables if
+ * the user emit multiple layout nodes in the item callback.
  */
-internal class LazyListMeasuredItem @ExperimentalTvFoundationApi constructor(
+internal class LazyListMeasuredItem
+@ExperimentalTvFoundationApi
+constructor(
     override val index: Int,
     private val placeables: List<Placeable>,
     val isVertical: Boolean,
@@ -40,8 +42,8 @@ internal class LazyListMeasuredItem @ExperimentalTvFoundationApi constructor(
     private val beforeContentPadding: Int,
     private val afterContentPadding: Int,
     /**
-     * Extra spacing to be added to [size] aside from the sum of the [placeables] size. It
-     * is usually representing the spacing after the item.
+     * Extra spacing to be added to [size] aside from the sum of the [placeables] size. It is
+     * usually representing the spacing after the item.
      */
     private val spacing: Int,
     /**
@@ -55,19 +57,13 @@ internal class LazyListMeasuredItem @ExperimentalTvFoundationApi constructor(
     override var offset: Int = 0
         private set
 
-    /**
-     * Sum of the main axis sizes of all the inner placeables.
-     */
+    /** Sum of the main axis sizes of all the inner placeables. */
     override val size: Int
 
-    /**
-     * Sum of the main axis sizes of all the inner placeables and [spacing].
-     */
+    /** Sum of the main axis sizes of all the inner placeables and [spacing]. */
     val sizeWithSpacings: Int
 
-    /**
-     * Max of the cross axis sizes of all the inner placeables.
-     */
+    /** Max of the cross axis sizes of all the inner placeables. */
     val crossAxisSize: Int
 
     private var mainAxisLayoutSize: Int = Unset
@@ -91,19 +87,16 @@ internal class LazyListMeasuredItem @ExperimentalTvFoundationApi constructor(
         placeableOffsets = IntArray(placeables.size * 2)
     }
 
-    val placeablesCount: Int get() = placeables.size
+    val placeablesCount: Int
+        get() = placeables.size
 
     fun getParentData(index: Int) = placeables[index].parentData
 
     /**
-     * Calculates positions for the inner placeables at [offset] main axis position.
-     * If [reverseOrder] is true the inner placeables would be placed in the inverted order.
+     * Calculates positions for the inner placeables at [offset] main axis position. If
+     * [reverseOrder] is true the inner placeables would be placed in the inverted order.
      */
-    fun position(
-        offset: Int,
-        layoutWidth: Int,
-        layoutHeight: Int
-    ) {
+    fun position(offset: Int, layoutWidth: Int, layoutHeight: Int) {
         this.offset = offset
         mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
         var mainAxisOffset = offset
@@ -112,16 +105,18 @@ internal class LazyListMeasuredItem @ExperimentalTvFoundationApi constructor(
             if (isVertical) {
                 placeableOffsets[indexInArray] =
                     requireNotNull(horizontalAlignment) {
-                        "null horizontalAlignment when isVertical == true"
-                    }.align(placeable.width, layoutWidth, layoutDirection)
+                            "null horizontalAlignment when isVertical == true"
+                        }
+                        .align(placeable.width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
                 mainAxisOffset += placeable.height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
                 placeableOffsets[indexInArray + 1] =
                     requireNotNull(verticalAlignment) {
-                        "null verticalAlignment when isVertical == false"
-                    }.align(placeable.height, layoutHeight)
+                            "null verticalAlignment when isVertical == false"
+                        }
+                        .align(placeable.height, layoutHeight)
                 mainAxisOffset += placeable.width
             }
         }
@@ -132,57 +127,64 @@ internal class LazyListMeasuredItem @ExperimentalTvFoundationApi constructor(
     fun getOffset(index: Int) =
         IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
 
-    fun place(
-        scope: Placeable.PlacementScope,
-        isLookingAhead: Boolean
-    ) = with(scope) {
-        require(mainAxisLayoutSize != Unset) { "position() should be called first" }
-        repeat(placeablesCount) { index ->
-            val placeable = placeables[index]
-            val minOffset = minMainAxisOffset - placeable.mainAxisSize
-            val maxOffset = maxMainAxisOffset
-            var offset = getOffset(index)
-            val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
-            if (animateNode != null) {
-                if (isLookingAhead) {
-                    // Skip animation in lookahead pass
-                    animateNode.lookaheadOffset = offset
-                } else {
-                    val targetOffset =
-                        if (animateNode.lookaheadOffset !=
-                            LazyLayoutAnimateItemModifierNode.NotInitialized) {
-                            animateNode.lookaheadOffset
-                        } else {
-                            offset
+    fun place(scope: Placeable.PlacementScope, isLookingAhead: Boolean) =
+        with(scope) {
+            require(mainAxisLayoutSize != Unset) { "position() should be called first" }
+            repeat(placeablesCount) { index ->
+                val placeable = placeables[index]
+                val minOffset = minMainAxisOffset - placeable.mainAxisSize
+                val maxOffset = maxMainAxisOffset
+                var offset = getOffset(index)
+                val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
+                if (animateNode != null) {
+                    if (isLookingAhead) {
+                        // Skip animation in lookahead pass
+                        animateNode.lookaheadOffset = offset
+                    } else {
+                        val targetOffset =
+                            if (
+                                animateNode.lookaheadOffset !=
+                                    LazyLayoutAnimateItemModifierNode.NotInitialized
+                            ) {
+                                animateNode.lookaheadOffset
+                            } else {
+                                offset
+                            }
+                        val animatedOffset = targetOffset + animateNode.placementDelta
+                        // cancel the animation if current and target offsets are both out of the
+                        // bounds
+                        if (
+                            (targetOffset.mainAxis <= minOffset &&
+                                animatedOffset.mainAxis <= minOffset) ||
+                                (targetOffset.mainAxis >= maxOffset &&
+                                    animatedOffset.mainAxis >= maxOffset)
+                        ) {
+                            animateNode.cancelAnimation()
                         }
-                    val animatedOffset = targetOffset + animateNode.placementDelta
-                    // cancel the animation if current and target offsets are both out of the bounds
-                    if ((targetOffset.mainAxis <= minOffset &&
-                            animatedOffset.mainAxis <= minOffset) ||
-                        (targetOffset.mainAxis >= maxOffset &&
-                            animatedOffset.mainAxis >= maxOffset)
-                    ) {
-                        animateNode.cancelAnimation()
+                        offset = animatedOffset
                     }
-                    offset = animatedOffset
                 }
-            }
-            if (reverseLayout) {
-                offset = offset.copy { mainAxisOffset ->
-                    mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                if (reverseLayout) {
+                    offset =
+                        offset.copy { mainAxisOffset ->
+                            mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                        }
                 }
-            }
-            offset += visualOffset
-            if (isVertical) {
-                placeable.placeWithLayer(offset)
-            } else {
-                placeable.placeRelativeWithLayer(offset)
+                offset += visualOffset
+                if (isVertical) {
+                    placeable.placeWithLayer(offset)
+                } else {
+                    placeable.placeRelativeWithLayer(offset)
+                }
             }
         }
-    }
 
-    private val IntOffset.mainAxis get() = if (isVertical) y else x
-    private val Placeable.mainAxisSize get() = if (isVertical) height else width
+    private val IntOffset.mainAxis
+        get() = if (isVertical) y else x
+
+    private val Placeable.mainAxisSize
+        get() = if (isVertical) height else width
+
     private inline fun IntOffset.copy(mainAxisMap: (Int) -> Int): IntOffset =
         IntOffset(if (isVertical) x else mainAxisMap(x), if (isVertical) mainAxisMap(y) else y)
 }

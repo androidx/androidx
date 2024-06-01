@@ -39,11 +39,8 @@ class LayoutIntrinsicsTest {
 
     @Test
     fun boringMetrics_returns_nonnull_for_boring_text() {
-        val boringMetrics = LayoutIntrinsics(
-            "a",
-            TextPaint(),
-            LayoutCompat.TEXT_DIRECTION_LTR
-        ).boringMetrics
+        val boringMetrics =
+            LayoutIntrinsics("a", TextPaint(), LayoutCompat.TEXT_DIRECTION_LTR).boringMetrics
 
         assertThat(boringMetrics).isNotNull()
         assertThat(boringMetrics).isInstanceOf(BoringLayout.Metrics::class.java)
@@ -52,26 +49,23 @@ class LayoutIntrinsicsTest {
     @Test
     fun boringMetrics_returns_null_for_rtl_text() {
         assertThat(
-            LayoutIntrinsics(
-                "\u05D0",
-                TextPaint(),
-                LayoutCompat.TEXT_DIRECTION_RTL
-            ).boringMetrics
-        ).isNull()
+                LayoutIntrinsics("\u05D0", TextPaint(), LayoutCompat.TEXT_DIRECTION_RTL)
+                    .boringMetrics
+            )
+            .isNull()
     }
 
     @Test
     fun boringMetrics_returns_null_for_spannable_with_paragraph_style() {
-        val spannable = SpannableString("a").apply {
-            setSpan(BulletSpan(), 0, length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-        }
+        val spannable =
+            SpannableString("a").apply {
+                setSpan(BulletSpan(), 0, length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+            }
 
         assertThat(
-            LayoutIntrinsics(
-                spannable,
-                TextPaint(),
-                LayoutCompat.TEXT_DIRECTION_LTR
-            ).boringMetrics
-        ).isNull()
+                LayoutIntrinsics(spannable, TextPaint(), LayoutCompat.TEXT_DIRECTION_LTR)
+                    .boringMetrics
+            )
+            .isNull()
     }
 }

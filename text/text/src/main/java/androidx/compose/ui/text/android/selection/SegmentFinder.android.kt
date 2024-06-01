@@ -31,8 +31,8 @@ import java.text.BreakIterator
  * segments. Grapheme clusters and words are examples of possible text segments. These are
  * implemented by [GraphemeClusterSegmentFinder] and [WordSegmentFinder].
  *
- * Text segments may not overlap, so every character belongs to at most one text segment.
- * A character may belong to no text segments.
+ * Text segments may not overlap, so every character belongs to at most one text segment. A
+ * character may belong to no text segments.
  *
  * For example, WordSegmentFinder subdivides the text "Hello, World!" into four text segments:
  * "Hello", ",", "World", "!". The space character does not belong to any text segments.
@@ -73,16 +73,15 @@ internal interface SegmentFinder {
 }
 
 /**
- * Implementation of [SegmentFinder] using words as the text segment. Word boundaries are
- * found using `WordIterator`. Whitespace characters are excluded, so they are not included in
- * any text segments.
+ * Implementation of [SegmentFinder] using words as the text segment. Word boundaries are found
+ * using `WordIterator`. Whitespace characters are excluded, so they are not included in any text
+ * segments.
  *
+ * For example, the text "Hello, World!" would be subdivided into four text segments: "Hello", ",",
+ * "World", "!". The space character does not belong to any text segments.
  *
- * For example, the text "Hello, World!" would be subdivided into four text segments: "Hello",
- * ",", "World", "!". The space character does not belong to any text segments.
- *
- * @see [Unicode Text Segmentation - Word
- * Boundaries](https://unicode.org/reports/tr29/.Word_Boundaries)
+ * @see
+ *   [Unicode Text Segmentation - Word Boundaries](https://unicode.org/reports/tr29/.Word_Boundaries)
  */
 internal class WordSegmentFinder(
     private val text: CharSequence,
@@ -179,13 +178,11 @@ internal abstract class GraphemeClusterSegmentFinder : SegmentFinder {
     }
 }
 
-internal class GraphemeClusterSegmentFinderUnderApi29(
-    private val text: CharSequence
-) : GraphemeClusterSegmentFinder() {
+internal class GraphemeClusterSegmentFinderUnderApi29(private val text: CharSequence) :
+    GraphemeClusterSegmentFinder() {
 
-    private val breakIterator = BreakIterator.getCharacterInstance().also {
-        it.setText(text.toString())
-    }
+    private val breakIterator =
+        BreakIterator.getCharacterInstance().also { it.setText(text.toString()) }
 
     override fun previous(offset: Int): Int {
         return breakIterator.preceding(offset)

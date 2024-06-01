@@ -33,10 +33,11 @@ internal fun TextLayout.getRangeForRect(
     @LayoutCompat.TextGranularity granularity: Int,
     inclusionStrategy: (RectF, RectF) -> Boolean
 ): IntArray? {
-    val segmentFinder = when (granularity) {
-        LayoutCompat.TEXT_GRANULARITY_WORD -> WordSegmentFinder(text, wordIterator)
-        else -> createGraphemeClusterSegmentFinder(text, textPaint)
-    }
+    val segmentFinder =
+        when (granularity) {
+            LayoutCompat.TEXT_GRANULARITY_WORD -> WordSegmentFinder(text, wordIterator)
+            else -> createGraphemeClusterSegmentFinder(text, textPaint)
+        }
 
     var startLine = layout.getLineForVertical(rect.top.toInt())
     // Double check that the rect overlaps with the start line. Because getLineForVertical
@@ -55,21 +56,8 @@ internal fun TextLayout.getRangeForRect(
         return null
     }
 
-    var start = getStartOrEndOffsetForRectWithinLine(
-        layout,
-        layoutHelper,
-        startLine,
-        rect,
-        segmentFinder,
-        inclusionStrategy,
-        getStart = true
-    )
-
-    // If the area does not contain any text on this line, keep trying subsequent lines until
-    // the end line is reached.
-    while (start == -1 && startLine < endLine) {
-        ++startLine
-        start = getStartOrEndOffsetForRectWithinLine(
+    var start =
+        getStartOrEndOffsetForRectWithinLine(
             layout,
             layoutHelper,
             startLine,
@@ -78,23 +66,26 @@ internal fun TextLayout.getRangeForRect(
             inclusionStrategy,
             getStart = true
         )
+
+    // If the area does not contain any text on this line, keep trying subsequent lines until
+    // the end line is reached.
+    while (start == -1 && startLine < endLine) {
+        ++startLine
+        start =
+            getStartOrEndOffsetForRectWithinLine(
+                layout,
+                layoutHelper,
+                startLine,
+                rect,
+                segmentFinder,
+                inclusionStrategy,
+                getStart = true
+            )
     }
     if (start == -1) return null
 
-    var end = getStartOrEndOffsetForRectWithinLine(
-        layout,
-        layoutHelper,
-        endLine,
-        rect,
-        segmentFinder,
-        inclusionStrategy,
-        getStart = false
-    )
-    // If the area does not contain any text on this line, keep trying subsequent lines until
-    // the end line is reached.
-    while (end == -1 && startLine < endLine) {
-        --endLine
-        end = getStartOrEndOffsetForRectWithinLine(
+    var end =
+        getStartOrEndOffsetForRectWithinLine(
             layout,
             layoutHelper,
             endLine,
@@ -103,6 +94,20 @@ internal fun TextLayout.getRangeForRect(
             inclusionStrategy,
             getStart = false
         )
+    // If the area does not contain any text on this line, keep trying subsequent lines until
+    // the end line is reached.
+    while (end == -1 && startLine < endLine) {
+        --endLine
+        end =
+            getStartOrEndOffsetForRectWithinLine(
+                layout,
+                layoutHelper,
+                endLine,
+                rect,
+                segmentFinder,
+                inclusionStrategy,
+                getStart = false
+            )
     }
     if (end == -1) return null
 
@@ -139,52 +144,56 @@ private fun TextLayout.getStartOrEndOffsetForRectWithinLine(
     fillLineHorizontalBounds(lineIndex, horizontalBounds)
 
     val bidiRuns = layoutHelper.getLineBidiRuns(lineIndex)
-    val range = if (getStart) {
-        bidiRuns.indices
-    } else {
-        // search backwards when finding the end.
-        bidiRuns.lastIndex downTo 0
-    }
+    val range =
+        if (getStart) {
+            bidiRuns.indices
+        } else {
+            // search backwards when finding the end.
+            bidiRuns.lastIndex downTo 0
+        }
 
     for (runIndex in range) {
         val bidiRun = bidiRuns[runIndex]
-        val runLeft = if (bidiRun.isRtl) {
-            getCharacterLeftBounds(bidiRun.end - 1, lineStart, horizontalBounds)
-        } else {
-            getCharacterLeftBounds(bidiRun.start, lineStart, horizontalBounds)
-        }
+        val runLeft =
+            if (bidiRun.isRtl) {
+                getCharacterLeftBounds(bidiRun.end - 1, lineStart, horizontalBounds)
+            } else {
+                getCharacterLeftBounds(bidiRun.start, lineStart, horizontalBounds)
+            }
 
-        val runRight = if (bidiRun.isRtl) {
-            getCharacterRightBounds(bidiRun.start, lineStart, horizontalBounds)
-        } else {
-            getCharacterRightBounds(bidiRun.end - 1, lineStart, horizontalBounds)
-        }
+        val runRight =
+            if (bidiRun.isRtl) {
+                getCharacterRightBounds(bidiRun.start, lineStart, horizontalBounds)
+            } else {
+                getCharacterRightBounds(bidiRun.end - 1, lineStart, horizontalBounds)
+            }
 
-        val result = if (getStart) {
-            bidiRun.getStartOffsetForRectWithinRun(
-                rect,
-                lineStart,
-                lineTop,
-                lineBottom,
-                runLeft,
-                runRight,
-                horizontalBounds,
-                segmentFinder,
-                inclusionStrategy
-            )
-        } else {
-            bidiRun.getEndOffsetForRectWithinRun(
-                rect,
-                lineStart,
-                lineTop,
-                lineBottom,
-                runLeft,
-                runRight,
-                horizontalBounds,
-                segmentFinder,
-                inclusionStrategy
-            )
-        }
+        val result =
+            if (getStart) {
+                bidiRun.getStartOffsetForRectWithinRun(
+                    rect,
+                    lineStart,
+                    lineTop,
+                    lineBottom,
+                    runLeft,
+                    runRight,
+                    horizontalBounds,
+                    segmentFinder,
+                    inclusionStrategy
+                )
+            } else {
+                bidiRun.getEndOffsetForRectWithinRun(
+                    rect,
+                    lineStart,
+                    lineTop,
+                    lineBottom,
+                    runLeft,
+                    runRight,
+                    horizontalBounds,
+                    segmentFinder,
+                    inclusionStrategy
+                )
+            }
 
         if (result >= 0) return result
     }
@@ -239,17 +248,19 @@ private fun LayoutHelper.BidiRun.getStartOffsetForRectWithinRun(
 
     val textBounds = RectF(0f, lineTop.toFloat(), 0f, lineBottom.toFloat())
     while (true) {
-        textBounds.left = if (isRtl) {
-            getCharacterLeftBounds(segmentEnd - 1, lineStart, horizontalBounds)
-        } else {
-            getCharacterLeftBounds(segmentStart, lineStart, horizontalBounds)
-        }
+        textBounds.left =
+            if (isRtl) {
+                getCharacterLeftBounds(segmentEnd - 1, lineStart, horizontalBounds)
+            } else {
+                getCharacterLeftBounds(segmentStart, lineStart, horizontalBounds)
+            }
 
-        textBounds.right = if (isRtl) {
-            getCharacterRightBounds(segmentStart, lineStart, horizontalBounds)
-        } else {
-            getCharacterRightBounds(segmentEnd - 1, lineStart, horizontalBounds)
-        }
+        textBounds.right =
+            if (isRtl) {
+                getCharacterRightBounds(segmentStart, lineStart, horizontalBounds)
+            } else {
+                getCharacterRightBounds(segmentEnd - 1, lineStart, horizontalBounds)
+            }
 
         if (inclusionStrategy.invoke(textBounds, rect)) {
             return segmentStart
@@ -311,17 +322,19 @@ private fun LayoutHelper.BidiRun.getEndOffsetForRectWithinRun(
 
     val textBounds = RectF(0f, lineTop.toFloat(), 0f, lineBottom.toFloat())
     while (true) {
-        textBounds.left = if (isRtl) {
-            getCharacterLeftBounds(segmentEnd - 1, lineStart, horizontalBounds)
-        } else {
-            getCharacterLeftBounds(segmentStart, lineStart, horizontalBounds)
-        }
+        textBounds.left =
+            if (isRtl) {
+                getCharacterLeftBounds(segmentEnd - 1, lineStart, horizontalBounds)
+            } else {
+                getCharacterLeftBounds(segmentStart, lineStart, horizontalBounds)
+            }
 
-        textBounds.right = if (isRtl) {
-            getCharacterRightBounds(segmentStart, lineStart, horizontalBounds)
-        } else {
-            getCharacterRightBounds(segmentEnd - 1, lineStart, horizontalBounds)
-        }
+        textBounds.right =
+            if (isRtl) {
+                getCharacterRightBounds(segmentStart, lineStart, horizontalBounds)
+            } else {
+                getCharacterRightBounds(segmentEnd - 1, lineStart, horizontalBounds)
+            }
 
         if (inclusionStrategy.invoke(textBounds, rect)) return segmentEnd
 

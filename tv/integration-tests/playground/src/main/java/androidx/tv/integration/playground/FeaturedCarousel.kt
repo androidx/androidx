@@ -86,12 +86,12 @@ fun FeaturedCarouselContent() {
                     repeat(3) {
                         key(it) {
                             Box(
-                                modifier = Modifier
-                                    .background(Color.Magenta.copy(alpha = 0.3f))
-                                    .width(50.dp)
-                                    .height(50.dp)
-                                    .drawBorderOnFocus()
-                                    .focusable()
+                                modifier =
+                                    Modifier.background(Color.Magenta.copy(alpha = 0.3f))
+                                        .width(50.dp)
+                                        .height(50.dp)
+                                        .drawBorderOnFocus()
+                                        .focusable()
                             )
                         }
                     }
@@ -106,12 +106,12 @@ fun FeaturedCarouselContent() {
                     repeat(3) {
                         key(it) {
                             Box(
-                                modifier = Modifier
-                                    .background(Color.Magenta.copy(alpha = 0.3f))
-                                    .width(50.dp)
-                                    .height(50.dp)
-                                    .drawBorderOnFocus()
-                                    .focusable()
+                                modifier =
+                                    Modifier.background(Color.Magenta.copy(alpha = 0.3f))
+                                        .width(50.dp)
+                                        .height(50.dp)
+                                        .drawBorderOnFocus()
+                                        .focusable()
                             )
                         }
                     }
@@ -125,53 +125,50 @@ fun FeaturedCarouselContent() {
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
-    val backgrounds = listOf(
-        Color.Red.copy(alpha = 0.3f),
-        Color.Yellow.copy(alpha = 0.3f),
-        Color.Green.copy(alpha = 0.3f),
-        Color.Blue.copy(alpha = 0.3f),
-        Color.LightGray.copy(alpha = 0.3f),
-        Color.Magenta.copy(alpha = 0.3f),
-        Color.DarkGray.copy(alpha = 0.3f),
-        Color.LightGray.copy(alpha = 0.3f),
-    )
+    val backgrounds =
+        listOf(
+            Color.Red.copy(alpha = 0.3f),
+            Color.Yellow.copy(alpha = 0.3f),
+            Color.Green.copy(alpha = 0.3f),
+            Color.Blue.copy(alpha = 0.3f),
+            Color.LightGray.copy(alpha = 0.3f),
+            Color.Magenta.copy(alpha = 0.3f),
+            Color.DarkGray.copy(alpha = 0.3f),
+            Color.LightGray.copy(alpha = 0.3f),
+        )
 
     val carouselState = rememberCarouselState()
     var carouselFocused by remember { mutableStateOf(false) }
     Carousel(
         itemCount = backgrounds.size,
         carouselState = carouselState,
-        modifier = modifier
-            .height(300.dp)
-            .fillMaxWidth()
-            .onFocusChanged { carouselFocused = it.isFocused },
+        modifier =
+            modifier.height(300.dp).fillMaxWidth().onFocusChanged {
+                carouselFocused = it.isFocused
+            },
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
                 itemCount = backgrounds.size,
                 activeItemIndex = carouselState.activeItemIndex,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
             )
         },
-        contentTransformStartToEnd =
-        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
-        contentTransformEndToStart =
-        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
         Box(
-            modifier = Modifier
-                .background(backgrounds[itemIndex])
-                .fillMaxSize()
-                .carouselItemSemantics(itemIndex, contentDescription = "Featured Content")
+            modifier =
+                Modifier.background(backgrounds[itemIndex])
+                    .fillMaxSize()
+                    .carouselItemSemantics(itemIndex, contentDescription = "Featured Content")
         ) {
             Column(
-                modifier = Modifier
-                    .padding(start = 50.dp, top = 100.dp)
-                    .animateEnterExit(
-                        enter = slideInVertically(animationSpec = tween(1000)),
-                        exit = slideOutHorizontally(animationSpec = tween(1000))
-                    )
+                modifier =
+                    Modifier.padding(start = 50.dp, top = 100.dp)
+                        .animateEnterExit(
+                            enter = slideInVertically(animationSpec = tween(1000)),
+                            exit = slideOutHorizontally(animationSpec = tween(1000))
+                        )
             ) {
                 Text(text = "This is sample text content.", color = Color.Yellow)
                 Text(text = "Sample description of slide ${itemIndex + 1}.", color = Color.Yellow)
@@ -194,21 +191,15 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable
-internal fun Modifier.carouselItemSemantics(
-    itemIndex: Int,
-    contentDescription: String?
-): Modifier {
+internal fun Modifier.carouselItemSemantics(itemIndex: Int, contentDescription: String?): Modifier {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val accessibilityManager = remember {
         context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
     }
 
-    return this
-        .semantics(mergeDescendants = true) {
-            contentDescription?.let {
-                this.contentDescription = it
-            }
+    return this.semantics(mergeDescendants = true) {
+            contentDescription?.let { this.contentDescription = it }
             collectionItemInfo =
                 CollectionItemInfo(
                     rowIndex = 0,
@@ -219,9 +210,7 @@ internal fun Modifier.carouselItemSemantics(
         }
         .then(
             if (accessibilityManager.isEnabled) {
-                Modifier.clickable {
-                    focusManager.moveFocus(FocusDirection.Enter)
-                }
+                Modifier.clickable { focusManager.moveFocus(FocusDirection.Enter) }
             } else Modifier
         )
 }
@@ -231,18 +220,17 @@ private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Play") 
     var isFocused by remember { mutableStateOf(false) }
 
     Button(
-        onClick = { },
-        modifier = modifier
-            .onFocusChanged {
-                isFocused = it.isFocused
-            }
-            .padding(20.dp)
-            .border(
-                width = 2.dp,
-                color = if (isFocused) Color.Red else Color.Transparent,
-                shape = RoundedCornerShape(50)
-            )
-            .padding(vertical = 2.dp, horizontal = 5.dp)
+        onClick = {},
+        modifier =
+            modifier
+                .onFocusChanged { isFocused = it.isFocused }
+                .padding(20.dp)
+                .border(
+                    width = 2.dp,
+                    color = if (isFocused) Color.Red else Color.Transparent,
+                    shape = RoundedCornerShape(50)
+                )
+                .padding(vertical = 2.dp, horizontal = 5.dp)
     ) {
         Text(text = text)
     }
@@ -251,9 +239,7 @@ private fun OverlayButton(modifier: Modifier = Modifier, text: String = "Play") 
 @Composable
 fun Modifier.onFirstGainingVisibility(onGainingVisibility: () -> Unit): Modifier {
     var isVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(isVisible) {
-        if (isVisible) onGainingVisibility()
-    }
+    LaunchedEffect(isVisible) { if (isVisible) onGainingVisibility() }
 
     return onPlaced { isVisible = true }
 }
@@ -261,6 +247,5 @@ fun Modifier.onFirstGainingVisibility(onGainingVisibility: () -> Unit): Modifier
 @Composable
 fun Modifier.requestFocusOnFirstGainingVisibility(): Modifier {
     val focusRequester = remember { FocusRequester() }
-    return focusRequester(focusRequester)
-        .onFirstGainingVisibility { focusRequester.requestFocus() }
+    return focusRequester(focusRequester).onFirstGainingVisibility { focusRequester.requestFocus() }
 }

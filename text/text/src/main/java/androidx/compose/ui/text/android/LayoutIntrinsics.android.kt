@@ -26,9 +26,7 @@ import java.text.BreakIterator
 import java.util.PriorityQueue
 import kotlin.math.ceil
 
-/**
- * Computes and caches the text layout intrinsic values such as min/max width.
- */
+/** Computes and caches the text layout intrinsic values such as min/max width. */
 internal class LayoutIntrinsics(
     private val charSequence: CharSequence,
     private val textPaint: TextPaint,
@@ -61,46 +59,52 @@ internal class LayoutIntrinsics(
      * @see androidx.compose.ui.text.android.minIntrinsicWidth
      */
     val minIntrinsicWidth: Float
-        get() = if (!_minIntrinsicWidth.isNaN()) {
-            _minIntrinsicWidth
-        } else {
-            _minIntrinsicWidth = minIntrinsicWidth(charSequence, textPaint)
-            _minIntrinsicWidth
-        }
+        get() =
+            if (!_minIntrinsicWidth.isNaN()) {
+                _minIntrinsicWidth
+            } else {
+                _minIntrinsicWidth = minIntrinsicWidth(charSequence, textPaint)
+                _minIntrinsicWidth
+            }
 
     /**
      * Calculate maximum intrinsic width for the CharSequence. Maximum intrinsic width is the width
      * of text where no soft line breaks are applied.
      */
     val maxIntrinsicWidth: Float
-        get() = if (!_maxIntrinsicWidth.isNaN()) {
-            _maxIntrinsicWidth
-        } else {
-            var desiredWidth = (boringMetrics?.width ?: -1).toFloat()
+        get() =
+            if (!_maxIntrinsicWidth.isNaN()) {
+                _maxIntrinsicWidth
+            } else {
+                var desiredWidth = (boringMetrics?.width ?: -1).toFloat()
 
-            // boring metrics doesn't cover RTL text so we fallback to different calculation when boring
-            // metrics can't be calculated
-            if (desiredWidth < 0) {
-                // b/233856978, apply `ceil` function here to be consistent with the boring metrics
-                // width calculation that does it under the hood, too
-                desiredWidth = ceil(
-                    Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
-                )
+                // boring metrics doesn't cover RTL text so we fallback to different calculation
+                // when boring
+                // metrics can't be calculated
+                if (desiredWidth < 0) {
+                    // b/233856978, apply `ceil` function here to be consistent with the boring
+                    // metrics
+                    // width calculation that does it under the hood, too
+                    desiredWidth =
+                        ceil(
+                            Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
+                        )
+                }
+                if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
+                    // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
+                    // lines for the given maxIntrinsicWidth
+                    desiredWidth += 0.5f
+                }
+                _maxIntrinsicWidth = desiredWidth
+                _maxIntrinsicWidth
             }
-            if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
-                // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
-                // lines for the given maxIntrinsicWidth
-                desiredWidth += 0.5f
-            }
-            _maxIntrinsicWidth = desiredWidth
-            _maxIntrinsicWidth
-        }
 }
 
 /**
- * Returns the word with the longest length. To calculate it in a performant way, it applies a heuristics where
- *  - it first finds a set of words with the longest length
- *  - finds the word with maximum width in that set
+ * Returns the word with the longest length. To calculate it in a performant way, it applies a
+ * heuristics where
+ * - it first finds a set of words with the longest length
+ * - finds the word with maximum width in that set
  */
 internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     val iterator = BreakIterator.getLineInstance(paint.textLocale)
@@ -109,12 +113,13 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     // 10 is just a random number that limits the size of the candidate list
     val heapSize = 10
     // min heap that will hold [heapSize] many words with max length
-    val longestWordCandidates = PriorityQueue(
-        heapSize,
-        Comparator<Pair<Int, Int>> { left, right ->
-            (left.second - left.first) - (right.second - right.first)
-        }
-    )
+    val longestWordCandidates =
+        PriorityQueue(
+            heapSize,
+            Comparator<Pair<Int, Int>> { left, right ->
+                (left.second - left.first) - (right.second - right.first)
+            }
+        )
 
     var start = 0
     var end = iterator.next()
@@ -145,12 +150,10 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
 }
 
 /**
- * b/173574230
- * on Android 11 and above, creating a StaticLayout when
+ * b/173574230 on Android 11 and above, creating a StaticLayout when
  * - desiredWidth is an Integer,
  * - letterSpacing is set
- * - lineHeight is set
- * StaticLayout forms 2 lines for the given desiredWidth.
+ * - lineHeight is set StaticLayout forms 2 lines for the given desiredWidth.
  *
  * This function checks if those conditions are met.
  */
@@ -161,8 +164,8 @@ private fun shouldIncreaseMaxIntrinsic(
     textPaint: TextPaint
 ): Boolean {
     return desiredWidth != 0f &&
-        (charSequence is Spanned && (
-            charSequence.hasSpan(LetterSpacingSpanPx::class.java) ||
-            charSequence.hasSpan(LetterSpacingSpanEm::class.java)
-        ) || textPaint.letterSpacing != 0f)
+        (charSequence is Spanned &&
+            (charSequence.hasSpan(LetterSpacingSpanPx::class.java) ||
+                charSequence.hasSpan(LetterSpacingSpanEm::class.java)) ||
+            textPaint.letterSpacing != 0f)
 }
