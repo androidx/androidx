@@ -29,9 +29,10 @@ import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
 import java.util.Locale
 
-class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedFunctionSpec(
-    "entityCursorConverter_${entity.typeName.toString(CodeLanguage.JAVA).stripNonJava()}"
-) {
+class EntityCursorConverterWriter(val entity: Entity) :
+    TypeWriter.SharedFunctionSpec(
+        "entityCursorConverter_${entity.typeName.toString(CodeLanguage.JAVA).stripNonJava()}"
+    ) {
     override fun getUniqueKey(): String {
         return "generic_entity_converter_of_${entity.element.qualifiedName}"
     }
@@ -49,31 +50,27 @@ class EntityCursorConverterWriter(val entity: Entity) : TypeWriter.SharedFunctio
         val scope = CodeGenScope(writer)
         val entityVar = scope.getTmpVar("_entity")
         scope.builder.apply {
-            addLocalVariable(
-                entityVar,
-                entity.typeName
-            )
-            val fieldsWithIndices = entity.fields.map {
-                val indexVar = scope.getTmpVar(
-                    "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
-                )
-                addLocalVariable(
-                    name = indexVar,
-                    typeName = XTypeName.PRIMITIVE_INT,
-                    assignExpr = XCodeBlock.of(
-                        language,
-                        "%M(%N, %S)",
-                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
-                        cursorParamName,
-                        it.columnName
+            addLocalVariable(entityVar, entity.typeName)
+            val fieldsWithIndices =
+                entity.fields.map {
+                    val indexVar =
+                        scope.getTmpVar(
+                            "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
+                        )
+                    addLocalVariable(
+                        name = indexVar,
+                        typeName = XTypeName.PRIMITIVE_INT,
+                        assignExpr =
+                            XCodeBlock.of(
+                                language,
+                                "%M(%N, %S)",
+                                RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
+                                cursorParamName,
+                                it.columnName
+                            )
                     )
-                )
-                FieldWithIndex(
-                    field = it,
-                    indexVar = indexVar,
-                    alwaysExists = false
-                )
-            }
+                    FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = false)
+                }
             FieldReadWriteWriter.readFromCursor(
                 outVar = entityVar,
                 outPojo = entity,

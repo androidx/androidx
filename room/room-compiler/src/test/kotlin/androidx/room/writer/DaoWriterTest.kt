@@ -116,61 +116,79 @@ class DaoWriterTest {
         vararg inputs: Source,
         javaLambdaSyntaxAvailable: Boolean = false,
         outputFileName: String,
-        handler: (XTestInvocation) -> Unit = { }
+        handler: (XTestInvocation) -> Unit = {}
     ) {
-        val sources = listOf(
-            COMMON.USER, COMMON.MULTI_PKEY_ENTITY, COMMON.BOOK,
-            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.RX2_SINGLE,
-            COMMON.RX2_MAYBE, COMMON.RX2_COMPLETABLE, COMMON.USER_SUMMARY,
-            COMMON.RX2_ROOM, COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2,
-            COMMON.INFO, COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM,
-            COMMON.RX2_FLOWABLE, COMMON.RX3_FLOWABLE, COMMON.RX2_OBSERVABLE,
-            COMMON.RX3_OBSERVABLE, COMMON.PUBLISHER
-        ) + inputs
-        runProcessorTest(
-            sources = sources
-        ) { invocation ->
+        val sources =
+            listOf(
+                COMMON.USER,
+                COMMON.MULTI_PKEY_ENTITY,
+                COMMON.BOOK,
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
+                COMMON.RX2_SINGLE,
+                COMMON.RX2_MAYBE,
+                COMMON.RX2_COMPLETABLE,
+                COMMON.USER_SUMMARY,
+                COMMON.RX2_ROOM,
+                COMMON.PARENT,
+                COMMON.CHILD1,
+                COMMON.CHILD2,
+                COMMON.INFO,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.GUAVA_ROOM,
+                COMMON.RX2_FLOWABLE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX2_OBSERVABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.PUBLISHER
+            ) + inputs
+        runProcessorTest(sources = sources) { invocation ->
             if (invocation.isKsp && !javaLambdaSyntaxAvailable) {
                 // Skip KSP backend without lambda syntax, it is a nonsensical combination.
                 return@runProcessorTest
             }
-            val dao = invocation.roundEnv
-                .getElementsAnnotatedWith(
-                    androidx.room.Dao::class.qualifiedName!!
-                ).filterIsInstance<XTypeElement>().firstOrNull()
+            val dao =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(androidx.room.Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .firstOrNull()
             if (dao != null) {
-                val db = invocation.roundEnv
-                    .getElementsAnnotatedWith(
-                        androidx.room.Database::class.qualifiedName!!
-                    ).filterIsInstance<XTypeElement>().firstOrNull()
-                    ?: invocation.context.processingEnv
-                        .requireTypeElement(ROOM_DB)
+                val db =
+                    invocation.roundEnv
+                        .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
+                        .filterIsInstance<XTypeElement>()
+                        .firstOrNull()
+                        ?: invocation.context.processingEnv.requireTypeElement(ROOM_DB)
                 val dbType = db.type
                 val dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                 invocation.context.attachDatabaseVerifier(dbVerifier)
-                val parser = DaoProcessor(
-                    baseContext = invocation.context,
-                    element = dao,
-                    dbType = dbType,
-                    dbVerifier = dbVerifier
-                )
+                val parser =
+                    DaoProcessor(
+                        baseContext = invocation.context,
+                        element = dao,
+                        dbType = dbType,
+                        dbVerifier = dbVerifier
+                    )
                 val parsedDao = parser.process()
                 DaoWriter(
-                    dao = parsedDao,
-                    dbElement = db,
-                    writerContext = TypeWriter.WriterContext(
-                        codeLanguage = CodeLanguage.JAVA,
-                        javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-                        targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                        dao = parsedDao,
+                        dbElement = db,
+                        writerContext =
+                            TypeWriter.WriterContext(
+                                codeLanguage = CodeLanguage.JAVA,
+                                javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+                                targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                            )
                     )
-                ).write(invocation.processingEnv)
+                    .write(invocation.processingEnv)
                 val outputSubFolder = outputFolder(invocation, javaLambdaSyntaxAvailable)
                 invocation.assertCompilationResult {
                     val expectedFilePath = "daoWriter/output/$outputSubFolder/$outputFileName"
-                    val expectedSrc = loadTestSource(
-                        fileName = expectedFilePath,
-                        qName = parsedDao.implTypeName.canonicalName
-                    )
+                    val expectedSrc =
+                        loadTestSource(
+                            fileName = expectedFilePath,
+                            qName = parsedDao.implTypeName.canonicalName
+                        )
                     // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
                     // handy for big sweeping code gen changes. ;)
                     if (System.getenv("ROOM_TEST_WRITE_SRCS") != null) {

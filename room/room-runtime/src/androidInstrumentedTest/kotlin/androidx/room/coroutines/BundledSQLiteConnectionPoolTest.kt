@@ -65,12 +65,13 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
     @Test
     fun reusingConnectionOnBlocking() = runTest {
         val driver = setupDriver()
-        val pool = newConnectionPool(
-            driver = driver,
-            fileName = fileName,
-            maxNumOfReaders = 1,
-            maxNumOfWriters = 1
-        )
+        val pool =
+            newConnectionPool(
+                driver = driver,
+                fileName = fileName,
+                maxNumOfReaders = 1,
+                maxNumOfWriters = 1
+            )
         var count = 0
         withContext(NewThreadDispatcher()) {
             pool.useConnection(isReadOnly = true) { initialConnection ->
@@ -91,17 +92,14 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
     @Test
     fun newThreadDispatcherDoesNotAffectThreadConfinement() = runTest {
         val driver = setupDriver()
-        val pool = newConnectionPool(
-            driver = driver,
-            fileName = fileName,
-            maxNumOfReaders = 1,
-            maxNumOfWriters = 1
-        )
-        val job = launch(Dispatchers.IO) {
-            pool.useReaderConnection {
-                delay(500)
-            }
-        }
+        val pool =
+            newConnectionPool(
+                driver = driver,
+                fileName = fileName,
+                maxNumOfReaders = 1,
+                maxNumOfWriters = 1
+            )
+        val job = launch(Dispatchers.IO) { pool.useReaderConnection { delay(500) } }
         withContext(NewThreadDispatcher()) {
             pool.useReaderConnection { connection ->
                 connection.usePrepared("SELECT COUNT(*) FROM Pet") {
@@ -130,9 +128,7 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
         pool.close()
     }
 
-    /**
-     * A CoroutineDispatcher that dispatches every block into a new thread
-     */
+    /** A CoroutineDispatcher that dispatches every block into a new thread */
     private class NewThreadDispatcher : CoroutineDispatcher() {
         private val idCounter = atomic(0)
 
@@ -144,9 +140,7 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
         override fun isDispatchNeeded(context: CoroutineContext) = true
 
         override fun dispatch(context: CoroutineContext, block: Runnable) {
-            thread(name = "NewThreadDispatcher-${idCounter.incrementAndGet()}") {
-                block.run()
-            }
+            thread(name = "NewThreadDispatcher-${idCounter.incrementAndGet()}") { block.run() }
         }
     }
 

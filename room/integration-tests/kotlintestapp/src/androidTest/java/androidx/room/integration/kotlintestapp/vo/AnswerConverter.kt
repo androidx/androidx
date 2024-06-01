@@ -25,9 +25,7 @@ class AnswerConverter {
         NO
     }
 
-    @TypeConverter
-    fun toAnswer(value: String?) = value?.let { Answer.valueOf(it) }
+    @TypeConverter fun toAnswer(value: String?) = value?.let { Answer.valueOf(it) }
 
-    @TypeConverter
-    fun fromAnswer(value: Answer?) = value?.name
+    @TypeConverter fun fromAnswer(value: Answer?) = value?.name
 }

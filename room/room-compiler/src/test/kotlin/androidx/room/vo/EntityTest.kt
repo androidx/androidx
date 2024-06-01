@@ -32,21 +32,22 @@ class EntityTest {
 
     @Test
     fun shouldBeDeletedAfter() {
-        val child = createEntity(
-            "Child",
-            listOf(
-                createForeignKey("NoAction", ForeignKeyAction.NO_ACTION, false),
-                createForeignKey("NoActionDeferred", ForeignKeyAction.NO_ACTION, true),
-                createForeignKey("Restrict", ForeignKeyAction.RESTRICT, false),
-                createForeignKey("RestrictDeferred", ForeignKeyAction.RESTRICT, true),
-                createForeignKey("SetNull", ForeignKeyAction.SET_NULL, false),
-                createForeignKey("SetNullDeferred", ForeignKeyAction.SET_NULL, true),
-                createForeignKey("SetDefault", ForeignKeyAction.SET_DEFAULT, false),
-                createForeignKey("SetDefaultDeferred", ForeignKeyAction.SET_DEFAULT, true),
-                createForeignKey("Cascade", ForeignKeyAction.CASCADE, false),
-                createForeignKey("CascadeDeferred", ForeignKeyAction.CASCADE, true)
+        val child =
+            createEntity(
+                "Child",
+                listOf(
+                    createForeignKey("NoAction", ForeignKeyAction.NO_ACTION, false),
+                    createForeignKey("NoActionDeferred", ForeignKeyAction.NO_ACTION, true),
+                    createForeignKey("Restrict", ForeignKeyAction.RESTRICT, false),
+                    createForeignKey("RestrictDeferred", ForeignKeyAction.RESTRICT, true),
+                    createForeignKey("SetNull", ForeignKeyAction.SET_NULL, false),
+                    createForeignKey("SetNullDeferred", ForeignKeyAction.SET_NULL, true),
+                    createForeignKey("SetDefault", ForeignKeyAction.SET_DEFAULT, false),
+                    createForeignKey("SetDefaultDeferred", ForeignKeyAction.SET_DEFAULT, true),
+                    createForeignKey("Cascade", ForeignKeyAction.CASCADE, false),
+                    createForeignKey("CascadeDeferred", ForeignKeyAction.CASCADE, true)
+                )
             )
-        )
         val noAction = createEntity("NoAction")
         val noActionDeferred = createEntity("NoActionDeferred")
         val restrict = createEntity("Restrict")

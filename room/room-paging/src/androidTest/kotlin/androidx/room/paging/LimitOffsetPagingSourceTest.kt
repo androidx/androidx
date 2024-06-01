@@ -55,19 +55,19 @@ private const val tableName: String = "TestItem"
 @SmallTest
 class LimitOffsetPagingSourceTest {
 
-    @JvmField
-    @Rule
-    val countingTaskExecutorRule = CountingTaskExecutorRule()
+    @JvmField @Rule val countingTaskExecutorRule = CountingTaskExecutorRule()
 
     private lateinit var database: LimitOffsetTestDb
     private lateinit var dao: TestItemDao
 
     @Before
     fun init() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            LimitOffsetTestDb::class.java,
-        ).build()
+        database =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    LimitOffsetTestDb::class.java,
+                )
+                .build()
         dao = database.getDao()
     }
 
@@ -84,12 +84,14 @@ class LimitOffsetPagingSourceTest {
     fun load_usesQueryExecutor() = runTest {
         val queryExecutor = TestExecutor()
         val transactionExecutor = TestExecutor()
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            LimitOffsetTestDb::class.java,
-        ).setQueryExecutor(queryExecutor)
-            .setTransactionExecutor(transactionExecutor)
-            .build()
+        database =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    LimitOffsetTestDb::class.java,
+                )
+                .setQueryExecutor(queryExecutor)
+                .setTransactionExecutor(transactionExecutor)
+                .build()
 
         // Ensure there are no init tasks enqueued on queryExecutor before we call .load().
         assertThat(queryExecutor.executeAll()).isFalse()
@@ -97,13 +99,14 @@ class LimitOffsetPagingSourceTest {
 
         val job = Job()
         launch(job) {
-            LimitOffsetPagingSourceImpl(database).load(
-                PagingSource.LoadParams.Refresh(
-                    key = null,
-                    loadSize = 1,
-                    placeholdersEnabled = true
+            LimitOffsetPagingSourceImpl(database)
+                .load(
+                    PagingSource.LoadParams.Refresh(
+                        key = null,
+                        loadSize = 1,
+                        placeholdersEnabled = true
+                    )
                 )
-            )
         }
 
         // Let the launched job start and proceed as far as possible.
@@ -126,18 +129,19 @@ class LimitOffsetPagingSourceTest {
     }
 
     @Test
-    fun test_itemCountWithSuppliedLimitOffset() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 60 OFFSET 30",
-        )
-    ) { pager, pagingSource ->
-        dao.addAllItems(ITEMS_LIST)
-        // count query is executed on first load
-        pager.refresh()
-        // should be 60 instead of 100
-        assertThat(pagingSource.itemCount.get()).isEqualTo(60)
-    }
+    fun test_itemCountWithSuppliedLimitOffset() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 60 OFFSET 30",
+            )
+        ) { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            // count query is executed on first load
+            pager.refresh()
+            // should be 60 instead of 100
+            assertThat(pagingSource.itemCount.get()).isEqualTo(60)
+        }
 
     @Test
     fun dbInsert_pagingSourceInvalidates() = runPagingSourceTest { pager, pagingSource ->
@@ -165,28 +169,25 @@ class LimitOffsetPagingSourceTest {
     }
 
     @Test
-    fun invalidDbQuery_pagingSourceDoesNotInvalidate() = runPagingSourceTest {
-            pager, pagingSource ->
+    fun invalidDbQuery_pagingSourceDoesNotInvalidate() =
+        runPagingSourceTest { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            // load once to register db observers
+            pager.refresh()
+            assertThat(pagingSource.invalid).isFalse()
 
-        dao.addAllItems(ITEMS_LIST)
-        // load once to register db observers
-        pager.refresh()
-        assertThat(pagingSource.invalid).isFalse()
+            val result = dao.deleteTestItem(TestItem(1000))
 
-        val result = dao.deleteTestItem(TestItem(1000))
-
-        // invalid delete. Should have 0 items deleted and paging source remains valid
-        assertThat(result).isEqualTo(0)
-        assertFalse(pagingSource.invalid)
-    }
+            // invalid delete. Should have 0 items deleted and paging source remains valid
+            assertThat(result).isEqualTo(0)
+            assertFalse(pagingSource.invalid)
+        }
 
     @Test
     fun load_initialLoad() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
         val result = pager.refresh() as LoadResult.Page
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(0, 15)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
     }
 
     @Test
@@ -205,145 +206,137 @@ class LimitOffsetPagingSourceTest {
     fun load_initialLoadWithInitialKey() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
         val result = pager.refresh(initialKey = 20) as LoadResult.Page
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(20, 35)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 35))
     }
 
     @Test
-    fun load_initialLoadWithSuppliedLimitOffset() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 10 OFFSET 30",
-        )
-    ) { pager, _ ->
-        dao.addAllItems(ITEMS_LIST)
-        val result = pager.refresh() as LoadResult.Page
-        // default initial loadSize = 15 starting from index 0.
-        // user supplied limit offset should cause initial loadSize = 10, starting from index 30
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(30, 40)
-        )
-        // check that no append/prepend can be triggered after this terminal load
-        assertThat(result.nextKey).isNull()
-        assertThat(result.prevKey).isNull()
-        assertThat(result.itemsBefore).isEqualTo(0)
-        assertThat(result.itemsAfter).isEqualTo(0)
-    }
+    fun load_initialLoadWithSuppliedLimitOffset() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 10 OFFSET 30",
+            )
+        ) { pager, _ ->
+            dao.addAllItems(ITEMS_LIST)
+            val result = pager.refresh() as LoadResult.Page
+            // default initial loadSize = 15 starting from index 0.
+            // user supplied limit offset should cause initial loadSize = 10, starting from index 30
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 40))
+            // check that no append/prepend can be triggered after this terminal load
+            assertThat(result.nextKey).isNull()
+            assertThat(result.prevKey).isNull()
+            assertThat(result.itemsBefore).isEqualTo(0)
+            assertThat(result.itemsAfter).isEqualTo(0)
+        }
 
     @Test
-    fun load_oneAdditionalQueryArguments() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * FROM $tableName WHERE id < 50 ORDER BY id ASC",
-        )
-    ) { pager, pagingSource ->
+    fun load_oneAdditionalQueryArguments() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString = "SELECT * FROM $tableName WHERE id < 50 ORDER BY id ASC",
+            )
+        ) { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            val result = pager.refresh(initialKey = 40) as LoadResult.Page
 
-        dao.addAllItems(ITEMS_LIST)
-        val result = pager.refresh(initialKey = 40) as LoadResult.Page
-
-        // initial loadSize = 15, but limited by id < 50, should only load items 40 - 50
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(40, 50)
-        )
-        // should have 50 items fulfilling condition of id < 50 (TestItem id 0 - 49)
-        assertThat(pagingSource.itemCount.get()).isEqualTo(50)
-    }
+            // initial loadSize = 15, but limited by id < 50, should only load items 40 - 50
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(40, 50))
+            // should have 50 items fulfilling condition of id < 50 (TestItem id 0 - 49)
+            assertThat(pagingSource.itemCount.get()).isEqualTo(50)
+        }
 
     @Test
-    fun load_multipleQueryArguments() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * " +
-                "FROM $tableName " +
-                "WHERE id > 50 AND value LIKE 'item 90'" +
-                "ORDER BY id ASC",
-        )
-    ) { pager, pagingSource ->
-        dao.addAllItems(ITEMS_LIST)
-        val result = pager.refresh() as LoadResult.Page
+    fun load_multipleQueryArguments() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString =
+                    "SELECT * " +
+                        "FROM $tableName " +
+                        "WHERE id > 50 AND value LIKE 'item 90'" +
+                        "ORDER BY id ASC",
+            )
+        ) { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            val result = pager.refresh() as LoadResult.Page
 
-        assertThat(result.data).containsExactly(ITEMS_LIST[90])
-        assertThat(pagingSource.itemCount.get()).isEqualTo(1)
-    }
-
-    @Test
-    fun load_InvalidUserSuppliedOffset_returnEmpty() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 10 OFFSET 500",
-        )
-    ) { pager, pagingSource ->
-        dao.addAllItems(ITEMS_LIST)
-
-        val result = pager.refresh() as LoadResult.Page
-
-        // invalid OFFSET = 500 should return empty data
-        assertThat(result.data).isEmpty()
-
-        // check that no append/prepend can be triggered
-        assertThat(pagingSource.itemCount.get()).isEqualTo(0)
-        assertThat(result.nextKey).isNull()
-        assertThat(result.prevKey).isNull()
-        assertThat(result.itemsBefore).isEqualTo(0)
-        assertThat(result.itemsAfter).isEqualTo(0)
-    }
+            assertThat(result.data).containsExactly(ITEMS_LIST[90])
+            assertThat(pagingSource.itemCount.get()).isEqualTo(1)
+        }
 
     @Test
-    fun load_UserSuppliedNegativeLimit() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT -1",
-        )
-    ) { pager, pagingSource ->
-        dao.addAllItems(ITEMS_LIST)
-        val result = pager.refresh() as LoadResult.Page
+    fun load_InvalidUserSuppliedOffset_returnEmpty() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT 10 OFFSET 500",
+            )
+        ) { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
 
-        // ensure that it respects SQLite's default behavior for negative LIMIT
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(0, 15)
-        )
-        // should behave as if no LIMIT were set
-        assertThat(pagingSource.itemCount.get()).isEqualTo(100)
-        assertThat(result.nextKey).isEqualTo(15)
-        assertThat(result.prevKey).isNull()
-        assertThat(result.itemsBefore).isEqualTo(0)
-        assertThat(result.itemsAfter).isEqualTo(85)
-    }
+            val result = pager.refresh() as LoadResult.Page
+
+            // invalid OFFSET = 500 should return empty data
+            assertThat(result.data).isEmpty()
+
+            // check that no append/prepend can be triggered
+            assertThat(pagingSource.itemCount.get()).isEqualTo(0)
+            assertThat(result.nextKey).isNull()
+            assertThat(result.prevKey).isNull()
+            assertThat(result.itemsBefore).isEqualTo(0)
+            assertThat(result.itemsAfter).isEqualTo(0)
+        }
 
     @Test
-    fun load_invalidQuery() = runPagingSourceTest(
-        LimitOffsetPagingSourceImpl(
-            db = database,
-            queryString = "SELECT * FROM $tableName ORDER BY",
-        )
-    ) { pager, _ ->
-        dao.addAllItems(ITEMS_LIST)
-        val result = pager.refresh()
+    fun load_UserSuppliedNegativeLimit() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString = "SELECT * FROM $tableName ORDER BY id ASC LIMIT -1",
+            )
+        ) { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            val result = pager.refresh() as LoadResult.Page
 
-        assertThat(result).isInstanceOf<LoadResult.Error<Int, Int>>()
-        val throwable = (result as LoadResult.Error).throwable
-        assertThat(throwable).isNotNull()
-    }
+            // ensure that it respects SQLite's default behavior for negative LIMIT
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
+            // should behave as if no LIMIT were set
+            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+            assertThat(result.nextKey).isEqualTo(15)
+            assertThat(result.prevKey).isNull()
+            assertThat(result.itemsBefore).isEqualTo(0)
+            assertThat(result.itemsAfter).isEqualTo(85)
+        }
+
+    @Test
+    fun load_invalidQuery() =
+        runPagingSourceTest(
+            LimitOffsetPagingSourceImpl(
+                db = database,
+                queryString = "SELECT * FROM $tableName ORDER BY",
+            )
+        ) { pager, _ ->
+            dao.addAllItems(ITEMS_LIST)
+            val result = pager.refresh()
+
+            assertThat(result).isInstanceOf<LoadResult.Error<Int, Int>>()
+            val throwable = (result as LoadResult.Error).throwable
+            assertThat(throwable).isNotNull()
+        }
 
     @Test
     fun invalidInitialKey_dbEmpty_returnsEmpty() = runPagingSourceTest { pager, _ ->
-        assertThat(
-            (pager.refresh(initialKey = 101) as LoadResult.Page).data
-        ).isEmpty()
+        assertThat((pager.refresh(initialKey = 101) as LoadResult.Page).data).isEmpty()
     }
 
     @Test
-    fun invalidInitialKey_keyTooLarge_returnsLastPage() = runPagingSourceTest {
-            pager, _ ->
-
+    fun invalidInitialKey_keyTooLarge_returnsLastPage() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
         val result = pager.refresh(initialKey = 101) as LoadResult.Page
 
         // should load the last page
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(85, 100)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(85, 100))
     }
 
     @Test
@@ -354,23 +347,20 @@ class LimitOffsetPagingSourceTest {
         assertThat(result).isInstanceOf<LoadResult.Error<Int, Int>>()
         val message = (result as LoadResult.Error).throwable.message
         // default message from Paging 3 for negative initial key
-        assertThat(message).isEqualTo(
-            "itemsBefore cannot be negative"
-        )
+        assertThat(message).isEqualTo("itemsBefore cannot be negative")
     }
 
     @Test
     fun append_middleOfList() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        val result = pager.run {
-            refresh(initialKey = 5)
-            append() as LoadResult.Page
-        }
+        val result =
+            pager.run {
+                refresh(initialKey = 5)
+                append() as LoadResult.Page
+            }
 
         // item in pos 21-25 (TestItemId 20-24) loaded
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(20, 25)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 25))
         assertThat(result.nextKey).isEqualTo(25)
         assertThat(result.prevKey).isEqualTo(20)
     }
@@ -378,15 +368,14 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun append_availableItemsLessThanLoadSize() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        val result = pager.run {
-            refresh(82)
-            append() as LoadResult.Page
-        }
+        val result =
+            pager.run {
+                refresh(82)
+                append() as LoadResult.Page
+            }
 
         // item in pos 98-100 (TestItemId 97-99) loaded
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(97, 100)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(97, 100))
         assertThat(result.nextKey).isEqualTo(null)
         assertThat(result.prevKey).isEqualTo(97)
     }
@@ -394,37 +383,33 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun load_consecutiveAppend() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        val result1 = pager.run {
-            refresh(15)
-            // first append
-            append() as LoadResult.Page
-        }
+        val result1 =
+            pager.run {
+                refresh(15)
+                // first append
+                append() as LoadResult.Page
+            }
 
         // TestItemId 30-34 loaded from the append
-        assertThat(result1.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(30, 35)
-        )
+        assertThat(result1.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 35))
 
         // second append
         val result2 = pager.append() as LoadResult.Page
 
         // TestItemId 35 - 39 loaded
-        assertThat(result2.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(35, 40)
-        )
+        assertThat(result2.data).containsExactlyElementsIn(ITEMS_LIST.subList(35, 40))
     }
 
     @Test
     fun append_invalidResult() = runPagingSourceTest { pager, pagingSource ->
         dao.addAllItems(ITEMS_LIST)
-        val result = pager.run {
-            refresh(initialKey = 15)
-            append() as LoadResult.Page
-        }
+        val result =
+            pager.run {
+                refresh(initialKey = 15)
+                append() as LoadResult.Page
+            }
         // TestItemId 30-34 loaded
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(30, 35)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 35))
         // invalidate pagingSource to imitate invalidation from running refreshVersionSync
         pagingSource.invalidate()
 
@@ -438,14 +423,13 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun prepend_middleOfList() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        val result = pager.run {
-            refresh(initialKey = 30)
-            prepend() as LoadResult.Page
-        }
+        val result =
+            pager.run {
+                refresh(initialKey = 30)
+                prepend() as LoadResult.Page
+            }
 
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(25, 30)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(25, 30))
         assertThat(result.nextKey).isEqualTo(30)
         assertThat(result.prevKey).isEqualTo(25)
     }
@@ -453,15 +437,14 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun prepend_availableItemsLessThanLoadSize() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        val result = pager.run {
-            refresh(initialKey = 3)
-            prepend() as LoadResult.Page
-        }
+        val result =
+            pager.run {
+                refresh(initialKey = 3)
+                prepend() as LoadResult.Page
+            }
 
         // items in pos 0 - 2 (TestItemId 0 - 2) loaded
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(0, 3)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 3))
         assertThat(result.nextKey).isEqualTo(3)
         assertThat(result.prevKey).isEqualTo(null)
     }
@@ -469,35 +452,31 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun load_consecutivePrepend() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
-        val result1 = pager.run {
-            refresh(initialKey = 20)
-            prepend() as LoadResult.Page // first prepend
-        }
+        val result1 =
+            pager.run {
+                refresh(initialKey = 20)
+                prepend() as LoadResult.Page // first prepend
+            }
         // items pos 16-20 (TestItemId 15-19) loaded
-        assertThat(result1.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(15, 20)
-        )
+        assertThat(result1.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 20))
 
         // second prepend
         val result2 = pager.prepend() as LoadResult.Page
 
         // items pos 11-15 (TestItemId 10 - 14) loaded
-        assertThat(result2.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(10, 15)
-        )
+        assertThat(result2.data).containsExactlyElementsIn(ITEMS_LIST.subList(10, 15))
     }
 
     @Test
     fun prepend_invalidResult() = runPagingSourceTest { pager, pagingSource ->
         dao.addAllItems(ITEMS_LIST)
-        val result = pager.run {
-            refresh(initialKey = 20)
-            prepend() as LoadResult.Page
-        }
+        val result =
+            pager.run {
+                refresh(initialKey = 20)
+                prepend() as LoadResult.Page
+            }
         // items pos 16-20 (TestItemId 15-19) loaded
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(15, 20)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 20))
 
         // invalidate pagingSource to imitate invalidation from running refreshVersionSync
         pagingSource.invalidate()
@@ -513,48 +492,37 @@ class LimitOffsetPagingSourceTest {
     fun test_itemsBefore() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
         // initial loads items in pos 51 - 65, should have 50 items before
-        assertThat(
-            (pager.refresh(50) as LoadResult.Page).itemsBefore
-        ).isEqualTo(50)
+        assertThat((pager.refresh(50) as LoadResult.Page).itemsBefore).isEqualTo(50)
 
         // prepend loads items in pos 46 - 50, should have 45 item before
-        assertThat(
-            (pager.prepend() as LoadResult.Page).itemsBefore
-        ).isEqualTo(45)
+        assertThat((pager.prepend() as LoadResult.Page).itemsBefore).isEqualTo(45)
 
         // append loads items in position 66 - 70 , should have 65 item before
-        assertThat(
-            (pager.append() as LoadResult.Page).itemsBefore
-        ).isEqualTo(65)
+        assertThat((pager.append() as LoadResult.Page).itemsBefore).isEqualTo(65)
     }
 
     @Test
     fun test_itemsAfter() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
         // initial loads items in position 31 - 45, should have 55 items after
-        assertThat(
-            (pager.refresh(30) as LoadResult.Page).itemsAfter
-        ).isEqualTo(55)
+        assertThat((pager.refresh(30) as LoadResult.Page).itemsAfter).isEqualTo(55)
 
         // prepend loads items in position 26 - 30, should have 70 item after
-        assertThat(
-            (pager.prepend() as LoadResult.Page).itemsAfter
-        ).isEqualTo(70)
+        assertThat((pager.prepend() as LoadResult.Page).itemsAfter).isEqualTo(70)
 
         // append loads items in position 46 - 50 , should have 50 item after
-        assertThat(
-            (pager.append() as LoadResult.Page).itemsAfter
-        ).isEqualTo(50)
+        assertThat((pager.append() as LoadResult.Page).itemsAfter).isEqualTo(50)
     }
 
     @Test
     fun test_getRefreshKey() = runPagingSourceTest { pager, pagingSource ->
         dao.addAllItems(ITEMS_LIST)
-        val pagingState1 = pager.run {
-            refresh()
-            // 15 items loaded, assuming anchorPosition = 14 as the last item loaded
-            getPagingState(14)
-        }
+        val pagingState1 =
+            pager.run {
+                refresh()
+                // 15 items loaded, assuming anchorPosition = 14 as the last item loaded
+                getPagingState(14)
+            }
         // should load around anchor position
         // Initial load size = 15, refresh key should be (15/2 = 7) items
         // before anchorPosition (14 - 7 = 7)
@@ -562,9 +530,7 @@ class LimitOffsetPagingSourceTest {
 
         // append after refresh
         val append = pager.append() as LoadResult.Page
-        assertThat(append.data).isEqualTo(
-            ITEMS_LIST.subList(15, 20)
-        )
+        assertThat(append.data).isEqualTo(ITEMS_LIST.subList(15, 20))
         // 20 items loaded, assume anchorPosition = 19 as the last item loaded
         val pagingState2 = pager.getPagingState(19)
         // initial load size 15. Refresh key should be (15/2 = 7) items before anchorPosition
@@ -573,9 +539,7 @@ class LimitOffsetPagingSourceTest {
     }
 
     @Test
-    fun load_refreshKeyGreaterThanItemCount_lastPage() = runPagingSourceTest {
-            pager, _ ->
-
+    fun load_refreshKeyGreaterThanItemCount_lastPage() = runPagingSourceTest { pager, _ ->
         dao.addAllItems(ITEMS_LIST)
         pager.refresh(initialKey = 70)
         dao.deleteTestItems(40, 100)
@@ -593,9 +557,7 @@ class LimitOffsetPagingSourceTest {
         assertThat(pagingSource2.itemCount.get()).isEqualTo(40)
         // ensure that paging source can handle invalid refresh key properly
         // should load last page with items 25 - 40
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(25, 40)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(25, 40))
 
         // should account for updated item count to return correct itemsBefore, itemsAfter,
         // prevKey, nextKey
@@ -607,77 +569,71 @@ class LimitOffsetPagingSourceTest {
     }
 
     /**
-     * Tests the behavior if user was viewing items in the top of the database and those items
-     * were deleted.
+     * Tests the behavior if user was viewing items in the top of the database and those items were
+     * deleted.
      *
      * Currently, if anchorPosition is small enough (within bounds of 0 to loadSize/2), then on
      * invalidation from dropped items at the top, refresh will load with offset = 0. If
-     * anchorPosition is larger than loadsize/2, then the refresh load's offset will
-     * be 0 to (anchorPosition - loadSize/2).
+     * anchorPosition is larger than loadsize/2, then the refresh load's offset will be 0 to
+     * (anchorPosition - loadSize/2).
      *
      * Ideally, in the future Paging will be able to handle this case better.
      */
     @Test
-    fun load_refreshKeyGreaterThanItemCount_firstPage() = runPagingSourceTest {
-            pager, pagingSource ->
+    fun load_refreshKeyGreaterThanItemCount_firstPage() =
+        runPagingSourceTest { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            pager.refresh()
+            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+            // items id 0 - 29 deleted (30 items removed)
+            dao.deleteTestItems(0, 29)
 
-        dao.addAllItems(ITEMS_LIST)
-        pager.refresh()
-        assertThat(pagingSource.itemCount.get()).isEqualTo(100)
-        // items id 0 - 29 deleted (30 items removed)
-        dao.deleteTestItems(0, 29)
+            val pagingSource2 = LimitOffsetPagingSourceImpl(database)
+            val pager2 = TestPager(CONFIG, pagingSource2)
+            // assume user was viewing first few items with anchorPosition = 0 and refresh key
+            // clips to 0
+            val result = pager2.refresh(initialKey = 0) as LoadResult.Page
 
-        val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(CONFIG, pagingSource2)
-        // assume user was viewing first few items with anchorPosition = 0 and refresh key
-        // clips to 0
-        val result = pager2.refresh(initialKey = 0) as LoadResult.Page
+            // database should only have 70 items left
+            assertThat(pagingSource2.itemCount.get()).isEqualTo(70)
+            // first 30 items deleted, refresh should load starting from pos 31 (item id 30 - 45)
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 45))
 
-        // database should only have 70 items left
-        assertThat(pagingSource2.itemCount.get()).isEqualTo(70)
-        // first 30 items deleted, refresh should load starting from pos 31 (item id 30 - 45)
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(30, 45)
-        )
-
-        // should account for updated item count to return correct itemsBefore, itemsAfter,
-        // prevKey, nextKey
-        assertThat(result.itemsBefore).isEqualTo(0)
-        assertThat(result.itemsAfter).isEqualTo(55)
-        // no prepend can be triggered
-        assertThat(result.prevKey).isEqualTo(null)
-        assertThat(result.nextKey).isEqualTo(15)
-    }
+            // should account for updated item count to return correct itemsBefore, itemsAfter,
+            // prevKey, nextKey
+            assertThat(result.itemsBefore).isEqualTo(0)
+            assertThat(result.itemsAfter).isEqualTo(55)
+            // no prepend can be triggered
+            assertThat(result.prevKey).isEqualTo(null)
+            assertThat(result.nextKey).isEqualTo(15)
+        }
 
     @Test
-    fun load_loadSizeAndRefreshKeyGreaterThanItemCount() = runPagingSourceTest {
-            pager, pagingSource ->
+    fun load_loadSizeAndRefreshKeyGreaterThanItemCount() =
+        runPagingSourceTest { pager, pagingSource ->
+            dao.addAllItems(ITEMS_LIST)
+            pager.refresh(initialKey = 30)
+            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+            // items id 0 - 94 deleted (95 items removed)
+            dao.deleteTestItems(0, 94)
 
-        dao.addAllItems(ITEMS_LIST)
-        pager.refresh(initialKey = 30)
-        assertThat(pagingSource.itemCount.get()).isEqualTo(100)
-        // items id 0 - 94 deleted (95 items removed)
-        dao.deleteTestItems(0, 94)
+            val pagingSource2 = LimitOffsetPagingSourceImpl(database)
+            val pager2 = TestPager(CONFIG, pagingSource2)
+            // assume user was viewing first few items with anchorPosition = 0 and refresh key
+            // clips to 0
+            val result = pager2.refresh(initialKey = 0) as LoadResult.Page
 
-        val pagingSource2 = LimitOffsetPagingSourceImpl(database)
-        val pager2 = TestPager(CONFIG, pagingSource2)
-        // assume user was viewing first few items with anchorPosition = 0 and refresh key
-        // clips to 0
-        val result = pager2.refresh(initialKey = 0) as LoadResult.Page
+            // database should only have 5 items left
+            assertThat(pagingSource2.itemCount.get()).isEqualTo(5)
+            // only 5 items should be loaded with offset = 0
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(95, 100))
 
-        // database should only have 5 items left
-        assertThat(pagingSource2.itemCount.get()).isEqualTo(5)
-        // only 5 items should be loaded with offset = 0
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(95, 100)
-        )
-
-        // should recognize that this is a terminal load
-        assertThat(result.itemsBefore).isEqualTo(0)
-        assertThat(result.itemsAfter).isEqualTo(0)
-        assertThat(result.prevKey).isEqualTo(null)
-        assertThat(result.nextKey).isEqualTo(null)
-    }
+            // should recognize that this is a terminal load
+            assertThat(result.itemsBefore).isEqualTo(0)
+            assertThat(result.itemsAfter).isEqualTo(0)
+            assertThat(result.prevKey).isEqualTo(null)
+            assertThat(result.nextKey).isEqualTo(null)
+        }
 
     @Test
     fun test_jumpSupport() {
@@ -688,14 +644,12 @@ class LimitOffsetPagingSourceTest {
     private fun runPagingSourceTest(
         pagingSource: LimitOffsetPagingSourceImpl = LimitOffsetPagingSourceImpl(database),
         config: PagingConfig = CONFIG,
-        block: suspend (
-            pager: TestPager<Int, TestItem>,
-            pagingSource: LimitOffsetPagingSourceImpl
-        ) -> Unit
+        block:
+            suspend (
+                pager: TestPager<Int, TestItem>, pagingSource: LimitOffsetPagingSourceImpl
+            ) -> Unit
     ) {
-        runBlocking {
-            block(TestPager(config, pagingSource), pagingSource)
-        }
+        runBlocking { block(TestPager(config, pagingSource), pagingSource) }
     }
 }
 
@@ -714,27 +668,26 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
     @Before
     fun init() {
-        val mainThread: Thread = runBlocking(Dispatchers.Main) {
-            Thread.currentThread()
-        }
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            LimitOffsetTestDb::class.java
-        ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    if (Thread.currentThread() === mainThread) {
-                        mainThreadQueries.add(
-                            sqlQuery to Throwable().stackTraceToString()
-                        )
+        val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    LimitOffsetTestDb::class.java
+                )
+                .setQueryCallback(
+                    object : RoomDatabase.QueryCallback {
+                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                            if (Thread.currentThread() === mainThread) {
+                                mainThreadQueries.add(sqlQuery to Throwable().stackTraceToString())
+                            }
+                        }
                     }
+                ) {
+                    // instantly execute the log callback so that we can check the thread.
+                    it.run()
                 }
-            }
-        ) {
-            // instantly execute the log callback so that we can check the thread.
-            it.run()
-        }.setQueryExecutor(queryExecutor)
-            .build()
+                .setQueryExecutor(queryExecutor)
+                .build()
         dao = db.getDao()
     }
 
@@ -753,9 +706,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
         val result = pager.refresh() as LoadResult.Page
         // initial load
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(0, 15)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
 
         // blocks invalidation notification from Room
         queryExecutor.filterFunction = {
@@ -784,14 +735,10 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
         val result = pager.refresh(initialKey = 20) as LoadResult.Page
         // initial load
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(20, 35)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 35))
 
         // blocks invalidation notification from Room
-        queryExecutor.filterFunction = {
-            !it.toString().contains("refreshInvalidationAsync")
-        }
+        queryExecutor.filterFunction = { !it.toString().contains("refreshInvalidationAsync") }
 
         // now write to the database
         dao.deleteTestItem(ITEMS_LIST[30])
@@ -810,14 +757,12 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 class LimitOffsetPagingSourceImpl(
     db: RoomDatabase,
     queryString: String = "SELECT * FROM $tableName ORDER BY id ASC",
-) : LimitOffsetPagingSource<TestItem>(
-    sourceQuery = RoomSQLiteQuery.acquire(
-        queryString,
-        0
-    ),
-    db = db,
-    tables = arrayOf("$tableName")
-) {
+) :
+    LimitOffsetPagingSource<TestItem>(
+        sourceQuery = RoomSQLiteQuery.acquire(queryString, 0),
+        db = db,
+        tables = arrayOf("$tableName")
+    ) {
 
     override fun convertRows(cursor: Cursor): List<TestItem> {
         val cursorIndexOfId = getColumnIndexOrThrow(cursor, "id")
@@ -830,11 +775,7 @@ class LimitOffsetPagingSourceImpl(
     }
 }
 
-private val CONFIG = PagingConfig(
-    pageSize = 5,
-    enablePlaceholders = true,
-    initialLoadSize = 15
-)
+private val CONFIG = PagingConfig(pageSize = 5, enablePlaceholders = true, initialLoadSize = 15)
 
 private val ITEMS_LIST = createItemsForDb(0, 100)
 

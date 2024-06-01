@@ -34,7 +34,8 @@ internal class KspExecutableParameterElement(
     override val enclosingElement: KspExecutableElement,
     val parameter: KSValueParameter,
     val parameterIndex: Int
-) : KspElement(env, parameter),
+) :
+    KspElement(env, parameter),
     XExecutableParameterElement,
     XAnnotated by KspAnnotated.create(env, parameter, NO_USE_SITE_OR_METHOD_PARAMETER) {
     override fun isContinuationParam() = false
@@ -54,9 +55,7 @@ internal class KspExecutableParameterElement(
     override val hasDefaultValue: Boolean
         get() = parameter.hasDefault
 
-    override val type: KspType by lazy {
-        createAsMemberOf(closestMemberContainer.type)
-    }
+    override val type: KspType by lazy { createAsMemberOf(closestMemberContainer.type) }
 
     override val closestMemberContainer: XMemberContainer by lazy {
         enclosingElement.closestMemberContainer
@@ -76,37 +75,42 @@ internal class KspExecutableParameterElement(
     private fun createAsMemberOf(container: XType?): KspType {
         check(container is KspType?)
         val resolvedType = parameter.type.resolve()
-        val type = env.wrap(
-            originalAnnotations = parameter.type.annotations,
-            ksType = parameter.typeAsMemberOf(
-                functionDeclaration = enclosingElement.declaration,
-                ksType = container?.ksType,
-                resolved = resolvedType
-            ),
-            allowPrimitives = !resolvedType.isTypeParameter()
-        ).copyWithScope(
-            KSTypeVarianceResolverScope.MethodParameter(
-                kspExecutableElement = enclosingElement,
-                parameterIndex = parameterIndex,
-                annotated = parameter.type,
-                container = container?.ksType?.declaration,
-                asMemberOf = container,
-            )
-        )
+        val type =
+            env.wrap(
+                    originalAnnotations = parameter.type.annotations,
+                    ksType =
+                        parameter.typeAsMemberOf(
+                            functionDeclaration = enclosingElement.declaration,
+                            ksType = container?.ksType,
+                            resolved = resolvedType
+                        ),
+                    allowPrimitives = !resolvedType.isTypeParameter()
+                )
+                .copyWithScope(
+                    KSTypeVarianceResolverScope.MethodParameter(
+                        kspExecutableElement = enclosingElement,
+                        parameterIndex = parameterIndex,
+                        annotated = parameter.type,
+                        container = container?.ksType?.declaration,
+                        asMemberOf = container,
+                    )
+                )
         return if (isVarArgs()) {
             if (!type.isArray()) {
-                // In KSP2 the varargs have the component type instead of the array type.
-                // We make it always return the array type in XProcessing.
-                env.getArrayType(env.getWildcardType(producerExtends = type))
-            } else {
-                type
-            }.run {
-                // In Kotlin the vararg array is never null
-                when (parameter.origin) {
-                    Origin.KOTLIN, Origin.KOTLIN_LIB -> makeNonNullable()
-                    else -> makeNullable()
+                    // In KSP2 the varargs have the component type instead of the array type.
+                    // We make it always return the array type in XProcessing.
+                    env.getArrayType(env.getWildcardType(producerExtends = type))
+                } else {
+                    type
                 }
-            }
+                .run {
+                    // In Kotlin the vararg array is never null
+                    when (parameter.origin) {
+                        Origin.KOTLIN,
+                        Origin.KOTLIN_LIB -> makeNonNullable()
+                        else -> makeNullable()
+                    }
+                }
         } else {
             type
         }
@@ -121,15 +125,14 @@ internal class KspExecutableParameterElement(
             env: KspProcessingEnv,
             parameter: KSValueParameter
         ): XExecutableParameterElement {
-            val parent = checkNotNull(parameter.parent) {
-                "Expected value parameter '$parameter' to contain a parent node."
-            }
+            val parent =
+                checkNotNull(parameter.parent) {
+                    "Expected value parameter '$parameter' to contain a parent node."
+                }
             return when (parent) {
                 is KSFunctionDeclaration -> {
                     val parameterIndex = parent.parameters.indexOf(parameter)
-                    check(parameterIndex > -1) {
-                        "Cannot find $parameter in $parent"
-                    }
+                    check(parameterIndex > -1) { "Cannot find $parameter in $parent" }
                     KspExecutableParameterElement(
                         env = env,
                         enclosingElement = KspExecutableElement.create(env, parent),
@@ -137,13 +140,15 @@ internal class KspExecutableParameterElement(
                         parameterIndex = parameterIndex,
                     )
                 }
-                is KSPropertySetter -> KspSyntheticPropertyMethodElement.create(
-                    env, parent, isSyntheticStatic = false
-                ).parameters.single()
-                else -> error(
-                    "Don't know how to create a parameter element whose parent is a " +
-                        "'${parent::class}'"
-                )
+                is KSPropertySetter ->
+                    KspSyntheticPropertyMethodElement.create(env, parent, isSyntheticStatic = false)
+                        .parameters
+                        .single()
+                else ->
+                    error(
+                        "Don't know how to create a parameter element whose parent is a " +
+                            "'${parent::class}'"
+                    )
             }
         }
     }

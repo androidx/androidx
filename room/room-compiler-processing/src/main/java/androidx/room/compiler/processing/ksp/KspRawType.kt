@@ -20,16 +20,10 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.rawTypeName
 
-internal class KspRawType constructor(
-    private val original: KspType
-) : XRawType {
-    private val ksType by lazy {
-        original.ksType.starProjection().makeNotNullable()
-    }
+internal class KspRawType constructor(private val original: KspType) : XRawType {
+    private val ksType by lazy { original.ksType.starProjection().makeNotNullable() }
 
-    override val typeName by lazy {
-        xTypeName.java
-    }
+    override val typeName by lazy { xTypeName.java }
 
     private val xTypeName: XTypeName by lazy {
         XTypeName(

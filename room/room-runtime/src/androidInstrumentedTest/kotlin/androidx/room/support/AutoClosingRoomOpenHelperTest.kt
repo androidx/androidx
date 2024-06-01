@@ -61,14 +61,16 @@ class AutoClosingRoomOpenHelperTest {
         callback: SupportSQLiteOpenHelper.Callback = Callback()
     ): AutoClosingRoomOpenHelper {
 
-        val delegateOpenHelper = FrameworkSQLiteOpenHelperFactory()
-            .create(
-                SupportSQLiteOpenHelper.Configuration
-                    .builder(ApplicationProvider.getApplicationContext())
-                    .callback(callback)
-                    .name("name")
-                    .build()
-            )
+        val delegateOpenHelper =
+            FrameworkSQLiteOpenHelperFactory()
+                .create(
+                    SupportSQLiteOpenHelper.Configuration.builder(
+                            ApplicationProvider.getApplicationContext()
+                        )
+                        .callback(callback)
+                        .name("name")
+                        .build()
+                )
 
         val autoCloseExecutor = Executors.newSingleThreadExecutor()
 
@@ -76,7 +78,7 @@ class AutoClosingRoomOpenHelperTest {
             delegateOpenHelper,
             AutoCloser(timeoutMillis, TimeUnit.MILLISECONDS, autoCloseExecutor).apply {
                 init(delegateOpenHelper)
-                setAutoCloseCallback { }
+                setAutoCloseCallback {}
             }
         )
     }
@@ -87,8 +89,7 @@ class AutoClosingRoomOpenHelperTest {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
 
         assertThrows<SQLiteException> {
-            autoClosingRoomOpenHelper
-                .writableDatabase.query("select * from nonexistanttable")
+            autoClosingRoomOpenHelper.writableDatabase.query("select * from nonexistanttable")
         }
 
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
@@ -100,8 +101,7 @@ class AutoClosingRoomOpenHelperTest {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
         autoClosingRoomOpenHelper.writableDatabase.execSQL("create table user (idk int)")
 
-        val cursor =
-            autoClosingRoomOpenHelper.writableDatabase.query("select * from user")
+        val cursor = autoClosingRoomOpenHelper.writableDatabase.query("select * from user")
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(1)
         cursor.close()
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
@@ -150,22 +150,22 @@ class AutoClosingRoomOpenHelperTest {
     @FlakyTest(bugId = 190607416)
     @Test
     fun testOnOpenCalledOnEachOpen() {
-        val countingCallback = object : Callback() {
-            var onCreateCalls = 0
-            var onOpenCalls = 0
+        val countingCallback =
+            object : Callback() {
+                var onCreateCalls = 0
+                var onOpenCalls = 0
 
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                onCreateCalls++
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    onCreateCalls++
+                }
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    onOpenCalls++
+                }
             }
 
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                super.onOpen(db)
-                onOpenCalls++
-            }
-        }
-
-        val autoClosingRoomOpenHelper =
-            getAutoClosingRoomOpenHelper(callback = countingCallback)
+        val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper(callback = countingCallback)
 
         autoClosingRoomOpenHelper.writableDatabase
         assertThat(countingCallback.onOpenCalls).isEqualTo(1)
@@ -203,16 +203,13 @@ class AutoClosingRoomOpenHelperTest {
         val db = autoClosingRoomOpenHelper.writableDatabase
         db.execSQL("create table user (idk int)")
 
-        val statement = db
-            .compileStatement("insert into user (idk) values (1)")
+        val statement = db.compileStatement("insert into user (idk) values (1)")
 
         Thread.sleep(20)
 
         statement.executeInsert() // This should succeed
 
-        db.query("select * from user").useCursor {
-            assertThat(it.count).isEqualTo(1)
-        }
+        db.query("select * from user").useCursor { assertThat(it.count).isEqualTo(1) }
 
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
@@ -225,9 +222,7 @@ class AutoClosingRoomOpenHelperTest {
 
         db.execSQL("create table users (i int, d double, b blob, n int, s string)")
 
-        val statement = db.compileStatement(
-            "insert into users (i, d, b, n, s) values (?,?,?,?,?)"
-        )
+        val statement = db.compileStatement("insert into users (i, d, b, n, s) values (?,?,?,?,?)")
 
         statement.bindString(5, "123")
         statement.bindLong(1, 123)
@@ -263,21 +258,24 @@ class AutoClosingRoomOpenHelperTest {
 
     @Test
     fun testGetDelegate() {
-        val delegateOpenHelper = FrameworkSQLiteOpenHelperFactory()
-            .create(
-                SupportSQLiteOpenHelper.Configuration
-                    .builder(ApplicationProvider.getApplicationContext())
-                    .callback(Callback())
-                    .name("name")
-                    .build()
-            )
+        val delegateOpenHelper =
+            FrameworkSQLiteOpenHelperFactory()
+                .create(
+                    SupportSQLiteOpenHelper.Configuration.builder(
+                            ApplicationProvider.getApplicationContext()
+                        )
+                        .callback(Callback())
+                        .name("name")
+                        .build()
+                )
 
         val autoCloseExecutor = Executors.newSingleThreadExecutor()
 
-        val autoClosing = AutoClosingRoomOpenHelper(
-            delegateOpenHelper,
-            AutoCloser(0, TimeUnit.MILLISECONDS, autoCloseExecutor)
-        )
+        val autoClosing =
+            AutoClosingRoomOpenHelper(
+                delegateOpenHelper,
+                AutoCloser(0, TimeUnit.MILLISECONDS, autoCloseExecutor)
+            )
 
         assertThat(autoClosing.delegate).isSameInstanceAs(delegateOpenHelper)
     }

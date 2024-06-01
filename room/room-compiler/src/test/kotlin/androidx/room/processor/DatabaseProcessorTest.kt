@@ -65,42 +65,47 @@ import org.mockito.Mockito.mock
 @RunWith(JUnit4::class)
 class DatabaseProcessorTest {
     companion object {
-        const val DATABASE_PREFIX = """
+        const val DATABASE_PREFIX =
+            """
             package foo.bar;
             import androidx.room.*;
             """
-        val DB1 = Source.java(
-            "foo.bar.Db1",
-            """
+        val DB1 =
+            Source.java(
+                "foo.bar.Db1",
+                """
                 $DATABASE_PREFIX
                 @Database(entities = {Book.class}, version = 42)
                 public abstract class Db1 extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
                 """
-        )
-        val DB2 = Source.java(
-            "foo.bar.Db2",
-            """
+            )
+        val DB2 =
+            Source.java(
+                "foo.bar.Db2",
+                """
                 $DATABASE_PREFIX
                 @Database(entities = {Book.class}, version = 42)
                 public abstract class Db2 extends RoomDatabase {
                     abstract BookDao bookDao();
                 }
                 """
-        )
-        val DB3 = Source.java(
-            "foo.bar.Db3",
-            """
+            )
+        val DB3 =
+            Source.java(
+                "foo.bar.Db3",
+                """
                 $DATABASE_PREFIX
                 @Database(entities = {Book.class}, version = 42)
                 public abstract class Db3 extends RoomDatabase {
                 }
                 """
-        )
-        val USER = Source.java(
-            "foo.bar.User",
-            """
+            )
+        val USER =
+            Source.java(
+                "foo.bar.User",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity
@@ -110,10 +115,11 @@ class DatabaseProcessorTest {
                     String name;
                 }
                 """
-        )
-        val USER_DAO = Source.java(
-            "foo.bar.UserDao",
-            """
+            )
+        val USER_DAO =
+            Source.java(
+                "foo.bar.UserDao",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Dao
@@ -151,10 +157,11 @@ class DatabaseProcessorTest {
                     }
                 }
                 """
-        )
-        val BOOK = Source.java(
-            "foo.bar.Book",
-            """
+            )
+        val BOOK =
+            Source.java(
+                "foo.bar.Book",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity
@@ -163,10 +170,11 @@ class DatabaseProcessorTest {
                     int bookId;
                 }
                 """
-        )
-        val BOOK_DAO = Source.java(
-            "foo.bar.BookDao",
-            """
+            )
+        val BOOK_DAO =
+            Source.java(
+                "foo.bar.BookDao",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Dao
@@ -177,11 +185,12 @@ class DatabaseProcessorTest {
                     public void insert(Book book);
                 }
                 """
-        )
+            )
 
-        val PUBLISHER = Source.java(
-            "foo.bar.Publisher",
-            """
+        val PUBLISHER =
+            Source.java(
+                "foo.bar.Publisher",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity
@@ -190,11 +199,12 @@ class DatabaseProcessorTest {
                     int publisherId;
                 }
             """
-        )
+            )
 
-        val PUBLISHER_DAO = Source.java(
-            "foo.bar.PublisherDao",
-            """
+        val PUBLISHER_DAO =
+            Source.java(
+                "foo.bar.PublisherDao",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Dao
@@ -203,11 +213,12 @@ class DatabaseProcessorTest {
                     public void upsert(Publisher publisher);
                 }
             """
-        )
+            )
 
-        val AUTOMIGRATION = Source.java(
-            "foo.bar.MyAutoMigration",
-            """
+        val AUTOMIGRATION =
+            Source.java(
+                "foo.bar.MyAutoMigration",
+                """
             package foo.bar;
             import androidx.annotation.NonNull;
             import androidx.room.migration.AutoMigrationSpec;
@@ -217,11 +228,10 @@ class DatabaseProcessorTest {
                 public void onPostMigrate(@NonNull SupportSQLiteDatabase db) {}
             }
             """
-        )
+            )
     }
 
-    @get:Rule
-    var schemaFolder: TemporaryFolder = TemporaryFolder()
+    @get:Rule var schemaFolder: TemporaryFolder = TemporaryFolder()
 
     @Test
     fun simple() {
@@ -232,7 +242,8 @@ class DatabaseProcessorTest {
                 abstract UserDao userDao();
             }
             """,
-            USER, USER_DAO
+            USER,
+            USER_DAO
         ) { db, _ ->
             assertThat(db.daoMethods.size, `is`(1))
             assertThat(db.entities.size, `is`(1))
@@ -249,7 +260,10 @@ class DatabaseProcessorTest {
                 abstract BookDao bookDao();
             }
             """,
-            USER, USER_DAO, BOOK, BOOK_DAO
+            USER,
+            USER_DAO,
+            BOOK,
+            BOOK_DAO
         ) { db, _ ->
             assertThat(db.daoMethods.size, `is`(2))
             assertThat(db.entities.size, `is`(2))
@@ -269,7 +283,8 @@ class DatabaseProcessorTest {
             public abstract class MyDb {
             }
             """,
-            USER, BOOK
+            USER,
+            BOOK
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.DB_MUST_EXTEND_ROOM_DB)
@@ -315,7 +330,8 @@ class DatabaseProcessorTest {
                     abstract UserDao userDao();
                 }
                 """,
-            USER, USER_DAO,
+            USER,
+            USER_DAO,
             Source.java(
                 "foo.bar.AnotherClass",
                 """
@@ -343,9 +359,10 @@ class DatabaseProcessorTest {
     @Test
     @Ignore("b/285140651")
     fun detectMissingEntityAnnotationInLibraryClass() {
-        val librarySource = Source.java(
-            "test.library.MissingEntityAnnotationPojo",
-            """
+        val librarySource =
+            Source.java(
+                "test.library.MissingEntityAnnotationPojo",
+                """
             package test.library;
             import androidx.room.*;
             public class MissingEntityAnnotationPojo {
@@ -355,11 +372,10 @@ class DatabaseProcessorTest {
                 public void setId(int id) {this.id = id;}
                 public long getId() {return this.id;}
             }
-            """.trimIndent()
-        )
-        val libraryClasspath = compileFiles(
-            sources = listOf(librarySource)
-        )
+            """
+                    .trimIndent()
+            )
+        val libraryClasspath = compileFiles(sources = listOf(librarySource))
         singleDb(
             """
                 @Database(entities = {test.library.MissingEntityAnnotationPojo.class}, version = 1)
@@ -380,19 +396,19 @@ class DatabaseProcessorTest {
     @Test
     @Ignore("b/285140651")
     fun detectMissingDaoAnnotationInLibraryClass() {
-        val librarySource = Source.java(
-            "test.library.MissingAnnotationsBaseDao",
-            """
+        val librarySource =
+            Source.java(
+                "test.library.MissingAnnotationsBaseDao",
+                """
             package test.library;
             import androidx.room.*;
             public interface MissingAnnotationsBaseDao {
                 int getFoo();
             }
-            """.trimIndent()
-        )
-        val libraryClasspath = compileFiles(
-            sources = listOf(librarySource)
-        )
+            """
+                    .trimIndent()
+            )
+        val libraryClasspath = compileFiles(sources = listOf(librarySource))
         singleDb(
             """
                 @Database(entities = {User.class}, version = 1)
@@ -400,7 +416,8 @@ class DatabaseProcessorTest {
                     abstract test.library.MissingAnnotationsBaseDao getBadDao();
                 }
                 """,
-            USER, classpath = libraryClasspath
+            USER,
+            classpath = libraryClasspath
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 compilationDidFail()
@@ -414,9 +431,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun detectMissingExternalContentEntity() {
-        val userNameFtsSrc = Source.java(
-            "foo.bar.UserNameFts",
-            """
+        val userNameFtsSrc =
+            Source.java(
+                "foo.bar.UserNameFts",
+                """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -426,18 +444,20 @@ class DatabaseProcessorTest {
                     String name;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {UserNameFts.class}, version = 1)
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, userNameFtsSrc
+            USER,
+            userNameFtsSrc
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.missingExternalContentEntity(
-                        "foo.bar.UserNameFts", "foo.bar.User"
+                        "foo.bar.UserNameFts",
+                        "foo.bar.User"
                     )
                 )
             }
@@ -473,9 +493,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun multipleDatabases() {
-        val db1_2 = Source.java(
-            "foo.barx.Db1",
-            """
+        val db1_2 =
+            Source.java(
+                "foo.barx.Db1",
+                """
                 package foo.barx;
                 import androidx.room.*;
                 import foo.bar.*;
@@ -484,7 +505,7 @@ class DatabaseProcessorTest {
                     abstract BookDao bookDao();
                 }
                 """
-        )
+            )
         runProcessorTest(
             sources = listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2),
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
@@ -509,16 +530,13 @@ class DatabaseProcessorTest {
                     abstract UserDao userDao2();
                 }
                 """,
-            USER, USER_DAO
+            USER,
+            USER_DAO
         ) { _, invocation ->
             invocation.assertCompilationResult {
+                hasErrorContaining(ProcessorErrors.DAO_METHOD_CONFLICTS_WITH_OTHERS)
                 hasErrorContaining(
-                    ProcessorErrors.DAO_METHOD_CONFLICTS_WITH_OTHERS
-                )
-                hasErrorContaining(
-                    ProcessorErrors.duplicateDao(
-                        "foo.bar.UserDao", listOf("userDao", "userDao2")
-                    )
+                    ProcessorErrors.duplicateDao("foo.bar.UserDao", listOf("userDao", "userDao2"))
                 )
             }
         }
@@ -534,11 +552,11 @@ class DatabaseProcessorTest {
                     abstract UserDao userDao();
                 }
                 """,
-            USER, USER_DAO
+            USER,
+            USER_DAO
         ) { db, invocation ->
             assertThat(
-                DatabaseProcessor(invocation.context, db.element)
-                    .context.logger.suppressedWarnings,
+                DatabaseProcessor(invocation.context, db.element).context.logger.suppressedWarnings,
                 `is`(setOf(Warning.CURSOR_MISMATCH))
             )
         }
@@ -546,9 +564,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun duplicateIndexNames() {
-        val entity1 = Source.java(
-            "foo.bar.Entity1",
-            """
+        val entity1 =
+            Source.java(
+                "foo.bar.Entity1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = {@Index(name ="index_name", value = {"name"})})
@@ -558,11 +577,12 @@ class DatabaseProcessorTest {
                     String name;
                 }
                 """
-        )
+            )
 
-        val entity2 = Source.java(
-            "foo.bar.Entity2",
-            """
+        val entity2 =
+            Source.java(
+                "foo.bar.Entity2",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = {@Index(name ="index_name", value = {"anotherName"})})
@@ -572,14 +592,15 @@ class DatabaseProcessorTest {
                     String anotherName;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, entity2
+            entity1,
+            entity2
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -594,9 +615,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun foreignKey_missingParent() {
-        val entity1 = Source.java(
-            "foo.bar.Entity1",
-            """
+        val entity1 =
+            Source.java(
+                "foo.bar.Entity1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(foreignKeys = @ForeignKey(
@@ -609,14 +631,15 @@ class DatabaseProcessorTest {
                     String name;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {Entity1.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, COMMON.USER
+            entity1,
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -631,9 +654,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun foreignKey_missingParentIndex() {
-        val entity1 = Source.java(
-            "foo.bar.Entity1",
-            """
+        val entity1 =
+            Source.java(
+                "foo.bar.Entity1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(foreignKeys = @ForeignKey(
@@ -646,14 +670,15 @@ class DatabaseProcessorTest {
                     String name;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {Entity1.class, User.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, COMMON.USER
+            entity1,
+            COMMON.USER
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -670,9 +695,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun foreignKey_goodWithPrimaryKey() {
-        val entity1 = Source.java(
-            "foo.bar.Entity1",
-            """
+        val entity1 =
+            Source.java(
+                "foo.bar.Entity1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(foreignKeys = @ForeignKey(entity = Entity2.class,
@@ -685,11 +711,12 @@ class DatabaseProcessorTest {
                     String name;
                 }
                 """
-        )
+            )
 
-        val entity2 = Source.java(
-            "foo.bar.Entity2",
-            """
+        val entity2 =
+            Source.java(
+                "foo.bar.Entity2",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity
@@ -699,23 +726,25 @@ class DatabaseProcessorTest {
                     String anotherName;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, entity2
+            entity1,
+            entity2
         ) { _, _ ->
         }
     }
 
     @Test
     fun foreignKey_missingParentColumn() {
-        val entity1 = Source.java(
-            "foo.bar.Entity1",
-            """
+        val entity1 =
+            Source.java(
+                "foo.bar.Entity1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(foreignKeys = @ForeignKey(entity = Entity2.class,
@@ -728,11 +757,12 @@ class DatabaseProcessorTest {
                     String name2;
                 }
                 """
-        )
+            )
 
-        val entity2 = Source.java(
-            "foo.bar.Entity2",
-            """
+        val entity2 =
+            Source.java(
+                "foo.bar.Entity2",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity
@@ -742,20 +772,22 @@ class DatabaseProcessorTest {
                     String anotherName;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, entity2
+            entity1,
+            entity2
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.foreignKeyParentColumnDoesNotExist(
                         "foo.bar.Entity2",
-                        "anotherName2", listOf("uid", "anotherName")
+                        "anotherName2",
+                        listOf("uid", "anotherName")
                     )
                 )
             }
@@ -764,9 +796,10 @@ class DatabaseProcessorTest {
 
     @Test
     fun foreignKey_goodWithIndex() {
-        val entity1 = Source.java(
-            "foo.bar.Entity1",
-            """
+        val entity1 =
+            Source.java(
+                "foo.bar.Entity1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(foreignKeys = @ForeignKey(entity = Entity2.class,
@@ -779,11 +812,12 @@ class DatabaseProcessorTest {
                     String name2;
                 }
                 """
-        )
+            )
 
-        val entity2 = Source.java(
-            "foo.bar.Entity2",
-            """
+        val entity2 =
+            Source.java(
+                "foo.bar.Entity2",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity(indices = @Index(value = {"anotherName2", "anotherName"}, unique = true))
@@ -794,14 +828,15 @@ class DatabaseProcessorTest {
                     String anotherName2;
                 }
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {Entity1.class, Entity2.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """,
-            entity1, entity2
+            entity1,
+            entity2
         ) { _, _ ->
         }
     }
@@ -815,7 +850,10 @@ class DatabaseProcessorTest {
                     abstract BookDao bookDao();
                 }
                 """,
-            USER, USER_DAO, BOOK, BOOK_DAO
+            USER,
+            USER_DAO,
+            BOOK,
+            BOOK_DAO
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -838,7 +876,10 @@ class DatabaseProcessorTest {
                     abstract PublisherDao publisherDao();
                 }
             """,
-            USER, USER_DAO, PUBLISHER, PUBLISHER_DAO
+            USER,
+            USER_DAO,
+            PUBLISHER,
+            PUBLISHER_DAO
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -878,14 +919,16 @@ class DatabaseProcessorTest {
                     }
                 }
                 """,
-            USER, USER_DAO
+            USER,
+            USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
             val insertionMethod = userDao.insertMethods.find { it.element.jvmName == "insert" }
             assertThat(insertionMethod, notNullValue())
-            val loadOne = userDao.queryMethods
-                .filterIsInstance<ReadQueryMethod>()
-                .find { it.element.jvmName == "loadOne" }
+            val loadOne =
+                userDao.queryMethods.filterIsInstance<ReadQueryMethod>().find {
+                    it.element.jvmName == "loadOne"
+                }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -895,9 +938,10 @@ class DatabaseProcessorTest {
                 sameInstance(insertionMethod?.entities?.values?.first()?.pojo)
             )
 
-            val withConverter = userDao.queryMethods
-                .filterIsInstance<ReadQueryMethod>()
-                .find { it.element.jvmName == "loadWithConverter" }
+            val withConverter =
+                userDao.queryMethods.filterIsInstance<ReadQueryMethod>().find {
+                    it.element.jvmName == "loadWithConverter"
+                }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -921,20 +965,23 @@ class DatabaseProcessorTest {
                     public abstract UserDao userDao();
                 }
                 """,
-            USER, USER_DAO
+            USER,
+            USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val loadOne = userDao.queryMethods
-                .filterIsInstance<ReadQueryMethod>()
-                .find { it.element.jvmName == "loadOnePojo" }
+            val loadOne =
+                userDao.queryMethods.filterIsInstance<ReadQueryMethod>().find {
+                    it.element.jvmName == "loadOnePojo"
+                }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
             val adapterPojo = (adapter as PojoRowAdapter).pojo
 
-            val loadAll = userDao.queryMethods
-                .filterIsInstance<ReadQueryMethod>()
-                .find { it.element.jvmName == "loadAllPojos" }
+            val loadAll =
+                userDao.queryMethods.filterIsInstance<ReadQueryMethod>().find {
+                    it.element.jvmName == "loadAllPojos"
+                }
             assertThat(loadAll, notNullValue())
             val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
@@ -942,9 +989,10 @@ class DatabaseProcessorTest {
             assertThat(adapter, not(sameInstance(loadAllAdapter)))
             assertThat(adapterPojo, sameInstance(loadAllPojo))
 
-            val withConverter = userDao.queryMethods
-                .filterIsInstance<ReadQueryMethod>()
-                .find { it.element.jvmName == "loadPojoWithConverter" }
+            val withConverter =
+                userDao.queryMethods.filterIsInstance<ReadQueryMethod>().find {
+                    it.element.jvmName == "loadPojoWithConverter"
+                }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
@@ -968,8 +1016,7 @@ class DatabaseProcessorTest {
     fun daoConstructor_wrongDatabase() {
         assertConstructor(listOf(DB1, DB3), "BookDao(Db3 db) {}") { result ->
             result.hasErrorContaining(
-                ProcessorErrors
-                    .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db1")
+                ProcessorErrors.daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db1")
             )
         }
     }
@@ -1010,32 +1057,33 @@ class DatabaseProcessorTest {
                 """
         ) { result ->
             result.hasErrorContaining(
-                ProcessorErrors
-                    .daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db2")
+                ProcessorErrors.daoMustHaveMatchingConstructor("foo.bar.BookDao", "foo.bar.Db2")
             )
         }
     }
 
     @Test
     fun view_duplicateNames() {
-        val view1 = Source.java(
-            "foo.bar.View1",
-            """
+        val view1 =
+            Source.java(
+                "foo.bar.View1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @DatabaseView(value = "SELECT * FROM User", viewName = "SameName")
                 public class View1 {}
                 """
-        )
-        val view2 = Source.java(
-            "foo.bar.View2",
-            """
+            )
+        val view2 =
+            Source.java(
+                "foo.bar.View2",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @DatabaseView(value = "SELECT * FROM User", viewName = "SameName")
                 public class View2 {}
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {User.class},
@@ -1044,7 +1092,9 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
         """,
-            USER, view1, view2
+            USER,
+            view1,
+            view2
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -1059,15 +1109,16 @@ class DatabaseProcessorTest {
 
     @Test
     fun view_duplicateNamesWithEntity() {
-        val view1 = Source.java(
-            "foo.bar.View1",
-            """
+        val view1 =
+            Source.java(
+                "foo.bar.View1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @DatabaseView(value = "SELECT * FROM User", viewName = "Book")
                 public class View1 {}
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {User.class, Book.class},
@@ -1076,7 +1127,9 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
         """,
-            USER, BOOK, view1
+            USER,
+            BOOK,
+            view1
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -1091,24 +1144,26 @@ class DatabaseProcessorTest {
 
     @Test
     fun view_circularReference() {
-        val view1 = Source.java(
-            "foo.bar.View1",
-            """
+        val view1 =
+            Source.java(
+                "foo.bar.View1",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @DatabaseView("SELECT * FROM View2")
                 public class View1 {}
                 """
-        )
-        val view2 = Source.java(
-            "foo.bar.View2",
-            """
+            )
+        val view2 =
+            Source.java(
+                "foo.bar.View2",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @DatabaseView("SELECT * FROM View1")
                 public class View2 {}
                 """
-        )
+            )
         singleDb(
             """
                 @Database(entities = {User.class},
@@ -1117,7 +1172,9 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                 }
         """,
-            USER, view1, view2
+            USER,
+            view1,
+            view2
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
@@ -1149,11 +1206,12 @@ class DatabaseProcessorTest {
                 assertThat(it.tables, hasItems("A", "B"))
             }
             // The order here is not important.
-            val (viewR, viewS) = if (views[2].viewName == "R") {
-                listOf(views[2], views[3])
-            } else {
-                listOf(views[3], views[2])
-            }
+            val (viewR, viewS) =
+                if (views[2].viewName == "R") {
+                    listOf(views[2], views[3])
+                } else {
+                    listOf(views[3], views[2])
+                }
             viewR.let {
                 assertThat(it.viewName, `is`(equalTo("R")))
                 assertThat(it.tables.size, `is`(3))
@@ -1169,34 +1227,26 @@ class DatabaseProcessorTest {
 
     @Test
     fun resolveDatabaseViews_empty() {
-        resolveDatabaseViews(emptyMap()) { views, _ ->
-            assertThat(views.size, `is`(0))
-        }
+        resolveDatabaseViews(emptyMap()) { views, _ -> assertThat(views.size, `is`(0)) }
     }
 
     @Test
     fun resolveDatabaseViews_circular() {
         resolveDatabaseViews(
-            mapOf(
-                "P" to setOf("Q"),
-                "Q" to setOf("P"),
-                "R" to setOf("A"),
-                "S" to setOf("R", "B")
-            )
+            mapOf("P" to setOf("Q"), "Q" to setOf("P"), "R" to setOf("A"), "S" to setOf("R", "B"))
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.viewCircularReferenceDetected(listOf("P", "Q"))
-                )
+                hasErrorContaining(ProcessorErrors.viewCircularReferenceDetected(listOf("P", "Q")))
             }
         }
     }
 
     @Test
     fun daoMethod_nonDeclaredReturnType() {
-        val badDaoType = Source.java(
-            "foo.bar.MyDb",
-            """
+        val badDaoType =
+            Source.java(
+                "foo.bar.MyDb",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Database(version = 1, entities = {})
@@ -1204,13 +1254,11 @@ class DatabaseProcessorTest {
                     abstract long getDao();
                 }
                 """
-        )
+            )
         runProcessorTest(sources = listOf(badDaoType)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
-            val result = DatabaseProcessor(
-                baseContext = invocation.context,
-                element = element
-            ).process()
+            val result =
+                DatabaseProcessor(baseContext = invocation.context, element = element).process()
             assertThat(result.daoMethods).hasSize(0)
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.DATABASE_INVALID_DAO_METHOD_RETURN_TYPE)
@@ -1220,45 +1268,34 @@ class DatabaseProcessorTest {
 
     @Test
     fun nonDeclaredEntity() {
-        val badDaoType = Source.java(
-            "foo.bar.MyDb",
-            """
+        val badDaoType =
+            Source.java(
+                "foo.bar.MyDb",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Database(version = 1, entities = {long.class}, views = {int.class})
                 public abstract class MyDb extends RoomDatabase {
                 }
                 """
-        )
+            )
         runProcessorTest(listOf(badDaoType)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
-            val result = DatabaseProcessor(
-                baseContext = invocation.context,
-                element = element
-            ).process()
-            assertThat(result.entities).hasSize(
-                if (invocation.isKsp) 1 else 0
-            )
-            assertThat(result.views).hasSize(
-                if (invocation.isKsp) 1 else 0
-            )
+            val result =
+                DatabaseProcessor(baseContext = invocation.context, element = element).process()
+            assertThat(result.entities).hasSize(if (invocation.isKsp) 1 else 0)
+            assertThat(result.views).hasSize(if (invocation.isKsp) 1 else 0)
             if (invocation.isKsp) {
                 invocation.assertCompilationResult {
-                    hasErrorContaining(
-                        ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
-                    )
-                    hasErrorContaining(
-                        ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
-                    )
+                    hasErrorContaining(ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
+                    hasErrorContaining(ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW)
                 }
             } else {
                 invocation.assertCompilationResult {
                     hasErrorContaining(
                         ProcessorErrors.invalidEntityTypeInDatabaseAnnotation("long")
                     )
-                    hasErrorContaining(
-                        ProcessorErrors.invalidViewTypeInDatabaseAnnotation("int")
-                    )
+                    hasErrorContaining(ProcessorErrors.invalidViewTypeInDatabaseAnnotation("int"))
                 }
             }
         }
@@ -1273,12 +1310,11 @@ class DatabaseProcessorTest {
                 .class), @AutoMigration(from = 2, to = 3)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, AUTOMIGRATION
+            USER,
+            AUTOMIGRATION
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
-                )
+                hasErrorContaining(ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF)
             }
         }
     }
@@ -1292,7 +1328,8 @@ class DatabaseProcessorTest {
                 .class)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, AUTOMIGRATION
+            USER,
+            AUTOMIGRATION
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(1)
@@ -1317,7 +1354,8 @@ class DatabaseProcessorTest {
                 .class)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, AUTOMIGRATION,
+            USER,
+            AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(1)
@@ -1341,7 +1379,8 @@ class DatabaseProcessorTest {
                 .class)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, AUTOMIGRATION
+            USER,
+            AUTOMIGRATION
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(1)
@@ -1368,7 +1407,8 @@ class DatabaseProcessorTest {
                 .class)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, AUTOMIGRATION,
+            USER,
+            AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(2)
@@ -1388,29 +1428,21 @@ class DatabaseProcessorTest {
         val dbFolder = schemaFolder.newFolder("foo.bar.MyDb")
         val from: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "1.json")
         val to: File = schemaFolder.newFile("foo.bar.MyDb" + File.separator + "2.json")
-        FileOutputStream(from).bufferedWriter().use {
-            it.write("BAD FILE")
-        }
-        FileOutputStream(to).bufferedWriter().use {
-            it.write("BAD FILE")
-        }
+        FileOutputStream(from).bufferedWriter().use { it.write("BAD FILE") }
+        FileOutputStream(to).bufferedWriter().use { it.write("BAD FILE") }
         singleDb(
             """
                 @Database(entities = {User.class}, version = 42, exportSchema = true,
                 autoMigrations = {@AutoMigration(from = 1, to = 2)})
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-            USER, AUTOMIGRATION,
+            USER,
+            AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(2)
                 hasErrorContaining("Unable to read schema file")
-                hasErrorContaining(
-                    invalidAutoMigrationSchema(
-                        1,
-                        dbFolder.absolutePath
-                    )
-                )
+                hasErrorContaining(invalidAutoMigrationSchema(1, dbFolder.absolutePath))
             }
         }
     }
@@ -1418,9 +1450,10 @@ class DatabaseProcessorTest {
     @Test
     fun differentSchemaResolver() {
         val tempDirPath = schemaFolder.root.absolutePath
-        val serviceSource = Source.java(
-            "foo.bar.TestResolver",
-            """
+        val serviceSource =
+            Source.java(
+                "foo.bar.TestResolver",
+                """
             package foo.bar;
             import androidx.room.util.SchemaFileResolver;
             import com.google.auto.service.AutoService;
@@ -1448,33 +1481,36 @@ class DatabaseProcessorTest {
                     return Files.newOutputStream(resolved);
                 }
             }
-            """.trimIndent()
-        )
-        val resolverLib = compileFilesIntoJar(
-            outputDirectory = schemaFolder.root,
-            sources = listOf(serviceSource),
-            annotationProcessors = listOf(AutoServiceProcessor()),
-        )
-        val dbSource = Source.java(
-            "foo.bar.MyDb",
             """
+                    .trimIndent()
+            )
+        val resolverLib =
+            compileFilesIntoJar(
+                outputDirectory = schemaFolder.root,
+                sources = listOf(serviceSource),
+                annotationProcessors = listOf(AutoServiceProcessor()),
+            )
+        val dbSource =
+            Source.java(
+                "foo.bar.MyDb",
+                """
             package foo.bar;
             import androidx.room.*;
             @Database(entities = {User.class}, version = 1, exportSchema = true)
             public abstract class MyDb extends RoomDatabase {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
             sources = listOf(dbSource, USER),
-            options = mapOf(
-                "room.schemaLocation" to "schemas/",
-                "room.generateKotlin" to "false"
-            )
+            options = mapOf("room.schemaLocation" to "schemas/", "room.generateKotlin" to "false")
         ) { invocation ->
             val dbAnnotationName = "androidx.room.Database"
-            val roundElements = mapOf(
-                dbAnnotationName to invocation.roundEnv.getElementsAnnotatedWith(dbAnnotationName)
-            )
+            val roundElements =
+                mapOf(
+                    dbAnnotationName to
+                        invocation.roundEnv.getElementsAnnotatedWith(dbAnnotationName)
+                )
             // Temporarily change the current's thread class loader so that the ServiceLocator can
             // find the compiled TestResolver. It is not enough to pass the compiled jar in the
             // classpath argument when running processors because the processor classpath is
@@ -1482,10 +1518,11 @@ class DatabaseProcessorTest {
             // loaded.
             val currentClassLoader = Thread.currentThread().contextClassLoader
             try {
-                Thread.currentThread().contextClassLoader = URLClassLoader(
-                    arrayOf(URL("file://${resolverLib.absolutePath}")),
-                    currentClassLoader,
-                )
+                Thread.currentThread().contextClassLoader =
+                    URLClassLoader(
+                        arrayOf(URL("file://${resolverLib.absolutePath}")),
+                        currentClassLoader,
+                    )
                 DatabaseProcessingStep().process(invocation.processingEnv, roundElements, false)
             } finally {
                 Thread.currentThread().contextClassLoader = currentClassLoader
@@ -1493,40 +1530,43 @@ class DatabaseProcessorTest {
         }
         // Assert schema file is created in a directory different from the room.schemaLocation
         // verbatim since it was resolved by the compiled TestResolver.
-        assertThat(
-            File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
-        ).isTrue()
+        assertThat(File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()).isTrue()
     }
 
     @Test
     fun exportSchemaToJarResources() {
-        val dbSource = Source.java(
-            "foo.bar.MyDb",
-            """
+        val dbSource =
+            Source.java(
+                "foo.bar.MyDb",
+                """
             package foo.bar;
             import androidx.room.*;
             @Database(entities = {User.class}, version = 1, exportSchema = true)
             public abstract class MyDb extends RoomDatabase {}
-            """.trimIndent()
-        )
-        val lib = compileFiles(
-            sources = listOf(dbSource, USER),
-            annotationProcessors = listOf(RoomProcessor()),
-            options = mapOf("room.exportSchemaResource" to "true"),
-            includeSystemClasspath = false
-        )
+            """
+                    .trimIndent()
+            )
+        val lib =
+            compileFiles(
+                sources = listOf(dbSource, USER),
+                annotationProcessors = listOf(RoomProcessor()),
+                options = mapOf("room.exportSchemaResource" to "true"),
+                includeSystemClasspath = false
+            )
         assertThat(
-            lib.any { libDir ->
-                libDir.walkTopDown().any { it.endsWith("schemas/foo.bar.MyDb/1.json") }
-            }
-        ).isTrue()
+                lib.any { libDir ->
+                    libDir.walkTopDown().any { it.endsWith("schemas/foo.bar.MyDb/1.json") }
+                }
+            )
+            .isTrue()
     }
 
     @Test
     fun jvmNameOnDaoMethod() {
-        val jvmNameInDaoGetter = Source.kotlin(
-            "MyDb.kt",
-            """
+        val jvmNameInDaoGetter =
+            Source.kotlin(
+                "MyDb.kt",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Dao
@@ -1540,29 +1580,25 @@ class DatabaseProcessorTest {
                     abstract val dao: MyDao
                 }
                 """
-        )
+            )
         runProcessorTest(
             sources = listOf(jvmNameInDaoGetter),
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
-            DatabaseProcessor(
-                baseContext = invocation.context,
-                element = element
-            ).process()
+            DatabaseProcessor(baseContext = invocation.context, element = element).process()
             invocation.assertCompilationResult {
-                hasWarningContaining(
-                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
-                )
+                hasWarningContaining(ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD)
             }
         }
     }
 
     @Test
     fun allowPropertyDao() {
-        val src = Source.kotlin(
-            "MyDatabase.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDatabase.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
@@ -1581,20 +1617,16 @@ class DatabaseProcessorTest {
                 @PrimaryKey
                 var pk: Int
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runKspTest(
             sources = listOf(src),
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
         ) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("MyDatabase")
-            DatabaseProcessor(
-                baseContext = invocation.context,
-                element = element
-            ).process()
-            invocation.assertCompilationResult {
-                hasNoWarnings()
-            }
+            DatabaseProcessor(baseContext = invocation.context, element = element).process()
+            invocation.assertCompilationResult { hasNoWarnings() }
         }
     }
 
@@ -1607,7 +1639,8 @@ class DatabaseProcessorTest {
                 abstract UserDao userDao();
             }
             """,
-            USER, USER_DAO
+            USER,
+            USER_DAO
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorCount(1)
@@ -1624,32 +1657,33 @@ class DatabaseProcessorTest {
             sources = listOf(DB3, BOOK),
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
-            val database = invocation.roundEnv
-                .getElementsAnnotatedWith(
-                    androidx.room.Database::class.qualifiedName!!
-                )
-                .filterIsInstance<XTypeElement>()
-                .first()
-            val processor = DatabaseProcessor(
-                invocation.context,
-                database
-            )
+            val database =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .first()
+            val processor = DatabaseProcessor(invocation.context, database)
 
-            val list = views.map { (viewName, names) ->
-                DatabaseView(
-                    element = mock(XTypeElement::class.java),
-                    viewName = viewName,
-                    query = ParsedQuery(
-                        "", QueryType.SELECT, emptyList(),
-                        names.map { Table(it, it) }.toSet(), null,
-                        emptyList()
-                    ),
-                    type = mock(XType::class.java),
-                    fields = emptyList(),
-                    embeddedFields = emptyList(),
-                    constructor = null
-                )
-            }
+            val list =
+                views.map { (viewName, names) ->
+                    DatabaseView(
+                        element = mock(XTypeElement::class.java),
+                        viewName = viewName,
+                        query =
+                            ParsedQuery(
+                                "",
+                                QueryType.SELECT,
+                                emptyList(),
+                                names.map { Table(it, it) }.toSet(),
+                                null,
+                                emptyList()
+                            ),
+                        type = mock(XType::class.java),
+                        fields = emptyList(),
+                        embeddedFields = emptyList(),
+                        constructor = null
+                    )
+                }
             val resolvedViews = processor.resolveDatabaseViews(list)
             body(resolvedViews, invocation)
         }
@@ -1660,9 +1694,10 @@ class DatabaseProcessorTest {
         constructor: String,
         onCompilationResult: ((result: CompilationResultSubject) -> Unit)? = null
     ) {
-        val bookDao = Source.java(
-            "foo.bar.BookDao",
-            """
+        val bookDao =
+            Source.java(
+                "foo.bar.BookDao",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Dao
@@ -1670,7 +1705,7 @@ class DatabaseProcessorTest {
                     $constructor
                 }
                 """
-        )
+            )
         runProcessorTest(
             sources = listOf(BOOK, bookDao) + dbs,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
@@ -1687,27 +1722,20 @@ class DatabaseProcessorTest {
         handler: (Database, XTestInvocation) -> Unit
     ) {
         runProcessorTest(
-            sources = otherFiles.toList() +
-                Source.java(
-                    "foo.bar.MyDb",
-                    DATABASE_PREFIX + input
-                ),
+            sources = otherFiles.toList() + Source.java("foo.bar.MyDb", DATABASE_PREFIX + input),
             classpath = classpath,
-            options = mapOf(
-                "room.schemaLocation" to schemaFolder.root.absolutePath,
-                Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"
-            )
-        ) { invocation ->
-            val entity = invocation.roundEnv
-                .getElementsAnnotatedWith(
-                    androidx.room.Database::class.qualifiedName!!
+            options =
+                mapOf(
+                    "room.schemaLocation" to schemaFolder.root.absolutePath,
+                    Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"
                 )
-                .filterIsInstance<XTypeElement>()
-                .first()
-            val parser = DatabaseProcessor(
-                invocation.context,
-                entity
-            )
+        ) { invocation ->
+            val entity =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .first()
+            val parser = DatabaseProcessor(invocation.context, entity)
             val parsedDb = parser.process()
             handler(parsedDb, invocation)
         }

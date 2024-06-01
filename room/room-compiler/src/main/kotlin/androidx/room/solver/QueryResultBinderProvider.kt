@@ -21,11 +21,7 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.solver.query.result.QueryResultBinder
 
 interface QueryResultBinderProvider {
-    fun provide(
-        declared: XType,
-        query: ParsedQuery,
-        extras: TypeAdapterExtras
-    ): QueryResultBinder
+    fun provide(declared: XType, query: ParsedQuery, extras: TypeAdapterExtras): QueryResultBinder
 
     fun matches(declared: XType): Boolean
 }

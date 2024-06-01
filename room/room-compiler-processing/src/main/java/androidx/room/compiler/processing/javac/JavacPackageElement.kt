@@ -26,20 +26,22 @@ internal class JavacPackageElement(
     env: JavacProcessingEnv,
     private val packageElement: PackageElement
 ) : JavacElement(env, packageElement), XPackageElement {
-    override val qualifiedName: String by lazy {
-        packageElement.qualifiedName.toString()
-    }
+    override val qualifiedName: String by lazy { packageElement.qualifiedName.toString() }
     override val kotlinMetadata: KmVisibility?
         get() = null
-    override val name: String by lazy {
-        packageElement.simpleName.toString()
-    }
+
+    override val name: String by lazy { packageElement.simpleName.toString() }
     override val fallbackLocationText: String
         get() = qualifiedName
+
     override val enclosingElement: XElement?
         get() = null
+
     override val closestMemberContainer: XMemberContainer
-        get() = throw UnsupportedOperationException("Packages don't have a closestMemberContainer" +
-            " as we don't consider packages a member container for now and it" +
-            " has no enclosingElement.")
+        get() =
+            throw UnsupportedOperationException(
+                "Packages don't have a closestMemberContainer" +
+                    " as we don't consider packages a member container for now and it" +
+                    " has no enclosingElement."
+            )
 }

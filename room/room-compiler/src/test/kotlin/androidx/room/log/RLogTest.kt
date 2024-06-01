@@ -30,15 +30,16 @@ import org.junit.runners.JUnit4
 class RLogTest {
     @Test
     fun testSafeFormat() {
-        val messager = object : XMessager() {
-            override fun onPrintMessage(
-                kind: Diagnostic.Kind,
-                msg: String,
-                element: XElement?,
-                annotation: XAnnotation?,
-                annotationValue: XAnnotationValue?
-            ) {}
-        }
+        val messager =
+            object : XMessager() {
+                override fun onPrintMessage(
+                    kind: Diagnostic.Kind,
+                    msg: String,
+                    element: XElement?,
+                    annotation: XAnnotation?,
+                    annotationValue: XAnnotationValue?
+                ) {}
+            }
         val logger = RLog(messager, emptySet(), null)
 
         // UnknownFormatConversionException

@@ -17,18 +17,16 @@
 package androidx.room
 
 /**
- * Declares which column is used to build a map or multimap return value in a [Dao]
- * query method.
+ * Declares which column is used to build a map or multimap return value in a [Dao] query method.
  *
  * This annotation is required when the key or value of a Map (or nested map) is a single column of
- * one of the built in types (primitives, boxed primitives, enum, String, byte[], ByteBuffer) or
- * a type with a converter (e.g. Date, UUID, etc).
+ * one of the built in types (primitives, boxed primitives, enum, String, byte[], ByteBuffer) or a
+ * type with a converter (e.g. Date, UUID, etc).
  *
  * The use of this annotation provides clarity on which column should be used in retrieving
  * information required by the return type.
  *
  * Example:
- *
  * ```
  *   @Query("SELECT * FROM Artist JOIN Song ON Artist.artistName = Song.artist")
  *   fun getArtistNameToSongNames():
@@ -56,9 +54,8 @@ public annotation class MapColumn(
      * The name of the table or alias to be used for the map's column.
      *
      * Providing this value is optional. Useful for disambiguating between duplicate column names.
-     * For example, consider the following query:
-     * `SELECT * FROM Artist AS a JOIN Song AS s ON a.id == s.artistId`, then the `@MapColumn`
-     * for a return type `Map<String, List<Song>>` would be
+     * For example, consider the following query: `SELECT * FROM Artist AS a JOIN Song AS s ON a.id
+     * == s.artistId`, then the `@MapColumn` for a return type `Map<String, List<Song>>` would be
      * `Map<@MapColumn(columnName = "id", tableName = "a") String, List<Song>>`.
      *
      * @return The column table name.

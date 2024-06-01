@@ -39,21 +39,21 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.vo.RelationCollector
 
-/**
- * Writes the function that fetches the relations of a POJO and assigns them into the given map.
- */
+/** Writes the function that fetches the relations of a POJO and assigns them into the given map. */
 class RelationCollectorFunctionWriter(
     private val collector: RelationCollector,
     private val useDriverApi: Boolean
-) : TypeWriter.SharedFunctionSpec(
-    baseName = if (useDriverApi) {
-        "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
-            "As${collector.relation.pojoTypeName.toString(CodeLanguage.JAVA).stripNonJava()}"
-    } else {
-        "fetchCompatRelationship${collector.relation.entity.tableName.stripNonJava()}" +
-            "As${collector.relation.pojoTypeName.toString(CodeLanguage.JAVA).stripNonJava()}"
-    },
-) {
+) :
+    TypeWriter.SharedFunctionSpec(
+        baseName =
+            if (useDriverApi) {
+                "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
+                    "As${collector.relation.pojoTypeName.toString(CodeLanguage.JAVA).stripNonJava()}"
+            } else {
+                "fetchCompatRelationship${collector.relation.entity.tableName.stripNonJava()}" +
+                    "As${collector.relation.pojoTypeName.toString(CodeLanguage.JAVA).stripNonJava()}"
+            },
+    ) {
     companion object {
         const val PARAM_MAP_VARIABLE = "_map"
         const val PARAM_CONNECTION_VARIABLE = "_connection"
@@ -62,8 +62,7 @@ class RelationCollectorFunctionWriter(
 
     private val usingLongSparseArray =
         collector.mapTypeName.rawTypeName == CollectionTypeNames.LONG_SPARSE_ARRAY
-    private val usingArrayMap =
-        collector.mapTypeName.rawTypeName == CollectionTypeNames.ARRAY_MAP
+    private val usingArrayMap = collector.mapTypeName.rawTypeName == CollectionTypeNames.ARRAY_MAP
 
     override fun getUniqueKey(): String {
         val relation = collector.relation
@@ -85,25 +84,23 @@ class RelationCollectorFunctionWriter(
             // Check if the input map key set exceeds MAX_BIND_PARAMETER_CNT, if so do a recursive
             // fetch.
             beginControlFlow(
-                "if (%L > %L)",
-                if (usingLongSparseArray) {
-                    XCodeBlock.of(language, "%L.size()", PARAM_MAP_VARIABLE)
-                } else {
-                    CollectionsSizeExprCode(language, PARAM_MAP_VARIABLE)
-                },
-                if (useDriverApi) {
-                    "999"
-                } else {
-                    XCodeBlock.of(
-                        language,
-                        "%T.MAX_BIND_PARAMETER_CNT",
-                        RoomTypeNames.ROOM_DB
-                    )
+                    "if (%L > %L)",
+                    if (usingLongSparseArray) {
+                        XCodeBlock.of(language, "%L.size()", PARAM_MAP_VARIABLE)
+                    } else {
+                        CollectionsSizeExprCode(language, PARAM_MAP_VARIABLE)
+                    },
+                    if (useDriverApi) {
+                        "999"
+                    } else {
+                        XCodeBlock.of(language, "%T.MAX_BIND_PARAMETER_CNT", RoomTypeNames.ROOM_DB)
+                    }
+                )
+                .apply {
+                    addRecursiveFetchCall(scope, methodName)
+                    addStatement("return")
                 }
-            ).apply {
-                addRecursiveFetchCall(scope, methodName)
-                addStatement("return")
-            }.endControlFlow()
+                .endControlFlow()
 
             createStmtAndReturn(scope)
         }
@@ -116,9 +113,7 @@ class RelationCollectorFunctionWriter(
         }
     }
 
-    private fun XCodeBlock.Builder.createStmtAndReturn(
-        scope: CodeGenScope
-    ) {
+    private fun XCodeBlock.Builder.createStmtAndReturn(scope: CodeGenScope) {
         // Create SQL query, acquire statement and bind parameters.
         val stmtVar = scope.getTmpVar("_stmt")
         val cursorVar = "_cursor"
@@ -138,21 +133,23 @@ class RelationCollectorFunctionWriter(
         } else {
             collector.queryWriter.prepareReadAndBind(sqlQueryVar, stmtVar, scope)
             // Perform query and get a Cursor
-            val shouldCopyCursor = collector.rowAdapter.let {
-                it is PojoRowAdapter && it.relationCollectors.isNotEmpty()
-            }
+            val shouldCopyCursor =
+                collector.rowAdapter.let {
+                    it is PojoRowAdapter && it.relationCollectors.isNotEmpty()
+                }
             addLocalVariable(
                 name = cursorVar,
                 typeName = AndroidTypeNames.CURSOR,
-                assignExpr = XCodeBlock.of(
-                    language,
-                    "%M(%N, %L, %L, %L)",
-                    RoomMemberNames.DB_UTIL_QUERY,
-                    DaoWriter.DB_PROPERTY_NAME,
-                    stmtVar,
-                    if (shouldCopyCursor) "true" else "false",
-                    "null"
-                )
+                assignExpr =
+                    XCodeBlock.of(
+                        language,
+                        "%M(%N, %L, %L, %L)",
+                        RoomMemberNames.DB_UTIL_QUERY,
+                        DaoWriter.DB_PROPERTY_NAME,
+                        stmtVar,
+                        if (shouldCopyCursor) "true" else "false",
+                        "null"
+                    )
             )
         }
         addRelationCollectorCode(scope, if (useDriverApi) stmtVar else cursorVar)
@@ -186,7 +183,9 @@ class RelationCollectorFunctionWriter(
                     assignExprFormat = "%M(%L, %S)",
                     if (useDriverApi) {
                         RoomTypeNames.STATEMENT_UTIL.packageMember("getColumnIndex")
-                    } else { RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX },
+                    } else {
+                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX
+                    },
                     cursorVar,
                     relation.entityField.columnName
                 )
@@ -194,9 +193,7 @@ class RelationCollectorFunctionWriter(
 
             // Check if index of column is not -1, indicating the column for the key is not in
             // the result, can happen if the user specified a bad projection in @Relation.
-            beginControlFlow("if (%L == -1)", itemKeyIndexVar).apply {
-                addStatement("return")
-            }
+            beginControlFlow("if (%L == -1)", itemKeyIndexVar).apply { addStatement("return") }
             endControlFlow()
 
             // Prepare item column indices
@@ -217,7 +214,8 @@ class RelationCollectorFunctionWriter(
                             relationVar,
                             collector.relationTypeName.copy(nullable = true),
                             "%L.get(%L)",
-                            PARAM_MAP_VARIABLE, keyVar
+                            PARAM_MAP_VARIABLE,
+                            keyVar
                         )
                         beginControlFlow("if (%L != null)", relationVar)
                         addLocalVariable(tmpVarName, relation.pojoTypeName)
@@ -235,26 +233,23 @@ class RelationCollectorFunctionWriter(
             }
             endControlFlow()
         }
-        nextControlFlow("finally").apply {
-            addStatement("%L.close()", cursorVar)
-        }
+        nextControlFlow("finally").apply { addStatement("%L.close()", cursorVar) }
         endControlFlow()
     }
 
     private fun XCodeBlock.Builder.addIsInputEmptyCheck() {
         if (usingLongSparseArray) {
-            beginControlFlow("if (%L.isEmpty())", PARAM_MAP_VARIABLE)
-        } else {
-            val keySetType = CommonTypeNames.SET.parametrizedBy(collector.keyTypeName)
-            addLocalVariable(
-                name = KEY_SET_VARIABLE,
-                typeName = keySetType,
-                assignExpr = MapKeySetExprCode(language, PARAM_MAP_VARIABLE)
-            )
-            beginControlFlow("if (%L.isEmpty())", KEY_SET_VARIABLE)
-        }.apply {
-            addStatement("return")
-        }
+                beginControlFlow("if (%L.isEmpty())", PARAM_MAP_VARIABLE)
+            } else {
+                val keySetType = CommonTypeNames.SET.parametrizedBy(collector.keyTypeName)
+                addLocalVariable(
+                    name = KEY_SET_VARIABLE,
+                    typeName = keySetType,
+                    assignExpr = MapKeySetExprCode(language, PARAM_MAP_VARIABLE)
+                )
+                beginControlFlow("if (%L.isEmpty())", KEY_SET_VARIABLE)
+            }
+            .apply { addStatement("return") }
         endControlFlow()
     }
 
@@ -265,49 +260,50 @@ class RelationCollectorFunctionWriter(
         val utilFunction =
             RELATION_UTIL.let {
                 when {
-                    usingLongSparseArray ->
-                        it.packageMember("recursiveFetchLongSparseArray")
-                    usingArrayMap ->
-                        it.packageMember("recursiveFetchArrayMap")
-                    else -> when (language) {
-                        CodeLanguage.JAVA -> it.packageMember("recursiveFetchHashMap")
-                        CodeLanguage.KOTLIN -> it.packageMember("recursiveFetchMap")
-                    }
+                    usingLongSparseArray -> it.packageMember("recursiveFetchLongSparseArray")
+                    usingArrayMap -> it.packageMember("recursiveFetchArrayMap")
+                    else ->
+                        when (language) {
+                            CodeLanguage.JAVA -> it.packageMember("recursiveFetchHashMap")
+                            CodeLanguage.KOTLIN -> it.packageMember("recursiveFetchMap")
+                        }
                 }
             }
         val paramName = scope.getTmpVar("_tmpMap")
-        val recursiveFetchBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = utilFunction,
-            argFormat = listOf("%L", "%L"),
-            args = listOf(PARAM_MAP_VARIABLE, collector.relationTypeIsCollection),
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = collector.mapTypeName,
-                parameterName = paramName,
-                returnTypeName = KotlinTypeNames.UNIT,
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    val recursiveCall = if (useDriverApi) {
-                        XCodeBlock.of(
-                            language,
-                            "%L(%L, %L)",
-                            methodName, PARAM_CONNECTION_VARIABLE, paramName
-                        )
-                    } else {
-                        XCodeBlock.of(
-                            language,
-                            "%L(%L)",
-                            methodName, paramName
-                        )
+        val recursiveFetchBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = utilFunction,
+                argFormat = listOf("%L", "%L"),
+                args = listOf(PARAM_MAP_VARIABLE, collector.relationTypeIsCollection),
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = collector.mapTypeName,
+                            parameterName = paramName,
+                            returnTypeName = KotlinTypeNames.UNIT,
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val recursiveCall =
+                                if (useDriverApi) {
+                                    XCodeBlock.of(
+                                        language,
+                                        "%L(%L, %L)",
+                                        methodName,
+                                        PARAM_CONNECTION_VARIABLE,
+                                        paramName
+                                    )
+                                } else {
+                                    XCodeBlock.of(language, "%L(%L)", methodName, paramName)
+                                }
+                            addStatement("%L", recursiveCall)
+                            if (language == CodeLanguage.JAVA) {
+                                addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
+                            }
+                        }
                     }
-                    addStatement("%L", recursiveCall)
-                    if (language == CodeLanguage.JAVA) {
-                        addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
-                    }
-                }
-            }
-        )
+            )
         add("%L", recursiveFetchBlock)
     }
 }

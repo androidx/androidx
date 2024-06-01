@@ -28,24 +28,22 @@ import kotlin.jvm.JvmStatic
  *
  * The algorithm works as follow:
  * 1. The input is normalized by making all result column names and mapping column names lowercase.
- * SQLite is case insensitive.
+ *    SQLite is case insensitive.
  * 2. The result columns might contain columns who are not part of any object, these are ignored by
- * creating a new list containing only useful columns, the original indices are preserved and used
- * in the solution.
- * 3.a Next, we find the range of continuous indices where each mapping can be found in the useful
- * result columns list. The order in which the columns are found is not important as long as they
- * are continuous, this accounts for table migrations. The Rabin-Karp algorithm is used for the
- * search, since it has good performance. The has cumulative hash function is simply the sum of
- * the hash codes of each column name.
- * 3.b It is expected to find at least one range for each mapping, if none is found via Rabin-Karp
- * then we fallback to a depth first search approach, which is slower but removes the requirement
- * that the columns must be found continuously.
+ *    creating a new list containing only useful columns, the original indices are preserved and
+ *    used in the solution. 3.a Next, we find the range of continuous indices where each mapping can
+ *    be found in the useful result columns list. The order in which the columns are found is not
+ *    important as long as they are continuous, this accounts for table migrations. The Rabin-Karp
+ *    algorithm is used for the search, since it has good performance. The has cumulative hash
+ *    function is simply the sum of the hash codes of each column name. 3.b It is expected to find
+ *    at least one range for each mapping, if none is found via Rabin-Karp then we fallback to a
+ *    depth first search approach, which is slower but removes the requirement that the columns must
+ *    be found continuously.
  * 4. With various possible matches found for each mapping, the last step is to find the 'best'
- * solution, the algorithm is heuristic. We go through each combination of matched indices ranges
- * using a depth first traversal, comparing a solution made up of such combination with whatever
- * is the current best. The algorithms prefers a solution whose matches ranges don't overlap and
- * are continuous.
- *
+ *    solution, the algorithm is heuristic. We go through each combination of matched indices ranges
+ *    using a depth first traversal, comparing a solution made up of such combination with whatever
+ *    is the current best. The algorithms prefers a solution whose matches ranges don't overlap and
+ *    are continuous.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object AmbiguousColumnResolver {
@@ -54,10 +52,10 @@ public object AmbiguousColumnResolver {
      * Maps query result column indices to result object columns.
      *
      * @param resultColumns The ordered result column names.
-     * @param mappings      An array containing the list of result object column names that must be
-     *                      mapped to indices of `resultColumns`.
-     * @return An array with the same dimensions as `mappings` whose values correspond to the
-     * index in `resultColumns` that match the object column at `mappings[i][j]`.
+     * @param mappings An array containing the list of result object column names that must be
+     *   mapped to indices of `resultColumns`.
+     * @return An array with the same dimensions as `mappings` whose values correspond to the index
+     *   in `resultColumns` that match the object column at `mappings[i][j]`.
      */
     @JvmStatic
     public fun resolve(
@@ -71,10 +69,10 @@ public object AmbiguousColumnResolver {
      * Maps query result column indices to result object columns.
      *
      * @param resultColumns The ordered result column names.
-     * @param mappings      An array containing the list of result object column names that must be
-     *                      mapped to indices of `resultColumns`.
-     * @return An array with the same dimensions as `mappings` whose values correspond to the
-     * index in `resultColumns` that match the object column at `mappings[i][j]`.
+     * @param mappings An array containing the list of result object column names that must be
+     *   mapped to indices of `resultColumns`.
+     * @return An array with the same dimensions as `mappings` whose values correspond to the index
+     *   in `resultColumns` that match the object column at `mappings[i][j]`.
      */
     @JvmStatic
     public fun resolve(
@@ -86,11 +84,13 @@ public object AmbiguousColumnResolver {
             // For result columns, apply workarounds in CursorUtil.getColumnIndex(), i.e. backtick
             // trimming.
             val column = resultColumns[i]
-            resultColumns[i] = if (column[0] == '`' && column[column.length - 1] == '`') {
-                column.substring(1, column.length - 1)
-            } else {
-                column
-            }.lowercase()
+            resultColumns[i] =
+                if (column[0] == '`' && column[column.length - 1] == '`') {
+                        column.substring(1, column.length - 1)
+                    } else {
+                        column
+                    }
+                    .lowercase()
         }
         for (i in mappings.indices) {
             for (j in mappings[i].indices) {
@@ -112,17 +112,19 @@ public object AmbiguousColumnResolver {
         val mappingMatches = List(mappings.size) { mutableListOf<Match>() }
         mappings.forEachIndexed { mappingIndex, mapping ->
             // Step 3.a - Quick searching using a rolling hash
-            rabinKarpSearch(
-                content = usefulResultColumns,
-                pattern = mapping
-            ) { startIndex, endIndex, resultColumnsSublist ->
-                val resultIndices = mapping.map { mappingColumnName ->
-                    val resultColumn = resultColumnsSublist.firstOrNull { (resultColumnName, _) ->
-                        // TODO: Incorporate workarounds in CursorUtil.getColumnIndex()
-                        mappingColumnName == resultColumnName
+            rabinKarpSearch(content = usefulResultColumns, pattern = mapping) {
+                startIndex,
+                endIndex,
+                resultColumnsSublist ->
+                val resultIndices =
+                    mapping.map { mappingColumnName ->
+                        val resultColumn =
+                            resultColumnsSublist.firstOrNull { (resultColumnName, _) ->
+                                // TODO: Incorporate workarounds in CursorUtil.getColumnIndex()
+                                mappingColumnName == resultColumnName
+                            }
+                        resultColumn?.index ?: return@rabinKarpSearch
                     }
-                    resultColumn?.index ?: return@rabinKarpSearch
-                }
                 mappingMatches[mappingIndex].add(
                     Match(
                         resultRange = IntRange(startIndex, endIndex - 1),
@@ -132,25 +134,26 @@ public object AmbiguousColumnResolver {
             }
             // Step 3.b - Failed to quickly find a continuous match, widen the search (slow!)
             if (mappingMatches[mappingIndex].isEmpty()) {
-                val foundIndices = mapping.map { mappingColumnName ->
-                    buildList {
-                        usefulResultColumns.forEach { resultColumn ->
-                            if (mappingColumnName == resultColumn.name) {
-                                add(resultColumn.index)
+                val foundIndices =
+                    mapping.map { mappingColumnName ->
+                        buildList {
+                                usefulResultColumns.forEach { resultColumn ->
+                                    if (mappingColumnName == resultColumn.name) {
+                                        add(resultColumn.index)
+                                    }
+                                }
                             }
-                        }
-                    }.also {
-                        check(it.isNotEmpty()) { "Column $mappingColumnName not found in result" }
+                            .also {
+                                check(it.isNotEmpty()) {
+                                    "Column $mappingColumnName not found in result"
+                                }
+                            }
                     }
-                }
                 dfs(foundIndices) { indices ->
                     val first = indices.minOf { it }
                     val last = indices.maxOf { it }
                     mappingMatches[mappingIndex].add(
-                        Match(
-                            resultRange = IntRange(first, last),
-                            resultIndices = indices
-                        )
+                        Match(resultRange = IntRange(first, last), resultIndices = indices)
                     )
                 }
             }
@@ -238,26 +241,26 @@ public object AmbiguousColumnResolver {
         companion object {
             val NO_SOLUTION = Solution(emptyList(), Int.MAX_VALUE, Int.MAX_VALUE)
 
-            fun build(
-                matches: List<Match>
-            ): Solution {
-                val coverageOffset = matches.sumOf {
-                    (it.resultRange.last - it.resultRange.first + 1) - it.resultIndices.size
-                }
+            fun build(matches: List<Match>): Solution {
+                val coverageOffset =
+                    matches.sumOf {
+                        (it.resultRange.last - it.resultRange.first + 1) - it.resultIndices.size
+                    }
                 val min = matches.minOf { it.resultRange.first }
                 val max = matches.maxOf { it.resultRange.last }
-                val overlaps = (min..max).count { i ->
-                    var count = 0
-                    matches.forEach {
-                        if (it.resultRange.contains(i)) {
-                            count++
+                val overlaps =
+                    (min..max).count { i ->
+                        var count = 0
+                        matches.forEach {
+                            if (it.resultRange.contains(i)) {
+                                count++
+                            }
+                            if (count > 1) {
+                                return@count true
+                            }
                         }
-                        if (count > 1) {
-                            return@count true
-                        }
+                        return@count false
                     }
-                    return@count false
-                }
                 return Solution(
                     matches = matches,
                     coverageOffset = coverageOffset,

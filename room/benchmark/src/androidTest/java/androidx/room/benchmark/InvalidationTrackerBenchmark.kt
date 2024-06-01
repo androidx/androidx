@@ -42,8 +42,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode: Mode) {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
@@ -59,13 +58,15 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
 
     @Test
     fun largeTransaction() {
-        val db = Room.databaseBuilder(context, TestDatabase::class.java, DB_NAME)
-            .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-            .build()
+        val db =
+            Room.databaseBuilder(context, TestDatabase::class.java, DB_NAME)
+                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+                .build()
 
-        val observer = object : InvalidationTracker.Observer("user") {
-            override fun onInvalidated(tables: Set<String>) {}
-        }
+        val observer =
+            object : InvalidationTracker.Observer("user") {
+                override fun onInvalidated(tables: Set<String>) {}
+            }
         db.invalidationTracker.addObserver(observer)
 
         val users = List(sampleSize) { User(it, "name$it") }
@@ -89,10 +90,7 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
         db.close()
     }
 
-    private inline fun runWithTimingConditional(
-        pauseTiming: Boolean = false,
-        block: () -> Unit
-    ) {
+    private inline fun runWithTimingConditional(pauseTiming: Boolean = false, block: () -> Unit) {
         if (pauseTiming) benchmarkRule.getState().pauseTiming()
         block()
         if (pauseTiming) benchmarkRule.getState().resumeTiming()
@@ -110,11 +108,7 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
                     // Removed due to due to slow run times, see b/267544445 for details.
                     // 10000
                 ),
-                listOf(
-                    Mode.MEASURE_INSERT,
-                    Mode.MEASURE_DELETE,
-                    Mode.MEASURE_INSERT_AND_DELETE
-                )
+                listOf(Mode.MEASURE_INSERT, Mode.MEASURE_DELETE, Mode.MEASURE_INSERT_AND_DELETE)
             )
 
         private const val DB_NAME = "invalidation-benchmark-test"
@@ -125,16 +119,13 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
         abstract fun getUserDao(): UserDao
     }
 
-    @Entity
-    data class User(@PrimaryKey val id: Int, val name: String)
+    @Entity data class User(@PrimaryKey val id: Int, val name: String)
 
     @Dao
     interface UserDao {
-        @Insert
-        fun insert(user: User)
+        @Insert fun insert(user: User)
 
-        @Query("DELETE FROM User")
-        fun deleteAll(): Int
+        @Query("DELETE FROM User") fun deleteAll(): Int
     }
 
     enum class Mode {

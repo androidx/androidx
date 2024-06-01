@@ -24,10 +24,13 @@ import kotlin.test.assertFailsWith
 class BuilderTest {
     @Test
     fun databaseBuilderWithFactory() {
-        val db = databaseBuilder(
-            name = "TestDatabase",
-            factory = { TestDatabase::class.instantiateImpl() }
-        ).setDriver(NativeSQLiteDriver()).build()
+        val db =
+            databaseBuilder(
+                    name = "TestDatabase",
+                    factory = { TestDatabase::class.instantiateImpl() }
+                )
+                .setDriver(NativeSQLiteDriver())
+                .build()
 
         // Assert that the db is built successfully.
         assertThat(db).isInstanceOf<TestDatabase>()
@@ -36,15 +39,18 @@ class BuilderTest {
     @Test
     fun missingDriver() {
         assertThat(
-            assertFailsWith<IllegalArgumentException> {
-                databaseBuilder(
-                    name = "TestDatabase",
-                    factory = { TestDatabase::class.instantiateImpl() }
-                ).build()
-            }.message
-        ).isEqualTo(
-            "Cannot create a RoomDatabase without providing a SQLiteDriver via setDriver()."
-        )
+                assertFailsWith<IllegalArgumentException> {
+                        databaseBuilder(
+                                name = "TestDatabase",
+                                factory = { TestDatabase::class.instantiateImpl() }
+                            )
+                            .build()
+                    }
+                    .message
+            )
+            .isEqualTo(
+                "Cannot create a RoomDatabase without providing a SQLiteDriver via setDriver()."
+            )
     }
 
     internal abstract class TestDatabase : RoomDatabase()

@@ -27,7 +27,8 @@ import com.squareup.javapoet.TypeVariableName
 internal class KspTypeParameterElement(
     env: KspProcessingEnv,
     override val declaration: KSTypeParameter
-) : KspElement(env, declaration),
+) :
+    KspElement(env, declaration),
     XTypeParameterElement,
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_FIELD) {
 
@@ -43,9 +44,10 @@ internal class KspTypeParameterElement(
     }
 
     override val bounds: List<XType> by lazy {
-        declaration.bounds.map { env.wrap(it, it.resolve()) }.toList().ifEmpty {
-            listOf(env.requireType(Any::class).makeNullable())
-        }
+        declaration.bounds
+            .map { env.wrap(it, it.resolve()) }
+            .toList()
+            .ifEmpty { listOf(env.requireType(Any::class).makeNullable()) }
     }
 
     override val fallbackLocationText: String

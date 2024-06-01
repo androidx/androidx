@@ -48,30 +48,24 @@ abstract class LimitOffsetRxPagingSource<Value : Any>(
         supportSQLiteQuery: SupportSQLiteQuery,
         db: RoomDatabase,
         vararg tables: String
-    ) : this (
-        sourceQuery = RoomSQLiteQuery.copyFrom(supportSQLiteQuery),
-        db = db,
-        tables = tables
-    )
+    ) : this(sourceQuery = RoomSQLiteQuery.copyFrom(supportSQLiteQuery), db = db, tables = tables)
 
+    @VisibleForTesting internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
     @VisibleForTesting
-    internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
-    @VisibleForTesting
-    internal val observer = ThreadSafeInvalidationObserver(tables = tables) {
-        invalidate()
-    }
+    internal val observer = ThreadSafeInvalidationObserver(tables = tables) { invalidate() }
 
     override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Value>> {
         val scheduler = Schedulers.from(db.queryExecutor)
         return createSingle {
-            observer.registerIfNecessary(db)
-            val tempCount = itemCount.get()
-            if (tempCount == INITIAL_ITEM_COUNT) {
-                initialLoad(params)
-            } else {
-                nonInitialLoad(tempCount, params)
+                observer.registerIfNecessary(db)
+                val tempCount = itemCount.get()
+                if (tempCount == INITIAL_ITEM_COUNT) {
+                    initialLoad(params)
+                } else {
+                    nonInitialLoad(tempCount, params)
+                }
             }
-        }.subscribeOn(scheduler)
+            .subscribeOn(scheduler)
     }
 
     private fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
@@ -91,13 +85,14 @@ abstract class LimitOffsetRxPagingSource<Value : Any>(
     }
 
     private fun nonInitialLoad(tempCount: Int, params: LoadParams<Int>): LoadResult<Int, Value> {
-        val result = queryDatabase(
-            params = params,
-            sourceQuery = sourceQuery,
-            db = db,
-            itemCount = tempCount,
-            convertRows = ::convertRows
-        )
+        val result =
+            queryDatabase(
+                params = params,
+                sourceQuery = sourceQuery,
+                db = db,
+                itemCount = tempCount,
+                convertRows = ::convertRows
+            )
         // manually check if database has been updated. If so, the observer's
         // invalidation callback will invalidate this paging source
         db.invalidationTracker.refreshVersionsSync()
@@ -105,8 +100,7 @@ abstract class LimitOffsetRxPagingSource<Value : Any>(
         return if (invalid) INVALID as LoadResult.Invalid<Int, Value> else result
     }
 
-    @NonNull
-    protected abstract fun convertRows(cursor: Cursor): List<Value>
+    @NonNull protected abstract fun convertRows(cursor: Cursor): List<Value>
 
     override fun getRefreshKey(state: PagingState<Int, Value>): Int? {
         return state.getClippedRefreshKey()

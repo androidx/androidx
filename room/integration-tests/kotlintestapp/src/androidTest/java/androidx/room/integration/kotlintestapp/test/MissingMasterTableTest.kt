@@ -48,18 +48,16 @@ class MissingMasterTableTest {
     fun openDatabaseWithMissingRoomMasterTable() {
         val allowVersionUpdates = AtomicBoolean(true)
         val factory = MyOpenHelperFactory(allowVersionUpdates)
-        val user = User(
-            "u1",
-            Email("e1", "email address 1"),
-            Email("e2", "email address 2")
-        )
+        val user = User("u1", Email("e1", "email address 1"), Email("e2", "email address 2"))
 
         fun openDb(): TestDatabase {
             return Room.databaseBuilder(
-                InstrumentationRegistry.getInstrumentation().targetContext,
-                klass = TestDatabase::class.java,
-                name = "existingDb.db"
-            ).openHelperFactory(factory).build()
+                    InstrumentationRegistry.getInstrumentation().targetContext,
+                    klass = TestDatabase::class.java,
+                    name = "existingDb.db"
+                )
+                .openHelperFactory(factory)
+                .build()
         }
         // Open first version of the database, and remove the room_master_table. This will cause
         // a failure next time we open the database, due to a verification failure.
@@ -73,9 +71,9 @@ class MissingMasterTableTest {
         // Second version of the database fails at open, the failed transaction should be rolled
         // back, allowing the third version to open successfully.
         val db2 = openDb()
-        assertThrows<Throwable> {
-            assertThat(db2.usersDao().getUsers()).containsExactly(user)
-        }.hasMessageThat().contains("no-version-updates")
+        assertThrows<Throwable> { assertThat(db2.usersDao().getUsers()).containsExactly(user) }
+            .hasMessageThat()
+            .contains("no-version-updates")
         db2.close()
         allowVersionUpdates.set(true)
 
@@ -85,20 +83,21 @@ class MissingMasterTableTest {
         db3.close()
     }
 
-    private class MyOpenHelperFactory(
-        private val allowVersionUpdates: AtomicBoolean
-    ) : SupportSQLiteOpenHelper.Factory {
+    private class MyOpenHelperFactory(private val allowVersionUpdates: AtomicBoolean) :
+        SupportSQLiteOpenHelper.Factory {
         private val delegate = FrameworkSQLiteOpenHelperFactory()
+
         override fun create(
             configuration: SupportSQLiteOpenHelper.Configuration
         ): SupportSQLiteOpenHelper {
-            val newConfig = SupportSQLiteOpenHelper.Configuration(
-                context = configuration.context,
-                name = configuration.name,
-                callback = MyCallback(allowVersionUpdates, configuration.callback),
-                useNoBackupDirectory = configuration.useNoBackupDirectory,
-                allowDataLossOnRecovery = configuration.allowDataLossOnRecovery
-            )
+            val newConfig =
+                SupportSQLiteOpenHelper.Configuration(
+                    context = configuration.context,
+                    name = configuration.name,
+                    callback = MyCallback(allowVersionUpdates, configuration.callback),
+                    useNoBackupDirectory = configuration.useNoBackupDirectory,
+                    allowDataLossOnRecovery = configuration.allowDataLossOnRecovery
+                )
             return MyOpenHelper(allowVersionUpdates, delegate.create(newConfig))
         }
     }
@@ -135,7 +134,7 @@ class MissingMasterTableTest {
             // This mimics app halt scenario, where a master table is created but not initialized.
             if (
                 sql.startsWith("INSERT OR REPLACE INTO room_master_table") &&
-                !allowVersionUpdates.get()
+                    !allowVersionUpdates.get()
             ) {
                 throw RuntimeException("no-version-updates")
             }
@@ -146,15 +145,12 @@ class MissingMasterTableTest {
     private class MyCallback(
         private val allowVersionUpdates: AtomicBoolean,
         private val delegate: SupportSQLiteOpenHelper.Callback
-    ) :
-        SupportSQLiteOpenHelper.Callback(delegate.version) {
+    ) : SupportSQLiteOpenHelper.Callback(delegate.version) {
         private val wrappers = IdentityHashMap<SupportSQLiteDatabase, MySupportSQLiteDatabase>()
 
         private fun SupportSQLiteDatabase.wrap(): MySupportSQLiteDatabase {
             if (this is MySupportSQLiteDatabase) return this
-            return wrappers.getOrPut(this) {
-                MySupportSQLiteDatabase(allowVersionUpdates, this)
-            }
+            return wrappers.getOrPut(this) { MySupportSQLiteDatabase(allowVersionUpdates, this) }
         }
 
         override fun onConfigure(db: SupportSQLiteDatabase) {

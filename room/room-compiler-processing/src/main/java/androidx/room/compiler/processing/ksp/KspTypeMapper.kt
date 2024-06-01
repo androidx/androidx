@@ -19,15 +19,14 @@ package androidx.room.compiler.processing.ksp
 import com.squareup.javapoet.TypeName
 
 /**
- * Maps java specific types to their kotlin counterparts.
- * see: https://github.com/google/ksp/issues/126
- * see: https://github.com/google/ksp/issues/125
+ * Maps java specific types to their kotlin counterparts. see:
+ * https://github.com/google/ksp/issues/126 see: https://github.com/google/ksp/issues/125
  *
  * `Resolver.getClassDeclarationByName` returns the java representation of a class even when a
  * kotlin version of the same class exists. e.g. It returns a KSClassDeclaration representing
- * `java.lang.String` if queried with `java.lang.String`. Even though this makes sense by itself,
- * it is inconsistent with the kotlin compiler which will resolve all instances of
- * `java.lang.String` to `kotlin.String` (even if it is in Java source code).
+ * `java.lang.String` if queried with `java.lang.String`. Even though this makes sense by itself, it
+ * is inconsistent with the kotlin compiler which will resolve all instances of `java.lang.String`
+ * to `kotlin.String` (even if it is in Java source code).
  *
  * Until KSP provides compiler consistent behavior, this helper utility does the mapping for us.
  *
@@ -36,26 +35,23 @@ import com.squareup.javapoet.TypeName
  */
 object KspTypeMapper {
     private val mapping = mutableMapOf<String, String>()
-    private val kotlinTypeToJavaPrimitiveMapping = mapOf(
-        "kotlin.Byte" to TypeName.BYTE,
-        "kotlin.Short" to TypeName.SHORT,
-        "kotlin.Int" to TypeName.INT,
-        "kotlin.Long" to TypeName.LONG,
-        "kotlin.Char" to TypeName.CHAR,
-        "kotlin.Float" to TypeName.FLOAT,
-        "kotlin.Double" to TypeName.DOUBLE,
-        "kotlin.Boolean" to TypeName.BOOLEAN
-    )
-    private val javaPrimitiveQNames = kotlinTypeToJavaPrimitiveMapping
-        .values.mapTo(mutableSetOf()) {
-            it.toString()
-        }
+    private val kotlinTypeToJavaPrimitiveMapping =
+        mapOf(
+            "kotlin.Byte" to TypeName.BYTE,
+            "kotlin.Short" to TypeName.SHORT,
+            "kotlin.Int" to TypeName.INT,
+            "kotlin.Long" to TypeName.LONG,
+            "kotlin.Char" to TypeName.CHAR,
+            "kotlin.Float" to TypeName.FLOAT,
+            "kotlin.Double" to TypeName.DOUBLE,
+            "kotlin.Boolean" to TypeName.BOOLEAN
+        )
+    private val javaPrimitiveQNames =
+        kotlinTypeToJavaPrimitiveMapping.values.mapTo(mutableSetOf()) { it.toString() }
 
     init {
         // https://kotlinlang.org/docs/reference/java-interop.html#mapped-types
-        kotlinTypeToJavaPrimitiveMapping.forEach {
-            mapping[it.value.toString()] = it.key
-        }
+        kotlinTypeToJavaPrimitiveMapping.forEach { mapping[it.value.toString()] = it.key }
         mapping["java.lang.Object"] = "kotlin.Any"
         mapping["java.lang.Cloneable"] = "kotlin.Cloneable"
         mapping["java.lang.Comparable"] = "kotlin.Comparable"

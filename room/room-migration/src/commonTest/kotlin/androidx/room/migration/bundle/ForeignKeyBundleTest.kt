@@ -22,92 +22,128 @@ import kotlin.test.Test
 class ForeignKeyBundleTest {
     @Test
     fun schemaEquality_same_equal() {
-        val bundle = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
-        val other = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
+        val bundle =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
+        val other =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
 
     @Test
     fun schemaEquality_diffTable_notEqual() {
-        val bundle = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
-        val other = ForeignKeyBundle(
-            table = "table2", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
+        val bundle =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
+        val other =
+            ForeignKeyBundle(
+                table = "table2",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffOnDelete_notEqual() {
-        val bundle = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete2",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
-        val other = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
+        val bundle =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete2",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
+        val other =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffOnUpdate_notEqual() {
-        val bundle = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
-        val other = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate2", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
+        val bundle =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
+        val other =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate2",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffSrcOrder_notEqual() {
-        val bundle = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col2", "col1"),
-            referencedColumns = listOf("target1", "target2")
-        )
-        val other = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
+        val bundle =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col2", "col1"),
+                referencedColumns = listOf("target1", "target2")
+            )
+        val other =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 
     @Test
     fun schemaEquality_diffTargetOrder_notEqual() {
-        val bundle = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target1", "target2")
-        )
-        val other = ForeignKeyBundle(
-            table = "table", onDelete = "onDelete",
-            onUpdate = "onUpdate", columns = listOf("col1", "col2"),
-            referencedColumns = listOf("target2", "target1")
-        )
+        val bundle =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target1", "target2")
+            )
+        val other =
+            ForeignKeyBundle(
+                table = "table",
+                onDelete = "onDelete",
+                onUpdate = "onUpdate",
+                columns = listOf("col1", "col2"),
+                referencedColumns = listOf("target2", "target1")
+            )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
 }

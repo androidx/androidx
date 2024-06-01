@@ -44,9 +44,10 @@ class GeneratedCustomConverterTest {
 
     @Test
     fun generatedConverter() {
-        val src = Source.kotlin(
-            "Sources.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Sources.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
@@ -71,21 +72,22 @@ class GeneratedCustomConverterTest {
             class Foo
 
             annotation class GenConverter
-            """.trimIndent()
-        )
-       runProcessorTest(
-           sources = listOf(src),
-           javacProcessors =
-             listOf(RoomProcessor(), JavacCustomConverter()),
-           symbolProcessorProviders =
-             listOf(RoomKspProcessor.Provider(), KspCustomConverter.Provider())
-       ) {
-           it.hasNoWarnings()
-       }
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(
+            sources = listOf(src),
+            javacProcessors = listOf(RoomProcessor(), JavacCustomConverter()),
+            symbolProcessorProviders =
+                listOf(RoomKspProcessor.Provider(), KspCustomConverter.Provider())
+        ) {
+            it.hasNoWarnings()
+        }
     }
 
     class CustomConverterGenerator : XProcessingStep {
         override fun annotations() = setOf("GenConverter")
+
         override fun process(
             env: XProcessingEnv,
             elementsByAnnotation: Map<String, Set<XElement>>,
@@ -93,26 +95,29 @@ class GeneratedCustomConverterTest {
         ): Set<XElement> {
             val elements = elementsByAnnotation.getOrDefault("GenConverter", emptySet())
             val element = elements.singleOrNull() ?: return emptySet()
-            val typeSpec = TypeSpec.classBuilder("Generated_CustomConverters")
-                .addOriginatingElement(element)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addMethod(MethodSpec.methodBuilder("fooToString")
-                    .addAnnotation(ClassName.get("androidx.room", "TypeConverter"))
-                    .addModifiers(Modifier.PUBLIC)
-                    .returns(ClassName.get("java.lang", "String"))
-                    .addParameter(ClassName.get("", "Foo"), "f")
-                    .addStatement("return \$S", "")
+            val typeSpec =
+                TypeSpec.classBuilder("Generated_CustomConverters")
+                    .addOriginatingElement(element)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addMethod(
+                        MethodSpec.methodBuilder("fooToString")
+                            .addAnnotation(ClassName.get("androidx.room", "TypeConverter"))
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(ClassName.get("java.lang", "String"))
+                            .addParameter(ClassName.get("", "Foo"), "f")
+                            .addStatement("return \$S", "")
+                            .build()
+                    )
+                    .addMethod(
+                        MethodSpec.methodBuilder("stringToFoo")
+                            .addAnnotation(ClassName.get("androidx.room", "TypeConverter"))
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(ClassName.get("", "Foo"))
+                            .addParameter(ClassName.get("java.lang", "String"), "s")
+                            .addStatement("return new Foo()")
+                            .build()
+                    )
                     .build()
-                )
-                .addMethod(MethodSpec.methodBuilder("stringToFoo")
-                    .addAnnotation(ClassName.get("androidx.room", "TypeConverter"))
-                    .addModifiers(Modifier.PUBLIC)
-                    .returns(ClassName.get("", "Foo"))
-                    .addParameter(ClassName.get("java.lang", "String"), "s")
-                    .addStatement("return new Foo()")
-                    .build()
-                )
-                .build()
             val javaFile = JavaFile.builder("", typeSpec).build()
             env.filer.write(javaFile, XFiler.Mode.Isolating)
             return emptySet()
@@ -121,11 +126,13 @@ class GeneratedCustomConverterTest {
 
     class JavacCustomConverter : JavacBasicAnnotationProcessor() {
         override fun processingSteps() = listOf(CustomConverterGenerator())
+
         override fun getSupportedSourceVersion() = SourceVersion.latest()
     }
 
     class KspCustomConverter(env: SymbolProcessorEnvironment) : KspBasicAnnotationProcessor(env) {
         override fun processingSteps() = listOf(CustomConverterGenerator())
+
         class Provider : SymbolProcessorProvider {
             override fun create(environment: SymbolProcessorEnvironment) =
                 KspCustomConverter(environment)

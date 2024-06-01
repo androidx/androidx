@@ -37,9 +37,9 @@ import kotlinx.coroutines.withContext
 /**
  * An implementation of [PagingSource] to perform a LIMIT OFFSET query
  *
- * This class is used for Paging3 to perform Query and RawQuery in Room to return a PagingSource
- * for Pager's consumption. Registers observers on tables lazily and automatically invalidates
- * itself when data changes.
+ * This class is used for Paging3 to perform Query and RawQuery in Room to return a PagingSource for
+ * Pager's consumption. Registers observers on tables lazily and automatically invalidates itself
+ * when data changes.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class LimitOffsetPagingSource<Value : Any>(
@@ -60,10 +60,8 @@ abstract class LimitOffsetPagingSource<Value : Any>(
 
     internal val itemCount: AtomicInteger = AtomicInteger(INITIAL_ITEM_COUNT)
 
-    private val observer = ThreadSafeInvalidationObserver(
-        tables = tables,
-        onInvalidated = ::invalidate
-    )
+    private val observer =
+        ThreadSafeInvalidationObserver(tables = tables, onInvalidated = ::invalidate)
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
         return withContext(db.getQueryContext()) {
@@ -83,14 +81,14 @@ abstract class LimitOffsetPagingSource<Value : Any>(
     }
 
     /**
-     *  For the very first time that this PagingSource's [load] is called. Executes the count
-     *  query (initializes [itemCount]) and db query within a transaction to ensure initial load's
-     *  data integrity.
+     * For the very first time that this PagingSource's [load] is called. Executes the count query
+     * (initializes [itemCount]) and db query within a transaction to ensure initial load's data
+     * integrity.
      *
-     *  For example, if the database gets updated after the count query but before the db query
-     *  completes, the paging source may not invalidate in time, but this method will return
-     *  data based on the original database that the count was performed on to ensure a valid
-     *  initial load.
+     * For example, if the database gets updated after the count query but before the db query
+     * completes, the paging source may not invalidate in time, but this method will return data
+     * based on the original database that the count was performed on to ensure a valid initial
+     * load.
      */
     private suspend fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
         return db.withTransaction {
@@ -110,13 +108,14 @@ abstract class LimitOffsetPagingSource<Value : Any>(
         params: LoadParams<Int>,
         tempCount: Int,
     ): LoadResult<Int, Value> {
-        val loadResult = queryDatabase(
-            params = params,
-            sourceQuery = sourceQuery,
-            db = db,
-            itemCount = tempCount,
-            convertRows = ::convertRows
-        )
+        val loadResult =
+            queryDatabase(
+                params = params,
+                sourceQuery = sourceQuery,
+                db = db,
+                itemCount = tempCount,
+                convertRows = ::convertRows
+            )
         // manually check if database has been updated. If so, the observer's
         // invalidation callback will invalidate this paging source
         db.invalidationTracker.refreshVersionsSync()
@@ -124,8 +123,7 @@ abstract class LimitOffsetPagingSource<Value : Any>(
         return if (invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
     }
 
-    @NonNull
-    protected abstract fun convertRows(cursor: Cursor): List<Value>
+    @NonNull protected abstract fun convertRows(cursor: Cursor): List<Value>
 
     override fun getRefreshKey(state: PagingState<Int, Value>): Int? {
         return state.getClippedRefreshKey()

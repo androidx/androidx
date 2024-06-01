@@ -29,9 +29,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 
-/**
- * Instantly runs and returns the query.
- */
+/** Instantly runs and returns the query. */
 class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder(adapter) {
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
@@ -40,14 +38,13 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        scope.builder.apply {
-            addStatement("%N.assertNotSuspendingTransaction()", dbProperty)
-        }
-        val transactionWrapper = if (inTransaction) {
-            scope.builder.transactionWrapper(dbProperty.name)
-        } else {
-            null
-        }
+        scope.builder.apply { addStatement("%N.assertNotSuspendingTransaction()", dbProperty) }
+        val transactionWrapper =
+            if (inTransaction) {
+                scope.builder.transactionWrapper(dbProperty.name)
+            } else {
+                null
+            }
         transactionWrapper?.beginTransactionWithControlFlow()
         scope.builder.apply {
             val shouldCopyCursor = adapter?.shouldCopyCursor() == true
@@ -56,15 +53,16 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
             addLocalVariable(
                 name = cursorVar,
                 typeName = AndroidTypeNames.CURSOR,
-                assignExpr = XCodeBlock.of(
-                    language,
-                    "%M(%N, %L, %L, %L)",
-                    RoomTypeNames.DB_UTIL.packageMember("query"),
-                    dbProperty,
-                    roomSQLiteQueryVar,
-                    if (shouldCopyCursor) "true" else "false",
-                    "null"
-                )
+                assignExpr =
+                    XCodeBlock.of(
+                        language,
+                        "%M(%N, %L, %L, %L)",
+                        RoomTypeNames.DB_UTIL.packageMember("query"),
+                        dbProperty,
+                        roomSQLiteQueryVar,
+                        if (shouldCopyCursor) "true" else "false",
+                        "null"
+                    )
             )
             beginControlFlow("try").apply {
                 adapter?.convert(outVar, cursorVar, scope)
@@ -93,41 +91,45 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         scope: CodeGenScope
     ) {
         val connectionVar = scope.getTmpVar("_connection")
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
-            argFormat = listOf("%N", "%L", "%L"),
-            args = listOf(dbProperty, /* isReadOnly = */ true, inTransaction),
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
-                parameterName = connectionVar,
-                returnTypeName = returnTypeName.box(),
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    val returnPrefix = when (language) {
-                        CodeLanguage.JAVA -> "return "
-                        CodeLanguage.KOTLIN -> ""
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ true, inTransaction),
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName = connectionVar,
+                            returnTypeName = returnTypeName.box(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val returnPrefix =
+                                when (language) {
+                                    CodeLanguage.JAVA -> "return "
+                                    CodeLanguage.KOTLIN -> ""
+                                }
+                            val statementVar = scope.getTmpVar("_stmt")
+                            addLocalVal(
+                                statementVar,
+                                SQLiteDriverTypeNames.STATEMENT,
+                                "%L.prepare(%L)",
+                                connectionVar,
+                                sqlQueryVar
+                            )
+                            beginControlFlow("try")
+                            bindStatement(scope, statementVar)
+                            val outVar = scope.getTmpVar("_result")
+                            adapter?.convert(outVar, statementVar, scope)
+                            addStatement("$returnPrefix%L", outVar)
+                            nextControlFlow("finally")
+                            addStatement("%L.close()", statementVar)
+                            endControlFlow()
+                        }
                     }
-                    val statementVar = scope.getTmpVar("_stmt")
-                    addLocalVal(
-                        statementVar,
-                        SQLiteDriverTypeNames.STATEMENT,
-                        "%L.prepare(%L)",
-                        connectionVar,
-                        sqlQueryVar
-                    )
-                    beginControlFlow("try")
-                    bindStatement(scope, statementVar)
-                    val outVar = scope.getTmpVar("_result")
-                    adapter?.convert(outVar, statementVar, scope)
-                    addStatement("$returnPrefix%L", outVar)
-                    nextControlFlow("finally")
-                    addStatement("%L.close()", statementVar)
-                    endControlFlow()
-                }
-            }
-        )
+            )
         scope.builder.add("return %L", performBlock)
     }
 }

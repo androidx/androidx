@@ -38,9 +38,7 @@ class TestUtil {
             provider: LifecycleOwner,
             observer: Observer<T>
         ) {
-            val futureTask = FutureTask {
-                liveData.observe(provider, observer)
-            }
+            val futureTask = FutureTask { liveData.observe(provider, observer) }
             ArchTaskExecutor.getInstance().executeOnMainThread(futureTask)
             futureTask.get()
         }
@@ -52,18 +50,9 @@ class TestUtil {
         val AUTHOR_1 = Author("a1", "author 1")
         val AUTHOR_2 = Author("a2", "author 2")
 
-        val BOOK_1 = Book(
-            "b1", "book title 1", "ph1",
-            setOf(Lang.EN), 3
-        )
-        val BOOK_2 = Book(
-            "b2", "book title 2", "ph1",
-            setOf(Lang.TR), 5
-        )
-        val BOOK_3 = Book(
-            "b3", "book title 2", "ph1",
-            setOf(Lang.ES), 7
-        )
+        val BOOK_1 = Book("b1", "book title 1", "ph1", setOf(Lang.EN), 3)
+        val BOOK_2 = Book("b2", "book title 2", "ph1", setOf(Lang.TR), 5)
+        val BOOK_3 = Book("b3", "book title 2", "ph1", setOf(Lang.ES), 7)
 
         val BOOK_AUTHOR_1_1 = BookAuthor(BOOK_1.bookId, AUTHOR_1.authorId)
         val BOOK_AUTHOR_1_2 = BookAuthor(BOOK_1.bookId, AUTHOR_2.authorId)

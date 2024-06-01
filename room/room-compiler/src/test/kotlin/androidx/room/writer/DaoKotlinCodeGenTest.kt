@@ -31,26 +31,28 @@ import org.junit.runner.RunWith
 @RunWith(TestParameterInjector::class)
 class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
-    val databaseSrc = Source.kotlin(
-        "MyDatabase.kt",
-        """
+    val databaseSrc =
+        Source.kotlin(
+            "MyDatabase.kt",
+            """
         import androidx.room.*
 
         @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
         abstract class MyDatabase : RoomDatabase() {
           abstract fun getDao(): MyDao
         }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun pojoRowAdapter_variableProperty() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -71,8 +73,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 var variableString: String = ""
                 var variableNullableString: String? = null
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -81,9 +84,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_variableProperty_java() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -94,11 +98,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Insert
               fun addEntity(item: MyEntity)
             }
-            """.trimIndent()
-        )
-        val javaEntity = Source.java(
-            "MyEntity",
             """
+                    .trimIndent()
+            )
+        val javaEntity =
+            Source.java(
+                "MyEntity",
+                """
             import androidx.annotation.Nullable;
             import androidx.room.*;
             
@@ -119,8 +125,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 mNullableValue = nullableValue;
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, javaEntity, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -130,11 +137,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     // b/274760383
     @Test
     fun pojoRowAdapter_otherModule() {
-        val lib = compileFiles(
-            sources = listOf(
-                Source.kotlin(
-                    "MyEntity.kt",
-                """
+        val lib =
+            compileFiles(
+                sources =
+                    listOf(
+                        Source.kotlin(
+                            "MyEntity.kt",
+                            """
                 import androidx.room.*
 
                 @Entity
@@ -153,13 +162,15 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     @JvmField var variableFieldString: String = ""
                     @JvmField var variableNullableFieldString: String? = null
                 }
-                """.trimIndent()
-                )
+                """
+                                .trimIndent()
+                        )
+                    )
             )
-        )
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -170,8 +181,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Insert
               fun addEntity(item: MyEntity)
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName),
@@ -181,9 +193,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_internalVisibility() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -205,8 +218,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 var internalSetterVar: Long = 0
                     internal set
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -215,9 +229,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_primitives() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -240,8 +255,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val float: Float,
                 val double: Double,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -250,9 +266,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_primitives_nullable() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -275,8 +292,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val float: Float?,
                 val double: Double?,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -285,9 +303,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_boolean() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -306,8 +325,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val boolean: Boolean,
                 val nullableBoolean: Boolean?,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -316,9 +336,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_string() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -336,8 +357,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val string: String,
                 val nullableString: String?,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -346,9 +368,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_byteArray() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -367,8 +390,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val byteArray: ByteArray,
                 val nullableByteArray: ByteArray?,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -377,9 +401,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_enum() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -403,8 +428,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 APPLE,
                 BANANA
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -413,9 +439,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_uuid() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import java.util.UUID
 
@@ -440,8 +467,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 APPLE,
                 BANANA
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -450,9 +478,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_embedded() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -478,8 +507,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val numberData: Long,
                 val stringData: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -488,9 +518,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_customTypeConverter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -518,8 +549,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @TypeConverter
                 fun toString(foo: Foo): String = foo.data
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -528,9 +560,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_customTypeConverter_provided() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -559,8 +592,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @TypeConverter
                 fun toString(foo: Foo): String = foo.data
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -569,9 +603,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_customTypeConverter_composite() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -605,8 +640,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @TypeConverter
                 fun toFoo(bar: Bar): Foo = Foo(bar.data)
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -615,9 +651,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_customTypeConverter_nullAware() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -652,8 +689,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @TypeConverter
                 fun toFoo(bar: Bar): Foo = Foo(bar.data)
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -662,9 +700,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun pojoRowAdapter_customTypeConverter_internalVisibility() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -692,8 +731,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @TypeConverter
                 internal fun toString(foo: Foo): String = foo.data
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -702,9 +742,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun coroutineResultBinder() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import java.util.UUID
 
@@ -719,8 +760,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Int,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -729,9 +771,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun multiTypedPagingSourceResultBinder() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.paging.*
             import androidx.paging.rxjava2.*
@@ -757,29 +800,32 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Int,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.LIMIT_OFFSET_PAGING_SOURCE,
-                COMMON.LIMIT_OFFSET_RX2_PAGING_SOURCE,
-                COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
-                COMMON.RX2_PAGING_SOURCE,
-                COMMON.RX3_PAGING_SOURCE,
-                COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
-                COMMON.LISTENABLE_FUTURE_PAGING_SOURCE
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+                    COMMON.LIMIT_OFFSET_RX2_PAGING_SOURCE,
+                    COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
+                    COMMON.RX2_PAGING_SOURCE,
+                    COMMON.RX3_PAGING_SOURCE,
+                    COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
+                    COMMON.LISTENABLE_FUTURE_PAGING_SOURCE
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun basicParameterAdapter_string() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -796,8 +842,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val string: String,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -806,9 +853,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun collectionParameterAdapter_string() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -831,8 +879,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val string: String,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -841,9 +890,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun arrayParameterAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -875,8 +925,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val id: String,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -885,9 +936,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun preparedQueryAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -920,8 +972,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val id: Long,
                 val text: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -930,9 +983,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun rawQuery() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.sqlite.db.SupportSQLiteQuery
 
@@ -949,8 +1003,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val doubleColumn: Double,
                 val floatColumn: Float,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -964,9 +1019,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     ) {
         // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.sqlite.db.SupportSQLiteQuery
 
@@ -985,8 +1041,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName),
@@ -996,9 +1053,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun delegatingFunctions_boxedPrimitiveBridge() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.sqlite.db.SupportSQLiteQuery
 
@@ -1022,8 +1080,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName),
@@ -1037,9 +1096,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     ) {
         // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.sqlite.db.SupportSQLiteQuery
 
@@ -1093,8 +1153,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
             expectedFilePath = getTestGoldenPath(testName),
@@ -1104,9 +1165,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun transactionMethodAdapter_abstractClass() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.sqlite.db.SupportSQLiteQuery
 
@@ -1148,8 +1210,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
             expectedFilePath = getTestGoldenPath(testName.methodName),
@@ -1158,9 +1221,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun deleteOrUpdateMethodAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1184,8 +1248,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Long,
                 val data: String,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1194,9 +1259,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun insertOrUpsertMethodAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1232,8 +1298,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Long,
                 val data: String,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1242,9 +1309,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_singleColumn() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1264,8 +1332,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Int,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1274,21 +1343,24 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_list() {
-        val dbSource = Source.kotlin(
-            "MyDatabase.kt",
-            """
+        val dbSource =
+            Source.kotlin(
+                "MyDatabase.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [MyEntity::class, MyNullableEntity::class], version = 1, exportSchema = false)
             abstract class MyDatabase : RoomDatabase() {
                 abstract fun getDao(): MyDao
             }
-            """.trimIndent()
-        )
-
-        val src = Source.kotlin(
-            "MyDao.kt",
             """
+                    .trimIndent()
+            )
+
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1309,8 +1381,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int?,
                 val other: String?
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, dbSource),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1319,20 +1392,23 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_array() {
-        val dbSource = Source.kotlin(
-            "MyDatabase.kt",
-            """
+        val dbSource =
+            Source.kotlin(
+                "MyDatabase.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
             abstract class MyDatabase : RoomDatabase() {
                 abstract fun getDao(): MyDao
             }
-            """.trimIndent()
-        )
-        val src = Source.kotlin(
-            "MyDao.kt",
             """
+                    .trimIndent()
+            )
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1365,8 +1441,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val other: String,
                 val other2: Long
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, dbSource),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1375,9 +1452,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun abstractClassWithParam() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1391,8 +1469,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Int
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1401,9 +1480,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_optional() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1418,8 +1498,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1428,9 +1509,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_guavaOptional() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1445,8 +1527,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1455,9 +1538,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_immutable_list() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import com.google.common.collect.ImmutableList
 
@@ -1473,8 +1557,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1483,9 +1568,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun queryResultAdapter_map() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [Artist::class, Song::class], version = 1, exportSchema = false)
@@ -1529,19 +1615,18 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val songId: String,
                 val artistKey: String
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     @Test
     fun queryResultAdapter_nestedMap() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Database(
@@ -1601,19 +1686,18 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val album: String,
                 val songArtist: String
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     @Test
     fun queryResultAdapter_guavaImmutableMultimap() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [Artist::class, Song::class], version = 1, exportSchema = false)
@@ -1642,19 +1726,18 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val songId: String,
                 val artistKey: String
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     @Test
     fun queryResultAdapter_guavaImmutableMap() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [Artist::class, Song::class], version = 1, exportSchema = false)
@@ -1680,19 +1763,18 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val songId: String,
                 val artistKey: String
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     @Test
     fun queryResultAdapter_map_ambiguousIndexAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Database(entities = [User::class, Comment::class], version = 1, exportSchema = false)
@@ -1728,19 +1810,18 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val userId: Int,
                 val text: String,
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     @Test
     fun queryResultAdapter_nestedMap_ambiguousIndexAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import java.nio.ByteBuffer
 
@@ -1781,19 +1862,18 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val url: String,
                 val data: ByteBuffer,
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 
     @Test
     fun entityRowAdapter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -1821,8 +1901,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 var variableString: String = ""
                 var variableNullableString: String? = null
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -1831,9 +1912,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun paging_dataSource() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.paging.DataSource
 
@@ -1849,24 +1931,22 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.DATA_SOURCE_FACTORY,
-                COMMON.POSITIONAL_DATA_SOURCE
-            ),
+            sources =
+                listOf(src, databaseSrc, COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun callableQuery_rx2() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import io.reactivex.*
 
@@ -1903,29 +1983,32 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.RX2_ROOM,
-                COMMON.RX2_FLOWABLE,
-                COMMON.RX2_OBSERVABLE,
-                COMMON.RX2_SINGLE,
-                COMMON.RX2_MAYBE,
-                COMMON.PUBLISHER,
-                COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.RX2_ROOM,
+                    COMMON.RX2_FLOWABLE,
+                    COMMON.RX2_OBSERVABLE,
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX2_MAYBE,
+                    COMMON.PUBLISHER,
+                    COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun callableQuery_rx3() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import io.reactivex.rxjava3.core.*
 
@@ -1962,29 +2045,32 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.RX3_ROOM,
-                COMMON.RX3_FLOWABLE,
-                COMMON.RX3_OBSERVABLE,
-                COMMON.RX3_SINGLE,
-                COMMON.RX3_MAYBE,
-                COMMON.PUBLISHER,
-                COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.RX3_ROOM,
+                    COMMON.RX3_FLOWABLE,
+                    COMMON.RX3_OBSERVABLE,
+                    COMMON.RX3_SINGLE,
+                    COMMON.RX3_MAYBE,
+                    COMMON.PUBLISHER,
+                    COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun preparedCallableQuery_rx2() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import io.reactivex.*
 
@@ -2006,30 +2092,33 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.RX2_ROOM,
-                COMMON.RX2_FLOWABLE,
-                COMMON.RX2_OBSERVABLE,
-                COMMON.RX2_SINGLE,
-                COMMON.RX2_MAYBE,
-                COMMON.RX2_COMPLETABLE,
-                COMMON.PUBLISHER,
-                COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.RX2_ROOM,
+                    COMMON.RX2_FLOWABLE,
+                    COMMON.RX2_OBSERVABLE,
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX2_MAYBE,
+                    COMMON.RX2_COMPLETABLE,
+                    COMMON.PUBLISHER,
+                    COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun preparedCallableQuery_rx3() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import io.reactivex.rxjava3.core.*
 
@@ -2051,30 +2140,33 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.RX3_ROOM,
-                COMMON.RX3_FLOWABLE,
-                COMMON.RX3_OBSERVABLE,
-                COMMON.RX3_SINGLE,
-                COMMON.RX3_MAYBE,
-                COMMON.RX3_COMPLETABLE,
-                COMMON.PUBLISHER,
-                COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.RX3_ROOM,
+                    COMMON.RX3_FLOWABLE,
+                    COMMON.RX3_OBSERVABLE,
+                    COMMON.RX3_SINGLE,
+                    COMMON.RX3_MAYBE,
+                    COMMON.RX3_COMPLETABLE,
+                    COMMON.PUBLISHER,
+                    COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun coroutines() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import kotlinx.coroutines.flow.Flow
 
@@ -2120,24 +2212,21 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.FLOW,
-                COMMON.COROUTINES_ROOM
-            ),
+            sources = listOf(src, databaseSrc, COMMON.FLOW, COMMON.COROUTINES_ROOM),
             expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
     @Test
     fun shortcutMethods_rx2() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import io.reactivex.*
 
@@ -2174,25 +2263,28 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.RX2_SINGLE,
-                COMMON.RX2_COMPLETABLE,
-                COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX2_COMPLETABLE,
+                    COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun shortcutMethods_rx3() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import io.reactivex.rxjava3.core.*
 
@@ -2229,25 +2321,28 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.RX3_SINGLE,
-                COMMON.RX3_COMPLETABLE,
-                COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.RX3_SINGLE,
+                    COMMON.RX3_COMPLETABLE,
+                    COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun guavaCallable() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import com.google.common.util.concurrent.ListenableFuture
             import androidx.room.*
 
@@ -2278,24 +2373,27 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.LISTENABLE_FUTURE,
-                COMMON.GUAVA_ROOM,
-            ),
+            sources =
+                listOf(
+                    src,
+                    databaseSrc,
+                    COMMON.LISTENABLE_FUTURE,
+                    COMMON.GUAVA_ROOM,
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun guavaCallable_java() {
-        val daoSrc = Source.java(
-            "MyDao",
-            """
+        val daoSrc =
+            Source.java(
+                "MyDao",
+                """
             import com.google.common.util.concurrent.ListenableFuture;
             import androidx.room.*;
 
@@ -2304,11 +2402,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 ListenableFuture<MyEntity> getListenableFuture(String... arg);
             }
-            """.trimIndent()
-        )
-        val entitySrc = Source.kotlin(
-            "MyEntity.kt",
             """
+                    .trimIndent()
+            )
+        val entitySrc =
+            Source.kotlin(
+                "MyEntity.kt",
+                """
             import androidx.room.*
 
             @Entity
@@ -2317,25 +2417,28 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                daoSrc,
-                entitySrc,
-                databaseSrc,
-                COMMON.LISTENABLE_FUTURE,
-                COMMON.GUAVA_ROOM,
-            ),
+            sources =
+                listOf(
+                    daoSrc,
+                    entitySrc,
+                    databaseSrc,
+                    COMMON.LISTENABLE_FUTURE,
+                    COMMON.GUAVA_ROOM,
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun liveDataCallable() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import androidx.lifecycle.*
 
@@ -2354,14 +2457,11 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.COROUTINES_ROOM
-            ),
+            sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM),
             expectedFilePath = getTestGoldenPath(testName.methodName),
             compiledFiles = compileFiles(listOf(COMMON.LIVE_DATA))
         )
@@ -2369,9 +2469,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun shortcutMethods_suspend() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -2395,14 +2496,11 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                src,
-                databaseSrc,
-                COMMON.COROUTINES_ROOM
-            ),
+            sources = listOf(src, databaseSrc, COMMON.COROUTINES_ROOM),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
@@ -2410,9 +2508,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     @Test
     @Ignore("b/339809512")
     fun shortcutMethods_java() {
-        val daoSrc = Source.java(
-            "MyDao",
-            """
+        val daoSrc =
+            Source.java(
+                "MyDao",
+                """
             import androidx.room.*;
             import java.util.List;
 
@@ -2442,11 +2541,13 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @Update
                 int updateList(List<MyEntity> entity);
             }
-            """.trimIndent()
-        )
-        val entitySrc = Source.kotlin(
-            "MyEntity.kt",
             """
+                    .trimIndent()
+            )
+        val entitySrc =
+            Source.kotlin(
+                "MyEntity.kt",
+                """
             import androidx.room.*
 
             @Entity
@@ -2455,23 +2556,26 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val pk: Int,
                 val other: String
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
-            sources = listOf(
-                daoSrc,
-                entitySrc,
-                databaseSrc,
-            ),
+            sources =
+                listOf(
+                    daoSrc,
+                    entitySrc,
+                    databaseSrc,
+                ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }
 
     @Test
     fun pojoRowAdapter_valueClassConverter() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
             import java.util.UUID
 
@@ -2506,8 +2610,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val doubleNullableLongData: NullableLongValueClass?,
                 val genericData: GenericValueClass<String>
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -2516,9 +2621,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun overridePropertyQuery() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -2532,8 +2638,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @PrimaryKey
                 val pk: Int
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)

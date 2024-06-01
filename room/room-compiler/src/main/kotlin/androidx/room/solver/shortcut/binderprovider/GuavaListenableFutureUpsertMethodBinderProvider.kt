@@ -27,12 +27,9 @@ import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder.Companion
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Provider for Guava ListenableFuture binders.
- */
-class GuavaListenableFutureUpsertMethodBinderProvider(
-    private val context: Context
-) : InsertOrUpsertMethodBinderProvider {
+/** Provider for Guava ListenableFuture binders. */
+class GuavaListenableFutureUpsertMethodBinderProvider(private val context: Context) :
+    InsertOrUpsertMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
         context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.canonicalName) != null

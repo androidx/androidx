@@ -23,8 +23,8 @@ import kotlin.reflect.KClass
 
 /**
  * Determines if the class or interface represented by this object is the same as the class or
- * interface represented by the specified [KClass] parameter. Such case is only true if
- * the qualified name of both classes match.
+ * interface represented by the specified [KClass] parameter. Such case is only true if the
+ * qualified name of both classes match.
  */
 internal actual fun KClass<*>.isAssignableFrom(other: KClass<*>): Boolean {
     return this.qualifiedName == other.qualifiedName

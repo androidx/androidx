@@ -24,10 +24,8 @@ import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
 import androidx.room.compiler.processing.javac.kotlin.descriptor
 import javax.lang.model.element.VariableElement
 
-internal class JavacFieldElement(
-    env: JavacProcessingEnv,
-    element: VariableElement
-) : JavacVariableElement(env, element), XFieldElement {
+internal class JavacFieldElement(env: JavacProcessingEnv, element: VariableElement) :
+    JavacVariableElement(env, element), XFieldElement {
     override val name: String
         get() = kotlinMetadata?.name ?: element.simpleName.toString()
 
@@ -42,7 +40,8 @@ internal class JavacFieldElement(
             // case, but there's nothing we can really do about that.
             syntheticMethodForAnnotations?.let { methodForAnnotations ->
                 addAll(
-                    methodForAnnotations.getAllAnnotations()
+                    methodForAnnotations
+                        .getAllAnnotations()
                         .filter { it.qualifiedName != "java.lang.Deprecated" }
                         .toList()
                 )
@@ -55,17 +54,15 @@ internal class JavacFieldElement(
     }
 
     private val syntheticMethodForAnnotations: JavacMethodElement? by lazy {
-        (enclosingElement as? JavacTypeElement)
-            ?.getSyntheticMethodsForAnnotations()
-            ?.singleOrNull { it.name == kotlinMetadata?.syntheticMethodForAnnotations?.name }
+        (enclosingElement as? JavacTypeElement)?.getSyntheticMethodsForAnnotations()?.singleOrNull {
+            it.name == kotlinMetadata?.syntheticMethodForAnnotations?.name
+        }
     }
 
     override val kotlinType: KmTypeContainer?
         get() = kotlinMetadata?.type
 
-    override val enclosingElement: JavacTypeElement by lazy {
-        element.requireEnclosingType(env)
-    }
+    override val enclosingElement: JavacTypeElement by lazy { element.requireEnclosingType(env) }
 
     override val closestMemberContainer: JavacTypeElement
         get() = enclosingElement
@@ -75,7 +72,8 @@ internal class JavacFieldElement(
 
     override val getter: XMethodElement? by lazy {
         kotlinMetadata?.getter?.let { getterMetadata ->
-            enclosingElement.getDeclaredMethods()
+            enclosingElement
+                .getDeclaredMethods()
                 .filter { it.isKotlinPropertyMethod() }
                 .firstOrNull { method -> method.jvmName == getterMetadata.jvmName }
         }
@@ -83,7 +81,8 @@ internal class JavacFieldElement(
 
     override val setter: XMethodElement? by lazy {
         kotlinMetadata?.setter?.let { setterMetadata ->
-            enclosingElement.getDeclaredMethods()
+            enclosingElement
+                .getDeclaredMethods()
                 .filter { it.isKotlinPropertyMethod() }
                 .firstOrNull { method -> method.jvmName == setterMetadata.jvmName }
         }

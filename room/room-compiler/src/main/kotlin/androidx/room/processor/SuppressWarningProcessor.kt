@@ -19,9 +19,7 @@ package androidx.room.processor
 import androidx.room.compiler.processing.XElement
 import androidx.room.vo.Warning
 
-/**
- * A visitor that reads SuppressWarnings annotations and keeps the ones we know about.
- */
+/** A visitor that reads SuppressWarnings annotations and keeps the ones we know about. */
 object SuppressWarningProcessor {
 
     fun getSuppressedWarnings(element: XElement): Set<Warning> = buildSet {

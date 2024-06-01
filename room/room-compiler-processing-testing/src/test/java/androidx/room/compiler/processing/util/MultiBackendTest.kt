@@ -23,11 +23,12 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalProcessingApi::class)
 class TestRunner(
     private val name: String,
-    private val runner: (
-        sources: List<Source>,
-        options: Map<String, String>,
-        handlers: List<(XTestInvocation) -> Unit>
-    ) -> Unit
+    private val runner:
+        (
+            sources: List<Source>,
+            options: Map<String, String>,
+            handlers: List<(XTestInvocation) -> Unit>
+        ) -> Unit
 ) {
     operator fun invoke(handlers: List<(XTestInvocation) -> Unit>) =
         runner(emptyList(), emptyMap(), handlers)
@@ -42,6 +43,7 @@ class TestRunner(
     ) = runner(sources, options, listOf(handler))
 
     override fun toString() = name
+
     fun assumeCanCompileKotlin() {
         if (name == "java") {
             throw AssumptionViolatedException("cannot compile kotlin sources")
@@ -49,28 +51,27 @@ class TestRunner(
     }
 }
 
-/**
- * Helper test runner class to run tests for each backend in isolation
- */
+/** Helper test runner class to run tests for each backend in isolation */
 abstract class MultiBackendTest {
     companion object {
         @OptIn(ExperimentalProcessingApi::class)
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun runners(): List<TestRunner> = listOfNotNull(
-            TestRunner("java") { sources, options, handlers ->
-                runJavaProcessorTest(sources = sources, options = options, handlers = handlers)
-            },
-            TestRunner("kapt") { sources, options, handlers ->
-                runKaptTest(sources = sources, options = options, handlers = handlers)
-            },
-            if (CompilationTestCapabilities.canTestWithKsp) {
-                TestRunner("ksp") { sources, options, handlers ->
-                    runKspTest(sources = sources, options = options, handlers = handlers)
+        fun runners(): List<TestRunner> =
+            listOfNotNull(
+                TestRunner("java") { sources, options, handlers ->
+                    runJavaProcessorTest(sources = sources, options = options, handlers = handlers)
+                },
+                TestRunner("kapt") { sources, options, handlers ->
+                    runKaptTest(sources = sources, options = options, handlers = handlers)
+                },
+                if (CompilationTestCapabilities.canTestWithKsp) {
+                    TestRunner("ksp") { sources, options, handlers ->
+                        runKspTest(sources = sources, options = options, handlers = handlers)
+                    }
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
-        )
+            )
     }
 }

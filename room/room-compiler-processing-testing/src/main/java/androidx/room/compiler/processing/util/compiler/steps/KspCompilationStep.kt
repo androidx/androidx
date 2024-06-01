@@ -26,18 +26,14 @@ import java.io.File
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
-/**
- * Runs the Symbol Processors
- */
+/** Runs the Symbol Processors */
 internal class KspCompilationStep(
     private val symbolProcessorProviders: List<SymbolProcessorProvider>,
     private val processorOptions: Map<String, String>
 ) : KotlinCompilationStep {
     override val name: String = "ksp"
 
-    private fun createKspOptions(
-        workingDir: File
-    ): KspOptions.Builder {
+    private fun createKspOptions(workingDir: File): KspOptions.Builder {
         return KspOptions.Builder().apply {
             this.javaOutputDir = workingDir.resolve(JAVA_OUT_DIR)
             this.kotlinOutputDir = workingDir.resolve(KOTLIN_OUT_DIR)
@@ -54,37 +50,40 @@ internal class KspCompilationStep(
             return CompilationStepResult.skip(arguments)
         }
         val kspMessages = DiagnosticsMessageCollector(name)
-        val result = KotlinCliRunner.runKotlinCli(
-            arguments = arguments,
-            destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
-            pluginRegistrars = listOf(
-                TestKspRegistrar(
-                    kspWorkingDir = workingDir.resolve("ksp-compiler"),
-                    baseOptions = createKspOptions(workingDir),
-                    processorProviders = symbolProcessorProviders,
-                    messageCollector = kspMessages
-                )
-            ),
-        )
+        val result =
+            KotlinCliRunner.runKotlinCli(
+                arguments = arguments,
+                destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
+                pluginRegistrars =
+                    listOf(
+                        TestKspRegistrar(
+                            kspWorkingDir = workingDir.resolve("ksp-compiler"),
+                            baseOptions = createKspOptions(workingDir),
+                            processorProviders = symbolProcessorProviders,
+                            messageCollector = kspMessages
+                        )
+                    ),
+            )
         // workaround for https://github.com/google/ksp/issues/623
-        val failureDueToWarnings = result.kotlinCliArguments.allWarningsAsErrors &&
-            kspMessages.hasWarnings()
+        val failureDueToWarnings =
+            result.kotlinCliArguments.allWarningsAsErrors && kspMessages.hasWarnings()
 
-        val generatedSources = listOfNotNull(
-            workingDir.resolve(KOTLIN_OUT_DIR).toSourceSet(),
-            workingDir.resolve(JAVA_OUT_DIR).toSourceSet(),
-        )
-        val diagnostics = resolveDiagnostics(
-            diagnostics = result.diagnostics + kspMessages.getDiagnostics(),
-            sourceSets = arguments.sourceSets + generatedSources
-        )
+        val generatedSources =
+            listOfNotNull(
+                workingDir.resolve(KOTLIN_OUT_DIR).toSourceSet(),
+                workingDir.resolve(JAVA_OUT_DIR).toSourceSet(),
+            )
+        val diagnostics =
+            resolveDiagnostics(
+                diagnostics = result.diagnostics + kspMessages.getDiagnostics(),
+                sourceSets = arguments.sourceSets + generatedSources
+            )
         return CompilationStepResult(
             success = result.exitCode == ExitCode.OK && !failureDueToWarnings,
             generatedSourceRoots = generatedSources,
             diagnostics = diagnostics,
-            nextCompilerArguments = arguments.copy(
-                sourceSets = arguments.sourceSets + generatedSources
-            ),
+            nextCompilerArguments =
+                arguments.copy(sourceSets = arguments.sourceSets + generatedSources),
             outputClasspath = listOf(result.compiledClasspath)
         )
     }

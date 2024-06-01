@@ -27,19 +27,18 @@ class AmbiguousColumnResolverTurkishLocaleTest {
         try {
             // Turkish has special upper/lowercase i chars
             Locale.setDefault(Locale.forLanguageTag("tr-TR"))
-            val result = AmbiguousColumnResolver.resolve(
-                arrayOf("i̇", "B", "İ", "C", "D"),
-                arrayOf(
-                    arrayOf("İ", "b"),
-                    arrayOf("i̇", "C", "d")
+            val result =
+                AmbiguousColumnResolver.resolve(
+                    arrayOf("i̇", "B", "İ", "C", "D"),
+                    arrayOf(arrayOf("İ", "b"), arrayOf("i̇", "C", "d"))
                 )
-            )
-            assertThat(result).isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(2, 3, 4),
+            assertThat(result)
+                .isEqualTo(
+                    arrayOf(
+                        intArrayOf(0, 1),
+                        intArrayOf(2, 3, 4),
+                    )
                 )
-            )
         } finally {
             Locale.setDefault(originalLocale)
         }

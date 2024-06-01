@@ -20,9 +20,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.ColumnIndexVar
 
-/**
- * Wraps a row adapter when there is only 1 item with 1 column in the response.
- */
+/** Wraps a row adapter when there is only 1 item with 1 column in the response. */
 class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.typeMirror()) {
 
     override fun isMigratedToDriver(): Boolean = true
@@ -31,11 +29,10 @@ class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.
         reader.readFromCursor(outVarName, cursorVarName, "0", scope)
     }
 
-    override fun getDefaultIndexAdapter() = object : IndexAdapter {
-        override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {}
+    override fun getDefaultIndexAdapter() =
+        object : IndexAdapter {
+            override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {}
 
-        override fun getIndexVars() = listOf(
-            ColumnIndexVar(null, "0")
-        )
-    }
+            override fun getIndexVars() = listOf(ColumnIndexVar(null, "0"))
+        }
 }

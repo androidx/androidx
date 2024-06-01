@@ -24,31 +24,30 @@ import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * A LiveData implementation that closely works with [InvalidationTracker] to implement
- * database drive [androidx.lifecycle.LiveData] queries that are strongly hold as long
- * as they are active.
+ * A LiveData implementation that closely works with [InvalidationTracker] to implement database
+ * drive [androidx.lifecycle.LiveData] queries that are strongly hold as long as they are active.
  *
- * We need this extra handling for [androidx.lifecycle.LiveData] because when they are
- * observed forever, there is no [androidx.lifecycle.Lifecycle] that will keep them in
- * memory but they should stay. We cannot add-remove observer in [LiveData.onActive],
- * [LiveData.onInactive] because that would mean missing changes in between or doing an
- * extra query on every UI rotation.
+ * We need this extra handling for [androidx.lifecycle.LiveData] because when they are observed
+ * forever, there is no [androidx.lifecycle.Lifecycle] that will keep them in memory but they should
+ * stay. We cannot add-remove observer in [LiveData.onActive], [LiveData.onInactive] because that
+ * would mean missing changes in between or doing an extra query on every UI rotation.
  *
- * This [LiveData] keeps a weak observer to the [InvalidationTracker] but it is hold
- * strongly by the [InvalidationTracker] as long as it is active.
+ * This [LiveData] keeps a weak observer to the [InvalidationTracker] but it is hold strongly by the
+ * [InvalidationTracker] as long as it is active.
  */
-internal class RoomTrackingLiveData<T> (
+internal class RoomTrackingLiveData<T>(
     val database: RoomDatabase,
     private val container: InvalidationLiveDataContainer,
     val inTransaction: Boolean,
     val computeFunction: Callable<T?>,
     tableNames: Array<out String>
 ) : LiveData<T>() {
-    val observer: InvalidationTracker.Observer = object : InvalidationTracker.Observer(tableNames) {
-        override fun onInvalidated(tables: Set<String>) {
-            ArchTaskExecutor.getInstance().executeOnMainThread(invalidationRunnable)
+    val observer: InvalidationTracker.Observer =
+        object : InvalidationTracker.Observer(tableNames) {
+            override fun onInvalidated(tables: Set<String>) {
+                ArchTaskExecutor.getInstance().executeOnMainThread(invalidationRunnable)
+            }
         }
-    }
     val invalid = AtomicBoolean(true)
     val computing = AtomicBoolean(false)
     val registeredObserver = AtomicBoolean(false)
@@ -116,9 +115,10 @@ internal class RoomTrackingLiveData<T> (
     }
 
     val queryExecutor: Executor
-        get() = if (inTransaction) {
-            database.transactionExecutor
-        } else {
-            database.queryExecutor
-        }
+        get() =
+            if (inTransaction) {
+                database.transactionExecutor
+            } else {
+                database.queryExecutor
+            }
 }

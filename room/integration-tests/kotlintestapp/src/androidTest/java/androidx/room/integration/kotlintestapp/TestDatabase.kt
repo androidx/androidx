@@ -54,13 +54,28 @@ import java.util.Date
 import java.util.UUID
 
 @Database(
-    entities = [
-        Book::class, Author::class, Publisher::class, BookAuthor::class,
-        NoArgClass::class, DataClassFromDependency::class, JavaEntity::class,
-        EntityWithJavaPojoList::class, User::class, Counter::class, Toy::class,
-        Pet::class, PetUser::class, Song::class, Playlist::class, PlaylistSongXRef::class,
-        Artist::class, Album::class, Image::class
-    ],
+    entities =
+        [
+            Book::class,
+            Author::class,
+            Publisher::class,
+            BookAuthor::class,
+            NoArgClass::class,
+            DataClassFromDependency::class,
+            JavaEntity::class,
+            EntityWithJavaPojoList::class,
+            User::class,
+            Counter::class,
+            Toy::class,
+            Pet::class,
+            PetUser::class,
+            Song::class,
+            Playlist::class,
+            PlaylistSongXRef::class,
+            Artist::class,
+            Album::class,
+            Image::class
+        ],
     views = [PetWithUser::class],
     version = 1,
     exportSchema = false,
@@ -99,8 +114,7 @@ abstract class TestDatabase : RoomDatabase() {
 
         @TypeConverter
         fun decomposeDays(flags: Int): Set<androidx.room.integration.kotlintestapp.vo.Day> {
-            val result: MutableSet<androidx.room.integration.kotlintestapp.vo.Day> =
-                HashSet()
+            val result: MutableSet<androidx.room.integration.kotlintestapp.vo.Day> = HashSet()
             for (day in androidx.room.integration.kotlintestapp.vo.Day.values()) {
                 if (flags and (1 shl day.ordinal) != 0) {
                     result.add(day)

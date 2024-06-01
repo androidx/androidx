@@ -26,4 +26,4 @@ class UpsertMethod(
     returnType: XType,
     parameters: List<ShortcutQueryParameter>,
     methodBinder: InsertOrUpsertMethodBinder
-        ) : InsertOrUpsertShortcutMethod(element, entities, returnType, parameters, methodBinder)
+) : InsertOrUpsertShortcutMethod(element, entities, returnType, parameters, methodBinder)

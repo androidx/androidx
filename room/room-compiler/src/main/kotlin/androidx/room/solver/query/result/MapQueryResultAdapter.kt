@@ -35,14 +35,16 @@ class MapQueryResultAdapter(
                 assignExpr = mapValueResultAdapter.getInstantiationCodeBlock(language)
             )
             val stepName = if (scope.useDriverApi) "step" else "moveToNext"
-            beginControlFlow("while (%L.$stepName())", cursorVarName).apply {
-                mapValueResultAdapter.convert(
-                    scope,
-                    outVarName,
-                    cursorVarName,
-                    dupeColumnsIndexAdapter,
-                )
-            }.endControlFlow()
+            beginControlFlow("while (%L.$stepName())", cursorVarName)
+                .apply {
+                    mapValueResultAdapter.convert(
+                        scope,
+                        outVarName,
+                        cursorVarName,
+                        dupeColumnsIndexAdapter,
+                    )
+                }
+                .endControlFlow()
         }
     }
 
@@ -62,10 +64,9 @@ class MapQueryResultAdapter(
                 )
             }
         } else {
-            rowAdapters.forEach {
-                it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
-            }
+            rowAdapters.forEach { it.onCursorReady(cursorVarName = cursorVarName, scope = scope) }
         }
     }
+
     override fun isMigratedToDriver(): Boolean = mapValueResultAdapter.isMigratedToDriver()
 }

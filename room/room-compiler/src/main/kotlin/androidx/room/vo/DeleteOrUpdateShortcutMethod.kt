@@ -19,9 +19,7 @@ package androidx.room.vo
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 
-/**
- * Base class for shortcut methods in @DAO.
- */
+/** Base class for shortcut methods in @DAO. */
 abstract class DeleteOrUpdateShortcutMethod(
     val element: XMethodElement,
     val entities: Map<String, ShortcutEntity>,

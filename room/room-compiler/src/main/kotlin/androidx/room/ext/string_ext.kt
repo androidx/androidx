@@ -32,35 +32,38 @@ private fun String.toCamelCaseAsVar(): String {
     return split.joinToCamelCaseAsVar()
 }
 
-private fun List<String>.joinToCamelCase(): String = when (size) {
-    0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
-    1 -> this[0].toCamelCase()
-    else -> this.joinToString("") { it.toCamelCase() }
-}
+private fun List<String>.joinToCamelCase(): String =
+    when (size) {
+        0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
+        1 -> this[0].toCamelCase()
+        else -> this.joinToString("") { it.toCamelCase() }
+    }
 
-private fun List<String>.joinToCamelCaseAsVar(): String = when (size) {
-    0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
-    1 -> this[0].toCamelCaseAsVar()
-    else -> get(0).toCamelCaseAsVar() + drop(1).joinToCamelCase()
-}
+private fun List<String>.joinToCamelCaseAsVar(): String =
+    when (size) {
+        0 -> throw IllegalArgumentException("invalid section size, cannot be zero")
+        1 -> this[0].toCamelCaseAsVar()
+        else -> get(0).toCamelCaseAsVar() + drop(1).joinToCamelCase()
+    }
 
 private val javaCharRegex = "[^a-zA-Z0-9]".toRegex()
+
 fun String.stripNonJava(): String {
-    return this.split(javaCharRegex)
-        .map(String::trim)
-        .joinToCamelCaseAsVar()
+    return this.split(javaCharRegex).map(String::trim).joinToCamelCaseAsVar()
 }
 
 // TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable
-fun String.capitalize(locale: Locale): String = if (isNotEmpty() && this[0].isLowerCase()) {
-    substring(0, 1).uppercase(locale) + substring(1)
-} else {
-    this
-}
+fun String.capitalize(locale: Locale): String =
+    if (isNotEmpty() && this[0].isLowerCase()) {
+        substring(0, 1).uppercase(locale) + substring(1)
+    } else {
+        this
+    }
 
 // TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable
-fun String.decapitalize(locale: Locale): String = if (isNotEmpty() && this[0].isUpperCase()) {
-    substring(0, 1).lowercase(locale) + substring(1)
-} else {
-    this
-}
+fun String.decapitalize(locale: Locale): String =
+    if (isNotEmpty() && this[0].isUpperCase()) {
+        substring(0, 1).lowercase(locale) + substring(1)
+    } else {
+        this
+    }

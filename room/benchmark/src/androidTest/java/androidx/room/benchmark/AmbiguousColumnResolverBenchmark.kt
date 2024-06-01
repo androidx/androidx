@@ -36,17 +36,17 @@ class AmbiguousColumnResolverBenchmark(
     private val numOfDupes: Int,
 ) {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun largeResolution() {
         // Create unique result columns
-        val resultColumns = mutableListOf<String>().apply {
-            for (i in 1..numOfColumns) {
-                add("Column_$i")
+        val resultColumns =
+            mutableListOf<String>().apply {
+                for (i in 1..numOfColumns) {
+                    add("Column_$i")
+                }
             }
-        }
         // Create dupe columns, each table mapping will contain these columns
         val dupeColumns = buildList {
             for (i in 1..numOfDupes) {
@@ -55,43 +55,45 @@ class AmbiguousColumnResolverBenchmark(
         }
         // Create mappings, with dupe columns inserted
         val columnsPerTable = numOfColumns.floorDiv(numOfTables)
-        val mappings = buildList<List<String>> {
-            // Split the result columns by the num of tables, each mapping will more or less have
-            // the same amount of columns.
-            for (i in 0 until numOfTables) {
-                val startInclusive = i * columnsPerTable
-                val endExclusive =
-                    if (startInclusive + columnsPerTable * 2 > numOfColumns) {
-                        numOfColumns
-                    } else {
-                        startInclusive + columnsPerTable
+        val mappings =
+            buildList<List<String>> {
+                // Split the result columns by the num of tables, each mapping will more or less
+                // have
+                // the same amount of columns.
+                for (i in 0 until numOfTables) {
+                    val startInclusive = i * columnsPerTable
+                    val endExclusive =
+                        if (startInclusive + columnsPerTable * 2 > numOfColumns) {
+                            numOfColumns
+                        } else {
+                            startInclusive + columnsPerTable
+                        }
+                    // Place each dupe column within the range of result columns for this table
+                    // mapping.
+                    val dupeIndices = mutableSetOf<Int>() // To have distinct dupe indices
+                    dupeColumns.forEach { dupeCol ->
+                        var dupeIndex: Int
+                        do {
+                            dupeIndex = Random.nextInt(startInclusive, endExclusive)
+                        } while (dupeIndices.contains(dupeIndex))
+                        dupeIndices.add(dupeIndex)
+                        resultColumns[dupeIndex] = dupeCol
                     }
-                // Place each dupe column within the range of result columns for this table mapping.
-                val dupeIndices = mutableSetOf<Int>() // To have distinct dupe indices
-                dupeColumns.forEach { dupeCol ->
-                    var dupeIndex: Int
-                    do {
-                        dupeIndex = Random.nextInt(startInclusive, endExclusive)
-                    } while (dupeIndices.contains(dupeIndex))
-                    dupeIndices.add(dupeIndex)
-                    resultColumns[dupeIndex] = dupeCol
+                    add(resultColumns.subList(startInclusive, endExclusive))
                 }
-                add(resultColumns.subList(startInclusive, endExclusive))
             }
-        }
         // Create expected result, its just an increasing index assignment
         val expected = buildList {
             var i = 0
-            mappings.forEach {
-                add(IntArray(it.size) { i++ })
-            }
+            mappings.forEach { add(IntArray(it.size) { i++ }) }
         }
 
         benchmarkRule.measureRepeated {
-            val result = AmbiguousColumnResolver.resolve(
-                resultColumns = resultColumns.toTypedArray(),
-                mappings = mappings.map { it.toTypedArray() }.toTypedArray()
-            )
+            val result =
+                AmbiguousColumnResolver.resolve(
+                    resultColumns = resultColumns.toTypedArray(),
+                    mappings = mappings.map { it.toTypedArray() }.toTypedArray()
+                )
             runWithTimingDisabled {
                 result.forEachIndexed { i, resultMapping ->
                     assertArrayEquals(resultMapping, expected[i])
@@ -103,10 +105,6 @@ class AmbiguousColumnResolverBenchmark(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "numOfColumns={0}, numOfTables={1}, numOfDupes={2}")
-        fun data() = generateAllEnumerations(
-            listOf(20, 50, 100),
-            listOf(2, 3),
-            listOf(2, 4)
-        )
+        fun data() = generateAllEnumerations(listOf(20, 50, 100), listOf(2, 3), listOf(2, 4))
     }
 }

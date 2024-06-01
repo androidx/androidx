@@ -31,19 +31,19 @@ import org.mockito.kotlin.whenever
 class SharedSQLiteStatementTest {
     private lateinit var mSharedStmt: SharedSQLiteStatement
     lateinit var mDb: RoomDatabase
+
     @Before
     fun init() {
         val mdata: RoomDatabase = mock()
-        whenever(mdata.compileStatement(anyOrNull())).thenAnswer {
-            mock<SupportSQLiteStatement>()
-        }
+        whenever(mdata.compileStatement(anyOrNull())).thenAnswer { mock<SupportSQLiteStatement>() }
         whenever(mdata.invalidationTracker).thenReturn(mock())
         mDb = mdata
-        mSharedStmt = object : SharedSQLiteStatement(mdata) {
-            override fun createQuery(): String {
-                return "foo"
+        mSharedStmt =
+            object : SharedSQLiteStatement(mdata) {
+                override fun createQuery(): String {
+                    return "foo"
+                }
             }
-        }
     }
 
     @Test
@@ -59,21 +59,21 @@ class SharedSQLiteStatementTest {
 
     @Test
     fun twiceWithoutReleasing() {
-            val stmt1 = mSharedStmt.acquire()
-            val stmt2 = mSharedStmt.acquire()
-            assertThat(stmt1).isNotNull()
-            assertThat(stmt2).isNotNull()
-            assertThat(stmt1).isNotEqualTo(stmt2)
-        }
+        val stmt1 = mSharedStmt.acquire()
+        val stmt2 = mSharedStmt.acquire()
+        assertThat(stmt1).isNotNull()
+        assertThat(stmt2).isNotNull()
+        assertThat(stmt1).isNotEqualTo(stmt2)
+    }
 
     @Test
     fun twiceWithReleasing() {
-            val stmt1 = mSharedStmt.acquire()
-            mSharedStmt.release(stmt1)
-            val stmt2 = mSharedStmt.acquire()
-            assertThat(stmt1).isNotNull()
-            assertThat(stmt1).isEqualTo(stmt2)
-        }
+        val stmt1 = mSharedStmt.acquire()
+        mSharedStmt.release(stmt1)
+        val stmt2 = mSharedStmt.acquire()
+        assertThat(stmt1).isNotNull()
+        assertThat(stmt1).isEqualTo(stmt2)
+    }
 
     @Test
     fun fromAnotherThreadWhileHolding() {

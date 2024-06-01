@@ -27,11 +27,10 @@ import okio.BufferedSource
 
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual class SchemaBundle actual constructor(
-    @SerialName("formatVersion")
-    actual val formatVersion: Int,
-    @SerialName("database")
-    actual val database: DatabaseBundle
+actual class SchemaBundle
+actual constructor(
+    @SerialName("formatVersion") actual val formatVersion: Int,
+    @SerialName("database") actual val database: DatabaseBundle
 ) : SchemaEquality<SchemaBundle> {
 
     actual override fun isSchemaEqual(other: SchemaBundle): Boolean {

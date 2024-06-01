@@ -28,15 +28,12 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.process.CommandLineArgumentProvider
 
 class RoomArgumentProvider(
-    @get:Input
-    val forKsp: Boolean,
+    @get:Input val forKsp: Boolean,
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     val schemaInputDir: Provider<Directory>,
-    @get:OutputDirectory
-    val schemaOutputDir: Provider<Directory>,
-    @get:Nested
-    val options: RoomOptions
+    @get:OutputDirectory val schemaOutputDir: Provider<Directory>,
+    @get:Nested val options: RoomOptions
 ) : CommandLineArgumentProvider {
     override fun asArguments() = buildList {
         val prefix = if (forKsp) "" else "-A"
@@ -48,11 +45,7 @@ class RoomArgumentProvider(
     }
 }
 
-class RoomOptions(
-    @Optional
-    @get:Input
-    val generateKotlin: Boolean?
-)
+class RoomOptions(@Optional @get:Input val generateKotlin: Boolean?)
 
 internal fun RoomExtension.toOptions(): RoomOptions {
     return RoomOptions(generateKotlin = this.generateKotlin)

@@ -19,14 +19,9 @@ package androidx.room.compiler.processing.util
 import java.util.Properties
 import org.junit.AssumptionViolatedException
 
-/**
- * Provides the information about compilation test capabilities.
- * see: b/178725084
- */
+/** Provides the information about compilation test capabilities. see: b/178725084 */
 object CompilationTestCapabilities {
-    /**
-     * `true` if we can run KSP tests.
-     */
+    /** `true` if we can run KSP tests. */
     val canTestWithKsp: Boolean
 
     init {
@@ -44,10 +39,7 @@ object CompilationTestCapabilities {
         }
     }
 
-    internal data class Config(
-        val kotlinVersion: String,
-        val kspVersion: String
-    ) {
+    internal data class Config(val kotlinVersion: String, val kspVersion: String) {
         fun canEnableKsp(): Boolean {
             val reducedKotlin = reduceVersions(kotlinVersion)
             val reducedKsp = reduceVersions(kspVersion)
@@ -55,32 +47,23 @@ object CompilationTestCapabilities {
         }
 
         /**
-         * Reduces the version to some approximation by taking major and minor versions.
-         * We use this to check if ksp and kotlin are compatible, feel free to change it if it
-         * does not work as it is only an approximation
-         * e.g. 1.4.20 becomes 1.4, 1.40.210-foobar becomes 1.4
+         * Reduces the version to some approximation by taking major and minor versions. We use this
+         * to check if ksp and kotlin are compatible, feel free to change it if it does not work as
+         * it is only an approximation e.g. 1.4.20 becomes 1.4, 1.40.210-foobar becomes 1.4
          */
         private fun reduceVersions(version: String): Array<String?> {
             val sections = version.split('.')
-            return arrayOf(
-                sections.getOrNull(0),
-                sections.getOrNull(1)
-            )
+            return arrayOf(sections.getOrNull(0), sections.getOrNull(1))
         }
 
         companion object {
-            /**
-             * Load the test configuration from resources.
-             */
+            /** Load the test configuration from resources. */
             fun load(): Config {
                 val props = Properties()
                 val resourceName = "/${Config::class.java.canonicalName}.properties"
-                CompilationTestCapabilities::class.java
-                    .getResource(resourceName)
-                    .openStream()
-                    .use {
-                        props.load(it)
-                    }
+                CompilationTestCapabilities::class.java.getResource(resourceName).openStream().use {
+                    props.load(it)
+                }
                 return Config(
                     kotlinVersion = props.getProperty("kotlinVersion") as String,
                     kspVersion = props.getProperty("kspVersion") as String

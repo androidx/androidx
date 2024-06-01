@@ -31,20 +31,13 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.internal.KaptTask
 
-internal class AndroidPluginIntegration(
-    private val common: CommonIntegration
-) {
-    private val agpPluginIds = listOf(
-        "com.android.application",
-        "com.android.library",
-        "com.android.dynamic-feature"
-    )
+internal class AndroidPluginIntegration(private val common: CommonIntegration) {
+    private val agpPluginIds =
+        listOf("com.android.application", "com.android.library", "com.android.dynamic-feature")
 
     fun withAndroid(project: Project, roomExtension: RoomExtension) {
         agpPluginIds.forEach { agpPluginId ->
-            project.plugins.withId(agpPluginId) {
-                configureRoomForAndroid(project, roomExtension)
-            }
+            project.plugins.withId(agpPluginId) { configureRoomForAndroid(project, roomExtension) }
         }
     }
 
@@ -91,18 +84,19 @@ internal class AndroidPluginIntegration(
                 // `schemaLocation("androidDebug", "...")`, etc.
                 val schemaDirectories = roomExtension.schemaDirectories
                 val kmpPrefix = "android"
-                val matchedPair = schemaDirectories.findPair(variantIdentity.name)
-                    ?: schemaDirectories.findPair(kmpPrefix + variantIdentity.name.capitalize())
-                    ?: variantIdentity.flavorName?.let {
-                        schemaDirectories.findPair(it)
-                            ?: schemaDirectories.findPair(kmpPrefix + it.capitalize())
-                    }
-                    ?: variantIdentity.buildType?.let {
-                        schemaDirectories.findPair(it)
-                            ?: schemaDirectories.findPair(kmpPrefix + it.capitalize())
-                    }
-                    ?: schemaDirectories.findPair(kmpPrefix)
-                    ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
+                val matchedPair =
+                    schemaDirectories.findPair(variantIdentity.name)
+                        ?: schemaDirectories.findPair(kmpPrefix + variantIdentity.name.capitalize())
+                        ?: variantIdentity.flavorName?.let {
+                            schemaDirectories.findPair(it)
+                                ?: schemaDirectories.findPair(kmpPrefix + it.capitalize())
+                        }
+                        ?: variantIdentity.buildType?.let {
+                            schemaDirectories.findPair(it)
+                                ?: schemaDirectories.findPair(kmpPrefix + it.capitalize())
+                        }
+                        ?: schemaDirectories.findPair(kmpPrefix)
+                        ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
                 project.check(matchedPair != null, isFatal = true) {
                     "No matching Room schema directory for Android variant " +
                         "'${variantIdentity.name}'."
@@ -114,7 +108,11 @@ internal class AndroidPluginIntegration(
                         "'${variantIdentity.name}' must not be empty."
                 }
                 common.configureTaskWithSchema(
-                    project, roomExtension, matchedName, schemaDirectory, task
+                    project,
+                    roomExtension,
+                    matchedName,
+                    schemaDirectory,
+                    task
                 )
             }
         val androidVariantTaskNames = AndroidVariantsTaskNames(variant.name, variant)
@@ -131,73 +129,67 @@ internal class AndroidPluginIntegration(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
         configureBlock: (Task, ComponentIdentity) -> RoomArgumentProvider
-    ) = project.tasks.withType(JavaCompile::class.java) { task ->
-        androidVariantsTaskNames.withJavaCompile(task.name)?.let { variantIdentity ->
-            val argProvider = configureBlock.invoke(task, variantIdentity)
-            task.options.compilerArgumentProviders.add(argProvider)
+    ) =
+        project.tasks.withType(JavaCompile::class.java) { task ->
+            androidVariantsTaskNames.withJavaCompile(task.name)?.let { variantIdentity ->
+                val argProvider = configureBlock.invoke(task, variantIdentity)
+                task.options.compilerArgumentProviders.add(argProvider)
+            }
         }
-    }
 
     private fun configureKaptTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
         configureBlock: (Task, ComponentIdentity) -> RoomArgumentProvider
-    ) = project.plugins.withId("kotlin-kapt") {
-        project.tasks.withType(KaptTask::class.java) { task ->
-            androidVariantsTaskNames.withKaptTask(task.name)?.let { variantIdentity ->
-                val argProvider = configureBlock.invoke(task, variantIdentity)
-                // TODO: Update once KT-58009 is fixed.
-                try {
-                    // Because of KT-58009, we need to add a `listOf(argProvider)` instead
-                    // of `argProvider`.
-                    task.annotationProcessorOptionProviders.add(listOf(argProvider))
-                } catch (e: Throwable) {
-                    // Once KT-58009 is fixed, adding `listOf(argProvider)` will fail, we will
-                    // pass `argProvider` instead, which is the correct way.
-                    task.annotationProcessorOptionProviders.add(argProvider)
+    ) =
+        project.plugins.withId("kotlin-kapt") {
+            project.tasks.withType(KaptTask::class.java) { task ->
+                androidVariantsTaskNames.withKaptTask(task.name)?.let { variantIdentity ->
+                    val argProvider = configureBlock.invoke(task, variantIdentity)
+                    // TODO: Update once KT-58009 is fixed.
+                    try {
+                        // Because of KT-58009, we need to add a `listOf(argProvider)` instead
+                        // of `argProvider`.
+                        task.annotationProcessorOptionProviders.add(listOf(argProvider))
+                    } catch (e: Throwable) {
+                        // Once KT-58009 is fixed, adding `listOf(argProvider)` will fail, we will
+                        // pass `argProvider` instead, which is the correct way.
+                        task.annotationProcessorOptionProviders.add(argProvider)
+                    }
                 }
             }
         }
-    }
 
     private fun configureKspTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
         configureBlock: (Task, ComponentIdentity) -> RoomArgumentProvider
-    ) = project.plugins.withId("com.google.devtools.ksp") {
-        project.tasks.withType(KspTaskJvm::class.java) { task ->
-            androidVariantsTaskNames.withKspTaskJvm(task.name)?.let { variantIdentity ->
-                val argProvider = configureBlock.invoke(task, variantIdentity)
-                task.commandLineArgumentProviders.add(argProvider)
+    ) =
+        project.plugins.withId("com.google.devtools.ksp") {
+            project.tasks.withType(KspTaskJvm::class.java) { task ->
+                androidVariantsTaskNames.withKspTaskJvm(task.name)?.let { variantIdentity ->
+                    val argProvider = configureBlock.invoke(task, variantIdentity)
+                    task.commandLineArgumentProviders.add(argProvider)
+                }
             }
         }
-    }
 
     internal class AndroidVariantsTaskNames(
         private val variantName: String,
         private val variantIdentity: ComponentIdentity
     ) {
-        private val javaCompileName by lazy {
-            "compile${variantName.capitalize()}JavaWithJavac"
-        }
+        private val javaCompileName by lazy { "compile${variantName.capitalize()}JavaWithJavac" }
 
-        private val kaptTaskName by lazy {
-            "kapt${variantName.capitalize()}Kotlin"
-        }
+        private val kaptTaskName by lazy { "kapt${variantName.capitalize()}Kotlin" }
 
-        private val kspTaskJvmName by lazy {
-            "ksp${variantName.capitalize()}Kotlin"
-        }
+        private val kspTaskJvmName by lazy { "ksp${variantName.capitalize()}Kotlin" }
 
-        private val kspTaskAndroidName by lazy {
-            "ksp${variantName.capitalize()}KotlinAndroid"
-        }
+        private val kspTaskAndroidName by lazy { "ksp${variantName.capitalize()}KotlinAndroid" }
 
         fun withJavaCompile(taskName: String) =
             if (taskName == javaCompileName) variantIdentity else null
 
-        fun withKaptTask(taskName: String) =
-            if (taskName == kaptTaskName) variantIdentity else null
+        fun withKaptTask(taskName: String) = if (taskName == kaptTaskName) variantIdentity else null
 
         fun withKspTaskJvm(taskName: String) =
             if (taskName == kspTaskJvmName || taskName == kspTaskAndroidName) {

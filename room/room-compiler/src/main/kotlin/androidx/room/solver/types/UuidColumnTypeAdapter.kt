@@ -26,10 +26,7 @@ import androidx.room.solver.CodeGenScope
 
 class UuidColumnTypeAdapter(
     out: XType,
-) : ColumnTypeAdapter(
-    out = out,
-    typeAffinity = SQLTypeAffinity.BLOB
-) {
+) : ColumnTypeAdapter(out = out, typeAffinity = SQLTypeAffinity.BLOB) {
     override fun bindToStmt(
         stmtName: String,
         indexVarName: String,
@@ -52,7 +49,7 @@ class UuidColumnTypeAdapter(
                 beginControlFlow("if (%L == null)", valueVarName)
                     .addStatement("%L.bindNull(%L)", stmtName, indexVarName)
                 nextControlFlow("else")
-                    addBindBlobStatement()
+                addBindBlobStatement()
                 endControlFlow()
             }
         }
@@ -79,8 +76,7 @@ class UuidColumnTypeAdapter(
             } else {
                 beginControlFlow("if (%L.isNull(%L))", cursorVarName, indexVarName)
                     .addStatement("%L = null", outVarName)
-                nextControlFlow("else")
-                    .addGetBlobStatement()
+                nextControlFlow("else").addGetBlobStatement()
                 endControlFlow()
             }
         }

@@ -24,29 +24,26 @@ interface XAnnotationSpec : TargetLanguage {
     interface Builder : TargetLanguage {
         // TODO(b/127483380): Only supports one value, add support for arrays
         fun addMember(name: String, code: XCodeBlock): Builder
+
         fun build(): XAnnotationSpec
 
         companion object {
-            fun Builder.addMember(
-                name: String,
-                format: String,
-                vararg args: Any?
-            ): Builder = addMember(
-                name,
-                XCodeBlock.of(language, format, *args)
-            )
+            fun Builder.addMember(name: String, format: String, vararg args: Any?): Builder =
+                addMember(name, XCodeBlock.of(language, format, *args))
         }
     }
 
     companion object {
         fun builder(language: CodeLanguage, className: XClassName): Builder {
             return when (language) {
-                CodeLanguage.JAVA -> JavaAnnotationSpec.Builder(
-                    com.squareup.javapoet.AnnotationSpec.builder(className.java)
-                )
-                CodeLanguage.KOTLIN -> KotlinAnnotationSpec.Builder(
-                    com.squareup.kotlinpoet.AnnotationSpec.builder(className.kotlin)
-                )
+                CodeLanguage.JAVA ->
+                    JavaAnnotationSpec.Builder(
+                        com.squareup.javapoet.AnnotationSpec.builder(className.java)
+                    )
+                CodeLanguage.KOTLIN ->
+                    KotlinAnnotationSpec.Builder(
+                        com.squareup.kotlinpoet.AnnotationSpec.builder(className.kotlin)
+                    )
             }
         }
     }

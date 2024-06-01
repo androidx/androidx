@@ -55,10 +55,11 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
             element.isMethod() -> {
                 // TODO when we generate Kotlin code, we need to handle not having enclosing
                 //  elements.
-                val methodName = when (builder.language) {
-                    CodeLanguage.JAVA -> element.jvmName
-                    CodeLanguage.KOTLIN -> element.name
-                }
+                val methodName =
+                    when (builder.language) {
+                        CodeLanguage.JAVA -> element.jvmName
+                        CodeLanguage.KOTLIN -> element.name
+                    }
                 builder.addStatement(
                     "%L = %T.%L(%L)",
                     outVar,

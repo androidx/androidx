@@ -36,9 +36,8 @@ internal interface ConnectionPool {
 
     /**
      * Acquires a connection, suspending while waiting if none is available and then calling the
-     * [block] to use the connection once it is acquired. The connection to use in the [block] is
-     * an instance of [Transactor] that provides the capabilities for performing nested
-     * transactions.
+     * [block] to use the connection once it is acquired. The connection to use in the [block] is an
+     * instance of [Transactor] that provides the capabilities for performing nested transactions.
      *
      * Using the connection after [block] completes is prohibited.
      *
@@ -55,7 +54,7 @@ internal interface ConnectionPool {
      * @param isReadOnly Whether to use a reader or a writer connection.
      * @param block The code to use the connection.
      * @throws SQLiteException when the pool is closed or a thread confined connection needs to be
-     * upgraded or there is a timeout acquiring a connection.
+     *   upgraded or there is a timeout acquiring a connection.
      */
     suspend fun <R> useConnection(isReadOnly: Boolean, block: suspend (Transactor) -> R): R
 
@@ -99,9 +98,7 @@ internal fun newConnectionPool(
     maxNumOfWriters: Int
 ): ConnectionPool = ConnectionPoolImpl(driver, fileName, maxNumOfReaders, maxNumOfWriters)
 
-/**
- * Defines an object that provides 'raw' access to a connection.
- */
+/** Defines an object that provides 'raw' access to a connection. */
 internal interface RawConnectionAccessor {
     val rawConnection: SQLiteConnection
 }

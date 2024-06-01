@@ -30,9 +30,9 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 /**
- * Javapoet does not model NonType, unlike javac, which makes it hard to rely on TypeName for
- * common functionality (e.g. ability to implement XType.isLong as typename() == TypeName.LONG
- * instead of in the base class)
+ * Javapoet does not model NonType, unlike javac, which makes it hard to rely on TypeName for common
+ * functionality (e.g. ability to implement XType.isLong as typename() == TypeName.LONG instead of
+ * in the base class)
  *
  * For those cases, we have this hacky type so that we can always query TypeName on an XType.
  *
@@ -43,34 +43,37 @@ internal val JAVA_NONE_TYPE_NAME: JClassName =
 
 @JvmOverloads
 fun XAnnotation.toAnnotationSpec(includeDefaultValues: Boolean = true): AnnotationSpec {
-  val builder = AnnotationSpec.builder(className)
-  if (includeDefaultValues) {
-    annotationValues.forEach { builder.addAnnotationValue(it) }
-  } else {
-    declaredAnnotationValues.forEach { builder.addAnnotationValue(it) }
-  }
-  return builder.build()
+    val builder = AnnotationSpec.builder(className)
+    if (includeDefaultValues) {
+        annotationValues.forEach { builder.addAnnotationValue(it) }
+    } else {
+        declaredAnnotationValues.forEach { builder.addAnnotationValue(it) }
+    }
+    return builder.build()
 }
 
 private fun AnnotationSpec.Builder.addAnnotationValue(annotationValue: XAnnotationValue) {
-  annotationValue.apply {
-    requireNotNull(value) { "value == null, constant non-null value expected for $name" }
-    require(SourceVersion.isName(name)) { "not a valid name: $name" }
-    when {
-        hasListValue() -> asAnnotationValueList().forEach { addAnnotationValue(it) }
-        hasAnnotationValue() -> addMember(name, "\$L", asAnnotation().toAnnotationSpec())
-        hasEnumValue() -> addMember(
-            name, "\$T.\$L", asEnum().enclosingElement.asClassName().java, asEnum().name
-        )
-        hasTypeValue() -> addMember(name, "\$T.class", asType().asTypeName().java)
-        hasStringValue() -> addMember(name, "\$S", asString())
-        hasFloatValue() -> addMember(name, "\$Lf", asFloat())
-        hasCharValue() -> addMember(
-            name, "'\$L'", characterLiteralWithoutSingleQuotes(asChar())
-        )
-        else -> addMember(name, "\$L", value)
+    annotationValue.apply {
+        requireNotNull(value) { "value == null, constant non-null value expected for $name" }
+        require(SourceVersion.isName(name)) { "not a valid name: $name" }
+        when {
+            hasListValue() -> asAnnotationValueList().forEach { addAnnotationValue(it) }
+            hasAnnotationValue() -> addMember(name, "\$L", asAnnotation().toAnnotationSpec())
+            hasEnumValue() ->
+                addMember(
+                    name,
+                    "\$T.\$L",
+                    asEnum().enclosingElement.asClassName().java,
+                    asEnum().name
+                )
+            hasTypeValue() -> addMember(name, "\$T.class", asType().asTypeName().java)
+            hasStringValue() -> addMember(name, "\$S", asString())
+            hasFloatValue() -> addMember(name, "\$Lf", asFloat())
+            hasCharValue() ->
+                addMember(name, "'\$L'", characterLiteralWithoutSingleQuotes(asChar()))
+            else -> addMember(name, "\$L", value)
+        }
     }
-  }
 }
 
 private fun characterLiteralWithoutSingleQuotes(c: Char): String? {
@@ -88,15 +91,16 @@ private fun characterLiteralWithoutSingleQuotes(c: Char): String? {
     }
 }
 
-internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
-    JAVA_NONE_TYPE_NAME
-} else {
-    TypeName.get(this)
-}
+internal fun TypeMirror.safeTypeName(): TypeName =
+    if (kind == TypeKind.NONE) {
+        JAVA_NONE_TYPE_NAME
+    } else {
+        TypeName.get(this)
+    }
 
 /**
- * Adds the given element as the originating element for compilation.
- * see [TypeSpec.Builder.addOriginatingElement].
+ * Adds the given element as the originating element for compilation. see
+ * [TypeSpec.Builder.addOriginatingElement].
  */
 fun TypeSpec.Builder.addOriginatingElement(element: XElement): TypeSpec.Builder {
     addOriginatingElement(element.originatingElementForPoet())
@@ -111,9 +115,7 @@ internal fun TypeName.rawTypeName(): TypeName {
     }
 }
 
-/**
- * Returns the unboxed TypeName for this if it can be unboxed, otherwise, returns this.
- */
+/** Returns the unboxed TypeName for this if it can be unboxed, otherwise, returns this. */
 internal fun TypeName.tryUnbox(): TypeName {
     return if (isBoxedPrimitive) {
         unbox()
@@ -122,9 +124,7 @@ internal fun TypeName.tryUnbox(): TypeName {
     }
 }
 
-/**
- * Returns the boxed TypeName for this if it can be unboxed, otherwise, returns this.
- */
+/** Returns the boxed TypeName for this if it can be unboxed, otherwise, returns this. */
 internal fun TypeName.tryBox(): TypeName {
     return try {
         box()
@@ -139,20 +139,13 @@ internal fun TypeName.tryBox(): TypeName {
  */
 object MethodSpecHelper {
     /**
-     * Creates an overriding [MethodSpec] for the given [XMethodElement] that
-     * does everything in [overriding] and also mark all parameters as final
+     * Creates an overriding [MethodSpec] for the given [XMethodElement] that does everything in
+     * [overriding] and also mark all parameters as final
      */
     @JvmStatic
-    fun overridingWithFinalParams(
-        elm: XMethodElement,
-        owner: XType
-    ): MethodSpec.Builder {
+    fun overridingWithFinalParams(elm: XMethodElement, owner: XType): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
-        return overriding(
-            executableElement = elm,
-            resolvedType = asMember,
-            Modifier.FINAL
-        )
+        return overriding(executableElement = elm, resolvedType = asMember, Modifier.FINAL)
     }
 
     /**
@@ -171,10 +164,7 @@ object MethodSpecHelper {
             }
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
-        return overriding(
-            executableElement = elm,
-            resolvedType = asMember
-        )
+        return overriding(executableElement = elm, resolvedType = asMember)
     }
 
     private fun overriding(
@@ -189,12 +179,14 @@ object MethodSpecHelper {
             resolvedType.parameterTypes.forEachIndexed { index, paramType ->
                 addParameter(
                     ParameterSpec.builder(
-                        paramType.asTypeName().java,
-                        // The parameter name isn't guaranteed to be a valid java name, so we use
-                        // the jvmName instead, which should be a valid java name.
-                        executableElement.parameters[index].jvmName,
-                        *paramModifiers
-                    ).build()
+                            paramType.asTypeName().java,
+                            // The parameter name isn't guaranteed to be a valid java name, so we
+                            // use
+                            // the jvmName instead, which should be a valid java name.
+                            executableElement.parameters[index].jvmName,
+                            *paramModifiers
+                        )
+                        .build()
                 )
             }
             if (executableElement.isPublic()) {
@@ -206,9 +198,7 @@ object MethodSpecHelper {
             // In Java, only the last argument can be a vararg so for suspend functions, it is never
             // a vararg function.
             varargs(!executableElement.isSuspendFunction() && executableElement.isVarArgs())
-            executableElement.thrownTypes.forEach {
-                addException(it.asTypeName().java)
-            }
+            executableElement.thrownTypes.forEach { addException(it.asTypeName().java) }
             returns(resolvedType.returnType.asTypeName().java)
         }
     }

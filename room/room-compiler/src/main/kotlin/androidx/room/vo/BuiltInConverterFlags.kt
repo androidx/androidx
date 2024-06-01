@@ -25,21 +25,23 @@ data class BuiltInConverterFlags(
 ) {
 
     /**
-     * Returns the combination of `this` flags with the [next] flags.
-     * Notice that order is important here as the [next] gets priority when it defines any flag.
+     * Returns the combination of `this` flags with the [next] flags. Notice that order is important
+     * here as the [next] gets priority when it defines any flag.
      */
-    fun withNext(next: BuiltInConverterFlags) = BuiltInConverterFlags(
-        enums = enums + next.enums,
-        uuid = uuid + next.uuid,
-        byteBuffer = byteBuffer + next.byteBuffer,
-    )
+    fun withNext(next: BuiltInConverterFlags) =
+        BuiltInConverterFlags(
+            enums = enums + next.enums,
+            uuid = uuid + next.uuid,
+            byteBuffer = byteBuffer + next.byteBuffer,
+        )
 
     companion object {
-        val DEFAULT = BuiltInConverterFlags(
-            enums = BuiltInTypeConverters.State.INHERITED,
-            uuid = BuiltInTypeConverters.State.INHERITED,
-            byteBuffer = BuiltInTypeConverters.State.INHERITED,
-        )
+        val DEFAULT =
+            BuiltInConverterFlags(
+                enums = BuiltInTypeConverters.State.INHERITED,
+                uuid = BuiltInTypeConverters.State.INHERITED,
+                byteBuffer = BuiltInTypeConverters.State.INHERITED,
+            )
     }
 }
 

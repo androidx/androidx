@@ -24,9 +24,7 @@ import javax.annotation.processing.Messager
 import javax.lang.model.element.Element
 import javax.tools.Diagnostic
 
-internal class JavacProcessingEnvMessager(
-    val delegate: Messager
-) : XMessager() {
+internal class JavacProcessingEnvMessager(val delegate: Messager) : XMessager() {
     override fun onPrintMessage(
         kind: Diagnostic.Kind,
         msg: String,
@@ -41,11 +39,12 @@ internal class JavacProcessingEnvMessager(
 
         val javacElement = (element as JavacElement).element
         @Suppress("NAME_SHADOWING") // intentional to avoid reporting without location
-        val msg = if (javacElement.isFromCompiledClass()) {
-            "$msg - ${element.fallbackLocationText}"
-        } else {
-            msg
-        }
+        val msg =
+            if (javacElement.isFromCompiledClass()) {
+                "$msg - ${element.fallbackLocationText}"
+            } else {
+                msg
+            }
         if (annotation == null) {
             delegate.printMessage(kind, msg, javacElement)
             return
@@ -58,9 +57,7 @@ internal class JavacProcessingEnvMessager(
         }
 
         val javacAnnotationValue = (annotationValue as JavacAnnotationValue).annotationValue
-        delegate.printMessage(
-            kind, msg, javacElement, javacAnnotation, javacAnnotationValue
-        )
+        delegate.printMessage(kind, msg, javacElement, javacAnnotation, javacAnnotationValue)
     }
 
     companion object {
@@ -68,8 +65,8 @@ internal class JavacProcessingEnvMessager(
          * Indicates whether an element comes from a compiled class.
          *
          * If this method fails to identify if the element comes from a compiled class it will
-         * default to returning false. Note that this is a poor-man's method of identifying if
-         * the java source of the element is available without depending on compiler tools.
+         * default to returning false. Note that this is a poor-man's method of identifying if the
+         * java source of the element is available without depending on compiler tools.
          */
         private fun Element.isFromCompiledClass(): Boolean {
             fun getClassFileString(symbol: Any): String =
@@ -82,9 +79,7 @@ internal class JavacProcessingEnvMessager(
                 }
 
             return try {
-                getClassFileString(this).let {
-                    it.contains(".jar") || it.contains(".class")
-                }
+                getClassFileString(this).let { it.contains(".jar") || it.contains(".class") }
             } catch (ex: Throwable) {
                 false
             }

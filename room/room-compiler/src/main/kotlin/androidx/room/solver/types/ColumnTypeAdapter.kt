@@ -20,14 +20,12 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XType
 import androidx.room.parser.SQLTypeAffinity
 
-/**
- * A code generator that can read a field from Cursor and write a field to a Statement
- */
-abstract class ColumnTypeAdapter(
-    val out: XType,
-    val typeAffinity: SQLTypeAffinity
-) : StatementValueBinder, CursorValueReader {
+/** A code generator that can read a field from Cursor and write a field to a Statement */
+abstract class ColumnTypeAdapter(val out: XType, val typeAffinity: SQLTypeAffinity) :
+    StatementValueBinder, CursorValueReader {
     val outTypeName: XTypeName by lazy { out.asTypeName() }
+
     override fun typeMirror() = out
+
     override fun affinity(): SQLTypeAffinity = typeAffinity
 }

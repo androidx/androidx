@@ -25,12 +25,12 @@ import org.junit.rules.TestName
 
 class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
-    val databaseSrc = Source.kotlin(
-        "MyDatabase.kt",
-        """
+    val databaseSrc =
+        Source.kotlin(
+            "MyDatabase.kt",
+            """
         import androidx.room.*
 
         @Database(
@@ -46,14 +46,16 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         abstract class MyDatabase : RoomDatabase() {
           abstract fun getDao(): MyDao
         }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun relations() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -128,8 +130,9 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val playlistKey: Long,
                 val songKey: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -138,9 +141,10 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun relations_nullable() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -215,8 +219,9 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val playlistKey: Long,
                 val songKey: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             expectedFilePath = getTestGoldenPath(testName.methodName)
@@ -225,9 +230,10 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun relations_longSparseArray() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -302,8 +308,9 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val playlistKey: Long,
                 val songKey: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             compiledFiles = compileFiles(listOf(COMMON.LONG_SPARSE_ARRAY)),
@@ -313,9 +320,10 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun relations_arrayMap() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Dao
@@ -390,8 +398,9 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val playlistKey: Long,
                 val songKey: Long,
             )
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(
             sources = listOf(src, databaseSrc),
             compiledFiles = compileFiles(listOf(COMMON.ARRAY_MAP)),
@@ -401,9 +410,10 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun relations_byteBufferKey() {
-        val src = Source.kotlin(
-            "MyDao.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
             import androidx.room.*
 
             @Database(
@@ -450,11 +460,9 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val songId: Long,
                 val artistKey: ByteArray
             )
-            """.trimIndent()
-        )
-        runTest(
-            sources = listOf(src),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
-        )
+            """
+                    .trimIndent()
+            )
+        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
 }

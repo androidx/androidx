@@ -28,16 +28,18 @@ internal class QueryInterceptorOpenHelper(
     private val queryCallback: RoomDatabase.QueryCallback
 ) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
     override val writableDatabase: SupportSQLiteDatabase
-        get() = QueryInterceptorDatabase(
-            delegate.writableDatabase,
-            queryCallbackExecutor,
-            queryCallback
-        )
+        get() =
+            QueryInterceptorDatabase(
+                delegate.writableDatabase,
+                queryCallbackExecutor,
+                queryCallback
+            )
 
     override val readableDatabase: SupportSQLiteDatabase
-        get() = QueryInterceptorDatabase(
-            delegate.readableDatabase,
-            queryCallbackExecutor,
-            queryCallback
-        )
+        get() =
+            QueryInterceptorDatabase(
+                delegate.readableDatabase,
+                queryCallbackExecutor,
+                queryCallback
+            )
 }

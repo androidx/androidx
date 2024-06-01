@@ -43,7 +43,7 @@ import platform.posix.open
  * [ExclusiveLock] which guarantees in-process locking too.
  *
  * @param filename The path to the file to protect. Note that an actual lock is not grab on the file
- * itself but on a temporary file create with the same path but ending with `.lck`.
+ *   itself but on a temporary file create with the same path but ending with `.lck`.
  */
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 internal actual class FileLock actual constructor(filename: String) {
@@ -59,12 +59,13 @@ internal actual class FileLock actual constructor(filename: String) {
         val fd = open(lockFilename, O_RDWR or O_CREAT, S_IWUSR or S_IRUSR or S_IRGRP or S_IROTH)
         check(fd != -1) { "Unable to open lock file (${stringError()}): '$lockFilename'." }
         try {
-            val cFlock = cValue<flock> {
-                l_type = F_WRLCK.toShort() // acquire write (exclusive) lock
-                l_whence = SEEK_SET.toShort() // lock from start of file
-                l_start = 0 // lock start offset
-                l_len = 0 // lock all bytes (special meaning)
-            }
+            val cFlock =
+                cValue<flock> {
+                    l_type = F_WRLCK.toShort() // acquire write (exclusive) lock
+                    l_whence = SEEK_SET.toShort() // lock from start of file
+                    l_start = 0 // lock start offset
+                    l_len = 0 // lock all bytes (special meaning)
+                }
             // Command: 'Set lock waiting' will block until file lock is acquired by process
             if (memScoped { fcntl(fd, F_SETLKW, cFlock.ptr) } == -1) {
                 error("Unable to lock file (${stringError()}): '$lockFilename'.")
@@ -79,12 +80,13 @@ internal actual class FileLock actual constructor(filename: String) {
     actual fun unlock() {
         val fd = lockFd ?: return
         try {
-            val cFlock = cValue<flock> {
-                l_type = F_UNLCK.toShort() // release lock
-                l_whence = SEEK_SET.toShort() // lock from start of file
-                l_start = 0 // lock start offset
-                l_len = 0 // lock all bytes (special meaning)
-            }
+            val cFlock =
+                cValue<flock> {
+                    l_type = F_UNLCK.toShort() // release lock
+                    l_whence = SEEK_SET.toShort() // lock from start of file
+                    l_start = 0 // lock start offset
+                    l_len = 0 // lock all bytes (special meaning)
+                }
             // Command: 'Set lock' (without waiting because we are unlocking)
             if (memScoped { fcntl(fd, F_SETLK, cFlock.ptr) } == -1) {
                 error("Unable to unlock file (${stringError()}): '$lockFilename'.")

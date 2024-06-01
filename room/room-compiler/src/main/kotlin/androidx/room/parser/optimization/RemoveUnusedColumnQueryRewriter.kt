@@ -25,9 +25,9 @@ import androidx.room.solver.query.result.QueryResultAdapter
  * If the query response has unused columns, this rewrites the query to only fetch those columns.
  *
  * e.g. if it is a query like `SELECT * FROM User` where only `name` and `lastName` columns are
- * accessed in the generated code, this re-writer will change it to
- * `SELECT name, lastName FROM (SELECT * FROM User)`. Sqlite takes care of the rest where it
- * flattens the query to avoid fetching unused columns in intermediate steps.
+ * accessed in the generated code, this re-writer will change it to `SELECT name, lastName FROM
+ * (SELECT * FROM User)`. Sqlite takes care of the rest where it flattens the query to avoid
+ * fetching unused columns in intermediate steps.
  */
 object RemoveUnusedColumnQueryRewriter : QueryRewriter {
     override fun rewrite(query: ParsedQuery, resultAdapter: QueryResultAdapter): ParsedQuery {
@@ -47,9 +47,10 @@ object RemoveUnusedColumnQueryRewriter : QueryRewriter {
             return query
         }
         val usedColumnNames = columnNames - unusedColumns
-        val updated = SqlParser.parse(
-            "SELECT ${usedColumnNames.joinToString(", ") { "`$it`" }} FROM (${query.original})"
-        )
+        val updated =
+            SqlParser.parse(
+                "SELECT ${usedColumnNames.joinToString(", ") { "`$it`" }} FROM (${query.original})"
+            )
         if (updated.errors.isNotEmpty()) {
             // we somehow messed up, return original
             return query

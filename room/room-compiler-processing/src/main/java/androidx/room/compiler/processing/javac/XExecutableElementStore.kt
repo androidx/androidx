@@ -18,9 +18,7 @@ package androidx.room.compiler.processing
 
 import java.lang.ref.WeakReference
 
-/**
- * Utility class to cache executable element wrappers.
- */
+/** Utility class to cache executable element wrappers. */
 class XExecutableElementStore<BackingDeclaration, T : XExecutableElement>(
     private val wrap: (type: BackingDeclaration) -> T
 ) {

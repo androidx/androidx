@@ -22,10 +22,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
 /** Represents a view with annotated attributes, mostly a convenience class. */
-internal data class View(
-    val type: TypeElement,
-    val attributes: List<Attribute>
-) {
+internal data class View(val type: TypeElement, val attributes: List<Attribute>) {
     val className: ClassName = ClassName.get(type)
 }
 
@@ -86,7 +83,6 @@ internal enum class AttributeType(val apiSuffix: String) {
     LONG("Long"),
     SHORT("Short"),
     OBJECT("Object"),
-
     COLOR("Color"),
     GRAVITY("Gravity"),
     RESOURCE_ID("ResourceId"),

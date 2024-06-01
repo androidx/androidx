@@ -44,8 +44,8 @@ abstract class PreparedQueryResultBinder(val adapter: PreparedQueryResultAdapter
     open fun isMigratedToDriver(): Boolean = false
 
     /**
-     * Receives the SQL and a function to bind args into a statement, it must then generate the
-     * code that steps on the query and if applicable returns the result of the write operation.
+     * Receives the SQL and a function to bind args into a statement, it must then generate the code
+     * that steps on the query and if applicable returns the result of the write operation.
      */
     open fun executeAndReturn(
         sqlQueryVar: String,

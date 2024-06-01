@@ -26,15 +26,14 @@ import androidx.room.vo.ShortcutQueryParameter
  * Connects the delete or update method, the database and the [DeleteOrUpdateMethodAdapter].
  *
  * The default implementation is [InstantDeleteOrUpdateMethodBinder] that executes the delete/update
- * synchronously.
- * If the delete/update is deferred, rather than synchronously, alternatives implementations can be
- * implemented using this interface (e.g. RxJava, coroutines etc).
+ * synchronously. If the delete/update is deferred, rather than synchronously, alternatives
+ * implementations can be implemented using this interface (e.g. RxJava, coroutines etc).
  */
 abstract class DeleteOrUpdateMethodBinder(val adapter: DeleteOrUpdateMethodAdapter?) {
 
     /**
-     * Received the delete/update method parameters, the adapters and generates the code that
-     * runs the delete/update and returns the result.
+     * Received the delete/update method parameters, the adapters and generates the code that runs
+     * the delete/update and returns the result.
      */
     abstract fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,

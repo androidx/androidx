@@ -32,31 +32,35 @@ class UpdateMethodProcessor(
 
     fun process(): UpdateMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
-        val annotation = delegate
-            .extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
+        val annotation =
+            delegate.extractAnnotation(Update::class, ProcessorErrors.MISSING_UPDATE_ANNOTATION)
 
         val onConflict = annotation?.value?.onConflict ?: OnConflictProcessor.INVALID_ON_CONFLICT
         context.checker.check(
             onConflict in OnConflictStrategy.NONE..OnConflictStrategy.IGNORE,
-            executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE
+            executableElement,
+            ProcessorErrors.INVALID_ON_CONFLICT_VALUE
         )
 
-        val (entities, params) = delegate.extractParams(
-            targetEntityType = annotation?.getAsType("entity"),
-            missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS,
-            onValidatePartialEntity = { entity, pojo ->
-                val missingPrimaryKeys = entity.primaryKey.fields.filter {
-                    pojo.findFieldByColumnName(it.columnName) == null
-                }
-                context.checker.check(
-                    missingPrimaryKeys.isEmpty(), executableElement,
-                    ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
-                        partialEntityName = pojo.typeName.toString(context.codeLanguage),
-                        primaryKeyNames = missingPrimaryKeys.map { it.columnName }
+        val (entities, params) =
+            delegate.extractParams(
+                targetEntityType = annotation?.getAsType("entity"),
+                missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS,
+                onValidatePartialEntity = { entity, pojo ->
+                    val missingPrimaryKeys =
+                        entity.primaryKey.fields.filter {
+                            pojo.findFieldByColumnName(it.columnName) == null
+                        }
+                    context.checker.check(
+                        missingPrimaryKeys.isEmpty(),
+                        executableElement,
+                        ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
+                            partialEntityName = pojo.typeName.toString(context.codeLanguage),
+                            primaryKeyNames = missingPrimaryKeys.map { it.columnName }
+                        )
                     )
-                )
-            }
-        )
+                }
+            )
 
         val returnType = delegate.extractReturnType()
         val methodBinder = delegate.findDeleteOrUpdateMethodBinder(returnType)

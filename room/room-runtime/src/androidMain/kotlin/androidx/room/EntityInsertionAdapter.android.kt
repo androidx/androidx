@@ -23,19 +23,18 @@ import androidx.sqlite.db.SupportSQLiteStatement
  *
  * This is an internal library class and all of its implementations are auto-generated.
  *
- * @constructor Creates an InsertionAdapter that can insert the entity type T into the given
- * database.
- *
  * @param T The type parameter of the entity to be inserted
-*/
+ * @constructor Creates an InsertionAdapter that can insert the entity type T into the given
+ *   database.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteStatement(database) {
     /**
      * Binds the entity into the given statement.
      *
      * @param statement The SQLite statement that prepared for the query returned from
-     * createInsertQuery.
-     * @param entity    The entity of type T.
+     *   createInsertQuery.
+     * @param entity The entity of type T.
      */
     protected abstract fun bind(statement: SupportSQLiteStatement, entity: T)
 
@@ -154,11 +153,12 @@ abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteS
         val stmt: SupportSQLiteStatement = acquire()
         val iterator = entities.iterator()
         return try {
-            val result = Array(entities.size) {
-                val entity = iterator.next()
-                bind(stmt, entity)
-                stmt.executeInsert()
-            }
+            val result =
+                Array(entities.size) {
+                    val entity = iterator.next()
+                    bind(stmt, entity)
+                    stmt.executeInsert()
+                }
             result
         } finally {
             release(stmt)
@@ -175,11 +175,12 @@ abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteS
         val stmt: SupportSQLiteStatement = acquire()
         val iterator = entities.iterator()
         return try {
-            val result = Array(entities.size) {
-                val entity = iterator.next()
-                bind(stmt, entity)
-                stmt.executeInsert()
-            }
+            val result =
+                Array(entities.size) {
+                    val entity = iterator.next()
+                    bind(stmt, entity)
+                    stmt.executeInsert()
+                }
             result
         } finally {
             release(stmt)

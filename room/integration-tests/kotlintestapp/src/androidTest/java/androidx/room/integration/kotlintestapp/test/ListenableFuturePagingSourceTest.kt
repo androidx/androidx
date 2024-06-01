@@ -79,27 +79,26 @@ class ListenableFuturePagingSourceTest {
         coroutineScope = CoroutineScope(Dispatchers.Main)
         itemStore = ItemStore(coroutineScope)
 
-        val mainThread: Thread = runBlocking(Dispatchers.Main) {
-            Thread.currentThread()
-        }
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            PagingDb::class.java
-        ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    if (Thread.currentThread() === mainThread) {
-                        mainThreadQueries.add(
-                            sqlQuery to Throwable().stackTraceToString()
-                        )
+        val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    PagingDb::class.java
+                )
+                .setQueryCallback(
+                    object : RoomDatabase.QueryCallback {
+                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                            if (Thread.currentThread() === mainThread) {
+                                mainThreadQueries.add(sqlQuery to Throwable().stackTraceToString())
+                            }
+                        }
                     }
+                ) {
+                    // instantly execute the log callback so that we can check the thread.
+                    it.run()
                 }
-            }
-        ) {
-            // instantly execute the log callback so that we can check the thread.
-            it.run()
-        }.setQueryExecutor(queryExecutor)
-            .build()
+                .setQueryExecutor(queryExecutor)
+                .build()
     }
 
     @After
@@ -118,14 +117,12 @@ class ListenableFuturePagingSourceTest {
         queryExecutor.filterFunction = { runnable ->
             // filtering out the transform async function called inside loadFuture
             // filtering as String b/c `AbstractTransformFuture` is a package-private class
-            !runnable.javaClass.enclosingClass.toString()
-                .contains("AbstractTransformFuture")
+            !runnable.javaClass.enclosingClass.toString().contains("AbstractTransformFuture")
         }
 
         runTest {
-            val expectError = assertFailsWith<AssertionError> {
-                itemStore.awaitInitialLoad(timeOutDuration = 2)
-            }
+            val expectError =
+                assertFailsWith<AssertionError> { itemStore.awaitInitialLoad(timeOutDuration = 2) }
             assertThat(expectError.message).isEqualTo("didn't complete in expected time")
 
             val futures = pagingSources[0].futures
@@ -158,21 +155,19 @@ class ListenableFuturePagingSourceTest {
             queryExecutor.filterFunction = { runnable ->
                 // filtering out the transform async function called inside loadFuture
                 // filtering as String b/c `AbstractTransformFuture` is a package-private class
-                !runnable.javaClass.enclosingClass.toString()
-                    .contains("AbstractTransformFuture")
+                !runnable.javaClass.enclosingClass.toString().contains("AbstractTransformFuture")
             }
 
             // now access more items that should trigger loading more
-            withContext(Dispatchers.Main) {
-                itemStore.get(10)
-            }
+            withContext(Dispatchers.Main) { itemStore.get(10) }
 
             // await should fail because we have blocked the paging source' async function,
             // which calls nonInitialLoad in this case, from executing
-            val expectError = assertFailsWith<AssertionError> {
-                assertThat(itemStore.awaitItem(index = 10, timeOutDuration = 2))
-                    .isEqualTo(items[10])
-            }
+            val expectError =
+                assertFailsWith<AssertionError> {
+                    assertThat(itemStore.awaitItem(index = 10, timeOutDuration = 2))
+                        .isEqualTo(items[10])
+                }
             assertThat(expectError.message).isEqualTo("didn't complete in expected time")
             queryExecutor.awaitDeferredSizeAtLeast(1)
 
@@ -207,21 +202,19 @@ class ListenableFuturePagingSourceTest {
             queryExecutor.filterFunction = { runnable ->
                 // filtering out the transform async function called inside loadFuture
                 // filtering as String b/c `AbstractTransformFuture` is a package-private class
-                !runnable.javaClass.enclosingClass.toString()
-                    .contains("AbstractTransformFuture")
+                !runnable.javaClass.enclosingClass.toString().contains("AbstractTransformFuture")
             }
 
             // now access more items that should trigger loading more
-            withContext(Dispatchers.Main) {
-                itemStore.get(40)
-            }
+            withContext(Dispatchers.Main) { itemStore.get(40) }
 
             // await should fail because we have blocked the paging source' async function,
             // which calls nonInitialLoad in this case, from executing
-            val expectError = assertFailsWith<AssertionError> {
-                assertThat(itemStore.awaitItem(index = 40, timeOutDuration = 2))
-                    .isEqualTo(items[40])
-            }
+            val expectError =
+                assertFailsWith<AssertionError> {
+                    assertThat(itemStore.awaitItem(index = 40, timeOutDuration = 2))
+                        .isEqualTo(items[40])
+                }
             assertThat(expectError.message).isEqualTo("didn't complete in expected time")
             queryExecutor.awaitDeferredSizeAtLeast(1)
 
@@ -251,11 +244,10 @@ class ListenableFuturePagingSourceTest {
             },
         block: suspend () -> Unit
     ) {
-        val collection = coroutineScope.launch(Dispatchers.Main) {
-            pager.flow.collectLatest {
-                itemStore.collectFrom(it)
+        val collection =
+            coroutineScope.launch(Dispatchers.Main) {
+                pager.flow.collectLatest { itemStore.collectFrom(it) }
             }
-        }
         runBlocking {
             try {
                 block()
@@ -276,8 +268,9 @@ private class ListenableFuturePagingSourceImpl(
         return baseSource.getRefreshKey(state)
     }
 
-    override fun loadFuture(params: LoadParams<Int>):
-        ListenableFuture<LoadResult<Int, PagingEntity>> {
-            return baseSource.loadFuture(params).also { futures.add(it) }
+    override fun loadFuture(
+        params: LoadParams<Int>
+    ): ListenableFuture<LoadResult<Int, PagingEntity>> {
+        return baseSource.loadFuture(params).also { futures.add(it) }
     }
 }

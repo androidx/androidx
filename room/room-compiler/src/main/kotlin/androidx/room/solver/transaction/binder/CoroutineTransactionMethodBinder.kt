@@ -30,9 +30,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 
-/**
- * Binder that knows how to write suspending transaction wrapper methods.
- */
+/** Binder that knows how to write suspending transaction wrapper methods. */
 class CoroutineTransactionMethodBinder(
     private val returnType: XType,
     adapter: TransactionMethodAdapter,
@@ -46,39 +44,47 @@ class CoroutineTransactionMethodBinder(
         scope: CodeGenScope
     ) {
         val innerContinuationParamName = scope.getTmpVar("_cont")
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performInTransactionSuspending"),
-            argFormat = listOf("%N"),
-            args = listOf(dbProperty),
-            continuationParamName = continuationParamName,
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = KotlinTypeNames.CONTINUATION.parametrizedBy(
-                    XTypeName.getConsumerSuperName(returnType.asTypeName())
-                ),
-                parameterName = innerContinuationParamName,
-                returnTypeName = KotlinTypeNames.ANY,
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    val adapterScope = scope.fork()
-                    adapter.createDelegateToSuperCode(
-                        parameterNames = when (scope.language) {
-                            CodeLanguage.JAVA -> parameterNames + innerContinuationParamName
-                            CodeLanguage.KOTLIN -> parameterNames
-                        },
-                        daoName = daoName,
-                        daoImplName = daoImplName,
-                        scope = adapterScope
-                    )
-                    val returnPrefix = when (scope.language) {
-                        CodeLanguage.JAVA -> "return "
-                        CodeLanguage.KOTLIN -> ""
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName =
+                    RoomTypeNames.DB_UTIL.packageMember("performInTransactionSuspending"),
+                argFormat = listOf("%N"),
+                args = listOf(dbProperty),
+                continuationParamName = continuationParamName,
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName =
+                                KotlinTypeNames.CONTINUATION.parametrizedBy(
+                                    XTypeName.getConsumerSuperName(returnType.asTypeName())
+                                ),
+                            parameterName = innerContinuationParamName,
+                            returnTypeName = KotlinTypeNames.ANY,
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val adapterScope = scope.fork()
+                            adapter.createDelegateToSuperCode(
+                                parameterNames =
+                                    when (scope.language) {
+                                        CodeLanguage.JAVA ->
+                                            parameterNames + innerContinuationParamName
+                                        CodeLanguage.KOTLIN -> parameterNames
+                                    },
+                                daoName = daoName,
+                                daoImplName = daoImplName,
+                                scope = adapterScope
+                            )
+                            val returnPrefix =
+                                when (scope.language) {
+                                    CodeLanguage.JAVA -> "return "
+                                    CodeLanguage.KOTLIN -> ""
+                                }
+                            addStatement("$returnPrefix%L", adapterScope.generate())
+                        }
                     }
-                    addStatement("$returnPrefix%L", adapterScope.generate())
-                }
-            }
-        )
+            )
         scope.builder.add("return %L", performBlock)
     }
 }

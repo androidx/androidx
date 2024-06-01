@@ -25,36 +25,25 @@ import androidx.sqlite.db.SupportSQLiteQuery
 
 interface BaseDao<T> {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(t: T)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(t: T)
 
-    @Insert
-    fun insertAll(t: List<T>)
+    @Insert fun insertAll(t: List<T>)
 
-    @Insert
-    fun insertAllSet(t: Set<T>): List<Long>
+    @Insert fun insertAllSet(t: Set<T>): List<Long>
 
-    @Insert
-    fun insertAllCollection(t: Collection<T>): Array<Long>
+    @Insert fun insertAllCollection(t: Collection<T>): Array<Long>
 
-    @Insert
-    fun insertAllArg(vararg t: T)
+    @Insert fun insertAllArg(vararg t: T)
 
-    @Update
-    fun update(t: T)
+    @Update fun update(t: T)
 
-    @Delete
-    fun delete(t: T)
+    @Delete fun delete(t: T)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun suspendInsert(t: T)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun suspendInsert(t: T)
 
-    @Update
-    suspend fun suspendUpdate(t: T)
+    @Update suspend fun suspendUpdate(t: T)
 
-    @Delete
-    suspend fun suspendDelete(t: T)
+    @Delete suspend fun suspendDelete(t: T)
 
-    @RawQuery
-    suspend fun rawQuery(query: SupportSQLiteQuery): List<T>
+    @RawQuery suspend fun rawQuery(query: SupportSQLiteQuery): List<T>
 }

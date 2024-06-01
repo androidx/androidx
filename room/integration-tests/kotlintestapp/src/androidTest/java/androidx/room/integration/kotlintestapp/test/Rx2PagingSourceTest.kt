@@ -61,26 +61,25 @@ class Rx2PagingSourceTest {
         coroutineScope = CoroutineScope(Dispatchers.Main)
         itemStore = ItemStore(coroutineScope)
 
-        val mainThread: Thread = runBlocking(Dispatchers.Main) {
-            Thread.currentThread()
-        }
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            PagingDb::class.java
-        ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    if (Thread.currentThread() === mainThread) {
-                        mainThreadQueries.add(
-                            sqlQuery to Throwable().stackTraceToString()
-                        )
+        val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    PagingDb::class.java
+                )
+                .setQueryCallback(
+                    object : RoomDatabase.QueryCallback {
+                        override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                            if (Thread.currentThread() === mainThread) {
+                                mainThreadQueries.add(sqlQuery to Throwable().stackTraceToString())
+                            }
+                        }
                     }
+                ) {
+                    // instantly execute the log callback so that we can check the thread.
+                    it.run()
                 }
-            }
-        ) {
-            // instantly execute the log callback so that we can check the thread.
-            it.run()
-        }.build()
+                .build()
     }
 
     @After
@@ -97,20 +96,23 @@ class Rx2PagingSourceTest {
         db.getDao().insert(items)
 
         var isDisposed = false
-        val pager = Pager(CONFIG) {
-            val baseSource = db.getDao().loadItemsRx2()
-            RxPagingSourceImpl(
-                baseSource = baseSource,
-                initialLoadSingle = { params ->
-                    baseSource.loadSingle(params)
-                        // delay load for refresh so we have time to cancel load
-                        .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
-                        .doOnDispose { isDisposed = true }
-                },
-                nonInitialLoadSingle = { params -> baseSource.loadSingle(params) },
-            ).also { pagingSources.add(it) }
-        }
+        val pager =
+            Pager(CONFIG) {
+                val baseSource = db.getDao().loadItemsRx2()
+                RxPagingSourceImpl(
+                        baseSource = baseSource,
+                        initialLoadSingle = { params ->
+                            baseSource
+                                .loadSingle(params)
+                                // delay load for refresh so we have time to cancel load
+                                .doOnSubscribe { Thread.sleep(500) }
+                                .doOnSuccess { assertWithMessage("Should not succeed").fail() }
+                                .doOnDispose { isDisposed = true }
+                        },
+                        nonInitialLoadSingle = { params -> baseSource.loadSingle(params) },
+                    )
+                    .also { pagingSources.add(it) }
+            }
 
         runTest(pager) { collectionJob ->
             // ensure initial load has started
@@ -138,31 +140,30 @@ class Rx2PagingSourceTest {
         db.getDao().insert(items)
 
         var isDisposed = false
-        val pager = Pager(CONFIG) {
-            val baseSource = db.getDao().loadItemsRx2()
-            RxPagingSourceImpl(
-                baseSource = baseSource,
-                initialLoadSingle = { params -> baseSource.loadSingle(params) },
-                nonInitialLoadSingle = { params ->
-                    baseSource.loadSingle(params)
-                        // delay load for append/prepend so we have time to cancel load
-                        .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
-                        .doOnDispose { isDisposed = true }
-                },
-            ).also { pagingSources.add(it) }
-        }
+        val pager =
+            Pager(CONFIG) {
+                val baseSource = db.getDao().loadItemsRx2()
+                RxPagingSourceImpl(
+                        baseSource = baseSource,
+                        initialLoadSingle = { params -> baseSource.loadSingle(params) },
+                        nonInitialLoadSingle = { params ->
+                            baseSource
+                                .loadSingle(params)
+                                // delay load for append/prepend so we have time to cancel load
+                                .doOnSubscribe { Thread.sleep(500) }
+                                .doOnSuccess { assertWithMessage("Should not succeed").fail() }
+                                .doOnDispose { isDisposed = true }
+                        },
+                    )
+                    .also { pagingSources.add(it) }
+            }
 
         runTest(pager) { collectionJob ->
             // do initial load first
-            assertThat(
-                itemStore.awaitInitialLoad(2)
-            ).containsExactlyElementsIn(
-                items.createExpected(
-                    fromIndex = 0,
-                    toIndex = CONFIG.initialLoadSize
+            assertThat(itemStore.awaitInitialLoad(2))
+                .containsExactlyElementsIn(
+                    items.createExpected(fromIndex = 0, toIndex = CONFIG.initialLoadSize)
                 )
-            )
 
             // trigger an append and give it time to create second single
             itemStore.get(30)
@@ -188,31 +189,30 @@ class Rx2PagingSourceTest {
         db.getDao().insert(items)
 
         var isDisposed = false
-        val pager = Pager(config = CONFIG, initialKey = 50) {
-            val baseSource = db.getDao().loadItemsRx2()
-            RxPagingSourceImpl(
-                baseSource = baseSource,
-                initialLoadSingle = { params -> baseSource.loadSingle(params) },
-                nonInitialLoadSingle = { params ->
-                    baseSource.loadSingle(params)
-                        // delay load for append/prepend so we have time to cancel load
-                        .doOnSubscribe { Thread.sleep(500) }
-                        .doOnSuccess { assertWithMessage("Should not succeed").fail() }
-                        .doOnDispose { isDisposed = true }
-                },
-            ).also { pagingSources.add(it) }
-        }
+        val pager =
+            Pager(config = CONFIG, initialKey = 50) {
+                val baseSource = db.getDao().loadItemsRx2()
+                RxPagingSourceImpl(
+                        baseSource = baseSource,
+                        initialLoadSingle = { params -> baseSource.loadSingle(params) },
+                        nonInitialLoadSingle = { params ->
+                            baseSource
+                                .loadSingle(params)
+                                // delay load for append/prepend so we have time to cancel load
+                                .doOnSubscribe { Thread.sleep(500) }
+                                .doOnSuccess { assertWithMessage("Should not succeed").fail() }
+                                .doOnDispose { isDisposed = true }
+                        },
+                    )
+                    .also { pagingSources.add(it) }
+            }
 
         runTest(pager) { collectionJob ->
             // do initial load first
-            assertThat(
-                itemStore.awaitInitialLoad(2)
-            ).containsExactlyElementsIn(
-                items.createExpected(
-                    fromIndex = 50,
-                    toIndex = 50 + CONFIG.initialLoadSize
+            assertThat(itemStore.awaitInitialLoad(2))
+                .containsExactlyElementsIn(
+                    items.createExpected(fromIndex = 50, toIndex = 50 + CONFIG.initialLoadSize)
                 )
-            )
 
             // trigger a prepend and give it time to create second single
             itemStore.get(30)
@@ -232,24 +232,17 @@ class Rx2PagingSourceTest {
         }
     }
 
-    private fun runTest(
-        pager: Pager<Int, PagingEntity>,
-        block: suspend (Job) -> Unit
-    ) {
-        val collection = coroutineScope.launch(Dispatchers.Main) {
-            pager.flow.collectLatest {
-                itemStore.collectFrom(it)
+    private fun runTest(pager: Pager<Int, PagingEntity>, block: suspend (Job) -> Unit) {
+        val collection =
+            coroutineScope.launch(Dispatchers.Main) {
+                pager.flow.collectLatest { itemStore.collectFrom(it) }
             }
-        }
-        runBlocking {
-            block(collection)
-        }
+        runBlocking { block(collection) }
     }
 
     private class RxPagingSourceImpl(
         private val baseSource: RxPagingSource<Int, PagingEntity>,
-        private val initialLoadSingle:
-            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+        private val initialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
         private val nonInitialLoadSingle:
             (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
     ) : RxPagingSource<Int, PagingEntity>() {
@@ -262,10 +255,11 @@ class Rx2PagingSourceTest {
 
         override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, PagingEntity>> {
             return if (singles.isEmpty()) {
-                initialLoadSingle(params)
-            } else {
-                nonInitialLoadSingle(params)
-            }.also { singles.add(it) }
+                    initialLoadSingle(params)
+                } else {
+                    nonInitialLoadSingle(params)
+                }
+                .also { singles.add(it) }
         }
     }
 }

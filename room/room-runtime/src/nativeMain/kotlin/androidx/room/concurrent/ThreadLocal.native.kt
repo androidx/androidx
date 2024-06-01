@@ -28,14 +28,12 @@ private object ThreadLocalData {
     val threadLocalMap = mutableMapOf<Long, Any>()
 }
 
-/**
- * Container of thread-local data.
- */
+/** Container of thread-local data. */
 actual class ThreadLocal<T> {
     private val threadId = currentThreadId()
+
     actual fun get(): T? {
-        @Suppress("UNCHECKED_CAST")
-        return ThreadLocalData.threadLocalMap[threadId] as? T
+        @Suppress("UNCHECKED_CAST") return ThreadLocalData.threadLocalMap[threadId] as? T
     }
 
     actual fun set(value: T?) {
@@ -58,12 +56,9 @@ private class ThreadContextElement : CoroutineContext.Element {
         get() = ThreadContextElement
 }
 
-@kotlin.native.concurrent.ThreadLocal
-private var localThreadId: Long = 0
+@kotlin.native.concurrent.ThreadLocal private var localThreadId: Long = 0
 
-/**
- * Gets the current thread id.
- */
+/** Gets the current thread id. */
 internal actual fun currentThreadId(): Long {
     if (localThreadId == 0L) {
         localThreadId = globalThreadCounter.getAndIncrement()

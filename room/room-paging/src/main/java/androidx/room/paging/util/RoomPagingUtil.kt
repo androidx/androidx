@@ -37,16 +37,14 @@ import androidx.room.RoomSQLiteQuery
  */
 val INVALID = LoadResult.Invalid<Any, Any>()
 
-/**
- * The default itemCount value
- */
+/** The default itemCount value */
 const val INITIAL_ITEM_COUNT = -1
 
 /**
  * Calculates query limit based on LoadType.
  *
- * Prepend: If requested loadSize is larger than available number of items to prepend, it will
- * query with OFFSET = 0, LIMIT = prevKey
+ * Prepend: If requested loadSize is larger than available number of items to prepend, it will query
+ * with OFFSET = 0, LIMIT = prevKey
  */
 fun getLimit(params: LoadParams<Int>, key: Int): Int {
     return when (params) {
@@ -63,24 +61,20 @@ fun getLimit(params: LoadParams<Int>, key: Int): Int {
 /**
  * calculates query offset amount based on loadtype
  *
- * Prepend: OFFSET is calculated by counting backwards the number of items that needs to be
- * loaded before [key]. For example, if key = 30 and loadSize = 5, then offset = 25 and items
- * in db position 26-30 are loaded.
- * If requested loadSize is larger than the number of available items to
+ * Prepend: OFFSET is calculated by counting backwards the number of items that needs to be loaded
+ * before [key]. For example, if key = 30 and loadSize = 5, then offset = 25 and items in db
+ * position 26-30 are loaded. If requested loadSize is larger than the number of available items to
  * prepend, OFFSET clips to 0 to prevent negative OFFSET.
  *
- * Refresh:
- * If initialKey is supplied through Pager, Paging 3 will now start loading from
- * initialKey with initialKey being the first item.
- * If key is supplied by [getClippedRefreshKey], the key has already been adjusted to load half
- * of the requested items before anchorPosition and the other half after anchorPosition. See
- * comments on [getClippedRefreshKey] for more details.
- * If key (regardless if from initialKey or [getClippedRefreshKey]) is larger than available items,
- * the last page will be loaded by counting backwards the loadSize before last item in
- * database. For example, this can happen if invalidation came from a large number of items
- * dropped. i.e. in items 0 - 100, items 41-80 are dropped. Depending on last
- * viewed item, hypothetically [getClippedRefreshKey] may return key = 60. If loadSize = 10, then items
- * 31-40 will be loaded.
+ * Refresh: If initialKey is supplied through Pager, Paging 3 will now start loading from initialKey
+ * with initialKey being the first item. If key is supplied by [getClippedRefreshKey], the key has
+ * already been adjusted to load half of the requested items before anchorPosition and the other
+ * half after anchorPosition. See comments on [getClippedRefreshKey] for more details. If key
+ * (regardless if from initialKey or [getClippedRefreshKey]) is larger than available items, the
+ * last page will be loaded by counting backwards the loadSize before last item in database. For
+ * example, this can happen if invalidation came from a large number of items dropped. i.e. in items
+ * 0 - 100, items 41-80 are dropped. Depending on last viewed item, hypothetically
+ * [getClippedRefreshKey] may return key = 60. If loadSize = 10, then items 31-40 will be loaded.
  */
 fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
     return when (params) {
@@ -101,22 +95,17 @@ fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
 }
 
 /**
- * calls RoomDatabase.query() to return a cursor and then calls convertRows() to extract and
- * return list of data
+ * calls RoomDatabase.query() to return a cursor and then calls convertRows() to extract and return
+ * list of data
  *
  * throws [IllegalArgumentException] from CursorUtil if column does not exist
  *
  * @param params load params to calculate query limit and offset
- *
  * @param sourceQuery user provided [RoomSQLiteQuery] for database query
- *
  * @param db the [RoomDatabase] to query from
- *
  * @param itemCount the db row count, triggers a new PagingSource generation if itemCount changes,
- * i.e. items are added / removed
- *
+ *   i.e. items are added / removed
  * @param cancellationSignal the signal to cancel the query if the query hasn't yet completed
- *
  * @param convertRows the function to iterate data with provided [Cursor] to return List<Value>
  */
 fun <Value : Any> queryDatabase(
@@ -130,12 +119,9 @@ fun <Value : Any> queryDatabase(
     val key = params.key ?: 0
     val limit: Int = getLimit(params, key)
     val offset: Int = getOffset(params, key, itemCount)
-    val limitOffsetQuery =
-        "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset"
-    val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(
-        limitOffsetQuery,
-        sourceQuery.argCount
-    )
+    val limitOffsetQuery = "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset"
+    val sqLiteQuery: RoomSQLiteQuery =
+        RoomSQLiteQuery.acquire(limitOffsetQuery, sourceQuery.argCount)
     sqLiteQuery.copyArgumentsFrom(sourceQuery)
     val cursor = db.query(sqLiteQuery, cancellationSignal)
     val data: List<Value>
@@ -166,18 +152,12 @@ fun <Value : Any> queryDatabase(
  * returns count of requested items to calculate itemsAfter and itemsBefore for use in creating
  * LoadResult.Page<>
  *
- * throws error when the column value is null, the column type is not an integral type,
- * or the integer value is outside the range [Integer.MIN_VALUE, Integer.MAX_VALUE]
+ * throws error when the column value is null, the column type is not an integral type, or the
+ * integer value is outside the range [Integer.MIN_VALUE, Integer.MAX_VALUE]
  */
-fun queryItemCount(
-    sourceQuery: RoomSQLiteQuery,
-    db: RoomDatabase
-): Int {
+fun queryItemCount(sourceQuery: RoomSQLiteQuery, db: RoomDatabase): Int {
     val countQuery = "SELECT COUNT(*) FROM ( ${sourceQuery.sql} )"
-    val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(
-        countQuery,
-        sourceQuery.argCount
-    )
+    val sqLiteQuery: RoomSQLiteQuery = RoomSQLiteQuery.acquire(countQuery, sourceQuery.argCount)
     sqLiteQuery.copyArgumentsFrom(sourceQuery)
     val cursor: Cursor = db.query(sqLiteQuery)
     try {
@@ -201,10 +181,10 @@ fun <Value : Any> PagingState<Int, Value>.getClippedRefreshKey(): Int? {
     return when (val anchorPosition = anchorPosition) {
         null -> null
         /**
-         *  It is unknown whether anchorPosition represents the item at the top of the screen or item at
-         *  the bottom of the screen. To ensure the number of items loaded is enough to fill up the
-         *  screen, half of loadSize is loaded before the anchorPosition and the other half is
-         *  loaded after the anchorPosition -- anchorPosition becomes the middle item.
+         * It is unknown whether anchorPosition represents the item at the top of the screen or item
+         * at the bottom of the screen. To ensure the number of items loaded is enough to fill up
+         * the screen, half of loadSize is loaded before the anchorPosition and the other half is
+         * loaded after the anchorPosition -- anchorPosition becomes the middle item.
          */
         else -> maxOf(0, anchorPosition - (config.initialLoadSize / 2))
     }

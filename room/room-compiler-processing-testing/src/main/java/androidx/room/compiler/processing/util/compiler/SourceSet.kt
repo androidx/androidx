@@ -21,112 +21,87 @@ import java.io.File
 import java.util.regex.Pattern
 
 private val BY_ROUNDS_PATH_PATTERN =
-    ("(byRounds${Pattern.quote(File.separator)}[0-9]+" +
-        "${Pattern.quote(File.separator)})?(.*)").toPattern()
+    ("(byRounds${Pattern.quote(File.separator)}[0-9]+" + "${Pattern.quote(File.separator)})?(.*)")
+        .toPattern()
 
-/**
- * Represents sources that are positioned in the [root] folder.
- * see: [fromExistingFiles]
- */
+/** Represents sources that are positioned in the [root] folder. see: [fromExistingFiles] */
 internal class SourceSet(
-    /**
-     * The root source folder for the given sources
-     */
+    /** The root source folder for the given sources */
     root: File,
-    /**
-     * List of actual sources in the folder
-     */
+    /** List of actual sources in the folder */
     val sources: List<Source>
 ) {
     // always use canonical files
     val root = root.canonicalFile
 
     init {
-        check(root.isDirectory) {
-            "$root must be a directory"
-        }
+        check(root.isDirectory) { "$root must be a directory" }
     }
 
-    val hasJavaSource by lazy {
-        javaSources.isNotEmpty()
-    }
+    val hasJavaSource by lazy { javaSources.isNotEmpty() }
 
-    val hasKotlinSource by lazy {
-        kotlinSources.isNotEmpty()
-    }
+    val hasKotlinSource by lazy { kotlinSources.isNotEmpty() }
 
-    val javaSources by lazy {
-        sources.filterIsInstance<Source.JavaSource>()
-    }
+    val javaSources by lazy { sources.filterIsInstance<Source.JavaSource>() }
 
-    val kotlinSources by lazy {
-        sources.filterIsInstance<Source.KotlinSource>()
-    }
+    val kotlinSources by lazy { sources.filterIsInstance<Source.KotlinSource>() }
 
     /**
      * Finds the source file matching the given relative path (from root). This will ignore
      * "byRounds/<round number>" directories added by KSP.
      */
-    fun findSourceFile(
-        path: String
-    ): Source? {
+    fun findSourceFile(path: String): Source? {
         val file = File(path).canonicalFile
         if (!file.startsWith(root)) {
             return null
         }
-        val relativePath = file.relativeTo(root).path.let {
-            val matcher = BY_ROUNDS_PATH_PATTERN.matcher(it)
-            if (matcher.find()) {
-                matcher.group(2)
-            } else {
-                it
+        val relativePath =
+            file.relativeTo(root).path.let {
+                val matcher = BY_ROUNDS_PATH_PATTERN.matcher(it)
+                if (matcher.find()) {
+                    matcher.group(2)
+                } else {
+                    it
+                }
             }
-        }
-        return sources.firstOrNull {
-            it.relativePath == relativePath
-        }
+        return sources.firstOrNull { it.relativePath == relativePath }
     }
 
     companion object {
-        /**
-         * Creates a new SourceSet from the given files.
-         */
-        fun fromExistingFiles(
-            root: File
-        ) = SourceSet(
-            root = root,
-            sources = root.collectSources().toList()
-        )
+        /** Creates a new SourceSet from the given files. */
+        fun fromExistingFiles(root: File) =
+            SourceSet(root = root, sources = root.collectSources().toList())
     }
 }
 
 /**
- * Collects all java/kotlin sources in a given directory.
- * Note that the package name for java sources are inherited from the given relative path.
+ * Collects all java/kotlin sources in a given directory. Note that the package name for java
+ * sources are inherited from the given relative path.
  */
 private fun File.collectSources(): Sequence<Source> {
     val root = this
     return walkTopDown().mapNotNull { file ->
         when (file.extension) {
-            "java" -> Source.loadJavaSource(
-                file = file,
-                qName = file.relativeTo(root).path
-                    .replace(File.separatorChar, '.')
-                    .substringBeforeLast('.') // drop .java
-            )
-            "kt" -> Source.loadKotlinSource(
-                file = file,
-                relativePath = file.relativeTo(root).path
-            )
+            "java" ->
+                Source.loadJavaSource(
+                    file = file,
+                    qName =
+                        file
+                            .relativeTo(root)
+                            .path
+                            .replace(File.separatorChar, '.')
+                            .substringBeforeLast('.') // drop .java
+                )
+            "kt" -> Source.loadKotlinSource(file = file, relativePath = file.relativeTo(root).path)
             else -> null
         }
     }
 }
-/**
- * Converts the file to a [SourceSet] if and only if it is a directory.
- */
-internal fun File.toSourceSet() = if (isDirectory) {
-    SourceSet.fromExistingFiles(this)
-} else {
-    null
-}
+
+/** Converts the file to a [SourceSet] if and only if it is a directory. */
+internal fun File.toSourceSet() =
+    if (isDirectory) {
+        SourceSet.fromExistingFiles(this)
+    } else {
+        null
+    }

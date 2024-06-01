@@ -70,36 +70,47 @@ class KSTypeVarianceResolverWithTypeParametersTest(
         }
 
         val compilationResults: CompilationResults by lazy {
-            val sourcesMap = params().associate { (t0, t1, t2, t3, t4) ->
-                val key = key(t0, t1, t2, t3, t4)
-                key to listOf(
-                    source("${key}0", "T", t = "$t0<$t1<$t2<$t3<$t4<Bar>>>>>"),
-                    source("${key}1", "$t0<T>", t = "$t1<$t2<$t3<$t4<Bar>>>>"),
-                    source("${key}2", "$t0<$t1<T>>", t = "$t2<$t3<$t4<Bar>>>"),
-                    source("${key}3", "$t0<$t1<$t2<T>>>", t = "$t3<$t4<Bar>>"),
-                    source("${key}4", "$t0<$t1<$t2<$t3<T>>>>", t = "$t4<Bar>"),
-                    source("${key}5", "$t0<$t1<$t2<$t3<$t4<T>>>>>", t = "Bar"),
-                )
-            }
-            val sources = sourcesMap.values.flatten() + Source.kotlin(
-                "SharedInterfaces.kt",
-                """
+            val sourcesMap =
+                params().associate { (t0, t1, t2, t3, t4) ->
+                    val key = key(t0, t1, t2, t3, t4)
+                    key to
+                        listOf(
+                            source("${key}0", "T", t = "$t0<$t1<$t2<$t3<$t4<Bar>>>>>"),
+                            source("${key}1", "$t0<T>", t = "$t1<$t2<$t3<$t4<Bar>>>>"),
+                            source("${key}2", "$t0<$t1<T>>", t = "$t2<$t3<$t4<Bar>>>"),
+                            source("${key}3", "$t0<$t1<$t2<T>>>", t = "$t3<$t4<Bar>>"),
+                            source("${key}4", "$t0<$t1<$t2<$t3<T>>>>", t = "$t4<Bar>"),
+                            source("${key}5", "$t0<$t1<$t2<$t3<$t4<T>>>>>", t = "Bar"),
+                        )
+                }
+            val sources =
+                sourcesMap.values.flatten() +
+                    Source.kotlin(
+                        "SharedInterfaces.kt",
+                        """
                 interface Foo<T>
                 interface FooIn<in T>
                 interface FooOut<out T>
                 interface Bar
-                """.trimIndent()
-            )
-            val kaptSignaturesMap = buildMap(sourcesMap.size) {
-                runKaptTest(sources) { invocation ->
-                    sourcesMap.keys.forEach { key -> put(key, invocation.collectSignatures(key)) }
+                """
+                            .trimIndent()
+                    )
+            val kaptSignaturesMap =
+                buildMap(sourcesMap.size) {
+                    runKaptTest(sources) { invocation ->
+                        sourcesMap.keys.forEach { key ->
+                            put(key, invocation.collectSignatures(key))
+                        }
+                    }
                 }
-            }
-            val kspSignaturesMap = buildMap(sourcesMap.size) {
-                runKspTest(sources) { invocation ->
-                    sourcesMap.keys.forEach { key -> put(key, invocation.collectSignatures(key)) }
+            val kspSignaturesMap =
+                buildMap(sourcesMap.size) {
+                    runKspTest(sources) { invocation ->
+                        sourcesMap.keys.forEach { key ->
+                            put(key, invocation.collectSignatures(key))
+                        }
+                    }
                 }
-            }
             CompilationResults(kaptSignaturesMap, kspSignaturesMap)
         }
 
@@ -115,7 +126,8 @@ class KSTypeVarianceResolverWithTypeParametersTest(
                 open class $base<T> {
                     fun baseMethod(param: $type): $type = TODO()
                 }
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
         }
 
@@ -130,8 +142,10 @@ class KSTypeVarianceResolverWithTypeParametersTest(
                     val subMethodParamType = subMethod.parameters.single().type
                     val subMethodReturnType = subMethod.returnType
                     val base = processingEnv.requireTypeElement(baseName)
-                    // Note: For each method/field we test its signature when resolved asMemberOf from a
-                    // subtype, super class, param type, and return type, as we may get different signatures
+                    // Note: For each method/field we test its signature when resolved asMemberOf
+                    // from a
+                    // subtype, super class, param type, and return type, as we may get different
+                    // signatures
                     // depending on the scope of the type used with asMemberOf.
                     base.getDeclaredMethods().forEach { method ->
                         fun XMethodType.signature(): String {

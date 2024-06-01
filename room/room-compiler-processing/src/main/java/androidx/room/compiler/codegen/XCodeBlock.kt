@@ -24,19 +24,18 @@ import androidx.room.compiler.codegen.kotlin.KotlinCodeBlock
  *
  * Code blocks support placeholders like [java.text.Format]. This uses a percent sign `%` but has
  * its own set of permitted placeholders:
- *
- *  * `%L` emits a *literal* value with no escaping. Arguments for literals may be strings,
- *    primitives, [type declarations][XTypeSpec], [annotations][XAnnotationSpec] and even other code
- *    blocks.
- *  * `%N` emits a *name*, using name collision avoidance where necessary. Arguments for names may
- *    be strings (actually any [character sequence][CharSequence]), [parameters][XParameterSpec],
- *    [properties][XPropertySpec], [functions][XFunSpec], and [types][XTypeSpec].
- *  * `%S` escapes the value as a *string*, wraps it with double quotes, and emits that.
- *  * `%T` emits a *type* reference. Types will be imported if possible. Arguments for types are
- *    their [names][XTypeName].
- *  * `%M` emits a *member* reference. A member is either a function or a property. If the member is
- *    importable, e.g. it's a top-level function or a property declared inside an object, the import
- *    will be resolved if possible. Arguments for members must be of type [XMemberName].
+ * * `%L` emits a *literal* value with no escaping. Arguments for literals may be strings,
+ *   primitives, [type declarations][XTypeSpec], [annotations][XAnnotationSpec] and even other code
+ *   blocks.
+ * * `%N` emits a *name*, using name collision avoidance where necessary. Arguments for names may be
+ *   strings (actually any [character sequence][CharSequence]), [parameters][XParameterSpec],
+ *   [properties][XPropertySpec], [functions][XFunSpec], and [types][XTypeSpec].
+ * * `%S` escapes the value as a *string*, wraps it with double quotes, and emits that.
+ * * `%T` emits a *type* reference. Types will be imported if possible. Arguments for types are
+ *   their [names][XTypeName].
+ * * `%M` emits a *member* reference. A member is either a function or a property. If the member is
+ *   importable, e.g. it's a top-level function or a property declared inside an object, the import
+ *   will be resolved if possible. Arguments for members must be of type [XMemberName].
  */
 interface XCodeBlock : TargetLanguage {
 
@@ -56,10 +55,13 @@ interface XCodeBlock : TargetLanguage {
         ): Builder
 
         fun beginControlFlow(controlFlow: String, vararg args: Any?): Builder
+
         fun nextControlFlow(controlFlow: String, vararg args: Any?): Builder
+
         fun endControlFlow(): Builder
 
         fun indent(): Builder
+
         fun unindent(): Builder
 
         fun build(): XCodeBlock
@@ -98,14 +100,15 @@ interface XCodeBlock : TargetLanguage {
                 iteratorVarName: String
             ) = apply {
                 when (language) {
-                    CodeLanguage.JAVA -> beginControlFlow(
-                        "for (%T %L : %L)",
-                        typeName, itemVarName, iteratorVarName
-                    )
-                    CodeLanguage.KOTLIN -> beginControlFlow(
-                        "for (%L: %T in %L)",
-                        itemVarName, typeName, iteratorVarName
-                    )
+                    CodeLanguage.JAVA ->
+                        beginControlFlow("for (%T %L : %L)", typeName, itemVarName, iteratorVarName)
+                    CodeLanguage.KOTLIN ->
+                        beginControlFlow(
+                            "for (%L: %T in %L)",
+                            itemVarName,
+                            typeName,
+                            iteratorVarName
+                        )
                 }
             }
 
@@ -150,38 +153,39 @@ interface XCodeBlock : TargetLanguage {
             argsFormat: String = "",
             vararg args: Any?
         ): XCodeBlock {
-            return builder(language).apply {
-                val newKeyword = when (language) {
-                    CodeLanguage.JAVA -> "new "
-                    CodeLanguage.KOTLIN -> ""
+            return builder(language)
+                .apply {
+                    val newKeyword =
+                        when (language) {
+                            CodeLanguage.JAVA -> "new "
+                            CodeLanguage.KOTLIN -> ""
+                        }
+                    add("$newKeyword%T($argsFormat)", typeName.copy(nullable = false), *args)
                 }
-                add("$newKeyword%T($argsFormat)", typeName.copy(nullable = false), *args)
-            }.build()
+                .build()
         }
 
-        /**
-         * Convenience code block of an unsafe cast expression.
-         */
+        /** Convenience code block of an unsafe cast expression. */
         fun ofCast(
             language: CodeLanguage,
             typeName: XTypeName,
             expressionBlock: XCodeBlock
         ): XCodeBlock {
-            return builder(language).apply {
-                when (language) {
-                    CodeLanguage.JAVA -> {
-                        add("(%T) (%L)", typeName, expressionBlock)
-                    }
-                    CodeLanguage.KOTLIN -> {
-                        add("(%L) as %T", expressionBlock, typeName)
+            return builder(language)
+                .apply {
+                    when (language) {
+                        CodeLanguage.JAVA -> {
+                            add("(%T) (%L)", typeName, expressionBlock)
+                        }
+                        CodeLanguage.KOTLIN -> {
+                            add("(%L) as %T", expressionBlock, typeName)
+                        }
                     }
                 }
-            }.build()
+                .build()
         }
 
-        /**
-         * Convenience code block of a Java class literal.
-         */
+        /** Convenience code block of a Java class literal. */
         fun ofJavaClassLiteral(
             language: CodeLanguage,
             typeName: XClassName,
@@ -192,26 +196,20 @@ interface XCodeBlock : TargetLanguage {
             }
         }
 
-        /**
-         * Convenience code block of a Kotlin class literal.
-         */
+        /** Convenience code block of a Kotlin class literal. */
         fun ofKotlinClassLiteral(
             language: CodeLanguage,
             typeName: XClassName,
         ): XCodeBlock {
             return when (language) {
-                CodeLanguage.JAVA -> of(
-                    language,
-                    "%T.getKotlinClass(%T.class)",
-                    XClassName.get("kotlin.jvm", "JvmClassMappingKt"),
-                    typeName
-                )
-
-                CodeLanguage.KOTLIN -> of(
-                    language,
-                    "%T::class",
-                    typeName
-                )
+                CodeLanguage.JAVA ->
+                    of(
+                        language,
+                        "%T.getKotlinClass(%T.class)",
+                        XClassName.get("kotlin.jvm", "JvmClassMappingKt"),
+                        typeName
+                    )
+                CodeLanguage.KOTLIN -> of(language, "%T::class", typeName)
             }
         }
 
@@ -229,8 +227,7 @@ interface XCodeBlock : TargetLanguage {
             rightExpr: XCodeBlock,
         ): XCodeBlock {
             return when (language) {
-                CodeLanguage.JAVA ->
-                    of(language, "%L ? %L : %L", condition, leftExpr, rightExpr)
+                CodeLanguage.JAVA -> of(language, "%L ? %L : %L", condition, leftExpr, rightExpr)
                 CodeLanguage.KOTLIN ->
                     of(language, "if (%L) %L else %L", condition, leftExpr, rightExpr)
             }
@@ -250,10 +247,8 @@ interface XCodeBlock : TargetLanguage {
             args: XCodeBlock
         ): XCodeBlock {
             return when (language) {
-                CodeLanguage.JAVA ->
-                    of(language, "%M(%L, %L)", memberName, receiverVarName, args)
-                CodeLanguage.KOTLIN ->
-                    of(language, "%L.%M(%L)", receiverVarName, memberName, args)
+                CodeLanguage.JAVA -> of(language, "%M(%L, %L)", memberName, receiverVarName, args)
+                CodeLanguage.KOTLIN -> of(language, "%L.%M(%L)", receiverVarName, memberName, args)
             }
         }
     }

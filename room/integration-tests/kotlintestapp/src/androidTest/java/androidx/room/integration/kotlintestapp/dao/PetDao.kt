@@ -32,43 +32,33 @@ import io.reactivex.Flowable
 
 @Dao
 interface PetDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrReplace(vararg pets: Pet)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertOrReplace(vararg pets: Pet)
 
-    @Insert
-    fun insertAll(pets: Array<Pet>)
+    @Insert fun insertAll(pets: Array<Pet>)
 
-    @Query("SELECT COUNT(*) FROM Pet")
-    fun count(): Int
+    @Query("SELECT COUNT(*) FROM Pet") fun count(): Int
 
     @Transaction
     @Query("SELECT * FROM Pet ORDER BY Pet.mPetId ASC")
     fun allPetsWithToyIds(): List<PetWithToyIds>
 
-    @Transaction
-    @Query("SELECT * FROM Pet")
-    fun allPetsWithOwners(): List<PetAndOwner>
+    @Transaction @Query("SELECT * FROM Pet") fun allPetsWithOwners(): List<PetAndOwner>
 
     @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
     fun petWithIdFuture(id: Int): ListenableFuture<Optional<Pet>>
 
-    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
-    fun petWithIdFlowable(id: Int): Flowable<Pet>
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id") fun petWithIdFlowable(id: Int): Flowable<Pet>
 
-    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
-    fun petWithId(id: Int): Pet
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id") fun petWithId(id: Int): Pet
 
-    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id")
-    fun petWithIdLiveData(id: Int): LiveData<Pet>
+    @Query("SELECT * FROM Pet WHERE Pet.mPetId = :id") fun petWithIdLiveData(id: Int): LiveData<Pet>
 
     @Query("SELECT * FROM PetWithUser WHERE mPetId = :id")
     fun petWithUserLiveData(id: Int): LiveData<PetWithUser>
 
-    @Delete
-    fun delete(pet: Pet)
+    @Delete fun delete(pet: Pet)
 
-    @Query("SELECT mPetId FROM Pet")
-    fun allIds(): IntArray
+    @Query("SELECT mPetId FROM Pet") fun allIds(): IntArray
 
     @Transaction
     fun deleteAndInsert(oldPet: Pet, newPet: Pet, shouldFail: Boolean) {

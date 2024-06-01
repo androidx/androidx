@@ -30,15 +30,14 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
-internal class KotlinMultiplatformPluginIntegration(
-    private val common: CommonIntegration
-) {
+internal class KotlinMultiplatformPluginIntegration(private val common: CommonIntegration) {
 
-    private val kgpPluginIds = listOf(
-        "org.jetbrains.kotlin.jvm",
-        "org.jetbrains.kotlin.android",
-        "org.jetbrains.kotlin.multiplatform"
-    )
+    private val kgpPluginIds =
+        listOf(
+            "org.jetbrains.kotlin.jvm",
+            "org.jetbrains.kotlin.android",
+            "org.jetbrains.kotlin.multiplatform"
+        )
 
     fun withKotlin(project: Project, roomExtension: RoomExtension) {
         kgpPluginIds.forEach { kgpPluginId ->
@@ -66,8 +65,9 @@ internal class KotlinMultiplatformPluginIntegration(
 
         val configureTask: (Task) -> RoomArgumentProvider = { task ->
             val schemaDirectories = roomExtension.schemaDirectories
-            val matchedPair = schemaDirectories.findPair(target.targetName)
-                ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
+            val matchedPair =
+                schemaDirectories.findPair(target.targetName)
+                    ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
             project.check(matchedPair != null, isFatal = true) {
                 "No matching Room schema directory for the KSP target '${target.targetName}'."
             }
@@ -78,7 +78,11 @@ internal class KotlinMultiplatformPluginIntegration(
                     "not be empty."
             }
             common.configureTaskWithSchema(
-                project, roomExtension, matchedName, schemaDirectoryProvider.get(), task
+                project,
+                roomExtension,
+                matchedName,
+                schemaDirectoryProvider.get(),
+                task
             )
         }
         target.compilations.configureEach { kotlinCompilation ->
@@ -90,15 +94,16 @@ internal class KotlinMultiplatformPluginIntegration(
         project: Project,
         kotlinCompilation: KotlinCompilation<*>,
         configureBlock: (Task) -> RoomArgumentProvider
-    ) = project.plugins.withId("com.google.devtools.ksp") {
-        project.tasks.withType(KspTask::class.java) { task ->
-            // Same naming strategy as KSP, based off Kotlin compile task.
-            // https://github.com/google/ksp/blob/main/gradle-plugin/src/main/kotlin/com/google/devtools/ksp/gradle/KspAATask.kt#L151
-            val kspTaskName = kotlinCompilation.compileKotlinTaskName.replace("compile", "ksp")
-            if (task.name == kspTaskName) {
-                val argProvider = configureBlock.invoke(task)
-                task.commandLineArgumentProviders.add(argProvider)
+    ) =
+        project.plugins.withId("com.google.devtools.ksp") {
+            project.tasks.withType(KspTask::class.java) { task ->
+                // Same naming strategy as KSP, based off Kotlin compile task.
+                // https://github.com/google/ksp/blob/main/gradle-plugin/src/main/kotlin/com/google/devtools/ksp/gradle/KspAATask.kt#L151
+                val kspTaskName = kotlinCompilation.compileKotlinTaskName.replace("compile", "ksp")
+                if (task.name == kspTaskName) {
+                    val argProvider = configureBlock.invoke(task)
+                    task.commandLineArgumentProviders.add(argProvider)
+                }
             }
         }
-    }
 }

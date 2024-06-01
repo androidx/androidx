@@ -60,142 +60,66 @@ import org.junit.runner.RunWith
 /**
  * Tests multimap return type for JOIN statements.
  *
- * Deprecation has been suppressed for @MapInfo. We still need these tests, but the annotation
- * is deprecated.
+ * Deprecation has been suppressed for @MapInfo. We still need these tests, but the annotation is
+ * deprecated.
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MultimapQueryTest {
     private lateinit var mMusicDao: MusicDao
-    private val mRhcpSong1: Song = Song(
-        1,
-        "Dani California",
-        "Red Hot Chili Peppers",
-        "Stadium Arcadium",
-        442,
-        2006
-    )
-    private val mRhcpSong2: Song = Song(
-        2,
-        "Snow (Hey Oh)",
-        "Red Hot Chili Peppers",
-        "Stadium Arcadium",
-        514,
-        2006
-    )
-    private val mAcdcSong1: Song = Song(
-        3,
-        "Highway to Hell",
-        "AC/DC",
-        "Highway to Hell",
-        328,
-        1979
-    )
-    private val mPinkFloydSong1: Song = Song(
-        4,
-        "The Great Gig in the Sky",
-        "Pink Floyd",
-        "The Dark Side of the Moon",
-        443,
-        1973
-    )
-    private val mRhcpSong3: Song = Song(
-        5,
-        "Parallel Universe",
-        "Red Hot Chili Peppers",
-        "Californication",
-        529,
-        1999
-    )
-    private val mRhcp: Artist = Artist(
-        1,
-        "Red Hot Chili Peppers",
-        true
-    )
-    private val mAcDc: Artist = Artist(
-        2,
-        "AC/DC",
-        true
-    )
-    private val mTheClash: Artist = Artist(
-        3,
-        "The Clash",
-        false
-    )
-    private val mPinkFloyd: Artist = Artist(
-        4,
-        "Pink Floyd",
-        false
-    )
-    private val mGlassAnimals: Artist = Artist(
-        5,
-        "Glass Animals",
-        true
-    )
-    private val mStadiumArcadium: Album = Album(
-        1,
-        "Stadium Arcadium",
-        "Red Hot Chili Peppers",
-        2006,
-        "N/A"
-    )
-    private val mCalifornication: Album = Album(
-        2,
-        "Californication",
-        "Red Hot Chili Peppers",
-        1999,
-        "N/A"
-    )
-    private val mHighwayToHell: Album = Album(
-        3,
-        "Highway to Hell",
-        "AC/DC",
-        1979,
-        null
-    )
-    private val mTheDarkSideOfTheMoon: Album = Album(
-        4,
-        "The Dark Side of the Moon",
-        "Pink Floyd",
-        1973,
-        "N/A"
-    )
-    private val mDreamland: Album = Album(
-        5,
-        "Dreamland",
-        null,
-        2020,
-        null
-    )
-    private val mPinkFloydAlbumCover: Image = Image(
-        1,
-        1973L,
-        "Pink Floyd",
-        "dark_side_of_the_moon_image".toByteArray(),
-        Date(101779200000L),
-        ImageFormat.JPG
-    )
-    private val mRhcpAlbumCover: Image = Image(
-        2,
-        2006L,
-        "Red Hot Chili Peppers",
-        "stadium_arcadium_image".toByteArray(),
-        Date(1146787200000L),
-        ImageFormat.MPEG
-    )
+    private val mRhcpSong1: Song =
+        Song(1, "Dani California", "Red Hot Chili Peppers", "Stadium Arcadium", 442, 2006)
+    private val mRhcpSong2: Song =
+        Song(2, "Snow (Hey Oh)", "Red Hot Chili Peppers", "Stadium Arcadium", 514, 2006)
+    private val mAcdcSong1: Song = Song(3, "Highway to Hell", "AC/DC", "Highway to Hell", 328, 1979)
+    private val mPinkFloydSong1: Song =
+        Song(4, "The Great Gig in the Sky", "Pink Floyd", "The Dark Side of the Moon", 443, 1973)
+    private val mRhcpSong3: Song =
+        Song(5, "Parallel Universe", "Red Hot Chili Peppers", "Californication", 529, 1999)
+    private val mRhcp: Artist = Artist(1, "Red Hot Chili Peppers", true)
+    private val mAcDc: Artist = Artist(2, "AC/DC", true)
+    private val mTheClash: Artist = Artist(3, "The Clash", false)
+    private val mPinkFloyd: Artist = Artist(4, "Pink Floyd", false)
+    private val mGlassAnimals: Artist = Artist(5, "Glass Animals", true)
+    private val mStadiumArcadium: Album =
+        Album(1, "Stadium Arcadium", "Red Hot Chili Peppers", 2006, "N/A")
+    private val mCalifornication: Album =
+        Album(2, "Californication", "Red Hot Chili Peppers", 1999, "N/A")
+    private val mHighwayToHell: Album = Album(3, "Highway to Hell", "AC/DC", 1979, null)
+    private val mTheDarkSideOfTheMoon: Album =
+        Album(4, "The Dark Side of the Moon", "Pink Floyd", 1973, "N/A")
+    private val mDreamland: Album = Album(5, "Dreamland", null, 2020, null)
+    private val mPinkFloydAlbumCover: Image =
+        Image(
+            1,
+            1973L,
+            "Pink Floyd",
+            "dark_side_of_the_moon_image".toByteArray(),
+            Date(101779200000L),
+            ImageFormat.JPG
+        )
+    private val mRhcpAlbumCover: Image =
+        Image(
+            2,
+            2006L,
+            "Red Hot Chili Peppers",
+            "stadium_arcadium_image".toByteArray(),
+            Date(1146787200000L),
+            ImageFormat.MPEG
+        )
 
-    private val mTheClashAlbumCover: Image = Image(
-        3,
-        1979L,
-        "The Clash",
-        "london_calling_image".toByteArray(),
-        Date(11873445200000L),
-        ImageFormat.MPEG
-    )
+    private val mTheClashAlbumCover: Image =
+        Image(
+            3,
+            1979L,
+            "The Clash",
+            "london_calling_image".toByteArray(),
+            Date(11873445200000L),
+            ImageFormat.MPEG
+        )
 
-    @JvmField
-    @Rule
-    var mExecutorRule = CountingTaskExecutorRule()
+    @JvmField @Rule var mExecutorRule = CountingTaskExecutorRule()
+
     @Throws(TimeoutException::class, InterruptedException::class)
     private fun drain() {
         mExecutorRule.drainTasks(1, TimeUnit.MINUTES)
@@ -213,14 +137,11 @@ class MultimapQueryTest {
     fun createDb() {
         val context: Context = ApplicationProvider.getApplicationContext()
         val db: TestDatabase =
-            Room.inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-                .build()
+            Room.inMemoryDatabaseBuilder(context, TestDatabase::class.java).build()
         mMusicDao = db.musicDao()
     }
 
-    /**
-     * Tests a simple JOIN query between two tables.
-     */
+    /** Tests a simple JOIN query between two tables. */
     @Test
     fun testGetFirstSongForArtist() {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1)
@@ -254,9 +175,8 @@ class MultimapQueryTest {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1)
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
 
-        assertThat(mMusicDao.getAllArtistAndTheirSongsListOrdered().keys).containsExactlyElementsIn(
-            arrayOf(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(mMusicDao.getAllArtistAndTheirSongsListOrdered().keys)
+            .containsExactlyElementsIn(arrayOf(mRhcp, mAcDc, mPinkFloyd))
     }
 
     @Test
@@ -267,18 +187,17 @@ class MultimapQueryTest {
         assertContentsOfResultMapWithSet(artistToSongsSet)
     }
 
-    /**
-     * Tests a JOIN using [androidx.room.RawQuery] between two tables.
-     */
+    /** Tests a JOIN using [androidx.room.RawQuery] between two tables. */
     @Test
     fun testJoinByArtistNameRawQuery() {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1)
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
-        val artistToSongsMap: Map<Artist, Song> = mMusicDao.getAllArtistAndTheirSongsRawQuery(
-            SimpleSQLiteQuery(
-                "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+        val artistToSongsMap: Map<Artist, Song> =
+            mMusicDao.getAllArtistAndTheirSongsRawQuery(
+                SimpleSQLiteQuery(
+                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+                )
             )
-        )
         assertThat(artistToSongsMap[mAcDc]).isEqualTo(mAcdcSong1)
     }
 
@@ -308,9 +227,7 @@ class MultimapQueryTest {
         assertContentsOfResultMapWithSet(artistToSongsMap)
     }
 
-    /**
-     * Tests a simple JOIN query between two tables with a [LiveData] map return type.
-     */
+    /** Tests a simple JOIN query between two tables with a [LiveData] map return type. */
     @Test
     @Throws(ExecutionException::class, InterruptedException::class, TimeoutException::class)
     fun testJoinByArtistNameLiveData() {
@@ -362,9 +279,7 @@ class MultimapQueryTest {
         assertContentsOfResultMapWithSet(observer.get()!!)
     }
 
-    /**
-     * Tests a simple JOIN query between two tables with a [Flowable] map return type.
-     */
+    /** Tests a simple JOIN query between two tables with a [Flowable] map return type. */
     @Test
     fun testJoinByArtistNameFlowableList() {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1)
@@ -384,9 +299,9 @@ class MultimapQueryTest {
     }
 
     /**
-     * Tests a simple JOIN query between two tables with a return type of a map with a key that
-     * is an entity [Artist] and a POJO [AlbumWithSongs] that use
-     * [androidx.room.Embedded] and [androidx.room.Relation].
+     * Tests a simple JOIN query between two tables with a return type of a map with a key that is
+     * an entity [Artist] and a POJO [AlbumWithSongs] that use [androidx.room.Embedded] and
+     * [androidx.room.Relation].
      */
     @Test
     fun testPojoWithEmbeddedAndRelation() {
@@ -403,19 +318,14 @@ class MultimapQueryTest {
         val rhcpAlbum: AlbumWithSongs? = artistToAlbumsWithSongsMap[mRhcp]
 
         assertThat(rhcpAlbum).isNotNull()
-        assertThat(artistToAlbumsWithSongsMap.keys).containsExactlyElementsIn(
-            arrayOf(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToAlbumsWithSongsMap.keys)
+            .containsExactlyElementsIn(arrayOf(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse()
-        assertThat(artistToAlbumsWithSongsMap[mPinkFloyd]?.album)
-            .isEqualTo(mTheDarkSideOfTheMoon)
-        assertThat(artistToAlbumsWithSongsMap[mAcDc]?.album)
-            .isEqualTo(mHighwayToHell)
+        assertThat(artistToAlbumsWithSongsMap[mPinkFloyd]?.album).isEqualTo(mTheDarkSideOfTheMoon)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc]?.album).isEqualTo(mHighwayToHell)
         assertThat(artistToAlbumsWithSongsMap[mAcDc]?.songs?.get(0)).isEqualTo(mAcdcSong1)
         if (rhcpAlbum?.album?.equals(mStadiumArcadium) == true) {
-            assertThat(rhcpAlbum.songs).containsExactlyElementsIn(
-                listOf(mRhcpSong1, mRhcpSong2)
-            )
+            assertThat(rhcpAlbum.songs).containsExactlyElementsIn(listOf(mRhcpSong1, mRhcpSong2))
         } else if (rhcpAlbum?.album?.equals(mCalifornication) == true) {
             assertThat(rhcpAlbum.songs).isEmpty()
         } else {
@@ -424,8 +334,8 @@ class MultimapQueryTest {
     }
 
     /**
-     * Tests a simple JOIN query between two tables with a return type of a map with a key that
-     * is an entity [Artist] and a list of entity POJOs [AlbumWithSongs] that use
+     * Tests a simple JOIN query between two tables with a return type of a map with a key that is
+     * an entity [Artist] and a list of entity POJOs [AlbumWithSongs] that use
      * [androidx.room.Embedded] and [androidx.room.Relation].
      */
     @Test
@@ -442,22 +352,18 @@ class MultimapQueryTest {
             mMusicDao.getAllArtistAndTheirAlbumsWithSongsList()
         mMusicDao.getAllArtistAndTheirAlbumsWithSongs()
         val rhcpList: List<AlbumWithSongs> = artistToAlbumsWithSongsMap[mRhcp]!!
-        assertThat(artistToAlbumsWithSongsMap.keys).containsExactlyElementsIn(
-            listOf<Any>(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToAlbumsWithSongsMap.keys)
+            .containsExactlyElementsIn(listOf<Any>(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse()
         assertThat(artistToAlbumsWithSongsMap[mPinkFloyd]?.single()?.album)
             .isEqualTo(mTheDarkSideOfTheMoon)
-        assertThat(artistToAlbumsWithSongsMap[mAcDc]?.single()?.album)
-            .isEqualTo(mHighwayToHell)
-        assertThat(artistToAlbumsWithSongsMap[mAcDc]?.single()?.songs?.get(0))
-            .isEqualTo(mAcdcSong1)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc]?.single()?.album).isEqualTo(mHighwayToHell)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc]?.single()?.songs?.get(0)).isEqualTo(mAcdcSong1)
         for (albumAndSong in rhcpList) {
             when (albumAndSong.album) {
                 mStadiumArcadium -> {
-                    assertThat(albumAndSong.songs).containsExactlyElementsIn(
-                        listOf(mRhcpSong1, mRhcpSong2)
-                    )
+                    assertThat(albumAndSong.songs)
+                        .containsExactlyElementsIn(listOf(mRhcpSong1, mRhcpSong2))
                 }
                 mCalifornication -> {
                     assertThat(albumAndSong.songs).isEmpty()
@@ -471,8 +377,7 @@ class MultimapQueryTest {
 
     /**
      * Tests a simple JOIN query between two tables with a return type of a map with a key
-     * [ReleasedAlbum] and value (list of [AlbumNameAndBandName]) that are non-entity
-     * POJOs.
+     * [ReleasedAlbum] and value (list of [AlbumNameAndBandName]) that are non-entity POJOs.
      */
     @Test
     fun testNonEntityPojosList() {
@@ -491,28 +396,20 @@ class MultimapQueryTest {
         allReleasedAlbums.forEach { album ->
             when (album.mAlbumName) {
                 mStadiumArcadium.mAlbumName -> {
-                    assertThat(album.mReleaseYear).isEqualTo(
-                        mStadiumArcadium.mAlbumReleaseYear
-                    )
+                    assertThat(album.mReleaseYear).isEqualTo(mStadiumArcadium.mAlbumReleaseYear)
                     val resultList = map[album] ?: emptyList()
                     assertThat(resultList.size).isEqualTo(2)
-                    assertThat(resultList[0].mBandName)
-                        .isEqualTo(mRhcp.mArtistName)
-                    assertThat(resultList[0].mAlbumName)
-                        .isEqualTo(mStadiumArcadium.mAlbumName)
-                    assertThat(resultList[1].mBandName)
-                        .isEqualTo(mRhcp.mArtistName)
-                    assertThat(map[album]!![1].mAlbumName)
-                        .isEqualTo(mStadiumArcadium.mAlbumName)
+                    assertThat(resultList[0].mBandName).isEqualTo(mRhcp.mArtistName)
+                    assertThat(resultList[0].mAlbumName).isEqualTo(mStadiumArcadium.mAlbumName)
+                    assertThat(resultList[1].mBandName).isEqualTo(mRhcp.mArtistName)
+                    assertThat(map[album]!![1].mAlbumName).isEqualTo(mStadiumArcadium.mAlbumName)
                 }
                 mHighwayToHell.mAlbumName -> {
                     assertThat(album.mReleaseYear).isEqualTo(mHighwayToHell.mAlbumReleaseYear)
                     val resultList = map[album] ?: emptyList()
                     assertThat(resultList.size).isEqualTo(1)
-                    assertThat(resultList[0].mBandName)
-                        .isEqualTo(mAcDc.mArtistName)
-                    assertThat(resultList[0].mAlbumName)
-                        .isEqualTo(mHighwayToHell.mAlbumName)
+                    assertThat(resultList[0].mBandName).isEqualTo(mAcDc.mArtistName)
+                    assertThat(resultList[0].mAlbumName).isEqualTo(mHighwayToHell.mAlbumName)
                 }
                 mTheDarkSideOfTheMoon.mAlbumName -> {
                     assertThat(album.mReleaseYear)
@@ -555,8 +452,7 @@ class MultimapQueryTest {
         val artistToSongsMap: ImmutableListMultimap<Artist, Song> =
             mMusicDao.getAllArtistAndTheirSongsRawQueryGuavaImmutableListMultimap(
                 SimpleSQLiteQuery(
-                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song" +
-                        ".mArtist"
+                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song" + ".mArtist"
                 )
             )
         assertThat(artistToSongsMap[mAcDc]).containsExactly(mAcdcSong1)
@@ -569,8 +465,7 @@ class MultimapQueryTest {
         val artistToSongsMap: ImmutableSetMultimap<Artist, Song> =
             mMusicDao.getAllArtistAndTheirSongsRawQueryGuavaImmutableSetMultimap(
                 SimpleSQLiteQuery(
-                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song" +
-                        ".mArtist"
+                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song" + ".mArtist"
                 )
             )
         assertThat(artistToSongsMap[mAcDc]).containsExactly(mAcdcSong1)
@@ -623,23 +518,17 @@ class MultimapQueryTest {
         val artistToAlbumsWithSongsMap: ImmutableListMultimap<Artist, AlbumWithSongs> =
             mMusicDao.allArtistAndTheirAlbumsWithSongsGuavaImmutableListMultimap()
         val rhcpList: ImmutableList<AlbumWithSongs> = artistToAlbumsWithSongsMap[mRhcp]
-        assertThat(artistToAlbumsWithSongsMap.keySet()).containsExactlyElementsIn(
-            listOf<Any>(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToAlbumsWithSongsMap.keySet())
+            .containsExactlyElementsIn(listOf<Any>(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse()
-        assertThat(artistToAlbumsWithSongsMap[mPinkFloyd][0].album)
-            .isEqualTo(mTheDarkSideOfTheMoon)
-        assertThat(artistToAlbumsWithSongsMap[mAcDc][0].album)
-            .isEqualTo(mHighwayToHell)
-        assertThat(
-            artistToAlbumsWithSongsMap[mAcDc][0].songs[0]
-        ).isEqualTo(mAcdcSong1)
+        assertThat(artistToAlbumsWithSongsMap[mPinkFloyd][0].album).isEqualTo(mTheDarkSideOfTheMoon)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc][0].album).isEqualTo(mHighwayToHell)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc][0].songs[0]).isEqualTo(mAcdcSong1)
         for (albumAndSong in rhcpList) {
             when (albumAndSong.album) {
                 mStadiumArcadium -> {
-                    assertThat(albumAndSong.songs).containsExactlyElementsIn(
-                        listOf(mRhcpSong1, mRhcpSong2)
-                    )
+                    assertThat(albumAndSong.songs)
+                        .containsExactlyElementsIn(listOf(mRhcpSong1, mRhcpSong2))
                 }
                 mCalifornication -> {
                     assertThat(albumAndSong.songs).isEmpty()
@@ -664,23 +553,18 @@ class MultimapQueryTest {
         val artistToAlbumsWithSongsMap: ImmutableSetMultimap<Artist, AlbumWithSongs> =
             mMusicDao.allArtistAndTheirAlbumsWithSongsGuavaImmutableSetMultimap()
         val rhcpList: ImmutableSet<AlbumWithSongs> = artistToAlbumsWithSongsMap[mRhcp]
-        assertThat(artistToAlbumsWithSongsMap.keySet()).containsExactlyElementsIn(
-            listOf<Any>(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToAlbumsWithSongsMap.keySet())
+            .containsExactlyElementsIn(listOf<Any>(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToAlbumsWithSongsMap.containsKey(mTheClash)).isFalse()
         assertThat(artistToAlbumsWithSongsMap[mPinkFloyd].asList()[0].album)
             .isEqualTo(mTheDarkSideOfTheMoon)
-        assertThat(artistToAlbumsWithSongsMap[mAcDc].asList()[0].album)
-            .isEqualTo(mHighwayToHell)
-        assertThat(
-            artistToAlbumsWithSongsMap[mAcDc].asList()[0].songs[0]
-        ).isEqualTo(mAcdcSong1)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc].asList()[0].album).isEqualTo(mHighwayToHell)
+        assertThat(artistToAlbumsWithSongsMap[mAcDc].asList()[0].songs[0]).isEqualTo(mAcdcSong1)
         for (albumAndSong in rhcpList) {
             when (albumAndSong.album) {
                 mStadiumArcadium -> {
-                    assertThat(albumAndSong.songs).containsExactlyElementsIn(
-                        listOf(mRhcpSong1, mRhcpSong2)
-                    )
+                    assertThat(albumAndSong.songs)
+                        .containsExactlyElementsIn(listOf(mRhcpSong1, mRhcpSong2))
                 }
                 mCalifornication -> {
                     assertThat(albumAndSong.songs).isEmpty()
@@ -708,8 +592,7 @@ class MultimapQueryTest {
         val artistToSongsMap: ImmutableMap<Artist, List<Song>> =
             mMusicDao.getAllArtistAndTheirSongsRawQueryImmutableMap(
                 SimpleSQLiteQuery(
-                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song" +
-                        ".mArtist"
+                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song" + ".mArtist"
                 )
             )
         assertContentsOfResultMapWithList(artistToSongsMap)
@@ -738,9 +621,8 @@ class MultimapQueryTest {
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
         val artistNameToSongsMap: Map<String, List<Song>> = mMusicDao.artistNameToSongs()
         assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue()
-        assertThat(artistNameToSongsMap["Red Hot Chili Peppers"]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
+        assertThat(artistNameToSongsMap["Red Hot Chili Peppers"])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
     }
 
     @Test
@@ -754,12 +636,9 @@ class MultimapQueryTest {
         )
         val releaseYearToAlbumsMap: Map<Int, List<Song>> = mMusicDao.releaseYearToAlbums()
         assertThat(releaseYearToAlbumsMap.containsKey(2006)).isTrue()
-        assertThat(releaseYearToAlbumsMap[2006]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
-        assertThat(releaseYearToAlbumsMap[1979]).containsExactlyElementsIn(
-            listOf<Any>(mAcdcSong1)
-        )
+        assertThat(releaseYearToAlbumsMap[2006])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
+        assertThat(releaseYearToAlbumsMap[1979]).containsExactlyElementsIn(listOf<Any>(mAcdcSong1))
     }
 
     @Test
@@ -771,27 +650,25 @@ class MultimapQueryTest {
             mTheDarkSideOfTheMoon,
             mHighwayToHell
         )
-        val releaseYearToAlbumNameMap: Map<Int, List<String>> =
-            mMusicDao.releaseYearToSongNames()
+        val releaseYearToAlbumNameMap: Map<Int, List<String>> = mMusicDao.releaseYearToSongNames()
         assertThat(releaseYearToAlbumNameMap.containsKey(2006)).isTrue()
-        assertThat(releaseYearToAlbumNameMap[2006]).containsExactlyElementsIn(
-            listOf("Snow (Hey Oh)", "Dani California")
-        )
+        assertThat(releaseYearToAlbumNameMap[2006])
+            .containsExactlyElementsIn(listOf("Snow (Hey Oh)", "Dani California"))
     }
 
     @Test
     fun testStringToListOfSongsRawQuery() {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1)
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
-        val artistNameToSongsMap: Map<String, List<Song>> = mMusicDao.getArtistNameToSongsRawQuery(
-            SimpleSQLiteQuery(
-                "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+        val artistNameToSongsMap: Map<String, List<Song>> =
+            mMusicDao.getArtistNameToSongsRawQuery(
+                SimpleSQLiteQuery(
+                    "SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist"
+                )
             )
-        )
         assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue()
-        assertThat(artistNameToSongsMap["Red Hot Chili Peppers"]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
+        assertThat(artistNameToSongsMap["Red Hot Chili Peppers"])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
     }
 
     @Test
@@ -811,12 +688,9 @@ class MultimapQueryTest {
                 )
             )
         assertThat(releaseYearToAlbumsMap.containsKey(2006)).isTrue()
-        assertThat(releaseYearToAlbumsMap[2006]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
-        assertThat(releaseYearToAlbumsMap[1979]).containsExactlyElementsIn(
-            listOf<Any>(mAcdcSong1)
-        )
+        assertThat(releaseYearToAlbumsMap[2006])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
+        assertThat(releaseYearToAlbumsMap[1979]).containsExactlyElementsIn(listOf<Any>(mAcdcSong1))
     }
 
     @Test
@@ -836,9 +710,8 @@ class MultimapQueryTest {
                 )
             )
         assertThat(releaseYearToAlbumNameMap.containsKey(2006)).isTrue()
-        assertThat(releaseYearToAlbumNameMap[2006]).containsExactlyElementsIn(
-            listOf("Snow (Hey Oh)", "Dani California")
-        )
+        assertThat(releaseYearToAlbumNameMap[2006])
+            .containsExactlyElementsIn(listOf("Snow (Hey Oh)", "Dani California"))
     }
 
     @Test
@@ -854,12 +727,13 @@ class MultimapQueryTest {
     fun testArtistToSongCountWithRawQuery() {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1)
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
-        val artistNameToSongsMap: Map<Artist, Int> = mMusicDao.getArtistAndSongCountMapRawQuery(
-            SimpleSQLiteQuery(
-                "SELECT *, COUNT(mSongId) as songCount FROM Artist JOIN Song ON Artist" +
-                    ".mArtistName = Song.mArtist GROUP BY mArtistName"
+        val artistNameToSongsMap: Map<Artist, Int> =
+            mMusicDao.getArtistAndSongCountMapRawQuery(
+                SimpleSQLiteQuery(
+                    "SELECT *, COUNT(mSongId) as songCount FROM Artist JOIN Song ON Artist" +
+                        ".mArtistName = Song.mArtist GROUP BY mArtistName"
+                )
             )
-        )
         assertThat(artistNameToSongsMap.containsKey(mPinkFloyd)).isTrue()
         assertThat(artistNameToSongsMap[mRhcp]).isEqualTo(2)
     }
@@ -871,9 +745,8 @@ class MultimapQueryTest {
         val artistNameToImagesMap: ImmutableMap<Artist, ByteBuffer> =
             mMusicDao.allArtistsWithAlbumCovers()
         assertThat(artistNameToImagesMap.containsKey(mPinkFloyd)).isTrue()
-        assertThat(artistNameToImagesMap[mRhcp]).isEqualTo(
-            ByteBuffer.wrap("stadium_arcadium_image".toByteArray())
-        )
+        assertThat(artistNameToImagesMap[mRhcp])
+            .isEqualTo(ByteBuffer.wrap("stadium_arcadium_image".toByteArray()))
     }
 
     @Test
@@ -888,9 +761,8 @@ class MultimapQueryTest {
                 )
             )
         assertThat(artistNameToImagesMap.containsKey(mPinkFloyd)).isTrue()
-        assertThat(artistNameToImagesMap[mRhcp]).isEqualTo(
-            ByteBuffer.wrap("stadium_arcadium_image".toByteArray())
-        )
+        assertThat(artistNameToImagesMap[mRhcp])
+            .isEqualTo(ByteBuffer.wrap("stadium_arcadium_image".toByteArray()))
     }
 
     @Test
@@ -914,11 +786,7 @@ class MultimapQueryTest {
                 )
             )
         assertThat(imageToArtistsMap[2006L]).isEqualTo(mRhcp)
-        assertThat(
-            imageToArtistsMap.keys
-        ).containsExactlyElementsIn(
-            listOf(2006L, 1973L)
-        )
+        assertThat(imageToArtistsMap.keys).containsExactlyElementsIn(listOf(2006L, 1973L))
     }
 
     @Test
@@ -927,12 +795,10 @@ class MultimapQueryTest {
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
         val imageToArtistsMap: ImmutableMap<ByteBuffer, Boolean> =
             mMusicDao.albumCoversWithBandActivity()
-        assertThat(
-            imageToArtistsMap[ByteBuffer.wrap("stadium_arcadium_image".toByteArray())]
-        ).isEqualTo(true)
-        assertThat(
-            imageToArtistsMap[ByteBuffer.wrap("dark_side_of_the_moon_image".toByteArray())]
-        ).isEqualTo(false)
+        assertThat(imageToArtistsMap[ByteBuffer.wrap("stadium_arcadium_image".toByteArray())])
+            .isEqualTo(true)
+        assertThat(imageToArtistsMap[ByteBuffer.wrap("dark_side_of_the_moon_image".toByteArray())])
+            .isEqualTo(false)
     }
 
     @Test
@@ -948,17 +814,15 @@ class MultimapQueryTest {
             )
         assertThat(imageToArtistsMap[ByteBuffer.wrap("stadium_arcadium_image".toByteArray())])
             .isEqualTo(true)
-        assertThat(
-            imageToArtistsMap[ByteBuffer.wrap("dark_side_of_the_moon_image".toByteArray())]
-        ).isEqualTo(false)
+        assertThat(imageToArtistsMap[ByteBuffer.wrap("dark_side_of_the_moon_image".toByteArray())])
+            .isEqualTo(false)
     }
 
     @Test
     fun testAlbumReleaseDateWithBandActivity() {
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
-        val imageToArtistsMap: ImmutableMap<Date, Boolean> =
-            mMusicDao.albumDateWithBandActivity()
+        val imageToArtistsMap: ImmutableMap<Date, Boolean> = mMusicDao.albumDateWithBandActivity()
         assertThat(imageToArtistsMap[Date(101779200000L)]).isEqualTo(false)
         assertThat(imageToArtistsMap[Date(1146787200000L)]).isEqualTo(true)
     }
@@ -1136,11 +1000,7 @@ class MultimapQueryTest {
                 )
             )
         assertThat(imageToArtistsMap[2006L]).isEqualTo(mRhcp)
-        assertThat(
-            imageToArtistsMap.keys
-        ).containsExactlyElementsIn(
-            listOf(2006L, 1973L)
-        )
+        assertThat(imageToArtistsMap.keys).containsExactlyElementsIn(listOf(2006L, 1973L))
     }
 
     @Test
@@ -1172,9 +1032,8 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
         val californicationExpectedList = listOf(mRhcpSong3)
 
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication, mStadiumArcadium)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(listOf(mCalifornication, mStadiumArcadium))
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
     }
@@ -1201,13 +1060,11 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
         val californicationExpectedList = listOf(mRhcpSong3)
 
-        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
-            listOf(mPinkFloydAlbumCover, mRhcpAlbumCover)
-        )
+        assertThat(doubleNestedMap.keys)
+            .containsExactlyElementsIn(listOf(mPinkFloydAlbumCover, mRhcpAlbumCover))
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication, mStadiumArcadium)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(listOf(mCalifornication, mStadiumArcadium))
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
     }
@@ -1227,9 +1084,8 @@ class MultimapQueryTest {
         val singleNestedMap = mMusicDao.getArtistToAlbumsMappedToSongNamesMapInfoLeftJoin()
         val rhcpMap = singleNestedMap.getValue(mRhcp)
 
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication, mStadiumArcadium)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(listOf(mCalifornication, mStadiumArcadium))
         assertThat(rhcpMap[mStadiumArcadium]).isEqualTo(mRhcpSong1.mTitle)
         assertThat(rhcpMap[mCalifornication]).isEqualTo(mRhcpSong3.mTitle)
 
@@ -1259,17 +1115,17 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
         val californicationExpectedList = listOf(mRhcpSong3)
 
-        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
-            listOf(
-                mPinkFloydAlbumCover.mImageYear,
-                mRhcpAlbumCover.mImageYear,
-                mTheClashAlbumCover.mImageYear
+        assertThat(doubleNestedMap.keys)
+            .containsExactlyElementsIn(
+                listOf(
+                    mPinkFloydAlbumCover.mImageYear,
+                    mRhcpAlbumCover.mImageYear,
+                    mTheClashAlbumCover.mImageYear
+                )
             )
-        )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication, mStadiumArcadium)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(listOf(mCalifornication, mStadiumArcadium))
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
 
@@ -1281,10 +1137,10 @@ class MultimapQueryTest {
         assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd])
             .containsKey(mTheDarkSideOfTheMoon)
         assertThat(
-            doubleNestedMap[mPinkFloydAlbumCover.mImageYear]
-            !![mPinkFloyd]
-            !![mTheDarkSideOfTheMoon]
-        ).isEmpty()
+                doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd]!![
+                    mTheDarkSideOfTheMoon]
+            )
+            .isEmpty()
     }
 
     @Test
@@ -1309,17 +1165,17 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1.mTitle, mRhcpSong2.mTitle)
         val californicationExpectedList = listOf(mRhcpSong3.mTitle)
 
-        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
-            listOf(
-                mPinkFloydAlbumCover.mImageYear,
-                mRhcpAlbumCover.mImageYear,
-                mTheClashAlbumCover.mImageYear
+        assertThat(doubleNestedMap.keys)
+            .containsExactlyElementsIn(
+                listOf(
+                    mPinkFloydAlbumCover.mImageYear,
+                    mRhcpAlbumCover.mImageYear,
+                    mTheClashAlbumCover.mImageYear
+                )
             )
-        )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication, mStadiumArcadium)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(listOf(mCalifornication, mStadiumArcadium))
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
 
@@ -1331,10 +1187,10 @@ class MultimapQueryTest {
         assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd])
             .containsKey(mTheDarkSideOfTheMoon)
         assertThat(
-            doubleNestedMap[mPinkFloydAlbumCover.mImageYear]
-            !![mPinkFloyd]
-            !![mTheDarkSideOfTheMoon]
-        ).isEmpty()
+                doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd]!![
+                    mTheDarkSideOfTheMoon]
+            )
+            .isEmpty()
     }
 
     @Test
@@ -1359,17 +1215,15 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1.mReleasedYear, mRhcpSong2.mReleasedYear)
         val californicationExpectedList = listOf(mRhcpSong3.mReleasedYear)
 
-        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
-            listOf(
-                mPinkFloydAlbumCover,
-                mRhcpAlbumCover,
-                mTheClashAlbumCover
+        assertThat(doubleNestedMap.keys)
+            .containsExactlyElementsIn(
+                listOf(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
             )
-        )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication.mAlbumName, mStadiumArcadium.mAlbumName)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(
+                listOf(mCalifornication.mAlbumName, mStadiumArcadium.mAlbumName)
+            )
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
 
@@ -1381,10 +1235,10 @@ class MultimapQueryTest {
         assertThat(doubleNestedMap[mPinkFloydAlbumCover]!![mPinkFloyd])
             .containsKey(mTheDarkSideOfTheMoon.mAlbumName)
         assertThat(
-            doubleNestedMap[mPinkFloydAlbumCover]
-            !![mPinkFloyd]
-            !![mTheDarkSideOfTheMoon.mAlbumName]
-        ).isEmpty()
+                doubleNestedMap[mPinkFloydAlbumCover]!![mPinkFloyd]!![
+                    mTheDarkSideOfTheMoon.mAlbumName]
+            )
+            .isEmpty()
     }
 
     @Test
@@ -1400,16 +1254,17 @@ class MultimapQueryTest {
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
 
-        val doubleNestedMap = mMusicDao.getImageYearToArtistToAlbumsToSongsMultiMapColumn(
-            SimpleSQLiteQuery(
-                """
+        val doubleNestedMap =
+            mMusicDao.getImageYearToArtistToAlbumsToSongsMultiMapColumn(
+                SimpleSQLiteQuery(
+                    """
                 SELECT * FROM Image
                 LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
                 LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
                 LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
                 """
+                )
             )
-        )
         val rhcpImageMap = doubleNestedMap.getValue(mRhcpAlbumCover)
         val rhcpMap = rhcpImageMap.getValue(mRhcp)
         val stadiumArcadiumList = rhcpMap[mStadiumArcadium.mAlbumName]
@@ -1418,17 +1273,15 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1.mReleasedYear, mRhcpSong2.mReleasedYear)
         val californicationExpectedList = listOf(mRhcpSong3.mReleasedYear)
 
-        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
-            listOf(
-                mPinkFloydAlbumCover,
-                mRhcpAlbumCover,
-                mTheClashAlbumCover
+        assertThat(doubleNestedMap.keys)
+            .containsExactlyElementsIn(
+                listOf(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
             )
-        )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf(mCalifornication.mAlbumName, mStadiumArcadium.mAlbumName)
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(
+                listOf(mCalifornication.mAlbumName, mStadiumArcadium.mAlbumName)
+            )
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
 
@@ -1440,10 +1293,10 @@ class MultimapQueryTest {
         assertThat(doubleNestedMap[mPinkFloydAlbumCover]!![mPinkFloyd])
             .containsKey(mTheDarkSideOfTheMoon.mAlbumName)
         assertThat(
-            doubleNestedMap[mPinkFloydAlbumCover]
-            !![mPinkFloyd]
-            !![mTheDarkSideOfTheMoon.mAlbumName]
-        ).isEmpty()
+                doubleNestedMap[mPinkFloydAlbumCover]!![mPinkFloyd]!![
+                    mTheDarkSideOfTheMoon.mAlbumName]
+            )
+            .isEmpty()
     }
 
     @Test
@@ -1452,9 +1305,8 @@ class MultimapQueryTest {
         mMusicDao.addArtists(mRhcp, mAcDc, mTheClash, mPinkFloyd)
         val artistNameToSongsMap: Map<String, List<Int>> = mMusicDao.artistNameToSongsMapColumn()
         assertThat(artistNameToSongsMap.containsKey("Pink Floyd")).isTrue()
-        assertThat(artistNameToSongsMap["Red Hot Chili Peppers"]).containsExactlyElementsIn(
-            listOf(mRhcpSong1.mReleasedYear, mRhcpSong2.mReleasedYear)
-        )
+        assertThat(artistNameToSongsMap["Red Hot Chili Peppers"])
+            .containsExactlyElementsIn(listOf(mRhcpSong1.mReleasedYear, mRhcpSong2.mReleasedYear))
     }
 
     @Test
@@ -1479,17 +1331,17 @@ class MultimapQueryTest {
         val stadiumArcadiumExpectedList = listOf(mRhcpSong1, mRhcpSong2)
         val californicationExpectedList = listOf(mRhcpSong3)
 
-        assertThat(doubleNestedMap.keys).containsExactlyElementsIn(
-            listOf(
-                mPinkFloydAlbumCover.mImageYear,
-                mRhcpAlbumCover.mImageYear,
-                mTheClashAlbumCover.mImageYear
+        assertThat(doubleNestedMap.keys)
+            .containsExactlyElementsIn(
+                listOf(
+                    mPinkFloydAlbumCover.mImageYear,
+                    mRhcpAlbumCover.mImageYear,
+                    mTheClashAlbumCover.mImageYear
+                )
             )
-        )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
-        assertThat(rhcpMap.keys).containsExactlyElementsIn(
-            listOf("Stadium Arcadium", "Californication")
-        )
+        assertThat(rhcpMap.keys)
+            .containsExactlyElementsIn(listOf("Stadium Arcadium", "Californication"))
         assertThat(stadiumArcadiumList).containsExactlyElementsIn(stadiumArcadiumExpectedList)
         assertThat(californicationList).containsExactlyElementsIn(californicationExpectedList)
 
@@ -1501,10 +1353,10 @@ class MultimapQueryTest {
         assertThat(doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd])
             .containsKey(mTheDarkSideOfTheMoon.mAlbumName)
         assertThat(
-            doubleNestedMap[mPinkFloydAlbumCover.mImageYear]
-            !![mPinkFloyd]
-            !![mTheDarkSideOfTheMoon.mAlbumName]
-        ).isEmpty()
+                doubleNestedMap[mPinkFloydAlbumCover.mImageYear]!![mPinkFloyd]!![
+                    mTheDarkSideOfTheMoon.mAlbumName]
+            )
+            .isEmpty()
     }
 
     /**
@@ -1513,14 +1365,12 @@ class MultimapQueryTest {
      * @param artistToSongsMap Map of Artists to list of Songs joined by the artist name
      */
     private fun assertContentsOfResultMapWithList(artistToSongsMap: Map<Artist, List<Song>>) {
-        assertThat(artistToSongsMap.keys).containsExactlyElementsIn(
-            listOf<Any>(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToSongsMap.keys)
+            .containsExactlyElementsIn(listOf<Any>(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse()
         assertThat(artistToSongsMap[mPinkFloyd]).containsExactly(mPinkFloydSong1)
-        assertThat(artistToSongsMap[mRhcp]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
+        assertThat(artistToSongsMap[mRhcp])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
         assertThat(artistToSongsMap[mAcDc]).containsExactly(mAcdcSong1)
     }
 
@@ -1530,14 +1380,12 @@ class MultimapQueryTest {
      * @param artistToSongsMap Map of Artists to set of Songs joined by the artist name
      */
     private fun assertContentsOfResultMapWithSet(artistToSongsMap: Map<Artist, Set<Song>>) {
-        assertThat(artistToSongsMap.keys).containsExactlyElementsIn(
-            listOf<Any>(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToSongsMap.keys)
+            .containsExactlyElementsIn(listOf<Any>(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse()
         assertThat(artistToSongsMap[mPinkFloyd]).containsExactly(mPinkFloydSong1)
-        assertThat(artistToSongsMap[mRhcp]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
+        assertThat(artistToSongsMap[mRhcp])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
         assertThat(artistToSongsMap[mAcDc]).containsExactly(mAcdcSong1)
     }
 
@@ -1547,14 +1395,12 @@ class MultimapQueryTest {
      * @param artistToSongsMap Map of Artists to Collection of Songs joined by the artist name
      */
     private fun assertContentsOfResultMultimap(artistToSongsMap: ImmutableMultimap<Artist, Song>) {
-        assertThat(artistToSongsMap.keySet()).containsExactlyElementsIn(
-            listOf<Any>(mRhcp, mAcDc, mPinkFloyd)
-        )
+        assertThat(artistToSongsMap.keySet())
+            .containsExactlyElementsIn(listOf<Any>(mRhcp, mAcDc, mPinkFloyd))
         assertThat(artistToSongsMap.containsKey(mTheClash)).isFalse()
         assertThat(artistToSongsMap[mPinkFloyd]).containsExactly(mPinkFloydSong1)
-        assertThat(artistToSongsMap[mRhcp]).containsExactlyElementsIn(
-            listOf<Any>(mRhcpSong1, mRhcpSong2)
-        )
+        assertThat(artistToSongsMap[mRhcp])
+            .containsExactlyElementsIn(listOf<Any>(mRhcpSong1, mRhcpSong2))
         assertThat(artistToSongsMap[mAcDc]).containsExactly(mAcdcSong1)
     }
 }

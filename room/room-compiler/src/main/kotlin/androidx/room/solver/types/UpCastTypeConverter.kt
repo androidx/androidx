@@ -20,18 +20,11 @@ import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 
 /**
- * We have a special class for upcasting types in type converters. (e.g. Int to Number)
- * It is used in the pathfinding to be more expensive than exactly matching calls to prioritize
- * exact matches.
+ * We have a special class for upcasting types in type converters. (e.g. Int to Number) It is used
+ * in the pathfinding to be more expensive than exactly matching calls to prioritize exact matches.
  */
-class UpCastTypeConverter(
-    upCastFrom: XType,
-    upCastTo: XType
-) : TypeConverter(
-    from = upCastFrom,
-    to = upCastTo,
-    cost = Cost.UP_CAST
-) {
+class UpCastTypeConverter(upCastFrom: XType, upCastTo: XType) :
+    TypeConverter(from = upCastFrom, to = upCastTo, cost = Cost.UP_CAST) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder.addStatement("%L = %L", outputVarName, inputVarName)
     }

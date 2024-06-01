@@ -66,20 +66,21 @@ data class FieldGetter(
 
     private fun getterExpression(ownerVar: String, codeLanguage: CodeLanguage): XCodeBlock {
         return when (codeLanguage) {
-            CodeLanguage.JAVA -> when (callType) {
-                CallType.FIELD -> "%L.%L"
-                CallType.METHOD, CallType.SYNTHETIC_METHOD -> "%L.%L()"
-                CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
-            }.let { expr ->
-                XCodeBlock.of(codeLanguage, expr, ownerVar, jvmName)
-            }
-            CodeLanguage.KOTLIN -> when (callType) {
-                CallType.FIELD, CallType.SYNTHETIC_METHOD ->
-                    XCodeBlock.of(codeLanguage, "%L.%L", ownerVar, fieldName)
-                CallType.METHOD ->
-                    XCodeBlock.of(codeLanguage, "%L.%L()", ownerVar, jvmName)
-                CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
-            }
+            CodeLanguage.JAVA ->
+                when (callType) {
+                    CallType.FIELD -> "%L.%L"
+                    CallType.METHOD,
+                    CallType.SYNTHETIC_METHOD -> "%L.%L()"
+                    CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
+                }.let { expr -> XCodeBlock.of(codeLanguage, expr, ownerVar, jvmName) }
+            CodeLanguage.KOTLIN ->
+                when (callType) {
+                    CallType.FIELD,
+                    CallType.SYNTHETIC_METHOD ->
+                        XCodeBlock.of(codeLanguage, "%L.%L", ownerVar, fieldName)
+                    CallType.METHOD -> XCodeBlock.of(codeLanguage, "%L.%L()", ownerVar, jvmName)
+                    CallType.CONSTRUCTOR -> error("Getters should never be of type 'constructor'!")
+                }
         }
     }
 }

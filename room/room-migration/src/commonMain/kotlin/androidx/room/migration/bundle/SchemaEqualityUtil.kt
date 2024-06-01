@@ -16,9 +16,7 @@
 
 package androidx.room.migration.bundle
 
-/**
- * Utility class to run schema equality on collections.
- */
+/** Utility class to run schema equality on collections. */
 internal object SchemaEqualityUtil {
     fun <T, K : SchemaEquality<K>> checkSchemaEquality(
         map1: Map<T, K>?,
@@ -28,32 +26,20 @@ internal object SchemaEqualityUtil {
             map1 == null -> map2 == null
             map2 == null -> false
             map1.size != map2.size -> false
-            else -> map1.entries.all {
-                checkSchemaEquality(it.value, map2.get(it.key))
-            }
+            else -> map1.entries.all { checkSchemaEquality(it.value, map2.get(it.key)) }
         }
     }
 
-    fun <K : SchemaEquality<K>> checkSchemaEquality(
-        list1: List<K>?,
-        list2: List<K>?
-    ): Boolean {
+    fun <K : SchemaEquality<K>> checkSchemaEquality(list1: List<K>?, list2: List<K>?): Boolean {
         return when {
             list1 == null -> list2 == null
             list2 == null -> false
             list1.size != list2.size -> false
-            else -> list1.all { item1 ->
-                list2.any { item2 ->
-                    checkSchemaEquality(item1, item2)
-                }
-            }
+            else -> list1.all { item1 -> list2.any { item2 -> checkSchemaEquality(item1, item2) } }
         }
     }
 
-    fun <K : SchemaEquality<K>> checkSchemaEquality(
-        item1: K?,
-        item2: K?
-    ): Boolean {
+    fun <K : SchemaEquality<K>> checkSchemaEquality(item1: K?, item2: K?): Boolean {
         return when {
             item1 == null -> item2 == null
             item2 == null -> false

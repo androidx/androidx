@@ -43,7 +43,8 @@ import javax.lang.model.util.AbstractTypeVisitor8
 /**
  * Returns the method descriptor of this [ExecutableElement].
  *
- * For reference, see the [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2)
+ * For reference, see the
+ * [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.2)
  */
 internal fun VariableElement.descriptor(env: ProcessingEnvironment) =
     "$simpleName:${asType().descriptor(env)}"
@@ -51,7 +52,8 @@ internal fun VariableElement.descriptor(env: ProcessingEnvironment) =
 /**
  * Returns the method descriptor of this [ExecutableElement].
  *
- * For reference, see the [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.3)
+ * For reference, see the
+ * [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.3)
  */
 internal fun ExecutableElement.descriptor(env: ProcessingEnvironment) =
     "$simpleName${asType().descriptor(env)}"
@@ -73,21 +75,21 @@ internal fun String.typeNameFromJvmSignature(): TypeName {
         'Z' -> TypeName.BOOLEAN
         'L' -> {
             val end = lastIndexOf(";")
-            check(end > 0) {
-                "invalid input $this"
-            }
+            check(end > 0) { "invalid input $this" }
             val simpleNamesSeparator = lastIndexOf('/')
-            val simpleNamesStart = if (simpleNamesSeparator < 0) {
-                1 // first char is 'L'
-            } else {
-                simpleNamesSeparator + 1
-            }
-            val packageName = if (simpleNamesSeparator < 0) {
-                // no package name
-                ""
-            } else {
-                substring(1, simpleNamesSeparator).replace('/', '.')
-            }
+            val simpleNamesStart =
+                if (simpleNamesSeparator < 0) {
+                    1 // first char is 'L'
+                } else {
+                    simpleNamesSeparator + 1
+                }
+            val packageName =
+                if (simpleNamesSeparator < 0) {
+                    // no package name
+                    ""
+                } else {
+                    substring(1, simpleNamesSeparator).replace('/', '.')
+                }
             val firstSimpleNameSeparator = indexOf('$', startIndex = simpleNamesStart)
             return if (firstSimpleNameSeparator < 0) {
                 // not nested
@@ -95,9 +97,8 @@ internal fun String.typeNameFromJvmSignature(): TypeName {
             } else {
                 // nested class
                 val firstSimpleName = substring(simpleNamesStart, firstSimpleNameSeparator)
-                val restOfSimpleNames = substring(firstSimpleNameSeparator + 1, end)
-                    .split('$')
-                    .toTypedArray()
+                val restOfSimpleNames =
+                    substring(firstSimpleNameSeparator + 1, end).split('$').toTypedArray()
                 ClassName.get(packageName, firstSimpleName, *restOfSimpleNames)
             }
         }
@@ -111,7 +112,8 @@ internal fun String.typeNameFromJvmSignature(): TypeName {
  * + a "field descriptor", for example: `Ljava/lang/Object;`
  * + a "method descriptor", for example: `(Ljava/lang/Object;)Z`
  *
- * For reference, see the [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
+ * For reference, see the
+ * [JVM specification, section 4.3](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3).
  */
 private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, ProcessingEnvironment>() {
 
@@ -168,12 +170,14 @@ private object JvmDescriptorTypeVisitor : AbstractTypeVisitor8<String, Processin
     /**
      * Returns the name of this [TypeElement] in its "internal form".
      *
-     * For reference, see the [JVM specification, section 4.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2).
+     * For reference, see the
+     * [JVM specification, section 4.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2).
      */
-    private fun Element.internalName(env: ProcessingEnvironment): String = when (this) {
-        is TypeElement -> env.elementUtils.getBinaryName(this).toString().replace('.', '/')
-        is ExecutableElement -> enclosingElement.internalName(env)
-        is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
-        else -> simpleName.toString()
-    }
+    private fun Element.internalName(env: ProcessingEnvironment): String =
+        when (this) {
+            is TypeElement -> env.elementUtils.getBinaryName(this).toString().replace('.', '/')
+            is ExecutableElement -> enclosingElement.internalName(env)
+            is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
+            else -> simpleName.toString()
+        }
 }

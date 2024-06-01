@@ -22,43 +22,30 @@ import androidx.room.migration.bundle.SchemaEqualityUtil.filterValuesInstance
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information for a [androidx.room.Database].
- */
+/** Data class that holds the schema information for a [androidx.room.Database]. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DatabaseBundle(
-    @SerialName("version")
-    val version: Int,
-    @SerialName("identityHash")
-    val identityHash: String,
-    @SerialName("entities")
-    val entities: List<BaseEntityBundle>,
-    @SerialName("views")
-    val views: List<DatabaseViewBundle> = emptyList(),
-    @SerialName("setupQueries")
-    private val setupQueries: List<String>,
+    @SerialName("version") val version: Int,
+    @SerialName("identityHash") val identityHash: String,
+    @SerialName("entities") val entities: List<BaseEntityBundle>,
+    @SerialName("views") val views: List<DatabaseViewBundle> = emptyList(),
+    @SerialName("setupQueries") private val setupQueries: List<String>,
 ) : SchemaEquality<DatabaseBundle> {
 
     val entitiesByTableName: Map<String, BaseEntityBundle> by lazy {
         entities.associateBy { it.tableName }
     }
 
-    val viewsByName: Map<String, DatabaseViewBundle> by lazy {
-        views.associateBy { it.viewName }
-    }
+    val viewsByName: Map<String, DatabaseViewBundle> by lazy { views.associateBy { it.viewName } }
 
-    /**
-     * Builds the list of SQL queries to build this database from scratch.
-     */
+    /** Builds the list of SQL queries to build this database from scratch. */
     fun buildCreateQueries(): List<String> {
         return buildList {
             entities.sortedWith(FtsEntityCreateComparator()).forEach { entityBundle ->
                 addAll(entityBundle.buildCreateQueries())
             }
-            views.forEach { viewBundle ->
-                add(viewBundle.createView())
-            }
+            views.forEach { viewBundle -> add(viewBundle.createView()) }
             addAll(setupQueries)
         }
     }
@@ -67,10 +54,12 @@ class DatabaseBundle(
         return checkSchemaEquality(
             entitiesByTableName.filterValuesInstance<String, EntityBundle>(),
             other.entitiesByTableName.filterValuesInstance<String, EntityBundle>()
-        ) && checkSchemaEquality(
-            entitiesByTableName.filterValuesInstance<String, FtsEntityBundle>(),
-            other.entitiesByTableName.filterValuesInstance<String, FtsEntityBundle>()
-        ) && checkSchemaEquality(viewsByName, other.viewsByName)
+        ) &&
+            checkSchemaEquality(
+                entitiesByTableName.filterValuesInstance<String, FtsEntityBundle>(),
+                other.entitiesByTableName.filterValuesInstance<String, FtsEntityBundle>()
+            ) &&
+            checkSchemaEquality(viewsByName, other.viewsByName)
     }
 
     // Comparator to sort FTS entities after their declared external content entity so that the

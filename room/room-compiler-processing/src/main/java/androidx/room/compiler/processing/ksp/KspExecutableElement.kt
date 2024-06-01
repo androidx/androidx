@@ -29,7 +29,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
     override val declaration: KSFunctionDeclaration
-) : KspElement(env, declaration),
+) :
+    KspElement(env, declaration),
     XExecutableElement,
     XHasModifiers by KspHasModifiers.create(declaration) {
 
@@ -49,13 +50,16 @@ internal abstract class KspExecutableElement(
 
     @OptIn(KspExperimental::class)
     override val thrownTypes: List<XType> by lazy {
-        env.resolver.getJvmCheckedException(declaration).map {
-            env.wrap(
-                // Thrown exception types are never nullable
-                ksType = it.makeNotNullable(),
-                allowPrimitives = false
-            )
-        }.toList()
+        env.resolver
+            .getJvmCheckedException(declaration)
+            .map {
+                env.wrap(
+                    // Thrown exception types are never nullable
+                    ksType = it.makeNotNullable(),
+                    allowPrimitives = false
+                )
+            }
+            .toList()
     }
 
     override fun isVarArgs(): Boolean {

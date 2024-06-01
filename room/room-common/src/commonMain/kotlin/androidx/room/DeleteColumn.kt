@@ -17,8 +17,8 @@
 package androidx.room
 
 /**
- * Repeatable annotation declaring the deleted columns in the [AutoMigration.to] version of
- * an auto migration.
+ * Repeatable annotation declaring the deleted columns in the [AutoMigration.to] version of an auto
+ * migration.
  *
  * @see AutoMigration
  */
@@ -29,8 +29,8 @@ package androidx.room
 @OptionalExpectation
 public expect annotation class DeleteColumn(
     /**
-     * Name of the table in the [AutoMigration.from] version of the database the column was
-     * deleted from.
+     * Name of the table in the [AutoMigration.from] version of the database the column was deleted
+     * from.
      *
      * @return Name of the table
      */

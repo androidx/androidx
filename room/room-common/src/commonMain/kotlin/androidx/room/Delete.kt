@@ -23,8 +23,8 @@ import kotlin.reflect.KClass
  *
  * The implementation of the method will delete its parameters from the database.
  *
- * All of the parameters of the Delete method must either be classes annotated with [Entity]
- * or collections/array of it.
+ * All of the parameters of the Delete method must either be classes annotated with [Entity] or
+ * collections/array of it.
  *
  * Example:
  * ```
@@ -38,9 +38,8 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
- * If the target entity is specified via [entity] then the parameters can be of arbitrary
- * POJO types that will be interpreted as partial entities. For example:
- *
+ * If the target entity is specified via [entity] then the parameters can be of arbitrary POJO types
+ * that will be interpreted as partial entities. For example:
  * ```
  * @Entity
  * data class Playlist (
@@ -67,7 +66,6 @@ import kotlin.reflect.KClass
  * @see Insert
  * @see Update
  */
-
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Delete(
@@ -82,8 +80,8 @@ public annotation class Delete(
      *
      * By default the target entity is interpreted by the method parameters.
      *
-     * @return the target entity of the delete method or none if the method should use the
-     *         parameter type entities.
+     * @return the target entity of the delete method or none if the method should use the parameter
+     *   type entities.
      */
     val entity: KClass<*> = Any::class
 )

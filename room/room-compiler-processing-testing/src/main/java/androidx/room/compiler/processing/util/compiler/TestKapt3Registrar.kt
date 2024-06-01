@@ -53,7 +53,7 @@ import org.jetbrains.kotlin.types.KotlinType
  *
  * mostly taken from
  * https://github.com/JetBrains/kotlin/blob/master/plugins/kapt3/kapt3-compiler/src/
- *  org/jetbrains/kotlin/kapt3/Kapt3Plugin.kt
+ * org/jetbrains/kotlin/kapt3/Kapt3Plugin.kt
  */
 @Suppress("DEPRECATION") // TODO: Migrate ComponentRegistrar to CompilerPluginRegistrar
 @OptIn(ExperimentalCompilerApi::class)
@@ -69,21 +69,25 @@ internal class TestKapt3Registrar(
         doOpenInternalPackagesIfRequired()
         val contentRoots = configuration[CLIConfigurationKeys.CONTENT_ROOTS] ?: emptyList()
 
-        val optionsBuilder = baseOptions.apply {
-            projectBaseDir = project.basePath?.let(::File)
-            compileClasspath.addAll(
-                contentRoots.filterIsInstance<JvmClasspathRoot>().map { it.file }
-            )
-            javaSourceRoots.addAll(contentRoots.filterIsInstance<JavaSourceRoot>().map { it.file })
-            classesOutputDir =
-                classesOutputDir ?: configuration.get(JVMConfigurationKeys.OUTPUT_DIRECTORY)
-        }
+        val optionsBuilder =
+            baseOptions.apply {
+                projectBaseDir = project.basePath?.let(::File)
+                compileClasspath.addAll(
+                    contentRoots.filterIsInstance<JvmClasspathRoot>().map { it.file }
+                )
+                javaSourceRoots.addAll(
+                    contentRoots.filterIsInstance<JavaSourceRoot>().map { it.file }
+                )
+                classesOutputDir =
+                    classesOutputDir ?: configuration.get(JVMConfigurationKeys.OUTPUT_DIRECTORY)
+            }
 
-        val logger = MessageCollectorBackedKaptLogger(
-            isVerbose = optionsBuilder.flags.contains(KaptFlag.VERBOSE),
-            isInfoAsWarnings = optionsBuilder.flags.contains(KaptFlag.INFO_AS_WARNINGS),
-            messageCollector = messageCollector
-        )
+        val logger =
+            MessageCollectorBackedKaptLogger(
+                isVerbose = optionsBuilder.flags.contains(KaptFlag.VERBOSE),
+                isInfoAsWarnings = optionsBuilder.flags.contains(KaptFlag.INFO_AS_WARNINGS),
+                messageCollector = messageCollector
+            )
 
         val options = optionsBuilder.build()
 
@@ -93,24 +97,27 @@ internal class TestKapt3Registrar(
             logger.info(options.logString())
         }
 
-        val kapt3AnalysisCompletedHandlerExtension = object : AbstractKapt3Extension(
-            options = options,
-            logger = logger,
-            compilerConfiguration = configuration
-        ) {
-            override fun loadProcessors(): LoadedProcessors {
-                return LoadedProcessors(
-                    processors = processors.map {
-                        IncrementalProcessor(
-                            processor = it,
-                            kind = DeclaredProcType.NON_INCREMENTAL,
-                            logger = logger
-                        )
-                    },
-                    classLoader = TestKapt3Registrar::class.java.classLoader
-                )
+        val kapt3AnalysisCompletedHandlerExtension =
+            object :
+                AbstractKapt3Extension(
+                    options = options,
+                    logger = logger,
+                    compilerConfiguration = configuration
+                ) {
+                override fun loadProcessors(): LoadedProcessors {
+                    return LoadedProcessors(
+                        processors =
+                            processors.map {
+                                IncrementalProcessor(
+                                    processor = it,
+                                    kind = DeclaredProcType.NON_INCREMENTAL,
+                                    logger = logger
+                                )
+                            },
+                        classLoader = TestKapt3Registrar::class.java.classLoader
+                    )
+                }
             }
-        }
 
         AnalysisHandlerExtension.registerExtension(project, kapt3AnalysisCompletedHandlerExtension)
         StorageComponentContainerContributor.registerExtension(
@@ -127,15 +134,17 @@ internal class TestKapt3Registrar(
             moduleDescriptor: ModuleDescriptor
         ) {
             if (!platform.isJvm()) return
-            container.useInstance(object : ReplaceWithSupertypeAnonymousTypeTransformer() {
-                override fun transformAnonymousType(
-                    descriptor: DeclarationDescriptorWithVisibility,
-                    type: KotlinType
-                ): KotlinType? {
-                    if (!analysisExtension.analyzePartially) return null
-                    return super.transformAnonymousType(descriptor, type)
+            container.useInstance(
+                object : ReplaceWithSupertypeAnonymousTypeTransformer() {
+                    override fun transformAnonymousType(
+                        descriptor: DeclarationDescriptorWithVisibility,
+                        type: KotlinType
+                    ): KotlinType? {
+                        if (!analysisExtension.analyzePartially) return null
+                        return super.transformAnonymousType(descriptor, type)
+                    }
                 }
-            })
+            )
         }
     }
 }

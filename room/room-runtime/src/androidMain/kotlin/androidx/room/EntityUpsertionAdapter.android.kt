@@ -20,32 +20,27 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.annotation.RestrictTo
 
 /**
- * The error code defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error
- * Only used by android of version newer than 19.
+ * The error code defined by SQLite Library for SQLITE_CONSTRAINT_PRIMARYKEY error Only used by
+ * android of version newer than 19.
  */
 private const val SQLITE_CONSTRAINT_PRIMARYKEY = "1555"
 
-/**
- * The error code defined by SQLite Library for SQLITE_CONSTRAINT_UNIQUE error.
- */
+/** The error code defined by SQLite Library for SQLITE_CONSTRAINT_UNIQUE error. */
 private const val SQLITE_CONSTRAINT_UNIQUE = "2067"
 
 /**
- * For android of version below and including 19, use error message instead of
- * error code to check
+ * For android of version below and including 19, use error message instead of error code to check
  */
 private const val ErrorMsg = "unique"
 
 /**
- * This class knows how to insert an entity. When the insertion fails
- * due to a unique constraint conflict (i.e. primary key conflict),
- * it will perform an update.
- *
- * @constructor Creates an EntityUpsertionAdapter that can upsert entity of type T
- * into the database using the given insertionAdapter to perform insertion and
- * updateAdapter to perform update when the insertion fails
+ * This class knows how to insert an entity. When the insertion fails due to a unique constraint
+ * conflict (i.e. primary key conflict), it will perform an update.
  *
  * @param T the type param of the entity to be upserted
+ * @constructor Creates an EntityUpsertionAdapter that can upsert entity of type T into the database
+ *   using the given insertionAdapter to perform insertion and updateAdapter to perform update when
+ *   the insertion fails
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class EntityUpsertionAdapter<T>(
@@ -53,8 +48,8 @@ class EntityUpsertionAdapter<T>(
     private val updateAdapter: EntityDeletionOrUpdateAdapter<T>
 ) {
     /**
-     * Inserts the entity into the database. If a constraint exception is thrown
-     * i.e. a primary key conflict, update the existing entity.
+     * Inserts the entity into the database. If a constraint exception is thrown i.e. a primary key
+     * conflict, update the existing entity.
      *
      * @param entity The entity to insert
      */
@@ -68,9 +63,8 @@ class EntityUpsertionAdapter<T>(
     }
 
     /**
-     * Upserts (insert or update) the given entities into the database.
-     * For each entity, insert if it is not already in the database
-     * update if there is a constraint conflict.
+     * Upserts (insert or update) the given entities into the database. For each entity, insert if
+     * it is not already in the database update if there is a constraint conflict.
      *
      * @param entities array of entities to upsert
      */
@@ -97,12 +91,11 @@ class EntityUpsertionAdapter<T>(
     }
 
     /**
-     * Upserts the given entity into the database and returns the row id.
-     * If the insertion failed, update the existing entity and return -1.
+     * Upserts the given entity into the database and returns the row id. If the insertion failed,
+     * update the existing entity and return -1.
      *
      * @param entity The entity to upsert
-     * @return The SQLite row id or -1 if the insertion failed and update
-     * is performed
+     * @return The SQLite row id or -1 if the insertion failed and update is performed
      */
     fun upsertAndReturnId(entity: T): Long {
         return try {
@@ -201,11 +194,10 @@ class EntityUpsertionAdapter<T>(
     }
 
     /**
-     * Verify if the exception is caused by Uniqueness constraint (Primary Key Conflict).
-     * If yes, upsert should update the existing one. If not, upsert should re-throw the
-     * exception.
-     * For android of version newer than KITKAT(19), SQLite supports ErrorCode. Otherwise,
-     * check with Error Message.
+     * Verify if the exception is caused by Uniqueness constraint (Primary Key Conflict). If yes,
+     * upsert should update the existing one. If not, upsert should re-throw the exception. For
+     * android of version newer than KITKAT(19), SQLite supports ErrorCode. Otherwise, check with
+     * Error Message.
      *
      * @param ex the exception thrown by the insert attempt
      */

@@ -33,8 +33,10 @@ class UpsertMethodProcessorTest :
     InsertOrUpsertShortcutMethodProcessorTest<UpsertMethod>(Upsert::class) {
     override fun noParamsError(): String = UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT
 
-    override fun missingPrimaryKey(partialEntityName: String, primaryKeyName: List<String>):
-        String {
+    override fun missingPrimaryKey(
+        partialEntityName: String,
+        primaryKeyName: List<String>
+    ): String {
         return ProcessorErrors.missingPrimaryKeysInPartialEntityForUpsert(
             partialEntityName,
             primaryKeyName
@@ -43,11 +45,11 @@ class UpsertMethodProcessorTest :
 
     override fun noAdapter(): String = CANNOT_FIND_UPSERT_RESULT_ADAPTER
 
-    override fun multiParamAndSingleReturnMismatchError():
-        String = UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
+    override fun multiParamAndSingleReturnMismatchError(): String =
+        UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
 
-    override fun singleParamAndMultiReturnMismatchError():
-        String = UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
+    override fun singleParamAndMultiReturnMismatchError(): String =
+        UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
 
     override fun process(
         baseContext: Context,

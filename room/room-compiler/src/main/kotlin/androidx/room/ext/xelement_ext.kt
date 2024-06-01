@@ -22,9 +22,7 @@ import androidx.room.compiler.processing.XTypeElement
 import kotlin.contracts.contract
 
 fun XElement.isEntityElement(): Boolean {
-    contract {
-        returns(true) implies (this@isEntityElement is XTypeElement)
-    }
+    contract { returns(true) implies (this@isEntityElement is XTypeElement) }
     return this.hasAnnotation(androidx.room.Entity::class)
 }
 
@@ -37,11 +35,11 @@ fun XTypeElement.getValueClassUnderlyingElement(): XExecutableParameterElement {
     // * Value class must have exactly one primary constructor parameter
     // * Value class primary constructor must only have final read-only (val) property parameter
     return checkNotNull(this.findPrimaryConstructor()) {
-        "Couldn't find primary constructor for value class."
-    }.parameters.single()
+            "Couldn't find primary constructor for value class."
+        }
+        .parameters
+        .single()
 }
 
-/**
- * Suffix of the Kotlin synthetic class created interface method implementations.
- */
+/** Suffix of the Kotlin synthetic class created interface method implementations. */
 const val DEFAULT_IMPLS_CLASS_NAME = "DefaultImpls"

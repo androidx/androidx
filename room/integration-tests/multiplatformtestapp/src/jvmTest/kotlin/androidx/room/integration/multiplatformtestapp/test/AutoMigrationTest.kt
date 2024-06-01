@@ -30,13 +30,14 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
     @get:Rule
-    val migrationTestHelper = MigrationTestHelper(
-        schemaDirectoryPath = Path("schemas-ksp"),
-        databasePath = tempFilePath,
-        driver = driver,
-        databaseClass = AutoMigrationDatabase::class,
-        autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
-    )
+    val migrationTestHelper =
+        MigrationTestHelper(
+            schemaDirectoryPath = Path("schemas-ksp"),
+            databasePath = tempFilePath,
+            driver = driver,
+            databaseClass = AutoMigrationDatabase::class,
+            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+        )
 
     override fun getTestHelper() = migrationTestHelper
 

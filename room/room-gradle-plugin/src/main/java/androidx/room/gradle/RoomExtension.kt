@@ -27,8 +27,7 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
     internal val schemaDirectories = mutableMapOf<MatchName, Provider<String>>()
     // Used variant / target match pattern to its copy task. Multiple variant compile tasks can be
     // finalized by the same copy task.
-    internal val copyTasks =
-        mutableMapOf<MatchName, TaskProvider<RoomSchemaCopyTask>>()
+    internal val copyTasks = mutableMapOf<MatchName, TaskProvider<RoomSchemaCopyTask>>()
 
     /**
      * Sets the schema location where Room will output exported schema files.
@@ -37,7 +36,8 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
      * per-variant / per-target schema locations are needed use the overloaded version of this
      * function that takes in a `matchName`.
      *
-     * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
+     * See
+     * [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
      */
     open fun schemaDirectory(path: String) {
         schemaDirectory(providers.provider { path })
@@ -50,7 +50,8 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
      * per-variant / per-target schema locations are needed use the overloaded version of this
      * function that takes in a `matchName`.
      *
-     * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
+     * See
+     * [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
      */
     open fun schemaDirectory(path: Provider<String>) {
         schemaDirectories[ALL_MATCH] = path
@@ -85,15 +86,17 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
      *   schemaLocation("native", "$projectDir/schemas/native")
      * }
      * ```
+     *
      * If the project is not a Kotlin Multiplatform project, then the 'android' prefix can be
-     * omitted for variant matching, i.e. 'demoDebug', 'demo' and 'debug' are valid match names
-     * for the example configuration.
+     * omitted for variant matching, i.e. 'demoDebug', 'demo' and 'debug' are valid match names for
+     * the example configuration.
      *
      * If per-variant / per-target schema locations are not necessary due to all variants / targets
      * containing the same schema, then use the overloaded version of this function that does not
      * take in a `matchName`.
      *
-     * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
+     * See
+     * [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
      */
     open fun schemaDirectory(matchName: String, path: String) {
         schemaDirectory(matchName, providers.provider { path })
@@ -128,32 +131,31 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
      *   schemaLocation("native", "$projectDir/schemas/native")
      * }
      * ```
+     *
      * If the project is not a Kotlin Multiplatform project, then the 'android' prefix can be
-     * omitted for variant matching, i.e. 'demoDebug', 'demo' and 'debug' are valid match names
-     * for the example configuration.
+     * omitted for variant matching, i.e. 'demoDebug', 'demo' and 'debug' are valid match names for
+     * the example configuration.
      *
      * If per-variant / per-target schema locations are not necessary due to all variants / targets
      * containing the same schema, then use the overloaded version of this function that does not
      * take in a `matchName`.
      *
-     * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
+     * See
+     * [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
      */
     open fun schemaDirectory(matchName: String, path: Provider<String>) {
         check(matchName.isNotEmpty()) { "variantMatchName must not be empty." }
         schemaDirectories[MatchName(matchName)] = path
     }
 
-    /**
-     * Causes Room annotation processor to generate Kotlin code instead of Java.
-     */
+    /** Causes Room annotation processor to generate Kotlin code instead of Java. */
     open var generateKotlin: Boolean? = null
 
     /**
-     * Represent a full Android variant name (demoDebug), flavor name (demo), build type
-     * name (debug) or a target name (linux64, native, etc).
+     * Represent a full Android variant name (demoDebug), flavor name (demo), build type name
+     * (debug) or a target name (linux64, native, etc).
      */
-    @JvmInline
-    internal value class MatchName(val actual: String)
+    @JvmInline internal value class MatchName(val actual: String)
 
     companion object {
         internal val ALL_MATCH = MatchName("")

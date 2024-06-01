@@ -41,9 +41,10 @@ import org.junit.runners.JUnit4
 class TypeAliasTest {
     @Test
     fun kotlinTypeAlias() {
-        fun produceSource(pkg: String) = Source.kotlin(
-            "$pkg/Foo.kt",
-            """
+        fun produceSource(pkg: String) =
+            Source.kotlin(
+                "$pkg/Foo.kt",
+                """
             package $pkg
             typealias MyLong = Long
             class Subject {
@@ -52,13 +53,11 @@ class TypeAliasTest {
                 val inGeneric : List<MyLong> = TODO()
                 suspend fun suspendFun() : MyLong = TODO()
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         val lib = compileFiles(listOf(produceSource("lib")))
-        runProcessorTest(
-            sources = listOf(produceSource("app")),
-            classpath = lib
-        ) { invocation ->
+        runProcessorTest(sources = listOf(produceSource("app")), classpath = lib) { invocation ->
             listOf("lib", "app").forEach { pkg ->
                 val elm = invocation.processingEnv.requireTypeElement("$pkg.Subject")
                 elm.getField("prop").type.let {
@@ -72,29 +71,29 @@ class TypeAliasTest {
                 }
                 elm.getField("inGeneric").type.let {
                     assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
-                    assertThat(it.asTypeName().java).isEqualTo(
-                        JParameterizedTypeName.get(
-                            List::class.asJClassName(),
-                            JTypeName.LONG.box()
+                    assertThat(it.asTypeName().java)
+                        .isEqualTo(
+                            JParameterizedTypeName.get(
+                                List::class.asJClassName(),
+                                JTypeName.LONG.box()
+                            )
                         )
-                    )
                     if (invocation.isKsp) {
-                        assertThat(it.asTypeName().kotlin).isEqualTo(
-                            List::class.asKClassName().parameterizedBy(LONG)
-                        )
+                        assertThat(it.asTypeName().kotlin)
+                            .isEqualTo(List::class.asKClassName().parameterizedBy(LONG))
                     }
                 }
                 elm.getMethodByJvmName("suspendFun").parameters.last().type.let {
-                    assertThat(it.asTypeName().java).isEqualTo(
-                        JParameterizedTypeName.get(
-                            CONTINUATION_JCLASS_NAME,
-                            JWildcardTypeName.supertypeOf(JTypeName.LONG.box())
+                    assertThat(it.asTypeName().java)
+                        .isEqualTo(
+                            JParameterizedTypeName.get(
+                                CONTINUATION_JCLASS_NAME,
+                                JWildcardTypeName.supertypeOf(JTypeName.LONG.box())
+                            )
                         )
-                    )
                     if (invocation.isKsp) {
-                        assertThat(it.asTypeName().kotlin).isEqualTo(
-                            Continuation::class.asKClassName().parameterizedBy(LONG)
-                        )
+                        assertThat(it.asTypeName().kotlin)
+                            .isEqualTo(Continuation::class.asKClassName().parameterizedBy(LONG))
                     }
                 }
             }

@@ -25,9 +25,7 @@ import kotlin.reflect.KClass
  *
  * TypeConverters can only be used to convert columns / fields, hence cannot be used by a method
  * with a row return value such as DAO methods that query rows.
- *
- * * If you put it on a [Database], all Daos and Entities in that database will be able to
- * use it.
+ * * If you put it on a [Database], all Daos and Entities in that database will be able to use it.
  * * If you put it on a [Dao], all methods in the Dao will be able to use it.
  * * If you put it on an [Entity], all fields of the Entity will be able to use it.
  * * If you put it on a POJO, all fields of the POJO will be able to use it.
@@ -46,16 +44,16 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.BINARY)
 public annotation class TypeConverters(
     /**
-     * The list of type converter classes. If converter methods are not static, Room will create
-     * an instance of these classes.
+     * The list of type converter classes. If converter methods are not static, Room will create an
+     * instance of these classes.
      *
      * @return The list of classes that contains the converter methods.
      */
     vararg val value: KClass<*> = [],
 
     /**
-     * Configure whether Room can use various built in converters for common types.
-     * See [BuiltInTypeConverters] for details.
+     * Configure whether Room can use various built in converters for common types. See
+     * [BuiltInTypeConverters] for details.
      */
     val builtInTypeConverters: BuiltInTypeConverters = BuiltInTypeConverters()
 )

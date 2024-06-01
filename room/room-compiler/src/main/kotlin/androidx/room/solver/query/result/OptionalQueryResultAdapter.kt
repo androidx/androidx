@@ -31,25 +31,20 @@ class OptionalQueryResultAdapter(
     private val typeArg: XType,
     private val resultAdapter: SingleItemQueryResultAdapter
 ) : QueryResultAdapter(resultAdapter.rowAdapters) {
-    override fun convert(
-        outVarName: String,
-        cursorVarName: String,
-        scope: CodeGenScope
-    ) {
+    override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
             val valueVarName = scope.getTmpVar("_value")
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addLocalVariable(
                 name = outVarName,
-                typeName = CommonTypeNames.OPTIONAL.parametrizedBy(
-                    typeArg.asTypeName()
-                ),
-                assignExpr = XCodeBlock.of(
-                    language = language,
-                    format = "%T.ofNullable(%L)",
-                    CommonTypeNames.OPTIONAL,
-                    valueVarName
-                )
+                typeName = CommonTypeNames.OPTIONAL.parametrizedBy(typeArg.asTypeName()),
+                assignExpr =
+                    XCodeBlock.of(
+                        language = language,
+                        format = "%T.ofNullable(%L)",
+                        CommonTypeNames.OPTIONAL,
+                        valueVarName
+                    )
             )
         }
     }

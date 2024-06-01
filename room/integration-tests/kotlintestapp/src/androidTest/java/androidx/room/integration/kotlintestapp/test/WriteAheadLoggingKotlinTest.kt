@@ -48,15 +48,16 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class WriteAheadLoggingKotlinTest {
-    @get:Rule
-    val countingTaskExecutorRule = CountingTaskExecutorRule()
+    @get:Rule val countingTaskExecutorRule = CountingTaskExecutorRule()
 
     private suspend fun withDb(fn: suspend (TestDatabase) -> Unit) {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dbName = "observe.db"
         context.deleteDatabase(dbName)
-        val db = Room.databaseBuilder(context, TestDatabase::class.java, dbName)
-            .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING).build()
+        val db =
+            Room.databaseBuilder(context, TestDatabase::class.java, dbName)
+                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+                .build()
         try {
             fn(db)
         } finally {
@@ -86,11 +87,10 @@ class WriteAheadLoggingKotlinTest {
 
         dao.insertBookSuspend(BOOK_1)
 
-        val firstBookSeen = withContext(Dispatchers.Default) {
-            withTimeout(3000) {
-                booksSeen.filterNotNull().first()
+        val firstBookSeen =
+            withContext(Dispatchers.Default) {
+                withTimeout(3000) { booksSeen.filterNotNull().first() }
             }
-        }
 
         assertEquals(BOOK_1.bookId, firstBookSeen.bookId)
         InstrumentationRegistry.getInstrumentation().runOnMainSync {

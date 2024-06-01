@@ -25,10 +25,10 @@ interface XTypeParameterElement : XElement {
     override val enclosingElement: XElement
 
     /**
-     *  Returns the bounds of this type parameter.
+     * Returns the bounds of this type parameter.
      *
-     *  Note: If there are no explicit bounds, then this list contains a single type representing
-     *  `java.lang.Object` in Javac or `kotlin.Any?` in KSP.
+     * Note: If there are no explicit bounds, then this list contains a single type representing
+     * `java.lang.Object` in Javac or `kotlin.Any?` in KSP.
      */
     val bounds: List<XType>
 

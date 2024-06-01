@@ -32,9 +32,7 @@ class InvalidationLiveDataContainerTest {
 
     @Before
     fun init() {
-        container = InvalidationLiveDataContainer(
-            Mockito.mock(RoomDatabase::class.java)
-        )
+        container = InvalidationLiveDataContainer(Mockito.mock(RoomDatabase::class.java))
     }
 
     @Test
@@ -97,11 +95,7 @@ class InvalidationLiveDataContainerTest {
     }
 
     private fun createLiveData(): LiveData<Any> {
-        return container.create(
-            arrayOf("a", "b"),
-            false,
-            createComputeFunction()
-        )
+        return container.create(arrayOf("a", "b"), false, createComputeFunction())
     }
 
     private fun <T> createComputeFunction(): Callable<T> {

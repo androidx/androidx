@@ -48,20 +48,20 @@ internal class CommonIntegration(
             }
         }
 
-        val schemaInputDir = objectFactory.directoryProperty().apply {
-            set(project.file(schemaDirectoryPath))
-        }
+        val schemaInputDir =
+            objectFactory.directoryProperty().apply { set(project.file(schemaDirectoryPath)) }
         val schemaOutputDir =
             projectLayout.buildDirectory.dir("intermediates/room/schemas/${task.name}")
 
-        val copyTask = roomExtension.copyTasks.getOrPut(matchName) {
-            project.tasks.register(
-                "copyRoomSchemas${matchName.actual.capitalize()}",
-                RoomSchemaCopyTask::class.java
-            ) {
-                it.schemaDirectory.set(schemaInputDir)
+        val copyTask =
+            roomExtension.copyTasks.getOrPut(matchName) {
+                project.tasks.register(
+                    "copyRoomSchemas${matchName.actual.capitalize()}",
+                    RoomSchemaCopyTask::class.java
+                ) {
+                    it.schemaDirectory.set(schemaInputDir)
+                }
             }
-        }
         copyTask.configure { it.variantSchemaOutputDirectories.from(schemaOutputDir) }
         task.finalizedBy(copyTask)
 

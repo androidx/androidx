@@ -22,8 +22,7 @@ import java.util.IdentityHashMap
 import java.util.concurrent.Callable
 
 /**
- * A helper class that maintains [RoomTrackingLiveData] instances for an
- * [InvalidationTracker].
+ * A helper class that maintains [RoomTrackingLiveData] instances for an [InvalidationTracker].
  *
  * We keep a strong reference to active LiveData instances to avoid garbage collection in case
  * developer does not hold onto the returned LiveData.
@@ -36,13 +35,7 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
         inTransaction: Boolean,
         computeFunction: Callable<T?>
     ): LiveData<T> {
-        return RoomTrackingLiveData(
-            database,
-            this,
-            inTransaction,
-            computeFunction,
-            tableNames
-        )
+        return RoomTrackingLiveData(database, this, inTransaction, computeFunction, tableNames)
     }
 
     fun onActive(liveData: LiveData<*>) {

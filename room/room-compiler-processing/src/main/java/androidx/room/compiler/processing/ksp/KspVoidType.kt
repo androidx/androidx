@@ -26,8 +26,8 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
  * Representation of `void` in KSP.
  *
  * By default, kotlin.Unit is a valid type in jvm and does not get auto-converted to void (unlike
- * kotlin.Int etc). For those cases, KspProcessingEnv uses this type to properly represent java
- * void in Kotlin so that Room can generate the correct java code.
+ * kotlin.Int etc). For those cases, KspProcessingEnv uses this type to properly represent java void
+ * in Kotlin so that Room can generate the correct java code.
  */
 internal class KspVoidType(
     env: KspProcessingEnv,

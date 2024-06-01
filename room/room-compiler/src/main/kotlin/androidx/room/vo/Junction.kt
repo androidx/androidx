@@ -16,11 +16,5 @@
 
 package androidx.room.vo
 
-/**
- * Value object defining a junction table for a [Relation].
- */
-data class Junction(
-    val entity: EntityOrView,
-    val parentField: Field,
-    val entityField: Field
-)
+/** Value object defining a junction table for a [Relation]. */
+data class Junction(val entity: EntityOrView, val parentField: Field, val entityField: Field)

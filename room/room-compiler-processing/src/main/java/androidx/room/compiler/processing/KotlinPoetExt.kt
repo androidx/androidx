@@ -29,12 +29,10 @@ internal val KOTLIN_NONE_TYPE_NAME: KClassName =
     KClassName("androidx.room.compiler.processing.error", "NotAType")
 
 /**
- * Adds the given element as an originating element for compilation.
- * see [OriginatingElementsHolder.Builder.addOriginatingElement].
+ * Adds the given element as an originating element for compilation. see
+ * [OriginatingElementsHolder.Builder.addOriginatingElement].
  */
-fun <T : OriginatingElementsHolder.Builder<T>> T.addOriginatingElement(
-    element: XElement
-): T {
+fun <T : OriginatingElementsHolder.Builder<T>> T.addOriginatingElement(element: XElement): T {
     addOriginatingElement(element.originatingElementForPoet())
     return this
 }
@@ -48,15 +46,9 @@ internal fun TypeName.rawTypeName(): TypeName {
 }
 
 object FunSpecHelper {
-    fun overriding(
-        elm: XMethodElement,
-        owner: XType
-    ): FunSpec.Builder {
+    fun overriding(elm: XMethodElement, owner: XType): FunSpec.Builder {
         val asMember = elm.asMemberOf(owner)
-        return overriding(
-            executableElement = elm,
-            resolvedType = asMember
-        )
+        return overriding(executableElement = elm, resolvedType = asMember)
     }
 
     private fun overriding(
@@ -76,12 +68,14 @@ object FunSpecHelper {
                 addModifiers(KModifier.SUSPEND)
             }
             // TODO(b/251316420): Add type variable names
-            val parameterTypes = resolvedType.parameterTypes.let {
-                // Drop the synthetic Continuation param of suspend functions, always at the last
-                // position.
-                // TODO(b/254135327): Revisit with the introduction of a target language.
-                if (resolvedType.isSuspendFunction()) it.dropLast(1) else it
-            }
+            val parameterTypes =
+                resolvedType.parameterTypes.let {
+                    // Drop the synthetic Continuation param of suspend functions, always at the
+                    // last
+                    // position.
+                    // TODO(b/254135327): Revisit with the introduction of a target language.
+                    if (resolvedType.isSuspendFunction()) it.dropLast(1) else it
+                }
             parameterTypes.forEachIndexed { index, paramType ->
                 val param = executableElement.parameters[index]
                 val typeName: XTypeName
@@ -96,34 +90,26 @@ object FunSpecHelper {
                     typeName = paramType.asTypeName()
                     modifiers = emptyArray()
                 }
-                addParameter(
-                    param.name,
-                    typeName.kotlin,
-                    *modifiers
-                )
+                addParameter(param.name, typeName.kotlin, *modifiers)
             }
             returns(
                 if (resolvedType.isSuspendFunction()) {
-                    resolvedType.getSuspendFunctionReturnType()
-                } else {
-                    resolvedType.returnType
-                }.asTypeName().kotlin
+                        resolvedType.getSuspendFunctionReturnType()
+                    } else {
+                        resolvedType.returnType
+                    }
+                    .asTypeName()
+                    .kotlin
             )
         }
     }
 }
 
 object PropertySpecHelper {
-    fun overriding(
-        elm: XMethodElement,
-        owner: XType
-    ): PropertySpec.Builder {
+    fun overriding(elm: XMethodElement, owner: XType): PropertySpec.Builder {
         require(elm.isKotlinPropertyMethod())
         val asMember = elm.asMemberOf(owner)
-        return overriding(
-            executableElement = elm,
-            resolvedType = asMember
-        )
+        return overriding(executableElement = elm, resolvedType = asMember)
     }
 
     private fun overriding(
@@ -131,17 +117,18 @@ object PropertySpecHelper {
         resolvedType: XMethodType
     ): PropertySpec.Builder {
         return PropertySpec.builder(
-            name = checkNotNull(executableElement.propertyName),
-            type = resolvedType.returnType.asTypeName().kotlin
-        ).apply {
-            addModifiers(KModifier.OVERRIDE)
-            if (executableElement.isInternal()) {
-                addModifiers(KModifier.INTERNAL)
-            } else if (executableElement.isProtected()) {
-                addModifiers(KModifier.PROTECTED)
-            } else if (executableElement.isPublic()) {
-                addModifiers(KModifier.PUBLIC)
+                name = checkNotNull(executableElement.propertyName),
+                type = resolvedType.returnType.asTypeName().kotlin
+            )
+            .apply {
+                addModifiers(KModifier.OVERRIDE)
+                if (executableElement.isInternal()) {
+                    addModifiers(KModifier.INTERNAL)
+                } else if (executableElement.isProtected()) {
+                    addModifiers(KModifier.PROTECTED)
+                } else if (executableElement.isPublic()) {
+                    addModifiers(KModifier.PUBLIC)
+                }
             }
-        }
     }
 }

@@ -30,20 +30,18 @@ import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Fields
 import androidx.room.vo.ShortcutEntity
 
-class EntityDeleteAdapterWriter private constructor(
-    val tableName: String,
-    val pojoTypeName: XTypeName,
-    val fields: Fields
-) {
+class EntityDeleteAdapterWriter
+private constructor(val tableName: String, val pojoTypeName: XTypeName, val fields: Fields) {
     companion object {
         fun create(entity: ShortcutEntity): EntityDeleteAdapterWriter {
-            val fieldsToUse = if (entity.isPartialEntity) {
-                // When using partial entity, delete by values in pojo
-                entity.pojo.fields
-            } else {
-                // When using entity, delete by primary key
-                entity.primaryKey.fields
-            }
+            val fieldsToUse =
+                if (entity.isPartialEntity) {
+                    // When using partial entity, delete by values in pojo
+                    entity.pojo.fields
+                } else {
+                    // When using entity, delete by primary key
+                    entity.primaryKey.fields
+                }
             return EntityDeleteAdapterWriter(
                 tableName = entity.tableName,
                 pojoTypeName = entity.pojo.typeName,
@@ -54,63 +52,68 @@ class EntityDeleteAdapterWriter private constructor(
 
     fun createAnonymous(typeWriter: TypeWriter, dbParam: String, useDriverApi: Boolean): XTypeSpec {
         return if (useDriverApi) {
-            XTypeSpec.anonymousClassBuilder(
-                typeWriter.codeLanguage
-            )
-        } else {
-            XTypeSpec.anonymousClassBuilder(
-                typeWriter.codeLanguage, "%L", dbParam
-            )
-        }.apply {
-            superclass(
-                if (useDriverApi) {
-                    RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
-                } else {
-                    RoomTypeNames.DELETE_OR_UPDATE_ADAPTER_COMPAT
-                }.parametrizedBy(pojoTypeName)
-            )
-            addFunction(
-                XFunSpec.builder(
-                    language = language,
-                    name = "createQuery",
-                    visibility = VisibilityModifier.PROTECTED,
-                    isOverride = true
-                ).apply {
-                    returns(CommonTypeNames.STRING)
-                    val query = "DELETE FROM `$tableName` WHERE " +
-                        fields.columnNames.joinToString(" AND ") { "`$it` = ?" }
-                    addStatement("return %S", query)
-                }.build()
-            )
-            addFunction(
-                XFunSpec.builder(
-                    language = language,
-                    name = "bind",
-                    visibility = VisibilityModifier.PROTECTED,
-                    isOverride = true
-                ).apply {
-                    val stmtParam = "statement"
-                    addParameter(
-                        if (useDriverApi) {
-                            SQLiteDriverTypeNames.STATEMENT
+                XTypeSpec.anonymousClassBuilder(typeWriter.codeLanguage)
+            } else {
+                XTypeSpec.anonymousClassBuilder(typeWriter.codeLanguage, "%L", dbParam)
+            }
+            .apply {
+                superclass(
+                    if (useDriverApi) {
+                            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
                         } else {
-                            SupportDbTypeNames.SQLITE_STMT
-                        },
-                        stmtParam
-                    )
-                    val entityParam = "entity"
-                    addParameter(pojoTypeName, entityParam)
-                    val mapped = FieldWithIndex.byOrder(fields)
-                    val bindScope = CodeGenScope(writer = typeWriter, useDriverApi = useDriverApi)
-                    FieldReadWriteWriter.bindToStatement(
-                        ownerVar = entityParam,
-                        stmtParamVar = stmtParam,
-                        fieldsWithIndices = mapped,
-                        scope = bindScope
-                    )
-                    addCode(bindScope.generate())
-                }.build()
-            )
-        }.build()
+                            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER_COMPAT
+                        }
+                        .parametrizedBy(pojoTypeName)
+                )
+                addFunction(
+                    XFunSpec.builder(
+                            language = language,
+                            name = "createQuery",
+                            visibility = VisibilityModifier.PROTECTED,
+                            isOverride = true
+                        )
+                        .apply {
+                            returns(CommonTypeNames.STRING)
+                            val query =
+                                "DELETE FROM `$tableName` WHERE " +
+                                    fields.columnNames.joinToString(" AND ") { "`$it` = ?" }
+                            addStatement("return %S", query)
+                        }
+                        .build()
+                )
+                addFunction(
+                    XFunSpec.builder(
+                            language = language,
+                            name = "bind",
+                            visibility = VisibilityModifier.PROTECTED,
+                            isOverride = true
+                        )
+                        .apply {
+                            val stmtParam = "statement"
+                            addParameter(
+                                if (useDriverApi) {
+                                    SQLiteDriverTypeNames.STATEMENT
+                                } else {
+                                    SupportDbTypeNames.SQLITE_STMT
+                                },
+                                stmtParam
+                            )
+                            val entityParam = "entity"
+                            addParameter(pojoTypeName, entityParam)
+                            val mapped = FieldWithIndex.byOrder(fields)
+                            val bindScope =
+                                CodeGenScope(writer = typeWriter, useDriverApi = useDriverApi)
+                            FieldReadWriteWriter.bindToStatement(
+                                ownerVar = entityParam,
+                                stmtParamVar = stmtParam,
+                                fieldsWithIndices = mapped,
+                                scope = bindScope
+                            )
+                            addCode(bindScope.generate())
+                        }
+                        .build()
+                )
+            }
+            .build()
     }
 }

@@ -21,16 +21,11 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.safeTypeName
 
-internal class JavacRawType(
-    env: JavacProcessingEnv,
-    original: JavacType
-) : XRawType {
+internal class JavacRawType(env: JavacProcessingEnv, original: JavacType) : XRawType {
     private val erased = env.typeUtils.erasure(original.typeMirror)
     private val typeUtils = env.delegate.typeUtils
 
-    override val typeName by lazy {
-        xTypeName.java
-    }
+    override val typeName by lazy { xTypeName.java }
 
     private val xTypeName: XTypeName by lazy {
         XTypeName(

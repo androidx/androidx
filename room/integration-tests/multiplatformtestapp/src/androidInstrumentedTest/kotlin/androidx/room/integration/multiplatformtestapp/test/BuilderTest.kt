@@ -31,10 +31,11 @@ class BuilderTest : BaseBuilderTest() {
 
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
         return Room.databaseBuilder(
-            context = instrumentation.targetContext,
-            name = file.path,
-            factory = { SampleDatabase::class.instantiateImpl() }
-        ).setDriver(BundledSQLiteDriver())
+                context = instrumentation.targetContext,
+                name = file.path,
+                factory = { SampleDatabase::class.instantiateImpl() }
+            )
+            .setDriver(BundledSQLiteDriver())
     }
 
     @BeforeTest

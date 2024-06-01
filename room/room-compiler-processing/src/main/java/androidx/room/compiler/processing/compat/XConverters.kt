@@ -88,20 +88,15 @@ object XConverters {
     @JvmStatic
     fun XProcessingEnv.toJavac(): ProcessingEnvironment = (this as JavacProcessingEnv).delegate
 
-    @JvmStatic
-    fun XRoundEnv.toJavac(): RoundEnvironment = (this as JavacRoundEnv).delegate
+    @JvmStatic fun XRoundEnv.toJavac(): RoundEnvironment = (this as JavacRoundEnv).delegate
 
-    @JvmStatic
-    fun XMessager.toJavac(): Messager = (this as JavacProcessingEnvMessager).delegate
+    @JvmStatic fun XMessager.toJavac(): Messager = (this as JavacProcessingEnvMessager).delegate
 
-    @JvmStatic
-    fun XFiler.toJavac(): Filer = (this as JavacFiler).delegate
+    @JvmStatic fun XFiler.toJavac(): Filer = (this as JavacFiler).delegate
 
-    @JvmStatic
-    fun XElement.toJavac(): Element = (this as JavacElement).element
+    @JvmStatic fun XElement.toJavac(): Element = (this as JavacElement).element
 
-    @JvmStatic
-    fun XTypeElement.toJavac(): TypeElement = (this as JavacTypeElement).element
+    @JvmStatic fun XTypeElement.toJavac(): TypeElement = (this as JavacTypeElement).element
 
     @JvmStatic
     fun XExecutableElement.toJavac(): ExecutableElement = (this as JavacExecutableElement).element
@@ -110,21 +105,22 @@ object XConverters {
     fun XVariableElement.toJavac(): VariableElement = (this as JavacVariableElement).element
 
     @JvmStatic
-    fun XAnnotation.toJavac(): AnnotationMirror = when (this) {
-        is JavacAnnotation -> this.mirror
-        // TODO(kuanyingchou: Try to support JavacKmAnnotation
-        else -> error("Don't know how to convert element of type '${this::class}' to Java")
-    }
+    fun XAnnotation.toJavac(): AnnotationMirror =
+        when (this) {
+            is JavacAnnotation -> this.mirror
+            // TODO(kuanyingchou: Try to support JavacKmAnnotation
+            else -> error("Don't know how to convert element of type '${this::class}' to Java")
+        }
 
     @JvmStatic
-    fun XAnnotationValue.toJavac(): AnnotationValue = when (this) {
-        is JavacAnnotationValue -> this.annotationValue
-        // TODO(kuanyingchou: Try to support JavacKmAnnotationValue
-        else -> error("Don't know how to convert element of type '${this::class}' to Java")
-    }
+    fun XAnnotationValue.toJavac(): AnnotationValue =
+        when (this) {
+            is JavacAnnotationValue -> this.annotationValue
+            // TODO(kuanyingchou: Try to support JavacKmAnnotationValue
+            else -> error("Don't know how to convert element of type '${this::class}' to Java")
+        }
 
-    @JvmStatic
-    fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
+    @JvmStatic fun XType.toJavac(): TypeMirror = (this as JavacType).typeMirror
 
     @JvmStatic
     fun XExecutableType.toJavac(): ExecutableType = (this as JavacExecutableType).executableType
@@ -135,13 +131,11 @@ object XConverters {
             is TypeElement -> this.toXProcessing(env)
             is ExecutableElement -> this.toXProcessing(env)
             is VariableElement -> this.toXProcessing(env)
-            is KSFileAsOriginatingElement ->
-                (env as KspProcessingEnv).wrapKSFile(this.ksFile)
+            is KSFileAsOriginatingElement -> (env as KspProcessingEnv).wrapKSFile(this.ksFile)
             is KSClassDeclarationAsOriginatingElement ->
                 (env as KspProcessingEnv).wrapClassDeclaration(this.ksClassDeclaration)
-            else -> error(
-                "Don't know how to convert element of type '${this::class}' to a XElement"
-            )
+            else ->
+                error("Don't know how to convert element of type '${this::class}' to a XElement")
         }
     }
 
@@ -162,25 +156,28 @@ object XConverters {
         JavacAnnotation(env as JavacProcessingEnv, this)
 
     @JvmStatic
-    fun AnnotationValue.toXProcessing(method: ExecutableElement, env: XProcessingEnv):
-        XAnnotationValue = JavacAnnotationValue(
-            env as JavacProcessingEnv, method.toXProcessing(env) as JavacMethodElement, this
+    fun AnnotationValue.toXProcessing(
+        method: ExecutableElement,
+        env: XProcessingEnv
+    ): XAnnotationValue =
+        JavacAnnotationValue(
+            env as JavacProcessingEnv,
+            method.toXProcessing(env) as JavacMethodElement,
+            this
         )
 
     @JvmStatic
     fun Filer.toXProcessing(env: XProcessingEnv): XFiler =
         JavacFiler(env as JavacProcessingEnv, this)
 
-    @JvmStatic
-    fun Messager.toXProcessing(): XMessager =
-        JavacProcessingEnvMessager(this)
+    @JvmStatic fun Messager.toXProcessing(): XMessager = JavacProcessingEnvMessager(this)
 
     /**
      * Returns an [XType] for the given [TypeMirror].
      *
      * Warning: This method should be used only for migration since the returned [XType] will be
-     * missing nullability information. Calling [XType#nullability] on these types will result in
-     * an [IllegalStateException].
+     * missing nullability information. Calling [XType#nullability] on these types will result in an
+     * [IllegalStateException].
      */
     @JvmStatic
     fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
@@ -189,11 +186,9 @@ object XConverters {
     @JvmStatic
     fun XProcessingEnv.toKS(): SymbolProcessorEnvironment = (this as KspProcessingEnv).delegate
 
-    @JvmStatic
-    fun XProcessingEnv.toKSResolver(): Resolver = (this as KspProcessingEnv).resolver
+    @JvmStatic fun XProcessingEnv.toKSResolver(): Resolver = (this as KspProcessingEnv).resolver
 
-    @JvmStatic
-    fun XTypeElement.toKS(): KSClassDeclaration = (this as KspTypeElement).declaration
+    @JvmStatic fun XTypeElement.toKS(): KSClassDeclaration = (this as KspTypeElement).declaration
 
     @JvmStatic
     fun XElement.toKS(): KSAnnotated =
@@ -221,14 +216,12 @@ object XConverters {
     fun XExecutableParameterElement.toKS(): KSValueParameter =
         (this as KspExecutableParameterElement).declaration as KSValueParameter
 
-    @JvmStatic
-    fun XAnnotation.toKS(): KSAnnotation = (this as KspAnnotation).ksAnnotated
+    @JvmStatic fun XAnnotation.toKS(): KSAnnotation = (this as KspAnnotation).ksAnnotated
 
     @JvmStatic
     fun XAnnotationValue.toKS(): KSValueArgument = (this as KspAnnotationValue).valueArgument
 
-    @JvmStatic
-    fun XType.toKS(): KSType = (this as KspType).ksType
+    @JvmStatic fun XType.toKS(): KSType = (this as KspType).ksType
 
     @JvmStatic
     fun KSClassDeclaration.toXProcessing(env: XProcessingEnv): XTypeElement =
@@ -253,12 +246,7 @@ object XConverters {
     @JvmStatic
     fun KSValueArgument.toXProcessing(env: XProcessingEnv): XAnnotationValue {
         val kspAnnotation = (this.parent as KSAnnotation).toXProcessing(env) as KspAnnotation
-        return KspAnnotationValue(
-            env as KspProcessingEnv,
-            kspAnnotation,
-            kspAnnotation.type,
-            this
-        )
+        return KspAnnotationValue(env as KspProcessingEnv, kspAnnotation, kspAnnotation.type, this)
     }
 
     @JvmStatic

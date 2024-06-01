@@ -33,17 +33,14 @@ internal abstract class KspElement(
     override fun kindName(): String {
         return when (declaration) {
             is KSClassDeclaration ->
-                (declaration as KSClassDeclaration).classKind.name
-                    .lowercase(Locale.US)
+                (declaration as KSClassDeclaration).classKind.name.lowercase(Locale.US)
             is KSPropertyDeclaration -> "property"
             is KSFunctionDeclaration -> "function"
             else -> declaration::class.simpleName ?: "unknown"
         }
     }
 
-    final override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(declaration)
-    }
+    final override val equalityItems: Array<out Any?> by lazy { arrayOf(declaration) }
 
     override fun equals(other: Any?): Boolean {
         return XEquality.equals(this, other)
@@ -57,9 +54,7 @@ internal abstract class KspElement(
         return declaration.toString()
     }
 
-    override val docComment: String? by lazy {
-        (declaration as? KSDeclaration)?.docString
-    }
+    override val docComment: String? by lazy { (declaration as? KSDeclaration)?.docString }
 
     override fun validate(): Boolean {
         return declaration.validate()

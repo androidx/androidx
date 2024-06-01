@@ -23,28 +23,27 @@ package androidx.room
  * default, these type converters are enabled but have lower priority than user provided type
  * converters.
  *
- * You can set these flags in the [TypeConverters] annotation to turn them off / on. It
- * might be useful if you want to have more strict control over how these types are saved into
- * the database.
+ * You can set these flags in the [TypeConverters] annotation to turn them off / on. It might be
+ * useful if you want to have more strict control over how these types are saved into the database.
  */
 @Target(allowedTargets = []) // Complex annotation target
 @Retention(AnnotationRetention.BINARY)
 public annotation class BuiltInTypeConverters(
     /**
-     * Controls whether Room can generate a TypeConverter for enum types and use their
-     * `name()` in the database.
+     * Controls whether Room can generate a TypeConverter for enum types and use their `name()` in
+     * the database.
      *
-     * By default, it is set to [State.INHERITED] (on by default unless set to another
-     * value in a higher scope).
+     * By default, it is set to [State.INHERITED] (on by default unless set to another value in a
+     * higher scope).
      */
     val enums: State = State.INHERITED,
 
     /**
-     * Controls whether Room can generate a TypeConverter for [java.util.UUID] and use its
-     * `byte[]` representation while saving it into database.
+     * Controls whether Room can generate a TypeConverter for [java.util.UUID] and use its `byte[]`
+     * representation while saving it into database.
      *
-     * By default, it is set to [State.INHERITED] (on by default unless set to another
-     * value in a higher scope).
+     * By default, it is set to [State.INHERITED] (on by default unless set to another value in a
+     * higher scope).
      */
     val uuid: State = State.INHERITED,
 
@@ -52,27 +51,20 @@ public annotation class BuiltInTypeConverters(
      * Controls whether Room can generate a TypeConverter for [java.nio.ByteBuffer] and use its
      * `ByteBuffer` representation while saving it into database.
      *
-     * By default, it is set to [State.INHERITED] (on by default unless set to another
-     * value in a higher scope).
+     * By default, it is set to [State.INHERITED] (on by default unless set to another value in a
+     * higher scope).
      */
     val byteBuffer: State = State.INHERITED,
 ) {
-    /**
-     * Control flags for built in converters.
-     */
+    /** Control flags for built in converters. */
     public enum class State {
-        /**
-         * Room can use the built in converter.
-         */
+        /** Room can use the built in converter. */
         ENABLED,
-        /**
-         * Room cannot use the built in converter.
-         */
+        /** Room cannot use the built in converter. */
         DISABLED,
         /**
-         * The value is inherited from the higher scope. See [TypeConverters] documentation
-         * to learn more about [TypeConverter] scoping.
-         * If this value is never set, it defaults to [ENABLED].
+         * The value is inherited from the higher scope. See [TypeConverters] documentation to learn
+         * more about [TypeConverter] scoping. If this value is never set, it defaults to [ENABLED].
          */
         INHERITED
     }

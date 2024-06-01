@@ -24,8 +24,8 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
  */
 internal interface DelegatingOpenHelper {
     /**
-     * The delegate open helper (which may itself be a DelegatingOpenHelper) so
-     * configurations on specific instances can be applied.
+     * The delegate open helper (which may itself be a DelegatingOpenHelper) so configurations on
+     * specific instances can be applied.
      */
     val delegate: SupportSQLiteOpenHelper
 }

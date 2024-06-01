@@ -59,15 +59,9 @@ internal class ConnectionPoolImpl : ConnectionPool {
     // TODO: Allow configuration
     private val timeout = 30.seconds
 
-    constructor(
-        driver: SQLiteDriver,
-        fileName: String
-    ) {
+    constructor(driver: SQLiteDriver, fileName: String) {
         this.driver = driver
-        this.readers = Pool(
-            capacity = 1,
-            connectionFactory = { driver.open(fileName) }
-        )
+        this.readers = Pool(capacity = 1, connectionFactory = { driver.open(fileName) })
         this.writers = readers
     }
 
@@ -77,26 +71,21 @@ internal class ConnectionPoolImpl : ConnectionPool {
         maxNumOfReaders: Int,
         maxNumOfWriters: Int,
     ) {
-        require(maxNumOfReaders > 0) {
-            "Maximum number of readers must be greater than 0"
-        }
-        require(maxNumOfWriters > 0) {
-            "Maximum number of writers must be greater than 0"
-        }
+        require(maxNumOfReaders > 0) { "Maximum number of readers must be greater than 0" }
+        require(maxNumOfWriters > 0) { "Maximum number of writers must be greater than 0" }
         this.driver = driver
-        this.readers = Pool(
-            capacity = maxNumOfReaders,
-            connectionFactory = {
-                driver.open(fileName).also { newConnection ->
-                    // Enforce to be read only (might be disabled by a YOLO developer)
-                    newConnection.execSQL("PRAGMA query_only = 1")
+        this.readers =
+            Pool(
+                capacity = maxNumOfReaders,
+                connectionFactory = {
+                    driver.open(fileName).also { newConnection ->
+                        // Enforce to be read only (might be disabled by a YOLO developer)
+                        newConnection.execSQL("PRAGMA query_only = 1")
+                    }
                 }
-            }
-        )
-        this.writers = Pool(
-            capacity = maxNumOfWriters,
-            connectionFactory = { driver.open(fileName) }
-        )
+            )
+        this.writers =
+            Pool(capacity = maxNumOfWriters, connectionFactory = { driver.open(fileName) })
     }
 
     override suspend fun <R> useConnection(
@@ -125,29 +114,33 @@ internal class ConnectionPoolImpl : ConnectionPool {
                 block.invoke(confinedConnection)
             }
         }
-        val pool = if (isReadOnly) { readers } else { writers }
+        val pool =
+            if (isReadOnly) {
+                readers
+            } else {
+                writers
+            }
         val result: R
         var exception: Throwable? = null
         var connection: PooledConnectionImpl? = null
         try {
             val (acquiredConnection, acquireError) = pool.acquireWithTimeout()
             // Always try to create a wrapper even if an error occurs, so it can be recycled.
-            connection = acquiredConnection?.let {
-                PooledConnectionImpl(delegate = it, isReadOnly = readers !== writers && isReadOnly)
-            }
+            connection =
+                acquiredConnection?.let {
+                    PooledConnectionImpl(
+                        delegate = it,
+                        isReadOnly = readers !== writers && isReadOnly
+                    )
+                }
             if (acquireError is TimeoutCancellationException) {
                 // TODO: Expose more information on which threads are holding into the connections.
-                throwSQLiteException(
-                    SQLITE_BUSY,
-                    "Timed out attempting to acquire a connection"
-                )
+                throwSQLiteException(SQLITE_BUSY, "Timed out attempting to acquire a connection")
             } else if (acquireError != null) {
                 throw acquireError
             }
             requireNotNull(connection)
-            result = withContext(createConnectionContext(connection)) {
-                block.invoke(connection)
-            }
+            result = withContext(createConnectionContext(connection)) { block.invoke(connection) }
         } catch (ex: Throwable) {
             exception = ex
             throw ex
@@ -170,9 +163,7 @@ internal class ConnectionPoolImpl : ConnectionPool {
         var connection: ConnectionWithLock? = null
         var exceptionThrown: Throwable? = null
         try {
-            withTimeout(timeout) {
-                connection = this@acquireWithTimeout.acquire()
-            }
+            withTimeout(timeout) { connection = this@acquireWithTimeout.acquire() }
         } catch (ex: Throwable) {
             exceptionThrown = ex
         }
@@ -191,17 +182,15 @@ internal class ConnectionPoolImpl : ConnectionPool {
     }
 }
 
-private class Pool(
-    val capacity: Int,
-    val connectionFactory: () -> SQLiteConnection
-) {
+private class Pool(val capacity: Int, val connectionFactory: () -> SQLiteConnection) {
     private val size = atomic(0)
     private val connections = arrayOfNulls<ConnectionWithLock>(capacity)
-    private val channel = Channel<ConnectionWithLock>(
-        capacity = capacity,
-        // Only trySend() is used, but due to high paranoia add an undelivered callback
-        onUndeliveredElement = { unusedConnection -> unusedConnection.close() }
-    )
+    private val channel =
+        Channel<ConnectionWithLock>(
+            capacity = capacity,
+            // Only trySend() is used, but due to high paranoia add an undelivered callback
+            onUndeliveredElement = { unusedConnection -> unusedConnection.close() }
+        )
 
     suspend fun acquire(): ConnectionWithLock {
         val receiveResult = channel.tryReceive()
@@ -261,9 +250,8 @@ private class ConnectionWithLock(
     private val lock: Mutex = Mutex()
 ) : SQLiteConnection by delegate, Mutex by lock
 
-private class ConnectionElement(
-    val connectionWrapper: PooledConnectionImpl
-) : CoroutineContext.Element {
+private class ConnectionElement(val connectionWrapper: PooledConnectionImpl) :
+    CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<ConnectionElement>
 
     override val key: CoroutineContext.Key<ConnectionElement>
@@ -289,23 +277,17 @@ private class PooledConnectionImpl(
     override val rawConnection: SQLiteConnection
         get() = delegate
 
-    override suspend fun <R> usePrepared(
-        sql: String,
-        block: (SQLiteStatement) -> R
-    ): R = withStateCheck {
-        return delegate.withLock {
-            StatementWrapper(delegate.prepare(sql)).use {
-                block.invoke(it)
+    override suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R =
+        withStateCheck {
+            return delegate.withLock {
+                StatementWrapper(delegate.prepare(sql)).use { block.invoke(it) }
             }
         }
-    }
 
     override suspend fun <R> withTransaction(
         type: SQLiteTransactionType,
         block: suspend TransactionScope<R>.() -> R
-    ): R = withStateCheck {
-        transaction(type, block)
-    }
+    ): R = withStateCheck { transaction(type, block) }
 
     override suspend fun inTransaction(): Boolean = withStateCheck {
         return transactionStack.isNotEmpty()
@@ -341,8 +323,7 @@ private class PooledConnectionImpl(
             if (ex is RollbackException) {
                 // Type arguments in exception subclasses is not allowed but the exception is always
                 // created with the correct type.
-                @Suppress("UNCHECKED_CAST")
-                return (ex.result as R)
+                @Suppress("UNCHECKED_CAST") return (ex.result as R)
             } else {
                 exception = ex
                 throw ex
@@ -356,48 +337,43 @@ private class PooledConnectionImpl(
         }
     }
 
-    private suspend fun beginTransaction(
-        type: SQLiteTransactionType
-    ) = delegate.withLock {
-        val newTransactionId = transactionStack.size
-        if (transactionStack.isEmpty()) {
-            when (type) {
-                SQLiteTransactionType.DEFERRED -> delegate.execSQL("BEGIN DEFERRED TRANSACTION")
-                SQLiteTransactionType.IMMEDIATE -> delegate.execSQL("BEGIN IMMEDIATE TRANSACTION")
-                SQLiteTransactionType.EXCLUSIVE -> delegate.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+    private suspend fun beginTransaction(type: SQLiteTransactionType) =
+        delegate.withLock {
+            val newTransactionId = transactionStack.size
+            if (transactionStack.isEmpty()) {
+                when (type) {
+                    SQLiteTransactionType.DEFERRED -> delegate.execSQL("BEGIN DEFERRED TRANSACTION")
+                    SQLiteTransactionType.IMMEDIATE ->
+                        delegate.execSQL("BEGIN IMMEDIATE TRANSACTION")
+                    SQLiteTransactionType.EXCLUSIVE ->
+                        delegate.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+                }
+            } else {
+                delegate.execSQL("SAVEPOINT '$newTransactionId'")
             }
-        } else {
-            delegate.execSQL("SAVEPOINT '$newTransactionId'")
+            transactionStack.addLast(TransactionItem(id = newTransactionId, shouldRollback = false))
         }
-        transactionStack.addLast(
-            TransactionItem(
-                id = newTransactionId,
-                shouldRollback = false
-            )
-        )
-    }
 
-    private suspend fun endTransaction(
-        success: Boolean
-    ) = delegate.withLock {
-        if (transactionStack.isEmpty()) {
-            error("Not in a transaction")
-        }
-        val transaction = transactionStack.removeLast()
-        if (success && !transaction.shouldRollback) {
+    private suspend fun endTransaction(success: Boolean) =
+        delegate.withLock {
             if (transactionStack.isEmpty()) {
-                delegate.execSQL("END TRANSACTION")
-            } else {
-                delegate.execSQL("RELEASE SAVEPOINT '${transaction.id}'")
+                error("Not in a transaction")
             }
-        } else {
-            if (transactionStack.isEmpty()) {
-                delegate.execSQL("ROLLBACK TRANSACTION")
+            val transaction = transactionStack.removeLast()
+            if (success && !transaction.shouldRollback) {
+                if (transactionStack.isEmpty()) {
+                    delegate.execSQL("END TRANSACTION")
+                } else {
+                    delegate.execSQL("RELEASE SAVEPOINT '${transaction.id}'")
+                }
             } else {
-                delegate.execSQL("ROLLBACK TRANSACTION TO SAVEPOINT '${transaction.id}'")
+                if (transactionStack.isEmpty()) {
+                    delegate.execSQL("ROLLBACK TRANSACTION")
+                } else {
+                    delegate.execSQL("ROLLBACK TRANSACTION TO SAVEPOINT '${transaction.id}'")
+                }
             }
         }
-    }
 
     private class TransactionItem(val id: Int, var shouldRollback: Boolean)
 
@@ -413,17 +389,13 @@ private class PooledConnectionImpl(
 
         override suspend fun <R> withNestedTransaction(
             block: suspend (TransactionScope<R>) -> R
-        ): R = withStateCheck {
-            transaction(null, block)
-        }
+        ): R = withStateCheck { transaction(null, block) }
 
         override suspend fun rollback(result: T): Nothing = withStateCheck {
             if (transactionStack.isEmpty()) {
                 error("Not in a transaction")
             }
-            delegate.withLock {
-                transactionStack.last().shouldRollback = true
-            }
+            delegate.withLock { transactionStack.last().shouldRollback = true }
             throw RollbackException(result)
         }
     }
@@ -464,53 +436,29 @@ private class PooledConnectionImpl(
             delegate.bindText(index, value)
         }
 
-        override fun bindNull(index: Int): Unit = withStateCheck {
-            delegate.bindNull(index)
-        }
+        override fun bindNull(index: Int): Unit = withStateCheck { delegate.bindNull(index) }
 
-        override fun getBlob(index: Int): ByteArray = withStateCheck {
-            delegate.getBlob(index)
-        }
+        override fun getBlob(index: Int): ByteArray = withStateCheck { delegate.getBlob(index) }
 
-        override fun getDouble(index: Int): Double = withStateCheck {
-            delegate.getDouble(index)
-        }
+        override fun getDouble(index: Int): Double = withStateCheck { delegate.getDouble(index) }
 
-        override fun getLong(index: Int): Long = withStateCheck {
-            delegate.getLong(index)
-        }
+        override fun getLong(index: Int): Long = withStateCheck { delegate.getLong(index) }
 
-        override fun getText(index: Int): String = withStateCheck {
-            delegate.getText(index)
-        }
+        override fun getText(index: Int): String = withStateCheck { delegate.getText(index) }
 
-        override fun isNull(index: Int): Boolean = withStateCheck {
-            delegate.isNull(index)
-        }
+        override fun isNull(index: Int): Boolean = withStateCheck { delegate.isNull(index) }
 
-        override fun getColumnCount(): Int = withStateCheck {
-            delegate.getColumnCount()
-        }
+        override fun getColumnCount(): Int = withStateCheck { delegate.getColumnCount() }
 
-        override fun getColumnName(index: Int) = withStateCheck {
-            delegate.getColumnName(index)
-        }
+        override fun getColumnName(index: Int) = withStateCheck { delegate.getColumnName(index) }
 
-        override fun step(): Boolean = withStateCheck {
-            delegate.step()
-        }
+        override fun step(): Boolean = withStateCheck { delegate.step() }
 
-        override fun reset() = withStateCheck {
-            delegate.reset()
-        }
+        override fun reset() = withStateCheck { delegate.reset() }
 
-        override fun clearBindings() = withStateCheck {
-            delegate.clearBindings()
-        }
+        override fun clearBindings() = withStateCheck { delegate.clearBindings() }
 
-        override fun close() = withStateCheck {
-            delegate.close()
-        }
+        override fun close() = withStateCheck { delegate.close() }
 
         private inline fun <R> withStateCheck(block: () -> R): R {
             if (isRecycled) {

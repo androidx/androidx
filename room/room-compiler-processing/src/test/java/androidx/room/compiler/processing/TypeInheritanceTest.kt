@@ -35,9 +35,10 @@ class TypeInheritanceTest {
         bazClass: String,
         handler: (XTestInvocation) -> Unit,
     ) {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class SubClass : BaseClass<Baz, Bar<Baz>>()
             open class BaseClass<T1, T2> {
                 val valField : Foo<Bar<Baz>> = TODO()
@@ -55,8 +56,9 @@ class TypeInheritanceTest {
             $fooClass
             $barClass
             $bazClass
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src), handler = handler)
     }
 

@@ -29,49 +29,38 @@ import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 import kotlin.coroutines.CoroutineContext
 
-/**
- * Configuration class for a [RoomDatabase].
- */
+/** Configuration class for a [RoomDatabase]. */
 @Suppress("UNUSED_PARAMETER")
 actual open class DatabaseConfiguration
 @SuppressLint("LambdaLast")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 constructor(
     /* The context to use while connecting to the database. */
-    @JvmField
-    val context: Context,
+    @JvmField val context: Context,
 
     /* The name of the database file or null if it is an in-memory database. */
-    @JvmField
-    actual val name: String?,
+    @JvmField actual val name: String?,
 
     /* The factory to use to access the database. */
-    @JvmField
-    val sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory?,
+    @JvmField val sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory?,
 
     /* Collection of available migrations. */
-    @JvmField
-    actual val migrationContainer: RoomDatabase.MigrationContainer,
+    @JvmField actual val migrationContainer: RoomDatabase.MigrationContainer,
 
     /* Database callbacks. */
-    @JvmField
-    actual val callbacks: List<RoomDatabase.Callback>?,
+    @JvmField actual val callbacks: List<RoomDatabase.Callback>?,
 
     /* Whether Room should throw an exception for queries run on the main thread. */
-    @JvmField
-    val allowMainThreadQueries: Boolean,
+    @JvmField val allowMainThreadQueries: Boolean,
 
     /* The journal mode for this database. */
-    @JvmField
-    actual val journalMode: RoomDatabase.JournalMode,
+    @JvmField actual val journalMode: RoomDatabase.JournalMode,
 
     /* The Executor used to execute asynchronous queries. */
-    @JvmField
-    val queryExecutor: Executor,
+    @JvmField val queryExecutor: Executor,
 
     /* The Executor used to execute asynchronous transactions. */
-    @JvmField
-    val transactionExecutor: Executor,
+    @JvmField val transactionExecutor: Executor,
 
     /**
      * Intent that should be bound to acquire the invalidation service or `null` if not used.
@@ -83,55 +72,42 @@ constructor(
     val multiInstanceInvalidationServiceIntent: Intent?,
 
     /* Whether Room should throw an exception for missing migrations. */
-    @JvmField
-    actual val requireMigration: Boolean,
+    @JvmField actual val requireMigration: Boolean,
 
     /* Whether Room will fallback to destructive migrations on downgrades only .*/
-    @JvmField
-    actual val allowDestructiveMigrationOnDowngrade: Boolean,
-
+    @JvmField actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,
 
     /* Asset path of pre-package database or null if not used. */
-    @JvmField
-    val copyFromAssetPath: String?,
+    @JvmField val copyFromAssetPath: String?,
 
     /* File of pre-package database or null if not used. */
-    @JvmField
-    val copyFromFile: File?,
+    @JvmField val copyFromFile: File?,
 
     /* Input stream of pre-package database or null if not used. */
-    @JvmField
-    val copyFromInputStream: Callable<InputStream>?,
+    @JvmField val copyFromInputStream: Callable<InputStream>?,
 
     /* Callback when Room uses a pre-packaged database. */
-    @JvmField
-    val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
+    @JvmField val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
 
     /* List of provided type converters. */
-    @JvmField
-    actual val typeConverters: List<Any>,
+    @JvmField actual val typeConverters: List<Any>,
 
     /* List of provided auto migration specs. */
-    @JvmField
-    actual val autoMigrationSpecs: List<AutoMigrationSpec>,
+    @JvmField actual val autoMigrationSpecs: List<AutoMigrationSpec>,
 
     /* Whether Room will delete all tables or only known tables during destructive migrations. */
-    @JvmField
-    actual val allowDestructiveMigrationForAllTables: Boolean,
+    @JvmField actual val allowDestructiveMigrationForAllTables: Boolean,
 
     /* The SQLite Driver for the database. */
-    @JvmField
-    actual val sqliteDriver: SQLiteDriver?,
+    @JvmField actual val sqliteDriver: SQLiteDriver?,
 
     /* The Coroutine context for the database. */
-    @JvmField
-    actual val queryCoroutineContext: CoroutineContext?,
+    @JvmField actual val queryCoroutineContext: CoroutineContext?,
 ) {
     /**
-     * If true, table invalidation in an instance of [RoomDatabase] is broadcast and
-     * synchronized with other instances of the same [RoomDatabase] file, including those
-     * in a separate process.
+     * If true, table invalidation in an instance of [RoomDatabase] is broadcast and synchronized
+     * with other instances of the same [RoomDatabase] file, including those in a separate process.
      */
     @JvmField
     val multiInstanceInvalidation: Boolean = multiInstanceInvalidationServiceIntent != null
@@ -148,10 +124,9 @@ constructor(
      * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
      * @param queryExecutor The Executor used to execute asynchronous queries.
      * @param requireMigration True if Room should require a valid migration if version changes,
-     * instead of recreating the tables.
+     *   instead of recreating the tables.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
-     *
+     *   aren't required.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")
@@ -206,10 +181,9 @@ constructor(
      * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
-     *
+     *   aren't required.
      */
     @OptIn(ExperimentalRoomApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -238,10 +212,10 @@ constructor(
         journalMode = journalMode,
         queryExecutor = queryExecutor,
         transactionExecutor = transactionExecutor,
-        multiInstanceInvalidationServiceIntent = if (multiInstanceInvalidation) Intent(
-            context,
-            MultiInstanceInvalidationService::class.java
-        ) else null,
+        multiInstanceInvalidationServiceIntent =
+            if (multiInstanceInvalidation)
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            else null,
         allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
         requireMigration = requireMigration,
         migrationNotRequiredFrom = migrationNotRequiredFrom,
@@ -271,12 +245,11 @@ constructor(
      * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
+     *   aren't required.
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
-     *
      */
     @OptIn(ExperimentalRoomApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -307,10 +280,10 @@ constructor(
         journalMode = journalMode,
         queryExecutor = queryExecutor,
         transactionExecutor = transactionExecutor,
-        multiInstanceInvalidationServiceIntent = if (multiInstanceInvalidation) Intent(
-            context,
-            MultiInstanceInvalidationService::class.java
-        ) else null,
+        multiInstanceInvalidationServiceIntent =
+            if (multiInstanceInvalidation)
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            else null,
         allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
         requireMigration = requireMigration,
         migrationNotRequiredFrom = migrationNotRequiredFrom,
@@ -340,14 +313,13 @@ constructor(
      * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
+     *   aren't required.
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
-     * @param copyFromInputStream The callable to get the input stream from which a
-     * pre-package database file will be copied from.
-     *
+     * @param copyFromInputStream The callable to get the input stream from which a pre-package
+     *   database file will be copied from.
      */
     @OptIn(ExperimentalRoomApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -379,10 +351,10 @@ constructor(
         journalMode = journalMode,
         queryExecutor = queryExecutor,
         transactionExecutor = transactionExecutor,
-        multiInstanceInvalidationServiceIntent = if (multiInstanceInvalidation) Intent(
-            context,
-            MultiInstanceInvalidationService::class.java
-        ) else null,
+        multiInstanceInvalidationServiceIntent =
+            if (multiInstanceInvalidation)
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            else null,
         allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
         requireMigration = requireMigration,
         migrationNotRequiredFrom = migrationNotRequiredFrom,
@@ -412,15 +384,14 @@ constructor(
      * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
+     *   aren't required.
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
-     * @param copyFromInputStream The callable to get the input stream from which a
-     * pre-package database file will be copied from.
+     * @param copyFromInputStream The callable to get the input stream from which a pre-package
+     *   database file will be copied from.
      * @param prepackagedDatabaseCallback The pre-packaged callback.
-     *
      */
     @OptIn(ExperimentalRoomApi::class)
     @SuppressLint("LambdaLast")
@@ -454,10 +425,10 @@ constructor(
         journalMode = journalMode,
         queryExecutor = queryExecutor,
         transactionExecutor = transactionExecutor,
-        multiInstanceInvalidationServiceIntent = if (multiInstanceInvalidation) Intent(
-            context,
-            MultiInstanceInvalidationService::class.java
-        ) else null,
+        multiInstanceInvalidationServiceIntent =
+            if (multiInstanceInvalidation)
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            else null,
         allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
         requireMigration = requireMigration,
         migrationNotRequiredFrom = migrationNotRequiredFrom,
@@ -487,16 +458,15 @@ constructor(
      * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
+     *   aren't required.
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
-     * @param copyFromInputStream The callable to get the input stream from which a
-     * pre-package database file will be copied from.
+     * @param copyFromInputStream The callable to get the input stream from which a pre-package
+     *   database file will be copied from.
      * @param prepackagedDatabaseCallback The pre-packaged callback.
      * @param typeConverters The type converters.
-     *
      */
     @OptIn(ExperimentalRoomApi::class)
     @SuppressLint("LambdaLast")
@@ -531,10 +501,10 @@ constructor(
         journalMode = journalMode,
         queryExecutor = queryExecutor,
         transactionExecutor = transactionExecutor,
-        multiInstanceInvalidationServiceIntent = if (multiInstanceInvalidation) Intent(
-            context,
-            MultiInstanceInvalidationService::class.java
-        ) else null,
+        multiInstanceInvalidationServiceIntent =
+            if (multiInstanceInvalidation)
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            else null,
         allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
         requireMigration = requireMigration,
         migrationNotRequiredFrom = migrationNotRequiredFrom,
@@ -564,17 +534,16 @@ constructor(
      * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
+     *   aren't required.
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
-     * @param copyFromInputStream The callable to get the input stream from which a
-     * pre-package database file will be copied from.
+     * @param copyFromInputStream The callable to get the input stream from which a pre-package
+     *   database file will be copied from.
      * @param prepackagedDatabaseCallback The pre-packaged callback.
      * @param typeConverters The type converters.
      * @param autoMigrationSpecs The auto migration specs.
-     *
      */
     @OptIn(ExperimentalRoomApi::class)
     @SuppressLint("LambdaLast")
@@ -610,10 +579,10 @@ constructor(
         journalMode = journalMode,
         queryExecutor = queryExecutor,
         transactionExecutor = transactionExecutor,
-        multiInstanceInvalidationServiceIntent = if (multiInstanceInvalidation) Intent(
-            context,
-            MultiInstanceInvalidationService::class.java
-        ) else null,
+        multiInstanceInvalidationServiceIntent =
+            if (multiInstanceInvalidation)
+                Intent(context, MultiInstanceInvalidationService::class.java)
+            else null,
         allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
         requireMigration = requireMigration,
         migrationNotRequiredFrom = migrationNotRequiredFrom,
@@ -641,20 +610,19 @@ constructor(
      * @param queryExecutor The Executor used to execute asynchronous queries.
      * @param transactionExecutor The Executor used to execute asynchronous transactions.
      * @param multiInstanceInvalidationServiceIntent Intent that should be bound to acquire the
-     * invalidation service or `null` if not used.
+     *   invalidation service or `null` if not used.
      * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
-     * migration is supplied during a downgrade.
+     *   migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
-     * aren't required.
+     *   aren't required.
      * @param copyFromAssetPath The assets path to the pre-packaged database.
      * @param copyFromFile The pre-packaged database file.
-     * @param copyFromInputStream The callable to get the input stream from which a
-     * pre-package database file will be copied from.
+     * @param copyFromInputStream The callable to get the input stream from which a pre-package
+     *   database file will be copied from.
      * @param prepackagedDatabaseCallback The pre-packaged callback.
      * @param typeConverters The type converters.
      * @param autoMigrationSpecs The auto migration specs.
-     *
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -755,9 +723,8 @@ constructor(
     /**
      * Returns whether a migration is required from the specified version.
      *
-     * @param version  The schema version.
+     * @param version The schema version.
      * @return True if a valid migration is required, false otherwise.
-     *
      */
     @Deprecated(
         """Use [isMigrationRequired(int, int)] which takes
@@ -772,7 +739,7 @@ constructor(
      * Returns whether a migration is required between two versions.
      *
      * @param fromVersion The old schema version.
-     * @param toVersion   The new schema version.
+     * @param toVersion The new schema version.
      * @return True if a valid migration is required, false otherwise.
      */
     open fun isMigrationRequired(fromVersion: Int, toVersion: Int): Boolean {
@@ -805,28 +772,29 @@ constructor(
         allowDestructiveMigrationForAllTables: Boolean = this.allowDestructiveMigrationForAllTables,
         sqliteDriver: SQLiteDriver? = this.sqliteDriver,
         queryCoroutineContext: CoroutineContext? = this.queryCoroutineContext
-    ) = DatabaseConfiguration(
-        context,
-        name,
-        sqliteOpenHelperFactory,
-        migrationContainer,
-        callbacks,
-        allowMainThreadQueries,
-        journalMode,
-        queryExecutor,
-        transactionExecutor,
-        multiInstanceInvalidationServiceIntent,
-        requireMigration,
-        allowDestructiveMigrationOnDowngrade,
-        migrationNotRequiredFrom,
-        copyFromAssetPath,
-        copyFromFile,
-        copyFromInputStream,
-        prepackagedDatabaseCallback,
-        typeConverters,
-        autoMigrationSpecs,
-        allowDestructiveMigrationForAllTables,
-        sqliteDriver,
-        queryCoroutineContext
-    )
+    ) =
+        DatabaseConfiguration(
+            context,
+            name,
+            sqliteOpenHelperFactory,
+            migrationContainer,
+            callbacks,
+            allowMainThreadQueries,
+            journalMode,
+            queryExecutor,
+            transactionExecutor,
+            multiInstanceInvalidationServiceIntent,
+            requireMigration,
+            allowDestructiveMigrationOnDowngrade,
+            migrationNotRequiredFrom,
+            copyFromAssetPath,
+            copyFromFile,
+            copyFromInputStream,
+            prepackagedDatabaseCallback,
+            typeConverters,
+            autoMigrationSpecs,
+            allowDestructiveMigrationForAllTables,
+            sqliteDriver,
+            queryCoroutineContext
+        )
 }

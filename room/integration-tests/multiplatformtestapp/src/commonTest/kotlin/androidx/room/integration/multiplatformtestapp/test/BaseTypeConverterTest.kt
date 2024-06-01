@@ -36,9 +36,7 @@ abstract class BaseTypeConverterTest {
 
     @Test
     fun entityWithConverter() = runTest {
-        val database = getDatabaseBuilder()
-            .addTypeConverter(BarConverter())
-            .build()
+        val database = getDatabaseBuilder().addTypeConverter(BarConverter()).build()
         val entity = TestEntity(1, Foo(1979), Bar("Mujer Boricua"))
         database.getDao().insertItem(entity)
         assertThat(database.getDao().getItem(1)).isEqualTo(entity)
@@ -47,11 +45,13 @@ abstract class BaseTypeConverterTest {
 
     @Test
     fun missingTypeConverter() {
-        assertThrows<IllegalArgumentException> {
-            getDatabaseBuilder().build()
-        }.hasMessageThat().isEqualTo("A required type converter (" +
-            "${BarConverter::class.qualifiedName}) for ${TestDao::class.qualifiedName} is " +
-            "missing in the database configuration.")
+        assertThrows<IllegalArgumentException> { getDatabaseBuilder().build() }
+            .hasMessageThat()
+            .isEqualTo(
+                "A required type converter (" +
+                    "${BarConverter::class.qualifiedName}) for ${TestDao::class.qualifiedName} is " +
+                    "missing in the database configuration."
+            )
     }
 
     @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
@@ -62,34 +62,27 @@ abstract class BaseTypeConverterTest {
 
     @Dao
     interface TestDao {
-        @Insert
-        suspend fun insertItem(item: TestEntity)
+        @Insert suspend fun insertItem(item: TestEntity)
 
-        @Query("SELECT * FROM TestEntity WHERE id = :id")
-        suspend fun getItem(id: Long): TestEntity
+        @Query("SELECT * FROM TestEntity WHERE id = :id") suspend fun getItem(id: Long): TestEntity
     }
 
-    @Entity
-    data class TestEntity(@PrimaryKey val id: Long, val foo: Foo, val bar: Bar)
+    @Entity data class TestEntity(@PrimaryKey val id: Long, val foo: Foo, val bar: Bar)
 
     data class Foo(val number: Int)
 
     data class Bar(val text: String)
 
     object FooConverter {
-        @TypeConverter
-        fun toFoo(number: Int): Foo = Foo(number)
+        @TypeConverter fun toFoo(number: Int): Foo = Foo(number)
 
-        @TypeConverter
-        fun fromFoo(foo: Foo): Int = foo.number
+        @TypeConverter fun fromFoo(foo: Foo): Int = foo.number
     }
 
     @ProvidedTypeConverter
     class BarConverter {
-        @TypeConverter
-        fun toBar(text: String): Bar = Bar(text)
+        @TypeConverter fun toBar(text: String): Bar = Bar(text)
 
-        @TypeConverter
-        fun fromBar(bar: Bar): String = bar.text
+        @TypeConverter fun fromBar(bar: Bar): String = bar.text
     }
 }

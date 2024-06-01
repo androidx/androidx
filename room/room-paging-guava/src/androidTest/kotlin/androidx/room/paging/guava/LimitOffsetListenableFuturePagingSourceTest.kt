@@ -64,17 +64,13 @@ private const val tableName: String = "TestItem"
 @SmallTest
 class LimitOffsetListenableFuturePagingSourceTest {
 
-    @JvmField
-    @Rule
-    val countingTaskExecutorRule = CountingTaskExecutorRule()
+    @JvmField @Rule val countingTaskExecutorRule = CountingTaskExecutorRule()
 
     @Test
     fun initialLoad_registersInvalidationObserver() =
         setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
-                db = db,
-                registerObserver = true
-            )
+            val pagingSource =
+                LimitOffsetListenableFuturePagingSourceImpl(db = db, registerObserver = true)
 
             val listenableFuture = pagingSource.refresh()
             assertFalse(pagingSource.privateObserver().privateRegisteredState().get())
@@ -91,10 +87,8 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun initialEmptyLoad_futureIsDone() = setupAndRun { db ->
-        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
-            db = db,
-            registerObserver = true
-        )
+        val pagingSource =
+            LimitOffsetListenableFuturePagingSourceImpl(db = db, registerObserver = true)
 
         runTest {
             val listenableFuture = pagingSource.refresh()
@@ -108,10 +102,8 @@ class LimitOffsetListenableFuturePagingSourceTest {
     @Test
     fun initialLoad_returnsFutureImmediately() =
         setupAndRunWithTestExecutor { db, queryExecutor, transactionExecutor ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
-                db = db,
-                registerObserver = true
-            )
+            val pagingSource =
+                LimitOffsetListenableFuturePagingSourceImpl(db = db, registerObserver = true)
 
             val listenableFuture = pagingSource.refresh()
             // ensure future is returned even as its result is still pending
@@ -122,88 +114,78 @@ class LimitOffsetListenableFuturePagingSourceTest {
             transactionExecutor.executeAll() // start initialLoad callable + load data
 
             val page = listenableFuture.await() as LoadResult.Page
-            assertThat(page.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(0, 15)
-            )
+            assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
             assertTrue(listenableFuture.isDone)
         }
 
     @Test
-    fun append_returnsFutureImmediately() =
-        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
+    fun append_returnsFutureImmediately() = setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
 
-            pagingSource.itemCount.set(100)
+        pagingSource.itemCount.set(100)
 
-            val listenableFuture = pagingSource.append(key = 20)
-            // ensure future is returned even as its result is still pending
-            assertFalse(listenableFuture.isDone)
+        val listenableFuture = pagingSource.append(key = 20)
+        // ensure future is returned even as its result is still pending
+        assertFalse(listenableFuture.isDone)
 
-            // run transformAsync and async function
-            queryExecutor.executeAll()
+        // run transformAsync and async function
+        queryExecutor.executeAll()
 
-            val page = listenableFuture.await() as LoadResult.Page
-            assertThat(page.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(20, 25)
-            )
-            assertTrue(listenableFuture.isDone)
-        }
+        val page = listenableFuture.await() as LoadResult.Page
+        assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 25))
+        assertTrue(listenableFuture.isDone)
+    }
 
     @Test
-    fun prepend_returnsFutureImmediately() =
-        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
-            pagingSource.itemCount.set(100) // bypass check for initial load
+    fun prepend_returnsFutureImmediately() = setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
+        pagingSource.itemCount.set(100) // bypass check for initial load
 
-            val listenableFuture = pagingSource.prepend(key = 20)
-            // ensure future is returned even as its result is still pending
-            assertFalse(listenableFuture.isDone)
+        val listenableFuture = pagingSource.prepend(key = 20)
+        // ensure future is returned even as its result is still pending
+        assertFalse(listenableFuture.isDone)
 
-            // run transformAsync and async function
-            queryExecutor.executeAll()
+        // run transformAsync and async function
+        queryExecutor.executeAll()
 
-            val page = listenableFuture.await() as LoadResult.Page
-            assertThat(page.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(15, 20)
-            )
-            assertTrue(listenableFuture.isDone)
-        }
+        val page = listenableFuture.await() as LoadResult.Page
+        assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 20))
+        assertTrue(listenableFuture.isDone)
+    }
 
     @Test
-    fun append_returnsInvalid() =
-        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
-            pagingSource.itemCount.set(100) // bypass check for initial load
+    fun append_returnsInvalid() = setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
+        pagingSource.itemCount.set(100) // bypass check for initial load
 
-            val listenableFuture = pagingSource.append(key = 50)
+        val listenableFuture = pagingSource.append(key = 50)
 
-            pagingSource.invalidate() // imitate refreshVersionsAsync invalidating the PagingSource
-            assertTrue(pagingSource.invalid)
+        pagingSource.invalidate() // imitate refreshVersionsAsync invalidating the PagingSource
+        assertTrue(pagingSource.invalid)
 
-            queryExecutor.executeAll() // run transformAsync and async function
+        queryExecutor.executeAll() // run transformAsync and async function
 
-            val result = listenableFuture.await()
-            assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
-            assertTrue(listenableFuture.isDone)
-        }
+        val result = listenableFuture.await()
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
+        assertTrue(listenableFuture.isDone)
+    }
 
     @Test
-    fun prepend_returnsInvalid() =
-        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
-            pagingSource.itemCount.set(100) // bypass check for initial load
+    fun prepend_returnsInvalid() = setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
+        pagingSource.itemCount.set(100) // bypass check for initial load
 
-            val listenableFuture = pagingSource.prepend(key = 50)
+        val listenableFuture = pagingSource.prepend(key = 50)
 
-            pagingSource.invalidate() // imitate refreshVersionsAsync invalidating the PagingSource
-            assertTrue(pagingSource.invalid)
+        pagingSource.invalidate() // imitate refreshVersionsAsync invalidating the PagingSource
+        assertTrue(pagingSource.invalid)
 
-            queryExecutor.executeAll() // run transformAsync and async function
+        queryExecutor.executeAll() // run transformAsync and async function
 
-            val result = listenableFuture.await()
-            assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
-            assertTrue(listenableFuture.isDone)
-        }
+        val result = listenableFuture.await()
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
+        assertTrue(listenableFuture.isDone)
+    }
 
     @Test
     fun refresh_consecutively() = setupAndRun { db ->
@@ -217,95 +199,82 @@ class LimitOffsetListenableFuturePagingSourceTest {
         // check that first Future completes first. If the first future didn't complete first,
         // this await() would not return.
         val page1 = listenableFuture1.await() as LoadResult.Page
-        assertThat(page1.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(10, 25)
-        )
+        assertThat(page1.data).containsExactlyElementsIn(ITEMS_LIST.subList(10, 25))
 
         val page2 = listenableFuture2.await() as LoadResult.Page
-        assertThat(page2.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(15, 30)
-        )
+        assertThat(page2.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 30))
     }
 
     @Test
-    fun append_consecutively() =
-        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
-            pagingSource.itemCount.set(100) // bypass check for initial load
+    fun append_consecutively() = setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
+        pagingSource.itemCount.set(100) // bypass check for initial load
 
-            assertThat(queryExecutor.queuedSize()).isEqualTo(0)
+        assertThat(queryExecutor.queuedSize()).isEqualTo(0)
 
-            val listenableFuture1 = pagingSource.append(key = 10)
-            val listenableFuture2 = pagingSource.append(key = 15)
+        val listenableFuture1 = pagingSource.append(key = 10)
+        val listenableFuture2 = pagingSource.append(key = 15)
 
-            // both load futures are queued
-            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
-            queryExecutor.executeNext() // first transformAsync
-            queryExecutor.executeNext() // second transformAsync
+        // both load futures are queued
+        assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+        queryExecutor.executeNext() // first transformAsync
+        queryExecutor.executeNext() // second transformAsync
 
-            // both async functions are queued
-            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
-            queryExecutor.executeNext() // first async function
-            queryExecutor.executeNext() // second async function
+        // both async functions are queued
+        assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+        queryExecutor.executeNext() // first async function
+        queryExecutor.executeNext() // second async function
 
-            // both nonInitial loads are queued
-            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+        // both nonInitial loads are queued
+        assertThat(queryExecutor.queuedSize()).isEqualTo(2)
 
-            queryExecutor.executeNext() // first db load
-            val page1 = listenableFuture1.await() as LoadResult.Page
-            assertThat(page1.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(10, 15)
-            )
+        queryExecutor.executeNext() // first db load
+        val page1 = listenableFuture1.await() as LoadResult.Page
+        assertThat(page1.data).containsExactlyElementsIn(ITEMS_LIST.subList(10, 15))
 
-            queryExecutor.executeNext() // second db load
-            val page2 = listenableFuture2.await() as LoadResult.Page
-            assertThat(page2.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(15, 20)
-            )
+        queryExecutor.executeNext() // second db load
+        val page2 = listenableFuture2.await() as LoadResult.Page
+        assertThat(page2.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 20))
 
-            assertTrue(listenableFuture1.isDone)
-            assertTrue(listenableFuture2.isDone)
-        }
+        assertTrue(listenableFuture1.isDone)
+        assertTrue(listenableFuture2.isDone)
+    }
 
     @Test
-    fun prepend_consecutively() =
-        setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
-            pagingSource.itemCount.set(100) // bypass check for initial load
+    fun prepend_consecutively() = setupAndRunWithTestExecutor { db, queryExecutor, _ ->
+        val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
+        pagingSource.itemCount.set(100) // bypass check for initial load
 
-            assertThat(queryExecutor.queuedSize()).isEqualTo(0)
+        assertThat(queryExecutor.queuedSize()).isEqualTo(0)
 
-            val listenableFuture1 = pagingSource.prepend(key = 25)
-            val listenableFuture2 = pagingSource.prepend(key = 20)
+        val listenableFuture1 = pagingSource.prepend(key = 25)
+        val listenableFuture2 = pagingSource.prepend(key = 20)
 
-            // both load futures are queued
-            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
-            queryExecutor.executeNext() // first transformAsync
-            queryExecutor.executeNext() // second transformAsync
+        // both load futures are queued
+        assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+        queryExecutor.executeNext() // first transformAsync
+        queryExecutor.executeNext() // second transformAsync
 
-            // both async functions are queued
-            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
-            queryExecutor.executeNext() // first async function
-            queryExecutor.executeNext() // second async function
+        // both async functions are queued
+        assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+        queryExecutor.executeNext() // first async function
+        queryExecutor.executeNext() // second async function
 
-            // both nonInitial loads are queued
-            assertThat(queryExecutor.queuedSize()).isEqualTo(2)
+        // both nonInitial loads are queued
+        assertThat(queryExecutor.queuedSize()).isEqualTo(2)
 
-            queryExecutor.executeNext() // first db load
-            val page1 = listenableFuture1.await() as LoadResult.Page
-            assertThat(page1.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(20, 25)
-            )
+        queryExecutor.executeNext() // first db load
+        val page1 = listenableFuture1.await() as LoadResult.Page
+        assertThat(page1.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 25))
 
-            queryExecutor.executeNext() // second db load
-            val page2 = listenableFuture2.await() as LoadResult.Page
-            assertThat(page2.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(15, 20)
-            )
+        queryExecutor.executeNext() // second db load
+        val page2 = listenableFuture2.await() as LoadResult.Page
+        assertThat(page2.data).containsExactlyElementsIn(ITEMS_LIST.subList(15, 20))
 
-            assertTrue(listenableFuture1.isDone)
-            assertTrue(listenableFuture2.isDone)
-        }
+        assertTrue(listenableFuture1.isDone)
+        assertTrue(listenableFuture2.isDone)
+    }
+
     @Test
     fun refresh_onSuccess() = setupAndRun { db ->
         db.getDao().addAllItems(ITEMS_LIST)
@@ -317,9 +286,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val callbackExecutor = TestExecutor()
         listenableFuture.onSuccess(callbackExecutor) { result ->
             val page = result as LoadResult.Page
-            assertThat(page.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(30, 45)
-            )
+            assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 45))
             onSuccessReceived = true
         }
 
@@ -348,9 +315,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val callbackExecutor = TestExecutor()
         listenableFuture.onSuccess(callbackExecutor) { result ->
             val page = result as LoadResult.Page
-            assertThat(page.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(20, 25)
-            )
+            assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 25))
             onSuccessReceived = true
         }
         // let room db complete load
@@ -360,7 +325,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         // make sure onSuccess callback was executed
         assertTrue(onSuccessReceived)
         assertTrue(listenableFuture.isDone)
-        }
+    }
 
     @Test
     fun prepend_onSuccess() = setupAndRun { db ->
@@ -376,9 +341,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val callbackExecutor = TestExecutor()
         listenableFuture.onSuccess(callbackExecutor) { result ->
             val page = result as LoadResult.Page
-            assertThat(page.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(35, 40)
-            )
+            assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(35, 40))
             onSuccessReceived = true
         }
         // let room db complete load
@@ -412,9 +375,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             assertThat(transactionExecutor.queuedSize()).isEqualTo(0)
 
             // await() should throw after cancellation
-            assertFailsWith<CancellationException> {
-                listenableFuture.await()
-            }
+            assertFailsWith<CancellationException> { listenableFuture.await() }
 
             // executors should be idle
             assertThat(queryExecutor.queuedSize()).isEqualTo(0)
@@ -446,9 +407,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             assertThat(transactionExecutor.queuedSize()).isEqualTo(0)
 
             // await() should throw after cancellation
-            assertFailsWith<CancellationException> {
-                listenableFuture.await()
-            }
+            assertFailsWith<CancellationException> { listenableFuture.await() }
 
             // executors should be idle
             assertThat(queryExecutor.queuedSize()).isEqualTo(0)
@@ -478,9 +437,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeAll() // InvalidationTracker from end of transaction
 
             // await() should throw after cancellation
-            assertFailsWith<CancellationException> {
-                listenableFuture.await()
-            }
+            assertFailsWith<CancellationException> { listenableFuture.await() }
 
             // executors should be idle
             assertThat(queryExecutor.queuedSize()).isEqualTo(0)
@@ -505,9 +462,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeAll()
 
             // await() should throw after cancellation
-            assertFailsWith<CancellationException> {
-                listenableFuture.await()
-            }
+            assertFailsWith<CancellationException> { listenableFuture.await() }
 
             // although query was executed, it should not complete due to the cancellation signal.
             // If query was completed, paging source would call refreshVersionsAsync manually
@@ -529,9 +484,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             queryExecutor.executeAll()
 
             // await() should throw after cancellation
-            assertFailsWith<CancellationException> {
-                listenableFuture.await()
-            }
+            assertFailsWith<CancellationException> { listenableFuture.await() }
 
             // although query was executed, it should not complete due to the cancellation signal.
             // If query was completed, paging source would call refreshVersionsAsync manually
@@ -639,9 +592,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val listenableFuture = pagingSource.prepend(key = 50)
 
         listenableFuture.cancel(true)
-        assertFailsWith<CancellationException> {
-            listenableFuture.await()
-        }
+        assertFailsWith<CancellationException> { listenableFuture.await() }
 
         // new gen after query from previous gen was cancelled
         val pagingSource2 = LimitOffsetListenableFuturePagingSourceImpl(db, true)
@@ -649,9 +600,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val result = listenableFuture2.await() as LoadResult.Page
 
         // the new generation should load as usual
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(0, 15)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
     }
 
     @Test
@@ -663,18 +612,14 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val listenableFuture = pagingSource.append(key = 30)
 
         listenableFuture.cancel(true)
-        assertFailsWith<CancellationException> {
-            listenableFuture.await()
-        }
+        assertFailsWith<CancellationException> { listenableFuture.await() }
         assertTrue(listenableFuture.isDone)
         assertFalse(pagingSource.invalid)
 
         val listenableFuture2 = pagingSource.append(key = 30)
 
         val result = listenableFuture2.await() as LoadResult.Page
-        assertThat(result.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(30, 35)
-        )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 35))
         assertTrue(listenableFuture2.isDone)
     }
 
@@ -687,28 +632,22 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val listenableFuture = pagingSource.prepend(key = 30)
 
         listenableFuture.cancel(true)
-        assertFailsWith<CancellationException> {
-            listenableFuture.await()
-        }
+        assertFailsWith<CancellationException> { listenableFuture.await() }
         assertFalse(pagingSource.invalid)
         assertTrue(listenableFuture.isDone)
 
         val listenableFuture2 = pagingSource.prepend(key = 30)
 
         val result = listenableFuture2.await() as LoadResult.Page
-            assertThat(result.data).containsExactlyElementsIn(
-                ITEMS_LIST.subList(25, 30)
-            )
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(25, 30))
         assertTrue(listenableFuture2.isDone)
     }
 
     @Test
     fun append_insertInvalidatesPagingSource() =
         setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
-                db = db,
-                registerObserver = true
-            )
+            val pagingSource =
+                LimitOffsetListenableFuturePagingSourceImpl(db = db, registerObserver = true)
             pagingSource.itemCount.set(100) // bypass check for initial load
 
             // queue up the append first
@@ -720,9 +659,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             assertThat(queryExecutor.queuedSize()).isEqualTo(1) // nonInitialLoad is queued up
 
             // run this async separately from queryExecutor
-            run {
-                db.getDao().addItem(TestItem(101))
-            }
+            run { db.getDao().addItem(TestItem(101)) }
 
             // tasks in queue [nonInitialLoad, InvalidationTracker(from additem)]
             assertThat(queryExecutor.queuedSize()).isEqualTo(2)
@@ -739,10 +676,8 @@ class LimitOffsetListenableFuturePagingSourceTest {
     @Test
     fun prepend_insertInvalidatesPagingSource() =
         setupAndRunWithTestExecutor { db, queryExecutor, _ ->
-            val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(
-                db = db,
-                registerObserver = true
-            )
+            val pagingSource =
+                LimitOffsetListenableFuturePagingSourceImpl(db = db, registerObserver = true)
             pagingSource.itemCount.set(100) // bypass check for initial load
 
             // queue up the append first
@@ -754,9 +689,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             assertThat(queryExecutor.queuedSize()).isEqualTo(1) // nonInitialLoad is queued up
 
             // run this async separately from queryExecutor
-            run {
-                db.getDao().addItem(TestItem(101))
-            }
+            run { db.getDao().addItem(TestItem(101)) }
 
             // tasks in queue [nonInitialLoad, InvalidationTracker(from additem)]
             assertThat(queryExecutor.queuedSize()).isEqualTo(2)
@@ -778,86 +711,81 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun refresh_secondaryConstructor() = setupAndRun { db ->
-        val pagingSource = object : LimitOffsetListenableFuturePagingSource<TestItem>(
-            db = db,
-            supportSQLiteQuery = SimpleSQLiteQuery(
-                "SELECT * FROM $tableName ORDER BY id ASC"
-            )
-        ) {
-            override fun convertRows(cursor: Cursor): List<TestItem> {
-                return convertRowsHelper(cursor)
+        val pagingSource =
+            object :
+                LimitOffsetListenableFuturePagingSource<TestItem>(
+                    db = db,
+                    supportSQLiteQuery =
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                ) {
+                override fun convertRows(cursor: Cursor): List<TestItem> {
+                    return convertRowsHelper(cursor)
+                }
             }
-        }
 
         db.getDao().addAllItems(ITEMS_LIST)
         val listenableFuture = pagingSource.refresh()
 
         val page = listenableFuture.await() as LoadResult.Page
-        assertThat(page.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(0, 15)
-        )
+        assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
         assertTrue(listenableFuture.isDone)
     }
 
     @Test
     fun append_secondaryConstructor() = setupAndRun { db ->
-        val pagingSource = object : LimitOffsetListenableFuturePagingSource<TestItem>(
-            db = db,
-            supportSQLiteQuery = SimpleSQLiteQuery(
-                "SELECT * FROM $tableName ORDER BY id ASC"
-            )
-        ) {
-            override fun convertRows(cursor: Cursor): List<TestItem> {
-                return convertRowsHelper(cursor)
+        val pagingSource =
+            object :
+                LimitOffsetListenableFuturePagingSource<TestItem>(
+                    db = db,
+                    supportSQLiteQuery =
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                ) {
+                override fun convertRows(cursor: Cursor): List<TestItem> {
+                    return convertRowsHelper(cursor)
+                }
             }
-        }
 
         db.getDao().addAllItems(ITEMS_LIST)
         pagingSource.itemCount.set(100)
         val listenableFuture = pagingSource.append(key = 50)
 
         val page = listenableFuture.await() as LoadResult.Page
-        assertThat(page.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(50, 55)
-        )
+        assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(50, 55))
         assertTrue(listenableFuture.isDone)
     }
 
     @Test
     fun prepend_secondaryConstructor() = setupAndRun { db ->
-        val pagingSource = object : LimitOffsetListenableFuturePagingSource<TestItem>(
-            db = db,
-            supportSQLiteQuery = SimpleSQLiteQuery(
-                "SELECT * FROM $tableName ORDER BY id ASC"
-            )
-        ) {
-            override fun convertRows(cursor: Cursor): List<TestItem> {
-                return convertRowsHelper(cursor)
+        val pagingSource =
+            object :
+                LimitOffsetListenableFuturePagingSource<TestItem>(
+                    db = db,
+                    supportSQLiteQuery =
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                ) {
+                override fun convertRows(cursor: Cursor): List<TestItem> {
+                    return convertRowsHelper(cursor)
+                }
             }
-        }
 
         db.getDao().addAllItems(ITEMS_LIST)
         pagingSource.itemCount.set(100)
         val listenableFuture = pagingSource.prepend(key = 50)
 
         val page = listenableFuture.await() as LoadResult.Page
-        assertThat(page.data).containsExactlyElementsIn(
-            ITEMS_LIST.subList(45, 50)
-        )
+        assertThat(page.data).containsExactlyElementsIn(ITEMS_LIST.subList(45, 50))
         assertTrue(listenableFuture.isDone)
     }
 
-    private fun setupAndRun(
-        test: suspend (LimitOffsetTestDb) -> Unit
-    ) {
-        val db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            LimitOffsetTestDb::class.java
-        ).build()
+    private fun setupAndRun(test: suspend (LimitOffsetTestDb) -> Unit) {
+        val db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    LimitOffsetTestDb::class.java
+                )
+                .build()
 
-        runTest {
-            test(db)
-        }
+        runTest { test(db) }
         tearDown(db)
     }
 
@@ -866,18 +794,19 @@ class LimitOffsetListenableFuturePagingSourceTest {
     ) {
         val queryExecutor = TestExecutor()
         val transactionExecutor = TestExecutor()
-        val db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            LimitOffsetTestDb::class.java
-        )
-            .setTransactionExecutor(transactionExecutor)
-            .setQueryExecutor(queryExecutor)
-            .build()
+        val db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    LimitOffsetTestDb::class.java
+                )
+                .setTransactionExecutor(transactionExecutor)
+                .setQueryExecutor(queryExecutor)
+                .build()
 
         runTest {
             db.getDao().addAllItems(ITEMS_LIST)
             queryExecutor.executeAll() // InvalidationTracker from the addAllItems
-          test(db, queryExecutor, transactionExecutor)
+            test(db, queryExecutor, transactionExecutor)
         }
         tearDown(db)
     }
@@ -893,21 +822,19 @@ private class LimitOffsetListenableFuturePagingSourceImpl(
     db: RoomDatabase,
     registerObserver: Boolean = false,
     queryString: String = "SELECT * FROM $tableName ORDER BY id ASC",
-) : LimitOffsetListenableFuturePagingSource<TestItem>(
-    sourceQuery = RoomSQLiteQuery.acquire(
-        queryString,
-        0
-    ),
-    db = db,
-    tables = arrayOf(tableName)
-) {
+) :
+    LimitOffsetListenableFuturePagingSource<TestItem>(
+        sourceQuery = RoomSQLiteQuery.acquire(queryString, 0),
+        db = db,
+        tables = arrayOf(tableName)
+    ) {
 
-   init {
-       // bypass register check and avoid registering observer
-       if (!registerObserver) {
-           privateObserver().privateRegisteredState().set(true)
-       }
-   }
+    init {
+        // bypass register check and avoid registering observer
+        if (!registerObserver) {
+            privateObserver().privateRegisteredState().set(true)
+        }
+    }
 
     override fun convertRows(cursor: Cursor): List<TestItem> {
         return convertRowsHelper(cursor)
@@ -926,10 +853,11 @@ private fun convertRowsHelper(cursor: Cursor): List<TestItem> {
 
 @Suppress("UNCHECKED_CAST")
 private fun TestExecutor.executeNext() {
-    val tasks = javaClass.getDeclaredField("mTasks").let {
-        it.isAccessible = true
-        it.get(this)
-    } as LinkedList<Runnable>
+    val tasks =
+        javaClass.getDeclaredField("mTasks").let {
+            it.isAccessible = true
+            it.get(this)
+        } as LinkedList<Runnable>
 
     if (!tasks.isEmpty()) {
         val task = tasks.poll()
@@ -939,33 +867,30 @@ private fun TestExecutor.executeNext() {
 
 @Suppress("UNCHECKED_CAST")
 private fun TestExecutor.queuedSize(): Int {
-    val tasks = javaClass.getDeclaredField("mTasks").let {
-        it.isAccessible = true
-        it.get(this)
-    } as LinkedList<Runnable>
+    val tasks =
+        javaClass.getDeclaredField("mTasks").let {
+            it.isAccessible = true
+            it.get(this)
+        } as LinkedList<Runnable>
 
     return tasks.size
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun ThreadSafeInvalidationObserver.privateRegisteredState(): AtomicBoolean {
-    return ThreadSafeInvalidationObserver::class.java
-        .getDeclaredField("registered")
-        .let {
-            it.isAccessible = true
-            it.get(this)
-        } as AtomicBoolean
+    return ThreadSafeInvalidationObserver::class.java.getDeclaredField("registered").let {
+        it.isAccessible = true
+        it.get(this)
+    } as AtomicBoolean
 }
 
 @Suppress("UNCHECKED_CAST")
 private fun LimitOffsetListenableFuturePagingSource<TestItem>.privateObserver():
     ThreadSafeInvalidationObserver {
-    return LimitOffsetListenableFuturePagingSource::class.java
-        .getDeclaredField("observer")
-        .let {
-            it.isAccessible = true
-            it.get(this)
-        } as ThreadSafeInvalidationObserver
+    return LimitOffsetListenableFuturePagingSource::class.java.getDeclaredField("observer").let {
+        it.isAccessible = true
+        it.get(this)
+    } as ThreadSafeInvalidationObserver
 }
 
 private fun LimitOffsetListenableFuturePagingSource<TestItem>.refresh(
@@ -1001,11 +926,7 @@ private fun LimitOffsetListenableFuturePagingSource<TestItem>.prepend(
     )
 }
 
-private val CONFIG = PagingConfig(
-    pageSize = 5,
-    enablePlaceholders = true,
-    initialLoadSize = 15
-)
+private val CONFIG = PagingConfig(pageSize = 5, enablePlaceholders = true, initialLoadSize = 15)
 
 private val ITEMS_LIST = createItemsForDb(0, 100)
 
@@ -1061,8 +982,11 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onSuccess(
             }
 
             override fun onFailure(t: Throwable) {
-                assertWithMessage("Expected onSuccess callback instead of onFailure, " +
-                    "received ${t.localizedMessage}").fail()
+                assertWithMessage(
+                        "Expected onSuccess callback instead of onFailure, " +
+                            "received ${t.localizedMessage}"
+                    )
+                    .fail()
             }
         },
         executor
@@ -1077,8 +1001,11 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onFailure(
         this,
         object : FutureCallback<LoadResult<Int, TestItem>> {
             override fun onSuccess(result: LoadResult<Int, TestItem>?) {
-                assertWithMessage("Expected onFailure callback instead of onSuccess, " +
-                    "received result $result").fail()
+                assertWithMessage(
+                        "Expected onFailure callback instead of onSuccess, " +
+                            "received result $result"
+                    )
+                    .fail()
             }
 
             override fun onFailure(t: Throwable) {
@@ -1095,16 +1022,11 @@ abstract class LimitOffsetTestDb : RoomDatabase() {
 }
 
 @Entity(tableName = "TestItem")
-data class TestItem(
-    @PrimaryKey val id: Int,
-    val value: String = "item $id"
-)
+data class TestItem(@PrimaryKey val id: Int, val value: String = "item $id")
 
 @Dao
 interface TestItemDao {
-    @Insert
-    fun addAllItems(testItems: List<TestItem>)
+    @Insert fun addAllItems(testItems: List<TestItem>)
 
-    @Insert
-    fun addItem(testItem: TestItem)
+    @Insert fun addItem(testItem: TestItem)
 }
