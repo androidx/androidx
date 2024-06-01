@@ -37,8 +37,8 @@ import java.awt.Window
 import kotlin.math.roundToInt
 
 /**
- * Ignore size updating if window is maximized or in fullscreen.
- * Otherwise we will reset maximized / fullscreen state.
+ * Ignore size updating if window is maximized or in fullscreen. Otherwise we will reset maximized /
+ * fullscreen state.
  */
 internal fun ComposeWindow.setSizeSafely(size: DpSize) {
     if (placement == WindowPlacement.Floating) {
@@ -47,37 +47,35 @@ internal fun ComposeWindow.setSizeSafely(size: DpSize) {
 }
 
 /**
- * Ignore position updating if window is maximized or in fullscreen.
- * Otherwise we will reset maximized / fullscreen state.
+ * Ignore position updating if window is maximized or in fullscreen. Otherwise we will reset
+ * maximized / fullscreen state.
  */
-internal fun ComposeWindow.setPositionSafely(
-    position: WindowPosition
-) {
+internal fun ComposeWindow.setPositionSafely(position: WindowPosition) {
     if (placement == WindowPlacement.Floating) {
         (this as Window).setPositionSafely(position)
     }
 }
 
-/**
- * Limit the width and the height to a minimum of 0
- */
+/** Limit the width and the height to a minimum of 0 */
 internal fun Window.setSizeSafely(size: DpSize) {
     val screenBounds by lazy { graphicsConfiguration.bounds }
 
     val isWidthSpecified = size.isSpecified && size.width.isSpecified
     val isHeightSpecified = size.isSpecified && size.height.isSpecified
 
-    val width = if (isWidthSpecified) {
-        size.width.value.roundToInt().coerceAtLeast(0)
-    } else {
-        screenBounds.width
-    }
+    val width =
+        if (isWidthSpecified) {
+            size.width.value.roundToInt().coerceAtLeast(0)
+        } else {
+            screenBounds.width
+        }
 
-    val height = if (isHeightSpecified) {
-        size.height.value.roundToInt().coerceAtLeast(0)
-    } else {
-        screenBounds.height
-    }
+    val height =
+        if (isHeightSpecified) {
+            size.height.value.roundToInt().coerceAtLeast(0)
+        } else {
+            screenBounds.height
+        }
 
     if (!isWidthSpecified || !isHeightSpecified) {
         preferredSize = Dimension(width, height)
@@ -93,16 +91,13 @@ internal fun Window.setSizeSafely(size: DpSize) {
     )
 }
 
-internal fun Window.setPositionSafely(
-    position: WindowPosition
-) = when (position) {
-    WindowPosition.PlatformDefault -> setLocationByPlatformSafely(true)
-    is WindowPosition.Aligned -> align(position.alignment)
-    is WindowPosition.Absolute -> setLocation(
-        position.x.value.roundToInt(),
-        position.y.value.roundToInt()
-    )
-}
+internal fun Window.setPositionSafely(position: WindowPosition) =
+    when (position) {
+        WindowPosition.PlatformDefault -> setLocationByPlatformSafely(true)
+        is WindowPosition.Aligned -> align(position.alignment)
+        is WindowPosition.Absolute ->
+            setLocation(position.x.value.roundToInt(), position.y.value.roundToInt())
+    }
 
 internal fun Window.align(alignment: Alignment) {
     val screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfiguration)
@@ -111,16 +106,12 @@ internal fun Window.align(alignment: Alignment) {
     val screenSize = IntSize(screenBounds.width, screenBounds.height)
     val location = alignment.align(size, screenSize, LayoutDirection.Ltr)
 
-    setLocation(
-        screenInsets.left + location.x,
-        screenInsets.top + location.y
-    )
+    setLocation(screenInsets.left + location.x, screenInsets.top + location.y)
 }
 
 /**
- * We cannot call [Frame.setLocation] if window is showing - AWT will throw an
- * exception.
- * But we can call [Frame.setLocationByPlatform] if isLocationByPlatform isn't changed.
+ * We cannot call [Frame.setLocation] if window is showing - AWT will throw an exception. But we can
+ * call [Frame.setLocationByPlatform] if isLocationByPlatform isn't changed.
  */
 internal fun Window.setLocationByPlatformSafely(isLocationByPlatform: Boolean) {
     if (this.isLocationByPlatform != isLocationByPlatform) {
@@ -129,8 +120,8 @@ internal fun Window.setLocationByPlatformSafely(isLocationByPlatform: Boolean) {
 }
 
 /**
- * We cannot call [Frame.setUndecorated] if window is showing - AWT will throw an exception.
- * But we can call [Frame.setUndecoratedSafely] if isUndecorated isn't changed.
+ * We cannot call [Frame.setUndecorated] if window is showing - AWT will throw an exception. But we
+ * can call [Frame.setUndecoratedSafely] if isUndecorated isn't changed.
  */
 internal fun Frame.setUndecoratedSafely(value: Boolean) {
     if (this.isUndecorated != value) {

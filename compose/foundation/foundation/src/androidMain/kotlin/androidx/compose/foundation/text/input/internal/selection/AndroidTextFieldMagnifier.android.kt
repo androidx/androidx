@@ -54,27 +54,30 @@ internal class TextFieldMagnifierNodeImpl28(
     // Can't use Offset.VectorConverter because we need to handle Unspecified specially.
     private val animatable =
         Animatable(
-            initialValue = calculateSelectionMagnifierCenterAndroid(
-                textFieldState = textFieldState,
-                selectionState = textFieldSelectionState,
-                textLayoutState = textLayoutState,
-                magnifierSize = magnifierSize
-            ),
+            initialValue =
+                calculateSelectionMagnifierCenterAndroid(
+                    textFieldState = textFieldState,
+                    selectionState = textFieldSelectionState,
+                    textLayoutState = textLayoutState,
+                    magnifierSize = magnifierSize
+                ),
             typeConverter = UnspecifiedSafeOffsetVectorConverter,
             visibilityThreshold = OffsetDisplacementThreshold
         )
 
-    private val magnifierNode = delegate(
-        MagnifierNode(
-            sourceCenter = { animatable.value },
-            onSizeChanged = { size ->
-                magnifierSize = with(currentValueOf(LocalDensity)) {
-                    IntSize(size.width.roundToPx(), size.height.roundToPx())
-                }
-            },
-            useTextDefault = true
+    private val magnifierNode =
+        delegate(
+            MagnifierNode(
+                sourceCenter = { animatable.value },
+                onSizeChanged = { size ->
+                    magnifierSize =
+                        with(currentValueOf(LocalDensity)) {
+                            IntSize(size.width.roundToPx(), size.height.roundToPx())
+                        }
+                },
+                useTextDefault = true
+            )
         )
-    )
 
     private var animationJob: Job? = null
 
@@ -98,10 +101,11 @@ internal class TextFieldMagnifierNodeImpl28(
         this.textLayoutState = textLayoutState
         this.visible = visible
 
-        if (textFieldState != previousTextFieldState ||
-            textFieldSelectionState != previousSelectionState ||
-            textLayoutState != previousLayoutState ||
-            visible != wasVisible
+        if (
+            textFieldState != previousTextFieldState ||
+                textFieldSelectionState != previousSelectionState ||
+                textLayoutState != previousLayoutState ||
+                visible != wasVisible
         ) {
             restartAnimationJob()
         }
@@ -112,46 +116,54 @@ internal class TextFieldMagnifierNodeImpl28(
         animationJob = null
         // never start an expensive animation job if magnifier is not supported.
         if (!isPlatformMagnifierSupported()) return
-        animationJob = coroutineScope.launch {
-            val animationScope = this
-            snapshotFlow {
-                // Although `visible` is not backed by snapshot state, TextFieldMagnifierNode is
-                // responsible for calling `restartAnimationJob` everytime the value of `visible`
-                // changes. So we don't have to worry about whether snapshotFlow invalidates for
-                // `visible`.
-                if (!visible &&
-                    textFieldSelectionState.directDragGestureInitiator != InputType.Touch
-                ) {
-                    return@snapshotFlow Offset.Unspecified
-                }
-                calculateSelectionMagnifierCenterAndroid(
-                    textFieldState,
-                    textFieldSelectionState,
-                    textLayoutState,
-                    magnifierSize
-                )
-            }
-                .collect { targetValue ->
-                    // Only animate the position when moving vertically (i.e. jumping between
-                    // lines), since horizontal movement in a single line should stay as close to
-                    // the gesture as possible and animation would only add unnecessary lag.
-                    if (
-                        animatable.value.isSpecified &&
-                        targetValue.isSpecified &&
-                        animatable.value.y != targetValue.y
-                    ) {
-                        // Launch the animation, instead of cancelling and re-starting manually via
-                        // collectLatest, so if another animation is started before this one
-                        // finishes, the new one will use the correct velocity, e.g. in order to
-                        // propagate spring inertia.
-                        animationScope.launch {
-                            animatable.animateTo(targetValue, MagnifierSpringSpec)
+        animationJob =
+            coroutineScope.launch {
+                val animationScope = this
+                snapshotFlow {
+                        // Although `visible` is not backed by snapshot state,
+                        // TextFieldMagnifierNode is
+                        // responsible for calling `restartAnimationJob` everytime the value of
+                        // `visible`
+                        // changes. So we don't have to worry about whether snapshotFlow invalidates
+                        // for
+                        // `visible`.
+                        if (
+                            !visible &&
+                                textFieldSelectionState.directDragGestureInitiator !=
+                                    InputType.Touch
+                        ) {
+                            return@snapshotFlow Offset.Unspecified
                         }
-                    } else {
-                        animatable.snapTo(targetValue)
+                        calculateSelectionMagnifierCenterAndroid(
+                            textFieldState,
+                            textFieldSelectionState,
+                            textLayoutState,
+                            magnifierSize
+                        )
                     }
-                }
-        }
+                    .collect { targetValue ->
+                        // Only animate the position when moving vertically (i.e. jumping between
+                        // lines), since horizontal movement in a single line should stay as close
+                        // to
+                        // the gesture as possible and animation would only add unnecessary lag.
+                        if (
+                            animatable.value.isSpecified &&
+                                targetValue.isSpecified &&
+                                animatable.value.y != targetValue.y
+                        ) {
+                            // Launch the animation, instead of cancelling and re-starting manually
+                            // via
+                            // collectLatest, so if another animation is started before this one
+                            // finishes, the new one will use the correct velocity, e.g. in order to
+                            // propagate spring inertia.
+                            animationScope.launch {
+                                animatable.animateTo(targetValue, MagnifierSpringSpec)
+                            }
+                        } else {
+                            animatable.snapTo(targetValue)
+                        }
+                    }
+            }
     }
 
     // TODO(halilibo) Remove this once delegation can propagate this events on its own

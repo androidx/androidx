@@ -21,11 +21,11 @@ import java.io.OutputStreamWriter
 import java.lang.Appendable
 
 /**
- * This class is a very rudimentary json serializer. It is not fully featured, and does not
- * properly handle escaping strings, among other things. This is being used because the actual
- * needs for json serialization we have are extremely minimal, and I don't want to introduce a
- * library dependency unnecessarily, however if we start serializing more objects into JSON we
- * should probably go down that path. Please use this class with caution.
+ * This class is a very rudimentary json serializer. It is not fully featured, and does not properly
+ * handle escaping strings, among other things. This is being used because the actual needs for json
+ * serialization we have are extremely minimal, and I don't want to introduce a library dependency
+ * unnecessarily, however if we start serializing more objects into JSON we should probably go down
+ * that path. Please use this class with caution.
  */
 class JsonBuilder(private val sb: Appendable, private val indent: Int = 0) {
     var hasEntry = false
@@ -44,12 +44,11 @@ class JsonBuilder(private val sb: Appendable, private val indent: Int = 0) {
         }
         hasEntry = true
     }
+
     fun entry(key: String, value: Int) = entryLiteral(key, "$value")
 
-    fun entry(key: String, fn: JsonBuilder.() -> Unit) = entryLiteral(
-        key,
-        buildString { JsonBuilder(this, indent + 1).with(fn) }
-    )
+    fun entry(key: String, fn: JsonBuilder.() -> Unit) =
+        entryLiteral(key, buildString { JsonBuilder(this, indent + 1).with(fn) })
 
     fun with(fn: JsonBuilder.() -> Unit) {
         with(sb) {
@@ -66,23 +65,30 @@ fun Appendable.appendJson(fn: JsonBuilder.() -> Unit) {
 }
 
 class CsvBuilder(private val writer: Appendable) {
-    fun row(fn: CsvBuilder.() -> Unit): Unit = with(writer) {
-        fn()
-        appendLine()
-    }
-    fun col(value: String): Unit = with(writer) {
-        require(!value.contains(',')) { "Illegal character ',' found: $value" }
-        append(value)
-        append(",")
-    }
-    fun col(value: Int): Unit = with(writer) {
-        append("$value")
-        append(",")
-    }
-    fun col(value: Boolean): Unit = with(writer) {
-        append(if (value) "1" else "0")
-        append(",")
-    }
+    fun row(fn: CsvBuilder.() -> Unit): Unit =
+        with(writer) {
+            fn()
+            appendLine()
+        }
+
+    fun col(value: String): Unit =
+        with(writer) {
+            require(!value.contains(',')) { "Illegal character ',' found: $value" }
+            append(value)
+            append(",")
+        }
+
+    fun col(value: Int): Unit =
+        with(writer) {
+            append("$value")
+            append(",")
+        }
+
+    fun col(value: Boolean): Unit =
+        with(writer) {
+            append(if (value) "1" else "0")
+            append(",")
+        }
 }
 
 fun File.write(fn: OutputStreamWriter.() -> Unit) {
@@ -90,9 +96,7 @@ fun File.write(fn: OutputStreamWriter.() -> Unit) {
         parentFile.mkdirs()
         createNewFile()
     }
-    writer().use {
-        it.fn()
-    }
+    writer().use { it.fn() }
 }
 
 fun Appendable.appendCsv(fn: CsvBuilder.() -> Unit) {

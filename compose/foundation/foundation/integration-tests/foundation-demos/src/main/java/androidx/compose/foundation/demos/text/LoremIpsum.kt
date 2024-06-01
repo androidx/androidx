@@ -31,14 +31,12 @@ fun loremIpsum(
 ): String =
     loremIpsumWords(language).joinToString(separator = separator, limit = wordCount, truncated = "")
 
-/**
- * An infinite [Sequence] of words of Lorem Ipsum text.
- */
-fun loremIpsumWords(
-    language: Language = Language.Latin
-): Sequence<String> = generateSequence { language.words.asSequence() }.flatten()
+/** An infinite [Sequence] of words of Lorem Ipsum text. */
+fun loremIpsumWords(language: Language = Language.Latin): Sequence<String> =
+    generateSequence { language.words.asSequence() }.flatten()
 
-private val LatinLipsum = """
+private val LatinLipsum =
+    """
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque a egestas nisi. Aenean
     aliquam neque lacus, ac sollicitudin risus consequat in. Pellentesque habitant morbi tristique
     senectus et netus et malesuada fames ac turpis egestas. In id nulla quam. Ut lobortis justo
@@ -77,9 +75,11 @@ private val LatinLipsum = """
     eleifend efficitur. Curabitur accumsan vestibulum ligula sed aliquet. Nulla pretium dui id
     nunc ultricies, id porttitor lorem pretium. Lorem ipsum dolor sit amet, consectetur
     adipiscing elit.
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val ArabicLipsum = """
+private val ArabicLipsum =
+    """
     وبحلول التخطيط بلا عل. لأداء المنتصر عسكرياً لكل أن, أخذ ثانية عرفها و. شيء من قدما الجو بخطوط,
     تم لها بحشد كثيرة الأولية, إذ أواخر الشتاء، الكونجرس عدد. عل العصبة للأراضي عدد, بـ تلك هامش
     اعتداء وإيطالي. فصل أم العالم المعاهدات.
@@ -90,9 +90,11 @@ private val ArabicLipsum = """
     ٣٠ صفحة فاتّبع الكونجرس لها, بحق ضمنها الإنذار، و. تم لعدم الإنزال الأهداف ذلك, غضون تجهيز عن
     جهة. الذود الأسيوي ٣٠ حيث, دار بل بزمام أثره، المواد, تم الدّفاع الأوروبية شيء. مواقعها مليارات
     وتم ٣٠. كما جنوب مكثّفة الإمداد عن, من أضف وحتّى الخاسر الإحتفاظ.
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val HebrewLipsum = """
+private val HebrewLipsum =
+    """
     גם לכאן הבהרה בהשחתה היא. גם בדף דרכה ביוטכנולוגיה, אם כלל עמוד בקרבת רומנית, בהבנה לעריכה
     שתי גם. או הספרות הנאמנים ויקימדיה עוד. דת דפים הגולשות רבה. והנדסה לחיבור תחבורה תנך אם. בה
     אתה כלים אחרים וקשקש. של לכאן החופשית ארץ.
@@ -103,4 +105,5 @@ private val HebrewLipsum = """
     ישראל בקלות לטיפול בה שמו. שנתי בגרסה האנציקלופדיה זכר של, של חשמל לימודים האטמוספירה מתן, לוח
     על ובמתן קישורים עקרונות. סדר את החול רוסית, תנך למנוע ברוכים דת, מדע אל ניווט ניהול והנדסה.
     בה צעד בקלות אנגלית שימושיים. על ערכים נבחרים הספרות כדי, ארץ ליום טיפול ברוכים מה.
-""".trimIndent()
+"""
+        .trimIndent()

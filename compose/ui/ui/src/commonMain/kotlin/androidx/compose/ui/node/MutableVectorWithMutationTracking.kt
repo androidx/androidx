@@ -19,8 +19,8 @@ package androidx.compose.ui.node
 import androidx.compose.runtime.collection.MutableVector
 
 /**
- * This class tracks the mutation to the provided [vector] through the provided methods.
- * On mutation, the [onVectorMutated] lambda will be invoked.
+ * This class tracks the mutation to the provided [vector] through the provided methods. On
+ * mutation, the [onVectorMutated] lambda will be invoked.
  */
 internal class MutableVectorWithMutationTracking<T>(
     val vector: MutableVector<T>,
@@ -40,9 +40,7 @@ internal class MutableVectorWithMutationTracking<T>(
     }
 
     fun removeAt(index: Int): T {
-        return vector.removeAt(index).also {
-            onVectorMutated()
-        }
+        return vector.removeAt(index).also { onVectorMutated() }
     }
 
     inline fun forEach(block: (T) -> Unit) = vector.forEach(block)

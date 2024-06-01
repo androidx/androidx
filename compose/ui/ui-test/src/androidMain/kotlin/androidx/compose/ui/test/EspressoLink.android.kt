@@ -28,13 +28,11 @@ import kotlinx.coroutines.withContext
 /**
  * Idling strategy for regular Android Instrumented tests, built on Espresso.
  *
- * This installs the [IdlingResourceRegistry] as an [IdlingResource] into Espresso and delegates
- * all the work to Espresso. We wrap [Espresso.onIdle] so we can print more informative error
- * messages.
+ * This installs the [IdlingResourceRegistry] as an [IdlingResource] into Espresso and delegates all
+ * the work to Espresso. We wrap [Espresso.onIdle] so we can print more informative error messages.
  */
-internal class EspressoLink(
-    private val registry: IdlingResourceRegistry
-) : IdlingResource, IdlingStrategy {
+internal class EspressoLink(private val registry: IdlingResourceRegistry) :
+    IdlingResource, IdlingStrategy {
 
     override val canSynchronizeOnUiThread: Boolean = false
 
@@ -45,9 +43,7 @@ internal class EspressoLink(
     }
 
     override fun registerIdleTransitionCallback(callback: IdlingResource.ResourceCallback?) {
-        registry.setOnIdleCallback {
-            callback?.onTransitionToIdle()
-        }
+        registry.setOnIdleCallback { callback?.onTransitionToIdle() }
     }
 
     fun getDiagnosticMessageIfBusy(): String? = registry.getDiagnosticMessageIfBusy()
@@ -81,9 +77,7 @@ internal class EspressoLink(
 
     override suspend fun awaitIdle() {
         // Espresso.onIdle() must be called from a non-ui thread; so use Dispatchers.IO
-        withContext(Dispatchers.IO) {
-            runUntilIdle()
-        }
+        withContext(Dispatchers.IO) { runUntilIdle() }
     }
 }
 
@@ -128,11 +122,12 @@ private fun rethrowWithMoreInfo(e: Throwable, wasGlobalTimeout: Boolean) {
         listOfIdlingResources.add(resource.name)
     }
     if (diagnosticInfo.isNotEmpty()) {
-        val prefix = if (wasGlobalTimeout) {
-            "Global time out"
-        } else {
-            "Idling resource timed out"
-        }
+        val prefix =
+            if (wasGlobalTimeout) {
+                "Global time out"
+            } else {
+                "Idling resource timed out"
+            }
         throw ComposeNotIdleException(
             "$prefix: possibly due to compose being busy.\n" +
                 diagnosticInfo +
@@ -146,9 +141,9 @@ private fun rethrowWithMoreInfo(e: Throwable, wasGlobalTimeout: Boolean) {
 }
 
 /**
- * Tries to find if the given exception or any of its cause is of the type of the provided
- * throwable T. Returns null if there is no match. This is required as some exceptions end up
- * wrapped in Runtime or Concurrent exceptions.
+ * Tries to find if the given exception or any of its cause is of the type of the provided throwable
+ * T. Returns null if there is no match. This is required as some exceptions end up wrapped in
+ * Runtime or Concurrent exceptions.
  */
 private inline fun <reified T : Throwable> tryToFindCause(e: Throwable): Throwable? {
     var causeToCheck: Throwable? = e

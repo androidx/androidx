@@ -31,92 +31,87 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class SuspendAnimationTest {
     @Test
-    fun animateFloatVariantTest() =
-        runBlocking {
-            val anim = TargetBasedAnimation(
-                spring(dampingRatio = Spring.DampingRatioMediumBouncy), Float.VectorConverter,
-                initialValue = 0f, targetValue = 1f
+    fun animateFloatVariantTest() = runBlocking {
+        val anim =
+            TargetBasedAnimation(
+                spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                Float.VectorConverter,
+                initialValue = 0f,
+                targetValue = 1f
             )
-            val clock = TestFrameClock()
-            val interval = 50
-            withContext(clock) {
-                // Put in a bunch of frames 50 milliseconds apart
-                for (frameTimeMillis in 0..5000 step interval) {
-                    clock.frame(frameTimeMillis * 1_000_000L)
-                }
-                var playTimeMillis = 0L
-                animate(
-                    0f, 1f, 0f,
-                    spring(dampingRatio = Spring.DampingRatioMediumBouncy)
-                ) { value, velocity ->
-                    assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
-                    assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
-                    playTimeMillis += interval
-                }
+        val clock = TestFrameClock()
+        val interval = 50
+        withContext(clock) {
+            // Put in a bunch of frames 50 milliseconds apart
+            for (frameTimeMillis in 0..5000 step interval) {
+                clock.frame(frameTimeMillis * 1_000_000L)
+            }
+            var playTimeMillis = 0L
+            animate(0f, 1f, 0f, spring(dampingRatio = Spring.DampingRatioMediumBouncy)) {
+                value,
+                velocity ->
+                assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
+                assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
+                playTimeMillis += interval
             }
         }
+    }
 
     @Test
-    fun animateGenericsVariantTest() =
-        runBlocking {
-            val from = Offset(666f, 321f)
-            val to = Offset(919f, 864f)
-            val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
-                TwoWayConverter(
-                    convertToVector = { AnimationVector2D(it.x, it.y) },
-                    convertFromVector = { Offset(it.v1, it.v2) }
-                )
-            val anim = TargetBasedAnimation(
-                tween(500), offsetToVector, initialValue = from, targetValue = to
+    fun animateGenericsVariantTest() = runBlocking {
+        val from = Offset(666f, 321f)
+        val to = Offset(919f, 864f)
+        val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
+            TwoWayConverter(
+                convertToVector = { AnimationVector2D(it.x, it.y) },
+                convertFromVector = { Offset(it.v1, it.v2) }
             )
-            val clock = TestFrameClock()
-            val interval = 50
-            withContext(clock) {
-                // Put in a bunch of frames 50 milliseconds apart
-                for (frameTimeMillis in 0..500 step interval) {
-                    clock.frame(frameTimeMillis * 1_000_000L)
-                }
-                var playTimeMillis = 0L
-                animate(
-                    offsetToVector,
-                    from, to,
-                    animationSpec = tween(500)
-                ) { value, _ ->
-                    val expectedValue = anim.getValueFromMillis(playTimeMillis)
-                    assertEquals(expectedValue.x, value.x, 0.001f)
-                    assertEquals(expectedValue.y, value.y, 0.001f)
-                    playTimeMillis += interval
-                }
+        val anim =
+            TargetBasedAnimation(tween(500), offsetToVector, initialValue = from, targetValue = to)
+        val clock = TestFrameClock()
+        val interval = 50
+        withContext(clock) {
+            // Put in a bunch of frames 50 milliseconds apart
+            for (frameTimeMillis in 0..500 step interval) {
+                clock.frame(frameTimeMillis * 1_000_000L)
+            }
+            var playTimeMillis = 0L
+            animate(offsetToVector, from, to, animationSpec = tween(500)) { value, _ ->
+                val expectedValue = anim.getValueFromMillis(playTimeMillis)
+                assertEquals(expectedValue.x, value.x, 0.001f)
+                assertEquals(expectedValue.y, value.y, 0.001f)
+                playTimeMillis += interval
             }
         }
+    }
 
     @Test
-    fun animateDecayTest() =
-        runBlocking {
-            val from = 666f
-            val velocity = 999f
-            val anim = DecayAnimation(
+    fun animateDecayTest() = runBlocking {
+        val from = 666f
+        val velocity = 999f
+        val anim =
+            DecayAnimation(
                 FloatExponentialDecaySpec(),
-                initialValue = from, initialVelocity = velocity
+                initialValue = from,
+                initialVelocity = velocity
             )
-            val clock = TestFrameClock()
-            val interval = 50
-            withContext(clock) {
-                // Put in a bunch of frames 50 milliseconds apart
-                for (frameTimeMillis in 0..5000 step interval) {
-                    clock.frame(frameTimeMillis * 1_000_000L)
-                }
-                var playTimeMillis = 0L
-                animateDecay(
-                    from, velocity,
-                    animationSpec = FloatExponentialDecaySpec()
-                ) { value, velocity ->
-                    assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
-                    assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
-                    playTimeMillis += interval
-                }
+        val clock = TestFrameClock()
+        val interval = 50
+        withContext(clock) {
+            // Put in a bunch of frames 50 milliseconds apart
+            for (frameTimeMillis in 0..5000 step interval) {
+                clock.frame(frameTimeMillis * 1_000_000L)
+            }
+            var playTimeMillis = 0L
+            animateDecay(from, velocity, animationSpec = FloatExponentialDecaySpec()) {
+                value,
+                velocity ->
+                assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
+                assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
+                playTimeMillis += interval
             }
         }
+    }
 
     @Test
     fun animateToTest() {
@@ -128,16 +123,21 @@ class SuspendAnimationTest {
                     convertToVector = { AnimationVector2D(it.x, it.y) },
                     convertFromVector = { Offset(it.v1, it.v2) }
                 )
-            val anim = TargetBasedAnimation(
-                tween(500), offsetToVector, initialValue = from, targetValue = to
-            )
+            val anim =
+                TargetBasedAnimation(
+                    tween(500),
+                    offsetToVector,
+                    initialValue = from,
+                    targetValue = to
+                )
             val clock = TestFrameClock()
             val interval = 50
-            val animationState = AnimationState(
-                initialValue = from,
-                typeConverter = offsetToVector,
-                lastFrameTimeNanos = 0
-            )
+            val animationState =
+                AnimationState(
+                    initialValue = from,
+                    typeConverter = offsetToVector,
+                    lastFrameTimeNanos = 0
+                )
             withContext(clock) {
                 // Put in a bunch of frames 50 milliseconds apart
                 for (frameTimeMillis in 100..1000 step interval) {
@@ -179,34 +179,33 @@ class SuspendAnimationTest {
     }
 
     @Test
-    fun animateDecayOnAnimationStateTest() =
-        runBlocking {
-            val from = 9f
-            val initialVelocity = 20f
-            val anim = DecayAnimation(
+    fun animateDecayOnAnimationStateTest() = runBlocking {
+        val from = 9f
+        val initialVelocity = 20f
+        val anim =
+            DecayAnimation(
                 FloatExponentialDecaySpec(),
-                initialValue = from, initialVelocity = initialVelocity
+                initialValue = from,
+                initialVelocity = initialVelocity
             )
-            val clock = TestFrameClock()
-            val interval = 50
-            withContext(clock) {
-                // Put in a bunch of frames 50 milliseconds apart
-                for (frameTimeMillis in 0..5000 step interval) {
-                    clock.frame(frameTimeMillis * 1_000_000L)
-                }
-                var playTimeMillis = 0L
-                val state = AnimationState(9f, 20f)
-                state.animateDecay(
-                    FloatExponentialDecaySpec().generateDecayAnimationSpec()
-                ) {
-                    assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
-                    assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
-                    playTimeMillis += interval
-                    assertEquals(value, state.value, 0.0001f)
-                    assertEquals(velocity, state.velocity, 0.0001f)
-                }
+        val clock = TestFrameClock()
+        val interval = 50
+        withContext(clock) {
+            // Put in a bunch of frames 50 milliseconds apart
+            for (frameTimeMillis in 0..5000 step interval) {
+                clock.frame(frameTimeMillis * 1_000_000L)
+            }
+            var playTimeMillis = 0L
+            val state = AnimationState(9f, 20f)
+            state.animateDecay(FloatExponentialDecaySpec().generateDecayAnimationSpec()) {
+                assertEquals(anim.getValueFromMillis(playTimeMillis), value, 0.001f)
+                assertEquals(anim.getVelocityFromMillis(playTimeMillis), velocity, 0.001f)
+                playTimeMillis += interval
+                assertEquals(value, state.value, 0.0001f)
+                assertEquals(velocity, state.velocity, 0.0001f)
             }
         }
+    }
 
     internal class TestFrameClock : MonotonicFrameClock {
         // Make the send non-blocking

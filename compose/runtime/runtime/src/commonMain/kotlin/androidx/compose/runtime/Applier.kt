@@ -35,8 +35,8 @@ import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 @JvmDefaultWithCompatibility
 interface Applier<N> {
     /**
-     * The node that operations will be applied on at any given time. It is expected that the
-     * value of this property will change as [down] and [up] are called.
+     * The node that operations will be applied on at any given time. It is expected that the value
+     * of this property will change as [down] and [up] are called.
      */
     val current: N
 
@@ -47,22 +47,22 @@ interface Applier<N> {
     fun onBeginChanges() {}
 
     /**
-     * Called when the [Composer] is finished applying changes using this applier.
-     * A call to [onBeginChanges] will always precede a call to [onEndChanges].
+     * Called when the [Composer] is finished applying changes using this applier. A call to
+     * [onBeginChanges] will always precede a call to [onEndChanges].
      */
     fun onEndChanges() {}
 
     /**
      * Indicates that the applier is getting traversed "down" the tree. When this gets called,
-     * [node] is expected to be a child of [current], and after this operation, [node] is
-     * expected to be the new [current].
+     * [node] is expected to be a child of [current], and after this operation, [node] is expected
+     * to be the new [current].
      */
     fun down(node: N)
 
     /**
      * Indicates that the applier is getting traversed "up" the tree. After this operation
-     * completes, the [current] should return the "parent" of the [current] node at the beginning
-     * of this operation.
+     * completes, the [current] should return the "parent" of the [current] node at the beginning of
+     * this operation.
      */
     fun up()
 
@@ -74,12 +74,11 @@ interface Applier<N> {
      * inserted into it. [insertBottomUp] is called after all children have been created and
      * inserted.
      *
-     * Some trees are faster to build top-down, in which case the [insertTopDown] method should
-     * be used to insert the [instance]. Other trees are faster to build bottom-up in which case
+     * Some trees are faster to build top-down, in which case the [insertTopDown] method should be
+     * used to insert the [instance]. Other trees are faster to build bottom-up in which case
      * [insertBottomUp] should be used.
      *
      * To give example of building a tree top-down vs. bottom-up consider the following tree,
-     *
      * ```
      *      R
      *      |
@@ -88,9 +87,9 @@ interface Applier<N> {
      *    A   C
      *  ```
      *
-     *  where the node `B` is being inserted into the tree at `R`. Top-down building of the tree
-     *  first inserts `B` into `R`, then inserts `A` into `B` followed by inserting `C` into B`.
-     *  For example,
+     * where the node `B` is being inserted into the tree at `R`. Top-down building of the tree
+     * first inserts `B` into `R`, then inserts `A` into `B` followed by inserting `C` into B`. For
+     * example,
      *
      *  ```
      *      1           2           3
@@ -101,8 +100,8 @@ interface Applier<N> {
      *                A           A   C
      * ```
      *
-     * A bottom-up building of the tree starts with inserting `A` and `C` into `B` then inserts
-     * `B` tree into `R`.
+     * A bottom-up building of the tree starts with inserting `A` and `C` into `B` then inserts `B`
+     * tree into `R`.
      *
      * ```
      *    1           2           3
@@ -113,50 +112,46 @@ interface Applier<N> {
      *                          A   C
      * ```
      *
-     * To see how building top-down vs. bottom-up can differ significantly in performance
-     * consider a tree where whenever a child is added to the tree all parent nodes, up to the root,
-     * are notified of the new child entering the tree. If the tree is built top-down,
+     * To see how building top-down vs. bottom-up can differ significantly in performance consider a
+     * tree where whenever a child is added to the tree all parent nodes, up to the root, are
+     * notified of the new child entering the tree. If the tree is built top-down,
+     * 1. `R` is notified of `B` entering.
+     * 2. `B` is notified of `A` entering, `R` is notified of `A` entering.
+     * 3. `B` is notified of `C` entering, `R` is notified of `C` entering.
      *
-     *  1. `R` is notified of `B` entering.
-     *  2. `B` is notified of `A` entering, `R` is notified of `A` entering.
-     *  3. `B` is notified of `C` entering, `R` is notified of `C` entering.
+     * for a total of 5 notifications. The number of notifications grows exponentially with the
+     * number of inserts.
      *
-     *  for a total of 5 notifications. The number of notifications grows exponentially with the
-     *  number of inserts.
+     * For bottom-up, the notifications are,
+     * 1. `B` is notified `A` entering.
+     * 2. `B` is notified `C` entering.
+     * 3. `R` is notified `B` entering.
      *
-     *  For bottom-up, the notifications are,
+     * The notifications are linear to the number of nodes inserted.
      *
-     *  1. `B` is notified `A` entering.
-     *  2. `B` is notified `C` entering.
-     *  3. `R` is notified `B` entering.
+     * If, on the other hand, all children are notified when the parent enters a tree, then the
+     * notifications are, for top-down,
+     * 1. `B` is notified it is entering `R`.
+     * 2. `A` is notified it is entering `B`.
+     * 3. `C` is notified it is entering `B`.
      *
-     *  The notifications are linear to the number of nodes inserted.
+     * which is linear to the number of nodes inserted.
      *
-     *  If, on the other hand, all children are notified when the parent enters a tree, then the
-     *  notifications are, for top-down,
+     * For bottom-up, the notifications look like,
+     * 1. `A` is notified it is entering `B`.
+     * 2. `C` is notified it is entering `B`.
+     * 3. `B` is notified it is entering `R`, `A` is notified it is entering `R`, `C` is notified it
+     *    is entering `R`.
      *
-     *  1. `B` is notified it is entering `R`.
-     *  2. `A` is notified it is entering `B`.
-     *  3. `C` is notified it is entering `B`.
-     *
-     *  which is linear to the number of nodes inserted.
-     *
-     *  For bottom-up, the notifications look like,
-     *
-     *  1. `A` is notified it is entering `B`.
-     *  2. `C` is notified it is entering `B`.
-     *  3. `B` is notified it is entering `R`, `A` is notified it is entering `R`,
-     *     `C` is notified it is entering `R`.
-     *
-     *  which exponential to the number of nodes inserted.
+     *    which exponential to the number of nodes inserted.
      */
     fun insertTopDown(index: Int, instance: N)
 
     /**
      * Indicates that [instance] should be inserted as a child of [current] at [index]. An applier
-     * should insert the node into the tree either in [insertTopDown] or [insertBottomUp], not
-     * both. See the description of [insertTopDown] to which describes when to implement
-     * [insertTopDown] and when to use [insertBottomUp].
+     * should insert the node into the tree either in [insertTopDown] or [insertBottomUp], not both.
+     * See the description of [insertTopDown] to which describes when to implement [insertTopDown]
+     * and when to use [insertBottomUp].
      */
     fun insertBottomUp(index: Int, instance: N)
 
@@ -176,8 +171,8 @@ interface Applier<N> {
     fun move(from: Int, to: Int, count: Int)
 
     /**
-     * Move to the root and remove all nodes from the root, preparing both this [Applier]
-     * and its root to be used as the target of a new composition in the future.
+     * Move to the root and remove all nodes from the root, preparing both this [Applier] and its
+     * root to be used as the target of a new composition in the future.
      */
     fun clear()
 }
@@ -213,9 +208,7 @@ abstract class AbstractApplier<T>(val root: T) : Applier<T> {
         onClear()
     }
 
-    /**
-     * Called to perform clearing of the [root] when [clear] is called.
-     */
+    /** Called to perform clearing of the [root] when [clear] is called. */
     protected abstract fun onClear()
 
     protected fun MutableList<T>.remove(index: Int, count: Int) {
@@ -247,12 +240,11 @@ abstract class AbstractApplier<T>(val root: T) : Applier<T> {
     }
 }
 
-internal class OffsetApplier<N>(
-    private val applier: Applier<N>,
-    private val offset: Int
-) : Applier<N> {
+internal class OffsetApplier<N>(private val applier: Applier<N>, private val offset: Int) :
+    Applier<N> {
     private var nesting = 0
-    override val current: N get() = applier.current
+    override val current: N
+        get() = applier.current
 
     override fun down(node: N) {
         nesting++

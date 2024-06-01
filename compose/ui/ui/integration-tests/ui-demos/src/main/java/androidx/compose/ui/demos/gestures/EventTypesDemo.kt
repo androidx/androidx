@@ -42,10 +42,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 private fun TextItem(text: String, color: Color) {
     Row {
-        Box(
-            Modifier
-                .size(25.dp)
-                .background(color))
+        Box(Modifier.size(25.dp).background(color))
         Spacer(Modifier.width(5.dp))
         Text(text, fontSize = 20.sp)
     }
@@ -56,23 +53,22 @@ private fun DrawEvents(events: List<Pair<PointerEventType, Any>>) {
     for (i in events.lastIndex downTo 0) {
         val (type, value) = events[i]
 
-        val color = when (type) {
-            PointerEventType.Press -> Color.Red
-            PointerEventType.Move -> Color(0xFFFFA500) // Orange
-            PointerEventType.Release -> Color.Yellow
-            PointerEventType.Enter -> Color.Green
-            PointerEventType.Exit -> Color.Blue
-            PointerEventType.Scroll -> Color(0xFF800080) // Purple
-            PointerEventType.Unknown -> Color.White
-            else -> Color.Black
-        }
+        val color =
+            when (type) {
+                PointerEventType.Press -> Color.Red
+                PointerEventType.Move -> Color(0xFFFFA500) // Orange
+                PointerEventType.Release -> Color.Yellow
+                PointerEventType.Enter -> Color.Green
+                PointerEventType.Exit -> Color.Blue
+                PointerEventType.Scroll -> Color(0xFF800080) // Purple
+                PointerEventType.Unknown -> Color.White
+                else -> Color.Black
+            }
         TextItem("$type $value", color)
     }
 }
 
-/**
- * Demo to show the event types that are sent
- */
+/** Demo to show the event types that are sent */
 @Composable
 fun EventTypesDemo() {
     val innerPointerEvents = remember { mutableStateListOf<Pair<PointerEventType, Any>>() }
@@ -88,9 +84,7 @@ fun EventTypesDemo() {
             }
         }
     ) {
-        Column {
-            DrawEvents(outerPointerEvents)
-        }
+        Column { DrawEvents(outerPointerEvents) }
         Column(
             Modifier.size(200.dp)
                 .border(2.dp, Color.Black)

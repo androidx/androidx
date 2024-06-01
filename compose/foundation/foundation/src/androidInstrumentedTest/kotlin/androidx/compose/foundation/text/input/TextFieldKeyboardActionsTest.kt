@@ -61,8 +61,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextFieldKeyboardActionsTest : FocusedWindowTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
@@ -73,9 +72,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                onKeyboardAction = {
-                    called = true
-                }
+                onKeyboardAction = { called = true }
             )
         }
 
@@ -91,9 +88,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                onKeyboardAction = {
-                    called = true
-                }
+                onKeyboardAction = { called = true }
             )
         }
 
@@ -112,9 +107,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                onKeyboardAction = {
-                    called = true
-                }
+                onKeyboardAction = { called = true }
             )
         }
 
@@ -130,20 +123,12 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
     fun textField_performsDefaultBehavior_forFocusNext() {
         rule.setTextFieldTestContent {
             Column {
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box1"))
+                Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box2"))
+                Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
         }
 
@@ -156,20 +141,12 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
     fun textField_performsDefaultBehavior_forFocusPrevious() {
         rule.setTextFieldTestContent {
             Column {
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box1"))
+                Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Previous)
                 )
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box2"))
+                Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
         }
 
@@ -203,11 +180,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
     fun textField_canOverrideDefaultBehavior() {
         rule.setTextFieldTestContent {
             Column {
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box1"))
+                Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -215,11 +188,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                         // don't call default action
                     }
                 )
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box2"))
+                Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
         }
 
@@ -233,23 +202,13 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
     fun textField_canRequestDefaultBehavior() {
         rule.setTextFieldTestContent {
             Column {
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box1"))
+                Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    onKeyboardAction = {
-                        it()
-                    }
+                    onKeyboardAction = { it() }
                 )
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box2"))
+                Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
         }
 
@@ -290,9 +249,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                onKeyboardAction = {
-                    called = true
-                },
+                onKeyboardAction = { called = true },
                 lineLimits = SingleLine
             )
         }
@@ -312,9 +269,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                onKeyboardAction = {
-                    called = true
-                },
+                onKeyboardAction = { called = true },
                 lineLimits = MultiLine(maxHeightInLines = 1)
             )
         }
@@ -331,21 +286,13 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
     fun textField_singleLinePressEnter_triggersDefaultBehavior() {
         rule.setTextFieldTestContent {
             Column {
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box1"))
+                Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     lineLimits = SingleLine
                 )
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .focusable()
-                        .testTag("box2"))
+                Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
         }
 
@@ -364,9 +311,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.None),
-                onKeyboardAction = {
-                    called = true
-                }
+                onKeyboardAction = { called = true }
             )
         }
 
@@ -382,9 +327,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
-                onKeyboardAction = {
-                    called = true
-                }
+                onKeyboardAction = { called = true }
             )
         }
 

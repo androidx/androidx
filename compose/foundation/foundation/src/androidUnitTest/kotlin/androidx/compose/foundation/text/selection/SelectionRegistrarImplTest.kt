@@ -99,12 +99,17 @@ class SelectionRegistrarImplTest {
         val relativeCoordinates2 = Offset(20f, 24f)
         val relativeCoordinates3 = Offset(5f, 24f)
 
-        val containerLayoutCoordinates = mock<LayoutCoordinates> {
-            on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer relativeCoordinates0
-            on { localPositionOf(layoutCoordinates1, Offset.Zero) } doAnswer relativeCoordinates1
-            on { localPositionOf(layoutCoordinates2, Offset.Zero) } doAnswer relativeCoordinates2
-            on { localPositionOf(layoutCoordinates3, Offset.Zero) } doAnswer relativeCoordinates3
-        }
+        val containerLayoutCoordinates =
+            mock<LayoutCoordinates> {
+                on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer
+                    relativeCoordinates0
+                on { localPositionOf(layoutCoordinates1, Offset.Zero) } doAnswer
+                    relativeCoordinates1
+                on { localPositionOf(layoutCoordinates2, Offset.Zero) } doAnswer
+                    relativeCoordinates2
+                on { localPositionOf(layoutCoordinates3, Offset.Zero) } doAnswer
+                    relativeCoordinates3
+            }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -147,12 +152,17 @@ class SelectionRegistrarImplTest {
         val relativeCoordinates2 = Offset(20f, 24f)
         val relativeCoordinates3 = Offset(5f, 24f)
 
-        val containerLayoutCoordinates = mock<LayoutCoordinates> {
-            on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer relativeCoordinates0
-            on { localPositionOf(layoutCoordinates1, Offset.Zero) } doAnswer relativeCoordinates1
-            on { localPositionOf(layoutCoordinates2, Offset.Zero) } doAnswer relativeCoordinates2
-            on { localPositionOf(layoutCoordinates3, Offset.Zero) } doAnswer relativeCoordinates3
-        }
+        val containerLayoutCoordinates =
+            mock<LayoutCoordinates> {
+                on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer
+                    relativeCoordinates0
+                on { localPositionOf(layoutCoordinates1, Offset.Zero) } doAnswer
+                    relativeCoordinates1
+                on { localPositionOf(layoutCoordinates2, Offset.Zero) } doAnswer
+                    relativeCoordinates2
+                on { localPositionOf(layoutCoordinates3, Offset.Zero) } doAnswer
+                    relativeCoordinates3
+            }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -177,9 +187,10 @@ class SelectionRegistrarImplTest {
         val handlerId0 = 1L
         val layoutCoordinates0 = mock<LayoutCoordinates>()
         val handler0 = mockSelectable(handlerId0, layoutCoordinates0)
-        val containerLayoutCoordinates = mock<LayoutCoordinates> {
-            on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer Offset.Zero
-        }
+        val containerLayoutCoordinates =
+            mock<LayoutCoordinates> {
+                on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer Offset.Zero
+            }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -201,9 +212,10 @@ class SelectionRegistrarImplTest {
         val handlerId0 = 1L
         val layoutCoordinates0 = mock<LayoutCoordinates>()
         val handler0 = mockSelectable(handlerId0, layoutCoordinates0)
-        val containerLayoutCoordinates = mock<LayoutCoordinates> {
-            on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer Offset.Zero
-        }
+        val containerLayoutCoordinates =
+            mock<LayoutCoordinates> {
+                on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer Offset.Zero
+            }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -224,8 +236,6 @@ private fun mockSelectable(
 ): Selectable {
     val selectable: Selectable = mock()
     whenever(selectable.selectableId).thenReturn(selectableId)
-    layoutCoordinates?.let {
-        whenever(selectable.getLayoutCoordinates()).thenReturn(it)
-    }
+    layoutCoordinates?.let { whenever(selectable.getLayoutCoordinates()).thenReturn(it) }
     return selectable
 }

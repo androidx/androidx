@@ -22,9 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.fragment.app.Fragment
 import kotlin.reflect.KClass
 
-/**
- * Generic demo with a [title] that will be displayed in the list of demos.
- */
+/** Generic demo with a [title] that will be displayed in the list of demos. */
 sealed class Demo(val title: String) {
     override fun toString() = title
 }
@@ -35,27 +33,22 @@ sealed class Demo(val title: String) {
  * This should only be used for demos that need to customize the activity, the large majority of
  * demos should just use [ComposableDemo] instead.
  *
- * @property activityClass the KClass (Foo::class) of the activity that will be launched when
- * this demo is selected.
+ * @property activityClass the KClass (Foo::class) of the activity that will be launched when this
+ *   demo is selected.
  */
-class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
+class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) :
+    Demo(title)
 
 class FragmentDemo<T : Fragment>(title: String, val fragmentClass: KClass<T>) : Demo(title)
 
-/**
- * Demo that displays [Composable] [content] when selected.
- */
+/** Demo that displays [Composable] [content] when selected. */
 class ComposableDemo(title: String, val content: @Composable (onNavigateUp: () -> Unit) -> Unit) :
     Demo(title)
 
-/**
- * A category of [Demo]s, that will display a list of [demos] when selected.
- */
+/** A category of [Demo]s, that will display a list of [demos] when selected. */
 class DemoCategory(title: String, val demos: List<Demo>) : Demo(title)
 
-/**
- * Flattened recursive DFS [List] of every demo in [this].
- */
+/** Flattened recursive DFS [List] of every demo in [this]. */
 fun DemoCategory.allDemos(): List<Demo> {
     val allDemos = mutableListOf<Demo>()
     fun DemoCategory.addAllDemos() {
@@ -70,9 +63,7 @@ fun DemoCategory.allDemos(): List<Demo> {
     return allDemos
 }
 
-/**
- * Flattened recursive DFS [List] of every launchable demo in [this].
- */
+/** Flattened recursive DFS [List] of every launchable demo in [this]. */
 fun DemoCategory.allLaunchableDemos(): List<Demo> {
     return allDemos().filter { it !is DemoCategory }
 }

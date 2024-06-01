@@ -157,8 +157,7 @@ internal object MenuPosition {
         )
 
     /**
-     * Returns a [MenuPosition.Vertical] which aligns the top of the menu to the top of the
-     * window.
+     * Returns a [MenuPosition.Vertical] which aligns the top of the menu to the top of the window.
      *
      * The resulting y position will be coerced so that the menu remains within the area inside the
      * given [margin] from the top and bottom edges of the window.
@@ -204,16 +203,18 @@ internal object AnchorAlignmentOffsetPosition {
             menuWidth: Int,
             layoutDirection: LayoutDirection,
         ): Int {
-            val anchorAlignmentOffset = anchorAlignment.align(
-                size = 0,
-                space = anchorBounds.width,
-                layoutDirection = layoutDirection,
-            )
-            val menuAlignmentOffset = -menuAlignment.align(
-                size = 0,
-                space = menuWidth,
-                layoutDirection,
-            )
+            val anchorAlignmentOffset =
+                anchorAlignment.align(
+                    size = 0,
+                    space = anchorBounds.width,
+                    layoutDirection = layoutDirection,
+                )
+            val menuAlignmentOffset =
+                -menuAlignment.align(
+                    size = 0,
+                    space = menuWidth,
+                    layoutDirection,
+                )
             val resolvedOffset = if (layoutDirection == LayoutDirection.Ltr) offset else -offset
             return anchorBounds.left + anchorAlignmentOffset + menuAlignmentOffset + resolvedOffset
         }
@@ -234,14 +235,16 @@ internal object AnchorAlignmentOffsetPosition {
             windowSize: IntSize,
             menuHeight: Int,
         ): Int {
-            val anchorAlignmentOffset = anchorAlignment.align(
-                size = 0,
-                space = anchorBounds.height,
-            )
-            val menuAlignmentOffset = -menuAlignment.align(
-                size = 0,
-                space = menuHeight,
-            )
+            val anchorAlignmentOffset =
+                anchorAlignment.align(
+                    size = 0,
+                    space = anchorBounds.height,
+                )
+            val menuAlignmentOffset =
+                -menuAlignment.align(
+                    size = 0,
+                    space = menuHeight,
+                )
             return anchorBounds.top + anchorAlignmentOffset + menuAlignmentOffset + offset
         }
     }
@@ -250,8 +253,8 @@ internal object AnchorAlignmentOffsetPosition {
 @Immutable
 internal object WindowAlignmentMarginPosition {
     /**
-     * A [MenuPosition.Horizontal] which horizontally aligns the menu within the window according
-     * to the given [alignment].
+     * A [MenuPosition.Horizontal] which horizontally aligns the menu within the window according to
+     * the given [alignment].
      *
      * The resulting x position will be coerced so that the menu remains within the area inside the
      * given [margin] from the left and right edges of the window. If this is not possible, i.e.,
@@ -275,18 +278,19 @@ internal object WindowAlignmentMarginPosition {
                     layoutDirection = layoutDirection,
                 )
             }
-            val x = alignment.align(
-                size = menuWidth,
-                space = windowSize.width,
-                layoutDirection = layoutDirection,
-            )
+            val x =
+                alignment.align(
+                    size = menuWidth,
+                    space = windowSize.width,
+                    layoutDirection = layoutDirection,
+                )
             return x.coerceIn(margin, windowSize.width - margin - menuWidth)
         }
     }
 
     /**
-     * A [MenuPosition.Vertical] which vertically aligns the menu within the window according to
-     * the given [alignment].
+     * A [MenuPosition.Vertical] which vertically aligns the menu within the window according to the
+     * given [alignment].
      *
      * The resulting y position will be coerced so that the menu remains within the area inside the
      * given [margin] from the top and bottom edges of the window. If this is not possible, i.e.,
@@ -308,18 +312,17 @@ internal object WindowAlignmentMarginPosition {
                     space = windowSize.height,
                 )
             }
-            val y = alignment.align(
-                size = menuHeight,
-                space = windowSize.height,
-            )
+            val y =
+                alignment.align(
+                    size = menuHeight,
+                    space = windowSize.height,
+                )
             return y.coerceIn(margin, windowSize.height - margin - menuHeight)
         }
     }
 }
 
-/**
- * Calculates the position of a Material [DropdownMenu].
- */
+/** Calculates the position of a Material [DropdownMenu]. */
 @Immutable
 internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
@@ -361,50 +364,58 @@ internal data class DropdownMenuPositionProvider(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        val xCandidates = listOf(
-            startToAnchorStart,
-            endToAnchorEnd,
-            if (anchorBounds.center.x < windowSize.width / 2) {
-                leftToWindowLeft
-            } else {
-                rightToWindowRight
-            }
-        )
+        val xCandidates =
+            listOf(
+                startToAnchorStart,
+                endToAnchorEnd,
+                if (anchorBounds.center.x < windowSize.width / 2) {
+                    leftToWindowLeft
+                } else {
+                    rightToWindowRight
+                }
+            )
         var x = 0
         for (index in xCandidates.indices) {
-            val xCandidate = xCandidates[index].position(
-                anchorBounds = anchorBounds,
-                windowSize = windowSize,
-                menuWidth = popupContentSize.width,
-                layoutDirection = layoutDirection
-            )
-            if (index == xCandidates.lastIndex ||
-                (xCandidate >= 0 && xCandidate + popupContentSize.width <= windowSize.width)) {
+            val xCandidate =
+                xCandidates[index].position(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    menuWidth = popupContentSize.width,
+                    layoutDirection = layoutDirection
+                )
+            if (
+                index == xCandidates.lastIndex ||
+                    (xCandidate >= 0 && xCandidate + popupContentSize.width <= windowSize.width)
+            ) {
                 x = xCandidate
                 break
             }
         }
 
-        val yCandidates = listOf(
-            topToAnchorBottom,
-            bottomToAnchorTop,
-            centerToAnchorTop,
-            if (anchorBounds.center.y < windowSize.height / 2) {
-                topToWindowTop
-            } else {
-                bottomToWindowBottom
-            }
-        )
+        val yCandidates =
+            listOf(
+                topToAnchorBottom,
+                bottomToAnchorTop,
+                centerToAnchorTop,
+                if (anchorBounds.center.y < windowSize.height / 2) {
+                    topToWindowTop
+                } else {
+                    bottomToWindowBottom
+                }
+            )
         var y = 0
         for (index in yCandidates.indices) {
-            val yCandidate = yCandidates[index].position(
-                anchorBounds = anchorBounds,
-                windowSize = windowSize,
-                menuHeight = popupContentSize.height
-            )
-            if (index == yCandidates.lastIndex ||
-                (yCandidate >= verticalMargin &&
-                    yCandidate + popupContentSize.height <= windowSize.height - verticalMargin)) {
+            val yCandidate =
+                yCandidates[index].position(
+                    anchorBounds = anchorBounds,
+                    windowSize = windowSize,
+                    menuHeight = popupContentSize.height
+                )
+            if (
+                index == yCandidates.lastIndex ||
+                    (yCandidate >= verticalMargin &&
+                        yCandidate + popupContentSize.height <= windowSize.height - verticalMargin)
+            ) {
                 y = yCandidate
                 break
             }
@@ -412,8 +423,8 @@ internal data class DropdownMenuPositionProvider(
 
         val menuOffset = IntOffset(x, y)
         onPositionCalculated(
-            /* anchorBounds = */anchorBounds,
-            /* menuBounds = */IntRect(offset = menuOffset, size = popupContentSize)
+            /* anchorBounds = */ anchorBounds,
+            /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize)
         )
         return menuOffset
     }

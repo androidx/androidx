@@ -25,8 +25,8 @@ import kotlin.math.max
 /**
  * Provides an idle check to be registered into Espresso.
  *
- * This makes sure that Espresso is able to wait for any pending changes in Compose. This
- * resource is automatically registered when any compose testing APIs are used including
+ * This makes sure that Espresso is able to wait for any pending changes in Compose. This resource
+ * is automatically registered when any compose testing APIs are used including
  * [createAndroidComposeRule].
  */
 internal class ComposeIdlingResource(
@@ -63,8 +63,8 @@ internal class ComposeIdlingResource(
                 hadSnapshotChanges = Snapshot.current.hasPendingChanges()
                 hadRecomposerChanges = mainRecomposer.hasPendingWork
 
-                val needsRecompose = hadAwaitersOnMainClock || hadSnapshotChanges ||
-                    hadRecomposerChanges
+                val needsRecompose =
+                    hadAwaitersOnMainClock || hadSnapshotChanges || hadRecomposerChanges
                 return clock.autoAdvance && needsRecompose
             }
 
@@ -83,14 +83,16 @@ internal class ComposeIdlingResource(
             val composeRoots = composeRootRegistry.getRegisteredComposeRoots()
             hadPendingMeasureLayout = composeRoots.any { it.shouldWaitForMeasureAndLayout }
 
-            return !composeDidWork &&
-                !hadPendingSetContent &&
-                !hadPendingMeasureLayout
+            return !composeDidWork && !hadPendingSetContent && !hadPendingMeasureLayout
         }
 
     override fun getDiagnosticMessageIfBusy(): String? {
-        val wasBusy = hadSnapshotChanges || hadRecomposerChanges || hadAwaitersOnMainClock ||
-            hadPendingSetContent || hadPendingMeasureLayout
+        val wasBusy =
+            hadSnapshotChanges ||
+                hadRecomposerChanges ||
+                hadAwaitersOnMainClock ||
+                hadPendingSetContent ||
+                hadPendingMeasureLayout
 
         if (!wasBusy) {
             return null
@@ -110,8 +112,9 @@ internal class ComposeIdlingResource(
 
         var message = "${javaClass.simpleName} is busy due to ${busyReasons.joinToString(", ")}.\n"
         if (busyRecomposing) {
-            message += "- Note: Timeout on pending recomposition means that there are most likely" +
-                " infinite re-compositions happening in the tested code.\n"
+            message +=
+                "- Note: Timeout on pending recomposition means that there are most likely" +
+                    " infinite re-compositions happening in the tested code.\n"
             message += "- Debug: hadRecomposerChanges = $hadRecomposerChanges, "
             message += "hadSnapshotChanges = $hadSnapshotChanges, "
             message += "hadAwaitersOnMainClock = $hadAwaitersOnMainClock"
@@ -129,9 +132,9 @@ private val ViewRootForTest.isBusyAttaching: Boolean
     }
 
 /**
- * Whether or not we should wait until this root has done a measure/layout pass. Not necessarily
- * the same as if the root has a pending measure/layout pass, e.g. if the pending measure/layout
- * pass will never happen because the containing View is GONE anyway.
+ * Whether or not we should wait until this root has done a measure/layout pass. Not necessarily the
+ * same as if the root has a pending measure/layout pass, e.g. if the pending measure/layout pass
+ * will never happen because the containing View is GONE anyway.
  */
 internal val ViewRootForTest.shouldWaitForMeasureAndLayout: Boolean
     get() {
@@ -155,9 +158,9 @@ private val View.isEffectivelyInvisible: Boolean
     }
 
 /**
- * Return the effective visibility of the View, which accounts for the visibility of ancestors.
- * If the view or any of its ancestors is GONE, this view is GONE. Otherwise, if this view or any
- * of its ancestors is INVISIBLE, this view is INVISIBLE. Otherwise, this view is VISIBLE.
+ * Return the effective visibility of the View, which accounts for the visibility of ancestors. If
+ * the view or any of its ancestors is GONE, this view is GONE. Otherwise, if this view or any of
+ * its ancestors is INVISIBLE, this view is INVISIBLE. Otherwise, this view is VISIBLE.
  */
 private val View.effectiveVisibility: Int
     get() {

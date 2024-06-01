@@ -27,7 +27,7 @@ class AndroidUriHandler(private val context: Context) : UriHandler {
      * Open given URL in browser
      *
      * @throws IllegalArgumentException when given [uri] is invalid and/or can't be handled by the
-     * system
+     *   system
      */
     override fun openUri(uri: String) {
         try {

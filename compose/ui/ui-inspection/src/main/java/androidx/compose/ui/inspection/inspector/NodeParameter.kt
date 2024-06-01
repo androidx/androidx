@@ -16,44 +16,29 @@
 
 package androidx.compose.ui.inspection.inspector
 
-/**
- * Holds data representing a Composable parameter for the Layout Inspector.
- */
-class NodeParameter internal constructor(
-    /**
-     * The name of the parameter.
-     */
+/** Holds data representing a Composable parameter for the Layout Inspector. */
+class NodeParameter
+internal constructor(
+    /** The name of the parameter. */
     val name: String,
 
-    /**
-     * The type of the parameter.
-     */
+    /** The type of the parameter. */
     val type: ParameterType,
 
-    /**
-     * The value of the parameter.
-     */
+    /** The value of the parameter. */
     val value: Any?
 ) {
-    /**
-     * Sub elements of the parameter.
-     */
+    /** Sub elements of the parameter. */
     val elements = mutableListOf<NodeParameter>()
 
-    /**
-     * Reference to value parameter.
-     */
+    /** Reference to value parameter. */
     var reference: NodeParameterReference? = null
 
-    /**
-     * The index into the composite parent parameter value.
-     */
+    /** The index into the composite parent parameter value. */
     var index = 0
 }
 
-/**
- * The type of a parameter.
- */
+/** The type of a parameter. */
 enum class ParameterType {
     String,
     Boolean,

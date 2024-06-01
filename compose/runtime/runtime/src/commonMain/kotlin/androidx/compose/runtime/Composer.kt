@@ -17,6 +17,7 @@
 @file:OptIn(
     InternalComposeApi::class,
 )
+
 package androidx.compose.runtime
 
 import androidx.collection.MutableIntIntMap
@@ -59,26 +60,20 @@ private class GroupInfo(
      */
     var nodeIndex: Int,
 
-    /**
-     * The current number of nodes the group contains after changes have been applied
-     */
+    /** The current number of nodes the group contains after changes have been applied */
     var nodeCount: Int
 )
 
 /**
- * An interface used during [ControlledComposition.applyChanges] and [Composition.dispose] to
- * track when [RememberObserver] instances and leave the composition an also allows recording
- * [SideEffect] calls.
+ * An interface used during [ControlledComposition.applyChanges] and [Composition.dispose] to track
+ * when [RememberObserver] instances and leave the composition an also allows recording [SideEffect]
+ * calls.
  */
 internal interface RememberManager {
-    /**
-     * The [RememberObserver] is being remembered by a slot in the slot table.
-     */
+    /** The [RememberObserver] is being remembered by a slot in the slot table. */
     fun remembering(instance: RememberObserver)
 
-    /**
-     * The [RememberObserver] is being forgotten by a slot in the slot table.
-     */
+    /** The [RememberObserver] is being forgotten by a slot in the slot table. */
     fun forgetting(
         instance: RememberObserver,
         endRelativeOrder: Int,
@@ -92,9 +87,7 @@ internal interface RememberManager {
      */
     fun sideEffect(effect: () -> Unit)
 
-    /**
-     * The [ComposeNodeLifecycleCallback] is being deactivated.
-     */
+    /** The [ComposeNodeLifecycleCallback] is being deactivated. */
     fun deactivating(
         instance: ComposeNodeLifecycleCallback,
         endRelativeOrder: Int,
@@ -102,9 +95,7 @@ internal interface RememberManager {
         endRelativeAfter: Int
     )
 
-    /**
-     * The [ComposeNodeLifecycleCallback] is being released.
-     */
+    /** The [ComposeNodeLifecycleCallback] is being released. */
     fun releasing(
         instance: ComposeNodeLifecycleCallback,
         endRelativeOrder: Int,
@@ -118,10 +109,7 @@ internal interface RememberManager {
  * changed. It is used to determine how to update the nodes and the slot table when changes to the
  * structure of the tree is detected.
  */
-private class Pending(
-    val keyInfos: MutableList<KeyInfo>,
-    val startIndex: Int
-) {
+private class Pending(val keyInfos: MutableList<KeyInfo>, val startIndex: Int) {
     var groupIndex: Int = 0
 
     init {
@@ -153,20 +141,17 @@ private class Pending(
         }
     }
 
-    /**
-     * Get the next key information for the given key.
-     */
+    /** Get the next key information for the given key. */
     fun getNext(key: Int, dataKey: Any?): KeyInfo? {
         val joinedKey: Any = if (dataKey != null) JoinedKey(key, dataKey) else key
         return keyMap.pop(joinedKey)
     }
 
-    /**
-     * Record that this key info was generated.
-     */
+    /** Record that this key info was generated. */
     fun recordUsed(keyInfo: KeyInfo) = usedKeys.add(keyInfo)
 
-    val used: List<KeyInfo> get() = usedKeys
+    val used: List<KeyInfo>
+        get() = usedKeys
 
     // TODO(chuckj): This is a correct but expensive implementation (worst cases of O(N^2)). Rework
     // to O(N)
@@ -217,8 +202,7 @@ private class Pending(
                 groupInfos.forEachValue { childGroupInfo ->
                     if (childGroupInfo.nodeIndex >= index && childGroupInfo != groupInfo) {
                         val newIndex = childGroupInfo.nodeIndex + difference
-                        if (newIndex >= 0)
-                            childGroupInfo.nodeIndex = newIndex
+                        if (newIndex >= 0) childGroupInfo.nodeIndex = newIndex
                     }
                 }
             }
@@ -239,14 +223,10 @@ private class Pending(
 }
 
 private class Invalidation(
-    /**
-     * The recompose scope being invalidate
-     */
+    /** The recompose scope being invalidate */
     val scope: RecomposeScopeImpl,
 
-    /**
-     * The index of the group in the slot table being invalidated.
-     */
+    /** The index of the group in the slot table being invalidated. */
     val location: Int,
 
     /**
@@ -263,8 +243,8 @@ private class Invalidation(
 }
 
 /**
- * Internal compose compiler plugin API that is used to update the function the composer will
- * call to recompose a recomposition scope. This should not be used or called directly.
+ * Internal compose compiler plugin API that is used to update the function the composer will call
+ * to recompose a recomposition scope. This should not be used or called directly.
  */
 @ComposeCompilerApi
 interface ScopeUpdateScope {
@@ -293,24 +273,24 @@ internal enum class InvalidationResult {
     SCHEDULED,
 
     /**
-     * The composition that owns the recompose scope is actively composing but the scope has
-     * already been composed or is in the process of composing. The invalidation is treated as
-     * SCHEDULED above.
+     * The composition that owns the recompose scope is actively composing but the scope has already
+     * been composed or is in the process of composing. The invalidation is treated as SCHEDULED
+     * above.
      */
     DEFERRED,
 
     /**
-     * The composition that owns the recompose scope is actively composing and the invalidated
-     * scope has not been composed yet but will be recomposed before the composition completes. A
-     * new recomposition was not scheduled for this invalidation.
+     * The composition that owns the recompose scope is actively composing and the invalidated scope
+     * has not been composed yet but will be recomposed before the composition completes. A new
+     * recomposition was not scheduled for this invalidation.
      */
     IMMINENT
 }
 
 /**
  * An instance to hold a value provided by [CompositionLocalProvider] and is created by the
- * [ProvidableCompositionLocal.provides] infix operator. If [canOverride] is `false`, the
- * provided value will not overwrite a potentially already existing value in the scope.
+ * [ProvidableCompositionLocal.provides] infix operator. If [canOverride] is `false`, the provided
+ * value will not overwrite a potentially already existing value in the scope.
  *
  * This value cannot be created directly. It can only be created by using one of the `provides`
  * operators of [ProvidableCompositionLocal].
@@ -319,7 +299,8 @@ internal enum class InvalidationResult {
  * @see ProvidableCompositionLocal.providesDefault
  * @see ProvidableCompositionLocal.providesComputed
  */
-class ProvidedValue<T> internal constructor(
+class ProvidedValue<T>
+internal constructor(
     /**
      * The composition local that is provided by this value. This is the left-hand side of the
      * [ProvidableCompositionLocal.provides] infix operator.
@@ -339,7 +320,8 @@ class ProvidedValue<T> internal constructor(
      * right-hand side of the operator.
      */
     @Suppress("UNCHECKED_CAST")
-    val value: T get() = providedValue as T
+    val value: T
+        get() = providedValue as T
 
     /**
      * This value is `true` if the provided value will override any value provided above it. This
@@ -352,15 +334,19 @@ class ProvidedValue<T> internal constructor(
     @get:JvmName("getCanOverride")
     var canOverride: Boolean = true
         private set
+
     @Suppress("UNCHECKED_CAST")
     internal val effectiveValue: T
-        get() = when {
-            explicitNull -> null as T
-            state != null -> state.value
-            providedValue != null -> providedValue
-            else -> composeRuntimeError("Unexpected form of a provided value")
-        }
-    internal val isStatic get() = (explicitNull || value != null) && !isDynamic
+        get() =
+            when {
+                explicitNull -> null as T
+                state != null -> state.value
+                providedValue != null -> providedValue
+                else -> composeRuntimeError("Unexpected form of a provided value")
+            }
+
+    internal val isStatic
+        get() = (explicitNull || value != null) && !isDynamic
 
     internal fun ifNotAlreadyProvided() = this.also { canOverride = false }
 }
@@ -369,13 +355,12 @@ class ProvidedValue<T> internal constructor(
  * A Compose compiler plugin API. DO NOT call directly.
  *
  * An instance used to track the identity of the movable content. Using a holder object allows
- * creating unique movable content instances from the same instance of a lambda. This avoids
- * using the identity of a lambda instance as it can be merged into a singleton or merged by later
+ * creating unique movable content instances from the same instance of a lambda. This avoids using
+ * the identity of a lambda instance as it can be merged into a singleton or merged by later
  * rewritings and using its identity might lead to unpredictable results that might change from the
  * debug and release builds.
  */
-@InternalComposeApi
-class MovableContent<P>(val content: @Composable (parameter: P) -> Unit)
+@InternalComposeApi class MovableContent<P>(val content: @Composable (parameter: P) -> Unit)
 
 /**
  * A Compose compiler plugin API. DO NOT call directly.
@@ -383,7 +368,8 @@ class MovableContent<P>(val content: @Composable (parameter: P) -> Unit)
  * A reference to the movable content state prior to changes being applied.
  */
 @InternalComposeApi
-class MovableContentStateReference internal constructor(
+class MovableContentStateReference
+internal constructor(
     internal val content: MovableContent<Any?>,
     internal val parameter: Any?,
     internal val composition: ControlledComposition,
@@ -401,49 +387,44 @@ class MovableContentStateReference internal constructor(
  * and before it is inserted during [ControlledComposition.insertMovableContent].
  */
 @InternalComposeApi
-class MovableContentState internal constructor(
-    internal val slotTable: SlotTable
-)
+class MovableContentState internal constructor(internal val slotTable: SlotTable)
 
 /**
- * Composer is the interface that is targeted by the Compose Kotlin compiler plugin and used by
- * code generation helpers. It is highly recommended that direct calls these be avoided as the
- * runtime assumes that the calls are generated by the compiler and contain only a minimum amount
- * of state validation.
+ * Composer is the interface that is targeted by the Compose Kotlin compiler plugin and used by code
+ * generation helpers. It is highly recommended that direct calls these be avoided as the runtime
+ * assumes that the calls are generated by the compiler and contain only a minimum amount of state
+ * validation.
  */
 sealed interface Composer {
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Changes calculated and recorded during composition and are sent to [applier] which makes
-     * the physical changes to the node tree implied by a composition.
+     * Changes calculated and recorded during composition and are sent to [applier] which makes the
+     * physical changes to the node tree implied by a composition.
      *
      * Composition has two discrete phases, 1) calculate and record changes and 2) making the
-     * changes via the [applier]. While a [Composable] functions is executing, none of the
-     * [applier] methods are called. The recorded changes are sent to the [applier] all at once
-     * after all [Composable] functions have completed.
+     * changes via the [applier]. While a [Composable] functions is executing, none of the [applier]
+     * methods are called. The recorded changes are sent to the [applier] all at once after all
+     * [Composable] functions have completed.
      */
-    @ComposeCompilerApi
-    val applier: Applier<*>
+    @ComposeCompilerApi val applier: Applier<*>
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Reflects that a new part of the composition is being created, that is, the composition
-     * will insert new nodes into the resulting tree.
+     * Reflects that a new part of the composition is being created, that is, the composition will
+     * insert new nodes into the resulting tree.
      */
-    @ComposeCompilerApi
-    val inserting: Boolean
+    @ComposeCompilerApi val inserting: Boolean
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Reflects whether the [Composable] function can skip. Even if a [Composable] function is
-     * called with the same parameters it might still need to run because, for example, a new
-     * value was provided for a [CompositionLocal] created by [staticCompositionLocalOf].
+     * called with the same parameters it might still need to run because, for example, a new value
+     * was provided for a [CompositionLocal] created by [staticCompositionLocalOf].
      */
-    @ComposeCompilerApi
-    val skipping: Boolean
+    @ComposeCompilerApi val skipping: Boolean
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -452,19 +433,16 @@ sealed interface Composer {
      * `false` if a [State] object read in the [startDefaults] group was modified since the last
      * time the [Composable] function was run.
      */
-    @ComposeCompilerApi
-    val defaultsInvalid: Boolean
+    @ComposeCompilerApi val defaultsInvalid: Boolean
 
     /**
      * A Compose internal property. DO NOT call directly. Use [currentRecomposeScope] instead.
      *
      * The invalidation current invalidation scope. An new invalidation scope is created whenever
-     * [startRestartGroup] is called. when this scope's [RecomposeScope.invalidate] is called
-     * then lambda supplied to [endRestartGroup]'s [ScopeUpdateScope] will be scheduled to be
-     * run.
+     * [startRestartGroup] is called. when this scope's [RecomposeScope.invalidate] is called then
+     * lambda supplied to [endRestartGroup]'s [ScopeUpdateScope] will be scheduled to be run.
      */
-    @InternalComposeApi
-    val recomposeScope: RecomposeScope?
+    @InternalComposeApi val recomposeScope: RecomposeScope?
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -474,8 +452,7 @@ sealed interface Composer {
      *
      * This is used internally by tooling track composable function invocations.
      */
-    @ComposeCompilerApi
-    val recomposeScopeIdentity: Any?
+    @ComposeCompilerApi val recomposeScopeIdentity: Any?
 
     /**
      * A Compose internal property. DO NOT call directly. Use [currentCompositeKeyHash] instead.
@@ -485,11 +462,10 @@ sealed interface Composer {
      * boundaries.
      *
      * This value is not likely to be unique but is not guaranteed unique. There are known cases,
-     * such as for loops without a [key], where the runtime does not have enough information to
-     * make the compound key hash unique.
+     * such as for loops without a [key], where the runtime does not have enough information to make
+     * the compound key hash unique.
      */
-    @InternalComposeApi
-    val compoundKeyHash: Int
+    @InternalComposeApi val compoundKeyHash: Int
 
     // Groups
 
@@ -497,22 +473,21 @@ sealed interface Composer {
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Start a replaceable group. A replaceable group is a group that cannot be moved during
-     * execution and can only either inserted, removed, or replaced. For example, the group
-     * created by most control flow constructs such as an `if` statement are replaceable groups.
+     * execution and can only either inserted, removed, or replaced. For example, the group created
+     * by most control flow constructs such as an `if` statement are replaceable groups.
      *
      * Warning: Versions of the compiler that generate calls to this function also contain subtle
-     * bug that does not generate a group around a loop containing code that just creates
-     * composable lambdas (AnimatedContent from androidx.compose.animation, for example) which
-     * makes replacing the group unsafe and the this must treat this like a movable group.
-     * [startReplaceGroup] was added that will replace the group as described above and is only
-     * called by versions of the compiler that correctly generate code around loops that create
-     * lambdas. This method is kept to maintain compatibility with code generated by older versions
-     * of the compose compiler plugin.
+     * bug that does not generate a group around a loop containing code that just creates composable
+     * lambdas (AnimatedContent from androidx.compose.animation, for example) which makes replacing
+     * the group unsafe and the this must treat this like a movable group. [startReplaceGroup] was
+     * added that will replace the group as described above and is only called by versions of the
+     * compiler that correctly generate code around loops that create lambdas. This method is kept
+     * to maintain compatibility with code generated by older versions of the compose compiler
+     * plugin.
      *
      * @param key A compiler generated key based on the source location of the call.
      */
-    @ComposeCompilerApi
-    fun startReplaceableGroup(key: Int)
+    @ComposeCompilerApi fun startReplaceableGroup(key: Int)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -521,26 +496,24 @@ sealed interface Composer {
      *
      * @see startRestartGroup
      */
-    @ComposeCompilerApi
-    fun endReplaceableGroup()
+    @ComposeCompilerApi fun endReplaceableGroup()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Start a replace group. A replace group is a group that cannot be moved during must
-     * only either be inserted, removed, or replaced. For example, the group created by most
-     * control flow constructs such as an `if` statement are replaceable groups.
+     * Start a replace group. A replace group is a group that cannot be moved during must only
+     * either be inserted, removed, or replaced. For example, the group created by most control flow
+     * constructs such as an `if` statement are replaceable groups.
      *
-     * Note: This method replaces [startReplaceableGroup] which is only generated by older
-     * versions of the compose compiler plugin that predate the addition of this method.
-     * The runtime is now required to replace the group if a different group is detected instead
-     * of treating it like a movable group.
+     * Note: This method replaces [startReplaceableGroup] which is only generated by older versions
+     * of the compose compiler plugin that predate the addition of this method. The runtime is now
+     * required to replace the group if a different group is detected instead of treating it like a
+     * movable group.
      *
      * @param key A compiler generated key based on the source location of the call.
      * @see endReplaceGroup
      */
-    @ComposeCompilerApi
-    fun startReplaceGroup(key: Int)
+    @ComposeCompilerApi fun startReplaceGroup(key: Int)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -549,8 +522,7 @@ sealed interface Composer {
      *
      * @see startReplaceGroup
      */
-    @ComposeCompilerApi
-    fun endReplaceGroup()
+    @ComposeCompilerApi fun endReplaceGroup()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -562,14 +534,13 @@ sealed interface Composer {
      * A movable group implements the semantics of [key][androidx.compose.runtime.key] which allows
      * the state and nodes generated by a loop to move with the composition implied by the key
      * passed to [key][androidx.compose.runtime.key].
-
+     *
      * @param key a compiler generated key based on the source location of the call.
      * @param dataKey an additional object that is used as a second part of the key. This key
-     * produced from the `keys` parameter supplied to the [key][androidx.compose.runtime.key]
-     * pseudo compiler function.
+     *   produced from the `keys` parameter supplied to the [key][androidx.compose.runtime.key]
+     *   pseudo compiler function.
      */
-    @ComposeCompilerApi
-    fun startMovableGroup(key: Int, dataKey: Any?)
+    @ComposeCompilerApi fun startMovableGroup(key: Int, dataKey: Any?)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -578,21 +549,19 @@ sealed interface Composer {
      *
      * @see startMovableGroup
      */
-    @ComposeCompilerApi
-    fun endMovableGroup()
+    @ComposeCompilerApi fun endMovableGroup()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Called to start the group that calculates the default parameters of a [Composable] function.
      *
-     * This method is called near the beginning of a [Composable] function with default
-     * parameters and surrounds the remembered values or [Composable] calls necessary to produce
-     * the default parameters. For example, for `model: Model = remember { DefaultModel() }` the
-     * call to [remember] is called inside a [startDefaults] group.
+     * This method is called near the beginning of a [Composable] function with default parameters
+     * and surrounds the remembered values or [Composable] calls necessary to produce the default
+     * parameters. For example, for `model: Model = remember { DefaultModel() }` the call to
+     * [remember] is called inside a [startDefaults] group.
      */
-    @ComposeCompilerApi
-    fun startDefaults()
+    @ComposeCompilerApi fun startDefaults()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -601,8 +570,7 @@ sealed interface Composer {
      *
      * @see startDefaults
      */
-    @ComposeCompilerApi
-    fun endDefaults()
+    @ComposeCompilerApi fun endDefaults()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -614,36 +582,32 @@ sealed interface Composer {
      * @param key A compiler generated key based on the source location of the call.
      * @return the instance of the composer to use for the rest of the function.
      */
-    @ComposeCompilerApi
-    fun startRestartGroup(key: Int): Composer
+    @ComposeCompilerApi fun startRestartGroup(key: Int): Composer
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Called to end a restart group.
      */
-    @ComposeCompilerApi
-    fun endRestartGroup(): ScopeUpdateScope?
+    @ComposeCompilerApi fun endRestartGroup(): ScopeUpdateScope?
 
     /**
      * A Compose internal API. DO NOT call directly.
      *
-     * Request movable content be inserted at the current location. This will schedule with the
-     * root composition parent a call to [insertMovableContent] with the correct
-     * [MovableContentState] if one was released in another part of composition.
+     * Request movable content be inserted at the current location. This will schedule with the root
+     * composition parent a call to [insertMovableContent] with the correct [MovableContentState] if
+     * one was released in another part of composition.
      */
-    @InternalComposeApi
-    fun insertMovableContent(value: MovableContent<*>, parameter: Any?)
+    @InternalComposeApi fun insertMovableContent(value: MovableContent<*>, parameter: Any?)
 
     /**
      * A Compose internal API. DO NOT call directly.
      *
      * Perform a late composition that adds to the current late apply that will insert the given
-     * references to [MovableContent] into the composition. If a [MovableContent] is paired
-     * then this is a request to move a released [MovableContent] from a different location or
-     * from a different composition. If it is not paired (i.e. the `second`
-     * [MovableContentStateReference] is `null`) then new state for the [MovableContent] is
-     * inserted into the composition.
+     * references to [MovableContent] into the composition. If a [MovableContent] is paired then
+     * this is a request to move a released [MovableContent] from a different location or from a
+     * different composition. If it is not paired (i.e. the `second` [MovableContentStateReference]
+     * is `null`) then new state for the [MovableContent] is inserted into the composition.
      */
     @InternalComposeApi
     fun insertMovableContentReferences(
@@ -657,7 +621,7 @@ sealed interface Composer {
      * start of a group.
      *
      * @param sourceInformation An string value to that provides the compose tools enough
-     * information to calculate the source location of calls to composable functions.
+     *   information to calculate the source location of calls to composable functions.
      */
     fun sourceInformation(sourceInformation: String)
 
@@ -665,13 +629,12 @@ sealed interface Composer {
      * A compose compiler plugin API. DO NOT call directly.
      *
      * Record a source information marker. This marker can be used in place of a group that would
-     * have contained the information but was elided as the compiler plugin determined the group
-     * was not necessary such as when a function is marked with [ReadOnlyComposable].
+     * have contained the information but was elided as the compiler plugin determined the group was
+     * not necessary such as when a function is marked with [ReadOnlyComposable].
      *
      * @param key A compiler generated key based on the source location of the call.
      * @param sourceInformation An string value to that provides the compose tools enough
-     * information to calculate the source location of calls to composable functions.
-     *
+     *   information to calculate the source location of calls to composable functions.
      */
     fun sourceInformationMarkerStart(key: Int, sourceInformation: String)
 
@@ -689,8 +652,7 @@ sealed interface Composer {
      * the body of a [Composable] function can be skipped typically because the parameters to the
      * function are equal to the values passed to it in the previous composition.
      */
-    @ComposeCompilerApi
-    fun skipToGroupEnd()
+    @ComposeCompilerApi fun skipToGroupEnd()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -699,39 +661,35 @@ sealed interface Composer {
      * replaces all slot table entries for calls to [cache] to be [Empty]. This must be called as
      * the first call for a group.
      */
-    @ComposeCompilerApi
-    fun deactivateToEndGroup(changed: Boolean)
+    @ComposeCompilerApi fun deactivateToEndGroup(changed: Boolean)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Skips the current group. This called by the compiler to indicate that the current group
-     * can be skipped, for example, this is generated to skip the [startDefaults] group the
-     * default group is was not invalidated.
+     * Skips the current group. This called by the compiler to indicate that the current group can
+     * be skipped, for example, this is generated to skip the [startDefaults] group the default
+     * group is was not invalidated.
      */
-    @ComposeCompilerApi
-    fun skipCurrentGroup()
+    @ComposeCompilerApi fun skipCurrentGroup()
 
     // Nodes
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Start a group that tracks a the code that will create or update a node that is generated
-     * as part of the tree implied by the composition.
+     * Start a group that tracks a the code that will create or update a node that is generated as
+     * part of the tree implied by the composition.
      */
-    @ComposeCompilerApi
-    fun startNode()
+    @ComposeCompilerApi fun startNode()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Start a group that tracks a the code that will create or update a node that is generated
-     * as part of the tree implied by the composition. A reusable node can be reused in a
-     * reusable group even if the group key is changed.
+     * Start a group that tracks a the code that will create or update a node that is generated as
+     * part of the tree implied by the composition. A reusable node can be reused in a reusable
+     * group even if the group key is changed.
      */
-    @ComposeCompilerApi
-    fun startReusableNode()
+    @ComposeCompilerApi fun startReusableNode()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -739,11 +697,10 @@ sealed interface Composer {
      * Report the [factory] that will be used to create the node that will be generated into the
      * tree implied by the composition. This will only be called if [inserting] is is `true`.
      *
-     * @param factory a factory function that will generate a node that will eventually be
-     * supplied to [applier] though [Applier.insertBottomUp] and [Applier.insertTopDown].
+     * @param factory a factory function that will generate a node that will eventually be supplied
+     *   to [applier] though [Applier.insertBottomUp] and [Applier.insertTopDown].
      */
-    @ComposeCompilerApi
-    fun <T> createNode(factory: () -> T)
+    @ComposeCompilerApi fun <T> createNode(factory: () -> T)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -751,77 +708,69 @@ sealed interface Composer {
      * Report that the node is still being used. This will be called in the same location as the
      * corresponding [createNode] when [inserting] is `false`.
      */
-    @ComposeCompilerApi
-    fun useNode()
+    @ComposeCompilerApi fun useNode()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Called at the end of a node group.
      */
-    @ComposeCompilerApi
-    fun endNode()
+    @ComposeCompilerApi fun endNode()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Start a reuse group. Unlike a movable group, in a reuse group if the [dataKey] changes
-     * the composition shifts into a reusing state cause the composer to act like it is
-     * inserting (e.g. [cache] acts as if all values are invalid, [changed] always returns
-     * true, etc.) even though it is recomposing until it encounters a reusable node. If the
-     * node is reusable it temporarily shifts into recomposition for the node and then shifts
-     * back to reusing for the children.  If a non-reusable node is generated the composer
-     * shifts to inserting for the node and all of its children.
+     * Start a reuse group. Unlike a movable group, in a reuse group if the [dataKey] changes the
+     * composition shifts into a reusing state cause the composer to act like it is inserting (e.g.
+     * [cache] acts as if all values are invalid, [changed] always returns true, etc.) even though
+     * it is recomposing until it encounters a reusable node. If the node is reusable it temporarily
+     * shifts into recomposition for the node and then shifts back to reusing for the children. If a
+     * non-reusable node is generated the composer shifts to inserting for the node and all of its
+     * children.
      *
      * @param key An compiler generated key based on the source location of the call.
      * @param dataKey A key provided by the [ReusableContent] composable function that is used to
-     * determine if the composition shifts into a reusing state for this group.
+     *   determine if the composition shifts into a reusing state for this group.
      */
-    @ComposeCompilerApi
-    fun startReusableGroup(key: Int, dataKey: Any?)
+    @ComposeCompilerApi fun startReusableGroup(key: Int, dataKey: Any?)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Called at the end of a reusable group.
      */
-    @ComposeCompilerApi
-    fun endReusableGroup()
+    @ComposeCompilerApi fun endReusableGroup()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Temporarily disable reusing if it is enabled.
      */
-    @ComposeCompilerApi
-    fun disableReusing()
+    @ComposeCompilerApi fun disableReusing()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Reenable reusing if it was previously enabled before the last call to [disableReusing].
      */
-    @ComposeCompilerApi
-    fun enableReusing()
+    @ComposeCompilerApi fun enableReusing()
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Return a marker for the current group that can be used in a call to [endToMarker].
      */
-    @ComposeCompilerApi
-    val currentMarker: Int
+    @ComposeCompilerApi val currentMarker: Int
 
     /**
-     *  Compose compiler plugin API. DO NOT call directly.
+     * Compose compiler plugin API. DO NOT call directly.
      *
-     *  Ends all the groups up to but not including the group that is the parent group when
-     *  [currentMarker] was called to produce [marker]. All groups ended must have been started with
-     *  either [startReplaceableGroup] or [startMovableGroup]. Ending other groups can cause the
-     *  state of the composer to become inconsistent.
+     * Ends all the groups up to but not including the group that is the parent group when
+     * [currentMarker] was called to produce [marker]. All groups ended must have been started with
+     * either [startReplaceableGroup] or [startMovableGroup]. Ending other groups can cause the
+     * state of the composer to become inconsistent.
      */
-    @ComposeCompilerApi
-    fun endToMarker(marker: Int)
+    @ComposeCompilerApi fun endToMarker(marker: Int)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -832,27 +781,25 @@ sealed interface Composer {
      * @param value the new value to be set into some property of the node.
      * @param block the block that sets the some property of the node to [value].
      */
-    @ComposeCompilerApi
-    fun <V, T> apply(value: V, block: T.(V) -> Unit)
+    @ComposeCompilerApi fun <V, T> apply(value: V, block: T.(V) -> Unit)
 
     // State
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Produce an object that will compare equal an iff [left] and [right] compare equal to
-     * some [left] and [right] of a previous call to [joinKey]. This is used by [key] to handle
-     * multiple parameters. Since the previous composition stored [left] and [right] in a "join
-     * key" object this call is used to return the previous value without an allocation instead
-     * of blindly creating a new value that will be immediately discarded.
+     * Produce an object that will compare equal an iff [left] and [right] compare equal to some
+     * [left] and [right] of a previous call to [joinKey]. This is used by [key] to handle multiple
+     * parameters. Since the previous composition stored [left] and [right] in a "join key" object
+     * this call is used to return the previous value without an allocation instead of blindly
+     * creating a new value that will be immediately discarded.
      *
      * @param left the first part of a a joined key.
      * @param right the second part of a joined key.
      * @return an object that will compare equal to a value previously returned by [joinKey] iff
-     * [left] and [right] compare equal to the [left] and [right] passed to the previous call.
+     *   [left] and [right] compare equal to the [left] and [right] passed to the previous call.
      */
-    @ComposeCompilerApi
-    fun joinKey(left: Any?, right: Any?): Any
+    @ComposeCompilerApi fun joinKey(left: Any?, right: Any?): Any
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
@@ -861,191 +808,175 @@ sealed interface Composer {
      * [remember].
      *
      * @return [Composer.Empty] when [inserting] is `true` or the value passed to
-     * [updateRememberedValue]
-     * from the previous composition.
-     *
+     *   [updateRememberedValue] from the previous composition.
      * @see cache
      */
-    @ComposeCompilerApi
-    fun rememberedValue(): Any?
+    @ComposeCompilerApi fun rememberedValue(): Any?
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Update the remembered value correspond to the previous call to [rememberedValue]. The
-     * [value] will be returned by [rememberedValue] for the next composition.
+     * Update the remembered value correspond to the previous call to [rememberedValue]. The [value]
+     * will be returned by [rememberedValue] for the next composition.
      */
-    @ComposeCompilerApi
-    fun updateRememberedValue(value: Any?)
+    @ComposeCompilerApi fun updateRememberedValue(value: Any?)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Any?): Boolean
+    @ComposeCompilerApi fun changed(value: Any?): Boolean
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Boolean): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Boolean): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Char): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Char): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Byte): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Byte): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Short): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Short): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Int): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Int): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Float): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Float): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Long): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Long): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Check [value] is different than the value used in the previous composition. This is used,
-     * for example, to check parameter values to determine if they have changed.
+     * Check [value] is different than the value used in the previous composition. This is used, for
+     * example, to check parameter values to determine if they have changed.
      *
-     * This overload is provided to avoid boxing [value] to compare with a potentially boxed
-     * version of [value] in the composition state.
+     * This overload is provided to avoid boxing [value] to compare with a potentially boxed version
+     * of [value] in the composition state.
      *
      * @param value the value to check
      * @return `true` if the value if [equals] of the previous value returns `false` when passed
-     * [value].
+     *   [value].
      */
-    @ComposeCompilerApi
-    fun changed(value: Double): Boolean = changed(value)
+    @ComposeCompilerApi fun changed(value: Double): Boolean = changed(value)
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
      * Check [value] is different than the value used in the previous composition using `===`
-     * instead of `==` equality. This is used,  for example, to check parameter values to determine
+     * instead of `==` equality. This is used, for example, to check parameter values to determine
      * if they have changed for values that use value equality but, for correct behavior, the
      * composer needs reference equality.
      *
      * @param value the value to check
      * @return `true` if the value is === equal to the previous value and returns `false` when
-     * [value] is different.
+     *   [value] is different.
      */
-    @ComposeCompilerApi
-    fun changedInstance(value: Any?): Boolean = changed(value)
+    @ComposeCompilerApi fun changedInstance(value: Any?): Boolean = changed(value)
 
     // Scopes
 
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Mark [scope] as used. [endReplaceableGroup] will return `null` unless [recordUsed] is
-     * called on the corresponding [scope]. This is called implicitly when [State] objects are
-     * read during composition is called when [currentRecomposeScope] is called in the
-     * [Composable] function.
+     * Mark [scope] as used. [endReplaceableGroup] will return `null` unless [recordUsed] is called
+     * on the corresponding [scope]. This is called implicitly when [State] objects are read during
+     * composition is called when [currentRecomposeScope] is called in the [Composable] function.
      */
-    @InternalComposeApi
-    fun recordUsed(scope: RecomposeScope)
+    @InternalComposeApi fun recordUsed(scope: RecomposeScope)
 
     // Internal API
 
@@ -1056,10 +987,9 @@ sealed interface Composer {
      * [applier]. This is used to implement [SideEffect].
      *
      * @param effect a lambda to invoke after the changes calculated up to this point have been
-     * applied.
+     *   applied.
      */
-    @InternalComposeApi
-    fun recordSideEffect(effect: () -> Unit)
+    @InternalComposeApi fun recordSideEffect(effect: () -> Unit)
 
     /**
      * Returns the active set of CompositionLocals at the current position in the composition
@@ -1069,12 +999,12 @@ sealed interface Composer {
      * This API does not track reads of CompositionLocals and does not automatically dispatch new
      * values to previous readers when the value of a CompositionLocal changes. To use this API as
      * intended, you must set up observation manually. This means:
-     *  - For [non-static CompositionLocals][compositionLocalOf], composables reading this map need
-     *  to observe the snapshot state for CompositionLocals being read to be notified when their
-     *  values in this map change.
-     *  - For [static CompositionLocals][staticCompositionLocalOf], all composables including the
-     *  composable reading this map will be recomposed and you will need to re-obtain this map to
-     *  get the latest values.
+     * - For [non-static CompositionLocals][compositionLocalOf], composables reading this map need
+     *   to observe the snapshot state for CompositionLocals being read to be notified when their
+     *   values in this map change.
+     * - For [static CompositionLocals][staticCompositionLocalOf], all composables including the
+     *   composable reading this map will be recomposed and you will need to re-obtain this map to
+     *   get the latest values.
      *
      * Most applications shouldn't use this API directly, and should instead use
      * [CompositionLocal.current].
@@ -1089,8 +1019,7 @@ sealed interface Composer {
      *
      * @param key the [CompositionLocal] value to be retrieved.
      */
-    @InternalComposeApi
-    fun <T> consume(key: CompositionLocal<T>): T
+    @InternalComposeApi fun <T> consume(key: CompositionLocal<T>): T
 
     /**
      * A Compose internal function. DO NOT call directly.
@@ -1100,8 +1029,7 @@ sealed interface Composer {
      *
      * @param values an array of value to provider key pairs.
      */
-    @InternalComposeApi
-    fun startProviders(values: Array<out ProvidedValue<*>>)
+    @InternalComposeApi fun startProviders(values: Array<out ProvidedValue<*>>)
 
     /**
      * A Compose internal function. DO NOT call directly.
@@ -1110,8 +1038,7 @@ sealed interface Composer {
      *
      * @see startProviders
      */
-    @InternalComposeApi
-    fun endProviders()
+    @InternalComposeApi fun endProviders()
 
     /**
      * A Compose internal function. DO NOT call directly.
@@ -1121,8 +1048,7 @@ sealed interface Composer {
      *
      * @param value a value to provider key pairs.
      */
-    @InternalComposeApi
-    fun startProvider(value: ProvidedValue<*>)
+    @InternalComposeApi fun startProvider(value: ProvidedValue<*>)
 
     /**
      * A Compose internal function. DO NOT call directly.
@@ -1131,8 +1057,7 @@ sealed interface Composer {
      *
      * @see startProvider
      */
-    @InternalComposeApi
-    fun endProvider()
+    @InternalComposeApi fun endProvider()
 
     /**
      * A tooling API function. DO NOT call directly.
@@ -1145,10 +1070,10 @@ sealed interface Composer {
     /**
      * A tooling API function. DO NOT call directly.
      *
-     * Called by the inspector to inform the composer that it should collect additional
-     * information about call parameters. By default, only collect parameter information for
-     * scopes that are [recordUsed] has been called on. If [collectParameterInformation] is called
-     * it will attempt to collect all calls even if the runtime doesn't need them.
+     * Called by the inspector to inform the composer that it should collect additional information
+     * about call parameters. By default, only collect parameter information for scopes that are
+     * [recordUsed] has been called on. If [collectParameterInformation] is called it will attempt
+     * to collect all calls even if the runtime doesn't need them.
      *
      * WARNING: calling this will result in a significant number of additional allocations that are
      * typically avoided.
@@ -1162,8 +1087,7 @@ sealed interface Composer {
      * reference is used to communicate information from this composition to the subcompositions
      * such as the all the [CompositionLocal]s provided at the point the reference is created.
      */
-    @InternalComposeApi
-    fun buildContext(): CompositionContext
+    @InternalComposeApi fun buildContext(): CompositionContext
 
     /**
      * A Compose internal function. DO NOT call directly.
@@ -1173,12 +1097,9 @@ sealed interface Composer {
      */
     @InternalComposeApi
     val applyCoroutineContext: CoroutineContext
-        @TestOnly
-        get
+        @TestOnly get
 
-    /**
-     * The composition that is used to control this composer.
-     */
+    /** The composition that is used to control this composer. */
     val composition: ControlledComposition
         @TestOnly get
 
@@ -1190,22 +1111,22 @@ sealed interface Composer {
      * This function is only safe to call in a test and will produce incorrect composition results
      * if called on a composer not under test.
      */
-    @TestOnly
-    fun disableSourceInformation()
+    @TestOnly fun disableSourceInformation()
 
     companion object {
         /**
          * A special value used to represent no value was stored (e.g. an empty slot). This is
-         * returned, for example by [Composer.rememberedValue] while it is [Composer.inserting]
-         * is `true`.
+         * returned, for example by [Composer.rememberedValue] while it is [Composer.inserting] is
+         * `true`.
          */
-        val Empty = object {
-            override fun toString() = "Empty"
-        }
+        val Empty =
+            object {
+                override fun toString() = "Empty"
+            }
 
         /**
-         * Internal API for specifying a tracer used for instrumenting frequent
-         * operations, e.g. recompositions.
+         * Internal API for specifying a tracer used for instrumenting frequent operations, e.g.
+         * recompositions.
          */
         @InternalComposeTracingApi
         fun setTracer(tracer: CompositionTracer) {
@@ -1236,8 +1157,8 @@ inline fun <T> Composer.cache(invalid: Boolean, block: @DisallowComposableCalls 
 /**
  * A Compose internal function. DO NOT call directly.
  *
- * Records source information that can be used for tooling to determine the source location of
- * the corresponding composable function. By default, this function is declared as having no
+ * Records source information that can be used for tooling to determine the source location of the
+ * corresponding composable function. By default, this function is declared as having no
  * side-effects. It is safe for code shrinking tools (such as R8 or ProGuard) to remove it.
  */
 @ComposeCompilerApi
@@ -1270,12 +1191,13 @@ fun sourceInformationMarkerStart(composer: Composer, key: Int, sourceInformation
 @InternalComposeTracingApi
 interface CompositionTracer {
     fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String): Unit
+
     fun traceEventEnd(): Unit
+
     fun isTraceInProgress(): Boolean
 }
 
-@OptIn(InternalComposeTracingApi::class)
-private var compositionTracer: CompositionTracer? = null
+@OptIn(InternalComposeTracingApi::class) private var compositionTracer: CompositionTracer? = null
 
 /**
  * Internal tracing API.
@@ -1301,11 +1223,11 @@ fun traceEventStart(key: Int, info: String): Unit = traceEventStart(key, -1, -1,
  * Should be called without thread synchronization with occasional information loss.
  *
  * @param key is a group key generated by the compiler plugin for the function being traced. This
- * key is unique the function.
+ *   key is unique the function.
  * @param dirty1 $dirty metadata: forced-recomposition and function parameters 1..10 if present
  * @param dirty2 $dirty2 metadata: forced-recomposition and function parameters 11..20 if present
- * @param info is a user displayable string that describes the function for which this is the
- * start event.
+ * @param info is a user displayable string that describes the function for which this is the start
+ *   event.
  */
 @OptIn(InternalComposeTracingApi::class)
 @ComposeCompilerApi
@@ -1341,35 +1263,22 @@ fun sourceInformationMarkerEnd(composer: Composer) {
     composer.sourceInformationMarkerEnd()
 }
 
-/**
- * Implementation of a composer for a mutable tree.
- */
+/** Implementation of a composer for a mutable tree. */
 @OptIn(ExperimentalComposeRuntimeApi::class)
 internal class ComposerImpl(
-    /**
-     * An adapter that applies changes to the tree using the Applier abstraction.
-     */
+    /** An adapter that applies changes to the tree using the Applier abstraction. */
     override val applier: Applier<*>,
 
-    /**
-     * Parent of this composition; a [Recomposer] for root-level compositions.
-     */
+    /** Parent of this composition; a [Recomposer] for root-level compositions. */
     private val parentContext: CompositionContext,
 
-    /**
-     * The slot table to use to store composition data
-     */
+    /** The slot table to use to store composition data */
     private val slotTable: SlotTable,
-
     private val abandonSet: MutableSet<RememberObserver>,
-
     private var changes: ChangeList,
-
     private var lateChanges: ChangeList,
 
-    /**
-     * The composition that owns this composer
-     */
+    /** The composition that owns this composer */
     override val composition: ControlledComposition
 ) : Composer {
     private val pendingStack = Stack<Pending?>()
@@ -1394,34 +1303,40 @@ internal class ComposerImpl(
     private var reusingGroup = -1
     private var childrenComposing: Int = 0
     private var compositionToken: Int = 0
-    private var sourceMarkersEnabled = parentContext.collectingSourceInformation ||
-        parentContext.collectingCallByInformation
-    private val derivedStateObserver = object : DerivedStateObserver {
-        override fun start(derivedState: DerivedState<*>) {
-            childrenComposing++
-        }
+    private var sourceMarkersEnabled =
+        parentContext.collectingSourceInformation || parentContext.collectingCallByInformation
+    private val derivedStateObserver =
+        object : DerivedStateObserver {
+            override fun start(derivedState: DerivedState<*>) {
+                childrenComposing++
+            }
 
-        override fun done(derivedState: DerivedState<*>) {
-            childrenComposing--
+            override fun done(derivedState: DerivedState<*>) {
+                childrenComposing--
+            }
         }
-    }
 
     private val invalidateStack = Stack<RecomposeScopeImpl>()
 
     internal var isComposing = false
         private set
+
     internal var isDisposed = false
         private set
-    internal val areChildrenComposing get() = childrenComposing > 0
 
-    internal val hasPendingChanges: Boolean get() = changes.isNotEmpty()
+    internal val areChildrenComposing
+        get() = childrenComposing > 0
+
+    internal val hasPendingChanges: Boolean
+        get() = changes.isNotEmpty()
 
     internal var reader: SlotReader = slotTable.openReader().also { it.close() }
 
-    internal var insertTable = SlotTable().apply {
-        if (parentContext.collectingSourceInformation) collectSourceInformation()
-        if (parentContext.collectingCallByInformation) collectCalledByInformation()
-    }
+    internal var insertTable =
+        SlotTable().apply {
+            if (parentContext.collectingSourceInformation) collectSourceInformation()
+            if (parentContext.collectingCallByInformation) collectCalledByInformation()
+        }
 
     private var writer: SlotWriter = insertTable.openWriter().also { it.close(true) }
     private var writerHasAProvider = false
@@ -1437,8 +1352,8 @@ internal class ComposerImpl(
 
     /**
      * Inserts a "Replaceable Group" starting marker in the slot table at the current execution
-     * position. A Replaceable Group is a group which cannot be moved between its siblings, but
-     * can be removed or inserted. These groups are inserted by the compiler around branches of
+     * position. A Replaceable Group is a group which cannot be moved between its siblings, but can
+     * be removed or inserted. These groups are inserted by the compiler around branches of
      * conditional logic in Composable functions such as if expressions, when expressions, early
      * returns, and null-coalescing operators.
      *
@@ -1446,45 +1361,39 @@ internal class ComposerImpl(
      * [endReplaceableGroup].
      *
      * Warning: Versions of the compiler that generate calls to this function also contain subtle
-     * bug that does not generate a group around a loop containing code that just creates
-     * composable lambdas (AnimatedContent from androidx.compose.animation, for example) which
-     * makes replacing the group unsafe and the this must treat this like a movable group.
-     * [startReplaceGroup] was added that will replace the group as described above and is only
-     * called by versions of the compiler that correctly generate code around loops that create
-     * lambdas.
+     * bug that does not generate a group around a loop containing code that just creates composable
+     * lambdas (AnimatedContent from androidx.compose.animation, for example) which makes replacing
+     * the group unsafe and the this must treat this like a movable group. [startReplaceGroup] was
+     * added that will replace the group as described above and is only called by versions of the
+     * compiler that correctly generate code around loops that create lambdas.
      *
      * Warning: This is expected to be executed by the compiler only and should not be called
      * directly from source code. Call this API at your own risk.
      *
      * @param key The source-location-based key for the group. Expected to be unique among its
-     * siblings.
-     *
+     *   siblings.
      * @see [endReplaceableGroup]
      * @see [startMovableGroup]
      * @see [startRestartGroup]
      */
     @ComposeCompilerApi
-    override fun startReplaceableGroup(key: Int) =
-        start(key, null, GroupKind.Group, null)
+    override fun startReplaceableGroup(key: Int) = start(key, null, GroupKind.Group, null)
 
     /**
-     * Indicates the end of a "Replaceable Group" at the current execution position. A
-     * Replaceable Group is a group which cannot be moved between its siblings, but
-     * can be removed or inserted. These groups are inserted by the compiler around branches of
-     * conditional logic in Composable functions such as if expressions, when expressions, early
-     * returns, and null-coalescing operators.
+     * Indicates the end of a "Replaceable Group" at the current execution position. A Replaceable
+     * Group is a group which cannot be moved between its siblings, but can be removed or inserted.
+     * These groups are inserted by the compiler around branches of conditional logic in Composable
+     * functions such as if expressions, when expressions, early returns, and null-coalescing
+     * operators.
      *
      * Warning: This is expected to be executed by the compiler only and should not be called
      * directly from source code. Call this API at your own risk.
      *
      * @see [startReplaceableGroup]
      */
-    @ComposeCompilerApi
-    override fun endReplaceableGroup() = endGroup()
+    @ComposeCompilerApi override fun endReplaceableGroup() = endGroup()
 
-    /**
-     * See [Composer.startReplaceGroup]
-     */
+    /** See [Composer.startReplaceGroup] */
     @ComposeCompilerApi
     override fun startReplaceGroup(key: Int) {
         val pending = pending
@@ -1536,25 +1445,18 @@ internal class ComposerImpl(
         enterGroup(false, null)
     }
 
-    /**
-     * See [Composer.endReplaceGroup]
-     */
-    @ComposeCompilerApi
-    override fun endReplaceGroup() = endGroup()
+    /** See [Composer.endReplaceGroup] */
+    @ComposeCompilerApi override fun endReplaceGroup() = endGroup()
 
     /**
-     *
      * Warning: This is expected to be executed by the compiler only and should not be called
      * directly from source code. Call this API at your own risk.
-     *
      */
     @ComposeCompilerApi
     @Suppress("unused")
-    override fun startDefaults() =
-        start(defaultsKey, null, GroupKind.Group, null)
+    override fun startDefaults() = start(defaultsKey, null, GroupKind.Group, null)
 
     /**
-     *
      * Warning: This is expected to be executed by the compiler only and should not be called
      * directly from source code. Call this API at your own risk.
      *
@@ -1579,12 +1481,12 @@ internal class ComposerImpl(
 
     /**
      * Inserts a "Movable Group" starting marker in the slot table at the current execution
-     * position. A Movable Group is a group which can be moved or reordered between its siblings
-     * and retain slot table state, in addition to being removed or inserted. Movable Groups
-     * are more expensive than other groups because when they are encountered with a mismatched
-     * key in the slot table, they must be held on to temporarily until the entire parent group
-     * finishes execution in case it moved to a later position in the group. Movable groups are
-     * only inserted by the compiler as a result of calls to [key].
+     * position. A Movable Group is a group which can be moved or reordered between its siblings and
+     * retain slot table state, in addition to being removed or inserted. Movable Groups are more
+     * expensive than other groups because when they are encountered with a mismatched key in the
+     * slot table, they must be held on to temporarily until the entire parent group finishes
+     * execution in case it moved to a later position in the group. Movable groups are only inserted
+     * by the compiler as a result of calls to [key].
      *
      * A call to [startMovableGroup] must be matched with a corresponding call to [endMovableGroup].
      *
@@ -1592,12 +1494,10 @@ internal class ComposerImpl(
      * directly from source code. Call this API at your own risk.
      *
      * @param key The source-location-based key for the group. Expected to be unique among its
-     * siblings.
-     *
+     *   siblings.
      * @param dataKey Additional identifying information to compound with [key]. If there are
-     * multiple values, this is expected to be compounded together with [joinKey]. Whatever value
-     * is passed in here is expected to have a meaningful [equals] and [hashCode] implementation.
-     *
+     *   multiple values, this is expected to be compounded together with [joinKey]. Whatever value
+     *   is passed in here is expected to have a meaningful [equals] and [hashCode] implementation.
      * @see [endMovableGroup]
      * @see [key]
      * @see [joinKey]
@@ -1610,25 +1510,24 @@ internal class ComposerImpl(
 
     /**
      * Indicates the end of a "Movable Group" at the current execution position. A Movable Group is
-     * a group which can be moved or reordered between its siblings and retain slot table state,
-     * in addition to being removed or inserted. These groups are only valid when they are
-     * inserted as direct children of Container Groups. Movable Groups are more expensive than
-     * other groups because when they are encountered with a mismatched key in the slot table,
-     * they must be held on to temporarily until the entire parent group finishes execution in
-     * case it moved to a later position in the group. Movable groups are only inserted by the
-     * compiler as a result of calls to [key].
+     * a group which can be moved or reordered between its siblings and retain slot table state, in
+     * addition to being removed or inserted. These groups are only valid when they are inserted as
+     * direct children of Container Groups. Movable Groups are more expensive than other groups
+     * because when they are encountered with a mismatched key in the slot table, they must be held
+     * on to temporarily until the entire parent group finishes execution in case it moved to a
+     * later position in the group. Movable groups are only inserted by the compiler as a result of
+     * calls to [key].
      *
      * Warning: This is expected to be executed by the compiler only and should not be called
      * directly from source code. Call this API at your own risk.
      *
      * @see [startMovableGroup]
      */
-    @ComposeCompilerApi
-    override fun endMovableGroup() = endGroup()
+    @ComposeCompilerApi override fun endMovableGroup() = endGroup()
 
     /**
-     * Start the composition. This should be called, and only be called, as the first group in
-     * the composition.
+     * Start the composition. This should be called, and only be called, as the first group in the
+     * composition.
      */
     @OptIn(InternalComposeApi::class)
     private fun startRoot() {
@@ -1661,8 +1560,8 @@ internal class ComposerImpl(
     }
 
     /**
-     * End the composition. This should be called, and only be called, to end the first group in
-     * the composition.
+     * End the composition. This should be called, and only be called, to end the first group in the
+     * composition.
      */
     @OptIn(InternalComposeApi::class)
     private fun endRoot() {
@@ -1676,9 +1575,7 @@ internal class ComposerImpl(
         providersInvalid = providersInvalidStack.pop().asBool()
     }
 
-    /**
-     * Discard a pending composition because an error was encountered during composition
-     */
+    /** Discard a pending composition because an error was encountered during composition */
     @OptIn(InternalComposeApi::class)
     private fun abortRoot() {
         cleanUpCompose()
@@ -1712,20 +1609,19 @@ internal class ComposerImpl(
 
     /**
      * True if the composition is currently scheduling nodes to be inserted into the tree. During
-     * first composition this is always true. During recomposition this is true when new nodes
-     * are being scheduled to be added to the tree.
+     * first composition this is always true. During recomposition this is true when new nodes are
+     * being scheduled to be added to the tree.
      */
     @ComposeCompilerApi
     override var inserting: Boolean = false
         private set
 
-    /**
-     * True if the composition should be checking if the composable functions can be skipped.
-     */
+    /** True if the composition should be checking if the composable functions can be skipped. */
     @ComposeCompilerApi
     override val skipping: Boolean
         get() {
-            return !inserting && !reusing &&
+            return !inserting &&
+                !reusing &&
                 !providersInvalid &&
                 currentRecomposeScope?.requiresRecompose == false &&
                 !forciblyRecompose
@@ -1781,21 +1677,19 @@ internal class ComposerImpl(
 
     /**
      * Start a group with the given key. During recomposition if the currently expected group does
-     * not match the given key a group the groups emitted in the same parent group are inspected
-     * to determine if one of them has this key and that group the first such group is moved
-     * (along with any nodes emitted by the group) to the current position and composition
-     * continues. If no group with this key is found, then the composition shifts into insert
-     * mode and new nodes are added at the current position.
+     * not match the given key a group the groups emitted in the same parent group are inspected to
+     * determine if one of them has this key and that group the first such group is moved (along
+     * with any nodes emitted by the group) to the current position and composition continues. If no
+     * group with this key is found, then the composition shifts into insert mode and new nodes are
+     * added at the current position.
      *
-     *  @param key The key for the group
+     * @param key The key for the group
      */
     private fun startGroup(key: Int) = start(key, null, GroupKind.Group, null)
 
     private fun startGroup(key: Int, dataKey: Any?) = start(key, dataKey, GroupKind.Group, null)
 
-    /**
-     * End the current group.
-     */
+    /** End the current group. */
     private fun endGroup() = end(isNode = false)
 
     @OptIn(InternalComposeApi::class)
@@ -1804,11 +1698,11 @@ internal class ComposerImpl(
     }
 
     /**
-     * Start emitting a node. It is required that [createNode] is called after [startNode].
-     * Similar to [startGroup], if, during recomposition, the current node does not have the
-     * provided key a node with that key is scanned for and moved into the current position if
-     * found, if no such node is found the composition switches into insert mode and a the node
-     * is scheduled to be inserted at the current location.
+     * Start emitting a node. It is required that [createNode] is called after [startNode]. Similar
+     * to [startGroup], if, during recomposition, the current node does not have the provided key a
+     * node with that key is scanned for and moved into the current position if found, if no such
+     * node is found the composition switches into insert mode and a the node is scheduled to be
+     * inserted at the current location.
      */
     override fun startNode() {
         start(nodeKey, null, GroupKind.Node, null)
@@ -1834,9 +1728,7 @@ internal class ComposerImpl(
         insertFixups.createAndInsertNode(factory, insertIndex, groupAnchor)
     }
 
-    /**
-     * Mark the node that was created by [createNode] as used by composition.
-     */
+    /** Mark the node that was created by [createNode] as used by composition. */
     @OptIn(InternalComposeApi::class)
     override fun useNode() {
         validateNodeExpected()
@@ -1849,9 +1741,7 @@ internal class ComposerImpl(
         }
     }
 
-    /**
-     * Called to end the node group.
-     */
+    /** Called to end the node group. */
     override fun endNode() = end(isNode = true)
 
     override fun startReusableGroup(key: Int, dataKey: Any?) {
@@ -1928,8 +1818,8 @@ internal class ComposerImpl(
     }
 
     /**
-     * Schedule a change to be applied to a node's property. This change will be applied to the
-     * node that is the current node in the tree which was either created by [createNode].
+     * Schedule a change to be applied to a node's property. This change will be applied to the node
+     * that is the current node in the tree which was either created by [createNode].
      */
     override fun <V, T> apply(value: V, block: T.(V) -> Unit) {
         if (inserting) {
@@ -1940,25 +1830,25 @@ internal class ComposerImpl(
     }
 
     /**
-     * Create a composed key that can be used in calls to [startGroup] or [startNode]. This will
-     * use the key stored at the current location in the slot table to avoid allocating a new key.
+     * Create a composed key that can be used in calls to [startGroup] or [startNode]. This will use
+     * the key stored at the current location in the slot table to avoid allocating a new key.
      */
     @ComposeCompilerApi
     @OptIn(InternalComposeApi::class)
     override fun joinKey(left: Any?, right: Any?): Any =
         getKey(reader.groupObjectKey, left, right) ?: JoinedKey(left, right)
 
-    /**
-     * Return the next value in the slot table and advance the current location.
-     */
+    /** Return the next value in the slot table and advance the current location. */
     @PublishedApi
     @OptIn(InternalComposeApi::class)
-    internal fun nextSlot(): Any? = if (inserting) {
-        validateNodeNotExpected()
-        Composer.Empty
-    } else reader.next().let {
-        if (reusing && it !is ReusableRememberObserver) Composer.Empty else it
-    }
+    internal fun nextSlot(): Any? =
+        if (inserting) {
+            validateNodeNotExpected()
+            Composer.Empty
+        } else
+            reader.next().let {
+                if (reusing && it !is ReusableRememberObserver) Composer.Empty else it
+            }
 
     @PublishedApi
     @OptIn(InternalComposeApi::class)
@@ -1966,16 +1856,16 @@ internal class ComposerImpl(
         return if (inserting) {
             validateNodeNotExpected()
             Composer.Empty
-        } else reader.next().let {
-            if (reusing && it !is ReusableRememberObserver) Composer.Empty
-            else if (it is RememberObserverHolder) it.wrapped
-            else it
-        }
+        } else
+            reader.next().let {
+                if (reusing && it !is ReusableRememberObserver) Composer.Empty
+                else if (it is RememberObserverHolder) it.wrapped else it
+            }
     }
 
     /**
-     * Determine if the current slot table value is equal to the given value, if true, the value
-     * is scheduled to be skipped during [ControlledComposition.applyChanges] and [changes] return
+     * Determine if the current slot table value is equal to the given value, if true, the value is
+     * scheduled to be skipped during [ControlledComposition.applyChanges] and [changes] return
      * false; otherwise [ControlledComposition.applyChanges] will update the slot table to [value].
      * In either case the composer's slot table is advanced.
      *
@@ -2091,10 +1981,9 @@ internal class ComposerImpl(
 
     /**
      * Cache a value in the composition. During initial composition [block] is called to produce the
-     * value that is then stored in the slot table. During recomposition, if [invalid] is false
-     * the value is obtained from the slot table and [block] is not invoked. If [invalid] is
-     * false a new value is produced by calling [block] and the slot table is updated to contain
-     * the new value.
+     * value that is then stored in the slot table. During recomposition, if [invalid] is false the
+     * value is obtained from the slot table and [block] is not invoked. If [invalid] is false a new
+     * value is produced by calling [block] and the slot table is updated to contain the new value.
      */
     @ComposeCompilerApi
     inline fun <T> cache(invalid: Boolean, block: () -> T): T {
@@ -2105,8 +1994,7 @@ internal class ComposerImpl(
             result = value
         }
 
-        @Suppress("UNCHECKED_CAST")
-        return result as T
+        @Suppress("UNCHECKED_CAST") return result as T
     }
 
     private fun updateSlot(value: Any?) {
@@ -2165,11 +2053,14 @@ internal class ComposerImpl(
     @PublishedApi
     @OptIn(InternalComposeApi::class)
     internal fun updateCachedValue(value: Any?) {
-        val toStore = if (value is RememberObserver) {
-            if (inserting) { changeListWriter.remember(value) }
-            abandonSet.add(value)
-            RememberObserverHolder(value, rememberObserverAnchor())
-        } else value
+        val toStore =
+            if (value is RememberObserver) {
+                if (inserting) {
+                    changeListWriter.remember(value)
+                }
+                abandonSet.add(value)
+                RememberObserverHolder(value, rememberObserverAnchor())
+            } else value
         updateValue(toStore)
     }
 
@@ -2196,32 +2087,32 @@ internal class ComposerImpl(
             } else null
         }
 
-    override val compositionData: CompositionData get() = slotTable
+    override val compositionData: CompositionData
+        get() = slotTable
 
-    /**
-     * Schedule a side effect to run when we apply composition changes.
-     */
+    /** Schedule a side effect to run when we apply composition changes. */
     override fun recordSideEffect(effect: () -> Unit) {
         changeListWriter.sideEffect(effect)
     }
 
     private fun currentCompositionLocalScope(): PersistentCompositionLocalMap {
-        providerCache?.let { return it }
+        providerCache?.let {
+            return it
+        }
         return currentCompositionLocalScope(reader.parent)
     }
 
     override val currentCompositionLocalMap: CompositionLocalMap
         get() = currentCompositionLocalScope()
 
-    /**
-     * Return the current [CompositionLocal] scope which was provided by a parent group.
-     */
+    /** Return the current [CompositionLocal] scope which was provided by a parent group. */
     private fun currentCompositionLocalScope(group: Int): PersistentCompositionLocalMap {
         if (inserting && writerHasAProvider) {
             var current = writer.parent
             while (current > 0) {
-                if (writer.groupKey(current) == compositionLocalMapKey &&
-                    writer.groupObjectKey(current) == compositionLocalMap
+                if (
+                    writer.groupKey(current) == compositionLocalMapKey &&
+                        writer.groupObjectKey(current) == compositionLocalMap
                 ) {
                     val providers = writer.groupAux(current) as PersistentCompositionLocalMap
                     providerCache = providers
@@ -2233,11 +2124,13 @@ internal class ComposerImpl(
         if (reader.size > 0) {
             var current = group
             while (current > 0) {
-                if (reader.groupKey(current) == compositionLocalMapKey &&
-                    reader.groupObjectKey(current) == compositionLocalMap
+                if (
+                    reader.groupKey(current) == compositionLocalMapKey &&
+                        reader.groupObjectKey(current) == compositionLocalMap
                 ) {
-                    val providers = providerUpdates?.get(current)
-                        ?: reader.groupAux(current) as PersistentCompositionLocalMap
+                    val providers =
+                        providerUpdates?.get(current)
+                            ?: reader.groupAux(current) as PersistentCompositionLocalMap
                     providerCache = providers
                     return providers
                 }
@@ -2249,9 +2142,9 @@ internal class ComposerImpl(
     }
 
     /**
-     * Update (or create) the slots to record the providers. The providers maps are first the
-     * scope followed by the map used to augment the parent scope. Both are needed to detect
-     * inserts, updates and deletes to the providers.
+     * Update (or create) the slots to record the providers. The providers maps are first the scope
+     * followed by the map used to augment the parent scope. Both are needed to detect inserts,
+     * updates and deletes to the providers.
      */
     private fun updateProviderMapGroup(
         parentScope: PersistentCompositionLocalMap,
@@ -2270,10 +2163,8 @@ internal class ComposerImpl(
     override fun startProvider(value: ProvidedValue<*>) {
         val parentScope = currentCompositionLocalScope()
         startGroup(providerKey, provider)
-        val oldState = rememberedValue().let {
-            if (it == Composer.Empty) null
-            else it as ValueHolder<Any?>
-        }
+        val oldState =
+            rememberedValue().let { if (it == Composer.Empty) null else it as ValueHolder<Any?> }
         val local = value.compositionLocal as CompositionLocal<Any?>
         val state = local.updatedStateOf(value as ProvidedValue<Any?>, oldState)
         val change = state != oldState
@@ -2283,9 +2174,12 @@ internal class ComposerImpl(
         val providers: PersistentCompositionLocalMap
         val invalid: Boolean
         if (inserting) {
-            providers = if (value.canOverride || !parentScope.contains(local)) {
-                parentScope.putValue(local, state)
-            } else { parentScope }
+            providers =
+                if (value.canOverride || !parentScope.contains(local)) {
+                    parentScope.putValue(local, state)
+                } else {
+                    parentScope
+                }
             invalid = false
             writerHasAProvider = true
         } else {
@@ -2306,11 +2200,13 @@ internal class ComposerImpl(
     }
 
     private fun recordProviderUpdate(providers: PersistentCompositionLocalMap) {
-        val providerUpdates = providerUpdates ?: run {
-            val newProviderUpdates = IntMap<PersistentCompositionLocalMap>()
-            this.providerUpdates = newProviderUpdates
-            newProviderUpdates
-        }
+        val providerUpdates =
+            providerUpdates
+                ?: run {
+                    val newProviderUpdates = IntMap<PersistentCompositionLocalMap>()
+                    this.providerUpdates = newProviderUpdates
+                    newProviderUpdates
+                }
         providerUpdates[reader.currentGroup] = providers
     }
 
@@ -2381,19 +2277,19 @@ internal class ComposerImpl(
      */
     override fun buildContext(): CompositionContext {
         startGroup(referenceKey, reference)
-        if (inserting)
-            writer.markGroup()
+        if (inserting) writer.markGroup()
 
         var holder = nextSlot() as? CompositionContextHolder
         if (holder == null) {
-            holder = CompositionContextHolder(
-                CompositionContextImpl(
-                    compoundKeyHash,
-                    forceRecomposeScopes,
-                    sourceMarkersEnabled,
-                    (composition as? CompositionImpl)?.observerHolder
+            holder =
+                CompositionContextHolder(
+                    CompositionContextImpl(
+                        compoundKeyHash,
+                        forceRecomposeScopes,
+                        sourceMarkersEnabled,
+                        (composition as? CompositionImpl)?.observerHolder
+                    )
                 )
-            )
             updateValue(holder)
         }
         holder.ref.updateCompositionLocalScope(currentCompositionLocalScope())
@@ -2406,15 +2302,17 @@ internal class ComposerImpl(
      * The number of changes that have been scheduled to be applied during
      * [ControlledComposition.applyChanges].
      *
-     * Slot table movement (skipping groups and nodes) will be coalesced so this number is
-     * possibly less than the total changes detected.
+     * Slot table movement (skipping groups and nodes) will be coalesced so this number is possibly
+     * less than the total changes detected.
      */
-    internal val changeCount get() = changes.size
+    internal val changeCount
+        get() = changes.size
 
     internal val currentRecomposeScope: RecomposeScopeImpl?
-        get() = invalidateStack.let {
-            if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
-        }
+        get() =
+            invalidateStack.let {
+                if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
+            }
 
     private fun ensureWriter() {
         if (writer.closed) {
@@ -2432,16 +2330,15 @@ internal class ComposerImpl(
     }
 
     private fun forceFreshInsertTable() {
-        insertTable = SlotTable().apply {
-            if (sourceMarkersEnabled) collectSourceInformation()
-            if (parentContext.collectingCallByInformation) collectCalledByInformation()
-        }
+        insertTable =
+            SlotTable().apply {
+                if (sourceMarkersEnabled) collectSourceInformation()
+                if (parentContext.collectingCallByInformation) collectCalledByInformation()
+            }
         writer = insertTable.openWriter().also { it.close(true) }
     }
 
-    /**
-     * Start the reader group updating the data of the group if necessary
-     */
+    /** Start the reader group updating the data of the group if necessary */
     private fun startReaderGroup(isNode: Boolean, data: Any?) {
         if (isNode) {
             reader.startNode()
@@ -2472,13 +2369,14 @@ internal class ComposerImpl(
                 else -> writer.startGroup(key, objectKey ?: Composer.Empty)
             }
             pending?.let { pending ->
-                val insertKeyInfo = KeyInfo(
-                    key = key,
-                    objectKey = -1,
-                    location = insertedGroupVirtualIndex(startIndex),
-                    nodes = -1,
-                    index = 0
-                )
+                val insertKeyInfo =
+                    KeyInfo(
+                        key = key,
+                        objectKey = -1,
+                        location = insertedGroupVirtualIndex(startIndex),
+                        nodes = -1,
+                        index = 0
+                    )
                 pending.registerInsert(insertKeyInfo, nodeIndex - pending.startIndex)
                 pending.recordUsed(insertKeyInfo)
             }
@@ -2493,10 +2391,7 @@ internal class ComposerImpl(
                 // The group is the same as what was generated last time.
                 startReaderGroup(isNode, data)
             } else {
-                pending = Pending(
-                    reader.extractKeys(),
-                    nodeIndex
-                )
+                pending = Pending(reader.extractKeys(), nodeIndex)
             }
         }
 
@@ -2545,19 +2440,17 @@ internal class ComposerImpl(
                     else -> writer.startGroup(key, objectKey ?: Composer.Empty)
                 }
                 insertAnchor = writer.anchor(startIndex)
-                val insertKeyInfo = KeyInfo(
-                    key = key,
-                    objectKey = -1,
-                    location = insertedGroupVirtualIndex(startIndex),
-                    nodes = -1,
-                    index = 0
-                )
+                val insertKeyInfo =
+                    KeyInfo(
+                        key = key,
+                        objectKey = -1,
+                        location = insertedGroupVirtualIndex(startIndex),
+                        nodes = -1,
+                        index = 0
+                    )
                 pending.registerInsert(insertKeyInfo, nodeIndex - pending.startIndex)
                 pending.recordUsed(insertKeyInfo)
-                newPending = Pending(
-                    mutableListOf(),
-                    if (isNode) 0 else nodeIndex
-                )
+                newPending = Pending(mutableListOf(), if (isNode) 0 else nodeIndex)
             }
         }
 
@@ -2766,8 +2659,8 @@ internal class ComposerImpl(
     /**
      * Recompose any invalidate child groups of the current parent group. This should be called
      * after the group is started but on or before the first child group. It is intended to be
-     * called instead of [skipReaderToGroupEnd] if any child groups are invalid. If no children
-     * are invalid it will call [skipReaderToGroupEnd].
+     * called instead of [skipReaderToGroupEnd] if any child groups are invalid. If no children are
+     * invalid it will call [skipReaderToGroupEnd].
      */
     private fun recomposeToGroupEnd() {
         val wasComposing = isComposing
@@ -2799,12 +2692,7 @@ internal class ComposerImpl(
 
                 // Calculate the node index (the distance index in the node this groups nodes are
                 // located in the parent node).
-                nodeIndex = nodeIndexOf(
-                    location,
-                    newGroup,
-                    parent,
-                    recomposeIndex
-                )
+                nodeIndex = nodeIndexOf(location, newGroup, parent, recomposeIndex)
 
                 // Calculate the current rGroupIndex for this node, storing any parent rGroup
                 // indexes we needed into the rGroup IntList
@@ -2813,12 +2701,8 @@ internal class ComposerImpl(
                 // Calculate the compound hash code (a semi-unique code for every group in the
                 // composition used to restore saved state).
                 val newParent = reader.parent(newGroup)
-                compoundKeyHash = compoundKeyOf(
-                    newParent,
-                    rGroupIndexOf(newParent),
-                    parent,
-                    recomposeCompoundKey
-                )
+                compoundKeyHash =
+                    compoundKeyOf(newParent, rGroupIndexOf(newParent), parent, recomposeCompoundKey)
 
                 // We have moved so the cached lookup of the provider is invalid
                 providerCache = null
@@ -2873,8 +2757,8 @@ internal class ComposerImpl(
      * track newly inserted groups is set to be negative offset from -2. This reserves -1 as the
      * root index which is the parent value returned by the root groups of the slot table.
      *
-     * This function will also restore a virtual index to its index in the insertTable which is
-     * not needed here but could be useful for debugging.
+     * This function will also restore a virtual index to its index in the insertTable which is not
+     * needed here but could be useful for debugging.
      */
     private fun insertedGroupVirtualIndex(index: Int) = -2 - index
 
@@ -2918,10 +2802,9 @@ internal class ComposerImpl(
     }
 
     /**
-     * Calculates the node index (the index in the child list of a node will appear in the
-     * resulting tree) for [group]. Passing in [recomposeGroup] and its node index in
-     * [recomposeIndex] allows the calculation to exit early if there is no node group between
-     * [group] and [recomposeGroup].
+     * Calculates the node index (the index in the child list of a node will appear in the resulting
+     * tree) for [group]. Passing in [recomposeGroup] and its node index in [recomposeIndex] allows
+     * the calculation to exit early if there is no node group between [group] and [recomposeGroup].
      */
     private fun nodeIndexOf(
         groupLocation: Int,
@@ -2970,9 +2853,8 @@ internal class ComposerImpl(
     }
 
     private fun updatedNodeCount(group: Int): Int {
-        if (group < 0) return nodeCountVirtualOverrides?.let {
-            if (it.contains(group)) it[group] else 0
-        } ?: 0
+        if (group < 0)
+            return nodeCountVirtualOverrides?.let { if (it.contains(group)) it[group] else 0 } ?: 0
         val nodeCounts = nodeCountOverrides
         if (nodeCounts != null) {
             val override = nodeCounts[group]
@@ -2984,19 +2866,23 @@ internal class ComposerImpl(
     private fun updateNodeCount(group: Int, count: Int) {
         if (updatedNodeCount(group) != count) {
             if (group < 0) {
-                val virtualCounts = nodeCountVirtualOverrides ?: run {
-                    val newCounts = MutableIntIntMap()
-                    nodeCountVirtualOverrides = newCounts
-                    newCounts
-                }
+                val virtualCounts =
+                    nodeCountVirtualOverrides
+                        ?: run {
+                            val newCounts = MutableIntIntMap()
+                            nodeCountVirtualOverrides = newCounts
+                            newCounts
+                        }
                 virtualCounts[group] = count
             } else {
-                val nodeCounts = nodeCountOverrides ?: run {
-                    val newCounts = IntArray(reader.size)
-                    newCounts.fill(-1)
-                    nodeCountOverrides = newCounts
-                    newCounts
-                }
+                val nodeCounts =
+                    nodeCountOverrides
+                        ?: run {
+                            val newCounts = IntArray(reader.size)
+                            newCounts.fill(-1)
+                            nodeCountOverrides = newCounts
+                            newCounts
+                        }
                 nodeCounts[group] = count
             }
         }
@@ -3008,16 +2894,12 @@ internal class ComposerImpl(
     }
 
     /**
-     * Records the operations necessary to move the applier the node affected by the previous
-     * group to the new group.
+     * Records the operations necessary to move the applier the node affected by the previous group
+     * to the new group.
      */
     private fun recordUpsAndDowns(oldGroup: Int, newGroup: Int, commonRoot: Int) {
         val reader = reader
-        val nearestCommonRoot = reader.nearestCommonRootOf(
-            oldGroup,
-            newGroup,
-            commonRoot
-        )
+        val nearestCommonRoot = reader.nearestCommonRootOf(oldGroup, newGroup, commonRoot)
 
         // Record ups for the nodes between oldGroup and nearestCommonRoot
         var current = oldGroup
@@ -3048,18 +2930,26 @@ internal class ComposerImpl(
         recomposeGroup: Int,
         recomposeKey: Int
     ): Int {
-        return if (group == recomposeGroup) recomposeKey else run {
-            val groupKey = reader.groupCompoundKeyPart(group)
-            if (groupKey == movableContentKey)
-                groupKey
-            else {
-                val parent = reader.parent(group)
-                val parentKey = if (parent == recomposeGroup) recomposeKey else
-                    compoundKeyOf(parent, rGroupIndexOf(parent), recomposeGroup, recomposeKey)
-                val effectiveRGroupIndex = if (reader.hasObjectKey(group)) 0 else rGroupIndex
-                (((parentKey rol 3) xor groupKey) rol 3) xor effectiveRGroupIndex
+        return if (group == recomposeGroup) recomposeKey
+        else
+            run {
+                val groupKey = reader.groupCompoundKeyPart(group)
+                if (groupKey == movableContentKey) groupKey
+                else {
+                    val parent = reader.parent(group)
+                    val parentKey =
+                        if (parent == recomposeGroup) recomposeKey
+                        else
+                            compoundKeyOf(
+                                parent,
+                                rGroupIndexOf(parent),
+                                recomposeGroup,
+                                recomposeKey
+                            )
+                    val effectiveRGroupIndex = if (reader.hasObjectKey(group)) 0 else rGroupIndex
+                    (((parentKey rol 3) xor groupKey) rol 3) xor effectiveRGroupIndex
+                }
             }
-        }
     }
 
     private fun SlotReader.groupCompoundKeyPart(group: Int) =
@@ -3071,11 +2961,14 @@ internal class ComposerImpl(
                     else -> it.hashCode()
                 }
             } ?: 0
-        } else groupKey(group).let {
-            if (it == reuseKey) groupAux(group)?.let { aux ->
-                if (aux == Composer.Empty) it else aux.hashCode()
-            } ?: it else it
-        }
+        } else
+            groupKey(group).let {
+                if (it == reuseKey)
+                    groupAux(group)?.let { aux ->
+                        if (aux == Composer.Empty) it else aux.hashCode()
+                    } ?: it
+                else it
+            }
 
     internal fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean {
         val anchor = scope.anchor ?: return false
@@ -3126,9 +3019,7 @@ internal class ComposerImpl(
         reader.skipToGroupEnd()
     }
 
-    /**
-     * Skip to the end of the group opened by [startGroup].
-     */
+    /** Skip to the end of the group opened by [startGroup]. */
     @ComposeCompilerApi
     override fun skipToGroupEnd() {
         runtimeCheck(groupNodeCount == 0) {
@@ -3182,16 +3073,19 @@ internal class ComposerImpl(
         } else {
             val invalidation = invalidations.removeLocation(reader.parent)
             val slot = reader.next()
-            val scope = if (slot == Composer.Empty) {
-                // This code is executed when a previously deactivate region is becomes active
-                // again. See Composer.deactivateToEndGroup()
-                val newScope = RecomposeScopeImpl(composition as CompositionImpl)
-                updateValue(newScope)
-                newScope
-            } else slot as RecomposeScopeImpl
-            scope.requiresRecompose = invalidation != null || scope.forcedRecompose.also { forced ->
-                if (forced) scope.forcedRecompose = false
-            }
+            val scope =
+                if (slot == Composer.Empty) {
+                    // This code is executed when a previously deactivate region is becomes active
+                    // again. See Composer.deactivateToEndGroup()
+                    val newScope = RecomposeScopeImpl(composition as CompositionImpl)
+                    updateValue(newScope)
+                    newScope
+                } else slot as RecomposeScopeImpl
+            scope.requiresRecompose =
+                invalidation != null ||
+                    scope.forcedRecompose.also { forced ->
+                        if (forced) scope.forcedRecompose = false
+                    }
             invalidateStack.push(scope)
             scope.start(compositionToken)
         }
@@ -3208,28 +3102,24 @@ internal class ComposerImpl(
         // This allows for the invalidate stack to be out of sync since this might be called during
         // exception stack unwinding that might have not called the doneJoin/endRestartGroup in the
         // the correct order.
-        val scope = if (invalidateStack.isNotEmpty()) invalidateStack.pop()
-        else null
+        val scope = if (invalidateStack.isNotEmpty()) invalidateStack.pop() else null
         scope?.requiresRecompose = false
-        scope?.end(compositionToken)?.let {
-            changeListWriter.endCompositionScope(it, composition)
-        }
-        val result = if (scope != null &&
-            !scope.skipped &&
-            (scope.used || forceRecomposeScopes)
-        ) {
-            if (scope.anchor == null) {
-                scope.anchor = if (inserting) {
-                    writer.anchor(writer.parent)
-                } else {
-                    reader.anchor(reader.parent)
+        scope?.end(compositionToken)?.let { changeListWriter.endCompositionScope(it, composition) }
+        val result =
+            if (scope != null && !scope.skipped && (scope.used || forceRecomposeScopes)) {
+                if (scope.anchor == null) {
+                    scope.anchor =
+                        if (inserting) {
+                            writer.anchor(writer.parent)
+                        } else {
+                            reader.anchor(reader.parent)
+                        }
                 }
+                scope.defaultsInvalid = false
+                scope
+            } else {
+                null
             }
-            scope.defaultsInvalid = false
-            scope
-        } else {
-            null
-        }
         end(isNode = false)
         return result
     }
@@ -3265,7 +3155,8 @@ internal class ComposerImpl(
             if (inserting) writer.markGroup()
 
             // Capture the local providers at the point of the invocation. This allows detecting
-            // changes to the locals as the value moves well as enables finding the correct providers
+            // changes to the locals as the value moves well as enables finding the correct
+            // providers
             // when applying late changes which might be very complicated otherwise.
             val providersChanged = if (inserting) false else reader.groupAux != locals
             if (providersChanged) recordProviderUpdate(locals)
@@ -3280,15 +3171,16 @@ internal class ComposerImpl(
 
                 // Create an anchor to the movable group
                 val anchor = writer.anchor(writer.parent(writer.parent))
-                val reference = MovableContentStateReference(
-                    content,
-                    parameter,
-                    composition,
-                    insertTable,
-                    anchor,
-                    emptyList(),
-                    currentCompositionLocalScope()
-                )
+                val reference =
+                    MovableContentStateReference(
+                        content,
+                        parameter,
+                        composition,
+                        insertTable,
+                        anchor,
+                        emptyList(),
+                        currentCompositionLocalScope()
+                    )
                 parentContext.insertMovableContent(reference)
             } else {
                 val savedProvidersInvalid = providersInvalid
@@ -3384,7 +3276,8 @@ internal class ComposerImpl(
                     // Insert nodes if necessary
                     if (nodesToInsert.isNotEmpty()) {
                         changeListWriter.copyNodesToNewAnchorLocation(
-                            nodesToInsert, effectiveNodeIndex
+                            nodesToInsert,
+                            effectiveNodeIndex
                         )
                         if (to.slotTable == slotTable) {
                             // Inserting the content into the current slot table then we need to
@@ -3392,10 +3285,7 @@ internal class ComposerImpl(
                             // a new slot table which is being created, not updated, so the virtual
                             // node counts do not need to be updated.
                             val group = slotTable.anchorIndex(anchor)
-                            updateNodeCount(
-                                group,
-                                updatedNodeCount(group) + nodesToInsert.size
-                            )
+                            updateNodeCount(group, updatedNodeCount(group) + nodesToInsert.size)
                         }
                     }
 
@@ -3546,29 +3436,19 @@ internal class ComposerImpl(
         // some invalidations scheduled already. it can happen when during some parent composition
         // there were a change for a state which was used by the child composition. such changes
         // will be tracked and added into `invalidations` list.
-        if (
-            invalidationsRequested.size > 0 ||
-            invalidations.isNotEmpty() ||
-            forciblyRecompose
-        ) {
+        if (invalidationsRequested.size > 0 || invalidations.isNotEmpty() || forciblyRecompose) {
             doCompose(invalidationsRequested, null)
             return changes.isNotEmpty()
         }
         return false
     }
 
-    fun updateComposerInvalidations(
-        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>
-    ) {
+    fun updateComposerInvalidations(invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>) {
         invalidationsRequested.map.forEach { scope, instances ->
             scope as RecomposeScopeImpl
             val location = scope.anchor?.location ?: return@forEach
             invalidations.add(
-                Invalidation(
-                    scope,
-                    location,
-                    instances.takeUnless { it === ScopeInvalidated }
-                )
+                Invalidation(scope, location, instances.takeUnless { it === ScopeInvalidated })
             )
         }
         invalidations.sortWith(InvalidationLocationAscending)
@@ -3604,8 +3484,8 @@ internal class ComposerImpl(
                         endGroup()
                     } else if (
                         (forciblyRecompose || providersInvalid) &&
-                        savedContent != null &&
-                        savedContent != Composer.Empty
+                            savedContent != null &&
+                            savedContent != Composer.Empty
                     ) {
                         startGroup(invocationKey, invocation)
                         @Suppress("UNCHECKED_CAST")
@@ -3626,9 +3506,11 @@ internal class ComposerImpl(
         }
     }
 
-    val hasInvalidations get() = invalidations.isNotEmpty()
+    val hasInvalidations
+        get() = invalidations.isNotEmpty()
 
-    private val SlotReader.node get() = node(parent)
+    private val SlotReader.node
+        get() = node(parent)
 
     private fun SlotReader.nodeAt(index: Int) = node(index)
 
@@ -3663,8 +3545,8 @@ internal class ComposerImpl(
      * Report any movable content that the group contains as being removed and ready to be moved.
      * Returns true if the group itself was removed.
      *
-     * Returns the number of nodes left in place which is used to calculate the node index of
-     * any nested calls.
+     * Returns the number of nodes left in place which is used to calculate the node index of any
+     * nested calls.
      *
      * @param groupBeingRemoved The group that is being removed from the table or 0 if the entire
      *   table is being removed.
@@ -3689,22 +3571,26 @@ internal class ComposerImpl(
                     val parameter = reader.groupGet(group, 0)
                     val anchor = reader.anchor(group)
                     val end = group + reader.groupSize(group)
-                    val invalidations = this.invalidations.filterToRange(group, end).fastMap {
-                        it.scope to it.instances
-                    }
-                    val reference = MovableContentStateReference(
-                        movableContent,
-                        parameter,
-                        composition,
-                        slotTable,
-                        anchor,
-                        invalidations,
-                        currentCompositionLocalScope(group)
-                    )
+                    val invalidations =
+                        this.invalidations.filterToRange(group, end).fastMap {
+                            it.scope to it.instances
+                        }
+                    val reference =
+                        MovableContentStateReference(
+                            movableContent,
+                            parameter,
+                            composition,
+                            slotTable,
+                            anchor,
+                            invalidations,
+                            currentCompositionLocalScope(group)
+                        )
                     parentContext.deletedMovableContent(reference)
                     changeListWriter.recordSlotEditing()
                     changeListWriter.releaseMovableGroupAtCurrent(
-                        composition, parentContext, reference
+                        composition,
+                        parentContext,
+                        reference
                     )
                     if (needsNodeDelete) {
                         changeListWriter.endNodeMovementAndDeleteNode(nodeIndex, group)
@@ -3752,11 +3638,12 @@ internal class ComposerImpl(
                         changeListWriter.endNodeMovement()
                         changeListWriter.moveDown(reader.node(current))
                     }
-                    runningNodeCount += reportGroup(
-                        group = current,
-                        needsNodeDelete = isNode || needsNodeDelete,
-                        nodeIndex = if (isNode) 0 else nodeIndex + runningNodeCount
-                    )
+                    runningNodeCount +=
+                        reportGroup(
+                            group = current,
+                            needsNodeDelete = isNode || needsNodeDelete,
+                            nodeIndex = if (isNode) 0 else nodeIndex + runningNodeCount
+                        )
                     if (isNode) {
                         changeListWriter.endNodeMovement()
                         changeListWriter.moveUp()
@@ -3771,8 +3658,8 @@ internal class ComposerImpl(
     }
 
     /**
-     * Called during composition to report all the content of the composition will be released
-     * as this composition is to be disposed.
+     * Called during composition to report all the content of the composition will be released as
+     * this composition is to be disposed.
      */
     private fun reportAllMovableContent() {
         if (slotTable.containsMark()) {
@@ -3811,16 +3698,17 @@ internal class ComposerImpl(
     }
 
     /**
-     * A holder that will dispose of its [CompositionContext] when it leaves the composition
-     * that will not have its reference made visible to user code.
+     * A holder that will dispose of its [CompositionContext] when it leaves the composition that
+     * will not have its reference made visible to user code.
      */
-    private class CompositionContextHolder(
-        val ref: ComposerImpl.CompositionContextImpl
-    ) : ReusableRememberObserver {
-        override fun onRemembered() { }
+    private class CompositionContextHolder(val ref: ComposerImpl.CompositionContextImpl) :
+        ReusableRememberObserver {
+        override fun onRemembered() {}
+
         override fun onAbandoned() {
             ref.dispose()
         }
+
         override fun onForgotten() {
             ref.dispose()
         }
@@ -3843,8 +3731,7 @@ internal class ComposerImpl(
             if (composers.isNotEmpty()) {
                 inspectionTables?.let {
                     for (composer in composers) {
-                        for (table in it)
-                            table.remove(composer.slotTable)
+                        for (table in it) table.remove(composer.slotTable)
                     }
                 }
                 composers.clear()
@@ -3907,10 +3794,11 @@ internal class ComposerImpl(
         // we need changes made to it in composition to be visible for the rest of the current
         // composition and not become visible outside of the composition process until composition
         // succeeds.
-        private var compositionLocalScope by mutableStateOf<PersistentCompositionLocalMap>(
-            persistentCompositionLocalHashMapOf(),
-            referentialEqualityPolicy()
-        )
+        private var compositionLocalScope by
+            mutableStateOf<PersistentCompositionLocalMap>(
+                persistentCompositionLocalHashMapOf(),
+                referentialEqualityPolicy()
+            )
 
         override fun getCompositionLocalScope(): PersistentCompositionLocalMap =
             compositionLocalScope
@@ -3920,11 +3808,9 @@ internal class ComposerImpl(
         }
 
         override fun recordInspectionTable(table: MutableSet<CompositionData>) {
-            (
-                inspectionTables ?: HashSet<MutableSet<CompositionData>>().also {
-                    inspectionTables = it
-                }
-                ).add(table)
+            (inspectionTables
+                    ?: HashSet<MutableSet<CompositionData>>().also { inspectionTables = it })
+                .add(table)
         }
 
         override fun startComposing() {
@@ -3969,12 +3855,9 @@ internal class ComposerImpl(
         if (dataKey == null)
             if (data != null && groupKey == reuseKey && data != Composer.Empty)
                 updateCompoundKeyWhenWeEnterGroupKeyHash(data.hashCode(), rGroupIndex)
-            else
-                updateCompoundKeyWhenWeEnterGroupKeyHash(groupKey, rGroupIndex)
-        else if (dataKey is Enum<*>)
-            updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.ordinal, 0)
-        else
-            updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.hashCode(), 0)
+            else updateCompoundKeyWhenWeEnterGroupKeyHash(groupKey, rGroupIndex)
+        else if (dataKey is Enum<*>) updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.ordinal, 0)
+        else updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.hashCode(), 0)
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -3992,12 +3875,9 @@ internal class ComposerImpl(
         if (dataKey == null)
             if (data != null && groupKey == reuseKey && data != Composer.Empty)
                 updateCompoundKeyWhenWeExitGroupKeyHash(data.hashCode(), rGroupIndex)
-            else
-                updateCompoundKeyWhenWeExitGroupKeyHash(groupKey, rGroupIndex)
-        else if (dataKey is Enum<*>)
-            updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.ordinal, 0)
-        else
-            updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.hashCode(), 0)
+            else updateCompoundKeyWhenWeExitGroupKeyHash(groupKey, rGroupIndex)
+        else if (dataKey is Enum<*>) updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.ordinal, 0)
+        else updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.hashCode(), 0)
     }
 
     @Suppress("NOTHING_TO_INLINE")
@@ -4007,108 +3887,109 @@ internal class ComposerImpl(
 
     // This is only used in tests to ensure the stacks do not silently leak.
     internal fun stacksSize(): Int {
-        return entersStack.size + invalidateStack.size + providersInvalidStack.size +
-            pendingStack.size + parentStateStack.size
+        return entersStack.size +
+            invalidateStack.size +
+            providersInvalidStack.size +
+            pendingStack.size +
+            parentStateStack.size
     }
 
-    override val recomposeScope: RecomposeScope? get() = currentRecomposeScope
-    override val recomposeScopeIdentity: Any? get() = currentRecomposeScope?.anchor
+    override val recomposeScope: RecomposeScope?
+        get() = currentRecomposeScope
+
+    override val recomposeScopeIdentity: Any?
+        get() = currentRecomposeScope?.anchor
+
     override fun rememberedValue(): Any? = nextSlotForCache()
+
     override fun updateRememberedValue(value: Any?) = updateCachedValue(value)
-    override fun recordUsed(scope: RecomposeScope) { (scope as? RecomposeScopeImpl)?.used = true }
+
+    override fun recordUsed(scope: RecomposeScope) {
+        (scope as? RecomposeScopeImpl)?.used = true
+    }
 }
 
 /**
- * A helper receiver scope class used by [ComposeNode] to help write code to initialized and update a
- * node.
+ * A helper receiver scope class used by [ComposeNode] to help write code to initialized and update
+ * a node.
  *
  * @see ComposeNode
  */
 @JvmInline
-value class Updater<T> constructor(
-    @PublishedApi internal val composer: Composer
-) {
+value class Updater<T> constructor(@PublishedApi internal val composer: Composer) {
     /**
      * Set the value property of the emitted node.
      *
-     * Schedules [block] to be run when the node is first created or when [value] is different
-     * than the previous composition.
+     * Schedules [block] to be run when the node is first created or when [value] is different than
+     * the previous composition.
      *
      * @see update
      */
     @Suppress("NOTHING_TO_INLINE") // Inlining the compare has noticeable impact
-    inline fun set(
-        value: Int,
-        noinline block: T.(value: Int) -> Unit
-    ) = with(composer) {
-        if (inserting || rememberedValue() != value) {
-            updateRememberedValue(value)
-            composer.apply(value, block)
+    inline fun set(value: Int, noinline block: T.(value: Int) -> Unit) =
+        with(composer) {
+            if (inserting || rememberedValue() != value) {
+                updateRememberedValue(value)
+                composer.apply(value, block)
+            }
         }
-    }
 
     /**
      * Set the value property of the emitted node.
      *
-     * Schedules [block] to be run when the node is first created or when [value] is different
-     * than the previous composition.
+     * Schedules [block] to be run when the node is first created or when [value] is different than
+     * the previous composition.
      *
      * @see update
      */
-    fun <V> set(
-        value: V,
-        block: T.(value: V) -> Unit
-    ) = with(composer) {
-        if (inserting || rememberedValue() != value) {
-            updateRememberedValue(value)
-            composer.apply(value, block)
+    fun <V> set(value: V, block: T.(value: V) -> Unit) =
+        with(composer) {
+            if (inserting || rememberedValue() != value) {
+                updateRememberedValue(value)
+                composer.apply(value, block)
+            }
         }
-    }
 
     /**
      * Update the value of a property of the emitted node.
      *
      * Schedules [block] to be run when [value] is different than the previous composition. It is
      * different than [set] in that it does not run when the node is created. This is used when
-     * initial value set by the [ComposeNode] in the constructor callback already has the correct value.
-     * For example, use [update} when [value] is passed into of the classes constructor
+     * initial value set by the [ComposeNode] in the constructor callback already has the correct
+     * value. For example, use [update} when [value] is passed into of the classes constructor
      * parameters.
      *
      * @see set
      */
     @Suppress("NOTHING_TO_INLINE") // Inlining the compare has noticeable impact
-    inline fun update(
-        value: Int,
-        noinline block: T.(value: Int) -> Unit
-    ) = with(composer) {
-        val inserting = inserting
-        if (inserting || rememberedValue() != value) {
-            updateRememberedValue(value)
-            if (!inserting) apply(value, block)
+    inline fun update(value: Int, noinline block: T.(value: Int) -> Unit) =
+        with(composer) {
+            val inserting = inserting
+            if (inserting || rememberedValue() != value) {
+                updateRememberedValue(value)
+                if (!inserting) apply(value, block)
+            }
         }
-    }
 
     /**
      * Update the value of a property of the emitted node.
      *
      * Schedules [block] to be run when [value] is different than the previous composition. It is
      * different than [set] in that it does not run when the node is created. This is used when
-     * initial value set by the [ComposeNode] in the constructor callback already has the correct value.
-     * For example, use [update} when [value] is passed into of the classes constructor
+     * initial value set by the [ComposeNode] in the constructor callback already has the correct
+     * value. For example, use [update} when [value] is passed into of the classes constructor
      * parameters.
      *
      * @see set
      */
-    fun <V> update(
-        value: V,
-        block: T.(value: V) -> Unit
-    ) = with(composer) {
-        val inserting = inserting
-        if (inserting || rememberedValue() != value) {
-            updateRememberedValue(value)
-            if (!inserting) apply(value, block)
+    fun <V> update(value: V, block: T.(value: V) -> Unit) =
+        with(composer) {
+            val inserting = inserting
+            if (inserting || rememberedValue() != value) {
+                updateRememberedValue(value)
+                if (!inserting) apply(value, block)
+            }
         }
-    }
 
     /**
      * Initialize emitted node.
@@ -4121,35 +4002,29 @@ value class Updater<T> constructor(
      * @see reconcile
      */
     fun init(block: T.() -> Unit) {
-        if (composer.inserting) composer.apply<Unit, T>(Unit) {
-            block()
-        }
+        if (composer.inserting) composer.apply<Unit, T>(Unit) { block() }
     }
 
     /**
      * Reconcile the node to the current state.
      *
-     * This is used when [set] and [update] are insufficient to update the state of the node
-     * based on changes passed to the function calling [ComposeNode].
+     * This is used when [set] and [update] are insufficient to update the state of the node based
+     * on changes passed to the function calling [ComposeNode].
      *
-     * Schedules [block] to execute. As this unconditionally schedules [block] to executed it
-     * might be executed unnecessarily as no effort is taken to ensure it only executes when the
-     * values [block] captures have changed. It is highly recommended that [set] and [update] be
-     * used instead as they will only schedule their blocks to executed when the value passed to
-     * them has changed.
+     * Schedules [block] to execute. As this unconditionally schedules [block] to executed it might
+     * be executed unnecessarily as no effort is taken to ensure it only executes when the values
+     * [block] captures have changed. It is highly recommended that [set] and [update] be used
+     * instead as they will only schedule their blocks to executed when the value passed to them has
+     * changed.
      */
     @Suppress("MemberVisibilityCanBePrivate")
     fun reconcile(block: T.() -> Unit) {
-        composer.apply<Unit, T>(Unit) {
-            this.block()
-        }
+        composer.apply<Unit, T>(Unit) { this.block() }
     }
 }
 
 @JvmInline
-value class SkippableUpdater<T> constructor(
-    @PublishedApi internal val composer: Composer
-) {
+value class SkippableUpdater<T> constructor(@PublishedApi internal val composer: Composer) {
     inline fun update(block: Updater<T>.() -> Unit) {
         composer.startReplaceableGroup(0x1e65194f)
         Updater<T>(composer).block()
@@ -4201,8 +4076,10 @@ internal inline fun <R> SlotWriter.withAfterAnchorInfo(anchor: Anchor?, cb: (Int
     cb(priority, endRelativeAfter)
 }
 
-internal val SlotWriter.isAfterFirstChild get() = currentGroup > parent + 1
-internal val SlotReader.isAfterFirstChild get() = currentGroup > parent + 1
+internal val SlotWriter.isAfterFirstChild
+    get() = currentGroup > parent + 1
+internal val SlotReader.isAfterFirstChild
+    get() = currentGroup > parent + 1
 
 internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager) {
     // Notify the lifecycle manager of any observers leaving the slot table
@@ -4249,16 +4126,12 @@ internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager)
 }
 
 private fun SlotWriter.removeData(group: Int, index: Int, data: Any?) {
-    runtimeCheck(data === set(group, index, Composer.Empty)) {
-        "Slot table is out of sync"
-    }
+    runtimeCheck(data === set(group, index, Composer.Empty)) { "Slot table is out of sync" }
 }
 
 @JvmInline
 @Suppress("UNCHECKED_CAST")
-private value class MutableScatterMultiMap<K, V : Any>(
-    val map: MutableScatterMap<K, Any>
-) {
+private value class MutableScatterMultiMap<K, V : Any>(val map: MutableScatterMap<K, Any>) {
     fun put(key: K, value: V) {
         map.compute(key) { _, previous ->
             when (previous) {
@@ -4280,34 +4153,33 @@ private value class MutableScatterMultiMap<K, V : Any>(
         }
     }
 
-    fun pop(key: K) = map[key]?.let { entry ->
-        @Suppress("UNCHECKED_CAST")
-        when (entry) {
-            is MutableList<*> -> {
-                val list = entry as MutableList<V>
-                val result = list.removeAt(0)
-                if (list.isEmpty()) map.remove(key)
-                result
+    fun pop(key: K) =
+        map[key]?.let { entry ->
+            @Suppress("UNCHECKED_CAST")
+            when (entry) {
+                is MutableList<*> -> {
+                    val list = entry as MutableList<V>
+                    val result = list.removeAt(0)
+                    if (list.isEmpty()) map.remove(key)
+                    result
+                }
+                else -> {
+                    map.remove(key)
+                    entry
+                }
             }
-            else -> {
-                map.remove(key)
-                entry
-            }
-        } as V
-    }
+                as V
+        }
 }
 
 private fun <K, V : Any> multiMap(initialCapacity: Int) =
     MutableScatterMultiMap<K, V>(MutableScatterMap(initialCapacity))
 
-private fun getKey(value: Any?, left: Any?, right: Any?): Any? = (value as? JoinedKey)?.let {
-    if (it.left == left && it.right == right) value
-    else getKey(it.left, left, right) ?: getKey(
-        it.right,
-        left,
-        right
-    )
-}
+private fun getKey(value: Any?, left: Any?, right: Any?): Any? =
+    (value as? JoinedKey)?.let {
+        if (it.left == left && it.right == right) value
+        else getKey(it.left, left, right) ?: getKey(it.right, left, right)
+    }
 
 // Invalidation helpers
 private fun MutableList<Invalidation>.findLocation(location: Int): Int {
@@ -4358,7 +4230,6 @@ private fun MutableList<Invalidation>.insertIfMissing(
                     oldInstance as MutableScatterSet<Any?>
                     oldInstance.add(instance)
                 }
-
                 else -> {
                     invalidation.instances = mutableScatterSetOf(oldInstance, instance)
                 }
@@ -4387,8 +4258,7 @@ private fun MutableList<Invalidation>.removeRange(start: Int, end: Int) {
     val index = findInsertLocation(start)
     while (index < size) {
         val validation = get(index)
-        if (validation.location < end) removeAt(index)
-        else break
+        if (validation.location < end) removeAt(index) else break
     }
 }
 
@@ -4400,14 +4270,14 @@ private fun MutableList<Invalidation>.filterToRange(
     var index = findInsertLocation(start)
     while (index < size) {
         val invalidation = get(index)
-        if (invalidation.location < end) result.add(invalidation)
-        else break
+        if (invalidation.location < end) result.add(invalidation) else break
         index++
     }
     return result
 }
 
 private fun Boolean.asInt() = if (this) 1 else 0
+
 private fun Int.asBool() = this != 0
 
 private fun SlotTable.collectNodesFrom(anchor: Anchor): List<Any?> {
@@ -4469,15 +4339,19 @@ private fun SlotReader.nearestCommonRootOf(a: Int, b: Int, common: Int): Int {
     return currentA
 }
 
-private val KeyInfo.joinedKey: Any get() = if (objectKey != null) JoinedKey(key, objectKey) else key
+private val KeyInfo.joinedKey: Any
+    get() = if (objectKey != null) JoinedKey(key, objectKey) else key
 
 /*
  * Group types used with [Composer.start] to differentiate between different types of groups
  */
 @JvmInline
 private value class GroupKind private constructor(val value: Int) {
-    inline val isNode get() = value != Group.value
-    inline val isReusable get() = value != Node.value
+    inline val isNode
+        get() = value != Group.value
+
+    inline val isReusable
+        get() = value != Node.value
 
     companion object {
         val Group = GroupKind(0)
@@ -4492,10 +4366,7 @@ private value class GroupKind private constructor(val value: Int) {
  */
 internal interface ReusableRememberObserver : RememberObserver
 
-internal class RememberObserverHolder(
-    var wrapped: RememberObserver,
-    var after: Anchor?
-)
+internal class RememberObserverHolder(var wrapped: RememberObserver, var after: Anchor?)
 
 /*
  * Integer keys are arbitrary values in the biload range. The do not need to be unique as if
@@ -4513,44 +4384,31 @@ private const val nodeKey = 125
 // An arbitrary key value that marks the default parameter group
 private const val defaultsKey = -127
 
-@PublishedApi
-internal const val invocationKey = 200
+@PublishedApi internal const val invocationKey = 200
 
-@PublishedApi
-internal val invocation: Any = OpaqueKey("provider")
+@PublishedApi internal val invocation: Any = OpaqueKey("provider")
 
-@PublishedApi
-internal const val providerKey = 201
+@PublishedApi internal const val providerKey = 201
 
-@PublishedApi
-internal val provider: Any = OpaqueKey("provider")
+@PublishedApi internal val provider: Any = OpaqueKey("provider")
 
-@PublishedApi
-internal const val compositionLocalMapKey = 202
+@PublishedApi internal const val compositionLocalMapKey = 202
 
-@PublishedApi
-internal val compositionLocalMap: Any = OpaqueKey("compositionLocalMap")
+@PublishedApi internal val compositionLocalMap: Any = OpaqueKey("compositionLocalMap")
 
-@PublishedApi
-internal const val providerValuesKey = 203
+@PublishedApi internal const val providerValuesKey = 203
 
-@PublishedApi
-internal val providerValues: Any = OpaqueKey("providerValues")
+@PublishedApi internal val providerValues: Any = OpaqueKey("providerValues")
 
-@PublishedApi
-internal const val providerMapsKey = 204
+@PublishedApi internal const val providerMapsKey = 204
 
-@PublishedApi
-internal val providerMaps: Any = OpaqueKey("providers")
+@PublishedApi internal val providerMaps: Any = OpaqueKey("providers")
 
-@PublishedApi
-internal const val referenceKey = 206
+@PublishedApi internal const val referenceKey = 206
 
-@PublishedApi
-internal val reference: Any = OpaqueKey("reference")
+@PublishedApi internal val reference: Any = OpaqueKey("reference")
 
-@PublishedApi
-internal const val reuseKey = 207
+@PublishedApi internal const val reuseKey = 207
 
 private const val invalidGroupLocation = -2
 
@@ -4559,9 +4417,7 @@ internal class ComposeRuntimeError(override val message: String) : IllegalStateE
 @Suppress("BanInlineOptIn")
 @OptIn(ExperimentalContracts::class)
 internal inline fun runtimeCheck(value: Boolean, lazyMessage: () -> String) {
-    contract {
-        returns() implies value
-    }
+    contract { returns() implies value }
     if (!value) {
         composeImmediateRuntimeError(lazyMessage())
     }
@@ -4587,6 +4443,5 @@ internal fun composeImmediateRuntimeError(message: String) {
     )
 }
 
-private val InvalidationLocationAscending = Comparator<Invalidation> { i1, i2 ->
-    i1.location.compareTo(i2.location)
-}
+private val InvalidationLocationAscending =
+    Comparator<Invalidation> { i1, i2 -> i1.location.compareTo(i2.location) }

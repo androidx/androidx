@@ -20,23 +20,21 @@ package androidx.compose.runtime.saveable
  * The [Saver] describes how the object of [Original] class can be simplified and converted into
  * something which is [Saveable].
  *
- * What types can be saved is defined by [SaveableStateRegistry], by default everything which can
- * be stored in the Bundle class can be saved.
- * The implementations can check that the provided value can be saved via [SaverScope.canBeSaved]
+ * What types can be saved is defined by [SaveableStateRegistry], by default everything which can be
+ * stored in the Bundle class can be saved. The implementations can check that the provided value
+ * can be saved via [SaverScope.canBeSaved]
  *
  * You can pass the implementations of this class as a parameter for [rememberSaveable].
  *
  * @sample androidx.compose.runtime.saveable.samples.CustomSaverSample
  */
 interface Saver<Original, Saveable : Any> {
-    /**
-     * Convert the value into a saveable one. If null is returned the value will not be saved.
-     */
+    /** Convert the value into a saveable one. If null is returned the value will not be saved. */
     fun SaverScope.save(value: Original): Saveable?
 
     /**
-     * Convert the restored value back to the original Class. If null is returned the value will
-     * not be restored and would be initialized again instead.
+     * Convert the restored value back to the original Class. If null is returned the value will not
+     * be restored and would be initialized again instead.
      */
     fun restore(value: Saveable): Original?
 }
@@ -45,18 +43,18 @@ interface Saver<Original, Saveable : Any> {
  * The [Saver] describes how the object of [Original] class can be simplified and converted into
  * something which is [Saveable].
  *
- * What types can be saved is defined by [SaveableStateRegistry], by default everything which can
- * be stored in the Bundle class can be saved.
- * The implementations can check that the provided value can be saved via [SaverScope.canBeSaved]
+ * What types can be saved is defined by [SaveableStateRegistry], by default everything which can be
+ * stored in the Bundle class can be saved. The implementations can check that the provided value
+ * can be saved via [SaverScope.canBeSaved]
  *
  * You can pass the implementations of this class as a parameter for [rememberSaveable].
  *
  * @sample androidx.compose.runtime.saveable.samples.CustomSaverSample
  *
- * @param save Defines how to convert the value into a saveable one. If null is returned the
- * value will not be saved.
- * @param restore Defines how to convert the restored value back to the original Class. If null
- * is returned the value will not be restored and would be initialized again instead.
+ * @param save Defines how to convert the value into a saveable one. If null is returned the value
+ *   will not be saved.
+ * @param restore Defines how to convert the restored value back to the original Class. If null is
+ *   returned the value will not be restored and would be initialized again instead.
  */
 fun <Original, Saveable : Any> Saver(
     save: SaverScope.(value: Original) -> Saveable?,
@@ -76,8 +74,8 @@ fun <Original, Saveable : Any> Saver(
  */
 fun interface SaverScope {
     /**
-     * What types can be saved is defined by [SaveableStateRegistry], by default everything which can
-     * be stored in the Bundle class can be saved.
+     * What types can be saved is defined by [SaveableStateRegistry], by default everything which
+     * can be stored in the Bundle class can be saved.
      */
     fun canBeSaved(value: Any): Boolean
 }
@@ -89,11 +87,6 @@ fun interface SaverScope {
  *
  * @see Saver
  */
-fun <T> autoSaver(): Saver<T, Any> =
-    @Suppress("UNCHECKED_CAST")
-    (AutoSaver as Saver<T, Any>)
+fun <T> autoSaver(): Saver<T, Any> = @Suppress("UNCHECKED_CAST") (AutoSaver as Saver<T, Any>)
 
-private val AutoSaver = Saver<Any?, Any>(
-    save = { it },
-    restore = { it }
-)
+private val AutoSaver = Saver<Any?, Any>(save = { it }, restore = { it })

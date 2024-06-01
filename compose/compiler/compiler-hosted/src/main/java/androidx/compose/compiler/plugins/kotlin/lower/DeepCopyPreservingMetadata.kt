@@ -34,39 +34,25 @@ internal open class DeepCopyPreservingMetadata(
     symbolRenamer: SymbolRenamer
 ) : DeepCopyIrTreeWithSymbols(symbolRemapper, typeRemapper, symbolRenamer) {
     override fun visitFile(declaration: IrFile): IrFile =
-        super.visitFile(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitFile(declaration).apply { metadata = declaration.metadata }
 
     override fun visitClass(declaration: IrClass): IrClass =
-        super.visitClass(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitClass(declaration).apply { metadata = declaration.metadata }
 
     override fun visitConstructor(declaration: IrConstructor): IrConstructor =
-        super.visitConstructor(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitConstructor(declaration).apply { metadata = declaration.metadata }
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrSimpleFunction =
-        super.visitSimpleFunction(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitSimpleFunction(declaration).apply { metadata = declaration.metadata }
 
     override fun visitProperty(declaration: IrProperty): IrProperty =
-        super.visitProperty(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitProperty(declaration).apply { metadata = declaration.metadata }
 
     override fun visitField(declaration: IrField): IrField =
-        super.visitField(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitField(declaration).apply { metadata = declaration.metadata }
 
     override fun visitLocalDelegatedProperty(
         declaration: IrLocalDelegatedProperty
     ): IrLocalDelegatedProperty =
-        super.visitLocalDelegatedProperty(declaration).apply {
-            metadata = declaration.metadata
-        }
+        super.visitLocalDelegatedProperty(declaration).apply { metadata = declaration.metadata }
 }

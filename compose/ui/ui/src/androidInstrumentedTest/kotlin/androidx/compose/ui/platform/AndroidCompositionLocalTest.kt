@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AndroidCompositionLocalTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     @Test
@@ -44,20 +43,14 @@ class AndroidCompositionLocalTest {
         val expected = createFontFamilyResolver(context)
         var actual: FontFamily.Resolver? = null
         rule.setContent {
-            CompositionLocalProvider(
-                LocalFontFamilyResolver provides expected
-            ) {
+            CompositionLocalProvider(LocalFontFamilyResolver provides expected) {
                 Popup {
                     val popupResolver = LocalFontFamilyResolver.current
-                    SideEffect {
-                        actual = popupResolver
-                    }
+                    SideEffect { actual = popupResolver }
                 }
             }
         }
-        rule.runOnIdle {
-            assertThat(actual).isSameInstanceAs(expected)
-        }
+        rule.runOnIdle { assertThat(actual).isSameInstanceAs(expected) }
     }
 
     @Test
@@ -66,32 +59,22 @@ class AndroidCompositionLocalTest {
         var compositionCount = 0
         rule.setContent {
             view = LocalView.current
-            with(LocalConfiguration.current) {
-                compositionCount++
-            }
+            with(LocalConfiguration.current) { compositionCount++ }
         }
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(1) }
         val configuration = view.context.resources.configuration
         // Dispatch the same configuration: same instance and compares equal so we shouldn't
         // invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configuration)
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(1) }
         configuration.densityDpi *= 2
         // Same instance but different fields, so we should invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configuration)
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(2) }
         configuration.screenHeightDp *= 2
         // Same instance but different fields, so we should invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configuration)
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(3)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(3) }
     }
 
     @Test
@@ -100,34 +83,24 @@ class AndroidCompositionLocalTest {
         var compositionCount = 0
         rule.setContent {
             view = LocalView.current
-            with(LocalConfiguration.current) {
-                compositionCount++
-            }
+            with(LocalConfiguration.current) { compositionCount++ }
         }
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(1) }
         val configuration = view.context.resources.configuration
         // Make a deep copy
         val configurationCopy = Configuration(configuration)
         // New instance, but compares equal, so we shouldn't invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configurationCopy)
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(1) }
         // Make another deep copy and mutate its fields
         val configurationCopy2 = Configuration(configuration).apply { densityDpi *= 2 }
         // New instance and different fields, so we should invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configurationCopy2)
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(2) }
         // Make another deep copy and mutate its fields
         val configurationCopy3 = Configuration(configurationCopy2).apply { screenHeightDp *= 2 }
         // New instance and different fields, so we should invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configurationCopy3)
-        rule.runOnIdle {
-            assertThat(compositionCount).isEqualTo(3)
-        }
+        rule.runOnIdle { assertThat(compositionCount).isEqualTo(3) }
     }
 }

@@ -70,71 +70,86 @@ class ScrollTest {
     }
 
     @Test
-    fun scrollVertically() = runMouseInputInjectionTest(
-        mouseInput = {
-            // scroll vertically
-            scroll(10f, ScrollWheel.Vertical)
-        },
-        eventVerifiers = arrayOf(
-            { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
-            { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(0f, 10f)) },
+    fun scrollVertically() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // scroll vertically
+                scroll(10f, ScrollWheel.Vertical)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(0f, 10f)) },
+                )
         )
-    )
 
     @Test
-    fun scrollHorizontally() = runMouseInputInjectionTest(
-        mouseInput = {
-            // scroll horizontally
-            scroll(10f, ScrollWheel.Horizontal)
-        },
-        eventVerifiers = arrayOf(
-            { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
-            { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(10f, 0f)) },
+    fun scrollHorizontally() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // scroll horizontally
+                scroll(10f, ScrollWheel.Horizontal)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(10f, 0f)) },
+                )
         )
-    )
 
     @Test
-    fun scrollWithPrimaryDown() = runMouseInputInjectionTest(
-        mouseInput = {
-            // press primary button
-            press(MouseButton.Primary)
-            // scroll
-            scroll(10f)
-        },
-        eventVerifiers = arrayOf(
-            { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
-            { this.verifyMouseEvent(0, Press, true, Offset.Zero, PrimaryButton) },
-            { this.verifyMouseEvent(0, Scroll, true, Offset.Zero, Offset(0f, 10f), PrimaryButton) },
+    fun scrollWithPrimaryDown() =
+        runMouseInputInjectionTest(
+            mouseInput = {
+                // press primary button
+                press(MouseButton.Primary)
+                // scroll
+                scroll(10f)
+            },
+            eventVerifiers =
+                arrayOf(
+                    { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(0, Press, true, Offset.Zero, PrimaryButton) },
+                    {
+                        this.verifyMouseEvent(
+                            0,
+                            Scroll,
+                            true,
+                            Offset.Zero,
+                            Offset(0f, 10f),
+                            PrimaryButton
+                        )
+                    },
+                )
         )
-    )
 
     @Test
-    fun smoothScrollVertically() = runMouseInputInjectionTest(
-        mouseInput = {
-            smoothScroll(distance, steps * T, ScrollWheel.Vertical)
-        },
-        eventVerifiers = arrayOf(
-            { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
-            { this.verifyMouseEvent(1 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
-            { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
-            { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
-            { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+    fun smoothScrollVertically() =
+        runMouseInputInjectionTest(
+            mouseInput = { smoothScroll(distance, steps * T, ScrollWheel.Vertical) },
+            eventVerifiers =
+                arrayOf(
+                    { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(1 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                    { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
+                )
         )
-    )
 
     @Test
-    fun smoothScrollHorizontally() = runMouseInputInjectionTest(
-        mouseInput = {
-            smoothScroll(distance, steps * T, ScrollWheel.Horizontal)
-        },
-        eventVerifiers = arrayOf(
-            { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
-            { this.verifyMouseEvent(1 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
-            { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
-            { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
-            { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+    fun smoothScrollHorizontally() =
+        runMouseInputInjectionTest(
+            mouseInput = { smoothScroll(distance, steps * T, ScrollWheel.Horizontal) },
+            eventVerifiers =
+                arrayOf(
+                    { this.verifyMouseEvent(1 * T, Enter, false, Offset.Zero) },
+                    { this.verifyMouseEvent(1 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                    { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
+                )
         )
-    )
 
     /**
      * Integration test: checks if we are actually seeing lazy column respond to vertical scroll.
@@ -144,15 +159,11 @@ class ScrollTest {
         val items = 200
         setContent {
             LazyColumn(listModifier.width(50.dp)) {
-                items(items) {
-                    TestItem(it, items, Modifier.fillParentMaxWidth())
-                }
+                items(items) { TestItem(it, items, Modifier.fillParentMaxWidth()) }
             }
         }
 
-        onNodeWithTag("list").performMouseInput {
-            smoothScroll(100f, 500L, ScrollWheel.Vertical)
-        }
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Vertical) }
         onNodeWithTag("item-${items - 1}").assertIsDisplayed()
     }
 
@@ -165,35 +176,25 @@ class ScrollTest {
         val items = 200
         setContent {
             Column(listModifier.width(50.dp).verticalScroll(rememberScrollState())) {
-                repeat(items) {
-                    TestItem(it, items, Modifier.fillMaxWidth())
-                }
+                repeat(items) { TestItem(it, items, Modifier.fillMaxWidth()) }
             }
         }
 
-        onNodeWithTag("list").performMouseInput {
-            smoothScroll(100f, 500L, ScrollWheel.Vertical)
-        }
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Vertical) }
         onNodeWithTag("item-${items - 1}").assertIsDisplayed()
     }
 
-    /**
-     * Integration test: checks if we are actually seeing lazy row respond to horizontal scroll.
-     */
+    /** Integration test: checks if we are actually seeing lazy row respond to horizontal scroll. */
     @Test
     fun smoothScrollLazyRow() = runComposeUiTest {
         val items = 200
         setContent {
             LazyRow(listModifier.height(50.dp)) {
-                items(items) {
-                    TestItem(it, items, Modifier.fillParentMaxHeight())
-                }
+                items(items) { TestItem(it, items, Modifier.fillParentMaxHeight()) }
             }
         }
 
-        onNodeWithTag("list").performMouseInput {
-            smoothScroll(100f, 500L, ScrollWheel.Horizontal)
-        }
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Horizontal) }
         onNodeWithTag("item-${items - 1}").assertIsDisplayed()
     }
 
@@ -206,15 +207,11 @@ class ScrollTest {
         val items = 200
         setContent {
             Row(listModifier.height(50.dp).horizontalScroll(rememberScrollState())) {
-                repeat(items) {
-                    TestItem(it, items, Modifier.fillMaxHeight())
-                }
+                repeat(items) { TestItem(it, items, Modifier.fillMaxHeight()) }
             }
         }
 
-        onNodeWithTag("list").performMouseInput {
-            smoothScroll(100f, 500L, ScrollWheel.Horizontal)
-        }
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Horizontal) }
         onNodeWithTag("item-${items - 1}").assertIsDisplayed()
     }
 

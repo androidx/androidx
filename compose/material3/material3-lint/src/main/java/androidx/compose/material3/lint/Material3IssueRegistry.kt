@@ -20,20 +20,22 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * [IssueRegistry] containing Material3 specific lint issues.
- */
+/** [IssueRegistry] containing Material3 specific lint issues. */
 class Material3IssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        MaterialImportDetector.UsingMaterialAndMaterial3Libraries,
-        ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter
-    )
-    override val vendor = Vendor(
-        vendorName = "Jetpack Compose",
-        identifier = "androidx.compose.material3",
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
-    )
+    override val issues
+        get() =
+            listOf(
+                MaterialImportDetector.UsingMaterialAndMaterial3Libraries,
+                ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter
+            )
+
+    override val vendor =
+        Vendor(
+            vendorName = "Jetpack Compose",
+            identifier = "androidx.compose.material3",
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+        )
 }

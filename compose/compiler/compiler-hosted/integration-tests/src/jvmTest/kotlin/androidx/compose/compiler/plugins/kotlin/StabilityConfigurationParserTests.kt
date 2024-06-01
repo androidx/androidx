@@ -35,110 +35,136 @@ class StabilityConfigurationParserTests {
     }
 
     @Test
-    fun testSingleLineClassName() = testConfigParsing(
-        """
+    fun testSingleLineClassName() =
+        testConfigParsing(
+            """
             com.foo.bar
-        """.trimIndent(),
-        setOf("com.foo.bar")
-    )
+        """
+                .trimIndent(),
+            setOf("com.foo.bar")
+        )
 
     @Test
-    fun testSingleLineClassNameWithNonAlphaCharacters() = testConfigParsing(
-        """
+    fun testSingleLineClassNameWithNonAlphaCharacters() =
+        testConfigParsing(
+            """
             com.foo_1.bar
-        """.trimIndent(),
-        setOf("com.foo_1.bar")
-    )
+        """
+                .trimIndent(),
+            setOf("com.foo_1.bar")
+        )
 
     @Test
-    fun testMultipleClassNames() = testConfigParsing(
-        """
+    fun testMultipleClassNames() =
+        testConfigParsing(
+            """
             com.foo.bar
             com.bar.foo
-        """.trimIndent(),
-        setOf("com.foo.bar", "com.bar.foo")
-    )
+        """
+                .trimIndent(),
+            setOf("com.foo.bar", "com.bar.foo")
+        )
 
     @Test
-    fun testCommentsAreIgnored() = testConfigParsing(
-        """
+    fun testCommentsAreIgnored() =
+        testConfigParsing(
+            """
             // Comment first line
             com.foo.bar
             // Comment last line
-        """.trimIndent(),
-        setOf("com.foo.bar")
-    )
+        """
+                .trimIndent(),
+            setOf("com.foo.bar")
+        )
 
     @Test
-    fun whitespaceIgnored() = testConfigParsing(
-        """
+    fun whitespaceIgnored() =
+        testConfigParsing(
+            """
 
                com.foo.bar
 
-        """.trimIndent(),
-        setOf("com.foo.bar")
-    )
+        """
+                .trimIndent(),
+            setOf("com.foo.bar")
+        )
 
     @Test
-    fun testWildcardsAreParsed() = testConfigParsing(
-        """
+    fun testWildcardsAreParsed() =
+        testConfigParsing(
+            """
             // Comment first line
             com.*
             // Comment last line
-        """.trimIndent(),
-        setOf("com.*")
-    )
+        """
+                .trimIndent(),
+            setOf("com.*")
+        )
 
     @Test
-    fun testWildcardInMiddle() = testConfigParsing(
-        """
+    fun testWildcardInMiddle() =
+        testConfigParsing(
+            """
             com.*.bar
-        """.trimIndent(),
-        setOf("com.*.bar")
-    )
+        """
+                .trimIndent(),
+            setOf("com.*.bar")
+        )
 
     @Test
-    fun testMultipleWildcardInMiddle() = testConfigParsing(
-        """
+    fun testMultipleWildcardInMiddle() =
+        testConfigParsing(
+            """
             com.*.bar.*
-        """.trimIndent(),
-        setOf("com.*.bar.*")
-    )
+        """
+                .trimIndent(),
+            setOf("com.*.bar.*")
+        )
 
     @Test
-    fun testWhitespaceThrows() = testConfigParsingThrows(
-        """
+    fun testWhitespaceThrows() =
+        testConfigParsingThrows(
+            """
             com. ab.*
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
-    fun testInlineCommentThrows() = testConfigParsingThrows(
-        """
+    fun testInlineCommentThrows() =
+        testConfigParsingThrows(
+            """
             com.foo.* //comment
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
-    fun testIllegalCharacterThrows() = testConfigParsingThrows(
-        """
+    fun testIllegalCharacterThrows() =
+        testConfigParsingThrows(
+            """
             com.foo!.bar //comment
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 }
 
 private const val PATH_TO_CONFIG_FILES = "src/test/resources/testStabilityConfigFiles"
+
 class SingleStabilityConfigurationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
-        put(ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
+        put(
+            ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
             listOf("$PATH_TO_CONFIG_FILES/config1.conf")
         )
         put(ComposeConfiguration.STRONG_SKIPPING_ENABLED_KEY, false)
     }
 
     @Test
-    fun testExternalTypeStable() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testExternalTypeStable() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
             import java.time.Instant
 
@@ -151,20 +177,21 @@ class SingleStabilityConfigurationTest(useFir: Boolean) : AbstractIrTransformTes
             fun UnskippableComposable(instant: Instant) {
                 use(instant)
             }
-        """.trimIndent(),
-        extra = """
+        """
+                    .trimIndent(),
+            extra =
+                """
             fun use(foo: Any) {}
-        """.trimIndent()
-    )
+        """
+                    .trimIndent()
+        )
 }
 
 class MultipleStabilityConfigurationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
-        put(ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
-            listOf(
-                "$PATH_TO_CONFIG_FILES/config1.conf",
-                "$PATH_TO_CONFIG_FILES/config2.conf"
-            )
+        put(
+            ComposeConfiguration.STABILITY_CONFIG_PATH_KEY,
+            listOf("$PATH_TO_CONFIG_FILES/config1.conf", "$PATH_TO_CONFIG_FILES/config2.conf")
         )
         put(
             ComposeConfiguration.FEATURE_FLAGS,
@@ -173,8 +200,10 @@ class MultipleStabilityConfigurationTest(useFir: Boolean) : AbstractIrTransformT
     }
 
     @Test
-    fun testExternalTypeStable() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testExternalTypeStable() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
             import java.time.Instant
 
@@ -183,9 +212,12 @@ class MultipleStabilityConfigurationTest(useFir: Boolean) : AbstractIrTransformT
                 use(list)
                 use(instant)
             }
-        """.trimIndent(),
-        extra = """
+        """
+                    .trimIndent(),
+            extra =
+                """
             fun use(foo: Any) {}
-        """.trimIndent()
-    )
+        """
+                    .trimIndent()
+        )
 }

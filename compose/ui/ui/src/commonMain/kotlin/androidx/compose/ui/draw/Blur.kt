@@ -28,46 +28,42 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Determines the strategy used to render pixels in the blurred result that may extend beyond
- * the bounds of the original input.
+ * Determines the strategy used to render pixels in the blurred result that may extend beyond the
+ * bounds of the original input.
  *
- * [BlurredEdgeTreatment] will clip the blur result to the boundaries of the
- * original content and optionally specified [shape].
+ * [BlurredEdgeTreatment] will clip the blur result to the boundaries of the original content and
+ * optionally specified [shape].
  *
  * Sampling of pixels outside of content bounds will have the same value as the pixels at the
- * closest edge.
- * This is recommended for blurring content that does not contain transparent pixels
- * and ensuring the blurred result does not extend beyond the original bounds (ex. blurring
- * an image)
+ * closest edge. This is recommended for blurring content that does not contain transparent pixels
+ * and ensuring the blurred result does not extend beyond the original bounds (ex. blurring an
+ * image)
  *
  * @see TileMode.Clamp
  *
  * Alternatively using [BlurredEdgeTreatment.Unbounded] will not clip the blur result to the
- * boundaries of the original content. Sampling of pixels outside of the content bounds
- * will sample transparent black instead.
- * This is recommended for blurring content that is intended to render outside of the
- * original bounds and may contain transparent pixels in the original bounds (ex. blurring
- * an arbitrary shape or text)
+ * boundaries of the original content. Sampling of pixels outside of the content bounds will sample
+ * transparent black instead. This is recommended for blurring content that is intended to render
+ * outside of the original bounds and may contain transparent pixels in the original bounds (ex.
+ * blurring an arbitrary shape or text)
  *
  * @see TileMode.Decal
-*/
+ */
 @Immutable
 @kotlin.jvm.JvmInline
 value class BlurredEdgeTreatment(val shape: Shape?) {
 
     companion object {
 
-        /**
-         * Bounded [BlurredEdgeTreatment] that clips content bounds to a rectangular shape
-         */
+        /** Bounded [BlurredEdgeTreatment] that clips content bounds to a rectangular shape */
         val Rectangle = BlurredEdgeTreatment(RectangleShape)
 
         /**
-         * Do not clip the blur result to the boundaries of the original content.
-         * Sampling of pixels outside of the content bounds will sample transparent black instead.
-         * This is recommended for blurring content that is intended to render outside of the
-         * original bounds and may contain transparent pixels in the original bounds (ex. blurring
-         * an arbitrary shape or text)
+         * Do not clip the blur result to the boundaries of the original content. Sampling of pixels
+         * outside of the content bounds will sample transparent black instead. This is recommended
+         * for blurring content that is intended to render outside of the original bounds and may
+         * contain transparent pixels in the original bounds (ex. blurring an arbitrary shape or
+         * text)
          *
          * @see TileMode.Decal
          */
@@ -79,20 +75,21 @@ value class BlurredEdgeTreatment(val shape: Shape?) {
  * Draw content blurred with the specified radii. Note this effect is only supported on Android 12
  * and above. Attempts to use this Modifier on older Android versions will be ignored.
  *
- * Usage of this API renders the corresponding composable into a separate graphics layer.
- * Because the blurred content renders a larger area by the blur radius, this layer is explicitly
- * clipped to the content bounds. It is recommended introduce additional space around the drawn
- * content by the specified blur radius to remain within the content bounds.
- *
- * @see graphicsLayer
- *
- * Example usage:
- * @sample androidx.compose.ui.samples.BlurSample
- * @sample androidx.compose.ui.samples.ImageBlurSample
+ * Usage of this API renders the corresponding composable into a separate graphics layer. Because
+ * the blurred content renders a larger area by the blur radius, this layer is explicitly clipped to
+ * the content bounds. It is recommended introduce additional space around the drawn content by the
+ * specified blur radius to remain within the content bounds.
  *
  * @param radiusX Radius of the blur along the x axis
  * @param radiusY Radius of the blur along the y axis
  * @param edgeTreatment Strategy used to render pixels outside of bounds of the original input
+ * @see graphicsLayer
+ *
+ * Example usage:
+ *
+ * @sample androidx.compose.ui.samples.BlurSample
+ *
+ * @sample androidx.compose.ui.samples.ImageBlurSample
  */
 @Stable
 fun Modifier.blur(
@@ -132,19 +129,20 @@ fun Modifier.blur(
  * Draw content blurred with the specified radii. Note this effect is only supported on Android 12
  * and above. Attempts to use this Modifier on older Android versions will be ignored.
  *
- * Usage of this API renders the corresponding composable into a separate graphics layer.
- * Because the blurred content renders a larger area by the blur radius, this layer is explicitly
- * clipped to the content bounds. It is recommended introduce additional space around the drawn
- * content by the specified blur radius to remain within the content bounds.
- *
- * @see graphicsLayer
- *
- * Example usage:
- * @sample androidx.compose.ui.samples.BlurSample
- * @sample androidx.compose.ui.samples.ImageBlurSample
+ * Usage of this API renders the corresponding composable into a separate graphics layer. Because
+ * the blurred content renders a larger area by the blur radius, this layer is explicitly clipped to
+ * the content bounds. It is recommended introduce additional space around the drawn content by the
+ * specified blur radius to remain within the content bounds.
  *
  * @param radius Radius of the blur along both the x and y axis
  * @param edgeTreatment Strategy used to render pixels outside of bounds of the original input
+ * @see graphicsLayer
+ *
+ * Example usage:
+ *
+ * @sample androidx.compose.ui.samples.BlurSample
+ *
+ * @sample androidx.compose.ui.samples.ImageBlurSample
  */
 @Stable
 fun Modifier.blur(

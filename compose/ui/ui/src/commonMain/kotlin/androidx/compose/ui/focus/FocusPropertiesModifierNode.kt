@@ -25,10 +25,10 @@ import androidx.compose.ui.node.requireOwner
  */
 interface FocusPropertiesModifierNode : DelegatableNode {
     /**
-     * A parent can modify the focus properties associated with the nearest
-     * [FocusTargetNode] child node. If a [FocusTargetNode] has multiple parent
-     * [FocusPropertiesModifierNode]s, properties set by a parent higher up in the hierarchy
-     * overwrite properties set by those that are lower in the hierarchy.
+     * A parent can modify the focus properties associated with the nearest [FocusTargetNode] child
+     * node. If a [FocusTargetNode] has multiple parent [FocusPropertiesModifierNode]s, properties
+     * set by a parent higher up in the hierarchy overwrite properties set by those that are lower
+     * in the hierarchy.
      */
     fun applyFocusProperties(focusProperties: FocusProperties)
 }

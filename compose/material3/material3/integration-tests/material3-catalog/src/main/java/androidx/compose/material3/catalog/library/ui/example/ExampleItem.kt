@@ -36,20 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ExampleItem(
-    example: Example,
-    onClick: (example: Example) -> Unit
-) {
-    OutlinedCard(
-        onClick = { onClick(example) },
-        modifier = Modifier.fillMaxWidth()
-    ) {
+fun ExampleItem(example: Example, onClick: (example: Example) -> Unit) {
+    OutlinedCard(onClick = { onClick(example) }, modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(ExampleItemPadding)) {
             Column(modifier = Modifier.weight(1f, fill = true)) {
-                Text(
-                    text = example.name,
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Text(text = example.name, style = MaterialTheme.typography.titleSmall)
                 Spacer(modifier = Modifier.height(ExampleItemTextPadding))
                 Text(
                     text = example.description,

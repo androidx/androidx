@@ -212,15 +212,11 @@ class PolyFitLeastSquaresTest {
         polyFitLeastSquares_degreeIsNegative_throwsIllegalArgumentException(-5)
     }
 
-    private fun polyFitLeastSquares_degreeIsNegative_throwsIllegalArgumentException(
-        degree: Int
-    ) {
+    private fun polyFitLeastSquares_degreeIsNegative_throwsIllegalArgumentException(degree: Int) {
         val x = floatArrayOf(0f, 1f)
         val y = floatArrayOf(0f, 1f)
 
-        val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, x.size, degree)
-        }
+        val throwable = catchThrowable { polyFitLeastSquares(x, y, x.size, degree) }
 
         assertThat(throwable is IllegalArgumentException).isTrue()
     }
@@ -230,9 +226,7 @@ class PolyFitLeastSquaresTest {
         val x = floatArrayOf()
         val y = floatArrayOf()
 
-        val throwable = catchThrowable {
-            polyFitLeastSquares(x, y, x.size, 1)
-        }
+        val throwable = catchThrowable { polyFitLeastSquares(x, y, x.size, 1) }
 
         assertThat(throwable is IllegalArgumentException).isTrue()
     }
@@ -259,10 +253,7 @@ class PolyFitLeastSquaresTest {
         return exception
     }
 
-    private fun assertIsCloseToEquals(
-        actual: FloatArray,
-        expected: FloatArray
-    ) {
+    private fun assertIsCloseToEquals(actual: FloatArray, expected: FloatArray) {
         assertThat(expected.size).isEqualTo(expected.size)
         expected.forEachIndexed() { index, value ->
             assertThat(actual[index]).isWithin(.00001f).of(value)

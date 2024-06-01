@@ -41,14 +41,13 @@ actual fun runComposeUiTest(effectContext: CoroutineContext, block: ComposeUiTes
 
 /**
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @InternalTestApi
 @ExperimentalTestApi
 @OptIn(ExperimentalCoroutinesApi::class)
-class DesktopComposeUiTest(
-    effectContext: CoroutineContext = EmptyCoroutineContext
-) : ComposeUiTest {
+class DesktopComposeUiTest(effectContext: CoroutineContext = EmptyCoroutineContext) :
+    ComposeUiTest {
 
     override val density = Density(1f, 1f)
 
@@ -57,19 +56,17 @@ class DesktopComposeUiTest(
     override val mainClock: MainTestClock =
         MainTestClockImpl(coroutineDispatcher.scheduler, frameDelayMillis = 16L)
     private val uncaughtExceptionHandler = UncaughtExceptionHandler()
-    private val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
-        override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
-            if (mainClock.autoAdvance) {
-                throw CancellationException("Infinite animations are disabled on tests")
+    private val infiniteAnimationPolicy =
+        object : InfiniteAnimationPolicy {
+            override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
+                if (mainClock.autoAdvance) {
+                    throw CancellationException("Infinite animations are disabled on tests")
+                }
+                return block()
             }
-            return block()
         }
-    }
     private val coroutineContext =
-        effectContext +
-            coroutineDispatcher +
-            uncaughtExceptionHandler +
-            infiniteAnimationPolicy
+        effectContext + coroutineDispatcher + uncaughtExceptionHandler + infiniteAnimationPolicy
 
     private val surface = Surface.makeRasterN32Premul(1024, 768)
 
@@ -84,33 +81,26 @@ class DesktopComposeUiTest(
             return block()
         } finally {
             // call runTest instead of deprecated cleanupTestCoroutines()
-            testScope.runTest { }
+            testScope.runTest {}
             runOnUiThread(scene::close)
             uncaughtExceptionHandler.throwUncaught()
         }
     }
 
     private fun renderNextFrame() = runOnUiThread {
-        scene.render(
-            surface.canvas,
-            mainClock.currentTime * 1_000_000
-        )
+        scene.render(surface.canvas, mainClock.currentTime * 1_000_000)
         if (mainClock.autoAdvance) {
             mainClock.advanceTimeByFrame()
         }
     }
 
-    private fun createUi() = ComposeScene(
-        density = density,
-        coroutineContext = coroutineContext,
-        invalidate = { }
-    ).apply {
-        constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
-    }
+    private fun createUi() =
+        ComposeScene(density = density, coroutineContext = coroutineContext, invalidate = {})
+            .apply {
+                constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
+            }
 
-    private fun isIdle() =
-        !Snapshot.current.hasPendingChanges() &&
-            !scene.hasInvalidations()
+    private fun isIdle() = !Snapshot.current.hasPendingChanges() && !scene.hasInvalidations()
 
     override fun waitForIdle() {
         // always check even if we are idle
@@ -171,9 +161,7 @@ class DesktopComposeUiTest(
         if (isOnUiThread()) {
             scene.setContent(content = composable)
         } else {
-            runOnUiThread {
-                scene.setContent(content = composable)
-            }
+            runOnUiThread { scene.setContent(content = composable) }
 
             // Only wait for idleness if not on the UI thread. If we are on the UI thread, the
             // caller clearly wants to keep tight control over execution order, so don't go
@@ -213,8 +201,8 @@ class DesktopComposeUiTest(
             return this@DesktopComposeUiTest.scene.roots
         }
 
-        override val mainClock get() =
-            this@DesktopComposeUiTest.mainClock
+        override val mainClock
+            get() = this@DesktopComposeUiTest.mainClock
     }
 }
 
@@ -222,16 +210,24 @@ class DesktopComposeUiTest(
 actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     actual val density: Density
     actual val mainClock: MainTestClock
+
     actual fun <T> runOnUiThread(action: () -> T): T
+
     actual fun <T> runOnIdle(action: () -> T): T
+
     actual fun waitForIdle()
+
     actual suspend fun awaitIdle()
+
     actual fun waitUntil(
         conditionDescription: String?,
         timeoutMillis: Long,
         condition: () -> Boolean
     )
+
     actual fun registerIdlingResource(idlingResource: IdlingResource)
+
     actual fun unregisterIdlingResource(idlingResource: IdlingResource)
+
     actual fun setContent(composable: @Composable () -> Unit)
 }

@@ -45,9 +45,7 @@ fun AnimatedVectorSample() {
         Image(
             painter = rememberAnimatedVectorPainter(image, atEnd),
             contentDescription = "Your content description",
-            modifier = Modifier.size(64.dp).clickable {
-                atEnd = !atEnd
-            }
+            modifier = Modifier.size(64.dp).clickable { atEnd = !atEnd }
         )
     }
 }

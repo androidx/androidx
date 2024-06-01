@@ -37,8 +37,7 @@ interface FlingBehavior {
      * guarantee proper nested scroll support.
      *
      * @param initialVelocity velocity available for fling in the orientation specified in
-     * [androidx.compose.foundation.gestures.scrollable] that invoked this method.
-     *
+     *   [androidx.compose.foundation.gestures.scrollable] that invoked this method.
      * @return remaining velocity after fling operation has ended
      */
     suspend fun ScrollScope.performFling(initialVelocity: Float): Float

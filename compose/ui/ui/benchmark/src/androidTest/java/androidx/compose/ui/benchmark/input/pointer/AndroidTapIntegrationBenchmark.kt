@@ -44,28 +44,22 @@ import org.junit.runner.RunWith
  * Benchmark for simply tapping on an item in Android.
  *
  * The intent is to measure the speed of all parts necessary for a normal tap starting from
- * MotionEvents getting dispatched to a particular view. The test therefore includes hit
- * testing and dispatch.
+ * MotionEvents getting dispatched to a particular view. The test therefore includes hit testing and
+ * dispatch.
  *
  * This is intended to be an equivalent counterpart to [ComposeTapIntegrationBenchmark].
  *
- * The hierarchy is set up to look like:
- * rootView
- *   -> LinearLayout
- *     -> CustomView (with click listener)
- *       -> TextView
- *       -> TextView
- *       -> TextView
- *       -> ...
+ * The hierarchy is set up to look like: rootView -> LinearLayout -> CustomView (with click
+ * listener) -> TextView -> TextView -> TextView -> ...
  *
- * MotionEvents are dispatched to rootView as ACTION_DOWN followed by ACTION_UP.  The validity of
- * the test is verified in a custom click listener in CustomView with
+ * MotionEvents are dispatched to rootView as ACTION_DOWN followed by ACTION_UP. The validity of the
+ * test is verified in a custom click listener in CustomView with
  * com.google.common.truth.Truth.assertThat and by counting the clicks in the click listener and
  * later verifying that they count is sufficiently high.
  *
- * The reason a CustomView is used with a custom click listener is that View's normal click
- * listener is called via a posted Runnable, which is problematic for the benchmark library and
- * less equivalent to what Compose does anyway.
+ * The reason a CustomView is used with a custom click listener is that View's normal click listener
+ * is called via a posted Runnable, which is problematic for the benchmark library and less
+ * equivalent to what Compose does anyway.
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -77,8 +71,7 @@ class AndroidTapIntegrationBenchmark {
     private var actualClickCount = 0
     private var expectedClickCount = 0
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -95,25 +88,24 @@ class AndroidTapIntegrationBenchmark {
         rootView = activity.findViewById<ViewGroup>(android.R.id.content)
 
         activityTestRule.runOnUiThread {
-
-            val children = (0 until NumItems).map { i ->
-                CustomView(activity).apply {
-                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, ItemHeightPx.toInt())
-                    label = "$i"
-                    clickListener = {
-                        assertThat(this.label).isEqualTo(expectedLabel)
-                        actualClickCount++
+            val children =
+                (0 until NumItems).map { i ->
+                    CustomView(activity).apply {
+                        layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, ItemHeightPx.toInt())
+                        label = "$i"
+                        clickListener = {
+                            assertThat(this.label).isEqualTo(expectedLabel)
+                            actualClickCount++
+                        }
                     }
                 }
-            }
 
-            val linearLayout = LinearLayout(activity).apply {
-                orientation = LinearLayout.VERTICAL
-                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                children.forEach {
-                    addView(it)
+            val linearLayout =
+                LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    children.forEach { addView(it) }
                 }
-            }
 
             activity.setContentView(linearLayout)
         }
@@ -148,25 +140,27 @@ class AndroidTapIntegrationBenchmark {
         // half height of an item + top of the chosen item = middle of the chosen item
         val y = (ItemHeightPx / 2) + (item * ItemHeightPx)
 
-        val down = MotionEvent(
-            0,
-            ACTION_DOWN,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(0f, y)),
-            rootView
-        )
+        val down =
+            MotionEvent(
+                0,
+                ACTION_DOWN,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(0f, y)),
+                rootView
+            )
 
-        val up = MotionEvent(
-            10,
-            ACTION_UP,
-            1,
-            0,
-            arrayOf(PointerProperties(0)),
-            arrayOf(PointerCoords(0f, y)),
-            rootView
-        )
+        val up =
+            MotionEvent(
+                10,
+                ACTION_UP,
+                1,
+                0,
+                arrayOf(PointerProperties(0)),
+                arrayOf(PointerCoords(0f, y)),
+                rootView
+            )
 
         benchmarkRule.measureRepeated {
             rootView.dispatchTouchEvent(down)
@@ -187,9 +181,10 @@ private class CustomView(context: Context) : FrameLayout(context) {
 
     lateinit var clickListener: () -> Unit
 
-    val textView: TextView = TextView(context).apply {
-        layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-    }
+    val textView: TextView =
+        TextView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        }
 
     init {
         addView(textView)

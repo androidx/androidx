@@ -37,7 +37,8 @@ class MyersDiffTests {
             Equals(x = 5, y = 0)
             Equals(x = 6, y = 1)
             Insert(3 at 2)
-            """.trimIndent(),
+            """
+                .trimIndent(),
             log.joinToString("\n")
         )
     }
@@ -55,7 +56,8 @@ class MyersDiffTests {
             Equals(x = 2, y = 2)
             Remove(3 at 3)
             Remove(4 at 3)
-            """.trimIndent(),
+            """
+                .trimIndent(),
             log.joinToString("\n")
         )
     }
@@ -78,7 +80,8 @@ class MyersDiffTests {
             Insert(7 at 6)
             Insert(8 at 7)
             Insert(9 at 8)
-            """.trimIndent(),
+            """
+                .trimIndent(),
             log.joinToString("\n")
         )
     }
@@ -102,17 +105,15 @@ class MyersDiffTests {
             Equals(x = 8, y = 7)
             Equals(x = 9, y = 8)
             Equals(x = 10, y = 9)
-            """.trimIndent(),
+            """
+                .trimIndent(),
             log.joinToString("\n")
         )
     }
 
     @Test
     fun stringDiff() {
-        stringDiff(
-            "ihfiwjfowijefoiwjfe",
-            "ihfawwjwfowwijefwicwfe"
-        )
+        stringDiff("ihfiwjfowijefoiwjfe", "ihfawwjwfowwijefwicwfe")
 
         stringDiff("", "abcde")
 
@@ -130,15 +131,13 @@ class MyersDiffTests {
             Insert(b at 1)
             Insert(b at 2)
             Insert(b at 3)
-            """.trimIndent()
+            """
+                .trimIndent()
         )
 
         stringDiff("abcd", "bcda")
 
-        stringDiff(
-            "abc",
-            "abccbacbac"
-        )
+        stringDiff("abc", "abccbacbac")
     }
 }
 
@@ -155,24 +154,28 @@ data class DiffResult<T>(val result: List<T>, val log: List<String>)
 fun <T> executeListDiff(x: List<T>, y: List<T>): DiffResult<T> {
     val log = mutableListOf<String>()
     val result = x.toMutableList()
-    executeDiff(x.size, y.size, object : DiffCallback {
-        override fun areItemsTheSame(oldIndex: Int, newIndex: Int): Boolean {
-            return x[oldIndex] == y[newIndex]
-        }
+    executeDiff(
+        x.size,
+        y.size,
+        object : DiffCallback {
+            override fun areItemsTheSame(oldIndex: Int, newIndex: Int): Boolean {
+                return x[oldIndex] == y[newIndex]
+            }
 
-        override fun insert(newIndex: Int) {
-            log.add("Insert(${y[newIndex]} at $newIndex)")
-            result.add(newIndex, y[newIndex])
-        }
+            override fun insert(newIndex: Int) {
+                log.add("Insert(${y[newIndex]} at $newIndex)")
+                result.add(newIndex, y[newIndex])
+            }
 
-        override fun remove(atIndex: Int, oldIndex: Int) {
-            log.add("Remove(${x[oldIndex]} at $atIndex)")
-            result.removeAt(atIndex)
-        }
+            override fun remove(atIndex: Int, oldIndex: Int) {
+                log.add("Remove(${x[oldIndex]} at $atIndex)")
+                result.removeAt(atIndex)
+            }
 
-        override fun same(oldIndex: Int, newIndex: Int) {
-            log.add("Equals(x = $oldIndex, y = $newIndex)")
+            override fun same(oldIndex: Int, newIndex: Int) {
+                log.add("Equals(x = $oldIndex, y = $newIndex)")
+            }
         }
-    })
+    )
     return DiffResult(result, log)
 }

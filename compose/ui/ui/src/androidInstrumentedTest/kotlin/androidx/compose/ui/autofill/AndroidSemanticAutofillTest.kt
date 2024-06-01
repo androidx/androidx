@@ -82,8 +82,7 @@ import org.junit.runner.RunWith
 // TODO(MNUZEN): split into filling / saving etc. when more of Autofill goes live and more
 // data types are supported.
 class AndroidPerformSemanticAutofillTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var composeView: View
 
@@ -132,9 +131,7 @@ class AndroidPerformSemanticAutofillTest {
                     // ViewStructure populated. Once Autofill is triggered for all semantics nodes
                     // (not just ones related to Autofill) the semantics below will no longer be
                     // necessary.
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                    .semantics { contentType = ContentType.Username }
                     .size(height, width)
                     .testTag(contentTag)
             )
@@ -146,21 +143,22 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setVisibility(View.VISIBLE)
-                        setLongClickable(false)
-                        setFocusable(false)
-                        setFocused(false)
-                        setEnabled(false)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setVisibility(View.VISIBLE)
+                            setLongClickable(false)
+                            setFocusable(false)
+                            setFocused(false)
+                            setEnabled(false)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -178,9 +176,7 @@ class AndroidPerformSemanticAutofillTest {
                     // ViewStructure populated. Once Autofill is triggered for all semantics nodes
                     // (not just ones related to Autofill) the semantics below will no longer be
                     // necessary.
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                    .semantics { contentType = ContentType.Username }
                     .size(height, width)
                     .testTag(contentTag)
             )
@@ -192,22 +188,23 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setVisibility(View.VISIBLE)
-                        setLongClickable(false)
-                        setFocusable(false)
-                        setFocused(false)
-                        setEnabled(false)
-                        setMaxTextLength(-1)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setVisibility(View.VISIBLE)
+                            setLongClickable(false)
+                            setFocusable(false)
+                            setFocused(false)
+                            setEnabled(false)
+                            setMaxTextLength(-1)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -219,10 +216,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                Modifier.semantics { contentType = ContentType.Username }
                     .size(height, width)
                     .testTag(contentTag)
             )
@@ -234,16 +228,17 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -255,10 +250,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentDataType = ContentDataType.Text
-                    }
+                Modifier.semantics { contentDataType = ContentDataType.Text }
                     .size(height, width)
                     .testTag(contentTag)
             )
@@ -270,16 +262,17 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillType(AUTOFILL_TYPE_TEXT)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillType(AUTOFILL_TYPE_TEXT)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -291,10 +284,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                Modifier.semantics { contentType = ContentType.Username }
                     .size(width, height)
                     .clickable {}
                     .testTag(contentTag)
@@ -307,18 +297,19 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setClickable(true)
-                        setFocusable(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setClickable(true)
+                            setFocusable(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -330,8 +321,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         contentDescription = contentTag
                     }
@@ -346,17 +336,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setContentDescription(contentTag)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setContentDescription(contentTag)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -368,14 +359,11 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                Modifier.semantics { contentType = ContentType.Username }
                     .size(width, height)
                     .selectable(
                         selected = true,
-                        onClick = { },
+                        onClick = {},
                         enabled = true,
                         role = Role.Tab,
                         interactionSource = null,
@@ -391,20 +379,21 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setClickable(true)
-                        setFocusable(true)
-                        setEnabled(true)
-                        setSelected(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setClickable(true)
+                            setFocusable(true)
+                            setEnabled(true)
+                            setSelected(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -416,14 +405,11 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                Modifier.semantics { contentType = ContentType.Username }
                     .size(width, height)
                     .selectable(
                         selected = true,
-                        onClick = { },
+                        onClick = {},
                         enabled = true,
                         role = Role.RadioButton,
                         interactionSource = null,
@@ -439,20 +425,21 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setClickable(true)
-                        setFocusable(true)
-                        setEnabled(true)
-                        setSelected(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setClickable(true)
+                            setFocusable(true)
+                            setEnabled(true)
+                            setSelected(true)
+                        }
+                    )
+                }
+            )
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -465,8 +452,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         invisibleToUser()
                     }
@@ -481,17 +467,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setVisibility(View.INVISIBLE)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setVisibility(View.INVISIBLE)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -503,10 +490,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                Modifier.semantics { contentType = ContentType.Username }
                     .size(width, height)
                     .testTag(contentTag)
             )
@@ -518,17 +502,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setVisibility(View.VISIBLE)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setVisibility(View.VISIBLE)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -540,10 +525,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
-                        contentType = ContentType.Username
-                    }
+                Modifier.semantics { contentType = ContentType.Username }
                     .alpha(0f) // this node should now be invisible
                     .size(width, height)
                     .testTag(contentTag)
@@ -556,17 +538,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setVisibility(View.INVISIBLE)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setVisibility(View.INVISIBLE)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -578,8 +561,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         onLongClick { true }
                     }
@@ -594,17 +576,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setLongClickable(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setLongClickable(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -616,8 +599,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         isFocusable()
                         isFocused()
@@ -633,18 +615,19 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setFocusable(true)
-                        setFocused(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setFocusable(true)
+                            setFocused(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -656,8 +639,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         isEnabled()
                     }
@@ -672,17 +654,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setEnabled(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setEnabled(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -694,8 +677,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         maxTextLength = 5
                     }
@@ -710,17 +692,18 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setMaxTextLength(5)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setMaxTextLength(5)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -732,8 +715,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         toggleableState = ToggleableState.Off
                     }
@@ -748,19 +730,20 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setAutofillType(View.AUTOFILL_TYPE_TOGGLE)
-                        setCheckable(true)
-                        setFocusable(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setAutofillType(View.AUTOFILL_TYPE_TOGGLE)
+                            setCheckable(true)
+                            setFocusable(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -772,8 +755,7 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier
-                    .semantics {
+                Modifier.semantics {
                         contentType = ContentType.Username
                         toggleableState = ToggleableState.On
                     }
@@ -788,20 +770,21 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setAutofillType(View.AUTOFILL_TYPE_TOGGLE)
-                        setCheckable(true)
-                        setChecked(true)
-                        setFocusable(true)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setAutofillType(View.AUTOFILL_TYPE_TOGGLE)
+                            setCheckable(true)
+                            setChecked(true)
+                            setFocusable(true)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -817,11 +800,8 @@ class AndroidPerformSemanticAutofillTest {
             Column {
                 BasicTextField(
                     state = usernameState,
-                    modifier = createTextFieldModifier(
-                        ContentType.Username,
-                        contentTag,
-                        usernameState
-                    )
+                    modifier =
+                        createTextFieldModifier(ContentType.Username, contentTag, usernameState)
                 )
             }
         }
@@ -832,26 +812,27 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        text = ""
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setAutofillType(AUTOFILL_TYPE_TEXT)
-                        setAutofillValue(AutofillValue.forText(""))
-                        setClassName(
-                            AndroidComposeViewAccessibilityDelegateCompat.TextFieldClassName
-                        )
-                        setClickable(true)
-                        setFocusable(true)
-                        setLongClickable(true)
-                        setVisibility(View.VISIBLE)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            text = ""
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setAutofillType(AUTOFILL_TYPE_TEXT)
+                            setAutofillValue(AutofillValue.forText(""))
+                            setClassName(
+                                AndroidComposeViewAccessibilityDelegateCompat.TextFieldClassName
+                            )
+                            setClickable(true)
+                            setFocusable(true)
+                            setLongClickable(true)
+                            setVisibility(View.VISIBLE)
+                        }
+                    )
+                }
+            )
     }
 
     @Test
@@ -867,11 +848,8 @@ class AndroidPerformSemanticAutofillTest {
             Column {
                 BasicTextField(
                     state = passwordState,
-                    modifier = createTextFieldModifier(
-                        ContentType.Password,
-                        contentTag,
-                        passwordState
-                    )
+                    modifier =
+                        createTextFieldModifier(ContentType.Password, contentTag, passwordState)
                 )
             }
         }
@@ -882,30 +860,31 @@ class AndroidPerformSemanticAutofillTest {
         }
 
         // Assert.
-        Truth.assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure {
-                        virtualId = contentTag.semanticsId()
-                        text = ""
-                        setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                        setAutofillType(AUTOFILL_TYPE_TEXT)
-                        setAutofillValue(AutofillValue.forText(""))
-                        setClassName(
-                            AndroidComposeViewAccessibilityDelegateCompat.TextFieldClassName
-                        )
-                        setClickable(true)
-                        setDataIsSensitive(true)
-                        setInputType(
-                            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
-                        )
-                        setFocusable(true)
-                        setLongClickable(true)
-                        setVisibility(View.VISIBLE)
-                    }
-                )
-            }
-        )
+        Truth.assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure {
+                            virtualId = contentTag.semanticsId()
+                            text = ""
+                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
+                            setAutofillType(AUTOFILL_TYPE_TEXT)
+                            setAutofillValue(AutofillValue.forText(""))
+                            setClassName(
+                                AndroidComposeViewAccessibilityDelegateCompat.TextFieldClassName
+                            )
+                            setClickable(true)
+                            setDataIsSensitive(true)
+                            setInputType(
+                                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                            )
+                            setFocusable(true)
+                            setLongClickable(true)
+                            setVisibility(View.VISIBLE)
+                        }
+                    )
+                }
+            )
     }
 
     // ============================================================================================
@@ -929,31 +908,24 @@ class AndroidPerformSemanticAutofillTest {
             Column {
                 BasicTextField(
                     state = usernameState,
-                    modifier = createTextFieldModifier(
-                        ContentType.Username,
-                        usernameTag,
-                        usernameState
-                    )
+                    modifier =
+                        createTextFieldModifier(ContentType.Username, usernameTag, usernameState)
                 )
                 BasicTextField(
                     state = passwordState,
-                    modifier = createTextFieldModifier(
-                        ContentType.Password,
-                        passwordTag,
-                        passwordState
-                    )
+                    modifier =
+                        createTextFieldModifier(ContentType.Password, passwordTag, passwordState)
                 )
             }
         }
 
-        val autofillValues = SparseArray<AutofillValue>().apply {
-            append(usernameTag.semanticsId(), AutofillValue.forText(expectedUsername))
-            append(passwordTag.semanticsId(), AutofillValue.forText(expectedPassword))
-        }
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(usernameTag.semanticsId(), AutofillValue.forText(expectedUsername))
+                append(passwordTag.semanticsId(), AutofillValue.forText(expectedPassword))
+            }
 
-        rule.runOnIdle {
-            androidComposeView.autofill(autofillValues)
-        }
+        rule.runOnIdle { androidComposeView.autofill(autofillValues) }
 
         rule.onNodeWithTag(usernameTag).assertTextEquals(expectedUsername)
         rule.onNodeWithTag(passwordTag).assertTextEquals(expectedPassword)
@@ -975,31 +947,32 @@ class AndroidPerformSemanticAutofillTest {
             Column {
                 BasicTextField(
                     state = creditCardInput,
-                    modifier = createTextFieldModifier(
-                        ContentType.Username,
-                        creditCardTag,
-                        creditCardInput
-                    )
+                    modifier =
+                        createTextFieldModifier(
+                            ContentType.Username,
+                            creditCardTag,
+                            creditCardInput
+                        )
                 )
                 BasicTextField(
                     state = securityCodeInput,
-                    modifier = createTextFieldModifier(
-                        ContentType.Username,
-                        securityCodeTag,
-                        securityCodeInput
-                    )
+                    modifier =
+                        createTextFieldModifier(
+                            ContentType.Username,
+                            securityCodeTag,
+                            securityCodeInput
+                        )
                 )
             }
         }
 
-        val autofillValues = SparseArray<AutofillValue>().apply {
-            append(creditCardTag.semanticsId(), AutofillValue.forText(expectedCreditCardNumber))
-            append(securityCodeTag.semanticsId(), AutofillValue.forText(expectedSecurityCode))
-        }
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(creditCardTag.semanticsId(), AutofillValue.forText(expectedCreditCardNumber))
+                append(securityCodeTag.semanticsId(), AutofillValue.forText(expectedSecurityCode))
+            }
 
-        rule.runOnIdle {
-            androidComposeView.autofill(autofillValues)
-        }
+        rule.runOnIdle { androidComposeView.autofill(autofillValues) }
 
         rule.onNodeWithTag(creditCardTag).assertTextEquals(expectedCreditCardNumber)
         rule.onNodeWithTag(securityCodeTag).assertTextEquals(expectedSecurityCode)
@@ -1028,15 +1001,12 @@ class AndroidPerformSemanticAutofillTest {
         inputTag: String,
         inputState: TextFieldState
     ): Modifier {
-        return Modifier
-            .border(1.dp, Color.LightGray)
+        return Modifier.border(1.dp, Color.LightGray)
             .semantics {
                 contentType = autofillHints
                 contentDataType = ContentDataType.Text
                 onAutofillText {
-                    inputState.edit {
-                        insert(0, it.text)
-                    }
+                    inputState.edit { insert(0, it.text) }
                     true
                 }
             }
@@ -1045,10 +1015,12 @@ class AndroidPerformSemanticAutofillTest {
     }
 
     private inline fun FakeViewStructure(block: FakeViewStructure.() -> Unit): FakeViewStructure {
-        return FakeViewStructure().apply {
-            packageName = composeView.context.applicationInfo.packageName
-            setDimens(0, 0, 0, 0, width.dpToPx(), height.dpToPx())
-        }.apply(block)
+        return FakeViewStructure()
+            .apply {
+                packageName = composeView.context.applicationInfo.packageName
+                setDimens(0, 0, 0, 0, width.dpToPx(), height.dpToPx())
+            }
+            .apply(block)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)

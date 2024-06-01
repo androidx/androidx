@@ -39,9 +39,7 @@ internal class AwtCursor(val cursor: Cursor) : PointerIcon {
     }
 }
 
-/**
- * Creates [PointerIcon] from [Cursor]
- */
+/** Creates [PointerIcon] from [Cursor] */
 fun PointerIcon(cursor: Cursor): PointerIcon = AwtCursor(cursor)
 
 internal actual val pointerIconDefault: PointerIcon = AwtCursor(Cursor(Cursor.DEFAULT_CURSOR))

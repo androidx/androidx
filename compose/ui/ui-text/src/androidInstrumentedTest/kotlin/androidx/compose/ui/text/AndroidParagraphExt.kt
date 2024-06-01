@@ -21,11 +21,12 @@ import android.graphics.Canvas
 import kotlin.math.ceil
 
 internal fun AndroidParagraph.bitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        ceil(this.width).toInt(),
-        ceil(this.height).toInt(),
-        Bitmap.Config.ARGB_8888
-    )
+    val bitmap =
+        Bitmap.createBitmap(
+            ceil(this.width).toInt(),
+            ceil(this.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
     this.paint(androidx.compose.ui.graphics.Canvas(Canvas(bitmap)))
     return bitmap
 }

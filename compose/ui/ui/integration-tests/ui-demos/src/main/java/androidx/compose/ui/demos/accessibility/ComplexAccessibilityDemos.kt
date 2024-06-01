@@ -76,9 +76,7 @@ fun LastElementOverLaidColumn(
     var yPosition = 0
 
     Layout(modifier = modifier, content = content) { measurables, constraints ->
-        val placeables = measurables.map { measurable ->
-            measurable.measure(constraints)
-        }
+        val placeables = measurables.map { measurable -> measurable.measure(constraints) }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             placeables.forEach { placeable ->
@@ -106,9 +104,7 @@ fun OverlaidNodeLayoutDemo() {
                 Row { Text("text3\n") }
             }
         }
-        Row {
-            Text("overlaid node")
-        }
+        Row { Text("overlaid node") }
     }
 }
 
@@ -136,22 +132,21 @@ fun CardRow(
 fun NestedContainersFalseDemo() {
     var topSampleText = "Top text in column "
     var bottomSampleText = "Bottom text in column "
-    Column(
-        Modifier
-            .testTag("Test Tag")
-            .semantics { isTraversalGroup = true }
-    ) {
-        Row() { Modifier.semantics { isTraversalGroup = true }
+    Column(Modifier.testTag("Test Tag").semantics { isTraversalGroup = true }) {
+        Row() {
+            Modifier.semantics { isTraversalGroup = true }
             CardRow(
                 Modifier.semantics { isTraversalGroup = false },
                 1,
                 topSampleText,
-                bottomSampleText)
+                bottomSampleText
+            )
             CardRow(
                 Modifier.semantics { isTraversalGroup = false },
                 2,
                 topSampleText,
-                bottomSampleText)
+                bottomSampleText
+            )
         }
     }
 }
@@ -161,22 +156,21 @@ fun NestedContainersFalseDemo() {
 fun NestedContainersTrueDemo() {
     var topSampleText = "Top text in column "
     var bottomSampleText = "Bottom text in column "
-    Column(
-        Modifier
-            .testTag("Test Tag")
-            .semantics { isTraversalGroup = true }
-    ) {
-        Row() { Modifier.semantics { isTraversalGroup = true }
+    Column(Modifier.testTag("Test Tag").semantics { isTraversalGroup = true }) {
+        Row() {
+            Modifier.semantics { isTraversalGroup = true }
             CardRow(
                 Modifier.semantics { isTraversalGroup = true },
                 1,
                 topSampleText,
-                bottomSampleText)
+                bottomSampleText
+            )
             CardRow(
                 Modifier.semantics { isTraversalGroup = true },
                 2,
                 topSampleText,
-                bottomSampleText)
+                bottomSampleText
+            )
         }
     }
 }
@@ -184,26 +178,15 @@ fun NestedContainersTrueDemo() {
 @Composable
 fun TopAppBar() {
     val topAppBar = "Top App Bar"
-    TopAppBar(
-        title = {
-            Text(text = topAppBar)
-        }
-    )
+    TopAppBar(title = { Text(text = topAppBar) })
 }
 
 @Composable
 fun ScrollColumn(padding: PaddingValues) {
     var counter = 0
     var sampleText = "Sample text in column"
-    Column(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(padding)
-            .testTag("Test Tag")
-    ) {
-        repeat(100) {
-            Text(sampleText + counter++)
-        }
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(padding).testTag("Test Tag")) {
+        repeat(100) { Text(sampleText + counter++) }
     }
 }
 
@@ -215,13 +198,16 @@ fun ScaffoldSampleDemo() {
         scaffoldState = scaffoldState,
         topBar = { TopAppBar() },
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FloatingActionButton(onClick = {}) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
-        } },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {}) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+            }
+        },
         drawerContent = { Text(text = "Drawer Menu 1") },
         content = { padding -> Text("Content", modifier = Modifier.padding(padding)) },
-        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
-            Text("Bottom App Bar") } }
+        bottomBar = {
+            BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
+        }
     )
 }
 
@@ -233,12 +219,15 @@ fun ScaffoldSampleScrollDemo() {
         scaffoldState = scaffoldState,
         topBar = { TopAppBar() },
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FloatingActionButton(onClick = {}) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
-        } },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {}) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+            }
+        },
         content = { padding -> ScrollColumn(padding) },
-        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
-            Text("Bottom App Bar") } }
+        bottomBar = {
+            BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
+        }
     )
 }
 
@@ -248,25 +237,16 @@ fun ScrollingColumnDemo() {
     var sampleText = "Sample text in column"
     var counter = 0
 
-    Column(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .testTag("Test Tag")
-    ) {
+    Column(Modifier.verticalScroll(rememberScrollState()).testTag("Test Tag")) {
         TopAppBar()
-        repeat(100) {
-            Text(sampleText + counter++)
-        }
+        repeat(100) { Text(sampleText + counter++) }
     }
 }
 
 @Preview
 @Composable
 fun OverlaidNodeTraversalIndexDemo() {
-    LastElementOverLaidColumn(
-        Modifier
-            .semantics { isTraversalGroup = true }
-            .padding(8.dp)) {
+    LastElementOverLaidColumn(Modifier.semantics { isTraversalGroup = true }.padding(8.dp)) {
         Row {
             Column(modifier = Modifier.testTag("Text1")) {
                 Row { Text("text1\n") }
@@ -277,7 +257,12 @@ fun OverlaidNodeTraversalIndexDemo() {
         // Since default traversalIndex is 0, `traversalIndex = -1f` here means that the overlaid
         // node is read first, even though visually it's below the other text.
         // Container needs to be true, otherwise we only read/register significant
-        Row(Modifier.semantics { isTraversalGroup = true; traversalIndex = -1f }) {
+        Row(
+            Modifier.semantics {
+                isTraversalGroup = true
+                traversalIndex = -1f
+            }
+        ) {
             Text("overlaid node")
         }
     }
@@ -285,7 +270,13 @@ fun OverlaidNodeTraversalIndexDemo() {
 
 @Composable
 fun FloatingBox() {
-    Box(modifier = Modifier.semantics { isTraversalGroup = true; traversalIndex = -1f }) {
+    Box(
+        modifier =
+            Modifier.semantics {
+                isTraversalGroup = true
+                traversalIndex = -1f
+            }
+    ) {
         FloatingActionButton(onClick = {}) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
         }
@@ -296,31 +287,23 @@ fun FloatingBox() {
 fun ContentColumn(padding: PaddingValues) {
     var counter = 0
     var sampleText = "Sample text in column"
-    Column(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(padding)
-            .testTag("Test Tag")
-    ) {
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(padding).testTag("Test Tag")) {
         // every other value has an explicitly set `traversalIndex`
         Text(text = sampleText + counter++)
-        Text(text = sampleText + counter++,
-            modifier = Modifier.semantics { traversalIndex = 1f })
+        Text(text = sampleText + counter++, modifier = Modifier.semantics { traversalIndex = 1f })
         Text(text = sampleText + counter++)
-        Text(text = sampleText + counter++,
-            modifier = Modifier.semantics { traversalIndex = 1f })
+        Text(text = sampleText + counter++, modifier = Modifier.semantics { traversalIndex = 1f })
         Text(text = sampleText + counter++)
-        Text(text = sampleText + counter++,
-            modifier = Modifier.semantics { traversalIndex = 1f })
+        Text(text = sampleText + counter++, modifier = Modifier.semantics { traversalIndex = 1f })
         Text(text = sampleText + counter++)
     }
 }
 
 /**
- * Example of how `traversalIndex` and traversal groups can be used to customize TalkBack
- * ordering. The example below puts the FAB into a box (with `isTraversalGroup = true` and a
- * custom traversal index) to have it appear first when TalkBack is turned on. The
- * text in the column also has been modified. See go/traversal-index-changes for more detail
+ * Example of how `traversalIndex` and traversal groups can be used to customize TalkBack ordering.
+ * The example below puts the FAB into a box (with `isTraversalGroup = true` and a custom traversal
+ * index) to have it appear first when TalkBack is turned on. The text in the column also has been
+ * modified. See go/traversal-index-changes for more detail
  */
 @Preview
 @Composable
@@ -333,8 +316,9 @@ fun NestedTraversalIndexInheritanceDemo() {
         floatingActionButton = { FloatingBox() },
         drawerContent = { Text(text = "Drawer Menu 1") },
         content = { padding -> ContentColumn(padding = padding) },
-        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
-            Text("Bottom App Bar") } }
+        bottomBar = {
+            BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
+        }
     )
 }
 
@@ -345,11 +329,17 @@ fun NestedAndPeerTraversalIndexDemo() {
         Modifier
             // Having a traversal index here as 8f shouldn't affect anything; this column
             // has no other peers that its compared to
-            .semantics { traversalIndex = 8f; isTraversalGroup = true }
+            .semantics {
+                traversalIndex = 8f
+                isTraversalGroup = true
+            }
             .padding(8.dp)
     ) {
         Row(
-            Modifier.semantics { traversalIndex = 3f; isTraversalGroup = true }
+            Modifier.semantics {
+                traversalIndex = 3f
+                isTraversalGroup = true
+            }
         ) {
             Column(modifier = Modifier.testTag("Text1")) {
                 Row { Text("text 3\n") }
@@ -359,15 +349,9 @@ fun NestedAndPeerTraversalIndexDemo() {
                 Row { Text("text 4\n") }
             }
         }
-        Row {
-            Text(text = "text 2\n", modifier = Modifier.semantics { traversalIndex = 2f })
-        }
-        Row {
-            Text(text = "text 1\n", modifier = Modifier.semantics { traversalIndex = 1f })
-        }
-        Row {
-            Text(text = "text 0\n")
-        }
+        Row { Text(text = "text 2\n", modifier = Modifier.semantics { traversalIndex = 2f }) }
+        Row { Text(text = "text 1\n", modifier = Modifier.semantics { traversalIndex = 1f }) }
+        Row { Text(text = "text 0\n") }
     }
 }
 
@@ -376,24 +360,15 @@ fun NestedAndPeerTraversalIndexDemo() {
 fun IconsInScaffoldWithListDemo() {
     Scaffold(
         topBar = {
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.Face, contentDescription = "Face 1")
-                }
+            Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                IconButton(onClick = {}) { Icon(Icons.Default.Face, contentDescription = "Face 1") }
                 // Setting `clearAndSetSemantics` below means that Face 2 will not be sorted nor
                 // will be read by TalkBack. The final traversal order should go from Face 1 to
                 // Face 3 to the LazyColumn content.
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.clearAndSetSemantics { }
-                ) {
+                IconButton(onClick = {}, modifier = Modifier.clearAndSetSemantics {}) {
                     Icon(Icons.Default.Face, contentDescription = "Face 2")
                 }
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.Face, contentDescription = "Face 3")
-                }
+                IconButton(onClick = {}) { Icon(Icons.Default.Face, contentDescription = "Face 3") }
             }
         },
         content = { innerPadding ->
@@ -405,9 +380,7 @@ fun IconsInScaffoldWithListDemo() {
                 items(count = list.size) {
                     Text(
                         text = list[it],
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -417,31 +390,18 @@ fun IconsInScaffoldWithListDemo() {
 
 @Composable
 fun InteropColumn(padding: PaddingValues) {
-    Column(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(padding)
-            .testTag("Test Tag")
-    ) {
-        Button(onClick = { }) {
-            Text("Button that comes before an AndroidViewBinding")
-        }
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(padding).testTag("Test Tag")) {
+        Button(onClick = {}) { Text("Button that comes before an AndroidViewBinding") }
 
-        AndroidViewBinding(TestLayoutBinding::inflate) {
-            text1.text = "AndroidViewBinding text"
-        }
+        AndroidViewBinding(TestLayoutBinding::inflate) { text1.text = "AndroidViewBinding text" }
 
-        Button(onClick = { }) {
+        Button(onClick = {}) {
             Text("Button that comes after an AndroidViewBinding and before another TextView")
         }
 
-        AndroidView(::TextView) {
-            it.text = "This is a text in a TextView"
-        }
+        AndroidView(::TextView) { it.text = "This is a text in a TextView" }
 
-        Button(onClick = { }) {
-            Text("Last text button")
-        }
+        Button(onClick = {}) { Text("Last text button") }
     }
 }
 
@@ -453,28 +413,23 @@ fun InteropSample() {
         scaffoldState = scaffoldState,
         topBar = { TopAppBar() },
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FloatingActionButton(onClick = {}) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
-        } },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {}) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+            }
+        },
         drawerContent = { Text(text = "Drawer Menu 1") },
         content = { padding -> InteropColumn(padding) },
-        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
-            Text("Bottom App Bar") } }
+        bottomBar = {
+            BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
+        }
     )
 }
 
 @Composable
 fun InteropColumnBackwards(padding: PaddingValues) {
-    Column(
-        Modifier
-            .verticalScroll(rememberScrollState())
-            .padding(padding)
-            .testTag("Test Tag")
-    ) {
-        Button(
-            modifier = Modifier.semantics { traversalIndex = 4f },
-            onClick = { }
-        ) {
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(padding).testTag("Test Tag")) {
+        Button(modifier = Modifier.semantics { traversalIndex = 4f }, onClick = {}) {
             Text("Last button after AndroidViewBinding")
         }
 
@@ -485,24 +440,15 @@ fun InteropColumnBackwards(padding: PaddingValues) {
             text1.text = "Fourth — AndroidViewBinding"
         }
 
-        Button(
-            modifier = Modifier.semantics { traversalIndex = 2f },
-            onClick = { }
-        ) {
+        Button(modifier = Modifier.semantics { traversalIndex = 2f }, onClick = {}) {
             Text("Third — Compose button")
         }
 
-        AndroidView(
-            ::TextView,
-            modifier = Modifier.semantics { traversalIndex = 1f }
-        ) {
+        AndroidView(::TextView, modifier = Modifier.semantics { traversalIndex = 1f }) {
             it.text = "Second is a text in a TextView"
         }
 
-        Button(
-            modifier = Modifier.semantics { traversalIndex = 0f },
-            onClick = { }
-        ) {
+        Button(modifier = Modifier.semantics { traversalIndex = 0f }, onClick = {}) {
             Text("First button")
         }
     }
@@ -516,13 +462,16 @@ fun InteropSampleBackwards() {
         scaffoldState = scaffoldState,
         topBar = { TopAppBar() },
         floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = { FloatingActionButton(onClick = {}) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
-        } },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {}) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
+            }
+        },
         drawerContent = { Text(text = "Drawer Menu 1") },
         content = { padding -> InteropColumnBackwards(padding) },
-        bottomBar = { BottomAppBar(backgroundColor = MaterialTheme.colors.primary) {
-            Text("Bottom App Bar") } }
+        bottomBar = {
+            BottomAppBar(backgroundColor = MaterialTheme.colors.primary) { Text("Bottom App Bar") }
+        }
     )
 }
 
@@ -542,9 +491,7 @@ fun ReadableTraversalGroups() {
     Column {
         Row(Modifier.semantics { isTraversalGroup = true }.clickable {}) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "fab icon")
-            Button(onClick = { }) {
-                Text("First button")
-            }
+            Button(onClick = {}) { Text("First button") }
         }
     }
 }
@@ -554,47 +501,17 @@ fun ReadableTraversalGroups() {
 fun SimpleRtlLayoutDemo() {
     Column {
         Row(Modifier.semantics { isTraversalGroup = true }) {
-            SimpleTestLayout(
-                Modifier
-                    .requiredSize(100.dp)
-            ) {
-                Text("Child 1")
-            }
-            SimpleTestLayout(
-                Modifier
-                    .requiredSize(100.dp)
-            ) {
-                Text("Child 2")
-            }
-            SimpleTestLayout(
-                Modifier
-                    .requiredSize(100.dp)
-            ) {
-                Text("Child 3")
-            }
+            SimpleTestLayout(Modifier.requiredSize(100.dp)) { Text("Child 1") }
+            SimpleTestLayout(Modifier.requiredSize(100.dp)) { Text("Child 2") }
+            SimpleTestLayout(Modifier.requiredSize(100.dp)) { Text("Child 3") }
         }
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             // Will display rtlChild3 rtlChild2 rtlChild1, but should be read
             // from child1 => child2 => child3.
             Row(Modifier.semantics { isTraversalGroup = true }) {
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                ) {
-                    Text("RTL child 1")
-                }
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                ) {
-                    Text("RTL child 2")
-                }
-                SimpleTestLayout(
-                    Modifier
-                        .requiredSize(100.dp)
-                ) {
-                    Text("RTL child 3")
-                }
+                SimpleTestLayout(Modifier.requiredSize(100.dp)) { Text("RTL child 1") }
+                SimpleTestLayout(Modifier.requiredSize(100.dp)) { Text("RTL child 2") }
+                SimpleTestLayout(Modifier.requiredSize(100.dp)) { Text("RTL child 3") }
             }
         }
     }
@@ -606,21 +523,14 @@ private fun SimpleTestLayout(modifier: Modifier = Modifier, content: @Composable
         if (measurables.isEmpty()) {
             layout(constraints.minWidth, constraints.minHeight) {}
         } else {
-            val placeables = measurables.map {
-                it.measure(constraints)
-            }
-            val (width, height) = with(placeables) {
-                Pair(
-                    max(
-                        maxByOrNull { it.width }?.width ?: 0,
-                        constraints.minWidth
-                    ),
-                    max(
-                        maxByOrNull { it.height }?.height ?: 0,
-                        constraints.minHeight
+            val placeables = measurables.map { it.measure(constraints) }
+            val (width, height) =
+                with(placeables) {
+                    Pair(
+                        max(maxByOrNull { it.width }?.width ?: 0, constraints.minWidth),
+                        max(maxByOrNull { it.height }?.height ?: 0, constraints.minHeight)
                     )
-                )
-            }
+                }
             layout(width, height) {
                 for (placeable in placeables) {
                     placeable.placeRelative(0, 0)

@@ -32,11 +32,7 @@ class DialogTestActivity : ComponentActivity() {
                 Text("one")
                 AlertDialog(
                     onDismissRequest = {},
-                    confirmButton = {
-                        Button({}) {
-                            Text("Confirm Button")
-                        }
-                    }
+                    confirmButton = { Button({}) { Text("Confirm Button") } }
                 )
             }
         }

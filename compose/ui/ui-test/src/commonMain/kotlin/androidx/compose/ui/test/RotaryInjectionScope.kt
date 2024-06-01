@@ -19,11 +19,12 @@ package androidx.compose.ui.test
 /**
  * The receiver scope of rotary input injection lambda from [performRotaryScrollInput].
  *
- * A rotary event can be sent with [rotateToScrollVertically] or [rotateToScrollHorizontally].
- * All events sent by these methods are batched together and sent as a whole after
+ * A rotary event can be sent with [rotateToScrollVertically] or [rotateToScrollHorizontally]. All
+ * events sent by these methods are batched together and sent as a whole after
  * [performRotaryScrollInput] has executed its code block.
  *
  * Example of performing a scroll with three events:
+ *
  * @sample androidx.compose.ui.test.samples.rotaryInputScroll
  */
 @ExperimentalTestApi
@@ -50,10 +51,10 @@ interface RotaryInjectionScope : InjectionScope {
 }
 
 @ExperimentalTestApi
-internal class RotaryInjectionScopeImpl(
-    private val baseScope: MultiModalInjectionScopeImpl
-) : RotaryInjectionScope, InjectionScope by baseScope {
-    private val inputDispatcher get() = baseScope.inputDispatcher
+internal class RotaryInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
+    RotaryInjectionScope, InjectionScope by baseScope {
+    private val inputDispatcher
+        get() = baseScope.inputDispatcher
 
     override fun rotateToScrollHorizontally(horizontalScrollPixels: Float) {
         inputDispatcher.enqueueRotaryScrollHorizontally(horizontalScrollPixels)

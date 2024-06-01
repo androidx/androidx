@@ -54,10 +54,7 @@ internal actual inline fun ContextMenuArea(
 }
 
 @Composable
-internal actual fun ContextMenuArea(
-    manager: SelectionManager,
-    content: @Composable () -> Unit
-) {
+internal actual fun ContextMenuArea(manager: SelectionManager, content: @Composable () -> Unit) {
     val state = remember { ContextMenuState() }
     if (DesktopPlatform.Current == DesktopPlatform.MacOS) {
         OpenMenuAdjuster(state) { manager.contextMenuOpenAdjustment(it) }
@@ -68,11 +65,12 @@ internal actual fun ContextMenuArea(
 @Composable
 internal fun OpenMenuAdjuster(state: ContextMenuState, adjustAction: (Offset) -> Unit) {
     LaunchedEffect(state) {
-        snapshotFlow { state.status }.collect { status ->
-            if (status is ContextMenuState.Status.Open) {
-                adjustAction(status.rect.center)
+        snapshotFlow { state.status }
+            .collect { status ->
+                if (status is ContextMenuState.Status.Open) {
+                    adjustAction(status.rect.center)
+                }
             }
-        }
     }
 }
 
@@ -124,11 +122,5 @@ internal fun TextFieldSelectionManager.contextMenuItems(): () -> List<ContextMen
 @Composable
 internal fun SelectionManager.contextMenuItems(): () -> List<ContextMenuItem> {
     val localization = LocalLocalization.current
-    return {
-        listOf(
-            ContextMenuItem(localization.copy) {
-                copy()
-            }
-        )
-    }
+    return { listOf(ContextMenuItem(localization.copy) { copy() }) }
 }

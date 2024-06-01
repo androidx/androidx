@@ -23,16 +23,14 @@ import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.getCompositionService
 
-/**
- * Observe when the composition begins and ends.
- */
+/** Observe when the composition begins and ends. */
 @ExperimentalComposeRuntimeApi
 @Suppress("CallbackName")
 interface CompositionObserver {
     /**
      * Called when the composition begins on the [composition]. The [invalidationMap] a map of
-     * invalid recompose scopes that are scheduled to be recomposed. The [CompositionObserver]
-     * will be called for the [composition].
+     * invalid recompose scopes that are scheduled to be recomposed. The [CompositionObserver] will
+     * be called for the [composition].
      *
      * The scopes in the [invalidationMap] are not guaranteed to be composed. Some cases where they
      * are not composed are 1) the scope is no longer part of the composition (e.g the parent scope
@@ -44,71 +42,57 @@ interface CompositionObserver {
      * composition claims it.
      *
      * @param composition the composition that is beginning to be recomposed
-     * @param invalidationMap the recompose scopes that will be recomposed by this composition.
-     *    This list is empty for the initial composition.
+     * @param invalidationMap the recompose scopes that will be recomposed by this composition. This
+     *   list is empty for the initial composition.
      */
     fun onBeginComposition(
         composition: Composition,
         invalidationMap: Map<RecomposeScope, Set<Any>?>
     )
 
-    /**
-     * Called after composition has been completed for [composition].
-     */
+    /** Called after composition has been completed for [composition]. */
     fun onEndComposition(composition: Composition)
 }
 
-/**
- * Observer when a recompose scope is being recomposed or when the scope is disposed.
- */
+/** Observer when a recompose scope is being recomposed or when the scope is disposed. */
 @ExperimentalComposeRuntimeApi
 @Suppress("CallbackName")
 interface RecomposeScopeObserver {
-    /**
-     * Called just before the recompose scope's recompose lambda is invoked.
-     */
+    /** Called just before the recompose scope's recompose lambda is invoked. */
     fun onBeginScopeComposition(scope: RecomposeScope)
 
-    /**
-     * Called just after the recompose scopes' recompose lambda returns.
-     */
+    /** Called just after the recompose scopes' recompose lambda returns. */
     fun onEndScopeComposition(scope: RecomposeScope)
 
-    /**
-     * Called when the recompose scope is disposed.
-     */
+    /** Called when the recompose scope is disposed. */
     fun onScopeDisposed(scope: RecomposeScope)
 }
 
 /**
- * The handle returned by [Composition.observe] and [RecomposeScope.observe]. Calling [dispose]
- * will prevent further composition observation events from being sent to the registered observer.
+ * The handle returned by [Composition.observe] and [RecomposeScope.observe]. Calling [dispose] will
+ * prevent further composition observation events from being sent to the registered observer.
  */
 @ExperimentalComposeRuntimeApi
 interface CompositionObserverHandle {
-    /**
-     * Unregister the observer.
-     */
+    /** Unregister the observer. */
     fun dispose()
 }
 
 /**
- * Observe the composition. Calling this twice on the same composition will implicitly dispose
- * the previous observer. the [CompositionObserver] will be called for this composition and
- * all sub-composition, transitively, for which this composition is a context. If, however,
- * [observe] is called on a sub-composition, it will override the parent composition and
- * notification for it and all sub-composition of it, will go to its observer instead of the
- * one registered for the parent.
+ * Observe the composition. Calling this twice on the same composition will implicitly dispose the
+ * previous observer. the [CompositionObserver] will be called for this composition and all
+ * sub-composition, transitively, for which this composition is a context. If, however, [observe] is
+ * called on a sub-composition, it will override the parent composition and notification for it and
+ * all sub-composition of it, will go to its observer instead of the one registered for the parent.
  *
- * @param observer the observer that will be informed of composition events for this
- * composition and all sub-compositions for which this composition is the composition context.
- * Observing a composition will prevent the parent composition's observer from receiving
- * composition events about this composition.
- *
+ * @param observer the observer that will be informed of composition events for this composition and
+ *   all sub-compositions for which this composition is the composition context. Observing a
+ *   composition will prevent the parent composition's observer from receiving composition events
+ *   about this composition.
  * @return a handle that allows the observer to be disposed and detached from the composition.
- * Disposing an observer for a composition with a parent observer will begin sending the events
- * to the parent composition's observer. A `null` indicates the composition does not support
- * being observed.
+ *   Disposing an observer for a composition with a parent observer will begin sending the events to
+ *   the parent composition's observer. A `null` indicates the composition does not support being
+ *   observed.
  */
 @ExperimentalComposeRuntimeApi
 fun Composition.observe(observer: CompositionObserver): CompositionObserverHandle? =
@@ -116,9 +100,8 @@ fun Composition.observe(observer: CompositionObserver): CompositionObserverHandl
 
 /**
  * Observer when this scope recomposes.
-
- * @param observer the observer that will be informed of recompose events for this scope.
  *
+ * @param observer the observer that will be informed of recompose events for this scope.
  * @return a handle that allows the observer to be disposed and detached from the recompose scope.
  */
 @ExperimentalComposeRuntimeApi

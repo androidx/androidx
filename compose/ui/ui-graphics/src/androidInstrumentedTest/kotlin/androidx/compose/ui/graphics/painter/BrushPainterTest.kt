@@ -38,26 +38,21 @@ class BrushPainterTest {
 
     private fun createImageBitmap(): ImageBitmap {
         val image = ImageBitmap(100, 100)
-        Canvas(image).drawRect(
-            0f,
-            0f,
-            100f,
-            100f,
-            Paint().apply { color = Color.White }
-        )
+        Canvas(image).drawRect(0f, 0f, 100f, 100f, Paint().apply { color = Color.White })
         return image
     }
 
     @Test
     fun testBrushPainter() {
-        val brushPainter = BrushPainter(
-            Brush.verticalGradient(
-                0.0f to Color.Red,
-                0.5f to Color.Red,
-                0.5f to Color.Blue,
-                1.0f to Color.Blue
+        val brushPainter =
+            BrushPainter(
+                Brush.verticalGradient(
+                    0.0f to Color.Red,
+                    0.5f to Color.Red,
+                    0.5f to Color.Blue,
+                    1.0f to Color.Blue
+                )
             )
-        )
         val image = createImageBitmap()
         drawPainter(brushPainter, Canvas(image), Size(100f, 100f))
         val pixelMap = image.toPixelMap()
@@ -74,30 +69,25 @@ class BrushPainterTest {
 
     @Test
     fun testBrushPainterAlphaApplied() {
-        val brushPainter = BrushPainter(
-            Brush.verticalGradient(
-                0.0f to Color.Red,
-                0.5f to Color.Red,
-                0.5f to Color.Blue,
-                1.0f to Color.Blue
+        val brushPainter =
+            BrushPainter(
+                Brush.verticalGradient(
+                    0.0f to Color.Red,
+                    0.5f to Color.Red,
+                    0.5f to Color.Blue,
+                    1.0f to Color.Blue
+                )
             )
-        )
         val image = createImageBitmap()
         drawPainter(brushPainter, Canvas(image), Size(100f, 100f), alpha = 0.5f)
 
-        val expectedRed = Color(
-            alpha = 0.5f,
-            red = Color.Red.red,
-            green = 0f,
-            blue = 0f
-        ).compositeOver(Color.White)
+        val expectedRed =
+            Color(alpha = 0.5f, red = Color.Red.red, green = 0f, blue = 0f)
+                .compositeOver(Color.White)
 
-        val expectedBlue = Color(
-            alpha = 0.5f,
-            red = 0f,
-            green = 0f,
-            blue = Color.Blue.blue
-        ).compositeOver(Color.White)
+        val expectedBlue =
+            Color(alpha = 0.5f, red = 0f, green = 0f, blue = Color.Blue.blue)
+                .compositeOver(Color.White)
 
         val pixelMap = image.toPixelMap()
         assertEquals(expectedRed, pixelMap[0, 0])
@@ -113,14 +103,15 @@ class BrushPainterTest {
 
     @Test
     fun testBrushPainterTint() {
-        val brushPainter = BrushPainter(
-            Brush.verticalGradient(
-                0.0f to Color.Red,
-                0.5f to Color.Red,
-                0.5f to Color.Blue,
-                1.0f to Color.Blue
+        val brushPainter =
+            BrushPainter(
+                Brush.verticalGradient(
+                    0.0f to Color.Red,
+                    0.5f to Color.Red,
+                    0.5f to Color.Blue,
+                    1.0f to Color.Blue
+                )
             )
-        )
         val image = createImageBitmap()
         drawPainter(
             brushPainter,
@@ -142,17 +133,11 @@ class BrushPainterTest {
 
     @Test
     fun testBrushPainterEquals() {
-        val brush1 = Brush.verticalGradient(
-            0.0f to Color.Red,
-            0.3f to Color.Blue,
-            0.7f to Color.Green
-        )
+        val brush1 =
+            Brush.verticalGradient(0.0f to Color.Red, 0.3f to Color.Blue, 0.7f to Color.Green)
 
-        val brush2 = Brush.verticalGradient(
-            0.0f to Color.Red,
-            0.3f to Color.Blue,
-            0.7f to Color.Green
-        )
+        val brush2 =
+            Brush.verticalGradient(0.0f to Color.Red, 0.3f to Color.Blue, 0.7f to Color.Green)
 
         assertEquals(BrushPainter(brush1), BrushPainter(brush2))
     }
@@ -165,19 +150,15 @@ class BrushPainterTest {
 
     @Test
     fun testBrushPainterToString() {
-        val brush = Brush.verticalGradient(
-            listOf(Color.White, Color.Black, Color.Gray, Color.LightGray)
-        )
+        val brush =
+            Brush.verticalGradient(listOf(Color.White, Color.Black, Color.Gray, Color.LightGray))
         assertEquals("BrushPainter(brush=$brush)", BrushPainter(brush).toString())
     }
 
     @Test
     fun testBrushPainterIntrinsicSize() {
-        val brush = Brush.verticalGradient(
-            listOf(Color.White, Color.Black),
-            startY = 0f,
-            endY = 100f
-        )
+        val brush =
+            Brush.verticalGradient(listOf(Color.White, Color.Black), startY = 0f, endY = 100f)
         assertEquals(Size(0.0f, 100f), BrushPainter(brush).intrinsicSize)
     }
 }

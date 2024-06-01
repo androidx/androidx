@@ -32,14 +32,16 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 fun validateIr(fragment: IrModuleFragment, irBuiltIns: IrBuiltIns) {
-    val validatorConfig = IrValidatorConfig(
-        abortOnError = true,
-        ensureAllNodesAreDifferent = true,
-        checkTypes = false, // This should be enabled, the fact this doesn't work is a Compose bug.
-        checkDescriptors = false,
-        checkProperties = true,
-        checkScopes = false
-    )
+    val validatorConfig =
+        IrValidatorConfig(
+            abortOnError = true,
+            ensureAllNodesAreDifferent = true,
+            checkTypes =
+                false, // This should be enabled, the fact this doesn't work is a Compose bug.
+            checkDescriptors = false,
+            checkProperties = true,
+            checkScopes = false
+        )
     fragment.accept(IrValidator(irBuiltIns, validatorConfig), null)
     fragment.checkDeclarationParents()
 }

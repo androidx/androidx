@@ -25,11 +25,7 @@ import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.compose.ui.text.android.TextLayout
 
 fun Layout.bitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        this.width,
-        this.height,
-        Bitmap.Config.ARGB_8888
-    )
+    val bitmap = Bitmap.createBitmap(this.width, this.height, Bitmap.Config.ARGB_8888)
     this.draw(Canvas(bitmap))
     return bitmap
 }
@@ -50,10 +46,7 @@ fun Typeface.bitmap(text: String): Bitmap {
     paint.textSize = fontSize
     paint.typeface = this
     // 1.5 is a random number to increase the size of bitmap a little
-    val layout = TextLayout(
-        charSequence = text,
-        textPaint = paint,
-        width = text.length * fontSize * 1.5f
-    )
+    val layout =
+        TextLayout(charSequence = text, textPaint = paint, width = text.length * fontSize * 1.5f)
     return layout.bitmap()
 }

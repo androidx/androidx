@@ -28,13 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlin.random.Random
 
-private fun randomQuery(random: Random): String = random.nextDouble().let {
-    when {
-        it < 0.1 -> "Idle"
-        it < 0.2 -> "vacuum"
-        else -> "SELECT blah FROM something"
+private fun randomQuery(random: Random): String =
+    random.nextDouble().let {
+        when {
+            it < 0.1 -> "Idle"
+            it < 0.2 -> "vacuum"
+            else -> "SELECT blah FROM something"
+        }
     }
-}
 
 private const val MAX_ELAPSED = 15.0
 
@@ -46,27 +47,25 @@ class Query(query: String, elapsed: Double) {
 class Database(name: String, random: Random) {
     var name: String by mutableStateOf(name)
     private val myRandom = random
-    var queries: List<Query> = (1..10).map {
-        Query(randomQuery(random), random.nextDouble() * MAX_ELAPSED)
-    }
+    var queries: List<Query> =
+        (1..10).map { Query(randomQuery(random), random.nextDouble() * MAX_ELAPSED) }
+
     fun topQueries(n: Int): List<Query> {
-        return queries/*.sortedByDescending { it.elapsed }*/.take(n)
+        return queries /*.sortedByDescending { it.elapsed }*/.take(n)
     }
+
     fun update() {
         val r = myRandom.nextInt(queries.size)
-        (0..r).forEach {
-            queries[it].elapsed = myRandom.nextDouble() * MAX_ELAPSED
-        }
+        (0..r).forEach { queries[it].elapsed = myRandom.nextDouble() * MAX_ELAPSED }
     }
 }
 
 class DatabaseList(n: Int, val random: Random) {
-    val databases: List<Database> = (0..n).flatMap {
-        listOf(
-            Database("cluster $it", random),
-            Database("cluster $it slave", random)
-        )
-    }
+    val databases: List<Database> =
+        (0..n).flatMap {
+            listOf(Database("cluster $it", random), Database("cluster $it slave", random))
+        }
+
     fun update(n: Int) {
         // update n random databases in the list
         databases.shuffled(random).take(n).forEach { it.update() }
@@ -90,8 +89,6 @@ fun DatabaseRow(db: Database) {
     Row(Modifier.fillMaxWidth()) {
         Column(Modifier.fillMaxHeight()) { Text(text = db.name) }
         Column(Modifier.fillMaxHeight()) { Text(text = "${db.queries.size}") }
-        topQueries.forEach { query ->
-            QueryColumn(query = query)
-        }
+        topQueries.forEach { query -> QueryColumn(query = query) }
     }
 }

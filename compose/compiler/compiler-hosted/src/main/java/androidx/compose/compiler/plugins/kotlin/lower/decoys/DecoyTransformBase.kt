@@ -58,8 +58,8 @@ internal interface DecoyTransformBase {
     val signatureBuilder: IdSignatureSerializer
 
     fun IrFunction.getSignatureId(): Long {
-        val signature = symbol.signature
-            ?: signatureBuilder.composeSignatureForDeclaration(this, false)
+        val signature =
+            symbol.signature ?: signatureBuilder.composeSignatureForDeclaration(this, false)
 
         return signature.getSignatureId()
     }
@@ -79,20 +79,19 @@ internal interface DecoyTransformBase {
     }
 
     fun irVarargString(valueArguments: List<String>): IrExpression {
-        val stringArrayType = IrSimpleTypeImpl(
-            classifier = context.irBuiltIns.arrayClass,
-            hasQuestionMark = false,
-            arguments = listOf(context.irBuiltIns.stringType as IrTypeArgument),
-            annotations = emptyList()
-        )
+        val stringArrayType =
+            IrSimpleTypeImpl(
+                classifier = context.irBuiltIns.arrayClass,
+                hasQuestionMark = false,
+                arguments = listOf(context.irBuiltIns.stringType as IrTypeArgument),
+                annotations = emptyList()
+            )
         return IrVarargImpl(
             UNDEFINED_OFFSET,
             UNDEFINED_OFFSET,
             type = stringArrayType,
             varargElementType = context.irBuiltIns.stringType,
-            elements = valueArguments.map {
-                it.toIrConst(context.irBuiltIns.stringType)
-            }
+            elements = valueArguments.map { it.toIrConst(context.irBuiltIns.stringType) }
         )
     }
 
@@ -100,12 +99,14 @@ internal interface DecoyTransformBase {
     fun IrFunction.getComposableForDecoy(): IrFunctionSymbol {
         val implementationName = getDecoyTargetName()
         val signatureId = getSignatureId()
-        val implementation = (parent as? IrDeclarationContainer)?.declarations
-            ?.filterIsInstance<IrFunction>()
-            ?.firstOrNull {
-                it.getDecoyImplementationName() == implementationName &&
-                    it.getDecoyImplementationId() == signatureId
-            }
+        val implementation =
+            (parent as? IrDeclarationContainer)
+                ?.declarations
+                ?.filterIsInstance<IrFunction>()
+                ?.firstOrNull {
+                    it.getDecoyImplementationName() == implementationName &&
+                        it.getDecoyImplementationId() == signatureId
+                }
 
         if (implementation != null) {
             return implementation.symbol
@@ -116,26 +117,27 @@ internal interface DecoyTransformBase {
             "Could not find local implementation for $implementationName"
         }
         // top-level
-        val idSig = IdSignature.CommonSignature(
-            packageFqName = signature[0],
-            declarationFqName = signature[1],
-            id = signature[2].toLongOrNull(),
-            mask = signature[3].toLong(),
-            description = "Composable decoy signature"
-        )
+        val idSig =
+            IdSignature.CommonSignature(
+                packageFqName = signature[0],
+                declarationFqName = signature[1],
+                id = signature[2].toLongOrNull(),
+                mask = signature[3].toLong(),
+                description = "Composable decoy signature"
+            )
 
         val linker = (context as IrPluginContextImpl).linker
 
-        val symbol = if (isTopLevel) {
-            linker.getDeclaration(module, idSig) as? IrSimpleFunctionSymbol
-        } else {
-            (parent as? IrDeclarationContainer)?.declarations
-                ?.filterIsInstance<IrFunction>()
-                ?.find {
-                    it.symbol.signature == idSig
-                }
-                ?.symbol
-        }
+        val symbol =
+            if (isTopLevel) {
+                linker.getDeclaration(module, idSig) as? IrSimpleFunctionSymbol
+            } else {
+                (parent as? IrDeclarationContainer)
+                    ?.declarations
+                    ?.filterIsInstance<IrFunction>()
+                    ?.find { it.symbol.signature == idSig }
+                    ?.symbol
+            }
 
         return symbol ?: error("Couldn't find implementation for $name")
     }
@@ -171,9 +173,7 @@ internal interface DecoyTransformBase {
         val decoyVararg = annotation.getValueArgument(1) as IrVararg
 
         @Suppress("UNCHECKED_CAST")
-        return decoyVararg.elements.map {
-            (it as IrConst<String>).value
-        }
+        return decoyVararg.elements.map { (it as IrConst<String>).value }
     }
 
     private fun IrDeserializer.getDeclaration(
@@ -182,8 +182,7 @@ internal interface DecoyTransformBase {
     ): IrSymbol = resolveBySignatureInModule(idSignature, FUNCTION_SYMBOL, moduleDescriptor.name)
 }
 
-fun IrDeclaration.isDecoy(): Boolean =
-    hasAnnotationSafe(DecoyFqNames.Decoy)
+fun IrDeclaration.isDecoy(): Boolean = hasAnnotationSafe(DecoyFqNames.Decoy)
 
 fun IrDeclaration.isDecoyImplementation(): Boolean =
     hasAnnotationSafe(DecoyFqNames.DecoyImplementation)
@@ -198,36 +197,32 @@ private fun IrFunction.getDecoyImplementationDefaultValuesBitMask(): Int? {
 }
 
 fun IrFunction.didDecoyHaveDefaultForValueParameter(paramIndex: Int): Boolean {
-    return getDecoyImplementationDefaultValuesBitMask()?.let {
-        it.shr(paramIndex).and(1) == 1
-    } ?: false
+    return getDecoyImplementationDefaultValuesBitMask()?.let { it.shr(paramIndex).and(1) == 1 }
+        ?: false
 }
 
 internal inline fun <reified T : IrElement> T.copyWithNewTypeParams(
     source: IrFunction,
     target: IrFunction
 ): T {
-    val typeParamsAwareSymbolRemapper = object : DeepCopySymbolRemapper() {
-        init {
-            for ((orig, new) in source.typeParameters.zip(target.typeParameters)) {
-                typeParameters[orig.symbol] = new.symbol
+    val typeParamsAwareSymbolRemapper =
+        object : DeepCopySymbolRemapper() {
+            init {
+                for ((orig, new) in source.typeParameters.zip(target.typeParameters)) {
+                    typeParameters[orig.symbol] = new.symbol
+                }
             }
         }
-    }
-    return deepCopyWithSymbols(
-        target,
-        typeParamsAwareSymbolRemapper
-    ) { symbolRemapper, typeRemapper ->
-        val typeParamRemapper = object : TypeRemapper by typeRemapper {
-            override fun remapType(type: IrType): IrType {
-                return typeRemapper.remapType(type.remapTypeParameters(source, target))
+    return deepCopyWithSymbols(target, typeParamsAwareSymbolRemapper) { symbolRemapper, typeRemapper
+        ->
+        val typeParamRemapper =
+            object : TypeRemapper by typeRemapper {
+                override fun remapType(type: IrType): IrType {
+                    return typeRemapper.remapType(type.remapTypeParameters(source, target))
+                }
             }
-        }
-        val deepCopy = DeepCopyPreservingMetadata(
-            symbolRemapper,
-            typeParamRemapper,
-            SymbolRenamer.DEFAULT
-        )
+        val deepCopy =
+            DeepCopyPreservingMetadata(symbolRemapper, typeParamRemapper, SymbolRenamer.DEFAULT)
         (typeRemapper as? DeepCopyTypeRemapper)?.deepCopy = deepCopy
         deepCopy
     }

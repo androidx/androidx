@@ -17,24 +17,25 @@
 package androidx.compose.ui.graphics
 
 /**
- * A path segment represents a curve (line, cubic, quadratic or conic) or a command inside
- * a fully formed [Path] object.
+ * A path segment represents a curve (line, cubic, quadratic or conic) or a command inside a fully
+ * formed [Path] object.
  *
- * A segment is identified by a [type][PathSegment.Type] which in turns defines how many
- * [points] are available (from 0 to 4 points, each point is represented by 2 floats) and
- * whether the [weight] is meaningful. Please refer to the documentation of each
- * [type][PathSegment.Type] for more information.
+ * A segment is identified by a [type][PathSegment.Type] which in turns defines how many [points]
+ * are available (from 0 to 4 points, each point is represented by 2 floats) and whether the
+ * [weight] is meaningful. Please refer to the documentation of each [type][PathSegment.Type] for
+ * more information.
  *
- * A segment with the [Move][Type.Move] or [Close][Type.Close] is usually represented by
- * the singletons [DoneSegment] and [CloseSegment] respectively.
+ * A segment with the [Move][Type.Move] or [Close][Type.Close] is usually represented by the
+ * singletons [DoneSegment] and [CloseSegment] respectively.
  *
  * @property type The type that identifies this segment and defines the number of points.
- * @property points An array of points (2 floats per point) describing this segment, whose
- *                  size depends on [type].
- * @property weight Conic weight, only valid if [type] is [Type.Conic]. See [Type.Conic]
- *                  for more information.
+ * @property points An array of points (2 floats per point) describing this segment, whose size
+ *   depends on [type].
+ * @property weight Conic weight, only valid if [type] is [Type.Conic]. See [Type.Conic] for more
+ *   information.
  */
-class PathSegment internal constructor(
+class PathSegment
+internal constructor(
     val type: Type,
     @get:Suppress("ArrayReturn") val points: FloatArray,
     val weight: Float
@@ -46,13 +47,13 @@ class PathSegment internal constructor(
      */
     enum class Type {
         /**
-         * Move command, the path segment contains 1 point indicating the move destination.
-         * The weight is set 0.0f and not meaningful.
+         * Move command, the path segment contains 1 point indicating the move destination. The
+         * weight is set 0.0f and not meaningful.
          */
         Move,
         /**
-         * Line curve, the path segment contains 2 points indicating the two extremities of
-         * the line. The weight is set 0.0f and not meaningful.
+         * Line curve, the path segment contains 2 points indicating the two extremities of the
+         * line. The weight is set 0.0f and not meaningful.
          */
         Line,
         /**
@@ -73,9 +74,9 @@ class PathSegment internal constructor(
          * The curve is weighted by the [weight][PathSegment.weight] property.
          *
          * The conic weight determines the amount of influence conic control point has on the curve.
-         * If the weight is less than one, the curve represents an elliptical section.
-         * If the weight is greater than one, the curve represents a hyperbolic section.
-         * If the weight equals one, the curve represents a parabolic section.
+         * If the weight is less than one, the curve represents an elliptical section. If the weight
+         * is greater than one, the curve represents a hyperbolic section. If the weight equals one,
+         * the curve represents a parabolic section.
          */
         Conic,
         /**
@@ -89,15 +90,14 @@ class PathSegment internal constructor(
          */
         Cubic,
         /**
-         * Close command, close the current contour by joining the last point added to the
-         * path with the first point of the current contour. The segment does not contain
-         * any point. The weight is set 0.0f and not meaningful.
+         * Close command, close the current contour by joining the last point added to the path with
+         * the first point of the current contour. The segment does not contain any point. The
+         * weight is set 0.0f and not meaningful.
          */
         Close,
         /**
-         * Done command, which indicates that no further segment will be
-         * found in the path. It typically indicates the end of an iteration over a path
-         * and can be ignored.
+         * Done command, which indicates that no further segment will be found in the path. It
+         * typically indicates the end of an iteration over a path and can be ignored.
          */
         Done
     }
@@ -128,15 +128,15 @@ class PathSegment internal constructor(
 }
 
 /**
- * A [PathSegment] containing the [Done][PathSegment.Type.Done] command.
- * This static object exists to avoid allocating a new segment when returning a
- * [Done][PathSegment.Type.Done] result from [PathIterator.next].
+ * A [PathSegment] containing the [Done][PathSegment.Type.Done] command. This static object exists
+ * to avoid allocating a new segment when returning a [Done][PathSegment.Type.Done] result from
+ * [PathIterator.next].
  */
 val DoneSegment = PathSegment(PathSegment.Type.Done, FloatArray(0), 0.0f)
 
 /**
- * A [PathSegment] containing the [Close][PathSegment.Type.Close] command.
- * This static object exists to avoid allocating a new segment when returning a
- * [Close][PathSegment.Type.Close] result from [PathIterator.next].
+ * A [PathSegment] containing the [Close][PathSegment.Type.Close] command. This static object exists
+ * to avoid allocating a new segment when returning a [Close][PathSegment.Type.Close] result from
+ * [PathIterator.next].
  */
 val CloseSegment = PathSegment(PathSegment.Type.Close, FloatArray(0), 0.0f)

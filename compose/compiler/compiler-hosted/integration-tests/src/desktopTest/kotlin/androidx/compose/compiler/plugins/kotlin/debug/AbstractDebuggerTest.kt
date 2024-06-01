@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE")
+
 package androidx.compose.compiler.plugins.kotlin.debug
 
 import androidx.compose.compiler.plugins.kotlin.AbstractCodegenTest
@@ -69,12 +70,13 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
         @BeforeClass
         fun startDebugProcess() {
             testServerProcess = startTestProcessServer()
-            val (debuggerPort, _proxyPort) = testServerProcess.inputStream.bufferedReader().use {
-                val debuggerPort = it.readLine().split("address:").last().trim().toInt()
-                it.readLine()
-                val proxyPort = it.readLine().split("port ").last().trim().toInt()
-                (debuggerPort to proxyPort)
-            }
+            val (debuggerPort, _proxyPort) =
+                testServerProcess.inputStream.bufferedReader().use {
+                    val debuggerPort = it.readLine().split("address:").last().trim().toInt()
+                    it.readLine()
+                    val proxyPort = it.readLine().split("port ").last().trim().toInt()
+                    (debuggerPort to proxyPort)
+                }
             virtualMachine = attachDebugger(debuggerPort)
             proxyPort = _proxyPort
         }
@@ -86,22 +88,25 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
         }
 
         private fun startTestProcessServer(): Process {
-            val classpath = listOf(
-                PathUtil.getJarPathForClass(TestProcessServer::class.java),
-                PathUtil.getJarPathForClass(Delegates::class.java) // Add Kotlin runtime JAR
-            )
+            val classpath =
+                listOf(
+                    PathUtil.getJarPathForClass(TestProcessServer::class.java),
+                    PathUtil.getJarPathForClass(Delegates::class.java) // Add Kotlin runtime JAR
+                )
 
             val javaExec = File(File(SystemProperties.getJavaHome(), "bin"), "java")
             assert(javaExec.exists())
 
-            val command = listOf(
-                javaExec.absolutePath,
-                "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:0",
-                "-ea",
-                "-classpath", classpath.joinToString(File.pathSeparator),
-                TestProcessServer::class.qualifiedName,
-                TestProcessServer.DEBUG_TEST
-            )
+            val command =
+                listOf(
+                    javaExec.absolutePath,
+                    "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:0",
+                    "-ea",
+                    "-classpath",
+                    classpath.joinToString(File.pathSeparator),
+                    TestProcessServer::class.qualifiedName,
+                    TestProcessServer.DEBUG_TEST
+                )
 
             return ProcessBuilder(command).start()
         }
@@ -139,18 +144,14 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
 
     @After
     fun deleteEventRequests() {
-        virtualMachine.eventRequestManager()
+        virtualMachine
+            .eventRequestManager()
             .deleteEventRequests(listOf(methodEntryRequest, methodExitRequest))
     }
 
-    @JvmField
-    @Rule
-    val outDirectory = TemporaryFolder()
+    @JvmField @Rule val outDirectory = TemporaryFolder()
 
-    private fun invokeRunnerMainInSeparateProcess(
-        classLoader: URLClassLoader,
-        port: Int
-    ) {
+    private fun invokeRunnerMainInSeparateProcess(classLoader: URLClassLoader, port: Int) {
         val classPath = classLoader.extractUrls().toMutableList()
         if (classLoader is GeneratedClassLoader) {
             val outDir = outDirectory.root
@@ -162,12 +163,10 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
     }
 
     fun collectDebugEvents(@Language("kotlin") source: String): List<LocatableEvent> {
-        val classLoader = createClassLoader(
-            listOf(
-                SourceFile("Runner.kt", RUNNER_SOURCES),
-                SourceFile("Test.kt", source)
+        val classLoader =
+            createClassLoader(
+                listOf(SourceFile("Runner.kt", RUNNER_SOURCES), SourceFile("Test.kt", source))
             )
-        )
         val testClass = classLoader.loadClass(TEST_CLASS)
         assert(testClass.declaredMethods.any { it.name == CONTENT_METHOD }) {
             "Test method $CONTENT_METHOD not present on test class $TEST_CLASS"
@@ -181,28 +180,30 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
 
         val loggedItems = mutableListOf<LocatableEvent>()
         var inContentMethod = false
-        vmLoop@
-        while (true) {
+        vmLoop@ while (true) {
             val eventSet = virtualMachine.eventQueue().remove(1000) ?: continue
             for (event in eventSet) {
                 when (event) {
-                    is VMDeathEvent, is VMDisconnectEvent -> {
+                    is VMDeathEvent,
+                    is VMDisconnectEvent -> {
                         break@vmLoop
                     }
-                    // We start VM with option 'suspend=n', in case VMStartEvent is still received, discard.
-                    is VMStartEvent -> {
-                    }
+                    // We start VM with option 'suspend=n', in case VMStartEvent is still received,
+                    // discard.
+                    is VMStartEvent -> {}
                     is MethodEntryEvent -> {
-                        if (!inContentMethod &&
-                            event.location().method().name() == CONTENT_METHOD
+                        if (
+                            !inContentMethod && event.location().method().name() == CONTENT_METHOD
                         ) {
                             if (manager.stepRequests().isEmpty()) {
-                                // Create line stepping request to get all normal line steps starting now.
-                                val stepReq = manager.createStepRequest(
-                                    event.thread(),
-                                    StepRequest.STEP_LINE,
-                                    StepRequest.STEP_INTO
-                                )
+                                // Create line stepping request to get all normal line steps
+                                // starting now.
+                                val stepReq =
+                                    manager.createStepRequest(
+                                        event.thread(),
+                                        StepRequest.STEP_LINE,
+                                        StepRequest.STEP_INTO
+                                    )
                                 stepReq.setSuspendPolicy(SUSPEND_ALL)
                                 stepReq.addClassExclusionFilter("java.*")
                                 stepReq.addClassExclusionFilter("sun.*")
@@ -211,8 +212,10 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
                                 stepReq.addClassExclusionFilter("androidx.compose.runtime.*")
                                 stepReq.addClassExclusionFilter("jdk.internal.*")
 
-                                // Create class prepare request to be able to set breakpoints on class initializer lines.
-                                // There are no line stepping events for class initializers, so we depend on breakpoints.
+                                // Create class prepare request to be able to set breakpoints on
+                                // class initializer lines.
+                                // There are no line stepping events for class initializers, so we
+                                // depend on breakpoints.
                                 val prepareReq = manager.createClassPrepareRequest()
                                 prepareReq.setSuspendPolicy(SUSPEND_ALL)
                                 prepareReq.addClassExclusionFilter("java.*")
@@ -228,7 +231,8 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
                         }
                     }
                     is StepEvent -> {
-                        // Handle the case where an Exception causing program to exit without MethodExitEvent.
+                        // Handle the case where an Exception causing program to exit without
+                        // MethodExitEvent.
                         if (inContentMethod && event.location().method().name() == "run") {
                             manager.stepRequests().map { it.disable() }
                             manager.classPrepareRequests().map { it.disable() }
@@ -279,13 +283,13 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
 }
 
 private fun ClassLoader?.extractUrls(): List<URL> {
-    return (this as? URLClassLoader)?.let {
-        it.urLs.toList() + it.parent.extractUrls()
-    } ?: emptyList()
+    return (this as? URLClassLoader)?.let { it.urLs.toList() + it.parent.extractUrls() }
+        ?: emptyList()
 }
 
 @Language("kotlin")
-private val RUNNER_SOURCES = """
+private val RUNNER_SOURCES =
+    """
             import androidx.compose.runtime.*
             import kotlinx.coroutines.*
             fun main() {
@@ -313,4 +317,5 @@ private val RUNNER_SOURCES = """
                 }
                 override fun clear() {}
             }
-""".trimIndent()
+"""
+        .trimIndent()

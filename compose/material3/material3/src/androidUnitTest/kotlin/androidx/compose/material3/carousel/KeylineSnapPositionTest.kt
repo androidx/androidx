@@ -73,8 +73,8 @@ class KeylineSnapPositionTest {
     fun testSnapPosition_forStartAlignedStrategyWithLessItemsThanFocal() {
         val strategy = testStartAlignedStrategyWithMultipleFocal()
         // item count is the number of focal keylines minus one
-        val itemCount = strategy.defaultKeylines.lastFocalIndex -
-            strategy.defaultKeylines.firstFocalIndex
+        val itemCount =
+            strategy.defaultKeylines.lastFocalIndex - strategy.defaultKeylines.firstFocalIndex
         repeat(itemCount) { i ->
             assertThat(getSnapPositionOffset(strategy, i, itemCount)).isEqualTo(0)
         }
@@ -95,19 +95,20 @@ class KeylineSnapPositionTest {
         val smallSize = 100f
         val mediumSize = 200f
         val largeSize = 400f
-        val keylineList = keylineListOf(
-            carouselMainAxisSize = 1000f,
-            itemSpacing = 0f,
-            carouselAlignment = CarouselAlignment.Center
-        ) {
-            add(xSmallSize, isAnchor = true)
-            add(smallSize)
-            add(mediumSize)
-            add(largeSize)
-            add(mediumSize)
-            add(smallSize)
-            add(xSmallSize, isAnchor = true)
-        }
+        val keylineList =
+            keylineListOf(
+                carouselMainAxisSize = 1000f,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Center
+            ) {
+                add(xSmallSize, isAnchor = true)
+                add(smallSize)
+                add(mediumSize)
+                add(largeSize)
+                add(mediumSize)
+                add(smallSize)
+                add(xSmallSize, isAnchor = true)
+            }
 
         return Strategy(
             defaultKeylines = keylineList,
@@ -132,19 +133,20 @@ class KeylineSnapPositionTest {
         val smallSize = 100f
         val mediumSize = 200f
         val largeSize = 400f
-        val keylineList = keylineListOf(
-            carouselMainAxisSize = 1000f,
-            itemSpacing = 0f,
-            carouselAlignment = CarouselAlignment.Start
-        ) {
-            add(xSmallSize, isAnchor = true)
-            add(largeSize)
-            add(mediumSize)
-            add(mediumSize)
-            add(smallSize)
-            add(smallSize)
-            add(xSmallSize, isAnchor = true)
-        }
+        val keylineList =
+            keylineListOf(
+                carouselMainAxisSize = 1000f,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Start
+            ) {
+                add(xSmallSize, isAnchor = true)
+                add(largeSize)
+                add(mediumSize)
+                add(mediumSize)
+                add(smallSize)
+                add(smallSize)
+                add(xSmallSize, isAnchor = true)
+            }
         return Strategy(
             defaultKeylines = keylineList,
             availableSpace = 1000f,
@@ -166,14 +168,15 @@ class KeylineSnapPositionTest {
         val smallSize = 75f
         val mediumSize = 125f
         val largeSize = 400f
-        val keylineList = keylineListOf(carouselMainAxisSize = 1000f, 0f, CarouselAlignment.Start) {
-            add(xSmallSize, isAnchor = true)
-            add(largeSize)
-            add(largeSize)
-            add(mediumSize)
-            add(smallSize)
-            add(xSmallSize, isAnchor = true)
-        }
+        val keylineList =
+            keylineListOf(carouselMainAxisSize = 1000f, 0f, CarouselAlignment.Start) {
+                add(xSmallSize, isAnchor = true)
+                add(largeSize)
+                add(largeSize)
+                add(mediumSize)
+                add(smallSize)
+                add(xSmallSize, isAnchor = true)
+            }
         return Strategy(
             defaultKeylines = keylineList,
             availableSpace = 1000f,

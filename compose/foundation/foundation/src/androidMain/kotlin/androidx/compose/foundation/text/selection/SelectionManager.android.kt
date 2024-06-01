@@ -50,21 +50,19 @@ internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modi
         val density = LocalDensity.current
         var magnifierSize by remember { mutableStateOf(IntSize.Zero) }
         animatedSelectionMagnifier(
-            magnifierCenter = {
-                calculateSelectionMagnifierCenterAndroid(manager, magnifierSize)
-            },
+            magnifierCenter = { calculateSelectionMagnifierCenterAndroid(manager, magnifierSize) },
             platformMagnifier = { center ->
-                Modifier
-                    .magnifier(
-                        sourceCenter = { center() },
-                        onSizeChanged = { size ->
-                            magnifierSize = with(density) {
+                Modifier.magnifier(
+                    sourceCenter = { center() },
+                    onSizeChanged = { size ->
+                        magnifierSize =
+                            with(density) {
                                 IntSize(size.width.roundToPx(), size.height.roundToPx())
                             }
-                        },
-                        useTextDefault = true,
-                        platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
-                    )
+                    },
+                    useTextDefault = true,
+                    platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
+                )
             }
         )
     }
@@ -78,11 +76,15 @@ internal fun SelectionManager.contextMenuBuilder(
             state = state,
             label = TextContextMenuItems.Copy,
             enabled = isNonEmptySelection(),
-        ) { copy() },
+        ) {
+            copy()
+        },
         TextItem(
             state = state,
             label = TextContextMenuItems.SelectAll,
             enabled = !isEntireContainerSelected(),
-        ) { selectAll() },
+        ) {
+            selectAll()
+        },
     )
 }

@@ -29,9 +29,9 @@ import androidx.compose.ui.platform.LocalContext
 /**
  * Load an ImageBitmap from an image resource.
  *
- * This function is intended to be used for when low-level ImageBitmap-specific
- * functionality is required.  For simply displaying onscreen, the vector/bitmap-agnostic
- * [painterResource] is recommended instead.
+ * This function is intended to be used for when low-level ImageBitmap-specific functionality is
+ * required. For simply displaying onscreen, the vector/bitmap-agnostic [painterResource] is
+ * recommended instead.
  *
  * @return Loaded image file represented as an [ImageBitmap]
  */
@@ -42,9 +42,9 @@ fun ImageBitmap.Companion.imageResource(res: Resources, @DrawableRes id: Int): I
 /**
  * Load an ImageBitmap from an image resource.
  *
- * This function is intended to be used for when low-level ImageBitmap-specific
- * functionality is required.  For simply displaying onscreen, the vector/bitmap-agnostic
- * [painterResource] is recommended instead.
+ * This function is intended to be used for when low-level ImageBitmap-specific functionality is
+ * required. For simply displaying onscreen, the vector/bitmap-agnostic [painterResource] is
+ * recommended instead.
  *
  * @param id the resource identifier
  * @return the decoded image data associated with the resource

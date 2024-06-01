@@ -31,109 +31,46 @@ class RectHelperTest {
     @Suppress("DEPRECATION")
     @Test
     fun rectToAndroidRectTruncates() {
-        assertEquals(
-            android.graphics.Rect(
-                2,
-                3,
-                4,
-                5
-            ),
-            Rect(
-                2f,
-                3.1f,
-                4.5f,
-                5.99f
-            ).toAndroidRect()
-        )
+        assertEquals(android.graphics.Rect(2, 3, 4, 5), Rect(2f, 3.1f, 4.5f, 5.99f).toAndroidRect())
     }
 
     @Test
     fun rectToAndroidRectFConverts() {
         assertEquals(
-            android.graphics.RectF(
-                2f,
-                3.1f,
-                4.5f,
-                5.99f
-            ),
-            Rect(
-                2f,
-                3.1f,
-                4.5f,
-                5.99f
-            ).toAndroidRectF()
+            android.graphics.RectF(2f, 3.1f, 4.5f, 5.99f),
+            Rect(2f, 3.1f, 4.5f, 5.99f).toAndroidRectF()
         )
     }
 
     @Test
     fun androidRectToRectConverts() {
         assertEquals(
-            Rect(
-                2f,
-                3f,
-                4f,
-                5f
-            ),
-            android.graphics.Rect(
-                2,
-                3,
-                4,
-                5
-            ).toComposeRect(),
+            Rect(2f, 3f, 4f, 5f),
+            android.graphics.Rect(2, 3, 4, 5).toComposeRect(),
         )
     }
 
     @Test
     fun intRectToAndroidRectConverts() {
         assertEquals(
-            android.graphics.Rect(
-                2,
-                3,
-                4,
-                5
-            ),
-            IntRect(
-                2,
-                3,
-                4,
-                5
-            ).toAndroidRect(),
+            android.graphics.Rect(2, 3, 4, 5),
+            IntRect(2, 3, 4, 5).toAndroidRect(),
         )
     }
 
     @Test
     fun androidRectToIntRectConverts() {
         assertEquals(
-            IntRect(
-                2,
-                3,
-                4,
-                5
-            ),
-            android.graphics.Rect(
-                2,
-                3,
-                4,
-                5
-            ).toComposeIntRect(),
+            IntRect(2, 3, 4, 5),
+            android.graphics.Rect(2, 3, 4, 5).toComposeIntRect(),
         )
     }
 
     @Test
     fun androidRectFToRectConverts() {
         assertEquals(
-            Rect(
-                2.1f,
-                3.2f,
-                4.3f,
-                5.4f
-            ),
-            android.graphics.RectF(
-                2.1f,
-                3.2f,
-                4.3f,
-                5.4f
-            ).toComposeRect(),
+            Rect(2.1f, 3.2f, 4.3f, 5.4f),
+            android.graphics.RectF(2.1f, 3.2f, 4.3f, 5.4f).toComposeRect(),
         )
     }
 }

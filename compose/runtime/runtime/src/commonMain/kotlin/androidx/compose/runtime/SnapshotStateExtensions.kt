@@ -27,12 +27,9 @@ package androidx.compose.runtime
  * of a state of type `Int`.
  */
 @Stable
-fun State<Int>.asIntState(): IntState =
-    if (this is IntState) this else UnboxedIntState(this)
+fun State<Int>.asIntState(): IntState = if (this is IntState) this else UnboxedIntState(this)
 
-internal class UnboxedIntState(
-    private val baseState: State<Int>
-) : IntState {
+internal class UnboxedIntState(private val baseState: State<Int>) : IntState {
     override val intValue: Int
         get() = baseState.value
 
@@ -53,12 +50,9 @@ internal class UnboxedIntState(
  * representation of a state of type `Long`.
  */
 @Stable
-fun State<Long>.asLongState(): LongState =
-    if (this is LongState) this else UnboxedLongState(this)
+fun State<Long>.asLongState(): LongState = if (this is LongState) this else UnboxedLongState(this)
 
-internal class UnboxedLongState(
-    private val baseState: State<Long>
-) : LongState {
+internal class UnboxedLongState(private val baseState: State<Long>) : LongState {
     override val longValue: Long
         get() = baseState.value
 
@@ -74,17 +68,15 @@ internal class UnboxedLongState(
  * read-only. The returned state will mirror the values of the base state and apply updates in the
  * same way as the receiver defines.
  *
- * On the JVM, this conversion does not avoid the autoboxing that [Float] attempts to escape,
- * but instead is intended to allow interoperability between components that use either
- * representation of a state of type `Float`.
+ * On the JVM, this conversion does not avoid the autoboxing that [Float] attempts to escape, but
+ * instead is intended to allow interoperability between components that use either representation
+ * of a state of type `Float`.
  */
 @Stable
 fun State<Float>.asFloatState(): FloatState =
     if (this is FloatState) this else UnboxedFloatState(this)
 
-internal class UnboxedFloatState(
-    private val baseState: State<Float>
-) : FloatState {
+internal class UnboxedFloatState(private val baseState: State<Float>) : FloatState {
     override val floatValue: Float
         get() = baseState.value
 
@@ -100,17 +92,15 @@ internal class UnboxedFloatState(
  * state is read-only. The returned state will mirror the values of the base state and apply updates
  * in the same way as the receiver defines.
  *
- * On the JVM, this conversion does not avoid the autoboxing that [Double] attempts to escape,
- * but instead is intended to allow interoperability between components that use either
- * representation of a state of type `Double`.
+ * On the JVM, this conversion does not avoid the autoboxing that [Double] attempts to escape, but
+ * instead is intended to allow interoperability between components that use either representation
+ * of a state of type `Double`.
  */
 @Stable
 fun State<Double>.asDoubleState(): DoubleState =
     if (this is DoubleState) this else UnboxedDoubleState(this)
 
-internal class UnboxedDoubleState(
-    private val baseState: State<Double>
-) : DoubleState {
+internal class UnboxedDoubleState(private val baseState: State<Double>) : DoubleState {
     override val doubleValue: Double
         get() = baseState.value
 

@@ -23,26 +23,21 @@ import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 
 /**
- * A connector transforms colors from a source color space to a destination
- * color space.
+ * A connector transforms colors from a source color space to a destination color space.
  *
- * A source color space is connected to a destination color space using the
- * color transform `C` computed from their respective transforms noted
- * `Tsrc` and `Tdst` in the following equation:
+ * A source color space is connected to a destination color space using the color transform `C`
+ * computed from their respective transforms noted `Tsrc` and `Tdst` in the following equation:
  *
  * [See equation](https://developer.android.com/reference/android/graphics/ColorSpace.Connector)
  *
- * The transform `C` shown above is only valid when the source and
- * destination color spaces have the same profile connection space (PCS).
- * We know that instances of [ColorSpace] always use CIE XYZ as their
- * PCS but their white points might differ. When they do, we must perform
- * a chromatic adaptation of the color spaces' transforms. To do so, we
- * use the von Kries method described in the documentation of [Adaptation],
- * using the CIE standard illuminant [D50][Illuminant.D50]
- * as the target white point.
+ * The transform `C` shown above is only valid when the source and destination color spaces have the
+ * same profile connection space (PCS). We know that instances of [ColorSpace] always use CIE XYZ as
+ * their PCS but their white points might differ. When they do, we must perform a chromatic
+ * adaptation of the color spaces' transforms. To do so, we use the von Kries method described in
+ * the documentation of [Adaptation], using the CIE standard illuminant [D50][Illuminant.D50] as the
+ * target white point.
  *
- * Example of conversion from [sRGB][ColorSpaces.Srgb] to
- * [DCI-P3][ColorSpaces.DciP3]:
+ * Example of conversion from [sRGB][ColorSpaces.Srgb] to [DCI-P3][ColorSpaces.DciP3]:
  *
  *     val connector = ColorSpaces.Srgb.connect(ColorSpaces.DciP3);
  *     val p3 = connector.transform(1.0f, 0.0f, 0.0f);
@@ -54,17 +49,15 @@ import androidx.compose.ui.util.unpackFloat2
  */
 open class Connector
 /**
- * To connect between color spaces, we might need to use adapted transforms.
- * This should be transparent to the user so this constructor takes the
- * original source and destinations (returned by the getters), as well as
- * possibly adapted color spaces used by transform().
+ * To connect between color spaces, we might need to use adapted transforms. This should be
+ * transparent to the user so this constructor takes the original source and destinations (returned
+ * by the getters), as well as possibly adapted color spaces used by transform().
  */
 internal constructor(
     /**
      * Returns the source color space this connector will convert from.
      *
      * @return A non-null instance of [ColorSpace]
-     *
      * @see destination
      */
     val source: ColorSpace,
@@ -72,18 +65,16 @@ internal constructor(
      * Returns the destination color space this connector will convert to.
      *
      * @return A non-null instance of [ColorSpace]
-     *
      * @see source
      */
     val destination: ColorSpace,
     private val transformSource: ColorSpace,
     private val transformDestination: ColorSpace,
     /**
-     * Returns the render intent this connector will use when mapping the
-     * source color space to the destination color space.
+     * Returns the render intent this connector will use when mapping the source color space to the
+     * destination color space.
      *
      * @return A non-null [RenderIntent]
-     *
      * @see RenderIntent
      */
     val renderIntent: RenderIntent,
@@ -101,7 +92,8 @@ internal constructor(
         destination: ColorSpace,
         intent: RenderIntent
     ) : this(
-        source, destination,
+        source,
+        destination,
         if (source.model == ColorModel.Rgb) source.adapt(Illuminant.D50) else source,
         if (destination.model == ColorModel.Rgb) {
             destination.adapt(Illuminant.D50)
@@ -109,27 +101,20 @@ internal constructor(
             destination
         },
         intent,
-        computeTransform(
-            source,
-            destination,
-            intent
-        )
+        computeTransform(source, destination, intent)
     )
 
     /**
-     * Transforms the specified color from the source color space
-     * to a color in the destination color space. This convenience
-     * method assumes a source color model with 3 components
-     * (typically RGB). To transform from color models with more than
-     * 3 components, such as [CMYK][ColorModel.Cmyk], use
-     * [transform] instead.
+     * Transforms the specified color from the source color space to a color in the destination
+     * color space. This convenience method assumes a source color model with 3 components
+     * (typically RGB). To transform from color models with more than 3 components, such as
+     * [CMYK][ColorModel.Cmyk], use [transform] instead.
      *
      * @param r The red component of the color to transform
      * @param g The green component of the color to transform
      * @param b The blue component of the color to transform
-     * @return A new array of 3 floats containing the specified color
-     * transformed from the source space to the destination space
-     *
+     * @return A new array of 3 floats containing the specified color transformed from the source
+     *   space to the destination space
      * @see transform
      */
     @Size(3)
@@ -138,14 +123,13 @@ internal constructor(
     }
 
     /**
-     * Transforms the specified color from the source color space
-     * to a color in the destination color space.
+     * Transforms the specified color from the source color space to a color in the destination
+     * color space.
      *
-     * @param v A non-null array of 3 floats containing the value to transform
-     * and that will hold the result of the transform
-     * @return The [v] array passed as a parameter, containing the specified color
-     * transformed from the source space to the destination space
-     *
+     * @param v A non-null array of 3 floats containing the value to transform and that will hold
+     *   the result of the transform
+     * @return The [v] array passed as a parameter, containing the specified color transformed from
+     *   the source space to the destination space
      * @see transform
      */
     @Size(min = 3)
@@ -173,10 +157,9 @@ internal constructor(
         return transformDestination.xyzaToColor(x, y, z, a, destination)
     }
 
-    /**
-     * Optimized connector for RGB->RGB conversions.
-     */
-    internal class RgbConnector internal constructor(
+    /** Optimized connector for RGB->RGB conversions. */
+    internal class RgbConnector
+    internal constructor(
         private val mSource: Rgb,
         private val mDestination: Rgb,
         intent: RenderIntent
@@ -215,13 +198,11 @@ internal constructor(
         /**
          * Computes the color transform that connects two RGB color spaces.
          *
-         * We can only connect color spaces if they use the same profile
-         * connection space. We assume the connection space is always
-         * CIE XYZ but we maye need to perform a chromatic adaptation to
-         * match the white points. If an adaptation is needed, we use the
-         * CIE standard illuminant D50. The unmatched color space is adapted
-         * using the von Kries transform and the [Adaptation.Bradford]
-         * matrix.
+         * We can only connect color spaces if they use the same profile connection space. We assume
+         * the connection space is always CIE XYZ but we maye need to perform a chromatic adaptation
+         * to match the white points. If an adaptation is needed, we use the CIE standard illuminant
+         * D50. The unmatched color space is adapted using the von Kries transform and the
+         * [Adaptation.Bradford] matrix.
          *
          * @param source The source color space, cannot be null
          * @param destination The destination color space, cannot be null
@@ -245,37 +226,35 @@ internal constructor(
                 val dstXYZ = destination.whitePoint.toXyz()
 
                 if (!compare(source.whitePoint, Illuminant.D50)) {
-                    val srcAdaptation = chromaticAdaptation(
-                        Adaptation.Bradford.transform,
-                        srcXYZ,
-                        Illuminant.D50Xyz.copyOf()
-                    )
+                    val srcAdaptation =
+                        chromaticAdaptation(
+                            Adaptation.Bradford.transform,
+                            srcXYZ,
+                            Illuminant.D50Xyz.copyOf()
+                        )
                     transform = mul3x3(srcAdaptation, source.transform)
                 }
 
                 if (!compare(destination.whitePoint, Illuminant.D50)) {
-                    val dstAdaptation = chromaticAdaptation(
-                        Adaptation.Bradford.transform,
-                        dstXYZ,
-                        Illuminant.D50Xyz.copyOf()
-                    )
-                    inverseTransform = inverse3x3(
-                        mul3x3(
-                            dstAdaptation,
-                            destination.transform
+                    val dstAdaptation =
+                        chromaticAdaptation(
+                            Adaptation.Bradford.transform,
+                            dstXYZ,
+                            Illuminant.D50Xyz.copyOf()
                         )
-                    )
+                    inverseTransform = inverse3x3(mul3x3(dstAdaptation, destination.transform))
                 }
 
                 if (intent == RenderIntent.Absolute) {
-                    transform = mul3x3Diag(
-                        floatArrayOf(
-                            srcXYZ[0] / dstXYZ[0],
-                            srcXYZ[1] / dstXYZ[1],
-                            srcXYZ[2] / dstXYZ[2]
-                        ),
-                        transform
-                    )
+                    transform =
+                        mul3x3Diag(
+                            floatArrayOf(
+                                srcXYZ[0] / dstXYZ[0],
+                                srcXYZ[1] / dstXYZ[1],
+                                srcXYZ[2] / dstXYZ[2]
+                            ),
+                            transform
+                        )
                 }
 
                 return mul3x3(inverseTransform, transform)
@@ -285,8 +264,8 @@ internal constructor(
 
     internal companion object {
         /**
-         * Computes an extra transform to apply in XYZ space depending on the
-         * selected rendering intent.
+         * Computes an extra transform to apply in XYZ space depending on the selected rendering
+         * intent.
          */
         private fun computeTransform(
             source: ColorSpace,
@@ -319,7 +298,6 @@ internal constructor(
          *
          * @param source The source and destination color space
          * @return A non-null connector that does not perform any transform
-         *
          * @see ColorSpace.connect
          */
         internal fun identity(source: ColorSpace): Connector {
@@ -332,14 +310,15 @@ internal constructor(
     }
 }
 
-internal val Connectors = mutableIntObjectMapOf(
-    connectorKey(ColorSpaces.Srgb.id, ColorSpaces.Srgb.id, RenderIntent.Perceptual),
-    Connector.identity(ColorSpaces.Srgb),
-    connectorKey(ColorSpaces.Srgb.id, ColorSpaces.Oklab.id, RenderIntent.Perceptual),
-    Connector(ColorSpaces.Srgb, ColorSpaces.Oklab, RenderIntent.Perceptual),
-    connectorKey(ColorSpaces.Oklab.id, ColorSpaces.Srgb.id, RenderIntent.Perceptual),
-    Connector(ColorSpaces.Oklab, ColorSpaces.Srgb, RenderIntent.Perceptual)
-)
+internal val Connectors =
+    mutableIntObjectMapOf(
+        connectorKey(ColorSpaces.Srgb.id, ColorSpaces.Srgb.id, RenderIntent.Perceptual),
+        Connector.identity(ColorSpaces.Srgb),
+        connectorKey(ColorSpaces.Srgb.id, ColorSpaces.Oklab.id, RenderIntent.Perceptual),
+        Connector(ColorSpaces.Srgb, ColorSpaces.Oklab, RenderIntent.Perceptual),
+        connectorKey(ColorSpaces.Oklab.id, ColorSpaces.Srgb.id, RenderIntent.Perceptual),
+        Connector(ColorSpaces.Oklab, ColorSpaces.Srgb, RenderIntent.Perceptual)
+    )
 
 // See [ColorSpace.MaxId], the id is encoded on 6 bits
 @Suppress("NOTHING_TO_INLINE")

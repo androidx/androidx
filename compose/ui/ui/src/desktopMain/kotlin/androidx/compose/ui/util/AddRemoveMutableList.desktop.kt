@@ -17,8 +17,8 @@
 package androidx.compose.ui.util
 
 /**
- * Helper for implementing a wrapper around some collections
- * that has only `add` and `removeAt` methods.
+ * Helper for implementing a wrapper around some collections that has only `add` and `removeAt`
+ * methods.
  */
 internal abstract class AddRemoveMutableList<T> : AbstractMutableList<T>() {
     override fun set(index: Int, element: T): T {

@@ -22,9 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.util.fastAny
 
-/**
- * Detects pointer down and up events. This detector does not require events to be unconsumed.
- */
+/** Detects pointer down and up events. This detector does not require events to be unconsumed. */
 internal suspend fun PointerInputScope.detectPressDownGesture(
     onDown: TapOnPosition,
     onUp: (() -> Unit)? = null

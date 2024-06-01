@@ -19,8 +19,7 @@ package androidx.compose.ui.graphics
 import androidx.compose.runtime.Immutable
 
 /**
- * Determines the winding rule that decides how the interior of a [Path] is
- * calculated.
+ * Determines the winding rule that decides how the interior of a [Path] is calculated.
  *
  * This enum is used by the [Path.fillType] property.
  */
@@ -31,10 +30,10 @@ value class PathFillType internal constructor(@Suppress("unused") private val va
         /**
          * The interior is defined by a non-zero sum of signed edge crossings.
          *
-         * For a given point, the point is considered to be on the inside of the path
-         * if a line drawn from the point to infinity crosses lines going clockwise
-         * around the point a different number of times than it crosses lines going
-         * counter-clockwise around that point.
+         * For a given point, the point is considered to be on the inside of the path if a line
+         * drawn from the point to infinity crosses lines going clockwise around the point a
+         * different number of times than it crosses lines going counter-clockwise around that
+         * point.
          *
          * See: <https://en.wikipedia.org/wiki/Nonzero-rule>
          */
@@ -43,17 +42,18 @@ value class PathFillType internal constructor(@Suppress("unused") private val va
         /**
          * The interior is defined by an odd number of edge crossings.
          *
-         * For a given point, the point is considered to be on the inside of the path
-         * if a line drawn from the point to infinity crosses an odd number of lines.
+         * For a given point, the point is considered to be on the inside of the path if a line
+         * drawn from the point to infinity crosses an odd number of lines.
          *
          * See: <https://en.wikipedia.org/wiki/Even-odd_rule>
          */
         val EvenOdd = PathFillType(1)
     }
 
-    override fun toString() = when (this) {
-        NonZero -> "NonZero"
-        EvenOdd -> "EvenOdd"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            NonZero -> "NonZero"
+            EvenOdd -> "EvenOdd"
+            else -> "Unknown"
+        }
 }

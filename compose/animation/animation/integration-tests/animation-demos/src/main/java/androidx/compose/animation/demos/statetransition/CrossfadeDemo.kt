@@ -46,11 +46,7 @@ fun CrossfadeDemo() {
         Row {
             tabs.forEachIndexed { index, tab ->
                 Box(
-                    Modifier.pointerInput(Unit) {
-                        detectTapGestures {
-                            current = index
-                        }
-                    }
+                    Modifier.pointerInput(Unit) { detectTapGestures { current = index } }
                         .weight(1f, true)
                         .height(48.dp)
                         .background(tab.color)
@@ -69,11 +65,7 @@ fun CrossfadeDemo() {
     }
 }
 
-private val tabs = listOf(
-    Tab(Color(1f, 0f, 0f)),
-    Tab(Color(0f, 1f, 0f)),
-    Tab(Color(0f, 0f, 1f))
-)
+private val tabs = listOf(Tab(Color(1f, 0f, 0f)), Tab(Color(0f, 1f, 0f)), Tab(Color(0f, 0f, 1f)))
 
 private data class Tab(val color: Color) {
     var lastInt: Int = 0

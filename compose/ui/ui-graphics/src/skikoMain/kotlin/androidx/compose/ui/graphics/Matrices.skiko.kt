@@ -18,8 +18,4 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.Matrix33
 
-internal fun identityMatrix33() = Matrix33(
-    1f, 0f, 0f,
-    0f, 1f, 0f,
-    0f, 0f, 1f
-)
+internal fun identityMatrix33() = Matrix33(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f)

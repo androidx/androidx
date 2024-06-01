@@ -39,13 +39,14 @@ import androidx.compose.ui.graphics.Color
  * extremely common layouts. The parameters can be used to change the nature of the hierarchy (wide
  * vs deep, etc.) and stress different situations. The benchmark attempts to use different common
  * arrangements/alignments as well as child modifiers such as weight and alignBy.
+ *
  * @param useWeight If true, weight modifiers will be added to some children in the hierarchy
  * @param useAlign If true, align modifiers will be added to some children in the hierarchy
  * @param depth This is the depth of the resulting hierarchy. Be careful making this number too big
- *  as it will quickly increase the runtime of the benchmark.
+ *   as it will quickly increase the runtime of the benchmark.
  * @param breadth This is the number of direct children each row/column has at each level of the
- *  hierarchy. Be careful making this number too big as it will quickly increase the runtime of the
- *  benchmark.
+ *   hierarchy. Be careful making this number too big as it will quickly increase the runtime of the
+ *   benchmark.
  */
 class DeepRowColumnTestCase(
     private val useWeight: Boolean,
@@ -56,9 +57,7 @@ class DeepRowColumnTestCase(
 
     @Composable
     override fun MeasuredContent() {
-        Row {
-            DeepTree(useWeight, useAlign, depth, breadth)
-        }
+        Row { DeepTree(useWeight, useAlign, depth, breadth) }
     }
 }
 
@@ -69,70 +68,61 @@ val blackBackground = Modifier.background(color = Color.Black)
 @Composable
 @NonRestartableComposable
 private fun Terminal(style: Int, modifier: Modifier = Modifier) {
-    val background = when (style) {
-        0 -> blueBackground
-        1 -> blackBackground
-        else -> magentaBackground
+    val background =
+        when (style) {
+            0 -> blueBackground
+            1 -> blackBackground
+            else -> magentaBackground
+        }
+    Box(modifier = modifier.fillMaxSize().then(background))
+}
+
+private fun horizArrangementFor(id: Int) =
+    when (id % 2) {
+        0 -> Arrangement.Start
+        1 -> Arrangement.End
+        else -> Arrangement.Center
     }
-    Box(modifier = modifier
-        .fillMaxSize()
-        .then(background))
-}
 
-private fun horizArrangementFor(id: Int) = when (id % 2) {
-    0 -> Arrangement.Start
-    1 -> Arrangement.End
-    else -> Arrangement.Center
-}
+private fun vertArrangementFor(id: Int) =
+    when (id % 2) {
+        0 -> Arrangement.Top
+        1 -> Arrangement.Bottom
+        else -> Arrangement.Center
+    }
 
-private fun vertArrangementFor(id: Int) = when (id % 2) {
-    0 -> Arrangement.Top
-    1 -> Arrangement.Bottom
-    else -> Arrangement.Center
-}
+private fun vertAlignmentFor(id: Int) =
+    when (id % 2) {
+        0 -> Alignment.Top
+        1 -> Alignment.CenterVertically
+        else -> Alignment.Bottom
+    }
 
-private fun vertAlignmentFor(id: Int) = when (id % 2) {
-    0 -> Alignment.Top
-    1 -> Alignment.CenterVertically
-    else -> Alignment.Bottom
-}
-
-private fun horizAlignmentFor(id: Int) = when (id % 2) {
-    0 -> Alignment.Start
-    1 -> Alignment.CenterHorizontally
-    else -> Alignment.End
-}
+private fun horizAlignmentFor(id: Int) =
+    when (id % 2) {
+        0 -> Alignment.Start
+        1 -> Alignment.CenterHorizontally
+        else -> Alignment.End
+    }
 
 private fun ColumnScope.modifierFor(id: Int, useWeight: Boolean, useAlign: Boolean): Modifier {
-    return if (useWeight && id == 0)
-        Modifier.weight(0.5f, true)
-    else if (useAlign && id == 0)
-        Modifier.align(Alignment.CenterHorizontally)
-    else
-        Modifier.fillMaxWidth()
+    return if (useWeight && id == 0) Modifier.weight(0.5f, true)
+    else if (useAlign && id == 0) Modifier.align(Alignment.CenterHorizontally)
+    else Modifier.fillMaxWidth()
 }
 
 private fun ColumnScope.terminalModifierFor(id: Int, useWeight: Boolean): Modifier {
-    return if (useWeight && id == 0)
-        Modifier.weight(0.5f, true)
-    else
-        Modifier
+    return if (useWeight && id == 0) Modifier.weight(0.5f, true) else Modifier
 }
 
 private fun RowScope.modifierFor(id: Int, useWeight: Boolean, useAlign: Boolean): Modifier {
-    return if (useWeight && id == 0)
-        Modifier.weight(0.5f, true)
-    else if (useAlign && id == 0)
-        Modifier.align(Alignment.CenterVertically)
-    else
-        Modifier.fillMaxHeight()
+    return if (useWeight && id == 0) Modifier.weight(0.5f, true)
+    else if (useAlign && id == 0) Modifier.align(Alignment.CenterVertically)
+    else Modifier.fillMaxHeight()
 }
 
 private fun RowScope.terminalModifierFor(id: Int, useWeight: Boolean): Modifier {
-    return if (useWeight && id == 0)
-        Modifier.weight(0.5f, true)
-    else
-        Modifier
+    return if (useWeight && id == 0) Modifier.weight(0.5f, true) else Modifier
 }
 
 @Composable
@@ -155,9 +145,7 @@ private fun ColumnScope.DeepTree(
                 modifier = terminalModifierFor(id, useWeight),
             )
         } else {
-            repeat(breadth) {
-                DeepTree(useWeight, useAlign, depth - 1, breadth, it)
-            }
+            repeat(breadth) { DeepTree(useWeight, useAlign, depth - 1, breadth, it) }
         }
     }
 }
@@ -182,9 +170,7 @@ private fun RowScope.DeepTree(
                 modifier = terminalModifierFor(id, useWeight),
             )
         } else {
-            repeat(breadth) {
-                DeepTree(useWeight, useAlign, depth - 1, breadth, it)
-            }
+            repeat(breadth) { DeepTree(useWeight, useAlign, depth - 1, breadth, it) }
         }
     }
 }

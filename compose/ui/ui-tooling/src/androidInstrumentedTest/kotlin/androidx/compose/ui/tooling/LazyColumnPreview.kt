@@ -28,15 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun SimpleLazyComposablePreview() {
-    Surface(color = Color.Red) {
-        LazyColumn {
-            repeat(3) {
-                item {
-                    Text("Hello world")
-                }
-            }
-        }
-    }
+    Surface(color = Color.Red) { LazyColumn { repeat(3) { item { Text("Hello world") } } } }
 }
 
 @Preview
@@ -47,15 +39,7 @@ fun ComplexLazyComposablePreview() {
             repeat(1) {
                 item {
                     Text("Hello world")
-                    LazyRow {
-                        repeat(2) {
-                            item {
-                                Button(onClick = {}) {
-                                    Text("H$it")
-                                }
-                            }
-                        }
-                    }
+                    LazyRow { repeat(2) { item { Button(onClick = {}) { Text("H$it") } } } }
                 }
             }
         }
@@ -65,9 +49,5 @@ fun ComplexLazyComposablePreview() {
 @Preview
 @Composable
 fun SimpleTestComposablePreview() {
-    Surface(color = Color.Red) {
-            repeat(3) {
-                    Text("Hello world")
-            }
-    }
+    Surface(color = Color.Red) { repeat(3) { Text("Hello world") } }
 }

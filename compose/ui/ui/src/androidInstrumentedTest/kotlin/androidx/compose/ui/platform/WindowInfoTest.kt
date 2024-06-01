@@ -41,6 +41,7 @@ class WindowInfoTest {
 
     class TestFragment : Fragment() {
         var isWindowFocused: Boolean? = null
+
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -48,13 +49,15 @@ class WindowInfoTest {
         ): View? {
             return container?.let {
                 ComposeView(container.context).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
+                    layoutParams =
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
                 }
             }
         }
+
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             (view as ComposeView).setContent {
                 isWindowFocused = LocalWindowInfo.current.isWindowFocused

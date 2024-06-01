@@ -68,33 +68,23 @@ import kotlin.math.roundToLong
 fun PeriodicMonoSplineDemo() {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
     ) {
         MonoSplineCurve(
             periodicBias = Float.NaN,
-            modifier = Modifier
-                .height(300.dp)
-                .background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray)
         )
         MonoSplineCurve(
             periodicBias = 0f,
-            modifier = Modifier
-                .height(300.dp)
-                .background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray)
         )
         MonoSplineCurve(
             periodicBias = 0.5f,
-            modifier = Modifier
-                .height(300.dp)
-                .background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray)
         )
         MonoSplineCurve(
             periodicBias = 1f,
-            modifier = Modifier
-                .height(300.dp)
-                .background(Color.LightGray)
+            modifier = Modifier.height(300.dp).background(Color.LightGray)
         )
     }
 }
@@ -112,10 +102,7 @@ private val padding = 40.dp
 private val indicatorSize = 4.dp
 
 @Composable
-private fun MonoSplineCurve(
-    periodicBias: Float,
-    modifier: Modifier = Modifier
-) {
+private fun MonoSplineCurve(periodicBias: Float, modifier: Modifier = Modifier) {
     val sampleSize = 1_000
     val density = LocalDensity.current
     val keyframesSpec = remember(periodicBias) { periodicKeyframes(periodicBias) }
@@ -124,45 +111,41 @@ private fun MonoSplineCurve(
     var isDraw by remember { mutableStateOf(false) }
 
     val infiniteAnimation = rememberInfiniteTransition()
-    val animatedValue = infiniteAnimation.animateValue(
-        initialValue = Offset.Zero,
-        targetValue = Offset(1f, 0f),
-        typeConverter = Offset.VectorConverter,
-        animationSpec = InfiniteRepeatableSpec(
-            animation = keyframesSpec,
-            repeatMode = RepeatMode.Restart
+    val animatedValue =
+        infiniteAnimation.animateValue(
+            initialValue = Offset.Zero,
+            targetValue = Offset(1f, 0f),
+            typeConverter = Offset.VectorConverter,
+            animationSpec =
+                InfiniteRepeatableSpec(animation = keyframesSpec, repeatMode = RepeatMode.Restart)
         )
-    )
 
-    val text = remember(periodicBias) {
-        if (periodicBias.isNaN()) {
-            "Normal Monotonic Spline"
-        } else {
-            "Periodic with bias: $periodicBias"
+    val text =
+        remember(periodicBias) {
+            if (periodicBias.isNaN()) {
+                "Normal Monotonic Spline"
+            } else {
+                "Periodic with bias: $periodicBias"
+            }
         }
-    }
 
     val indicatorSizePx = with(density) { indicatorSize.toPx() }
-    val indicatorPath = remember(indicatorSizePx) {
-        Path().apply {
-            moveTo(0f, -indicatorSizePx)
-            lineTo(indicatorSizePx, 0f)
-            lineTo(0f, indicatorSizePx)
-            lineTo(-indicatorSizePx, 0f)
-            close()
+    val indicatorPath =
+        remember(indicatorSizePx) {
+            Path().apply {
+                moveTo(0f, -indicatorSizePx)
+                lineTo(indicatorSizePx, 0f)
+                lineTo(0f, indicatorSizePx)
+                lineTo(-indicatorSizePx, 0f)
+                close()
+            }
         }
-    }
 
     Row(modifier) {
-        Box(
-            Modifier
-                .fillMaxHeight()
-                .weight(1f, true)
-        ) {
+        Box(Modifier.fillMaxHeight().weight(1f, true)) {
             Text(text = text)
             Box(
-                Modifier
-                    .fillMaxSize()
+                Modifier.fillMaxSize()
                     .padding(padding)
                     .drawWithCache {
                         if (isDraw) {
@@ -192,33 +175,23 @@ private fun MonoSplineCurve(
                         scale(1f, -1f) {
                             val currValue = animatedValue.value
                             translate(size.width * currValue.x, size.height * currValue.y) {
-                                drawPath(
-                                    path = indicatorPath,
-                                    color = Color.Red,
-                                    style = Fill
-                                )
+                                drawPath(path = indicatorPath, color = Color.Red, style = Fill)
                             }
                         }
                     }
             )
         }
         Box(
-            Modifier
-                .fillMaxHeight()
-                .width(40.dp)
-                .padding(vertical = padding)
-                .drawBehind {
-                    scale(1f, -1f) {
-                        drawCircle(
-                            color = Color.Red,
-                            radius = size.width * 0.5f,
-                            center = Offset(
-                                x = size.width * 0.5f,
-                                y = size.height * animatedValue.value.y
-                            )
-                        )
-                    }
+            Modifier.fillMaxHeight().width(40.dp).padding(vertical = padding).drawBehind {
+                scale(1f, -1f) {
+                    drawCircle(
+                        color = Color.Red,
+                        radius = size.width * 0.5f,
+                        center =
+                            Offset(x = size.width * 0.5f, y = size.height * animatedValue.value.y)
+                    )
                 }
+            }
         )
     }
 
@@ -229,12 +202,13 @@ private fun MonoSplineCurve(
         val step = vectorized.durationMillis.toFloat() / sampleSize
         var count = 0
         while (count < sampleSize) {
-            val vectorValue = vectorized.getValueFromNanos(
-                playTimeNanos = timeMillis.roundToLong() * 1_000_000,
-                initialValue = zeroVector,
-                targetValue = zeroVector,
-                initialVelocity = zeroVector
-            )
+            val vectorValue =
+                vectorized.getValueFromNanos(
+                    playTimeNanos = timeMillis.roundToLong() * 1_000_000,
+                    initialValue = zeroVector,
+                    targetValue = zeroVector,
+                    initialVelocity = zeroVector
+                )
             points[count] = vectorValue.v2
             timeMillis += step
             count++

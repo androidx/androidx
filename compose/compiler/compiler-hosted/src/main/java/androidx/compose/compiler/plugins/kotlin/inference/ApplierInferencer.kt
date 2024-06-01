@@ -16,34 +16,26 @@
 
 package androidx.compose.compiler.plugins.kotlin.inference
 
-/**
- * An adapter that allows [ApplierInferencer] to determine the declared scheme for a type.
- */
+/** An adapter that allows [ApplierInferencer] to determine the declared scheme for a type. */
 interface TypeAdapter<Type> {
-    /**
-     * Given a type, return the declared scheme for the type.
-     */
+    /** Given a type, return the declared scheme for the type. */
     fun declaredSchemaOf(type: Type): Scheme
 
     /**
-     * Given a type, return the last updated scheme. This is used to reduce the number of times
-     * that [updatedInferredScheme] is called. Returning `null` will prevent
-     * [updatedInferredScheme] from being called at all (for example, from the front-end which
-     * ignores updates). If not caching to prevent [updatedInferredScheme] from being called too
-     * often, return [declaredSchemaOf] instead. This will then call [updatedInferredScheme]
-     * whenever it is different from what was declared.
+     * Given a type, return the last updated scheme. This is used to reduce the number of times that
+     * [updatedInferredScheme] is called. Returning `null` will prevent [updatedInferredScheme] from
+     * being called at all (for example, from the front-end which ignores updates). If not caching
+     * to prevent [updatedInferredScheme] from being called too often, return [declaredSchemaOf]
+     * instead. This will then call [updatedInferredScheme] whenever it is different from what was
+     * declared.
      */
     fun currentInferredSchemeOf(type: Type): Scheme?
 
-    /**
-     * Called when the inferencer determines
-     */
+    /** Called when the inferencer determines */
     fun updatedInferredScheme(type: Type, scheme: Scheme)
 }
 
-/**
- * The kind of node tells the inferencer how treat the node.
- */
+/** The kind of node tells the inferencer how treat the node. */
 enum class NodeKind {
     // The node is a function declaration
     Function,
@@ -61,9 +53,7 @@ enum class NodeKind {
     Expression,
 }
 
-/**
- * An adapter that allows getting information about a node.
- */
+/** An adapter that allows getting information about a node. */
 interface NodeAdapter<Type, Node> {
     /**
      * Return the container of the node. A container is the function or lambda the node is part of.
@@ -76,8 +66,8 @@ interface NodeAdapter<Type, Node> {
     fun kindOf(node: Node): NodeKind
 
     /**
-     * Return which parameter index this parameter references. The [node] passed in will only be
-     * one for [kindOf] returns [NodeKind.ParameterReference].
+     * Return which parameter index this parameter references. The [node] passed in will only be one
+     * for [kindOf] returns [NodeKind.ParameterReference].
      *
      * For parameter nodes the inferencer needs to determine which parameter of the scheme of the
      * node is being referenced to allow the scheme determined for the usage of the parameter to
@@ -99,41 +89,34 @@ interface NodeAdapter<Type, Node> {
 }
 
 /**
- * An adapter that can be used to adjust where temporary information about function types are stored.
+ * An adapter that can be used to adjust where temporary information about function types are
+ * stored.
  */
 interface LazySchemeStorage<Node> {
-    /**
-     * Retrieve a lazy scheme from the store (such as a mutableMapOf<Node, LazyScheme>().
-     */
+    /** Retrieve a lazy scheme from the store (such as a mutableMapOf<Node, LazyScheme>(). */
     fun getLazyScheme(node: Node): LazyScheme?
 
-    /**
-     * Store the lazy scheme [value] for [node].
-     */
+    /** Store the lazy scheme [value] for [node]. */
     fun storeLazyScheme(node: Node, value: LazyScheme)
 }
 
 private inline fun <Node> LazySchemeStorage<Node>.getOrPut(
     node: Node,
     value: () -> LazyScheme
-): LazyScheme = getLazyScheme(node) ?: run {
-    val result = value()
-    storeLazyScheme(node, result)
-    result
-}
+): LazyScheme =
+    getLazyScheme(node)
+        ?: run {
+            val result = value()
+            storeLazyScheme(node, result)
+            result
+        }
 
-/**
- * An adapter that is used to report errors detected during applier inference.
- */
+/** An adapter that is used to report errors detected during applier inference. */
 interface ErrorReporter<Node> {
-    /**
-     * Report a call node applier is not correct.
-     */
+    /** Report a call node applier is not correct. */
     fun reportCallError(node: Node, expected: String, received: String)
 
-    /**
-     * Report that the value or lambda passed to a parameter to a call was not correct.
-     */
+    /** Report that the value or lambda passed to a parameter to a call was not correct. */
     fun reportParameterError(node: Node, index: Int, expected: String, received: String)
 
     /**
@@ -145,20 +128,20 @@ interface ErrorReporter<Node> {
 }
 
 /**
- * The applier inference. This class can infer the token of the applier from the information
- * passed to [visitCall] and [visitVariable] given the adapters provided in the constructor.
+ * The applier inference. This class can infer the token of the applier from the information passed
+ * to [visitCall] and [visitVariable] given the adapters provided in the constructor.
  *
  * The inferencer uses [unification][https://en.wikipedia.org/wiki/Unification_(computer_science)]
  * to infer the applier token similar to how type inference uses unification to infer types in a
  * functional programming language (e.g. ML or Haskell).
  *
  * Only calls and variables are required as operators and property references can be treated as
- * calls (as Kotlin does). Control flow (other than the functions and calls themselves) are not
- * used to determine the applier as the applier can only be supplied as a parameter to a call and
- * cannot be influenced by control-flow other than a call. The inferencer does not need to be
- * informed about control-flow directly, just the informed of the variables and calls they
- * contain. If necessary, even control flow can be reduced to function calls (such as is done in
- * lambda calculus) but, this is not necessary for Kotlin.
+ * calls (as Kotlin does). Control flow (other than the functions and calls themselves) are not used
+ * to determine the applier as the applier can only be supplied as a parameter to a call and cannot
+ * be influenced by control-flow other than a call. The inferencer does not need to be informed
+ * about control-flow directly, just the informed of the variables and calls they contain. If
+ * necessary, even control flow can be reduced to function calls (such as is done in lambda
+ * calculus) but, this is not necessary for Kotlin.
  *
  * [ApplierInferencer] is open to allow it to infer appliers using either the front-end AST or
  * back-end IR nodes as well as allows for easier testing and debugging of the itself algorithm
@@ -221,15 +204,16 @@ class ApplierInferencer<Type, Node>(
         )
 
     // Produce a token that can be used in error messages.
-    private val Binding.safeToken: String get() = token ?: "unbound"
+    private val Binding.safeToken: String
+        get() = token ?: "unbound"
 
     /**
      * Perform structural unification of two call bindings. All bindings that are in the same
      * structural place must unify or there is an error in the source. That is the targets are
-     * unified and the parameter call bindings are unified recursively as well as the call
-     * binding of the result. If [call] is `null` then the error is reported by the caller
-     * instead. For example, failing to unify the parameters of a call binding should be
-     * considered a failure to unify the entire binding not just the parameter.
+     * unified and the parameter call bindings are unified recursively as well as the call binding
+     * of the result. If [call] is `null` then the error is reported by the caller instead. For
+     * example, failing to unify the parameters of a call binding should be considered a failure to
+     * unify the entire binding not just the parameter.
      */
     private fun Bindings.unify(call: Node?, a: CallBindings, b: CallBindings): Boolean {
         if (!unify(a.target, b.target)) {
@@ -241,11 +225,11 @@ class ApplierInferencer<Type, Node>(
             return false
         }
 
-        val count = if (a.parameters.size != b.parameters.size) {
-            if (call != null)
-                errorReporter.log(call, "Type disagreement $a <=> $b")
-            if (a.parameters.size > b.parameters.size) b.parameters.size else a.parameters.size
-        } else a.parameters.size
+        val count =
+            if (a.parameters.size != b.parameters.size) {
+                if (call != null) errorReporter.log(call, "Type disagreement $a <=> $b")
+                if (a.parameters.size > b.parameters.size) b.parameters.size else a.parameters.size
+            } else a.parameters.size
 
         for (i in 0 until count) {
             val ap = a.parameters[i]
@@ -278,17 +262,13 @@ class ApplierInferencer<Type, Node>(
     }
 
     /**
-     * Restart [block] if a [LazyScheme] used to produce a [CallBindings] changes. This also
-     * informs the [TypeAdapter] when the inferencer infers a refinement of the scheme for the type
-     * of the container of [node].
+     * Restart [block] if a [LazyScheme] used to produce a [CallBindings] changes. This also informs
+     * the [TypeAdapter] when the inferencer infers a refinement of the scheme for the type of the
+     * container of [node].
      */
     private fun restartable(
         node: Node,
-        block: (
-            Bindings,
-            Binding,
-            (Node) -> CallBindings?
-        ) -> Unit
+        block: (Bindings, Binding, (Node) -> CallBindings?) -> Unit
     ): Boolean {
         if (node in inProgress) return false
         inProgress.add(node)
@@ -300,7 +280,7 @@ class ApplierInferencer<Type, Node>(
                 if (lazyScheme.bindings != bindings && !lazyScheme.closed) {
                     // This scheme might change as more calls are processed so observe the changes
                     // that could cause this call's result to change
-                    var remove = { }
+                    var remove = {}
                     val result: () -> Unit = {
                         if (node !in inProgress) {
                             remove()
@@ -313,8 +293,7 @@ class ApplierInferencer<Type, Node>(
                 return lazyScheme
             }
 
-            fun schemeOf(node: Node): Scheme =
-                observed(node.toLazyScheme()).toScheme()
+            fun schemeOf(node: Node): Scheme = observed(node.toLazyScheme()).toScheme()
 
             fun callBindingsOf(node: Node): CallBindings? {
                 return when (nodeAdapter.kindOf(node)) {
@@ -327,15 +306,16 @@ class ApplierInferencer<Type, Node>(
                             nodeAdapter.schemeParameterIndexOf(node, parameterContainer)
                         if (
                             parameterContainerScheme !in
-                            parameterContainerLazyScheme.parameters.indices
+                                parameterContainerLazyScheme.parameters.indices
                         ) {
                             return null
                         }
-                        parameterContainerLazyScheme
-                            .parameters[parameterContainerScheme]
+                        parameterContainerLazyScheme.parameters[parameterContainerScheme]
                             .toCallBindings()
                     }
-                    NodeKind.Lambda, NodeKind.Variable, NodeKind.Expression ->
+                    NodeKind.Lambda,
+                    NodeKind.Variable,
+                    NodeKind.Expression ->
                         // Lambdas, variables and expression all bind in the current
                         // binding context. That is, all uses of these nodes must agree on
                         // a token scheme.
@@ -370,9 +350,7 @@ class ApplierInferencer<Type, Node>(
         return true
     }
 
-    /**
-     * Infer the scheme of the variable from the scheme of the initializer.
-     */
+    /** Infer the scheme of the variable from the scheme of the initializer. */
     fun visitVariable(variable: Node, initializer: Node) =
         restartable(variable) { bindings, _, callBindingsOf ->
             val initializerBinding = callBindingsOf(initializer) ?: return@restartable
@@ -390,10 +368,12 @@ class ApplierInferencer<Type, Node>(
     fun visitCall(call: Node, target: Node, arguments: List<Node>) =
         restartable(call) { bindings, currentApplier, callBindingsOf ->
             // Produce the call bindings implied by the target of the call.
-            val targetCallBindings = callBindingsOf(target) ?: run {
-                errorReporter.log(call, "Cannot find target")
-                return@restartable
-            }
+            val targetCallBindings =
+                callBindingsOf(target)
+                    ?: run {
+                        errorReporter.log(call, "Cannot find target")
+                        return@restartable
+                    }
 
             // Produce the call bindings implied by the call and its arguments
             val parameters = arguments.map { callBindingsOf(it) }
@@ -402,16 +382,18 @@ class ApplierInferencer<Type, Node>(
                 return@restartable
             }
 
-            val result = if (targetCallBindings.result != null) {
-                callBindingsOf(call)
-            } else null
+            val result =
+                if (targetCallBindings.result != null) {
+                    callBindingsOf(call)
+                } else null
 
-            val callBinding = CallBindings(
-                currentApplier,
-                parameters = parameters.filterNotNull(),
-                result,
-                anyParameters = false
-            )
+            val callBinding =
+                CallBindings(
+                    currentApplier,
+                    parameters = parameters.filterNotNull(),
+                    result,
+                    anyParameters = false
+                )
 
             // Unify the call bindings. They should unify to the same bindings or there is an
             // error in the source.
@@ -438,7 +420,7 @@ class ApplierInferencer<Type, Node>(
             for ((parameterBinding, argument) in callBinding.parameters.zip(arguments)) {
                 if (
                     nodeAdapter.kindOf(argument) == NodeKind.Lambda &&
-                    parameterBinding.target.token != null
+                        parameterBinding.target.token != null
                 ) {
                     val lambdaScheme = argument.toLazyScheme()
                     if (lambdaScheme.target.token == null) {
@@ -448,8 +430,6 @@ class ApplierInferencer<Type, Node>(
             }
         }
 
-    /**
-     * For testing, produce the scheme inferred or the scheme from the declaration.
-     */
+    /** For testing, produce the scheme inferred or the scheme from the declaration. */
     fun toFinalScheme(node: Node) = node.toLazyScheme().toScheme()
 }

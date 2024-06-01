@@ -20,9 +20,7 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.IrClass
 
-/**
- * Used with K1 only.
- */
+/** Used with K1 only. */
 class ClassStabilityInferredCollection {
 
     private val classesToValues = mutableMapOf<ClassDescriptor, Int>()

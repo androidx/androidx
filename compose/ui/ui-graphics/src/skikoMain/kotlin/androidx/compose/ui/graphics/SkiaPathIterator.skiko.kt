@@ -144,48 +144,65 @@ class SkikoPathIterator(
         requireNotNull(segment)
 
         return when (segment.verb) {
-            PathVerb.MOVE -> PathSegment(
-                PathSegment.Type.Move,
-                floatArrayOf(segment.p0!!.x, segment.p0!!.y),
-                0.0f
-            )
-            PathVerb.LINE -> PathSegment(
-                PathSegment.Type.Line,
-                floatArrayOf(
-                    segment.p0!!.x, segment.p0!!.y,
-                    segment.p1!!.x, segment.p1!!.y,
-                ),
-                0.0f
-            )
-            PathVerb.QUAD -> PathSegment(
-                PathSegment.Type.Quadratic,
-                floatArrayOf(
-                    segment.p0!!.x, segment.p0!!.y,
-                    segment.p1!!.x, segment.p1!!.y,
-                    segment.p2!!.x, segment.p2!!.y,
-                ),
-                0.0f
-            )
+            PathVerb.MOVE ->
+                PathSegment(
+                    PathSegment.Type.Move,
+                    floatArrayOf(segment.p0!!.x, segment.p0!!.y),
+                    0.0f
+                )
+            PathVerb.LINE ->
+                PathSegment(
+                    PathSegment.Type.Line,
+                    floatArrayOf(
+                        segment.p0!!.x,
+                        segment.p0!!.y,
+                        segment.p1!!.x,
+                        segment.p1!!.y,
+                    ),
+                    0.0f
+                )
+            PathVerb.QUAD ->
+                PathSegment(
+                    PathSegment.Type.Quadratic,
+                    floatArrayOf(
+                        segment.p0!!.x,
+                        segment.p0!!.y,
+                        segment.p1!!.x,
+                        segment.p1!!.y,
+                        segment.p2!!.x,
+                        segment.p2!!.y,
+                    ),
+                    0.0f
+                )
             // TODO: convert conics to quadratics when conicEvaluation is set to AsQuadratics
-            PathVerb.CONIC -> PathSegment(
-                PathSegment.Type.Quadratic,
-                floatArrayOf(
-                    segment.p0!!.x, segment.p0!!.y,
-                    segment.p1!!.x, segment.p1!!.y,
-                    segment.p2!!.x, segment.p2!!.y,
-                ),
-                segment.conicWeight
-            )
-            PathVerb.CUBIC -> PathSegment(
-                PathSegment.Type.Cubic,
-                floatArrayOf(
-                    segment.p0!!.x, segment.p0!!.y,
-                    segment.p1!!.x, segment.p1!!.y,
-                    segment.p2!!.x, segment.p2!!.y,
-                    segment.p3!!.x, segment.p3!!.y
-                ),
-                0.0f
-            )
+            PathVerb.CONIC ->
+                PathSegment(
+                    PathSegment.Type.Quadratic,
+                    floatArrayOf(
+                        segment.p0!!.x,
+                        segment.p0!!.y,
+                        segment.p1!!.x,
+                        segment.p1!!.y,
+                        segment.p2!!.x,
+                        segment.p2!!.y,
+                    ),
+                    segment.conicWeight
+                )
+            PathVerb.CUBIC ->
+                PathSegment(
+                    PathSegment.Type.Cubic,
+                    floatArrayOf(
+                        segment.p0!!.x,
+                        segment.p0!!.y,
+                        segment.p1!!.x,
+                        segment.p1!!.y,
+                        segment.p2!!.x,
+                        segment.p2!!.y,
+                        segment.p3!!.x,
+                        segment.p3!!.y
+                    ),
+                    0.0f
+                )
             PathVerb.CLOSE -> CloseSegment
             PathVerb.DONE -> DoneSegment
         }

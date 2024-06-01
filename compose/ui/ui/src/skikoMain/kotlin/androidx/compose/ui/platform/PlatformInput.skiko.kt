@@ -26,5 +26,4 @@ internal expect interface PlatformInputComponent {
     ): Nothing
 }
 
-internal expect class PlatformInput(component: PlatformComponent) :
-    PlatformTextInputService
+internal expect class PlatformInput(component: PlatformComponent) : PlatformTextInputService

@@ -22,12 +22,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * A boolean open or closed latch for awaiting a single repeating event, like pending
- * recompositions. Closing while already closed or opening while already open is a no-op;
- * only one event producer should be responsible for opening or closing the latch.
+ * recompositions. Closing while already closed or opening while already open is a no-op; only one
+ * event producer should be responsible for opening or closing the latch.
  *
- * This implementation is intended for low-contention environments involving
- * low total numbers of threads in a pool on the order of ~number of CPU cores available for UI
- * recomposition work, while avoiding additional allocation where possible.
+ * This implementation is intended for low-contention environments involving low total numbers of
+ * threads in a pool on the order of ~number of CPU cores available for UI recomposition work, while
+ * avoiding additional allocation where possible.
  */
 internal class Latch {
 
@@ -36,7 +36,8 @@ internal class Latch {
     private var spareList = mutableListOf<Continuation<Unit>>()
 
     private var _isOpen = true
-    val isOpen get() = synchronized(lock) { _isOpen }
+    val isOpen
+        get() = synchronized(lock) { _isOpen }
 
     inline fun <R> withClosed(block: () -> R): R {
         closeLatch()
@@ -48,9 +49,7 @@ internal class Latch {
     }
 
     fun closeLatch() {
-        synchronized(lock) {
-            _isOpen = false
-        }
+        synchronized(lock) { _isOpen = false }
     }
 
     fun openLatch() {
@@ -76,15 +75,9 @@ internal class Latch {
         if (isOpen) return
 
         suspendCancellableCoroutine<Unit> { co ->
-            synchronized(lock) {
-                awaiters.add(co)
-            }
+            synchronized(lock) { awaiters.add(co) }
 
-            co.invokeOnCancellation {
-                synchronized(lock) {
-                    awaiters.remove(co)
-                }
-            }
+            co.invokeOnCancellation { synchronized(lock) { awaiters.remove(co) } }
         }
     }
 }

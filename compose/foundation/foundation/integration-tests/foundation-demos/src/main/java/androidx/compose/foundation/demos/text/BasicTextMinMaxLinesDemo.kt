@@ -54,13 +54,12 @@ fun BasicTextMinMaxLinesDemo() {
 
         TagLine("maxLines < line count with different line heights")
         TextWithMinMaxLines(
-            text = buildAnnotatedString {
-                append("Line 1\n")
-                withStyle(SpanStyle(fontSize = fontSize8)) {
-                    append("Line 2\n")
-                }
-                append("Line 3")
-            },
+            text =
+                buildAnnotatedString {
+                    append("Line 1\n")
+                    withStyle(SpanStyle(fontSize = fontSize8)) { append("Line 2\n") }
+                    append("Line 3")
+                },
             maxLines = 2
         )
 
@@ -73,10 +72,7 @@ fun BasicTextMinMaxLinesDemo() {
         TagLine("minLines > line count")
         var sameLineHeightsHasExtraLine by remember { mutableStateOf(false) }
         val extraLine = if (sameLineHeightsHasExtraLine) "\nLine 4" else ""
-        TextWithMinMaxLines(
-            text = "Line 1\nLine 2\nLine 3$extraLine",
-            minLines = 4
-        )
+        TextWithMinMaxLines(text = "Line 1\nLine 2\nLine 3$extraLine", minLines = 4)
         Button(onClick = { sameLineHeightsHasExtraLine = !sameLineHeightsHasExtraLine }) {
             Text(text = "Toggle last line")
         }
@@ -84,14 +80,13 @@ fun BasicTextMinMaxLinesDemo() {
         TagLine("minLines > line count with different line heights")
         var diffLineHeightsHasExtraLine by remember { mutableStateOf(false) }
         TextWithMinMaxLines(
-            text = buildAnnotatedString {
-                append("Line 1\n")
-                withStyle(SpanStyle(fontSize = fontSize6)) {
-                    append("Line 2\n")
-                }
-                append("Line 3")
-                if (diffLineHeightsHasExtraLine) append("\nLine 4")
-            },
+            text =
+                buildAnnotatedString {
+                    append("Line 1\n")
+                    withStyle(SpanStyle(fontSize = fontSize6)) { append("Line 2\n") }
+                    append("Line 3")
+                    if (diffLineHeightsHasExtraLine) append("\nLine 4")
+                },
             minLines = 4
         )
         Button(onClick = { diffLineHeightsHasExtraLine = !diffLineHeightsHasExtraLine }) {
@@ -99,11 +94,7 @@ fun BasicTextMinMaxLinesDemo() {
         }
 
         TagLine("minLines < maxLines")
-        TextWithMinMaxLines(
-            "Line 1\nLine 2\nLine 3\nLine 4",
-            minLines = 2,
-            maxLines = 3
-        )
+        TextWithMinMaxLines("Line 1\nLine 2\nLine 3\nLine 4", minLines = 2, maxLines = 3)
     }
 }
 
@@ -116,9 +107,7 @@ private fun TextWithMinMaxLines(
 ) {
     BasicText(
         text = text,
-        modifier = Modifier
-            .border(1.dp, Color.Gray)
-            .padding(2.dp),
+        modifier = Modifier.border(1.dp, Color.Gray).padding(2.dp),
         maxLines = maxLines,
         minLines = minLines
     )
@@ -130,9 +119,5 @@ private fun TextWithMinMaxLines(
     minLines: Int = 1,
     maxLines: Int = Int.MAX_VALUE
 ) {
-    TextWithMinMaxLines(
-        text = AnnotatedString(text),
-        minLines = minLines,
-        maxLines = maxLines
-    )
+    TextWithMinMaxLines(text = AnnotatedString(text), minLines = minLines, maxLines = maxLines)
 }

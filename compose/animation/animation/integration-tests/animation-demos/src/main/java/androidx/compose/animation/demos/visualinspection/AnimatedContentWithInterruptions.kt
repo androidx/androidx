@@ -48,28 +48,24 @@ import kotlinx.coroutines.delay
 @Composable
 fun AnimatedContentWithInterruptions() {
     var count by remember { mutableIntStateOf(0) }
-    AnimatedContent(targetState = count, transitionSpec = {
-        if (targetState == 0) {
-            (slideInVertically { it } togetherWith fadeOut(targetAlpha = 0.88f))
-                .apply { targetContentZIndex = 1f }
-        } else {
-            (fadeIn(initialAlpha = 0.88f) togetherWith slideOutVertically { it } +
-                fadeOut(targetAlpha = 0.88f))
-                .apply { targetContentZIndex = -1f }
+    AnimatedContent(
+        targetState = count,
+        transitionSpec = {
+            if (targetState == 0) {
+                (slideInVertically { it } togetherWith fadeOut(targetAlpha = 0.88f)).apply {
+                    targetContentZIndex = 1f
+                }
+            } else {
+                (fadeIn(initialAlpha = 0.88f) togetherWith
+                        slideOutVertically { it } + fadeOut(targetAlpha = 0.88f))
+                    .apply { targetContentZIndex = -1f }
+            }
         }
-    }) { state ->
+    ) { state ->
         if (state == 0) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Green)
-            )
+            Box(modifier = Modifier.fillMaxSize().background(Color.Green))
         } else if (state == 1) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Red)
-            )
+            Box(modifier = Modifier.fillMaxSize().background(Color.Red))
         }
     }
     LaunchedEffect(Unit) {
@@ -80,14 +76,8 @@ fun AnimatedContentWithInterruptions() {
     }
 
     Row {
-        Text("Red",
-            Modifier
-                .clickable { if (count < 1) count++ }
-                .padding(50.dp))
+        Text("Red", Modifier.clickable { if (count < 1) count++ }.padding(50.dp))
         Spacer(Modifier.width(60.dp))
-        Text("Green",
-            Modifier
-                .clickable { if (count > 0) count-- }
-                .padding(50.dp))
+        Text("Green", Modifier.clickable { if (count > 0) count-- }.padding(50.dp))
     }
 }

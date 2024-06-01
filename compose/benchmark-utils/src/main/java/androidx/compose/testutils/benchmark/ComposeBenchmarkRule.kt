@@ -35,11 +35,10 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/**
- * Rule to be used to run Compose / Android benchmarks.
- */
+/** Rule to be used to run Compose / Android benchmarks. */
 @OptIn(ExperimentalBenchmarkConfigApi::class)
-class ComposeBenchmarkRule internal constructor(
+class ComposeBenchmarkRule
+internal constructor(
     // this is a hack to avoid exposing the config param to all callers,
     // can change to optional when MicrobenchmarkConfig is non-experimental
     internalConfig: MicrobenchmarkConfig? = null,
@@ -58,18 +57,16 @@ class ComposeBenchmarkRule internal constructor(
 
     // We don't use the config default constructor as a default, as it overrides values from
     // instrumentation args, which may be surprising
-    val benchmarkRule = if (internalConfig == null) {
-        BenchmarkRule()
-    } else {
-        BenchmarkRule(internalConfig)
-    }
+    val benchmarkRule =
+        if (internalConfig == null) {
+            BenchmarkRule()
+        } else {
+            BenchmarkRule(internalConfig)
+        }
 
     override fun apply(base: Statement, description: Description?): Statement {
         @OptIn(InternalTestApi::class)
-        return RuleChain
-            .outerRule(benchmarkRule)
-            .around(activityTestRule)
-            .apply(base, description)
+        return RuleChain.outerRule(benchmarkRule).around(activityTestRule).apply(base, description)
     }
 
     /**
@@ -83,8 +80,7 @@ class ComposeBenchmarkRule internal constructor(
      */
     fun <T : ComposeTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
-        @WorkerThread
-        block: ComposeBenchmarkScope<T>.() -> Unit
+        @WorkerThread block: ComposeBenchmarkScope<T>.() -> Unit
     ) {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Cannot invoke runBenchmarkFor from the main thread"
@@ -95,10 +91,7 @@ class ComposeBenchmarkRule internal constructor(
 
         lateinit var runner: ComposeBenchmarkScope<T>
         runOnUiThread {
-            runner = createAndroidComposeBenchmarkRunner(
-                givenTestCase,
-                activityTestRule.activity
-            )
+            runner = createAndroidComposeBenchmarkRunner(givenTestCase, activityTestRule.activity)
         }
 
         try {
@@ -116,27 +109,17 @@ class ComposeBenchmarkRule internal constructor(
      *
      * Should not be used for UI work.
      */
-    fun measureRepeated(
-        @WorkerThread
-        block: BenchmarkRule.Scope.() -> Unit
-    ) {
+    fun measureRepeated(@WorkerThread block: BenchmarkRule.Scope.() -> Unit) {
         benchmarkRule.measureRepeated(block)
     }
 
-    /**
-     * Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread].
-     */
+    /** Convenience proxy for [BenchmarkRule.measureRepeatedOnMainThread]. */
     @WorkerThread
-    fun measureRepeatedOnUiThread(
-        @UiThread
-        block: BenchmarkRule.Scope.() -> Unit
-    ) {
+    fun measureRepeatedOnUiThread(@UiThread block: BenchmarkRule.Scope.() -> Unit) {
         benchmarkRule.measureRepeatedOnMainThread(block)
     }
 
-    /**
-     * Convenience proxy for `ActivityTestRule.runOnUiThread`
-     */
+    /** Convenience proxy for `ActivityTestRule.runOnUiThread` */
     fun runOnUiThread(block: () -> Unit) {
         activityTestRule.runOnUiThread(block)
     }

@@ -70,36 +70,41 @@ private fun <T> SemanticsConfiguration.getFirstOrNull(key: SemanticsPropertyKey<
 
 private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 
-/**
- * An adapter for SemanticNode for AWT accessibility
- */
+/** An adapter for SemanticNode for AWT accessibility */
 internal class ComposeAccessible(
     var semanticsNode: SemanticsNode,
     val controller: AccessibilityControllerImpl? = null
 ) : Accessible {
     val accessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
+
     override fun getAccessibleContext(): AccessibleContext = accessibleContext
 
     open inner class ComposeAccessibleComponent : AccessibleContext(), AccessibleComponent {
         val textSelectionRange
             get() = semanticsNode.config.getOrNull(SemanticsProperties.TextSelectionRange)
+
         val setText
             get() = semanticsNode.config.getOrNull(SemanticsActions.SetText)
+
         val setSelection
             get() = semanticsNode.config.getOrNull(SemanticsActions.SetSelection)
+
         val text
             // TODO should we concatenate the texts instead of getting only the first one
             // Concatenation seems to be reasonable eg, for button with two text nodes inside
             // but conflicts with setText action
-            get() = semanticsNode.config.getOrNull(SemanticsProperties.EditableText)
-                ?: semanticsNode.config.getFirstOrNull(SemanticsProperties.Text)
+            get() =
+                semanticsNode.config.getOrNull(SemanticsProperties.EditableText)
+                    ?: semanticsNode.config.getFirstOrNull(SemanticsProperties.Text)
 
         val textLayoutResult: TextLayoutResult?
             get() {
                 val textLayoutResults = mutableListOf<TextLayoutResult>()
-                val getLayoutResult = semanticsNode.config
-                    .getOrNull(SemanticsActions.GetTextLayoutResult)
-                    ?.action?.invoke(textLayoutResults)
+                val getLayoutResult =
+                    semanticsNode.config
+                        .getOrNull(SemanticsActions.GetTextLayoutResult)
+                        ?.action
+                        ?.invoke(textLayoutResults)
                 return if (getLayoutResult == true) {
                     textLayoutResults[0]
                 } else {
@@ -133,61 +138,51 @@ internal class ComposeAccessible(
 
         val auxiliaryChildren
             get() = buildList {
-                horizontalScroll?.let {
-                    add(makeScrollbarChild(false))
-                }
-                verticalScroll?.let {
-                    add(makeScrollbarChild(true))
-                }
+                horizontalScroll?.let { add(makeScrollbarChild(false)) }
+                verticalScroll?.let { add(makeScrollbarChild(true)) }
             }
 
-        private fun makeScrollbarChild(
-            vertical: Boolean
-        ): Accessible {
+        private fun makeScrollbarChild(vertical: Boolean): Accessible {
             val bar = ScrollBarAccessible(vertical)
 
-            val controlledBy = AccessibleRelation(
-                AccessibleRelation.CONTROLLED_BY,
-                bar
-            )
-            val controllerFor = AccessibleRelation(
-                AccessibleRelation.CONTROLLER_FOR,
-                this@ComposeAccessible
-            )
+            val controlledBy = AccessibleRelation(AccessibleRelation.CONTROLLED_BY, bar)
+            val controllerFor =
+                AccessibleRelation(AccessibleRelation.CONTROLLER_FOR, this@ComposeAccessible)
             bar.context.accessibleRelationSet.add(controllerFor)
             accessibleRelationSet.add(controlledBy)
             return bar
         }
 
-        private fun Point.toComposeOffset() = with(density) {
-            Offset(x.dp.toPx(), y.dp.toPx())
-        }
+        private fun Point.toComposeOffset() = with(density) { Offset(x.dp.toPx(), y.dp.toPx()) }
 
         private fun Dp.toAwtPx() =
             if (value.isInfinite()) Constraints.Infinity else value.roundToInt()
 
-        private fun Rect.toAwtRectangle() = with(density) {
-            Rectangle(
-                left.toDp().toAwtPx(),
-                top.toDp().toAwtPx(),
-                width.toDp().toAwtPx(),
-                height.toDp().toAwtPx(),
-            )
-        }
+        private fun Rect.toAwtRectangle() =
+            with(density) {
+                Rectangle(
+                    left.toDp().toAwtPx(),
+                    top.toDp().toAwtPx(),
+                    width.toDp().toAwtPx(),
+                    height.toDp().toAwtPx(),
+                )
+            }
 
-        private fun Offset.toAwtPoint() = with(density) {
-            Point(
-                x.toDp().toAwtPx(),
-                y.toDp().toAwtPx(),
-            )
-        }
+        private fun Offset.toAwtPoint() =
+            with(density) {
+                Point(
+                    x.toDp().toAwtPx(),
+                    y.toDp().toAwtPx(),
+                )
+            }
 
-        private fun IntSize.toAwtDimension() = with(density) {
-            Dimension(
-                width.toDp().toAwtPx(),
-                height.toDp().toAwtPx(),
-            )
-        }
+        private fun IntSize.toAwtDimension() =
+            with(density) {
+                Dimension(
+                    width.toDp().toAwtPx(),
+                    height.toDp().toAwtPx(),
+                )
+            }
 
         override fun getAccessibleName(): String? {
             return text?.toString()
@@ -195,14 +190,12 @@ internal class ComposeAccessible(
 
         override fun getAccessibleDescription(): String? {
             // TODO concatenate values?
-            return semanticsNode.config
-                .getFirstOrNull(SemanticsProperties.ContentDescription)
+            return semanticsNode.config.getFirstOrNull(SemanticsProperties.ContentDescription)
         }
 
         override fun getAccessibleParent(): Accessible? {
-            return semanticsNode.parent?.id?.let { id ->
-                controller?.let { it.currentNodes[id]!! }
-            } ?: accessibleParent
+            return semanticsNode.parent?.id?.let { id -> controller?.let { it.currentNodes[id]!! } }
+                ?: accessibleParent
         }
 
         override fun getAccessibleComponent(): AccessibleComponent? {
@@ -217,9 +210,7 @@ internal class ComposeAccessible(
             val actions = mutableListOf<Pair<String?, ActionKey>>()
 
             fun addActionIfExist(key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>) {
-                semanticsNode.config.getOrNull(key)?.let {
-                    actions.add(Pair(it.label, key))
-                }
+                semanticsNode.config.getOrNull(key)?.let { actions.add(Pair(it.label, key)) }
             }
             semanticsNode.config.getOrNull(SemanticsActions.OnClick)?.let {
                 // AWT expects "click" label for click actions, at least on macOS...
@@ -234,21 +225,22 @@ internal class ComposeAccessible(
             if (actions.isEmpty()) {
                 return null
             }
-            _accessibleAction = object : AccessibleAction {
-                override fun getAccessibleActionCount(): Int = actions.size
+            _accessibleAction =
+                object : AccessibleAction {
+                    override fun getAccessibleActionCount(): Int = actions.size
 
-                override fun getAccessibleActionDescription(i: Int): String? {
-                    val (label, _) = actions[i]
-                    return label
-                }
+                    override fun getAccessibleActionDescription(i: Int): String? {
+                        val (label, _) = actions[i]
+                        return label
+                    }
 
-                override fun doAccessibleAction(i: Int): Boolean {
-                    val (_, actionKey) = actions[i]
-                    return semanticsNode.config.getOrNull(actionKey)?.let {
-                        it.action?.invoke()
-                    } ?: false
+                    override fun doAccessibleAction(i: Int): Boolean {
+                        val (_, actionKey) = actions[i]
+                        return semanticsNode.config.getOrNull(actionKey)?.let {
+                            it.action?.invoke()
+                        } ?: false
+                    }
                 }
-            }
             return _accessibleAction
         }
 
@@ -296,7 +288,7 @@ internal class ComposeAccessible(
         override fun getLocale(): Locale = Locale.getDefault()
 
         override fun getLocationOnScreen(): Point {
-           return semanticsNode.positionOnScreen.toAwtPoint()
+            return semanticsNode.positionOnScreen.toAwtPoint()
         }
 
         override fun getLocation(): Point {
@@ -312,10 +304,11 @@ internal class ComposeAccessible(
         }
 
         @OptIn(ExperimentalComposeUiApi::class)
-        override fun isVisible(): Boolean = with(semanticsNode) {
-            !config.contains(SemanticsProperties.InvisibleToUser) &&
-            !outerSemanticsNode.requireCoordinator(Nodes.Semantics).isTransparent()
-        }
+        override fun isVisible(): Boolean =
+            with(semanticsNode) {
+                !config.contains(SemanticsProperties.InvisibleToUser) &&
+                    !outerSemanticsNode.requireCoordinator(Nodes.Semantics).isTransparent()
+            }
 
         override fun isEnabled(): Boolean =
             semanticsNode.config.getOrNull(SemanticsProperties.Disabled) == null
@@ -347,8 +340,10 @@ internal class ComposeAccessible(
 
         override fun requestFocus() {
             if (focused == false) {
-                semanticsNode.unmergedConfig.getOrNull(SemanticsActions.RequestFocus)
-                    ?.action?.invoke()
+                semanticsNode.unmergedConfig
+                    .getOrNull(SemanticsActions.RequestFocus)
+                    ?.action
+                    ?.invoke()
             }
         }
 
@@ -371,9 +366,9 @@ internal class ComposeAccessible(
                 Role.Checkbox -> return AccessibleRole.CHECK_BOX
                 Role.RadioButton -> return AccessibleRole.RADIO_BUTTON
                 Role.Tab -> AccessibleRole.PAGE_TAB
-                // ?
-                //  Role.Switch ->
-                //  Role.Image ->
+            // ?
+            //  Role.Switch ->
+            //  Role.Image ->
             }
             if (isPassword) {
                 return AccessibleRole.PASSWORD_TEXT
@@ -396,51 +391,37 @@ internal class ComposeAccessible(
                 // AccessibleState.SINGLE_LINE
                 // AccessibleState.MULTI_LINE
 
-                if (isEnabled)
-                    add(AccessibleState.ENABLED)
-                if (isShowing)
-                    add(AccessibleState.SHOWING)
-                if (isVisible)
-                    add(AccessibleState.VISIBLE)
-                if (isFocusTraversable)
-                    add(AccessibleState.FOCUSABLE)
-                if (focused == true)
-                    add(AccessibleState.FOCUSED)
+                if (isEnabled) add(AccessibleState.ENABLED)
+                if (isShowing) add(AccessibleState.SHOWING)
+                if (isVisible) add(AccessibleState.VISIBLE)
+                if (isFocusTraversable) add(AccessibleState.FOCUSABLE)
+                if (focused == true) add(AccessibleState.FOCUSED)
 
                 when (toggleableState) {
-                    ToggleableState.On ->
-                        add(AccessibleState.CHECKED)
-                    ToggleableState.Indeterminate ->
-                        add(AccessibleState.INDETERMINATE)
-                    ToggleableState.Off, null -> {
-                    }
+                    ToggleableState.On -> add(AccessibleState.CHECKED)
+                    ToggleableState.Indeterminate -> add(AccessibleState.INDETERMINATE)
+                    ToggleableState.Off,
+                    null -> {}
                 }
 
                 val canExpand = semanticsNode.config.getOrNull(SemanticsActions.Expand) != null
                 val canCollapse = semanticsNode.config.getOrNull(SemanticsActions.Collapse) != null
 
-                if (canExpand || canCollapse)
-                    add(AccessibleState.EXPANDABLE)
+                if (canExpand || canCollapse) add(AccessibleState.EXPANDABLE)
 
-                if (canExpand)
-                    add(AccessibleState.COLLAPSED)
+                if (canExpand) add(AccessibleState.COLLAPSED)
 
-                if (canCollapse)
-                    add(AccessibleState.EXPANDED)
+                if (canCollapse) add(AccessibleState.EXPANDED)
 
-                if (canCollapse)
-                    add(AccessibleState.EXPANDED)
+                if (canCollapse) add(AccessibleState.EXPANDED)
 
-                if (selected != null)
-                    add(AccessibleState.SELECTABLE)
+                if (selected != null) add(AccessibleState.SELECTABLE)
 
-                if (selected == true)
-                    add(AccessibleState.SELECTED)
+                if (selected == true) add(AccessibleState.SELECTED)
             }
         }
 
-        open inner class ComposeAccessibleText() : AccessibleText,
-            AccessibleExtendedText {
+        open inner class ComposeAccessibleText() : AccessibleText, AccessibleExtendedText {
             override fun getIndexAtPoint(p: Point): Int {
                 return textLayoutResult!!.getOffsetForPosition(p.toComposeOffset())
             }
@@ -466,12 +447,13 @@ internal class ComposeAccessible(
             }
 
             private fun partToBreakIterator(part: Int): BreakIterator {
-                val iter = when (part) {
-                    AccessibleText.SENTENCE -> BreakIterator.makeSentenceInstance()
-                    AccessibleText.WORD -> BreakIterator.makeWordInstance()
-                    AccessibleText.CHARACTER -> BreakIterator.makeCharacterInstance()
-                    else -> throw IllegalArgumentException()
-                }
+                val iter =
+                    when (part) {
+                        AccessibleText.SENTENCE -> BreakIterator.makeSentenceInstance()
+                        AccessibleText.WORD -> BreakIterator.makeWordInstance()
+                        AccessibleText.CHARACTER -> BreakIterator.makeCharacterInstance()
+                        else -> throw IllegalArgumentException()
+                    }
                 iter.setText(text!!.toString())
                 return iter
             }
@@ -490,10 +472,11 @@ internal class ComposeAccessible(
                     start = iterator.following(start)
                     if (start == BreakIterator.DONE) return ""
                 } while (text!![start] == ' ' || text!![start] == '\n')
-                val end = when (val end = iterator.next()) {
-                    BreakIterator.DONE -> iterator.last()
-                    else -> end
-                }
+                val end =
+                    when (val end = iterator.next()) {
+                        BreakIterator.DONE -> iterator.last()
+                        else -> end
+                    }
                 return text!!.subSequence(start, end).toString()
             }
 
@@ -549,62 +532,61 @@ internal class ComposeAccessible(
             }
         }
 
-        inner class ScrollBarAccessible(
-            val vertical: Boolean
-        ) : Accessible {
-            val context: AccessibleContext = object : AccessibleContext(),
-                AccessibleValue {
-                private val range = if (vertical) {
-                    verticalScroll!!
-                } else {
-                    horizontalScroll!!
-                }
-
-                override fun getAccessibleValue(): AccessibleValue = this
-
-                override fun getAccessibleRole(): AccessibleRole =
-                    AccessibleRole.SCROLL_BAR
-
-                override fun getAccessibleStateSet(): AccessibleStateSet {
-                    return AccessibleStateSet().apply {
-                        add(AccessibleState.ENABLED)
+        inner class ScrollBarAccessible(val vertical: Boolean) : Accessible {
+            val context: AccessibleContext =
+                object : AccessibleContext(), AccessibleValue {
+                    private val range =
                         if (vertical) {
-                            add(AccessibleState.VERTICAL)
+                            verticalScroll!!
                         } else {
-                            add(AccessibleState.HORIZONTAL)
+                            horizontalScroll!!
+                        }
+
+                    override fun getAccessibleValue(): AccessibleValue = this
+
+                    override fun getAccessibleRole(): AccessibleRole = AccessibleRole.SCROLL_BAR
+
+                    override fun getAccessibleStateSet(): AccessibleStateSet {
+                        return AccessibleStateSet().apply {
+                            add(AccessibleState.ENABLED)
+                            if (vertical) {
+                                add(AccessibleState.VERTICAL)
+                            } else {
+                                add(AccessibleState.HORIZONTAL)
+                            }
                         }
                     }
-                }
 
-                override fun getAccessibleParent(): Accessible {
-                    return this@ComposeAccessible
-                }
-
-                override fun getAccessibleIndexInParent(): Int {
-                    return auxiliaryChildren.indexOf(this@ScrollBarAccessible)
-                }
-
-                override fun getAccessibleChildrenCount(): Int = 0
-
-                override fun getAccessibleChild(i: Int): Accessible? = null
-                override fun getLocale(): Locale {
-                    return Locale.getDefault()
-                }
-
-                override fun getCurrentAccessibleValue(): Number = range.value()
-
-                override fun setCurrentAccessibleValue(n: Number?): Boolean {
-                    return if (vertical) {
-                        scrollBy!!.action!!.invoke(0f, n!!.toFloat() - range.value())
-                    } else {
-                        scrollBy!!.action!!.invoke(n!!.toFloat() - range.value(), 0f)
+                    override fun getAccessibleParent(): Accessible {
+                        return this@ComposeAccessible
                     }
+
+                    override fun getAccessibleIndexInParent(): Int {
+                        return auxiliaryChildren.indexOf(this@ScrollBarAccessible)
+                    }
+
+                    override fun getAccessibleChildrenCount(): Int = 0
+
+                    override fun getAccessibleChild(i: Int): Accessible? = null
+
+                    override fun getLocale(): Locale {
+                        return Locale.getDefault()
+                    }
+
+                    override fun getCurrentAccessibleValue(): Number = range.value()
+
+                    override fun setCurrentAccessibleValue(n: Number?): Boolean {
+                        return if (vertical) {
+                            scrollBy!!.action!!.invoke(0f, n!!.toFloat() - range.value())
+                        } else {
+                            scrollBy!!.action!!.invoke(n!!.toFloat() - range.value(), 0f)
+                        }
+                    }
+
+                    override fun getMinimumAccessibleValue(): Number = 0
+
+                    override fun getMaximumAccessibleValue(): Number = range.maxValue()
                 }
-
-                override fun getMinimumAccessibleValue(): Number = 0
-
-                override fun getMaximumAccessibleValue(): Number = range.maxValue()
-            }
 
             override fun getAccessibleContext(): AccessibleContext = context
         }
@@ -635,13 +617,15 @@ internal class ComposeAccessible(
 
             override fun insertTextAtIndex(index: Int, s: String) {
                 val text = text!!
-                setText!!.action!!.invoke(
-                    buildAnnotatedString {
-                        append(text.subSequence(0, index))
-                        append(s)
-                        append(text.subSequence(index, text.length - 1))
-                    }
-                )
+                setText!!
+                    .action!!
+                    .invoke(
+                        buildAnnotatedString {
+                            append(text.subSequence(0, index))
+                            append(s)
+                            append(text.subSequence(index, text.length - 1))
+                        }
+                    )
             }
 
             override fun getTextRange(startIndex: Int, endIndex: Int): String {
@@ -650,12 +634,14 @@ internal class ComposeAccessible(
 
             override fun delete(startIndex: Int, endIndex: Int) {
                 val text = text!!
-                setText!!.action!!.invoke(
-                    buildAnnotatedString {
-                        append(text.subSequence(0, startIndex))
-                        append(text.subSequence(endIndex, text.length - 1))
-                    }
-                )
+                setText!!
+                    .action!!
+                    .invoke(
+                        buildAnnotatedString {
+                            append(text.subSequence(0, startIndex))
+                            append(text.subSequence(endIndex, text.length - 1))
+                        }
+                    )
             }
 
             override fun cut(startIndex: Int, endIndex: Int) {
@@ -668,13 +654,15 @@ internal class ComposeAccessible(
 
             override fun replaceText(startIndex: Int, endIndex: Int, s: String) {
                 val text = text!!
-                setText!!.action!!.invoke(
-                    buildAnnotatedString {
-                        append(text.subSequence(0, startIndex))
-                        append(s)
-                        append(text.subSequence(endIndex, text.length - 1))
-                    }
-                )
+                setText!!
+                    .action!!
+                    .invoke(
+                        buildAnnotatedString {
+                            append(text.subSequence(0, startIndex))
+                            append(s)
+                            append(text.subSequence(endIndex, text.length - 1))
+                        }
+                    )
             }
 
             override fun selectText(startIndex: Int, endIndex: Int) {

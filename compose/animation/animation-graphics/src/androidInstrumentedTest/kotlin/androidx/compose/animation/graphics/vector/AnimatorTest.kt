@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnimatorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tolerance = 0.01f
 
@@ -98,10 +97,7 @@ class AnimatorTest {
             objectAnimator(
                 "translateX",
                 1000,
-                listOf(
-                    Keyframe(0f, 0f, LinearEasing),
-                    Keyframe(1f, 1000f, LinearEasing)
-                )
+                listOf(Keyframe(0f, 0f, LinearEasing), Keyframe(1f, 1000f, LinearEasing))
             )
         )
     }
@@ -139,25 +135,28 @@ class AnimatorTest {
     fun offsetAnimators() {
         verifyAnimatorIsLinear(
             AnimatorSet(
-                animators = listOf(
-                    objectAnimator(
-                        propertyName = "translateX",
-                        duration = 500,
-                        keyframes = listOf(
-                            Keyframe(0f, 0f, LinearEasing),
-                            Keyframe(1f, 500f, LinearEasing),
+                animators =
+                    listOf(
+                        objectAnimator(
+                            propertyName = "translateX",
+                            duration = 500,
+                            keyframes =
+                                listOf(
+                                    Keyframe(0f, 0f, LinearEasing),
+                                    Keyframe(1f, 500f, LinearEasing),
+                                )
+                        ),
+                        objectAnimator(
+                            propertyName = "translateX",
+                            duration = 500,
+                            startDelay = 500,
+                            keyframes =
+                                listOf(
+                                    Keyframe(0f, 500f, LinearEasing),
+                                    Keyframe(1f, 1000f, LinearEasing),
+                                )
                         )
                     ),
-                    objectAnimator(
-                        propertyName = "translateX",
-                        duration = 500,
-                        startDelay = 500,
-                        keyframes = listOf(
-                            Keyframe(0f, 500f, LinearEasing),
-                            Keyframe(1f, 1000f, LinearEasing),
-                        )
-                    )
-                ),
                 ordering = Ordering.Together
             )
         )
@@ -182,9 +181,7 @@ class AnimatorTest {
                     )
             }
         }
-        assertThat(config.getOrDefault(VectorProperty.TranslateX, -1f))
-            .isWithin(tolerance)
-            .of(0f)
+        assertThat(config.getOrDefault(VectorProperty.TranslateX, -1f)).isWithin(tolerance).of(0f)
         // Start to end
         rule.runOnIdle { isAtEnd.value = true }
         rule.waitForIdle()
@@ -194,37 +191,36 @@ class AnimatorTest {
         // End to start
         rule.runOnIdle { isAtEnd.value = false }
         rule.waitForIdle()
-        assertThat(config.getOrDefault(VectorProperty.TranslateX, -1f))
-            .isWithin(tolerance)
-            .of(0f)
+        assertThat(config.getOrDefault(VectorProperty.TranslateX, -1f)).isWithin(tolerance).of(0f)
     }
 
     @OptIn(InternalAnimationApi::class)
     @Test
     fun pathData() {
-        val a = ObjectAnimator(
-            duration = 1000,
-            startDelay = 0,
-            repeatCount = 0,
-            repeatMode = RepeatMode.Restart,
-            listOf(
-                PropertyValuesHolderPath(
-                    propertyName = "pathData",
-                    listOf(
-                        Keyframe(
-                            fraction = 0f,
-                            value = addPathNodes("M 0 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                            interpolator = LinearEasing
-                        ),
-                        Keyframe(
-                            fraction = 1f,
-                            value = addPathNodes("M 1000 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                            interpolator = LinearEasing
+        val a =
+            ObjectAnimator(
+                duration = 1000,
+                startDelay = 0,
+                repeatCount = 0,
+                repeatMode = RepeatMode.Restart,
+                listOf(
+                    PropertyValuesHolderPath(
+                        propertyName = "pathData",
+                        listOf(
+                            Keyframe(
+                                fraction = 0f,
+                                value = addPathNodes("M 0 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
+                                interpolator = LinearEasing
+                            ),
+                            Keyframe(
+                                fraction = 1f,
+                                value = addPathNodes("M 1000 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
+                                interpolator = LinearEasing
+                            )
                         )
                     )
                 )
             )
-        )
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
         rule.setContent {
@@ -255,29 +251,30 @@ class AnimatorTest {
     @OptIn(InternalAnimationApi::class)
     @Test
     fun pathData_repeat() {
-        val a = ObjectAnimator(
-            duration = 1000,
-            startDelay = 0,
-            repeatCount = 2,
-            repeatMode = RepeatMode.Restart,
-            listOf(
-                PropertyValuesHolderPath(
-                    propertyName = "pathData",
-                    listOf(
-                        Keyframe(
-                            fraction = 0f,
-                            value = addPathNodes("M 0 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                            interpolator = LinearEasing
-                        ),
-                        Keyframe(
-                            fraction = 1f,
-                            value = addPathNodes("M 1000 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                            interpolator = LinearEasing
+        val a =
+            ObjectAnimator(
+                duration = 1000,
+                startDelay = 0,
+                repeatCount = 2,
+                repeatMode = RepeatMode.Restart,
+                listOf(
+                    PropertyValuesHolderPath(
+                        propertyName = "pathData",
+                        listOf(
+                            Keyframe(
+                                fraction = 0f,
+                                value = addPathNodes("M 0 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
+                                interpolator = LinearEasing
+                            ),
+                            Keyframe(
+                                fraction = 1f,
+                                value = addPathNodes("M 1000 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
+                                interpolator = LinearEasing
+                            )
                         )
                     )
                 )
             )
-        )
         assertThat(a.totalDuration).isEqualTo(3000)
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
@@ -316,29 +313,34 @@ class AnimatorTest {
 
     @Test
     fun startDelay() {
-        val a = objectAnimator(
-            propertyName = "trimPathEnd",
-            duration = 400,
-            keyframes = listOf(
-                Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
-                Keyframe(fraction = 1f, value = 1f, interpolator = LinearEasing),
-            ),
-            startDelay = 100
-        )
+        val a =
+            objectAnimator(
+                propertyName = "trimPathEnd",
+                duration = 400,
+                keyframes =
+                    listOf(
+                        Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
+                        Keyframe(fraction = 1f, value = 1f, interpolator = LinearEasing),
+                    ),
+                startDelay = 100
+            )
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
         rule.setContent {
             val transition = updateTransition(isAtEnd.value, label = "startDelay")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    if (targetState) {
-                        tween(durationMillis = 400, delayMillis = 100, easing = LinearEasing)
-                    } else {
-                        tween(durationMillis = 400, easing = LinearEasing)
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        if (targetState) {
+                            tween(durationMillis = 400, delayMillis = 100, easing = LinearEasing)
+                        } else {
+                            tween(durationMillis = 400, easing = LinearEasing)
+                        }
                     }
+                ) {
+                    if (it) 1f else 0f
                 }
-            ) { if (it) 1f else 0f }
             a.Configure(transition, config, 500)
             if (transition.isRunning) {
                 val trimPathEnd = config.getOrDefault(VectorProperty.TrimPathEnd, -1f)
@@ -356,28 +358,34 @@ class AnimatorTest {
 
     @Test
     fun repeat_restart() {
-        val a = objectAnimator(
-            propertyName = "translateX",
-            duration = 500,
-            keyframes = listOf(
-                Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
-                Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
-            ),
-            repeatCount = 3
-        )
+        val a =
+            objectAnimator(
+                propertyName = "translateX",
+                duration = 500,
+                keyframes =
+                    listOf(
+                        Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
+                        Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
+                    ),
+                repeatCount = 3
+            )
         assertThat(a.totalDuration).isEqualTo(2000)
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
         rule.setContent {
             val transition = updateTransition(isAtEnd.value, label = "translateX")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    repeatable(iterations = 4, tween(durationMillis = 500, easing = LinearEasing))
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        repeatable(
+                            iterations = 4,
+                            tween(durationMillis = 500, easing = LinearEasing)
+                        )
+                    }
+                ) {
+                    if (it) 500f else 0f
                 }
-            ) {
-                if (it) 500f else 0f
-            }
             a.Configure(transition, config, overallDuration = a.totalDuration)
             if (transition.isRunning) {
                 val translateX = config.getOrDefault(VectorProperty.TranslateX, -1f)
@@ -392,33 +400,36 @@ class AnimatorTest {
 
     @Test
     fun repeat_reverse() {
-        val a = objectAnimator(
-            propertyName = "translateX",
-            duration = 500,
-            keyframes = listOf(
-                Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
-                Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
-            ),
-            repeatCount = 3,
-            repeatMode = RepeatMode.Reverse
-        )
+        val a =
+            objectAnimator(
+                propertyName = "translateX",
+                duration = 500,
+                keyframes =
+                    listOf(
+                        Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
+                        Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
+                    ),
+                repeatCount = 3,
+                repeatMode = RepeatMode.Reverse
+            )
         assertThat(a.totalDuration).isEqualTo(2000)
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
         rule.setContent {
             val transition = updateTransition(isAtEnd.value, label = "translateX")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    repeatable(
-                        iterations = 4,
-                        animation = tween(durationMillis = 500, easing = LinearEasing),
-                        repeatMode = RepeatMode.Reverse
-                    )
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        repeatable(
+                            iterations = 4,
+                            animation = tween(durationMillis = 500, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        )
+                    }
+                ) {
+                    if (it) 500f else 0f
                 }
-            ) {
-                if (it) 500f else 0f
-            }
             a.Configure(transition, config, overallDuration = a.totalDuration)
             if (transition.isRunning) {
                 val translateX = config.getOrDefault(VectorProperty.TranslateX, -1f)
@@ -433,33 +444,36 @@ class AnimatorTest {
 
     @Test
     fun repeat_infinite() {
-        val a = objectAnimator(
-            propertyName = "translateX",
-            duration = 500,
-            keyframes = listOf(
-                Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
-                Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
-            ),
-            repeatCount = RepeatCountInfinite,
-            repeatMode = RepeatMode.Reverse
-        )
+        val a =
+            objectAnimator(
+                propertyName = "translateX",
+                duration = 500,
+                keyframes =
+                    listOf(
+                        Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
+                        Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
+                    ),
+                repeatCount = RepeatCountInfinite,
+                repeatMode = RepeatMode.Reverse
+            )
         assertThat(a.totalDuration).isEqualTo(Int.MAX_VALUE)
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
         rule.setContent {
             val transition = updateTransition(isAtEnd.value, label = "translateX")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    repeatable(
-                        iterations = Int.MAX_VALUE,
-                        animation = tween(durationMillis = 500, easing = LinearEasing),
-                        repeatMode = RepeatMode.Reverse
-                    )
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        repeatable(
+                            iterations = Int.MAX_VALUE,
+                            animation = tween(durationMillis = 500, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        )
+                    }
+                ) {
+                    if (it) 500f else 0f
                 }
-            ) {
-                if (it) 500f else 0f
-            }
             a.Configure(transition, config, overallDuration = a.totalDuration)
             if (transition.isRunning) {
                 val translateX = config.getOrDefault(VectorProperty.TranslateX, -1f)
@@ -469,8 +483,6 @@ class AnimatorTest {
         assertThat(config.getOrDefault(VectorProperty.TranslateX, -1f)).isEqualTo(0f)
         rule.runOnIdle { isAtEnd.value = true }
         // Run for 300 frames.
-        repeat(300) {
-            rule.mainClock.advanceTimeBy(16)
-        }
+        repeat(300) { rule.mainClock.advanceTimeBy(16) }
     }
 }

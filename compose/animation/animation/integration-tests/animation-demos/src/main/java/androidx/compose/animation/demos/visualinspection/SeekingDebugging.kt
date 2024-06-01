@@ -75,10 +75,7 @@ fun SeekingDemo() {
         Modifier.fillMaxSize().padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Row(Modifier.clickable { entering = true }.padding(10.dp)) {
                 RadioButton(entering, { entering = true })
                 Text("Entering")
@@ -94,20 +91,23 @@ fun SeekingDemo() {
     }
 
     LaunchedEffect(Unit) {
-        snapshotFlow {
-            progress * if (entering) 1f else -1f
-        }.collect {
-            val totalDuration = transition.totalDurationNanos
-            if (entering) {
-                transition.setPlaytimeAfterInitialAndTargetStateEstablished(
-                    false, true, (abs(it) * totalDuration).toLong()
-                )
-            } else {
-                transition.setPlaytimeAfterInitialAndTargetStateEstablished(
-                    true, false, (abs(it) * totalDuration).toLong()
-                )
+        snapshotFlow { progress * if (entering) 1f else -1f }
+            .collect {
+                val totalDuration = transition.totalDurationNanos
+                if (entering) {
+                    transition.setPlaytimeAfterInitialAndTargetStateEstablished(
+                        false,
+                        true,
+                        (abs(it) * totalDuration).toLong()
+                    )
+                } else {
+                    transition.setPlaytimeAfterInitialAndTargetStateEstablished(
+                        true,
+                        false,
+                        (abs(it) * totalDuration).toLong()
+                    )
+                }
             }
-        }
     }
 }
 
@@ -125,34 +125,40 @@ fun Transition<Boolean>.ComplexAV() {
                 colors.forEachIndexed { index, color ->
                     // Creates a custom enter/exit animation on scale using
                     // `AnimatedVisibilityScope.transition`
-                    val scale by transition.animateFloat { enterExitState ->
-                        when (enterExitState) {
-                            EnterExitState.PreEnter -> 0.9f
-                            EnterExitState.Visible -> 1.0f
-                            EnterExitState.PostExit -> 0.5f
+                    val scale by
+                        transition.animateFloat { enterExitState ->
+                            when (enterExitState) {
+                                EnterExitState.PreEnter -> 0.9f
+                                EnterExitState.Visible -> 1.0f
+                                EnterExitState.PostExit -> 0.5f
+                            }
                         }
-                    }
                     val staggeredSpring = remember {
-                        spring<IntOffset>(
-                            stiffness = Spring.StiffnessLow * (1f - index * 0.2f)
-                        )
+                        spring<IntOffset>(stiffness = Spring.StiffnessLow * (1f - index * 0.2f))
                     }
                     Box(
-                        Modifier.weight(1f).animateEnterExit(
-                            // Staggered slide-in from bottom, while the parent
-                            // AnimatedVisibility fades in everything (including this child)
-                            enter = slideInVertically(
-                                initialOffsetY = { it },
-                                animationSpec = staggeredSpring
-                            ),
-                            // No built-in exit transition will be applied. It'll be
-                            // faded out by parent AnimatedVisibility while scaling down
-                            // by the scale animation.
-                            exit = ExitTransition.None
-                        ).fillMaxWidth().padding(5.dp).graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                        }.clip(RoundedCornerShape(20.dp)).background(color)
+                        Modifier.weight(1f)
+                            .animateEnterExit(
+                                // Staggered slide-in from bottom, while the parent
+                                // AnimatedVisibility fades in everything (including this child)
+                                enter =
+                                    slideInVertically(
+                                        initialOffsetY = { it },
+                                        animationSpec = staggeredSpring
+                                    ),
+                                // No built-in exit transition will be applied. It'll be
+                                // faded out by parent AnimatedVisibility while scaling down
+                                // by the scale animation.
+                                exit = ExitTransition.None
+                            )
+                            .fillMaxWidth()
+                            .padding(5.dp)
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                            }
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(color)
                     ) {}
                 }
             }
@@ -168,9 +174,5 @@ fun Transition<Boolean>.ComplexAV() {
     }
 }
 
-private val colors = listOf(
-    Color(0xffff6f69),
-    Color(0xffffcc5c),
-    Color(0xff2a9d84),
-    Color(0xff264653)
-)
+private val colors =
+    listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff2a9d84), Color(0xff264653))

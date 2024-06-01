@@ -22,22 +22,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 /**
- * [AnimationState] contains the necessary information to indicate the state of an animation.
- * Once an [AnimationState] is constructed, it can only be updated/mutated by animations. If
- * there's a need to mutate some of the fields of an [AnimationState], consider using [copy]
- * functions.
+ * [AnimationState] contains the necessary information to indicate the state of an animation. Once
+ * an [AnimationState] is constructed, it can only be updated/mutated by animations. If there's a
+ * need to mutate some of the fields of an [AnimationState], consider using [copy] functions.
  *
  * @param typeConverter [TwoWayConverter] to convert type [T] from and to [AnimationVector]
  * @param initialValue initial value of the [AnimationState]
- * @param initialVelocityVector initial velocity of the [AnimationState], null (i.e. no velocity)
- *                              by default.
+ * @param initialVelocityVector initial velocity of the [AnimationState], null (i.e. no velocity) by
+ *   default.
  * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime]
- *                           by default
+ *   by default
  * @param finishedTimeNanos the time that the animation finished successfully,
- *                          [AnimationConstants.UnspecifiedTime] until then
- *
- * @param isRunning whether the [AnimationState] is currently being updated by an animation.
- *                  False by default
+ *   [AnimationConstants.UnspecifiedTime] until then
+ * @param isRunning whether the [AnimationState] is currently being updated by an animation. False
+ *   by default
  */
 class AnimationState<T, V : AnimationVector>(
     val typeConverter: TwoWayConverter<T, V>,
@@ -47,15 +45,11 @@ class AnimationState<T, V : AnimationVector>(
     finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
     isRunning: Boolean = false
 ) : State<T> {
-    /**
-     * Current value of the [AnimationState].
-     */
+    /** Current value of the [AnimationState]. */
     override var value: T by mutableStateOf(initialValue)
         internal set
 
-    /**
-     * Current velocity vector of the [AnimationState].
-     */
+    /** Current velocity vector of the [AnimationState]. */
     var velocityVector: V =
         initialVelocityVector?.copy() ?: typeConverter.createZeroVectorFrom(initialValue)
         internal set
@@ -84,15 +78,11 @@ class AnimationState<T, V : AnimationVector>(
     var finishedTimeNanos: Long = finishedTimeNanos
         internal set
 
-    /**
-     * Indicates whether the animation is currently running.
-     */
+    /** Indicates whether the animation is currently running. */
     var isRunning: Boolean = isRunning
         internal set
 
-    /**
-     * Velocity of type [T], converted from [velocityVector].
-     */
+    /** Velocity of type [T], converted from [velocityVector]. */
     val velocity: T
         get() = typeConverter.convertFromVector(velocityVector)
 
@@ -120,35 +110,26 @@ val AnimationState<*, *>.isFinished
  *
  * @see [AnimationState.animateTo]
  */
-class AnimationScope<T, V : AnimationVector> internal constructor(
+class AnimationScope<T, V : AnimationVector>
+internal constructor(
     initialValue: T,
-    /**
-     * [TwoWayConverter] to convert type [T] from and to [AnimationVector].
-     */
+    /** [TwoWayConverter] to convert type [T] from and to [AnimationVector]. */
     val typeConverter: TwoWayConverter<T, V>,
     initialVelocityVector: V,
     lastFrameTimeNanos: Long,
-    /**
-     * Target value of the animation.
-     */
+    /** Target value of the animation. */
     val targetValue: T,
-    /**
-     * Start time of the animation in the [System.nanoTime] timebase.
-     */
-    @get:Suppress("MethodNameUnits")
-    val startTimeNanos: Long,
+    /** Start time of the animation in the [System.nanoTime] timebase. */
+    @get:Suppress("MethodNameUnits") val startTimeNanos: Long,
     isRunning: Boolean,
     private val onCancel: () -> Unit
 ) {
     // Externally immutable fields
-    /**
-     * Current value of the [AnimationScope].
-     */
+    /** Current value of the [AnimationScope]. */
     var value: T by mutableStateOf(initialValue)
         internal set
-    /**
-     * Current velocity vector of the [AnimationScope].
-     */
+
+    /** Current velocity vector of the [AnimationScope]. */
     var velocityVector: V = initialVelocityVector.copy()
         internal set
 
@@ -175,15 +156,12 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
     @get:Suppress("MethodNameUnits")
     var finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime
         internal set
-    /**
-     * Indicates whether the animation is currently running.
-     */
+
+    /** Indicates whether the animation is currently running. */
     var isRunning: Boolean by mutableStateOf(isRunning)
         internal set
 
-    /**
-     * Velocity of type [T], converted from [velocityVector].
-     */
+    /** Velocity of type [T], converted from [velocityVector]. */
     val velocity
         get() = typeConverter.convertFromVector(velocityVector)
 
@@ -200,9 +178,15 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
      * Creates an [AnimationState] that populates all the fields in [AnimationState] from
      * [AnimationScope].
      */
-    fun toAnimationState() = AnimationState(
-        typeConverter, value, velocityVector, lastFrameTimeNanos, finishedTimeNanos, isRunning
-    )
+    fun toAnimationState() =
+        AnimationState(
+            typeConverter,
+            value,
+            velocityVector,
+            lastFrameTimeNanos,
+            finishedTimeNanos,
+            isRunning
+        )
 }
 
 /**
@@ -210,19 +194,18 @@ class AnimationScope<T, V : AnimationVector> internal constructor(
  * fields to be different in the new [AnimationState].
  *
  * @param value value of the [AnimationState], using the value of the given [AnimationState] by
- *              default
+ *   default
  * @param velocityVector velocity of the [AnimationState], using the velocity of the given
- *                       [AnimationState] by default.
+ *   [AnimationState] by default.
  * @param lastFrameTimeNanos last frame time of the animation, same as the given [AnimationState] by
- *                           default
+ *   default
  * @param finishedTimeNanos the time that the animation finished successfully,
- *                          [AnimationConstants.UnspecifiedTime] until then. Default value is the
- *                          same as the given [AnimationState].
- * @param isRunning whether the [AnimationState] is currently being updated by an animation.
- *                  Same as the given [AnimationState] by default
- *
+ *   [AnimationConstants.UnspecifiedTime] until then. Default value is the same as the given
+ *   [AnimationState].
+ * @param isRunning whether the [AnimationState] is currently being updated by an animation. Same as
+ *   the given [AnimationState] by default
  * @return A new [AnimationState] instance copied from the given instance, with some fields
- *         optionally altered
+ *   optionally altered
  */
 fun <T, V : AnimationVector> AnimationState<T, V>.copy(
     value: T = this.value,
@@ -232,7 +215,12 @@ fun <T, V : AnimationVector> AnimationState<T, V>.copy(
     isRunning: Boolean = this.isRunning
 ): AnimationState<T, V> =
     AnimationState(
-        this.typeConverter, value, velocityVector, lastFrameTimeNanos, finishedTimeNanos, isRunning
+        this.typeConverter,
+        value,
+        velocityVector,
+        lastFrameTimeNanos,
+        finishedTimeNanos,
+        isRunning
     )
 
 /**
@@ -240,18 +228,17 @@ fun <T, V : AnimationVector> AnimationState<T, V>.copy(
  * type. This function allows some of the fields to be different in the new [AnimationState].
  *
  * @param value value of the [AnimationState], using the value of the given [AnimationState] by
- *              default
+ *   default
  * @param velocity velocity of the [AnimationState], using the velocity of the given
- *                 [AnimationState] by default.
+ *   [AnimationState] by default.
  * @param lastFrameTimeNanos last frame time of the animation, same as the given [AnimationState] by
- *                      default
+ *   default
  * @param finishedTimeNanos the time that the animation finished successfully, same as the given
- *                     [AnimationState] by default.
- * @param isRunning whether the [AnimationState] is currently being updated by an animation.
- *                  Same as the given [AnimationState] by default
- *
+ *   [AnimationState] by default.
+ * @param isRunning whether the [AnimationState] is currently being updated by an animation. Same as
+ *   the given [AnimationState] by default
  * @return A new [AnimationState] instance copied from the given instance, with some fields
- *         optionally altered
+ *   optionally altered
  */
 fun AnimationState<Float, AnimationVector1D>.copy(
     value: Float = this.value,
@@ -275,12 +262,11 @@ fun AnimationState<Float, AnimationVector1D>.copy(
  * @param initialValue initial value of the [AnimationState]
  * @param initialVelocity initial velocity of the [AnimationState], 0 (i.e. no velocity) by default
  * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime]
- *                           by default
+ *   by default
  * @param finishedTimeNanos the time that the animation finished successfully,
- *                          [AnimationConstants.UnspecifiedTime] by default.
- * @param isRunning whether the [AnimationState] is currently being updated by an animation.
- *                  False by default
- *
+ *   [AnimationConstants.UnspecifiedTime] by default.
+ * @param isRunning whether the [AnimationState] is currently being updated by an animation. False
+ *   by default
  * @return A new [AnimationState] instance
  */
 fun AnimationState(
@@ -306,12 +292,12 @@ fun AnimationState(
  * @param typeConverter [TwoWayConverter] to convert type [T] from and to [AnimationVector]
  * @param initialValue initial value of the [AnimationState]
  * @param initialVelocity initial velocity of the [AnimationState]
- * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime] by default
- * @param finishedTimeNanos the time that the animation finished successfully, [AnimationConstants.UnspecifiedTime] by
- *                     default.
- * @param isRunning whether the [AnimationState] is currently being updated by an animation.
- *                  False by default
- *
+ * @param lastFrameTimeNanos last frame time of the animation, [AnimationConstants.UnspecifiedTime]
+ *   by default
+ * @param finishedTimeNanos the time that the animation finished successfully,
+ *   [AnimationConstants.UnspecifiedTime] by default.
+ * @param isRunning whether the [AnimationState] is currently being updated by an animation. False
+ *   by default
  * @return A new [AnimationState] instance
  */
 fun <T, V : AnimationVector> AnimationState(
@@ -333,8 +319,8 @@ fun <T, V : AnimationVector> AnimationState(
 }
 
 /**
- * Creates an AnimationVector with all the values set to 0 using the provided [TwoWayConverter]
- * and the [value].
+ * Creates an AnimationVector with all the values set to 0 using the provided [TwoWayConverter] and
+ * the [value].
  *
  * @return a new AnimationVector instance of type [V].
  */

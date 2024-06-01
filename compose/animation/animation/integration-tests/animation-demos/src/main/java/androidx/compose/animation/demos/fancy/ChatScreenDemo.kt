@@ -119,7 +119,9 @@ private fun animateCorner(hasSharpCorner: Boolean): MutableState<Float> {
             initialValue = state.floatValue,
             targetValue = if (hasSharpCorner) 2f else roundCornerSize,
             animationSpec = spring(stiffness = 50f, dampingRatio = 0.6f)
-        ) { animationValue, _ -> state.floatValue = animationValue }
+        ) { animationValue, _ ->
+            state.floatValue = animationValue
+        }
     }
     return state
 }
@@ -136,12 +138,13 @@ private fun ColumnScope.MyChatEntry(
         text = text,
         textColor = myMessageTextColor,
         backgroundColor = myMessageBgColor,
-        shape = RoundedCornerShape(
-            topStart = roundCornerSize.dp,
-            topEnd = topCorner.dp,
-            bottomStart = roundCornerSize.dp,
-            bottomEnd = bottomCorner.dp
-        ),
+        shape =
+            RoundedCornerShape(
+                topStart = roundCornerSize.dp,
+                topEnd = topCorner.dp,
+                bottomStart = roundCornerSize.dp,
+                bottomEnd = bottomCorner.dp
+            ),
         alignment = Alignment.End
     )
 }
@@ -158,12 +161,13 @@ private fun ColumnScope.TheirChatEntry(
         text = text,
         textColor = theirMessageTextColor,
         backgroundColor = theirMessageBgColor,
-        shape = RoundedCornerShape(
-            topStart = topCorner.dp,
-            topEnd = roundCornerSize.dp,
-            bottomStart = bottomCorner.dp,
-            bottomEnd = roundCornerSize.dp
-        ),
+        shape =
+            RoundedCornerShape(
+                topStart = topCorner.dp,
+                topEnd = roundCornerSize.dp,
+                bottomStart = bottomCorner.dp,
+                bottomEnd = roundCornerSize.dp
+            ),
         alignment = Alignment.Start
     )
 }
@@ -179,10 +183,12 @@ private fun ColumnScope.ChatEntry(
 ) {
     AnimatedVisibility(
         visibleState = remember { MutableTransitionState(false).apply { targetState = true } },
-        enter = fadeIn() + slideInVertically(
-            initialOffsetY = { it / 2 },
-            animationSpec = spring(stiffness = 50f, dampingRatio = 0.6f)
-        ),
+        enter =
+            fadeIn() +
+                slideInVertically(
+                    initialOffsetY = { it / 2 },
+                    animationSpec = spring(stiffness = 50f, dampingRatio = 0.6f)
+                ),
         modifier = Modifier.align(alignment)
     ) {
         Card(
@@ -190,11 +196,7 @@ private fun ColumnScope.ChatEntry(
             shape = shape,
             modifier = Modifier.padding(bottom = 4.dp)
         ) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                color = textColor,
-                text = text
-            )
+            Text(modifier = Modifier.padding(8.dp), color = textColor, text = text)
         }
     }
 }

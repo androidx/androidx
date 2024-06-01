@@ -23,15 +23,16 @@ import androidx.compose.runtime.Recomposer
 
 internal fun ComponentActivity.launchIdlenessTracking() {
     val contentView: View = findViewById(android.R.id.content)
-    val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
-        override fun doFrame(frameTimeNanos: Long) {
-            if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
-                contentView.contentDescription = "COMPOSE-BUSY"
-            } else {
-                contentView.contentDescription = "COMPOSE-IDLE"
+    val callback: Choreographer.FrameCallback =
+        object : Choreographer.FrameCallback {
+            override fun doFrame(frameTimeNanos: Long) {
+                if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
+                    contentView.contentDescription = "COMPOSE-BUSY"
+                } else {
+                    contentView.contentDescription = "COMPOSE-IDLE"
+                }
+                Choreographer.getInstance().postFrameCallback(this)
             }
-            Choreographer.getInstance().postFrameCallback(this)
         }
-    }
     Choreographer.getInstance().postFrameCallback(callback)
 }

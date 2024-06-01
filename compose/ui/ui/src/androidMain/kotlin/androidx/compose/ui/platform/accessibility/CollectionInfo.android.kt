@@ -96,14 +96,15 @@ internal fun setCollectionItemInfo(node: SemanticsNode, info: AccessibilityNodeI
 
         if (groupedChildren.isNotEmpty()) {
             val isHorizontal = calculateIfHorizontallyStacked(groupedChildren)
-            val itemInfo = AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
-                if (isHorizontal) 0 else index,
-                1,
-                if (isHorizontal) index else 0,
-                1,
-                false,
-                node.config.getOrElse(SemanticsProperties.Selected) { false }
-            )
+            val itemInfo =
+                AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
+                    if (isHorizontal) 0 else index,
+                    1,
+                    if (isHorizontal) index else 0,
+                    1,
+                    false,
+                    node.config.getOrElse(SemanticsProperties.Selected) { false }
+                )
             if (itemInfo != null) {
                 info.setCollectionItemInfo(itemInfo)
             }
@@ -119,20 +120,23 @@ internal fun SemanticsNode.hasCollectionInfo() =
 private fun calculateIfHorizontallyStacked(items: List<SemanticsNode>): Boolean {
     if (items.count() < 2) return true
 
-    val deltas = items.fastZipWithNext { el1, el2 ->
-        Offset(
-            abs(el1.boundsInRoot.center.x - el2.boundsInRoot.center.x),
-            abs(el1.boundsInRoot.center.y - el2.boundsInRoot.center.y)
-        )
-    }
-    val (deltaX, deltaY) = when (deltas.count()) {
-        1 -> deltas.first()
-        else -> deltas.fastReduce { result, element -> result + element }
-    }
+    val deltas =
+        items.fastZipWithNext { el1, el2 ->
+            Offset(
+                abs(el1.boundsInRoot.center.x - el2.boundsInRoot.center.x),
+                abs(el1.boundsInRoot.center.y - el2.boundsInRoot.center.y)
+            )
+        }
+    val (deltaX, deltaY) =
+        when (deltas.count()) {
+            1 -> deltas.first()
+            else -> deltas.fastReduce { result, element -> result + element }
+        }
     return deltaY < deltaX
 }
 
-private val CollectionInfo.isLazyCollection get() = rowCount < 0 || columnCount < 0
+private val CollectionInfo.isLazyCollection
+    get() = rowCount < 0 || columnCount < 0
 
 private fun CollectionInfo.toAccessibilityCollectionInfo() =
     AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(

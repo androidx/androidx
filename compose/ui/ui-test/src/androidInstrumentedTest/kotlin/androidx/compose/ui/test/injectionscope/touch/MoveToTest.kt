@@ -35,9 +35,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [TouchInjectionScope.moveTo] and [TouchInjectionScope.updatePointerTo] work
- */
+/** Tests if [TouchInjectionScope.moveTo] and [TouchInjectionScope.updatePointerTo] work */
 @MediumTest
 class MoveToTest() {
     companion object {
@@ -47,17 +45,14 @@ class MoveToTest() {
         private val moveToPosition2 = Offset(21f, 21f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Test
@@ -144,9 +139,7 @@ class MoveToTest() {
 
     @Test
     fun moveTo_withoutDown() {
-        expectError<IllegalStateException> {
-            rule.performTouchInput { moveTo(moveToPosition1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { moveTo(moveToPosition1) } }
     }
 
     @Test
@@ -161,18 +154,14 @@ class MoveToTest() {
     fun moveTo_afterUp() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { up() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { moveTo(moveToPosition1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { moveTo(moveToPosition1) } }
     }
 
     @Test
     fun moveTo_afterCancel() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { cancel() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { moveTo(moveToPosition1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { moveTo(moveToPosition1) } }
     }
 
     @Test

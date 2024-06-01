@@ -75,213 +75,100 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 @OptIn(DelicateCoroutinesApi::class)
-fun helloWorld() = GlobalScope.launchApplication {
-    Window(onCloseRequest = ::exitApplication) {
-        Text("Hello, World!")
+fun helloWorld() =
+    GlobalScope.launchApplication {
+        Window(onCloseRequest = ::exitApplication) { Text("Hello, World!") }
     }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun suspendApplication() = GlobalScope.launch {
-    println("Before application")
+fun suspendApplication() =
+    GlobalScope.launch {
+        println("Before application")
 
-    awaitApplication {
-        Window(onCloseRequest = ::exitApplication) {}
+        awaitApplication { Window(onCloseRequest = ::exitApplication) {} }
+
+        println("After application")
     }
-
-    println("After application")
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun suspendBackgroundApplication() = GlobalScope.launch {
-    println("Before application")
+fun suspendBackgroundApplication() =
+    GlobalScope.launch {
+        println("Before application")
 
-    awaitApplication {
-        LaunchedEffect(Unit) {
-            println("1")
-            delay(1000)
-            println("2")
-            delay(1000)
-            println("3")
-        }
-    }
-
-    println("After application")
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun splashScreen() = GlobalScope.launchApplication {
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(2000)
-        isLoading = false
-    }
-
-    if (isLoading) {
-        Window(onCloseRequest = ::exitApplication) {
-            Text("Loading")
-        }
-    } else {
-        Window(onCloseRequest = ::exitApplication) {
-            Text("Hello, World!")
-        }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun autoClose() = GlobalScope.launchApplication {
-    var isOpen by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        delay(2000)
-        isOpen = false
-    }
-
-    if (isOpen) {
-        Window(onCloseRequest = {}) {
-            Text("This window will be closed in 2 seconds")
-        }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun openSecondWindow() = GlobalScope.launchApplication {
-    var isMainWindowOpen by remember { mutableStateOf(true) }
-    var isSecondWindowOpen by remember { mutableStateOf(false) }
-
-    if (isMainWindowOpen) {
-        Window(onCloseRequest = { isMainWindowOpen = false }) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(isSecondWindowOpen, { isSecondWindowOpen = !isSecondWindowOpen })
-                Text("Second window")
-            }
-        }
-    }
-
-    if (isSecondWindowOpen) {
-        Window(onCloseRequest = { isSecondWindowOpen = false }, title = "Nested window") {}
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun closeToTray() = GlobalScope.launchApplication {
-    var isVisible by remember { mutableStateOf(true) }
-
-    Window(
-        onCloseRequest = { isVisible = false },
-        visible = isVisible,
-        title = "Counter",
-    ) {
-        var counter by remember { mutableStateOf(0) }
-        LaunchedEffect(Unit) {
-            while (true) {
-                counter++
+        awaitApplication {
+            LaunchedEffect(Unit) {
+                println("1")
                 delay(1000)
+                println("2")
+                delay(1000)
+                println("3")
             }
         }
-        Text(counter.toString())
+
+        println("After application")
     }
 
-    val icon = remember {
-        runBlocking {
-            loadIcon()
+@OptIn(DelicateCoroutinesApi::class)
+fun splashScreen() =
+    GlobalScope.launchApplication {
+        var isLoading by remember { mutableStateOf(true) }
+
+        LaunchedEffect(Unit) {
+            delay(2000)
+            isLoading = false
+        }
+
+        if (isLoading) {
+            Window(onCloseRequest = ::exitApplication) { Text("Loading") }
+        } else {
+            Window(onCloseRequest = ::exitApplication) { Text("Hello, World!") }
         }
     }
 
-    if (!isVisible) {
-        Tray(
-            icon,
-            tooltip = "Counter",
-            onAction = { isVisible = true },
-            menu = {
-                Item("Exit", onClick = ::exitApplication)
-            },
-        )
+@OptIn(DelicateCoroutinesApi::class)
+fun autoClose() =
+    GlobalScope.launchApplication {
+        var isOpen by remember { mutableStateOf(true) }
+
+        LaunchedEffect(Unit) {
+            delay(2000)
+            isOpen = false
+        }
+
+        if (isOpen) {
+            Window(onCloseRequest = {}) { Text("This window will be closed in 2 seconds") }
+        }
     }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun askToClose() = GlobalScope.launchApplication {
-    var isAskingToClose by remember { mutableStateOf(false) }
+fun openSecondWindow() =
+    GlobalScope.launchApplication {
+        var isMainWindowOpen by remember { mutableStateOf(true) }
+        var isSecondWindowOpen by remember { mutableStateOf(false) }
 
-    Window(onCloseRequest = { isAskingToClose = true }) {
-        Text("Very important document")
-
-        if (isAskingToClose) {
-            Window(onCloseRequest = { isAskingToClose = false }, title = "Are you sure?") {
-                Button(onClick = ::exitApplication) {
-                    Text("Yes!")
+        if (isMainWindowOpen) {
+            Window(onCloseRequest = { isMainWindowOpen = false }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(isSecondWindowOpen, { isSecondWindowOpen = !isSecondWindowOpen })
+                    Text("Second window")
                 }
             }
         }
-    }
-}
 
-@OptIn(DelicateCoroutinesApi::class)
-fun customWindow() = GlobalScope.launchApplication {
-    var isShowing by remember { mutableStateOf(true) }
-    var titleNum by remember { mutableStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            titleNum++
-            delay(1000)
+        if (isSecondWindowOpen) {
+            Window(onCloseRequest = { isSecondWindowOpen = false }, title = "Nested window") {}
         }
     }
 
-    if (isShowing) {
+@OptIn(DelicateCoroutinesApi::class)
+fun closeToTray() =
+    GlobalScope.launchApplication {
+        var isVisible by remember { mutableStateOf(true) }
+
         Window(
-            create = {
-                ComposeWindow().apply {
-                    size = Dimension(200, 200)
-                    addWindowListener(object : WindowAdapter() {
-                        override fun windowClosing(e: WindowEvent) {
-                            isShowing = false
-                        }
-                    })
-                }
-            },
-            dispose = ComposeWindow::dispose,
-            update = {
-                it.title = "title$titleNum"
-            }
-        ) {}
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun dialog() = GlobalScope.launchApplication {
-    var isShowing by remember { mutableStateOf(true) }
-    var isDialogShowing by remember { mutableStateOf(false) }
-
-    if (isShowing) {
-        Window(onCloseRequest = { isShowing = false }) {
-            Button(onClick = { isDialogShowing = true }) {
-                Text("Dialog")
-            }
-
-            if (isDialogShowing) {
-                DialogWindow(onCloseRequest = { isDialogShowing = false }) {
-                    Text("Dialog")
-                }
-            }
-        }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun hideDialog() = GlobalScope.launchApplication {
-    var isDialogVisible by remember { mutableStateOf(false) }
-
-    Window(onCloseRequest = ::exitApplication) {
-        Button(onClick = { isDialogVisible = true }) {
-            Text("Dialog")
-        }
-
-        DialogWindow(
-            onCloseRequest = { isDialogVisible = false },
-            visible = isDialogVisible
+            onCloseRequest = { isVisible = false },
+            visible = isVisible,
+            title = "Counter",
         ) {
             var counter by remember { mutableStateOf(0) }
             LaunchedEffect(Unit) {
@@ -292,337 +179,419 @@ fun hideDialog() = GlobalScope.launchApplication {
             }
             Text(counter.toString())
         }
+
+        val icon = remember { runBlocking { loadIcon() } }
+
+        if (!isVisible) {
+            Tray(
+                icon,
+                tooltip = "Counter",
+                onAction = { isVisible = true },
+                menu = { Item("Exit", onClick = ::exitApplication) },
+            )
+        }
     }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun customDialog() = GlobalScope.launchApplication {
-    var isShowing by remember { mutableStateOf(true) }
+fun askToClose() =
+    GlobalScope.launchApplication {
+        var isAskingToClose by remember { mutableStateOf(false) }
 
-    if (isShowing) {
-        FileDialog(
-            onDismissRequest = {
-                isShowing = false
-                println("Result $it")
+        Window(onCloseRequest = { isAskingToClose = true }) {
+            Text("Very important document")
+
+            if (isAskingToClose) {
+                Window(onCloseRequest = { isAskingToClose = false }, title = "Are you sure?") {
+                    Button(onClick = ::exitApplication) { Text("Yes!") }
+                }
             }
-        )
+        }
     }
-}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun customWindow() =
+    GlobalScope.launchApplication {
+        var isShowing by remember { mutableStateOf(true) }
+        var titleNum by remember { mutableStateOf(0) }
+
+        LaunchedEffect(Unit) {
+            while (true) {
+                titleNum++
+                delay(1000)
+            }
+        }
+
+        if (isShowing) {
+            Window(
+                create = {
+                    ComposeWindow().apply {
+                        size = Dimension(200, 200)
+                        addWindowListener(
+                            object : WindowAdapter() {
+                                override fun windowClosing(e: WindowEvent) {
+                                    isShowing = false
+                                }
+                            }
+                        )
+                    }
+                },
+                dispose = ComposeWindow::dispose,
+                update = { it.title = "title$titleNum" }
+            ) {}
+        }
+    }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun dialog() =
+    GlobalScope.launchApplication {
+        var isShowing by remember { mutableStateOf(true) }
+        var isDialogShowing by remember { mutableStateOf(false) }
+
+        if (isShowing) {
+            Window(onCloseRequest = { isShowing = false }) {
+                Button(onClick = { isDialogShowing = true }) { Text("Dialog") }
+
+                if (isDialogShowing) {
+                    DialogWindow(onCloseRequest = { isDialogShowing = false }) { Text("Dialog") }
+                }
+            }
+        }
+    }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun hideDialog() =
+    GlobalScope.launchApplication {
+        var isDialogVisible by remember { mutableStateOf(false) }
+
+        Window(onCloseRequest = ::exitApplication) {
+            Button(onClick = { isDialogVisible = true }) { Text("Dialog") }
+
+            DialogWindow(onCloseRequest = { isDialogVisible = false }, visible = isDialogVisible) {
+                var counter by remember { mutableStateOf(0) }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        counter++
+                        delay(1000)
+                    }
+                }
+                Text(counter.toString())
+            }
+        }
+    }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun customDialog() =
+    GlobalScope.launchApplication {
+        var isShowing by remember { mutableStateOf(true) }
+
+        if (isShowing) {
+            FileDialog(
+                onDismissRequest = {
+                    isShowing = false
+                    println("Result $it")
+                }
+            )
+        }
+    }
 
 @Composable
-private fun FileDialog(
-    onDismissRequest: (result: String?) -> Unit
-) = AwtWindow(
-    create = {
-        object : FileDialog(null as Frame?, "Choose a file", LOAD) {
-            override fun setVisible(value: Boolean) {
-                super.setVisible(value)
-                if (value) {
-                    onDismissRequest(file)
+private fun FileDialog(onDismissRequest: (result: String?) -> Unit) =
+    AwtWindow(
+        create = {
+            object : FileDialog(null as Frame?, "Choose a file", LOAD) {
+                override fun setVisible(value: Boolean) {
+                    super.setVisible(value)
+                    if (value) {
+                        onDismissRequest(file)
+                    }
                 }
             }
+        },
+        dispose = FileDialog::dispose
+    )
+
+@OptIn(DelicateCoroutinesApi::class)
+fun setIcon() =
+    GlobalScope.launchApplication {
+        var icon: Painter? by remember { mutableStateOf(null) }
+
+        LaunchedEffect(Unit) {
+            delay(1000)
+            icon = loadIcon()
+            delay(1000)
+            icon = null
+            delay(1000)
+            icon = loadIcon()
         }
-    },
-    dispose = FileDialog::dispose
-)
-@OptIn(DelicateCoroutinesApi::class)
-fun setIcon() = GlobalScope.launchApplication {
-    var icon: Painter? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(Unit) {
-        delay(1000)
-        icon = loadIcon()
-        delay(1000)
-        icon = null
-        delay(1000)
-        icon = loadIcon()
+        Window(onCloseRequest = ::exitApplication, icon = icon) {}
     }
 
-    Window(onCloseRequest = ::exitApplication, icon = icon) {}
-}
-
 @OptIn(DelicateCoroutinesApi::class)
-fun setAwtIcon() = GlobalScope.launchApplication {
-    var icon: Painter? by remember { mutableStateOf(null) }
+fun setAwtIcon() =
+    GlobalScope.launchApplication {
+        var icon: Painter? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(Unit) {
-        icon = loadAwtIcon().toPainter()
+        LaunchedEffect(Unit) { icon = loadAwtIcon().toPainter() }
+
+        Window(onCloseRequest = ::exitApplication, icon = icon) {}
     }
-
-    Window(onCloseRequest = ::exitApplication, icon = icon) {}
-}
 
 @Suppress("BlockingMethodInNonBlockingContext")
-private suspend fun loadIcon() = withContext(Dispatchers.IO) {
-    val path = "androidx/compose/desktop/example/star.svg"
-    useResource(path) {
-        loadSvgPainter(it, Density(1f))
+private suspend fun loadIcon() =
+    withContext(Dispatchers.IO) {
+        val path = "androidx/compose/desktop/example/star.svg"
+        useResource(path) { loadSvgPainter(it, Density(1f)) }
     }
-}
 
 @Suppress("BlockingMethodInNonBlockingContext")
-private suspend fun loadAwtIcon() = withContext(Dispatchers.IO) {
-    val path = "androidx/compose/desktop/example/tray.png"
-    useResource(path, ImageIO::read)
-}
+private suspend fun loadAwtIcon() =
+    withContext(Dispatchers.IO) {
+        val path = "androidx/compose/desktop/example/tray.png"
+        useResource(path, ImageIO::read)
+    }
 
 @OptIn(DelicateCoroutinesApi::class)
-fun setParameters() = GlobalScope.launchApplication {
-    val state = rememberWindowState()
-    Window(
-        onCloseRequest = ::exitApplication,
-        state = state, undecorated = true, resizable = false, alwaysOnTop = true
-    ) {
-        Button(onClick = ::exitApplication) {
-            Text("Close")
+fun setParameters() =
+    GlobalScope.launchApplication {
+        val state = rememberWindowState()
+        Window(
+            onCloseRequest = ::exitApplication,
+            state = state,
+            undecorated = true,
+            resizable = false,
+            alwaysOnTop = true
+        ) {
+            Button(onClick = ::exitApplication) { Text("Close") }
         }
     }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun setPosition() = GlobalScope.launchApplication {
-    var isOpen by remember { mutableStateOf(true) }
-    val state = rememberWindowState(position = WindowPosition(0.dp, 0.dp))
+fun setPosition() =
+    GlobalScope.launchApplication {
+        var isOpen by remember { mutableStateOf(true) }
+        val state = rememberWindowState(position = WindowPosition(0.dp, 0.dp))
 
-    if (isOpen) {
-        Window(onCloseRequest = ::exitApplication, state = state) {}
-    }
-
-    Window(onCloseRequest = ::exitApplication) {
-        Column {
-            Text(state.position.toString())
-
-            Button(
-                onClick = {
-                    val position = state.position
-                    if (position is WindowPosition.Absolute) {
-                        state.position = position.copy(x = state.position.x + 10.dp)
-                    }
-                }
-            ) {
-                Text("move")
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(isOpen, { isOpen = !isOpen })
-                Text("isOpen")
-            }
+        if (isOpen) {
+            Window(onCloseRequest = ::exitApplication, state = state) {}
         }
-    }
-}
 
-@OptIn(DelicateCoroutinesApi::class)
-fun initiallyCenteredWindow() = GlobalScope.launchApplication {
-    var isOpen by remember { mutableStateOf(true) }
-    val state = rememberWindowState(position = WindowPosition(Alignment.Center))
+        Window(onCloseRequest = ::exitApplication) {
+            Column {
+                Text(state.position.toString())
 
-    if (isOpen) {
-        Window(onCloseRequest = ::exitApplication, state = state) {}
-    }
-
-    Window(onCloseRequest = ::exitApplication) {
-        Column {
-            Text(state.position.toString())
-
-            Button(
-                onClick = {
-                    val position = state.position
-                    if (position is WindowPosition.Absolute) {
-                        state.position = position.copy(x = state.position.x + 10.dp)
-                    }
-                }
-            ) {
-                Text("move")
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(isOpen, { isOpen = !isOpen })
-                Text("isOpen")
-            }
-        }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun setSize() = GlobalScope.launchApplication {
-    var isOpen by remember { mutableStateOf(true) }
-    val state = rememberWindowState(size = DpSize(400.dp, 100.dp))
-
-    if (isOpen) {
-        Window(onCloseRequest = ::exitApplication, state = state) {}
-    }
-
-    Window(onCloseRequest = ::exitApplication) {
-        Column {
-            Text(state.size.toString())
-
-            Button(
-                onClick = {
-                    state.size = state.size.copy(width = state.size.width + 10.dp)
-                }
-            ) {
-                Text("resize")
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(isOpen, { isOpen = !isOpen })
-                Text("isOpen")
-            }
-        }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-fun setStatus() = GlobalScope.launchApplication {
-    val state = rememberWindowState(placement = WindowPlacement.Maximized)
-
-    Window(onCloseRequest = ::exitApplication, state = state) {
-        Column {
-            Text(state.size.toString())
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    state.placement == WindowPlacement.Fullscreen,
-                    {
-                        state.placement = if (it) {
-                            WindowPlacement.Fullscreen
-                        } else {
-                            WindowPlacement.Floating
+                Button(
+                    onClick = {
+                        val position = state.position
+                        if (position is WindowPosition.Absolute) {
+                            state.position = position.copy(x = state.position.x + 10.dp)
                         }
                     }
-                )
-                Text("isFullscreen")
-            }
+                ) {
+                    Text("move")
+                }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    state.placement == WindowPlacement.Fullscreen,
-                    {
-                        state.placement = if (it) {
-                            WindowPlacement.Maximized
-                        } else {
-                            WindowPlacement.Floating
-                        }
-                    }
-                )
-                Text("isMaximized")
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(state.isMinimized, { state.isMinimized = !state.isMinimized })
-                Text("isMinimized")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(isOpen, { isOpen = !isOpen })
+                    Text("isOpen")
+                }
             }
         }
     }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun hotKeys() = GlobalScope.launchApplication {
-    val state = rememberWindowState()
+fun initiallyCenteredWindow() =
+    GlobalScope.launchApplication {
+        var isOpen by remember { mutableStateOf(true) }
+        val state = rememberWindowState(position = WindowPosition(Alignment.Center))
 
-    Window(
-        onCloseRequest = ::exitApplication,
-        state = state,
-        onPreviewKeyEvent = {
-            when (it.key) {
-                Key.Escape -> {
-                    exitApplication()
-                    true
+        if (isOpen) {
+            Window(onCloseRequest = ::exitApplication, state = state) {}
+        }
+
+        Window(onCloseRequest = ::exitApplication) {
+            Column {
+                Text(state.position.toString())
+
+                Button(
+                    onClick = {
+                        val position = state.position
+                        if (position is WindowPosition.Absolute) {
+                            state.position = position.copy(x = state.position.x + 10.dp)
+                        }
+                    }
+                ) {
+                    Text("move")
                 }
-                else -> false
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(isOpen, { isOpen = !isOpen })
+                    Text("isOpen")
+                }
             }
         }
-    ) {
-        TextField("Text", {})
     }
-}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun setSize() =
+    GlobalScope.launchApplication {
+        var isOpen by remember { mutableStateOf(true) }
+        val state = rememberWindowState(size = DpSize(400.dp, 100.dp))
+
+        if (isOpen) {
+            Window(onCloseRequest = ::exitApplication, state = state) {}
+        }
+
+        Window(onCloseRequest = ::exitApplication) {
+            Column {
+                Text(state.size.toString())
+
+                Button(
+                    onClick = { state.size = state.size.copy(width = state.size.width + 10.dp) }
+                ) {
+                    Text("resize")
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(isOpen, { isOpen = !isOpen })
+                    Text("isOpen")
+                }
+            }
+        }
+    }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun setStatus() =
+    GlobalScope.launchApplication {
+        val state = rememberWindowState(placement = WindowPlacement.Maximized)
+
+        Window(onCloseRequest = ::exitApplication, state = state) {
+            Column {
+                Text(state.size.toString())
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        state.placement == WindowPlacement.Fullscreen,
+                        {
+                            state.placement =
+                                if (it) {
+                                    WindowPlacement.Fullscreen
+                                } else {
+                                    WindowPlacement.Floating
+                                }
+                        }
+                    )
+                    Text("isFullscreen")
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        state.placement == WindowPlacement.Fullscreen,
+                        {
+                            state.placement =
+                                if (it) {
+                                    WindowPlacement.Maximized
+                                } else {
+                                    WindowPlacement.Floating
+                                }
+                        }
+                    )
+                    Text("isMaximized")
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(state.isMinimized, { state.isMinimized = !state.isMinimized })
+                    Text("isMinimized")
+                }
+            }
+        }
+    }
+
+@OptIn(DelicateCoroutinesApi::class)
+fun hotKeys() =
+    GlobalScope.launchApplication {
+        val state = rememberWindowState()
+
+        Window(
+            onCloseRequest = ::exitApplication,
+            state = state,
+            onPreviewKeyEvent = {
+                when (it.key) {
+                    Key.Escape -> {
+                        exitApplication()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        ) {
+            TextField("Text", {})
+        }
+    }
 
 fun saveWindowState() {
     // TODO
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-fun menu() = GlobalScope.launchApplication {
-    var isSubmenuShowing by remember { mutableStateOf(false) }
-    val icon = remember {
-        runBlocking {
-            loadIcon()
-        }
-    }
+fun menu() =
+    GlobalScope.launchApplication {
+        var isSubmenuShowing by remember { mutableStateOf(false) }
+        val icon = remember { runBlocking { loadIcon() } }
 
-    Window(
-        onCloseRequest = ::exitApplication
-    ) {
-        MenuBar {
-            Menu("File", mnemonic = 'F') {
-                CheckboxItem(
-                    "Toggle submenu",
-                    isSubmenuShowing,
-                    mnemonic = 'T',
-                    onCheckedChange = {
-                        isSubmenuShowing = it
-                    },
-                    shortcut = KeyShortcut(Key.T, ctrl = true)
-                )
-                if (isSubmenuShowing) {
-                    Menu("Submenu", mnemonic = 'S') {
-                        Item(
+        Window(onCloseRequest = ::exitApplication) {
+            MenuBar {
+                Menu("File", mnemonic = 'F') {
+                    CheckboxItem(
+                        "Toggle submenu",
+                        isSubmenuShowing,
+                        mnemonic = 'T',
+                        onCheckedChange = { isSubmenuShowing = it },
+                        shortcut = KeyShortcut(Key.T, ctrl = true)
+                    )
+                    if (isSubmenuShowing) {
+                        Menu("Submenu", mnemonic = 'S') {
+                            Item("item1", icon = icon, onClick = { println("item1") })
+                            Item("item2", onClick = { println("item2") })
+                        }
+                    }
+
+                    var radioState by remember { mutableStateOf(0) }
+
+                    Menu("RadioButton", mnemonic = 'R') {
+                        RadioButtonItem(
                             "item1",
-                            icon = icon,
-                            onClick = {
-                                println("item1")
-                            }
+                            selected = radioState == 0,
+                            onClick = { radioState = 0 }
                         )
-                        Item(
+                        RadioButtonItem(
                             "item2",
-                            onClick = {
-                                println("item2")
-                            }
+                            selected = radioState == 1,
+                            onClick = { radioState = 1 }
                         )
                     }
+
+                    Separator()
+                    Item("Exit", onClick = this@launchApplication::exitApplication)
                 }
+            }
 
-                var radioState by remember { mutableStateOf(0) }
-
-                Menu("RadioButton", mnemonic = 'R') {
-                    RadioButtonItem(
-                        "item1",
-                        selected = radioState == 0,
-                        onClick = {
-                            radioState = 0
-                        }
-                    )
-                    RadioButtonItem(
-                        "item2",
-                        selected = radioState == 1,
-                        onClick = {
-                            radioState = 1
-                        }
-                    )
-                }
-
-                Separator()
-                Item("Exit", onClick = this@launchApplication::exitApplication)
+            Column {
+                TextField("Consume T Key", {}, Modifier.onKeyEvent { it.key == Key.T })
+                TextField("Don't consume", {})
             }
         }
-
-        Column {
-            TextField("Consume T Key", {}, Modifier.onKeyEvent { it.key == Key.T })
-            TextField("Don't consume", {})
-        }
     }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
-fun trayAndNotifications() = GlobalScope.launchApplication {
-    val state = remember(::AppState)
+fun trayAndNotifications() =
+    GlobalScope.launchApplication {
+        val state = remember(::AppState)
 
-    Window(onCloseRequest = ::exitApplication, state = state.window) {
-        TrayScreen(state)
+        Window(onCloseRequest = ::exitApplication, state = state.window) { TrayScreen(state) }
+
+        Trays(state)
     }
-
-    Trays(state)
-}
 
 private class AppState {
     val window = WindowState()
@@ -631,39 +600,29 @@ private class AppState {
 }
 
 @Composable
-private fun TrayScreen(state: AppState) = Column(Modifier.padding(12.dp)) {
-    val notification = rememberNotification(
-        title = "Title",
-        message = "Text",
-        Notification.Type.Info
-    )
+private fun TrayScreen(state: AppState) =
+    Column(Modifier.padding(12.dp)) {
+        val notification =
+            rememberNotification(title = "Title", message = "Text", Notification.Type.Info)
 
-    Button(
-        modifier = Modifier.padding(8.dp),
-        onClick = {
-            state.isTray2Visible = !state.isTray2Visible
+        Button(
+            modifier = Modifier.padding(8.dp),
+            onClick = { state.isTray2Visible = !state.isTray2Visible }
+        ) {
+            Text("Toggle middle tray")
         }
-    ) {
-        Text("Toggle middle tray")
-    }
 
-    Button(
-        modifier = Modifier.padding(8.dp),
-        onClick = {
-            state.tray.sendNotification(notification)
+        Button(
+            modifier = Modifier.padding(8.dp),
+            onClick = { state.tray.sendNotification(notification) }
+        ) {
+            Text("Show notification")
         }
-    ) {
-        Text("Show notification")
     }
-}
 
 @Composable
 private fun ApplicationScope.Trays(state: AppState) {
-    val icon = remember {
-        runBlocking {
-            loadIcon()
-        }
-    }
+    val icon = remember { runBlocking { loadIcon() } }
 
     Tray(icon, tooltip = "Tray1")
 
@@ -674,26 +633,13 @@ private fun ApplicationScope.Trays(state: AppState) {
             tooltip = "Tray2",
             menu = {
                 Menu("Submenu") {
-                    Item(
-                        "item1",
-                        onClick = {
-                            println("item1")
-                        }
-                    )
-                    Item(
-                        "item2",
-                        onClick = {
-                            println("item2")
-                        }
-                    )
+                    Item("item1", onClick = { println("item1") })
+                    Item("item2", onClick = { println("item2") })
                 }
 
                 Separator()
 
-                Item(
-                    "Exit",
-                    onClick = ::exitApplication
-                )
+                Item("Exit", onClick = ::exitApplication)
             }
         )
     }

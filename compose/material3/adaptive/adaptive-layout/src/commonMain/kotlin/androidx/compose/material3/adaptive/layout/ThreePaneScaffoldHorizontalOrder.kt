@@ -25,10 +25,10 @@ import androidx.compose.ui.unit.LayoutDirection
  * the values of [firstPane], [secondPane] and [thirdPane] have to be different, otherwise
  * [IllegalArgumentException] will be thrown.
  *
- * @constructor create an instance of [ThreePaneScaffoldHorizontalOrder]
  * @param firstPane The first pane from the start of the [ThreePaneScaffold]
  * @param secondPane The second pane from the start of the [ThreePaneScaffold]
  * @param thirdPane The third pane from the start of the [ThreePaneScaffold]
+ * @constructor create an instance of [ThreePaneScaffoldHorizontalOrder]
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
@@ -61,19 +61,13 @@ internal class ThreePaneScaffoldHorizontalOrder(
     }
 }
 
-/**
- * Converts a bidirectional order to a left-to-right order.
- */
+/** Converts a bidirectional order to a left-to-right order. */
 @ExperimentalMaterial3AdaptiveApi
 internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     layoutDirection: LayoutDirection
 ): ThreePaneScaffoldHorizontalOrder {
     return if (layoutDirection == LayoutDirection.Rtl) {
-        ThreePaneScaffoldHorizontalOrder(
-            thirdPane,
-            secondPane,
-            firstPane
-        )
+        ThreePaneScaffoldHorizontalOrder(thirdPane, secondPane, firstPane)
     } else {
         this
     }
@@ -108,9 +102,7 @@ internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRol
     return 0
 }
 
-/**
- * The set of the available pane roles of [ThreePaneScaffold].
- */
+/** The set of the available pane roles of [ThreePaneScaffold]. */
 enum class ThreePaneScaffoldRole {
     /**
      * The primary pane of [ThreePaneScaffold]. It is supposed to have the highest priority during

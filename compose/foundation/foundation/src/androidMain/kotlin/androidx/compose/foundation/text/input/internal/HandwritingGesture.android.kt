@@ -62,22 +62,17 @@ internal object HandwritingGestureApi34 {
         viewConfiguration: ViewConfiguration?
     ): Int {
         return when (handwritingGesture) {
-            is SelectGesture ->
-                performSelectGesture(handwritingGesture, layoutState)
-            is DeleteGesture ->
-                performDeleteGesture(handwritingGesture, layoutState)
-            is SelectRangeGesture ->
-                performSelectRangeGesture(handwritingGesture, layoutState)
-            is DeleteRangeGesture ->
-                performDeleteRangeGesture(handwritingGesture, layoutState)
+            is SelectGesture -> performSelectGesture(handwritingGesture, layoutState)
+            is DeleteGesture -> performDeleteGesture(handwritingGesture, layoutState)
+            is SelectRangeGesture -> performSelectRangeGesture(handwritingGesture, layoutState)
+            is DeleteRangeGesture -> performDeleteRangeGesture(handwritingGesture, layoutState)
             is JoinOrSplitGesture ->
                 performJoinOrSplitGesture(handwritingGesture, layoutState, viewConfiguration)
             is InsertGesture ->
                 performInsertGesture(handwritingGesture, layoutState, viewConfiguration)
             is RemoveSpaceGesture ->
                 performRemoveSpaceGesture(handwritingGesture, layoutState, viewConfiguration)
-            else ->
-                InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
+            else -> InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
     }
 
@@ -94,11 +89,7 @@ internal object HandwritingGestureApi34 {
             is DeleteRangeGesture -> previewDeleteRangeGesture(handwritingGesture, layoutState)
             else -> return false
         }
-        cancellationSignal?.setOnCancelListener {
-            editUntransformedTextAsUser {
-                clearHighlight()
-            }
-        }
+        cancellationSignal?.setOnCancelListener { editUntransformedTextAsUser { clearHighlight() } }
         return true
     }
 
@@ -107,13 +98,14 @@ internal object HandwritingGestureApi34 {
         gesture: SelectGesture,
         layoutState: TextLayoutState
     ): Int {
-        val rangeInTransformedText = layoutState.getRangeForScreenRect(
-            gesture.selectionArea.toComposeRect(),
-            gesture.granularity.toTextGranularity(),
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
+        val rangeInTransformedText =
+            layoutState
+                .getRangeForScreenRect(
+                    gesture.selectionArea.toComposeRect(),
+                    gesture.granularity.toTextGranularity(),
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply { if (collapsed) return fallback(gesture) }
 
         // TODO(332749926) show toolbar after selection.
         selectCharsIn(rangeInTransformedText)
@@ -141,13 +133,14 @@ internal object HandwritingGestureApi34 {
         layoutState: TextLayoutState
     ): Int {
         val granularity = gesture.granularity.toTextGranularity()
-        val rangeInTransformedText = layoutState.getRangeForScreenRect(
-            gesture.deletionArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
+        val rangeInTransformedText =
+            layoutState
+                .getRangeForScreenRect(
+                    gesture.deletionArea.toComposeRect(),
+                    granularity,
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply { if (collapsed) return fallback(gesture) }
 
         performDeletion(
             rangeInTransformedText = rangeInTransformedText,
@@ -176,14 +169,15 @@ internal object HandwritingGestureApi34 {
         gesture: SelectRangeGesture,
         layoutState: TextLayoutState
     ): Int {
-        val rangeInTransformedText = layoutState.getRangeForScreenRects(
-            gesture.selectionStartArea.toComposeRect(),
-            gesture.selectionEndArea.toComposeRect(),
-            gesture.granularity.toTextGranularity(),
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
+        val rangeInTransformedText =
+            layoutState
+                .getRangeForScreenRects(
+                    gesture.selectionStartArea.toComposeRect(),
+                    gesture.selectionEndArea.toComposeRect(),
+                    gesture.granularity.toTextGranularity(),
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply { if (collapsed) return fallback(gesture) }
 
         // TODO(332749926) show toolbar after selection.
         selectCharsIn(rangeInTransformedText)
@@ -212,14 +206,15 @@ internal object HandwritingGestureApi34 {
         layoutState: TextLayoutState
     ): Int {
         val granularity = gesture.granularity.toTextGranularity()
-        val rangeInTransformedText = layoutState.getRangeForScreenRects(
-            gesture.deletionStartArea.toComposeRect(),
-            gesture.deletionEndArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
+        val rangeInTransformedText =
+            layoutState
+                .getRangeForScreenRects(
+                    gesture.deletionStartArea.toComposeRect(),
+                    gesture.deletionEndArea.toComposeRect(),
+                    granularity,
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply { if (collapsed) return fallback(gesture) }
 
         performDeletion(
             rangeInTransformedText = rangeInTransformedText,
@@ -258,10 +253,11 @@ internal object HandwritingGestureApi34 {
             return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
         }
 
-        val offset = layoutState.getOffsetForHandwritingGesture(
-            pointInScreen = gesture.joinOrSplitPoint.toOffset(),
-            viewConfiguration = viewConfiguration
-        )
+        val offset =
+            layoutState.getOffsetForHandwritingGesture(
+                pointInScreen = gesture.joinOrSplitPoint.toOffset(),
+                viewConfiguration = viewConfiguration
+            )
 
         // TODO(332963121): support gesture at BiDi boundaries.
         if (offset == -1 || layoutState.layoutResult?.isBiDiBoundary(offset) == true) {
@@ -273,10 +269,7 @@ internal object HandwritingGestureApi34 {
         if (textRange.collapsed) {
             replaceText(" ", textRange)
         } else {
-            performDeletion(
-                rangeInTransformedText = textRange,
-                adjustRange = false
-            )
+            performDeletion(rangeInTransformedText = textRange, adjustRange = false)
         }
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
@@ -287,10 +280,11 @@ internal object HandwritingGestureApi34 {
         layoutState: TextLayoutState,
         viewConfiguration: ViewConfiguration?
     ): Int {
-        val offset = layoutState.getOffsetForHandwritingGesture(
-            pointInScreen = gesture.insertionPoint.toOffset(),
-            viewConfiguration = viewConfiguration
-        )
+        val offset =
+            layoutState.getOffsetForHandwritingGesture(
+                pointInScreen = gesture.insertionPoint.toOffset(),
+                viewConfiguration = viewConfiguration
+            )
 
         // TODO(332963121): support gesture at BiDi boundaries.
         if (offset == -1) {
@@ -307,24 +301,26 @@ internal object HandwritingGestureApi34 {
         layoutState: TextLayoutState,
         viewConfiguration: ViewConfiguration?
     ): Int {
-        val range = layoutState.layoutResult.getRangeForRemoveSpaceGesture(
-            startPointInScreen = gesture.startPoint.toOffset(),
-            endPointerInScreen = gesture.endPoint.toOffset(),
-            layoutCoordinates = layoutState.textLayoutNodeCoordinates,
-            viewConfiguration = viewConfiguration
-        ).apply {
-            if (collapsed) return fallback(gesture)
-        }
+        val range =
+            layoutState.layoutResult
+                .getRangeForRemoveSpaceGesture(
+                    startPointInScreen = gesture.startPoint.toOffset(),
+                    endPointerInScreen = gesture.endPoint.toOffset(),
+                    layoutCoordinates = layoutState.textLayoutNodeCoordinates,
+                    viewConfiguration = viewConfiguration
+                )
+                .apply { if (collapsed) return fallback(gesture) }
 
         var firstMatchStart = -1
         var lastMatchEnd = -1
-        val newText = visualText.substring(range).replace(Regex("\\s+")) {
-            if (firstMatchStart == -1) {
-                firstMatchStart = it.range.first
+        val newText =
+            visualText.substring(range).replace(Regex("\\s+")) {
+                if (firstMatchStart == -1) {
+                    firstMatchStart = it.range.first
+                }
+                lastMatchEnd = it.range.last + 1
+                ""
             }
-            lastMatchEnd = it.range.last + 1
-            ""
-        }
 
         // No whitespace is found in the target range, fallback instead
         if (firstMatchStart == -1 || lastMatchEnd == -1) {
@@ -339,10 +335,11 @@ internal object HandwritingGestureApi34 {
         val finalRange = TextRange(range.start + firstMatchStart, range.start + lastMatchEnd)
         // Remove the unchanged part from the newText as well. Characters before firstMatchStart
         // and characters after the lastMatchEnd are removed.
-        val finalNewText = newText.substring(
-            startIndex = firstMatchStart,
-            endIndex = newText.length - (range.length - lastMatchEnd)
-        )
+        val finalNewText =
+            newText.substring(
+                startIndex = firstMatchStart,
+                endIndex = newText.length - (range.length - lastMatchEnd)
+            )
 
         replaceText(finalNewText, finalRange)
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
@@ -353,22 +350,21 @@ internal object HandwritingGestureApi34 {
         rangeInTransformedText: TextRange,
         adjustRange: Boolean
     ) {
-        val finalRange = if (adjustRange) {
-            rangeInTransformedText.adjustHandwritingDeleteGestureRange(visualText)
-        } else {
-            rangeInTransformedText
-        }
+        val finalRange =
+            if (adjustRange) {
+                rangeInTransformedText.adjustHandwritingDeleteGestureRange(visualText)
+            } else {
+                rangeInTransformedText
+            }
         replaceText("", finalRange)
     }
 
     @DoNotInline
     private fun TransformedTextFieldState.fallback(gesture: HandwritingGesture): Int {
-        editUntransformedTextAsUser {
-            clearHighlight()
-        }
+        editUntransformedTextAsUser { clearHighlight() }
 
-        val fallbackText = gesture.fallbackText
-            ?: return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
+        val fallbackText =
+            gesture.fallbackText ?: return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
 
         replaceSelectedText(
             newText = fallbackText,
@@ -403,20 +399,17 @@ internal object HandwritingGestureApi34 {
         return when (gesture) {
             is SelectGesture ->
                 performSelectGesture(gesture, textFieldSelectionManager, editCommandConsumer)
-            is DeleteGesture ->
-                performDeleteGesture(gesture, text, editCommandConsumer)
+            is DeleteGesture -> performDeleteGesture(gesture, text, editCommandConsumer)
             is SelectRangeGesture ->
                 performSelectRangeGesture(gesture, textFieldSelectionManager, editCommandConsumer)
-            is DeleteRangeGesture ->
-                performDeleteRangeGesture(gesture, text, editCommandConsumer)
+            is DeleteRangeGesture -> performDeleteRangeGesture(gesture, text, editCommandConsumer)
             is JoinOrSplitGesture ->
                 performJoinOrSplitGesture(gesture, text, viewConfiguration, editCommandConsumer)
             is InsertGesture ->
                 performInsertGesture(gesture, viewConfiguration, editCommandConsumer)
             is RemoveSpaceGesture ->
                 performRemoveSpaceGesture(gesture, text, viewConfiguration, editCommandConsumer)
-            else ->
-                InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
+            else -> InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
         }
     }
 
@@ -450,13 +443,15 @@ internal object HandwritingGestureApi34 {
         textSelectionManager: TextFieldSelectionManager?,
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
-        val range = getRangeForScreenRect(
-            gesture.selectionArea.toComposeRect(),
-            gesture.granularity.toTextGranularity(),
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
+        val range =
+            getRangeForScreenRect(
+                    gesture.selectionArea.toComposeRect(),
+                    gesture.granularity.toTextGranularity(),
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply {
+                    if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+                }
 
         performSelectionOnLegacyTextField(range, textSelectionManager, editCommandConsumer)
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
@@ -483,13 +478,15 @@ internal object HandwritingGestureApi34 {
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
         val granularity = gesture.granularity.toTextGranularity()
-        val range = getRangeForScreenRect(
-            gesture.deletionArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
+        val range =
+            getRangeForScreenRect(
+                    gesture.deletionArea.toComposeRect(),
+                    granularity,
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply {
+                    if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+                }
 
         performDeletionOnLegacyTextField(
             range = range,
@@ -520,14 +517,16 @@ internal object HandwritingGestureApi34 {
         textSelectionManager: TextFieldSelectionManager?,
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
-        val range = getRangeForScreenRects(
-            gesture.selectionStartArea.toComposeRect(),
-            gesture.selectionEndArea.toComposeRect(),
-            gesture.granularity.toTextGranularity(),
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
+        val range =
+            getRangeForScreenRects(
+                    gesture.selectionStartArea.toComposeRect(),
+                    gesture.selectionEndArea.toComposeRect(),
+                    gesture.granularity.toTextGranularity(),
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply {
+                    if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+                }
 
         performSelectionOnLegacyTextField(
             range = range,
@@ -559,14 +558,16 @@ internal object HandwritingGestureApi34 {
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
         val granularity = gesture.granularity.toTextGranularity()
-        val range = getRangeForScreenRects(
-            gesture.deletionStartArea.toComposeRect(),
-            gesture.deletionEndArea.toComposeRect(),
-            granularity,
-            TextInclusionStrategy.ContainsCenter
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
+        val range =
+            getRangeForScreenRects(
+                    gesture.deletionStartArea.toComposeRect(),
+                    gesture.deletionEndArea.toComposeRect(),
+                    granularity,
+                    TextInclusionStrategy.ContainsCenter
+                )
+                .apply {
+                    if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+                }
         performDeletionOnLegacyTextField(
             range = range,
             text = text,
@@ -602,10 +603,11 @@ internal object HandwritingGestureApi34 {
             return fallbackOnLegacyTextField(gesture, editCommandConsumer)
         }
 
-        val offset = getOffsetForHandwritingGesture(
-            pointInScreen = gesture.joinOrSplitPoint.toOffset(),
-            viewConfiguration = viewConfiguration
-        )
+        val offset =
+            getOffsetForHandwritingGesture(
+                pointInScreen = gesture.joinOrSplitPoint.toOffset(),
+                viewConfiguration = viewConfiguration
+            )
         // TODO(332963121): support gesture at BiDi boundaries.
         if (offset == -1 || layoutResult?.value?.isBiDiBoundary(offset) == true) {
             return fallbackOnLegacyTextField(gesture, editCommandConsumer)
@@ -636,10 +638,11 @@ internal object HandwritingGestureApi34 {
             return fallbackOnLegacyTextField(gesture, editCommandConsumer)
         }
 
-        val offset = getOffsetForHandwritingGesture(
-            pointInScreen = gesture.insertionPoint.toOffset(),
-            viewConfiguration = viewConfiguration
-        )
+        val offset =
+            getOffsetForHandwritingGesture(
+                pointInScreen = gesture.insertionPoint.toOffset(),
+                viewConfiguration = viewConfiguration
+            )
         // TODO(332963121): support gesture at BiDi boundaries.
         if (offset == -1 || layoutResult?.value?.isBiDiBoundary(offset) == true) {
             return fallbackOnLegacyTextField(gesture, editCommandConsumer)
@@ -656,24 +659,29 @@ internal object HandwritingGestureApi34 {
         viewConfiguration: ViewConfiguration?,
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
-        val range = layoutResult?.value.getRangeForRemoveSpaceGesture(
-            startPointInScreen = gesture.startPoint.toOffset(),
-            endPointerInScreen = gesture.endPoint.toOffset(),
-            layoutCoordinates = layoutCoordinates,
-            viewConfiguration = viewConfiguration
-        ).apply {
-            if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
-        }
+        val range =
+            layoutResult
+                ?.value
+                .getRangeForRemoveSpaceGesture(
+                    startPointInScreen = gesture.startPoint.toOffset(),
+                    endPointerInScreen = gesture.endPoint.toOffset(),
+                    layoutCoordinates = layoutCoordinates,
+                    viewConfiguration = viewConfiguration
+                )
+                .apply {
+                    if (collapsed) return fallbackOnLegacyTextField(gesture, editCommandConsumer)
+                }
 
         var firstMatchStart = -1
         var lastMatchEnd = -1
-        val newText = text.substring(range).replace(Regex("\\s+")) {
-            if (firstMatchStart == -1) {
-                firstMatchStart = it.range.first
+        val newText =
+            text.substring(range).replace(Regex("\\s+")) {
+                if (firstMatchStart == -1) {
+                    firstMatchStart = it.range.first
+                }
+                lastMatchEnd = it.range.last + 1
+                ""
             }
-            lastMatchEnd = it.range.last + 1
-            ""
-        }
 
         // No whitespace is found in the target range, fallback instead
         if (firstMatchStart == -1 || lastMatchEnd == -1) {
@@ -687,10 +695,11 @@ internal object HandwritingGestureApi34 {
         val replacedRangeEnd = range.start + lastMatchEnd
         // Remove the unchanged part from the newText as well. Characters before firstMatchStart
         // and characters after the lastMatchEnd are removed.
-        val finalNewText = newText.substring(
-            startIndex = firstMatchStart,
-            endIndex = newText.length - (range.length - lastMatchEnd)
-        )
+        val finalNewText =
+            newText.substring(
+                startIndex = firstMatchStart,
+                endIndex = newText.length - (range.length - lastMatchEnd)
+            )
 
         editCommandConsumer.invoke(
             compoundEditCommand(
@@ -708,10 +717,7 @@ internal object HandwritingGestureApi34 {
         editCommandConsumer: (EditCommand) -> Unit
     ) {
         editCommandConsumer.invoke(
-            compoundEditCommand(
-                SetSelectionCommand(offset, offset),
-                CommitTextCommand(text, 1)
-            )
+            compoundEditCommand(SetSelectionCommand(offset, offset), CommitTextCommand(text, 1))
         )
     }
 
@@ -732,11 +738,12 @@ internal object HandwritingGestureApi34 {
         adjustRange: Boolean,
         editCommandConsumer: (EditCommand) -> Unit
     ) {
-        val finalRange = if (adjustRange) {
-            range.adjustHandwritingDeleteGestureRange(text)
-        } else {
-            range
-        }
+        val finalRange =
+            if (adjustRange) {
+                range.adjustHandwritingDeleteGestureRange(text)
+            } else {
+                range
+            }
 
         editCommandConsumer.invoke(
             compoundEditCommand(
@@ -754,11 +761,9 @@ internal object HandwritingGestureApi34 {
         gesture: HandwritingGesture,
         editCommandConsumer: (EditCommand) -> Unit
     ): Int {
-        val fallbackText = gesture.fallbackText
-            ?: return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
-        editCommandConsumer.invoke(
-            CommitTextCommand(fallbackText, newCursorPosition = 1)
-        )
+        val fallbackText =
+            gesture.fallbackText ?: return InputConnection.HANDWRITING_GESTURE_RESULT_FAILED
+        editCommandConsumer.invoke(CommitTextCommand(fallbackText, newCursorPosition = 1))
         return InputConnection.HANDWRITING_GESTURE_RESULT_FALLBACK
     }
 
@@ -777,32 +782,33 @@ private const val LINE_FEED_CODE_POINT = '\n'.code
 private const val NBSP_CODE_POINT = '\u00A0'.code
 
 /**
- * For handwriting delete gestures with word granularity, adjust the start and end offsets
- * to remove extra whitespace around the deleted text.
+ * For handwriting delete gestures with word granularity, adjust the start and end offsets to remove
+ * extra whitespace around the deleted text.
  */
-private fun TextRange.adjustHandwritingDeleteGestureRange(
-    text: CharSequence
-): TextRange {
+private fun TextRange.adjustHandwritingDeleteGestureRange(text: CharSequence): TextRange {
     var start = this.start
     var end = this.end
 
     // If the deleted text is at the start of the text, the behavior is the same as the case
     // where the deleted text follows a new line character.
-    var codePointBeforeStart: Int = if (start > 0) {
-        Character.codePointBefore(text, start)
-    } else {
-        LINE_FEED_CODE_POINT
-    }
+    var codePointBeforeStart: Int =
+        if (start > 0) {
+            Character.codePointBefore(text, start)
+        } else {
+            LINE_FEED_CODE_POINT
+        }
     // If the deleted text is at the end of the text, the behavior is the same as the case where
     // the deleted text precedes a new line character.
-    var codePointAtEnd: Int = if (end < text.length) {
-        Character.codePointAt(text, end)
-    } else {
-        LINE_FEED_CODE_POINT
-    }
+    var codePointAtEnd: Int =
+        if (end < text.length) {
+            Character.codePointAt(text, end)
+        } else {
+            LINE_FEED_CODE_POINT
+        }
 
-    if (codePointBeforeStart.isWhitespaceExceptNewline() &&
-        (codePointAtEnd.isWhitespace() || codePointAtEnd.isPunctuation())
+    if (
+        codePointBeforeStart.isWhitespaceExceptNewline() &&
+            (codePointAtEnd.isWhitespace() || codePointAtEnd.isPunctuation())
     ) {
         // Remove whitespace (except new lines) before the deleted text, in these cases:
         // - There is whitespace following the deleted text
@@ -822,9 +828,9 @@ private fun TextRange.adjustHandwritingDeleteGestureRange(
         return TextRange(start, end)
     }
 
-    if (codePointAtEnd.isWhitespaceExceptNewline() &&
-        (codePointBeforeStart.isWhitespace() ||
-            codePointBeforeStart.isPunctuation())
+    if (
+        codePointAtEnd.isWhitespaceExceptNewline() &&
+            (codePointBeforeStart.isWhitespace() || codePointBeforeStart.isPunctuation())
     ) {
         // Remove whitespace (except new lines) after the deleted text, in these cases:
         // - There is punctuation preceding the deleted text
@@ -847,8 +853,8 @@ private fun TextRange.adjustHandwritingDeleteGestureRange(
 }
 
 /**
- *  This helper method is copied from [android.text.TextUtils].
- *  It returns true if the code point is a new line.
+ * This helper method is copied from [android.text.TextUtils]. It returns true if the code point is
+ * a new line.
  */
 private fun Int.isNewline(): Boolean {
     val type = Character.getType(this)
@@ -858,25 +864,24 @@ private fun Int.isNewline(): Boolean {
 }
 
 /**
- *  This helper method is copied from [android.text.TextUtils].
- *  It returns true if the code point is a whitespace.
+ * This helper method is copied from [android.text.TextUtils]. It returns true if the code point is
+ * a whitespace.
  */
 private fun Int.isWhitespace(): Boolean {
-    return Character.isWhitespace(this) ||
-        this == NBSP_CODE_POINT
+    return Character.isWhitespace(this) || this == NBSP_CODE_POINT
 }
 
 /**
- *  This helper method is copied from [android.text.TextUtils].
- *  It returns true if the code point is a whitespace and not a new line.
+ * This helper method is copied from [android.text.TextUtils]. It returns true if the code point is
+ * a whitespace and not a new line.
  */
 private fun Int.isWhitespaceExceptNewline(): Boolean {
     return isWhitespace() && !isNewline()
 }
 
 /**
- *  This helper method is copied from [android.text.TextUtils].
- *  It returns true if the code point is a punctuation.
+ * This helper method is copied from [android.text.TextUtils]. It returns true if the code point is
+ * a punctuation.
  */
 private fun Int.isPunctuation(): Boolean {
     val type = Character.getType(this)
@@ -896,12 +901,14 @@ private fun TextLayoutState.getRangeForScreenRect(
     granularity: TextGranularity,
     inclusionStrategy: TextInclusionStrategy
 ): TextRange {
-    return layoutResult?.multiParagraph.getRangeForScreenRect(
-        rectInScreen,
-        textLayoutNodeCoordinates,
-        granularity,
-        inclusionStrategy
-    )
+    return layoutResult
+        ?.multiParagraph
+        .getRangeForScreenRect(
+            rectInScreen,
+            textLayoutNodeCoordinates,
+            granularity,
+            inclusionStrategy
+        )
 }
 
 private fun TextLayoutState.getRangeForScreenRects(
@@ -910,21 +917,15 @@ private fun TextLayoutState.getRangeForScreenRects(
     granularity: TextGranularity,
     inclusionStrategy: TextInclusionStrategy
 ): TextRange {
-    val startRange = getRangeForScreenRect(
-        startRectInScreen,
-        granularity,
-        inclusionStrategy
-    ).apply {
-        if (collapsed) return TextRange.Zero
-    }
+    val startRange =
+        getRangeForScreenRect(startRectInScreen, granularity, inclusionStrategy).apply {
+            if (collapsed) return TextRange.Zero
+        }
 
-    val endRange = getRangeForScreenRect(
-        endRectInScreen,
-        granularity,
-        inclusionStrategy
-    ).apply {
-        if (collapsed) return TextRange.Zero
-    }
+    val endRange =
+        getRangeForScreenRect(endRectInScreen, granularity, inclusionStrategy).apply {
+            if (collapsed) return TextRange.Zero
+        }
 
     return enclosure(startRange, endRange)
 }
@@ -934,12 +935,10 @@ private fun LegacyTextFieldState.getRangeForScreenRect(
     granularity: TextGranularity,
     inclusionStrategy: TextInclusionStrategy
 ): TextRange {
-    return layoutResult?.value?.multiParagraph.getRangeForScreenRect(
-        rectInScreen,
-        layoutCoordinates,
-        granularity,
-        inclusionStrategy
-    )
+    return layoutResult
+        ?.value
+        ?.multiParagraph
+        .getRangeForScreenRect(rectInScreen, layoutCoordinates, granularity, inclusionStrategy)
 }
 
 private fun LegacyTextFieldState.getRangeForScreenRects(
@@ -948,21 +947,15 @@ private fun LegacyTextFieldState.getRangeForScreenRects(
     granularity: TextGranularity,
     inclusionStrategy: TextInclusionStrategy
 ): TextRange {
-    val startRange = getRangeForScreenRect(
-        startRectInScreen,
-        granularity,
-        inclusionStrategy
-    ).apply {
-        if (collapsed) return TextRange.Zero
-    }
+    val startRange =
+        getRangeForScreenRect(startRectInScreen, granularity, inclusionStrategy).apply {
+            if (collapsed) return TextRange.Zero
+        }
 
-    val endRange = getRangeForScreenRect(
-        endRectInScreen,
-        granularity,
-        inclusionStrategy
-    ).apply {
-        if (collapsed) return TextRange.Zero
-    }
+    val endRange =
+        getRangeForScreenRect(endRectInScreen, granularity, inclusionStrategy).apply {
+            if (collapsed) return TextRange.Zero
+        }
 
     return enclosure(startRange, endRange)
 }
@@ -995,22 +988,23 @@ private fun TextLayoutState.getOffsetForHandwritingGesture(
     pointInScreen: Offset,
     viewConfiguration: ViewConfiguration?
 ): Int {
-    return layoutResult?.multiParagraph?.getOffsetForHandwritingGesture(
-        pointInScreen,
-        textLayoutNodeCoordinates,
-        viewConfiguration
-    ) ?: -1
+    return layoutResult
+        ?.multiParagraph
+        ?.getOffsetForHandwritingGesture(
+            pointInScreen,
+            textLayoutNodeCoordinates,
+            viewConfiguration
+        ) ?: -1
 }
 
 private fun LegacyTextFieldState.getOffsetForHandwritingGesture(
     pointInScreen: Offset,
     viewConfiguration: ViewConfiguration
 ): Int {
-    return layoutResult?.value?.multiParagraph?.getOffsetForHandwritingGesture(
-        pointInScreen,
-        layoutCoordinates,
-        viewConfiguration
-    ) ?: -1
+    return layoutResult
+        ?.value
+        ?.multiParagraph
+        ?.getOffsetForHandwritingGesture(pointInScreen, layoutCoordinates, viewConfiguration) ?: -1
 }
 
 private fun TextLayoutResult.isBiDiBoundary(offset: Int): Boolean {
@@ -1071,23 +1065,26 @@ private fun TextLayoutResult?.getRangeForRemoveSpaceGesture(
         if (endLine == -1) return TextRange.Zero
         line = endLine
     } else {
-        line = if (endLine == -1) {
-            startLine
-        } else {
-            // RemoveSpaceGesture is a single line gesture, it can't be applied for multiple lines.
-            // If start point and end point belongs to different lines, select the top line.
-            min(startLine, endLine)
-        }
+        line =
+            if (endLine == -1) {
+                startLine
+            } else {
+                // RemoveSpaceGesture is a single line gesture, it can't be applied for multiple
+                // lines.
+                // If start point and end point belongs to different lines, select the top line.
+                min(startLine, endLine)
+            }
     }
 
     val lineCenter = (getLineTop(line) + getLineBottom(line)) / 2
 
-    val rect = Rect(
-        left = min(localStartPoint.x, localEndPoint.x),
-        top = lineCenter - 0.1f,
-        right = max(localStartPoint.x, localEndPoint.x),
-        bottom = lineCenter + 0.1f
-    )
+    val rect =
+        Rect(
+            left = min(localStartPoint.x, localEndPoint.x),
+            top = lineCenter - 0.1f,
+            right = max(localStartPoint.x, localEndPoint.x),
+            bottom = lineCenter + 0.1f
+        )
 
     return multiParagraph.getRangeForRect(
         rect,
@@ -1103,8 +1100,9 @@ private fun MultiParagraph.getLineForHandwritingGesture(
     val lineMargin = viewConfiguration?.handwritingGestureLineMargin ?: 0f
     val line = getLineForVerticalPosition(localPoint.y)
 
-    if (localPoint.y < getLineTop(line) - lineMargin ||
-        localPoint.y > getLineBottom(line) + lineMargin
+    if (
+        localPoint.y < getLineTop(line) - lineMargin ||
+            localPoint.y > getLineBottom(line) + lineMargin
     ) {
         // The point is not within lineMargin of a line.
         return -1

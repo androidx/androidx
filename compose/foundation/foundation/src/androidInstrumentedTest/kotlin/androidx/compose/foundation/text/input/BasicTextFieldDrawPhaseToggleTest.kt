@@ -45,16 +45,12 @@ import org.junit.Test
 
 class BasicTextFieldDrawPhaseToggleTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var state: TextFieldState
 
     private val fontSize = 20.sp
-    private val textStyle = TextStyle(
-        fontSize = fontSize,
-        fontFamily = TEST_FONT_FAMILY
-    )
+    private val textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY)
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -69,7 +65,8 @@ class BasicTextFieldDrawPhaseToggleTest {
             )
         }
 
-        rule.onNode(hasSetTextAction())
+        rule
+            .onNode(hasSetTextAction())
             .captureToImage()
             .assertContainsColor(Color.Red)
             .assertContainsColor(Color.White)
@@ -77,7 +74,8 @@ class BasicTextFieldDrawPhaseToggleTest {
 
         color = Color.Blue
 
-        rule.onNode(hasSetTextAction())
+        rule
+            .onNode(hasSetTextAction())
             .captureToImage()
             .assertContainsColor(Color.Blue)
             .assertContainsColor(Color.White)
@@ -88,9 +86,10 @@ class BasicTextFieldDrawPhaseToggleTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun brushChange_reflectsOnView() {
         state = TextFieldState("abc")
-        var brush by mutableStateOf(
-            Brush.linearGradient(listOf(Color.Red, Color.Blue), end = Offset(20f, 20f))
-        )
+        var brush by
+            mutableStateOf(
+                Brush.linearGradient(listOf(Color.Red, Color.Blue), end = Offset(20f, 20f))
+            )
         rule.setContent {
             BasicTextField(
                 state = state,
@@ -100,21 +99,17 @@ class BasicTextFieldDrawPhaseToggleTest {
             )
         }
 
-        rule.onNode(hasSetTextAction())
-            .captureToImage()
-            .assertPixelConsistency { color ->
-                // gradient should not contain any discernible level of green channel
-                color.green <= 0.02f
-            }
+        rule.onNode(hasSetTextAction()).captureToImage().assertPixelConsistency { color ->
+            // gradient should not contain any discernible level of green channel
+            color.green <= 0.02f
+        }
 
         brush = Brush.linearGradient(listOf(Color.Red, Color.Green), end = Offset(20f, 20f))
 
-        rule.onNode(hasSetTextAction())
-            .captureToImage()
-            .assertPixelConsistency { color ->
-                // gradient should not contain any discernible level of blue channel
-                color.blue <= 0.02f
-            }
+        rule.onNode(hasSetTextAction()).captureToImage().assertPixelConsistency { color ->
+            // gradient should not contain any discernible level of blue channel
+            color.blue <= 0.02f
+        }
     }
 
     @Test
@@ -130,11 +125,9 @@ class BasicTextFieldDrawPhaseToggleTest {
             )
         }
 
-        rule.onNode(hasSetTextAction())
-            .captureToImage()
-            .assertPixelConsistency { color ->
-                color == Color.White
-            }
+        rule.onNode(hasSetTextAction()).captureToImage().assertPixelConsistency { color ->
+            color == Color.White
+        }
 
         shadow = Shadow(blurRadius = 8f)
 
@@ -155,9 +148,7 @@ class BasicTextFieldDrawPhaseToggleTest {
         rule.setContent {
             BasicTextField(
                 state = state,
-                textStyle = textStyle.copy(
-                    textDecoration = textDecoration
-                ),
+                textStyle = textStyle.copy(textDecoration = textDecoration),
                 modifier = Modifier.background(Color.White)
             )
         }
@@ -180,9 +171,7 @@ class BasicTextFieldDrawPhaseToggleTest {
  * Instead of looking for an exact match of pixel values, this assertion provides the ability to
  * judge each pixel individually to whether it fits a predefined filter.
  */
-internal inline fun ImageBitmap.assertPixelConsistency(
-    filter: (color: Color) -> Boolean
-) {
+internal inline fun ImageBitmap.assertPixelConsistency(filter: (color: Color) -> Boolean) {
     val pixel = toPixelMap()
     for (x in 0 until width) {
         for (y in 0 until height) {

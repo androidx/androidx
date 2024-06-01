@@ -35,53 +35,40 @@ class CompositionTests {
         val list = listOf("a", "b")
         compose {
             list.forEach { s ->
-                val obj = object {
-                    val value by rememberUpdatedState(s)
-                }
+                val obj =
+                    object {
+                        val value by rememberUpdatedState(s)
+                    }
                 Text(obj.value)
             }
         }
 
-        validate {
-            list.forEach {
-                Text(it)
-            }
-        }
+        validate { list.forEach { Text(it) } }
     }
 
     @Test
     fun test_crossinline_indirect() = compositionTest {
         val state = CrossInlineState()
 
-        compose {
-            state.place()
-        }
+        compose { state.place() }
 
         state.show {
             val s = remember { "string" }
             Text(s)
         }
         advance()
-        validate {
-            Text("string")
-        }
+        validate { Text("string") }
 
         state.show {
             val i = remember { 1 }
             Text("$i")
         }
         advance()
-        validate {
-            Text("1")
-        }
+        validate { Text("1") }
     }
 
     @Test
-    fun composeValueClassDefaultParameter() = compositionTest {
-        compose {
-            DefaultValueClass()
-        }
-    }
+    fun composeValueClassDefaultParameter() = compositionTest { compose { DefaultValueClass() } }
 
     @Test
     fun groupAroundIfComposeCallInIfConditionWithShortCircuit() = compositionTest {
@@ -91,10 +78,11 @@ class CompositionTests {
 
             ReceiveValue(
                 when {
-                    state -> when {
-                        state -> getCondition()
-                        else -> false
-                    }.let { if (it) 0 else 1 }
+                    state ->
+                        when {
+                            state -> getCondition()
+                            else -> false
+                        }.let { if (it) 0 else 1 }
                     else -> 1
                 }
             )
@@ -105,8 +93,7 @@ class CompositionTests {
     }
 }
 
-@Composable
-fun getCondition() = remember { false }
+@Composable fun getCondition() = remember { false }
 
 @NonRestartableComposable
 @Composable
@@ -115,24 +102,22 @@ fun ReceiveValue(value: Int) {
     assertEquals(1, string.length)
 }
 
-class CrossInlineState(content: @Composable () -> Unit = { }) {
-    @PublishedApi
-    internal var content by mutableStateOf(content)
+class CrossInlineState(content: @Composable () -> Unit = {}) {
+    @PublishedApi internal var content by mutableStateOf(content)
 
     inline fun show(crossinline content: @Composable () -> Unit) {
         this.content = { content() }
     }
 
     @Composable
-    fun place() { content() }
+    fun place() {
+        content()
+    }
 }
 
-@JvmInline
-value class Data(val string: String)
+@JvmInline value class Data(val string: String)
 
 @Composable
-fun DefaultValueClass(
-    data: Data = Data("Hello")
-) {
+fun DefaultValueClass(data: Data = Data("Hello")) {
     println(data)
 }

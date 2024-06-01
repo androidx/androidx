@@ -45,9 +45,8 @@ class UserPreferencesRepository(private val context: Context) {
         }
     }
 
-    suspend fun getFavoriteRoute(): String? = context.dataStore.data
-        .map { preferences -> preferences[FAVORITE_ROUTE] }
-        .first()
+    suspend fun getFavoriteRoute(): String? =
+        context.dataStore.data.map { preferences -> preferences[FAVORITE_ROUTE] }.first()
 
     suspend fun saveTheme(theme: Theme?) {
         context.dataStore.edit { preferences ->
@@ -65,10 +64,12 @@ class UserPreferencesRepository(private val context: Context) {
         if (themeString == null) {
             return null
         }
-        val themeMap = themeString.substring(1, themeString.length - 1)
-            .split(", ")
-            .map { it.split("=") }
-            .associate { it.first() to it.last().toFloat() }
+        val themeMap =
+            themeString
+                .substring(1, themeString.length - 1)
+                .split(", ")
+                .map { it.split("=") }
+                .associate { it.first() to it.last().toFloat() }
         return try {
             Theme(themeMap)
         } catch (e: Exception) {

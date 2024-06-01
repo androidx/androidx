@@ -21,8 +21,9 @@ import org.junit.Test
 
 class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformTests(useFir) {
     @Test
-    fun testIfNonComposable(): Unit = controlFlow(
-        """
+    fun testIfNonComposable(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // No composable calls, so no group generated except for at function boundary
@@ -31,33 +32,36 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testAND(): Unit = controlFlow(
-        """
+    fun testAND(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable
             @Composable
             fun Example() {
                 B() && B()
             }
         """
-    )
+        )
 
     @Test
-    fun testOR(): Unit = controlFlow(
-        """
+    fun testOR(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable
             @Composable
             fun Example() {
                 B() || B()
             }
         """
-    )
+        )
 
     @Test
-    fun testIfWithCallsInBranch(): Unit = controlFlow(
-        """
+    fun testIfWithCallsInBranch(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // Only one composable call in the result blocks, so we can just generate
@@ -67,11 +71,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testIfElseWithCallsInBranch(): Unit = controlFlow(
-        """
+    fun testIfElseWithCallsInBranch(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // Composable calls in the result blocks, so we can determine static number of
@@ -84,11 +89,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testIfWithCallInCondition(): Unit = controlFlow(
-        """
+    fun testIfWithCallInCondition(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // Since the first condition of an if/else is unconditionally executed, it does not
@@ -101,17 +107,17 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     private fun verifyInlineReturn(
-        @Language("kotlin")
-        source: String,
-    ) = verifyGoldenComposeIrTransform(
-        """
+        @Language("kotlin") source: String,
+    ) =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
             $source
         """,
-        """
+            """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -149,11 +155,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable
             fun Stack(content: @Composable () -> Unit) = content()
         """
-    )
+        )
 
     @Test
-    fun testInline_CM3_RFun() = verifyInlineReturn(
-        """
+    fun testInline_CM3_RFun() =
+        verifyInlineReturn(
+            """
             @Composable
             fun Test(condition: Boolean) {
                 A()
@@ -167,11 +174,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testInline_CM3_RFun_CM3_RFun() = verifyInlineReturn(
-        """
+    fun testInline_CM3_RFun_CM3_RFun() =
+        verifyInlineReturn(
+            """
             @Composable
             fun Test(a: Boolean, b: Boolean) {
                 A()
@@ -192,11 +200,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testInline_CM3_RM3() = verifyInlineReturn(
-        """
+    fun testInline_CM3_RM3() =
+        verifyInlineReturn(
+            """
             @Composable
             fun Test(condition: Boolean) {
                 A()
@@ -210,11 +219,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testInline_Lambda() = verifyGoldenComposeIrTransform(
-        """
+    fun testInline_Lambda() =
+        verifyGoldenComposeIrTransform(
+            """
             fun Test(condition: Boolean) {
                 T {
                     compose {
@@ -225,7 +235,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        """
+            """
             import androidx.compose.runtime.*
 
             class Scope {
@@ -240,11 +250,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable
             fun Text(text: String) { }
         """
-    )
+        )
 
     @Test
-    fun testInline_M3_M1_Return_M1() = verifyInlineReturn(
-        """
+    fun testInline_M3_M1_Return_M1() =
+        verifyInlineReturn(
+            """
             @Composable
             fun Test_M3_M1_Return_M1(condition: Boolean) {
                 A()
@@ -260,11 +271,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testInline_M3_M1_Return_M3() = verifyInlineReturn(
-        """
+    fun testInline_M3_M1_Return_M3() =
+        verifyInlineReturn(
+            """
             @Composable
             fun Test_M3_M1_Return_M3(condition: Boolean) {
                 A()
@@ -280,11 +292,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testInline_M1_W_Return_Func() = verifyInlineReturn(
-        """
+    fun testInline_M1_W_Return_Func() =
+        verifyInlineReturn(
+            """
             @Composable
             fun testInline_M1_W_Return_Func(condition: Boolean) {
                 A()
@@ -302,11 +315,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testInline_CM3_Return_M3_CM3_Return_M3() = verifyInlineReturn(
-        """
+    fun testInline_CM3_Return_M3_CM3_Return_M3() =
+        verifyInlineReturn(
+            """
             @Composable
             fun testInline_M1_W_Return_Func(condition: Boolean) {
                 A()
@@ -327,11 +341,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun test_CM1_CCM1_RetFun(): Unit = verifyInlineReturn(
-        """
+    fun test_CM1_CCM1_RetFun(): Unit =
+        verifyInlineReturn(
+            """
             @Composable
             fun test_CM1_CCM1_RetFun(condition: Boolean) {
                 Text("Root - before")
@@ -349,11 +364,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Text("Root - end")
             }
         """
-    )
+        )
 
     @Test
-    fun testInlineReturnLabel(): Unit = controlFlow(
-        """
+    fun testInlineReturnLabel(): Unit =
+        controlFlow(
+            """
             @Composable
             @NonRestartableComposable
             fun CustomTextBroken(condition: Boolean) {
@@ -369,11 +385,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 content()
             }
         """
-    )
+        )
 
     @Test // regression 255350755
-    fun testEnsureEarlyExitInNonInline_NormalComposable() = controlFlow(
-        """
+    fun testEnsureEarlyExitInNonInline_NormalComposable() =
+        controlFlow(
+            """
             object obj {
                 val condition = true
             }
@@ -387,11 +404,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test // regression 255350755
-    fun testEnsureEarlyExitInNonInline_ReadOnlyComposable() = controlFlow(
-        """
+    fun testEnsureEarlyExitInNonInline_ReadOnlyComposable() =
+        controlFlow(
+            """
             import androidx.compose.runtime.currentComposer
 
             object obj {
@@ -409,11 +427,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test // regression 255350755
-    fun testEnsureEarlyExitInInline_Labeled() = controlFlow(
-        """
+    fun testEnsureEarlyExitInInline_Labeled() =
+        controlFlow(
+            """
             @Composable
             fun Test(condition: Boolean) {
                 IW iw@ {
@@ -422,11 +441,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testVerifyEarlyExitFromNonComposable() = verifyInlineReturn(
-        source = """
+    fun testVerifyEarlyExitFromNonComposable() =
+        verifyInlineReturn(
+            source =
+                """
             @Composable
             fun Test(condition: Boolean) {
                 Text("Some text")
@@ -436,11 +457,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Text("Some more text")
             }
         """
-    )
+        )
 
     @Test
-    fun testVerifyEarlyExitFromNonComposable_M1() = verifyInlineReturn(
-        source = """
+    fun testVerifyEarlyExitFromNonComposable_M1() =
+        verifyInlineReturn(
+            source =
+                """
             @Composable
             fun Test(condition: Boolean) {
                 Text("Some text")
@@ -452,11 +475,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Text("Some more text")
             }
         """
-    )
+        )
 
     @Test
-    fun testVerifyEarlyExitFromNonComposable_M1_RM1() = verifyInlineReturn(
-        source = """
+    fun testVerifyEarlyExitFromNonComposable_M1_RM1() =
+        verifyInlineReturn(
+            source =
+                """
             @Composable
             fun Test(condition: Boolean) {
                 Text("Some text")
@@ -468,11 +493,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Text("Some more text")
             }
         """
-    )
+        )
 
     @Test
-    fun verifyEarlyExitFromNestedInlineFunction() = verifyGoldenComposeIrTransform(
-        source = """
+    fun verifyEarlyExitFromNestedInlineFunction() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -491,7 +518,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Text("Before outer")
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -507,11 +535,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 content()
             }
         """
-    )
+        )
 
     @Test
-    fun verifyEarlyExitFromMultiLevelNestedInlineFunction() = verifyGoldenComposeIrTransform(
-        source = """
+    fun verifyEarlyExitFromMultiLevelNestedInlineFunction() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -530,7 +560,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Text("Before outer")
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -546,7 +577,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 content()
             }
         """
-    )
+        )
 
     @Test
     fun testEnsureRuntimeTestWillCompile_CL() {
@@ -578,8 +609,9 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
     }
 
     @Test // regression 255350755
-    fun testEnsureRuntimeTestWillCompile_CG() = verifyGoldenComposeIrTransform(
-        """
+    fun testEnsureRuntimeTestWillCompile_CG() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -594,7 +626,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             }
 
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.NonRestartableComposable
 
@@ -607,11 +640,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable @NonRestartableComposable
             fun Text(value: String) { }
         """
-    )
+        )
 
     @Test
-    fun testIfElseWithCallsInConditions(): Unit = controlFlow(
-        """
+    fun testIfElseWithCallsInConditions(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // Since the condition in the else-if is conditionally executed, it means we have
@@ -628,11 +662,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithSubjectAndNoCalls(): Unit = controlFlow(
-        """
+    fun testWhenWithSubjectAndNoCalls(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // nothing needed except for the function boundary group
@@ -643,11 +678,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithSubjectAndCalls(): Unit = controlFlow(
-        """
+    fun testWhenWithSubjectAndCalls(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // calls only in the result block, which means we can statically guarantee the
@@ -660,11 +696,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithSubjectAndCallsWithResult(): Unit = controlFlow(
-        """
+    fun testWhenWithSubjectAndCallsWithResult(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // no need for a group around the when expression overall, but since the result
@@ -677,11 +714,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithCalls(): Unit = controlFlow(
-        """
+    fun testWhenWithCalls(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // result blocks have composable calls, so we generate groups round them. It's a
@@ -694,11 +732,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithCallsInSomeResults(): Unit = controlFlow(
-        """
+    fun testWhenWithCallsInSomeResults(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // result blocks have composable calls, so we generate groups round them. It's a
@@ -711,11 +750,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithCallsInConditions(): Unit = controlFlow(
-        """
+    fun testWhenWithCallsInConditions(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // composable calls are in the condition blocks of the when statement. Since these
@@ -729,11 +769,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhenWithCallsInConditionsAndCallAfter(): Unit = controlFlow(
-        """
+    fun testWhenWithCallsInConditionsAndCallAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // composable calls are in the condition blocks of the when statement. Since these
@@ -747,11 +788,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testSafeCall(): Unit = controlFlow(
-        """
+    fun testSafeCall(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int?) {
                 // The composable call is made conditionally, which means it is like an if with
@@ -760,11 +802,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 x?.A()
             }
         """
-    )
+        )
 
     @Test
-    fun testElvis(): Unit = controlFlow(
-        """
+    fun testElvis(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int?) {
                 // The composable call is made conditionally, which means it is like an if, but with
@@ -773,11 +816,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 val y = x ?: R()
             }
         """
-    )
+        )
 
     @Test
-    fun testForLoopWithCallsInBody(): Unit = controlFlow(
-        """
+    fun testForLoopWithCallsInBody(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: List<Int>) {
                 // The composable call is made a conditional number of times, so we need to wrap
@@ -788,11 +832,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testForLoopWithCallsInBodyAndCallsAfter(): Unit = controlFlow(
-        """
+    fun testForLoopWithCallsInBodyAndCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: List<Int>) {
                 // The composable call is made a conditional number of times, so we need to wrap
@@ -803,11 +848,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testForLoopWithCallsInSubject(): Unit = controlFlow(
-        """
+    fun testForLoopWithCallsInSubject(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example() {
                 // The for loop's subject expression is only executed once, so we don't need any
@@ -817,11 +863,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileLoopWithCallsInBody(): Unit = controlFlow(
-        """
+    fun testWhileLoopWithCallsInBody(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: MutableList<Int>) {
                 // since we have a composable call which is called a conditional number of times,
@@ -834,11 +881,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileLoopWithCallsInBodyAndCallsAfter(): Unit = controlFlow(
-        """
+    fun testWhileLoopWithCallsInBodyAndCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: MutableList<Int>) {
                 // since we have a composable call which is called a conditional number of times,
@@ -851,11 +899,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileLoopWithCallsInCondition(): Unit = controlFlow(
-        """
+    fun testWhileLoopWithCallsInCondition(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example() {
                 // A while loop's condition block gets executed a conditional number of times, so
@@ -866,11 +915,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileLoopWithCallsInConditionAndCallsAfter(): Unit = controlFlow(
-        """
+    fun testWhileLoopWithCallsInConditionAndCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example() {
                 // A while loop's condition block gets executed a conditional number of times, so
@@ -881,11 +931,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileLoopWithCallsInConditionAndBody(): Unit = controlFlow(
-        """
+    fun testWhileLoopWithCallsInConditionAndBody(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example() {
                 // Both the condition and the body of the loop get groups because they have
@@ -896,11 +947,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileLoopWithCallsInConditionAndBodyAndCallsAfter(): Unit = controlFlow(
-        """
+    fun testWhileLoopWithCallsInConditionAndBodyAndCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example() {
                 // Both the condition and the body of the loop get groups because they have
@@ -912,11 +964,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A(b)
             }
         """
-    )
+        )
 
     @Test
-    fun testEarlyReturnWithCallsBeforeButNotAfter(): Unit = controlFlow(
-        """
+    fun testEarlyReturnWithCallsBeforeButNotAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // in the early return path, we need only close out the opened groups
@@ -927,11 +980,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 print("hello")
             }
         """
-    )
+        )
 
     @Test
-    fun testEarlyReturnWithCallsAfterButNotBefore(): Unit = controlFlow(
-        """
+    fun testEarlyReturnWithCallsAfterButNotBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 // we can just close out the open groups at the return.
@@ -941,11 +995,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testEarlyReturnValue(): Unit = controlFlow(
-        """
+    fun testEarlyReturnValue(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int): Int {
                 if (x > 0) {
@@ -955,11 +1010,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 return 2
             }
         """
-    )
+        )
 
     @Test
-    fun testEarlyReturnValueWithCallsAfter(): Unit = controlFlow(
-        """
+    fun testEarlyReturnValueWithCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int): Int {
                 if (x > 0) {
@@ -969,11 +1025,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 return 2
             }
         """
-    )
+        )
 
     @Test
-    fun testReturnCallValue(): Unit = controlFlow(
-        """
+    fun testReturnCallValue(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(): Int {
                 // since the return expression is a composable call, we need to generate a
@@ -982,11 +1039,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 return R()
             }
         """
-    )
+        )
 
     @Test
-    fun testEarlyReturnCallValue(): Unit = controlFlow(
-        """
+    fun testEarlyReturnCallValue(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int): Int {
                 if (x > 0) {
@@ -995,11 +1053,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 return R()
             }
         """
-    )
+        )
 
     @Test
-    fun testReturnFromLoop(): Unit = controlFlow(
-        """
+    fun testReturnFromLoop(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1018,11 +1077,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testOrderingOfPushedEndCallsWithEarlyReturns(): Unit = controlFlow(
-        """
+    fun testOrderingOfPushedEndCallsWithEarlyReturns(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1041,11 +1101,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBreakWithCallsAfter(): Unit = controlFlow(
-        """
+    fun testBreakWithCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1057,11 +1118,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBreakWithCallsBefore(): Unit = controlFlow(
-        """
+    fun testBreakWithCallsBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1073,11 +1135,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBreakWithCallsBeforeAndAfter(): Unit = controlFlow(
-        """
+    fun testBreakWithCallsBeforeAndAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 // a group around while is needed here, but the function body group will suffice
@@ -1092,11 +1155,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBreakWithCallsBeforeAndAfterAndCallAfter(): Unit = controlFlow(
-        """
+    fun testBreakWithCallsBeforeAndAfterAndCallAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 // a group around while is needed here
@@ -1111,11 +1175,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testContinueWithCallsAfter(): Unit = controlFlow(
-        """
+    fun testContinueWithCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1127,11 +1192,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testContinueWithCallsBefore(): Unit = controlFlow(
-        """
+    fun testContinueWithCallsBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1144,11 +1210,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testContinueWithCallsBeforeAndAfter(): Unit = controlFlow(
-        """
+    fun testContinueWithCallsBeforeAndAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(items: Iterator<Int>) {
                 while (items.hasNext()) {
@@ -1161,11 +1228,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testLoopWithReturn(): Unit = controlFlow(
-        """
+    fun testLoopWithReturn(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(a: Iterator<Int>, b: Iterator<Int>) {
                 while (a.hasNext()) {
@@ -1177,11 +1245,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testLoopWithBreak(): Unit = controlFlow(
-        """
+    fun testLoopWithBreak(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(a: Iterator<Int>, b: Iterator<Int>) {
                 a@while (a.hasNext()) {
@@ -1197,11 +1266,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testNestedLoopsAndBreak(): Unit = controlFlow(
-        """
+    fun testNestedLoopsAndBreak(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(a: Iterator<Int>, b: Iterator<Int>) {
                 a@while (a.hasNext()) {
@@ -1226,11 +1296,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testNestedLoops(): Unit = controlFlow(
-        """
+    fun testNestedLoops(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(a: Iterator<Int>, b: Iterator<Int>) {
                 a@while (a.hasNext()) {
@@ -1242,11 +1313,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileInsideIfAndCallAfter(): Unit = controlFlow(
-        """
+    fun testWhileInsideIfAndCallAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 if (x > 0) {
@@ -1257,11 +1329,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileInsideIfAndCallBefore(): Unit = controlFlow(
-        """
+    fun testWhileInsideIfAndCallBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 if (x > 0) {
@@ -1272,11 +1345,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileInsideIf(): Unit = controlFlow(
-        """
+    fun testWhileInsideIf(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 if (x > 0) {
@@ -1286,11 +1360,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileWithKey(): Unit = controlFlow(
-        """
+    fun testWhileWithKey(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 while (x > 0) {
@@ -1300,11 +1375,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileWithTwoKeys(): Unit = controlFlow(
-        """
+    fun testWhileWithTwoKeys(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 while (x > 0) {
@@ -1317,11 +1393,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileWithKeyAndCallAfter(): Unit = controlFlow(
-        """
+    fun testWhileWithKeyAndCallAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 while (x > 0) {
@@ -1332,11 +1409,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileWithKeyAndCallBefore(): Unit = controlFlow(
-        """
+    fun testWhileWithKeyAndCallBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 while (x > 0) {
@@ -1347,11 +1425,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testWhileWithKeyAndCallBeforeAndAfter(): Unit = controlFlow(
-        """
+    fun testWhileWithKeyAndCallBeforeAndAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 while (x > 0) {
@@ -1363,11 +1442,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyAtRootLevel(): Unit = controlFlow(
-        """
+    fun testKeyAtRootLevel(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 key(x) {
@@ -1375,11 +1455,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyAtRootLevelAndCallsAfter(): Unit = controlFlow(
-        """
+    fun testKeyAtRootLevelAndCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 key(x) {
@@ -1388,11 +1469,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 A(b)
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyAtRootLevelAndCallsBefore(): Unit = controlFlow(
-        """
+    fun testKeyAtRootLevelAndCallsBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 A(a)
@@ -1401,11 +1483,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyInIf(): Unit = controlFlow(
-        """
+    fun testKeyInIf(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 if (x > 0) {
@@ -1415,11 +1498,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyInIfAndCallsAfter(): Unit = controlFlow(
-        """
+    fun testKeyInIfAndCallsAfter(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 if (x > 0) {
@@ -1430,11 +1514,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyInIfAndCallsBefore(): Unit = controlFlow(
-        """
+    fun testKeyInIfAndCallsBefore(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 if (x > 0) {
@@ -1445,11 +1530,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyWithLotsOfValues(): Unit = controlFlow(
-        """
+    fun testKeyWithLotsOfValues(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(a: Int, b: Int, c: Int, d: Int) {
                 key(a, b, c, d) {
@@ -1457,11 +1543,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyWithComposableValue(): Unit = controlFlow(
-        """
+    fun testKeyWithComposableValue(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 while(x > 0) {
@@ -1471,22 +1558,24 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testKeyAsAValue(): Unit = controlFlow(
-        """
+    fun testKeyAsAValue(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int) {
                 val y = key(x) { R() }
                 P(y)
             }
         """
-    )
+        )
 
     @Test
-    fun testDynamicWrappingGroupWithReturnValue(): Unit = controlFlow(
-        """
+    fun testDynamicWrappingGroupWithReturnValue(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable @Composable
             fun Example(x: Int): Int {
                 return if (x > 0) {
@@ -1496,11 +1585,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 } else 4
             }
         """
-    )
+        )
 
     @Test
-    fun testTheThing(): Unit = controlFlow(
-        """
+    fun testTheThing(): Unit =
+        controlFlow(
+            """
             @NonRestartableComposable
             @Composable
             fun Simple() {
@@ -1543,11 +1633,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
               }
             }
         """
-    )
+        )
 
     @Test
-    fun testLetWithComposableCalls(): Unit = controlFlow(
-        """
+    fun testLetWithComposableCalls(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Example(x: Int?) {
               x?.let {
@@ -1559,11 +1650,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
               A(c)
             }
         """
-    )
+        )
 
     @Test
-    fun testLetWithoutComposableCalls(): Unit = controlFlow(
-        """
+    fun testLetWithoutComposableCalls(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Example(x: Int?) {
               x?.let {
@@ -1575,11 +1667,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
               A()
             }
         """
-    )
+        )
 
     @Test
-    fun testApplyOnComposableCallResult(): Unit = controlFlow(
-        """
+    fun testApplyOnComposableCallResult(): Unit =
+        controlFlow(
+            """
             import androidx.compose.runtime.mutableStateOf
             import androidx.compose.runtime.remember
             import androidx.compose.runtime.State
@@ -1589,11 +1682,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 this.value = value
             }
         """
-    )
+        )
 
     @Test
-    fun testReturnInlinedExpressionWithCall(): Unit = controlFlow(
-        """
+    fun testReturnInlinedExpressionWithCall(): Unit =
+        controlFlow(
+            """
             import androidx.compose.runtime.mutableStateOf
             import androidx.compose.runtime.remember
             import androidx.compose.runtime.State
@@ -1606,11 +1700,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testCallingAWrapperComposable(): Unit = controlFlow(
-        """
+    fun testCallingAWrapperComposable(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Test() {
               W {
@@ -1618,11 +1713,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
               }
             }
         """
-    )
+        )
 
     @Test
-    fun testCallingAnInlineWrapperComposable(): Unit = controlFlow(
-        """
+    fun testCallingAnInlineWrapperComposable(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Test() {
               IW {
@@ -1630,11 +1726,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
               }
             }
         """
-    )
+        )
 
     @Test
-    fun testRepeatedCallsToEffects(): Unit = verifyGoldenComposeIrTransform(
-        """
+    fun testRepeatedCallsToEffects(): Unit =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -1647,7 +1744,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        """
+            """
             import androidx.compose.runtime.Composable
 
             var effects = mutableListOf<Any>()
@@ -1657,23 +1754,24 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable fun Wrap(block: @Composable () -> Unit) =  block()
             @Composable fun <T> effect(block: () -> T): T = block()
         """
-
-    )
+        )
 
     @Test
-    fun testComposableWithInlineClass(): Unit = controlFlow(
-        """
+    fun testComposableWithInlineClass(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Test(value: InlineClass) {
                 used(value)
                 A()
             }
         """
-    )
+        )
 
     @Test
-    fun testParameterOrderInformation(): Unit = controlFlow(
-        """
+    fun testParameterOrderInformation(): Unit =
+        controlFlow(
+            """
             @Composable fun Test01(p0: Int, p1: Int, p2: Int, p3: Int) {
                 used(p0)
                 used(p1)
@@ -1819,11 +1917,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 used(p3)
             }
         """
-    )
+        )
 
     @Test
-    fun testSourceInformationWithPackageName(): Unit = verifyGoldenComposeIrTransform(
-        source = """
+    fun testSourceInformationWithPackageName(): Unit =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             package androidx.compose.runtime.tests
 
             import androidx.compose.runtime.Composable
@@ -1833,18 +1933,21 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 used(value)
             }
         """,
-        extra = """
+            extra =
+                """
             package androidx.compose.runtime.tests
 
             inline class LocalInlineClass(val value: Int)
             fun used(x: Any?) {}
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
+        )
 
     @Test
-    fun testSourceOffsetOrderForParameterExpressions(): Unit = verifyGoldenComposeIrTransform(
-        source = """
+    fun testSourceOffsetOrderForParameterExpressions(): Unit =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -1853,7 +1956,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 B()
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable fun A(a: Int, b: Int, c: Int) { }
@@ -1862,12 +1966,14 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable fun c(): Int = 1
             @Composable fun d(): Int = 1
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
+        )
 
     @Test
-    fun testSourceLocationOfCapturingComposableLambdas(): Unit = verifyGoldenComposeIrTransform(
-        source = """
+    fun testSourceLocationOfCapturingComposableLambdas(): Unit =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
 
             class SomeClass {
@@ -1888,18 +1994,21 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             fun setContent(block: @Composable () -> Unit) { }
             @Composable fun B(value: String) { }
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
+        )
 
     @Test
-    fun testSourceLineInformationForNormalInline(): Unit = verifyGoldenComposeIrTransform(
-        source = """
+    fun testSourceLineInformationForNormalInline(): Unit =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -1915,19 +2024,21 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
               }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable fun W(block: @Composable () -> Unit) = block()
             @Composable inline fun IW(block: @Composable () -> Unit) = block()
             @Composable fun T(value: Int) { }
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
+        )
 
     @Test
-    fun testInlineReadOnlySourceLocations() = verifyGoldenComposeIrTransform(
-        """
+    fun testInlineReadOnlySourceLocations() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.ReadOnlyComposable
 
@@ -1951,7 +2062,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        """
+            """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -1960,12 +2071,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable
             fun Text(text: String) { }
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
+        )
 
     @Test
-    fun testReadOnlyInlineValSourceLocations() = verifyGoldenComposeIrTransform(
-        """
+    fun testReadOnlyInlineValSourceLocations() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
             import androidx.compose.runtime.ReadOnlyComposable
 
@@ -2001,7 +2113,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        """
+            """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -2010,12 +2122,14 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable
             fun Text(text: String) { }
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.KEEP_INFO_STRING
+        )
 
     @Test
-    fun testReadOnlyComposableWithEarlyReturn() = controlFlow(
-        source = """
+    fun testReadOnlyComposableWithEarlyReturn() =
+        controlFlow(
+            source =
+                """
             @ReadOnlyComposable
             @Composable
             fun getSomeValue(a: Int): Int {
@@ -2023,11 +2137,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 return 1
             }
         """
-    )
+        )
 
     @Test
-    fun testMultipleNestedInlines() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testMultipleNestedInlines() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -2042,7 +2158,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -2051,11 +2168,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable
             fun Leaf(default: Int = 0) {}
         """
-    )
+        )
 
     @Test // Regression test for 205590513
-    fun testGroupAroundExtensionFunctions() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testGroupAroundExtensionFunctions() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2069,7 +2188,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             class A
@@ -2084,13 +2204,14 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable
             fun <T> A.get(block: () -> T) = block()
         """
-    )
+        )
 
     // There are a number of "inline constructors" in the Kotlin standard library for Array types.
     // These are special cases, since normal constructors cannot be inlined.
     @Test
-    fun testInlineArrayConstructor() = verifyGoldenComposeIrTransform(
-        """
+    fun testInlineArrayConstructor() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2106,11 +2227,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 BooleanArray(n) { remember { false } }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposeIrSkippingWithDefaultsRelease() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposeIrSkippingWithDefaultsRelease() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.ui.text.input.TextFieldValue
             import androidx.compose.runtime.*
             import androidx.compose.foundation.layout.*
@@ -2130,8 +2252,10 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                     Text("${'$'}keyboardActions2")
                 }
             }
-        """.trimIndent(),
-        extra = """
+        """
+                .trimIndent(),
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -2141,12 +2265,15 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 maxLines: Int = Int.MAX_VALUE,
                 minLines: Int = 1,
             ) {}
-        """.trimIndent()
-    )
+        """
+                    .trimIndent()
+        )
 
     @Test
-    fun testRememberInConditionalCallArgument() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberInConditionalCallArgument() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2160,11 +2287,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 )
             }
         """
-    )
+        )
 
     @Test
-    fun testRememberInNestedConditionalCallArgument() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testRememberInNestedConditionalCallArgument() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2184,11 +2313,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 )
             }
         """
-    )
+        )
 
     @Test
-    fun testInlineLambdaBeforeACall() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testInlineLambdaBeforeACall() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2201,16 +2332,19 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 return Test("AfterInline")
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             inline fun InlineNonComposable(block: () -> Unit) {}
         """
-    )
+        )
 
     @Test
-    fun testInlineLambda_nonLocalReturn() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testInlineLambda_nonLocalReturn() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2222,7 +2356,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2235,11 +2370,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 block()
             }
         """
-    )
+        )
 
     @Test
-    fun testNothingBody() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testNothingBody() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
         import androidx.compose.runtime.*
 
         val test1: @Composable () -> Unit = TODO()
@@ -2254,17 +2391,20 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             }
         }
         """,
-        extra = """
+            extra =
+                """
         import androidx.compose.runtime.*
 
         @Composable
         fun Wrapper(content: @Composable () -> Unit) = content()
         """
-    )
+        )
 
     @Test
-    fun testEarlyReturnFromCrossInlinedLambda() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testEarlyReturnFromCrossInlinedLambda() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2274,17 +2414,21 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
             internal inline fun Dialog(crossinline block: @Composable () -> Unit) {}
-        """.trimIndent(),
-    )
+        """
+                    .trimIndent(),
+        )
 
     @Test
-    fun testEarlyReturnFromWhenStatement() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testEarlyReturnFromWhenStatement() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2296,16 +2440,18 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Text(text: String) {}
         """
-    )
+        )
 
     @Test
-    fun testComposableInAnonymousObjectDelegate() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposableInAnonymousObjectDelegate() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
 
                 interface A
@@ -2319,11 +2465,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                     println(a)
                 }
         """
-    )
+        )
 
     @Test
-    fun testReturnNull() = verifyGoldenComposeIrTransform(
-        source = """
+    fun testReturnNull() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2384,12 +2532,14 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 Test6()
                 return Unit
             }
-        """.trimIndent()
-    )
+        """
+                    .trimIndent()
+        )
 
     @Test
-    fun testGroupsInLoops() = verifyGoldenComposeIrTransform(
-        """
+    fun testGroupsInLoops() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2418,11 +2568,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testIfWithEarlyReturnInsideInlineLambda() = verifyGoldenComposeIrTransform(
-        """
+    fun testIfWithEarlyReturnInsideInlineLambda() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
 
             @Composable fun Test() {
@@ -2436,11 +2587,12 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testLambdaWithNonUnitResult() = verifyGoldenComposeIrTransform(
-        """
+    fun testLambdaWithNonUnitResult() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2451,16 +2603,18 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 factory()
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             fun createFactory(factory: @Composable () -> Int) = factory
         """
-    )
+        )
 
     @Test
-    fun testOverrideWithNonUnitResult() = verifyGoldenComposeIrTransform(
-        """
+    fun testOverrideWithNonUnitResult() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             class SomeClassImpl: SomeClass() {
@@ -2468,7 +2622,7 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 override fun SomeFunction(): Int = 10
             }
         """,
-        """
+            """
             import androidx.compose.runtime.*
 
             abstract class SomeClass {
@@ -2476,18 +2630,21 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 abstract fun SomeFunction(): Int
             }
         """
-    )
+        )
 
     @Test
-    fun testConditionalReturnFromInline() = verifyGoldenComposeIrTransform(
-        extra = """
+    fun testConditionalReturnFromInline() =
+        verifyGoldenComposeIrTransform(
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable inline fun Column(content: @Composable () -> Unit) {}
             inline fun NonComposable(content: () -> Unit) {}
             @Composable fun Text(text: String) {}
         """,
-        source = """
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable fun Test(test: Boolean) {
@@ -2508,11 +2665,13 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun ifInsideInlineComposableFunction() = verifyGoldenComposeIrTransform(
-        extra = """
+    fun ifInsideInlineComposableFunction() =
+        verifyGoldenComposeIrTransform(
+            extra =
+                """
             import androidx.compose.runtime.*
 
             fun interface MeasurePolicy {
@@ -2521,7 +2680,8 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
             @Composable inline fun Layout(content: @Composable () -> Unit) {}
             @Composable fun Box() {}
         """,
-        source = """
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -2536,5 +2696,5 @@ class ControlFlowTransformTests(useFir: Boolean) : AbstractControlFlowTransformT
                 )
             }
         """
-    )
+        )
 }

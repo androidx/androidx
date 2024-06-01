@@ -110,10 +110,12 @@ private fun DenseOutlinedTextField() {
             singleLine = singleLine,
             visualTransformation = VisualTransformation.None,
             interactionSource = interactionSource,
-            contentPadding = TextFieldDefaults.outlinedTextFieldPadding(
-                // make it dense, Modifier.height controls the height in this case
-                top = 0.dp, bottom = 0.dp
-            )
+            contentPadding =
+                TextFieldDefaults.outlinedTextFieldPadding(
+                    // make it dense, Modifier.height controls the height in this case
+                    top = 0.dp,
+                    bottom = 0.dp
+                )
         )
     }
 }
@@ -128,9 +130,14 @@ private fun DenseTextField() {
     BasicTextField(
         value = text,
         onValueChange = { text = it },
-        modifier = Modifier
-            .indicatorLine(enabled, false, interactionSource, TextFieldDefaults.textFieldColors())
-            .width(TextFieldDefaults.MinWidth),
+        modifier =
+            Modifier.indicatorLine(
+                    enabled,
+                    false,
+                    interactionSource,
+                    TextFieldDefaults.textFieldColors()
+                )
+                .width(TextFieldDefaults.MinWidth),
         singleLine = singleLine,
         interactionSource = interactionSource
     ) { innerTextField ->
@@ -142,11 +149,12 @@ private fun DenseTextField() {
             visualTransformation = VisualTransformation.None,
             interactionSource = interactionSource,
             label = { Text("Label") },
-            contentPadding = TextFieldDefaults.textFieldWithLabelPadding(
-                start = 4.dp,
-                end = 4.dp,
-                bottom = 4.dp // make it dense
-            )
+            contentPadding =
+                TextFieldDefaults.textFieldWithLabelPadding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    bottom = 4.dp // make it dense
+                )
         )
     }
 }
@@ -159,13 +167,14 @@ private fun IndicatorLineTextField(type: IndicatorType) {
     val interactionSource = remember { MutableInteractionSource() }
 
     val colors = TextFieldDefaults.textFieldColors()
-    val indicator = when (type) {
-        IndicatorType.Progress -> Modifier.progressIndicatorLine(text, interactionSource, enabled)
-        IndicatorType.Animated -> Modifier.animatedIndicator(
-            interactionSource, enabled, false, colors
-        )
-        IndicatorType.Gradient -> Modifier.animatedGradient(interactionSource, enabled)
-    }
+    val indicator =
+        when (type) {
+            IndicatorType.Progress ->
+                Modifier.progressIndicatorLine(text, interactionSource, enabled)
+            IndicatorType.Animated ->
+                Modifier.animatedIndicator(interactionSource, enabled, false, colors)
+            IndicatorType.Gradient -> Modifier.animatedGradient(interactionSource, enabled)
+        }
     BasicTextField(
         value = text,
         onValueChange = { text = it },
@@ -189,6 +198,7 @@ private fun IndicatorLineTextField(type: IndicatorType) {
 }
 
 private const val ExpectedInputLength = 8
+
 private fun Modifier.progressIndicatorLine(
     text: String,
     interactionSource: InteractionSource,
@@ -199,19 +209,16 @@ private fun Modifier.progressIndicatorLine(
 
     // height of line
     val targetHeight = if (focused) 4.dp else 2.dp
-    val animatedHeight = if (enabled)
-        animateDpAsState(targetHeight, tween(durationMillis = animationDuration))
-    else
-        rememberUpdatedState(1.dp)
+    val animatedHeight =
+        if (enabled) animateDpAsState(targetHeight, tween(durationMillis = animationDuration))
+        else rememberUpdatedState(1.dp)
 
     // width of line
     val target = (text.length.toFloat() / ExpectedInputLength).coerceAtMost(1.0f)
     val progress = animateFloatAsState(target, tween(durationMillis = animationDuration))
 
-    val unfocusedEmptyColor = MaterialTheme
-        .colors
-        .onSurface
-        .copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
+    val unfocusedEmptyColor =
+        MaterialTheme.colors.onSurface.copy(alpha = TextFieldDefaults.UnfocusedIndicatorLineOpacity)
     val progressColor = MaterialTheme.colors.primary.copy(alpha = ContentAlpha.high)
 
     drawWithContent {
@@ -220,19 +227,9 @@ private fun Modifier.progressIndicatorLine(
         val y = size.height - strokeWidth / 2
         val x = size.width * progress.value
 
-        drawLine(
-            SolidColor(unfocusedEmptyColor),
-            Offset(0f, y),
-            Offset(size.width, y),
-            strokeWidth
-        )
+        drawLine(SolidColor(unfocusedEmptyColor), Offset(0f, y), Offset(size.width, y), strokeWidth)
 
-        drawLine(
-            SolidColor(progressColor),
-            Offset(0f, y),
-            Offset(x, y),
-            strokeWidth
-        )
+        drawLine(SolidColor(progressColor), Offset(0f, y), Offset(x, y), strokeWidth)
     }
 }
 
@@ -246,18 +243,20 @@ private fun Modifier.animatedIndicator(
     val focused by interactionSource.collectIsFocusedAsState()
     // height of line
     val targetHeight = if (focused) 2.dp else 1.dp
-    val animatedHeight = if (enabled) {
-        animateDpAsState(targetHeight, tween(animationDuration))
-    } else {
-        rememberUpdatedState(1.dp)
-    }
+    val animatedHeight =
+        if (enabled) {
+            animateDpAsState(targetHeight, tween(animationDuration))
+        } else {
+            rememberUpdatedState(1.dp)
+        }
     // width of line
     val targetFloat = if (focused) 1f else 0f
-    val progress = if (enabled) {
-        animateFloatAsState(targetFloat, tween(animationDuration))
-    } else {
-        rememberUpdatedState(1f)
-    }
+    val progress =
+        if (enabled) {
+            animateFloatAsState(targetFloat, tween(animationDuration))
+        } else {
+            rememberUpdatedState(1f)
+        }
 
     val color = colors.indicatorColor(enabled, isError, interactionSource)
     drawWithContent {
@@ -267,12 +266,7 @@ private fun Modifier.animatedIndicator(
         val deltaX = size.width * (progress.value) / 2
         val offset1 = if (focused) Offset(size.width / 2 - deltaX, y) else Offset(0f, y)
         val offset2 = if (focused) Offset(size.width / 2 + deltaX, y) else Offset(size.width, y)
-        drawLine(
-            SolidColor(color.value),
-            offset1,
-            offset2,
-            strokeWidth
-        )
+        drawLine(SolidColor(color.value), offset1, offset2, strokeWidth)
     }
 }
 
@@ -288,44 +282,44 @@ private fun Modifier.animatedGradient(
 
     // height of line
     val targetHeight = if (focused) 2.dp else 1.dp
-    val animatedHeight = if (enabled) {
-        animateDpAsState(targetHeight, tween(animationDuration))
-    } else {
-        rememberUpdatedState(1.dp)
-    }
+    val animatedHeight =
+        if (enabled) {
+            animateDpAsState(targetHeight, tween(animationDuration))
+        } else {
+            rememberUpdatedState(1.dp)
+        }
 
     val infiniteTransition = rememberInfiniteTransition()
-    val brush = when {
-        !enabled -> SolidColor(disabledColor)
-        !focused -> SolidColor(unfocusedColor)
-        else -> {
-            val progress = infiniteTransition.animateFloat(
-                0.2f,
-                0.8f,
-                infiniteRepeatable(tween(3_000), RepeatMode.Reverse)
-            )
-            Brush.horizontalGradient(
-                0.0f to Color.Blue,
-                progress.value to Color.Cyan,
-                1f to Color.Blue
-            )
+    val brush =
+        when {
+            !enabled -> SolidColor(disabledColor)
+            !focused -> SolidColor(unfocusedColor)
+            else -> {
+                val progress =
+                    infiniteTransition.animateFloat(
+                        0.2f,
+                        0.8f,
+                        infiniteRepeatable(tween(3_000), RepeatMode.Reverse)
+                    )
+                Brush.horizontalGradient(
+                    0.0f to Color.Blue,
+                    progress.value to Color.Cyan,
+                    1f to Color.Blue
+                )
+            }
         }
-    }
 
     drawWithContent {
         drawContent()
 
         val strokeWidth = animatedHeight.value.value * density
         val y = size.height - strokeWidth / 2
-        drawLine(
-            brush,
-            Offset(0f, y),
-            Offset(size.width, y),
-            strokeWidth
-        )
+        drawLine(brush, Offset(0f, y), Offset(size.width, y), strokeWidth)
     }
 }
 
 private enum class IndicatorType {
-    Progress, Animated, Gradient
+    Progress,
+    Animated,
+    Gradient
 }

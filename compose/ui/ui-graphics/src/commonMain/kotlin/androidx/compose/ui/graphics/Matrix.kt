@@ -41,12 +41,8 @@ import kotlin.math.sin
 // DO NOT REMOVE THOSE TESTS.
 @kotlin.jvm.JvmInline
 value class Matrix(
-    val values: FloatArray = floatArrayOf(
-        1f, 0f, 0f, 0f,
-        0f, 1f, 0f, 0f,
-        0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 1f
-    )
+    val values: FloatArray =
+        floatArrayOf(1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 1f)
 ) {
     inline operator fun get(row: Int, column: Int) = values[(row * 4) + column]
 
@@ -54,9 +50,7 @@ value class Matrix(
         values[(row * 4) + column] = v
     }
 
-    /**
-     * Does the 3D transform on [point] and returns the `x` and `y` values in an [Offset].
-     */
+    /** Does the 3D transform on [point] and returns the `x` and `y` values in an [Offset]. */
     fun map(point: Offset): Offset {
         // See top-level comment
         if (values.size < 16) return point
@@ -73,9 +67,7 @@ value class Matrix(
         )
     }
 
-    /**
-     * Does a 3D transform on [rect] and returns its bounds after the transform.
-     */
+    /** Does a 3D transform on [rect] and returns its bounds after the transform. */
     fun map(rect: Rect): Rect {
         val p0 = map(Offset(rect.left, rect.top))
         val p1 = map(Offset(rect.left, rect.bottom))
@@ -89,9 +81,7 @@ value class Matrix(
         return Rect(left, top, right, bottom)
     }
 
-    /**
-     * Does a 3D transform on [rect], transforming [rect] with the results.
-     */
+    /** Does a 3D transform on [rect], transforming [rect] with the results. */
     fun map(rect: MutableRect) {
         val p0 = map(Offset(rect.left, rect.top))
         val p1 = map(Offset(rect.left, rect.bottom))
@@ -104,9 +94,7 @@ value class Matrix(
         rect.bottom = max(max(p0.y, p1.y), max(p3.y, p4.y))
     }
 
-    /**
-     * Multiply this matrix by [m] and assign the result to this matrix.
-     */
+    /** Multiply this matrix by [m] and assign the result to this matrix. */
     operator fun timesAssign(m: Matrix) {
         // See top-level comment
         val v = values
@@ -130,16 +118,16 @@ value class Matrix(
         val v32 = dot(this, 3, m, 2)
         val v33 = dot(this, 3, m, 3)
 
-        v[ 0] = v00
-        v[ 1] = v01
-        v[ 2] = v02
-        v[ 3] = v03
-        v[ 4] = v10
-        v[ 5] = v11
-        v[ 6] = v12
-        v[ 7] = v13
-        v[ 8] = v20
-        v[ 9] = v21
+        v[0] = v00
+        v[1] = v01
+        v[2] = v02
+        v[3] = v03
+        v[4] = v10
+        v[5] = v11
+        v[6] = v12
+        v[7] = v13
+        v[8] = v20
+        v[9] = v21
         v[10] = v22
         v[11] = v23
         v[12] = v30
@@ -154,12 +142,11 @@ value class Matrix(
             |${this[1, 0]} ${this[1, 1]} ${this[1, 2]} ${this[1, 3]}|
             |${this[2, 0]} ${this[2, 1]} ${this[2, 2]} ${this[2, 3]}|
             |${this[3, 0]} ${this[3, 1]} ${this[3, 2]} ${this[3, 3]}|
-        """.trimIndent()
+        """
+            .trimIndent()
     }
 
-    /**
-     * Invert `this` Matrix.
-     */
+    /** Invert `this` Matrix. */
     fun invert() {
         // See top-level comment
         if (values.size < 16) return
@@ -218,9 +205,7 @@ value class Matrix(
         this[3, 3] = ((a20 * b03 - a21 * b01 + a22 * b00) * invDet)
     }
 
-    /**
-     * Resets the `this` to the identity matrix.
-     */
+    /** Resets the `this` to the identity matrix. */
     fun reset() {
         // See top-level comment
         val v = values
@@ -252,16 +237,16 @@ value class Matrix(
         if (src.size < 16) return
         if (dst.size < 16) return
 
-        src[ 0] = dst[ 0]
-        src[ 1] = dst[ 1]
-        src[ 2] = dst[ 2]
-        src[ 3] = dst[ 3]
-        src[ 4] = dst[ 4]
-        src[ 5] = dst[ 5]
-        src[ 6] = dst[ 6]
-        src[ 7] = dst[ 7]
-        src[ 8] = dst[ 8]
-        src[ 9] = dst[ 9]
+        src[0] = dst[0]
+        src[1] = dst[1]
+        src[2] = dst[2]
+        src[3] = dst[3]
+        src[4] = dst[4]
+        src[5] = dst[5]
+        src[6] = dst[6]
+        src[7] = dst[7]
+        src[8] = dst[8]
+        src[9] = dst[9]
         src[10] = dst[10]
         src[11] = dst[11]
         src[12] = dst[12]
@@ -270,9 +255,7 @@ value class Matrix(
         src[15] = dst[15]
     }
 
-    /**
-     * Applies a [degrees] rotation around X to `this`.
-     */
+    /** Applies a [degrees] rotation around X to `this`. */
     fun rotateX(degrees: Float) {
         // See top-level comment
         if (values.size < 16) return
@@ -311,9 +294,7 @@ value class Matrix(
         this[3, 2] = v32
     }
 
-    /**
-     * Applies a [degrees] rotation around Y to `this`.
-     */
+    /** Applies a [degrees] rotation around Y to `this`. */
     fun rotateY(degrees: Float) {
         // See top-level comment
         if (values.size < 16) return
@@ -352,9 +333,7 @@ value class Matrix(
         this[3, 2] = v32
     }
 
-    /**
-     * Applies a [degrees] rotation around Z to `this`.
-     */
+    /** Applies a [degrees] rotation around Z to `this`. */
     fun rotateZ(degrees: Float) {
         // See top-level comment
         if (values.size < 16) return
@@ -415,22 +394,10 @@ value class Matrix(
     fun translate(x: Float = 0f, y: Float = 0f, z: Float = 0f) {
         // See top-level comment
         if (values.size < 16) return
-        val t1 = this[0, 0] * x +
-            this[1, 0] * y +
-            this[2, 0] * z +
-            this[3, 0]
-        val t2 = this[0, 1] * x +
-            this[1, 1] * y +
-            this[2, 1] * z +
-            this[3, 1]
-        val t3 = this[0, 2] * x +
-            this[1, 2] * y +
-            this[2, 2] * z +
-            this[3, 2]
-        val t4 = this[0, 3] * x +
-            this[1, 3] * y +
-            this[2, 3] * z +
-            this[3, 3]
+        val t1 = this[0, 0] * x + this[1, 0] * y + this[2, 0] * z + this[3, 0]
+        val t2 = this[0, 1] * x + this[1, 1] * y + this[2, 1] * z + this[3, 1]
+        val t3 = this[0, 2] * x + this[1, 2] * y + this[2, 2] * z + this[3, 2]
+        val t4 = this[0, 3] * x + this[1, 3] * y + this[2, 3] * z + this[3, 3]
         this[3, 0] = t1
         this[3, 1] = t2
         this[3, 2] = t3
@@ -438,9 +405,8 @@ value class Matrix(
     }
 
     /**
-     * Resets this matrix to a "TRS" (translation, rotation, scale) transform around a
-     * pivot point. The transform operations encoded in the matrix are the following,
-     * in this specific order:
+     * Resets this matrix to a "TRS" (translation, rotation, scale) transform around a pivot point.
+     * The transform operations encoded in the matrix are the following, in this specific order:
      * - A translation by -[pivotX], -[pivotY]
      * - A translation by [translationX], [translationY], and [translationZ]
      * - An X rotation by [rotationX]
@@ -556,59 +522,37 @@ value class Matrix(
     }
 
     companion object {
-        /**
-         * Index of the flattened array that represents the scale factor along the X axis
-         */
+        /** Index of the flattened array that represents the scale factor along the X axis */
         const val ScaleX = 0
 
-        /**
-         * Index of the flattened array that represents the skew factor along the Y axis
-         */
+        /** Index of the flattened array that represents the skew factor along the Y axis */
         const val SkewY = 1
 
-        /**
-         * Index of the flattened array that represents the perspective factor along the X axis
-         */
+        /** Index of the flattened array that represents the perspective factor along the X axis */
         const val Perspective0 = 3
 
-        /**
-         * Index of the flattened array that represents the skew factor along the X axis
-         */
+        /** Index of the flattened array that represents the skew factor along the X axis */
         const val SkewX = 4
 
-        /**
-         * Index of the flattened array that represents the scale factor along the Y axis
-         */
+        /** Index of the flattened array that represents the scale factor along the Y axis */
         const val ScaleY = 5
 
-        /**
-         * Index of the flattened array that represents the perspective factor along the Y axis
-         */
+        /** Index of the flattened array that represents the perspective factor along the Y axis */
         const val Perspective1 = 7
 
-        /**
-         * Index of the flattened array that represents the scale factor along the Z axis
-         */
+        /** Index of the flattened array that represents the scale factor along the Z axis */
         const val ScaleZ = 10
 
-        /**
-         * Index of the flattened array that represents the translation along the X axis
-         */
+        /** Index of the flattened array that represents the translation along the X axis */
         const val TranslateX = 12
 
-        /**
-         * Index of the flattened array that represents the translation along the Y axis
-         */
+        /** Index of the flattened array that represents the translation along the Y axis */
         const val TranslateY = 13
 
-        /**
-         * Index of the flattened array that represents the translation along the Z axis
-         */
+        /** Index of the flattened array that represents the translation along the Z axis */
         const val TranslateZ = 14
 
-        /**
-         * Index of the flattened array that represents the perspective factor along the Z axis
-         */
+        /** Index of the flattened array that represents the perspective factor along the Z axis */
         const val Perspective2 = 15
     }
 }

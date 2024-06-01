@@ -37,44 +37,48 @@ import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.tryResolve
 
 /**
- * [Detector] that checks calls to StateFlow.value to make sure they don't happen inside the body
- * of a composable function / lambda.
+ * [Detector] that checks calls to StateFlow.value to make sure they don't happen inside the body of
+ * a composable function / lambda.
  */
 class ComposableStateFlowValueDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(USimpleNameReferenceExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitSimpleNameReferenceExpression(node: USimpleNameReferenceExpression) {
-            // Look for a call to .value that comes from StateFlow
-            if (node.identifier != "value") return
-            val method = node.tryResolve() as? PsiMethod ?: return
-            if (method.containingClass?.inheritsFrom(StateFlowName) == true) {
-                if (node.isInvokedWithinComposable()) {
-                    context.report(
-                        StateFlowValueCalledInComposition,
-                        node,
-                        context.getNameLocation(node),
-                        "StateFlow.value should not be called within composition"
-                    )
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitSimpleNameReferenceExpression(node: USimpleNameReferenceExpression) {
+                // Look for a call to .value that comes from StateFlow
+                if (node.identifier != "value") return
+                val method = node.tryResolve() as? PsiMethod ?: return
+                if (method.containingClass?.inheritsFrom(StateFlowName) == true) {
+                    if (node.isInvokedWithinComposable()) {
+                        context.report(
+                            StateFlowValueCalledInComposition,
+                            node,
+                            context.getNameLocation(node),
+                            "StateFlow.value should not be called within composition"
+                        )
+                    }
                 }
             }
         }
-    }
 
     companion object {
-        val StateFlowValueCalledInComposition = Issue.create(
-            "StateFlowValueCalledInComposition",
-            "StateFlow.value should not be called within composition",
-            "Calling StateFlow.value within composition will not observe changes to the " +
-                "StateFlow, so changes might not be reflected within the composition. Instead " +
-                "you should use stateFlow.collectAsState() to observe changes to the StateFlow, " +
-                "and recompose when it changes.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ComposableStateFlowValueDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val StateFlowValueCalledInComposition =
+            Issue.create(
+                "StateFlowValueCalledInComposition",
+                "StateFlow.value should not be called within composition",
+                "Calling StateFlow.value within composition will not observe changes to the " +
+                    "StateFlow, so changes might not be reflected within the composition. Instead " +
+                    "you should use stateFlow.collectAsState() to observe changes to the StateFlow, " +
+                    "and recompose when it changes.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ComposableStateFlowValueDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

@@ -41,27 +41,29 @@ internal class MultiWidgetSelectionDelegate(
      * most TextLayoutResult changes would likely affect Selection logic in some way. Therefore,
      * this value only caches the last visible offset calculation for the latest seen
      * TextLayoutResult instance. Object equality check is not worth the extra calculation as
-     * instance check is enough to accomplish whether a text layout has changed in a meaningful
-     * way.
+     * instance check is enough to accomplish whether a text layout has changed in a meaningful way.
      */
     private val TextLayoutResult.lastVisibleOffset: Int
-        @Synchronized get() {
+        @Synchronized
+        get() {
             if (_previousTextLayoutResult !== this) {
-                val lastVisibleLine = when {
-                    !didOverflowHeight || multiParagraph.didExceedMaxLines -> lineCount - 1
-                    else -> { // size.height < multiParagraph.height
-                        var finalVisibleLine = getLineForVerticalPosition(size.height.toFloat())
-                            .coerceAtMost(lineCount - 1)
-                        // if final visible line's top is equal to or larger than text layout
-                        // result's height, we need to check above lines one by one until we find
-                        // a line that fits in boundaries.
-                        while (
-                            finalVisibleLine >= 0 &&
-                            getLineTop(finalVisibleLine) >= size.height
-                        ) finalVisibleLine--
-                        finalVisibleLine.coerceAtLeast(0)
+                val lastVisibleLine =
+                    when {
+                        !didOverflowHeight || multiParagraph.didExceedMaxLines -> lineCount - 1
+                        else -> { // size.height < multiParagraph.height
+                            var finalVisibleLine =
+                                getLineForVerticalPosition(size.height.toFloat())
+                                    .coerceAtMost(lineCount - 1)
+                            // if final visible line's top is equal to or larger than text layout
+                            // result's height, we need to check above lines one by one until we
+                            // find
+                            // a line that fits in boundaries.
+                            while (
+                                finalVisibleLine >= 0 && getLineTop(finalVisibleLine) >= size.height
+                            ) finalVisibleLine--
+                            finalVisibleLine.coerceAtLeast(0)
+                        }
                     }
-                }
                 _previousLastVisibleOffset = getLineEnd(lastVisibleLine, true)
                 _previousTextLayoutResult = this
             }
@@ -75,11 +77,12 @@ internal class MultiWidgetSelectionDelegate(
         val relativePosition =
             builder.containerCoordinates.localPositionOf(layoutCoordinates, Offset.Zero)
         val localPosition = builder.currentPosition - relativePosition
-        val localPreviousHandlePosition = if (builder.previousHandlePosition.isUnspecified) {
-            Offset.Unspecified
-        } else {
-            builder.previousHandlePosition - relativePosition
-        }
+        val localPreviousHandlePosition =
+            if (builder.previousHandlePosition.isUnspecified) {
+                Offset.Unspecified
+            } else {
+                builder.previousHandlePosition - relativePosition
+            }
 
         builder.appendSelectableInfo(
             textLayoutResult = textLayoutResult,
@@ -95,24 +98,27 @@ internal class MultiWidgetSelectionDelegate(
         val end = textLayoutResult.layoutInput.text.length
 
         return Selection(
-            start = Selection.AnchorInfo(
-                direction = textLayoutResult.getBidiRunDirection(start),
-                offset = start,
-                selectableId = selectableId
-            ),
-            end = Selection.AnchorInfo(
-                direction = textLayoutResult.getBidiRunDirection(max(end - 1, 0)),
-                offset = end,
-                selectableId = selectableId
-            ),
+            start =
+                Selection.AnchorInfo(
+                    direction = textLayoutResult.getBidiRunDirection(start),
+                    offset = start,
+                    selectableId = selectableId
+                ),
+            end =
+                Selection.AnchorInfo(
+                    direction = textLayoutResult.getBidiRunDirection(max(end - 1, 0)),
+                    offset = end,
+                    selectableId = selectableId
+                ),
             handlesCrossed = false
         )
     }
 
     override fun getHandlePosition(selection: Selection, isStartHandle: Boolean): Offset {
         // Check if the selection handle's selectable is the current selectable.
-        if (isStartHandle && selection.start.selectableId != this.selectableId ||
-            !isStartHandle && selection.end.selectableId != this.selectableId
+        if (
+            isStartHandle && selection.start.selectableId != this.selectableId ||
+                !isStartHandle && selection.end.selectableId != this.selectableId
         ) {
             return Offset.Unspecified
         }
@@ -145,9 +151,7 @@ internal class MultiWidgetSelectionDelegate(
         val textLayoutResult = layoutResultCallback() ?: return Rect.Zero
         val textLength = textLayoutResult.layoutInput.text.length
         if (textLength < 1) return Rect.Zero
-        return textLayoutResult.getBoundingBox(
-            offset.coerceIn(0, textLength - 1)
-        )
+        return textLayoutResult.getBoundingBox(offset.coerceIn(0, textLength - 1))
     }
 
     override fun getLineLeft(offset: Int): Float {
@@ -194,8 +198,8 @@ internal class MultiWidgetSelectionDelegate(
  * Appends a [SelectableInfo] to this [SelectionLayoutBuilder].
  *
  * @param textLayoutResult the [TextLayoutResult] for the selectable
- * @param localPosition the position of the current handle if not being dragged
- * or the drag position if it is
+ * @param localPosition the position of the current handle if not being dragged or the drag position
+ *   if it is
  * @param previousHandlePosition the position of the previous handle
  * @param selectableId the selectableId for the selectable
  */
@@ -205,19 +209,20 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     previousHandlePosition: Offset,
     selectableId: Long,
 ) {
-    val bounds = Rect(
-        0.0f,
-        0.0f,
-        textLayoutResult.size.width.toFloat(),
-        textLayoutResult.size.height.toFloat()
-    )
+    val bounds =
+        Rect(
+            0.0f,
+            0.0f,
+            textLayoutResult.size.width.toFloat(),
+            textLayoutResult.size.height.toFloat()
+        )
 
     val currentXDirection = getXDirection(localPosition, bounds)
     val currentYDirection = getYDirection(localPosition, bounds)
 
-    fun otherDirection(anchor: Selection.AnchorInfo?): Direction = anchor
-        ?.let { getDirectionById(it.selectableId, selectableId) }
-        ?: resolve2dDirection(currentXDirection, currentYDirection)
+    fun otherDirection(anchor: Selection.AnchorInfo?): Direction =
+        anchor?.let { getDirectionById(it.selectableId, selectableId) }
+            ?: resolve2dDirection(currentXDirection, currentYDirection)
 
     val otherDirection: Direction
     val startXHandleDirection: Direction
@@ -247,19 +252,31 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
     val rawEndHandleOffset: Int
     if (isStartHandle) {
         rawStartHandleOffset = getOffsetForPosition(localPosition, textLayoutResult)
-        rawEndHandleOffset = previousSelection?.end
-            ?.getPreviousAdjustedOffset(selectableIdOrderingComparator, selectableId, textLength)
-            ?: rawStartHandleOffset
+        rawEndHandleOffset =
+            previousSelection
+                ?.end
+                ?.getPreviousAdjustedOffset(
+                    selectableIdOrderingComparator,
+                    selectableId,
+                    textLength
+                ) ?: rawStartHandleOffset
     } else {
         rawEndHandleOffset = getOffsetForPosition(localPosition, textLayoutResult)
-        rawStartHandleOffset = previousSelection?.start
-            ?.getPreviousAdjustedOffset(selectableIdOrderingComparator, selectableId, textLength)
-            ?: rawEndHandleOffset
+        rawStartHandleOffset =
+            previousSelection
+                ?.start
+                ?.getPreviousAdjustedOffset(
+                    selectableIdOrderingComparator,
+                    selectableId,
+                    textLength
+                ) ?: rawEndHandleOffset
     }
 
-    val rawPreviousHandleOffset = if (previousHandlePosition.isUnspecified) -1 else {
-        getOffsetForPosition(previousHandlePosition, textLayoutResult)
-    }
+    val rawPreviousHandleOffset =
+        if (previousHandlePosition.isUnspecified) -1
+        else {
+            getOffsetForPosition(previousHandlePosition, textLayoutResult)
+        }
 
     appendInfo(
         selectableId = selectableId,
@@ -279,10 +296,8 @@ private fun Selection.AnchorInfo.getPreviousAdjustedOffset(
     currentSelectableId: Long,
     currentTextLength: Int
 ): Int {
-    val compareResult = selectableIdOrderingComparator.compare(
-        this.selectableId,
-        currentSelectableId
-    )
+    val compareResult =
+        selectableIdOrderingComparator.compare(this.selectableId, currentSelectableId)
 
     return when {
         compareResult < 0 -> 0
@@ -291,26 +306,26 @@ private fun Selection.AnchorInfo.getPreviousAdjustedOffset(
     }
 }
 
-private fun getXDirection(position: Offset, bounds: Rect): Direction = when {
-    position.x < bounds.left -> Direction.BEFORE
-    position.x > bounds.right -> Direction.AFTER
-    else -> Direction.ON
-}
+private fun getXDirection(position: Offset, bounds: Rect): Direction =
+    when {
+        position.x < bounds.left -> Direction.BEFORE
+        position.x > bounds.right -> Direction.AFTER
+        else -> Direction.ON
+    }
 
-private fun getYDirection(position: Offset, bounds: Rect): Direction = when {
-    position.y < bounds.top -> Direction.BEFORE
-    position.y > bounds.bottom -> Direction.AFTER
-    else -> Direction.ON
-}
+private fun getYDirection(position: Offset, bounds: Rect): Direction =
+    when {
+        position.y < bounds.top -> Direction.BEFORE
+        position.y > bounds.bottom -> Direction.AFTER
+        else -> Direction.ON
+    }
 
 private fun SelectionLayoutBuilder.getDirectionById(
     anchorSelectableId: Long,
     currentSelectableId: Long,
 ): Direction {
-    val compareResult = selectableIdOrderingComparator.compare(
-        anchorSelectableId,
-        currentSelectableId
-    )
+    val compareResult =
+        selectableIdOrderingComparator.compare(anchorSelectableId, currentSelectableId)
 
     return when {
         compareResult < 0 -> Direction.BEFORE
@@ -320,15 +335,17 @@ private fun SelectionLayoutBuilder.getDirectionById(
 }
 
 /**
- * Returns true if either of the directions are [Direction.ON]
- * or if the directions are not both [Direction.BEFORE] or [Direction.AFTER].
+ * Returns true if either of the directions are [Direction.ON] or if the directions are not both
+ * [Direction.BEFORE] or [Direction.AFTER].
  */
 private fun isSelected(currentDirection: Direction, otherDirection: Direction): Boolean =
     currentDirection == Direction.ON || currentDirection != otherDirection
 
 // map offsets above/below the text to 0/length respectively
-private fun getOffsetForPosition(position: Offset, textLayoutResult: TextLayoutResult): Int = when {
-    position.y <= 0f -> 0
-    position.y >= textLayoutResult.multiParagraph.height -> textLayoutResult.layoutInput.text.length
-    else -> textLayoutResult.getOffsetForPosition(position)
-}
+private fun getOffsetForPosition(position: Offset, textLayoutResult: TextLayoutResult): Int =
+    when {
+        position.y <= 0f -> 0
+        position.y >= textLayoutResult.multiParagraph.height ->
+            textLayoutResult.layoutInput.text.length
+        else -> textLayoutResult.getOffsetForPosition(position)
+    }

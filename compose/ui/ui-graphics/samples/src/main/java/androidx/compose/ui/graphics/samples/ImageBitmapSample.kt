@@ -26,8 +26,8 @@ import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 
 /**
- * Sample showing how to obtain a [PixelMap] to query pixel information
- * from an underlying [ImageBitmap]
+ * Sample showing how to obtain a [PixelMap] to query pixel information from an underlying
+ * [ImageBitmap]
  */
 @Sampled
 fun ImageBitmapToPixelMapSample() {
@@ -35,12 +35,7 @@ fun ImageBitmapToPixelMapSample() {
 
     // Sample a 3 by 2 subsection of the given ImageBitmap
     // starting at the coordinate (48, 49)
-    val pixelmap = imageBitmap.toPixelMap(
-        startX = 48,
-        startY = 49,
-        width = 3,
-        height = 2
-    )
+    val pixelmap = imageBitmap.toPixelMap(startX = 48, startY = 49, width = 3, height = 2)
 
     // create a histogram to count the number of occurrences of a color within the specified
     // subsection of the provided ImageBitmap
@@ -55,30 +50,17 @@ fun ImageBitmapToPixelMapSample() {
 }
 
 /**
- * [ImageBitmap.readPixels] sample that shows how to create a consumer defined
- * IntArray to store pixel information and create a PixelMap for querying information
- * within the buffer
+ * [ImageBitmap.readPixels] sample that shows how to create a consumer defined IntArray to store
+ * pixel information and create a PixelMap for querying information within the buffer
  */
 @Sampled
 fun ImageBitmapReadPixelsSample() {
     val imageBitmap = createImageBitmap()
 
     val buffer = IntArray(20 * 10)
-    imageBitmap.readPixels(
-        buffer = buffer,
-        startX = 8,
-        startY = 9,
-        width = 20,
-        height = 10
-    )
+    imageBitmap.readPixels(buffer = buffer, startX = 8, startY = 9, width = 20, height = 10)
 
-    val pixelmap = PixelMap(
-        buffer = buffer,
-        width = 20,
-        height = 10,
-        stride = 20,
-        bufferOffset = 0
-    )
+    val pixelmap = PixelMap(buffer = buffer, width = 20, height = 10, stride = 20, bufferOffset = 0)
 
     // create a histogram to count the number of occurrences of a color within the specified
     // subsection of the provided ImageBitmap

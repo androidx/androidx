@@ -36,21 +36,21 @@ fun BottomNavigationItemWithBadge() {
     BottomNavigation {
         BottomNavigationItem(
             icon = {
-                BadgedBox(badge = {
-                    Badge {
-                        val badgeNumber = "8"
-                        Text(
-                            badgeNumber,
-                            modifier = Modifier.semantics {
-                                contentDescription = "$badgeNumber new notifications"
-                            }
-                        )
+                BadgedBox(
+                    badge = {
+                        Badge {
+                            val badgeNumber = "8"
+                            Text(
+                                badgeNumber,
+                                modifier =
+                                    Modifier.semantics {
+                                        contentDescription = "$badgeNumber new notifications"
+                                    }
+                            )
+                        }
                     }
-                }) {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        contentDescription = "Favorite"
-                    )
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
                 }
             },
             selected = false,

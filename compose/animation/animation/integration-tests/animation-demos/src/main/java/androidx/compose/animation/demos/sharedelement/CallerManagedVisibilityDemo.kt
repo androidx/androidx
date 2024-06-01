@@ -48,16 +48,10 @@ fun SharedElementWithCallerManagedVisibility() {
     var selectFirst by remember { mutableStateOf(true) }
     val key = remember { Any() }
     SharedTransitionLayout(
-        Modifier
-            .fillMaxSize()
-            .padding(10.dp)
-            .clickable {
-                selectFirst = !selectFirst
-            }
+        Modifier.fillMaxSize().padding(10.dp).clickable { selectFirst = !selectFirst }
     ) {
         Box(
-            Modifier
-                .sharedElementWithCallerManagedVisibility(
+            Modifier.sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(key = key),
                     !selectFirst,
                     boundsTransform = boundsTransform
@@ -70,8 +64,7 @@ fun SharedElementWithCallerManagedVisibility() {
         // TODO: Check isTransitionActive is false in the end. Why are the shared bounds not
         // two separate entities when transition is finished?
         Box(
-            Modifier
-                .offset(180.dp, 180.dp)
+            Modifier.offset(180.dp, 180.dp)
                 .sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(
                         key = key,

@@ -19,19 +19,20 @@ package androidx.compose.ui.input.rotary
 /**
  * This event represents a rotary input event.
  *
- * Some devices contain a physical rotating side button, or a rotating bezel. When the user
- * turns the button or rotates the bezel, a [RotaryScrollEvent] is sent to the item in focus.
+ * Some devices contain a physical rotating side button, or a rotating bezel. When the user turns
+ * the button or rotates the bezel, a [RotaryScrollEvent] is sent to the item in focus.
  */
-actual class RotaryScrollEvent internal constructor(
+actual class RotaryScrollEvent
+internal constructor(
     /**
-     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that
-     * can scroll vertically.
+     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that can
+     * scroll vertically.
      */
     actual val verticalScrollPixels: Float,
 
     /**
-     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that
-     * can scroll horizontally.
+     * The amount to scroll (in pixels) in response to a [RotaryScrollEvent] in a container that can
+     * scroll horizontally.
      */
     actual val horizontalScrollPixels: Float,
 
@@ -40,20 +41,21 @@ actual class RotaryScrollEvent internal constructor(
      * platform-dependent.
      */
     actual val uptimeMillis: Long,
-
 ) {
-    override fun equals(other: Any?): Boolean = other is RotaryScrollEvent &&
-        other.verticalScrollPixels == verticalScrollPixels &&
-        other.horizontalScrollPixels == horizontalScrollPixels &&
-        other.uptimeMillis == uptimeMillis
+    override fun equals(other: Any?): Boolean =
+        other is RotaryScrollEvent &&
+            other.verticalScrollPixels == verticalScrollPixels &&
+            other.horizontalScrollPixels == horizontalScrollPixels &&
+            other.uptimeMillis == uptimeMillis
 
-    override fun hashCode(): Int = 0
-        .let { verticalScrollPixels.hashCode() }
-        .let { 31 * it + horizontalScrollPixels.hashCode() }
-        .let { 31 * it + uptimeMillis.hashCode() }
+    override fun hashCode(): Int =
+        0.let { verticalScrollPixels.hashCode() }
+            .let { 31 * it + horizontalScrollPixels.hashCode() }
+            .let { 31 * it + uptimeMillis.hashCode() }
 
-    override fun toString(): String = "RotaryScrollEvent(" +
-        "verticalScrollPixels=$verticalScrollPixels," +
-        "horizontalScrollPixels=$horizontalScrollPixels," +
-        "uptimeMillis=$uptimeMillis)"
+    override fun toString(): String =
+        "RotaryScrollEvent(" +
+            "verticalScrollPixels=$verticalScrollPixels," +
+            "horizontalScrollPixels=$horizontalScrollPixels," +
+            "uptimeMillis=$uptimeMillis)"
 }

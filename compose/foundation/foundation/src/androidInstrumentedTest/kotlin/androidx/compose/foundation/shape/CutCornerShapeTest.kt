@@ -67,12 +67,7 @@ class CutCornerShapeTest {
         val size2 = 22f
         val size3 = 32f
         val size4 = 42f
-        val cut = CutCornerShape(
-            size1,
-            size2,
-            size3,
-            size4
-        )
+        val cut = CutCornerShape(size1, size2, size3, size4)
 
         val outline = cut.toOutline() as Outline.Generic
         assertPathsEquals(
@@ -97,12 +92,7 @@ class CutCornerShapeTest {
         val size2 = 22f
         val size3 = 32f
         val size4 = 42f
-        val cut = CutCornerShape(
-            size1,
-            size2,
-            size3,
-            size4
-        )
+        val cut = CutCornerShape(size1, size2, size3, size4)
 
         val outline = cut.toOutline(LayoutDirection.Rtl) as Outline.Generic
         assertPathsEquals(
@@ -123,121 +113,91 @@ class CutCornerShapeTest {
 
     @Test
     fun createsRectangleOutlineForZeroSizedCorners() {
-        val rounded = CutCornerShape(
-            0.0f,
-            0.0f,
-            0.0f,
-            0.0f
-        )
+        val rounded = CutCornerShape(0.0f, 0.0f, 0.0f, 0.0f)
 
-        assertThat(rounded.toOutline())
-            .isEqualTo(Outline.Rectangle(size.toRect()))
+        assertThat(rounded.toOutline()).isEqualTo(Outline.Rectangle(size.toRect()))
     }
 
     @Test
     fun cutCornerShapesAreEquals() {
-        assertThat(CutCornerShape(10.0f))
-            .isEqualTo(CutCornerShape(10.0f))
+        assertThat(CutCornerShape(10.0f)).isEqualTo(CutCornerShape(10.0f))
     }
 
     @Test
     fun cutCornerUpdateAllCornerSize() {
-        assertThat(
-            CutCornerShape(10.0f).copy(
-                CornerSize(
-                    5.0f
-                )
-            )
-        )
-            .isEqualTo(CutCornerShape(5.0f))
+        assertThat(CutCornerShape(10.0f).copy(CornerSize(5.0f))).isEqualTo(CutCornerShape(5.0f))
     }
 
     @Test
     fun cutCornerUpdateTwoCornerSizes() {
         assertThat(
-            CutCornerShape(10.0f).copy(
-                topEnd = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
+                CutCornerShape(10.0f).copy(topEnd = CornerSize(3.dp), bottomEnd = CornerSize(50))
             )
-        ).isEqualTo(
-            CutCornerShape(
-                topStart = CornerSize(10.0f),
-                topEnd = CornerSize(3.dp),
-                bottomStart = CornerSize(10.0f),
-                bottomEnd = CornerSize(50)
+            .isEqualTo(
+                CutCornerShape(
+                    topStart = CornerSize(10.0f),
+                    topEnd = CornerSize(3.dp),
+                    bottomStart = CornerSize(10.0f),
+                    bottomEnd = CornerSize(50)
+                )
             )
-        )
     }
 
     @Test
     fun objectsWithTheSameCornersAreEquals() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            CutCornerShape(
-                topStart = CornerSize(4.0f),
-                topEnd = CornerSize(3.0f),
-                bottomStart = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
-            ).equals(
                 CutCornerShape(
-                    topStart = CornerSize(4.0f),
-                    topEnd = CornerSize(3.0f),
-                    bottomStart = CornerSize(3.dp),
-                    bottomEnd = CornerSize(50)
-                )
+                        topStart = CornerSize(4.0f),
+                        topEnd = CornerSize(3.0f),
+                        bottomStart = CornerSize(3.dp),
+                        bottomEnd = CornerSize(50)
+                    )
+                    .equals(
+                        CutCornerShape(
+                            topStart = CornerSize(4.0f),
+                            topEnd = CornerSize(3.0f),
+                            bottomStart = CornerSize(3.dp),
+                            bottomEnd = CornerSize(50)
+                        )
+                    )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun objectsWithDifferentCornersAreNotEquals() {
         @Suppress("ReplaceCallWithBinaryOperator")
         assertThat(
-            CutCornerShape(
-                topStart = CornerSize(4.0f),
-                topEnd = CornerSize(3.0f),
-                bottomStart = CornerSize(3.dp),
-                bottomEnd = CornerSize(50)
-            ).equals(
                 CutCornerShape(
-                    topStart = CornerSize(4.0f),
-                    topEnd = CornerSize(5.0f),
-                    bottomStart = CornerSize(3.dp),
-                    bottomEnd = CornerSize(50)
-                )
+                        topStart = CornerSize(4.0f),
+                        topEnd = CornerSize(3.0f),
+                        bottomStart = CornerSize(3.dp),
+                        bottomEnd = CornerSize(50)
+                    )
+                    .equals(
+                        CutCornerShape(
+                            topStart = CornerSize(4.0f),
+                            topEnd = CornerSize(5.0f),
+                            bottomStart = CornerSize(3.dp),
+                            bottomEnd = CornerSize(50)
+                        )
+                    )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun copyHasCorrectDefaults() {
         assertEquals(
-            CutCornerShape(
-                topStart = 5.dp,
-                topEnd = 6.dp,
-                bottomEnd = 3.dp,
-                bottomStart = 4.dp
-            ),
-            CutCornerShape(
-                topStart = 1.dp,
-                topEnd = 2.dp,
-                bottomEnd = 3.dp,
-                bottomStart = 4.dp
-            ).copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
+            CutCornerShape(topStart = 5.dp, topEnd = 6.dp, bottomEnd = 3.dp, bottomStart = 4.dp),
+            CutCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 3.dp, bottomStart = 4.dp)
+                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
         )
         assertEquals(
-            CutCornerShape(
-                topStart = 1.dp,
-                topEnd = 2.dp,
-                bottomEnd = 5.dp,
-                bottomStart = 6.dp
-            ),
-            CutCornerShape(
-                topStart = 1.dp,
-                topEnd = 2.dp,
-                bottomEnd = 3.dp,
-                bottomStart = 4.dp
-            ).copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
+            CutCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 5.dp, bottomStart = 6.dp),
+            CutCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 3.dp, bottomStart = 4.dp)
+                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
         )
     }
 

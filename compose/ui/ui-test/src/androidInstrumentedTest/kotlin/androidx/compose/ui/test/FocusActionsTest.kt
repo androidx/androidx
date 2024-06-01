@@ -32,26 +32,15 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class FocusActionsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private fun tag(index: Int): String = "tag_$index"
 
     @Test
     fun requestFocus_focuses() {
         rule.setContent {
-            Box(
-                Modifier
-                    .size(1.dp)
-                    .testTag(tag(0))
-                    .focusable()
-            )
-            Box(
-                Modifier
-                    .size(1.dp)
-                    .testTag(tag(1))
-                    .focusable()
-            )
+            Box(Modifier.size(1.dp).testTag(tag(0)).focusable())
+            Box(Modifier.size(1.dp).testTag(tag(1)).focusable())
         }
 
         rule.onNodeWithTag(tag(0)).assertIsNotFocused()

@@ -37,34 +37,24 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTestApi::class)
 class ComposeTestRuleWaitUntilTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     companion object {
         private const val TestTag = "TestTag"
         private const val Timeout = 500L
     }
 
-    @Composable
-    private fun TaggedBox() = Box(
-        Modifier
-            .size(10.dp, 10.dp)
-            .testTag(TestTag)
-    )
+    @Composable private fun TaggedBox() = Box(Modifier.size(10.dp, 10.dp).testTag(TestTag))
 
     @Test
     fun waitUntil_includesConditionDescription_whenSpecified() {
-        rule.setContent {
-            TaggedBox()
-        }
+        rule.setContent { TaggedBox() }
 
         expectError<ComposeTimeoutException>(
             // This is actually regex, so special characters need to be escaped.
             expectedMessage = "Condition \\(foo\\) still not satisfied after $Timeout ms"
         ) {
-            rule.waitUntil("foo", timeoutMillis = Timeout) {
-                false
-            }
+            rule.waitUntil("foo", timeoutMillis = Timeout) { false }
         }
     }
 
@@ -88,8 +78,9 @@ class ComposeTestRuleWaitUntilTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition \\(exactly 2 nodes match \\(TestTag = 'TestTag'\\)\\) " +
-                "still not satisfied after $Timeout ms"
+            expectedMessage =
+                "Condition \\(exactly 2 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                    "still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilNodeCount(hasTestTag(TestTag), 2, Timeout)
         }
@@ -107,13 +98,12 @@ class ComposeTestRuleWaitUntilTest {
 
     @Test
     fun waitUntilAtLeastOneExists_throwsWhen_nodesDoNotExist() {
-        rule.setContent {
-            Box(Modifier.size(10.dp))
-        }
+        rule.setContent { Box(Modifier.size(10.dp)) }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition \\(at least one node matches " +
-                "\\(TestTag = 'TestTag'\\)\\) still not satisfied after $Timeout ms"
+            expectedMessage =
+                "Condition \\(at least one node matches " +
+                    "\\(TestTag = 'TestTag'\\)\\) still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilAtLeastOneExists(hasTestTag(TestTag), Timeout)
         }
@@ -121,9 +111,7 @@ class ComposeTestRuleWaitUntilTest {
 
     @Test
     fun waitUntilExactlyOneExists_succeedsWhen_oneNodeExists() {
-        rule.setContent {
-            TaggedBox()
-        }
+        rule.setContent { TaggedBox() }
 
         rule.waitUntilExactlyOneExists(hasTestTag(TestTag))
     }
@@ -136,8 +124,9 @@ class ComposeTestRuleWaitUntilTest {
         }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition \\(exactly 1 nodes match \\(TestTag = 'TestTag'\\)\\) " +
-                "still not satisfied after $Timeout ms"
+            expectedMessage =
+                "Condition \\(exactly 1 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                    "still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilExactlyOneExists(hasTestTag(TestTag), Timeout)
         }
@@ -145,22 +134,19 @@ class ComposeTestRuleWaitUntilTest {
 
     @Test
     fun waitUntilDoesNotExists_succeedsWhen_nodeDoesNotExist() {
-        rule.setContent {
-            Box(Modifier.size(10.dp))
-        }
+        rule.setContent { Box(Modifier.size(10.dp)) }
 
         rule.waitUntilDoesNotExist(hasTestTag(TestTag), timeoutMillis = Timeout)
     }
 
     @Test
     fun waitUntilDoesNotExists_throwsWhen_nodeExistsUntilTimeout() {
-        rule.setContent {
-            TaggedBox()
-        }
+        rule.setContent { TaggedBox() }
 
         expectError<ComposeTimeoutException>(
-            expectedMessage = "Condition \\(exactly 0 nodes match \\(TestTag = 'TestTag'\\)\\) " +
-                "still not satisfied after $Timeout ms"
+            expectedMessage =
+                "Condition \\(exactly 0 nodes match \\(TestTag = 'TestTag'\\)\\) " +
+                    "still not satisfied after $Timeout ms"
         ) {
             rule.waitUntilDoesNotExist(hasTestTag(TestTag), timeoutMillis = Timeout)
         }

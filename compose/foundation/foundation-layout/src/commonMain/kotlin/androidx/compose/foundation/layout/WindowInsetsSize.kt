@@ -35,96 +35,108 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
- * Sets the width to that of [insets] at the [start][androidx.compose.ui.Alignment.Start]
- * of the screen, using either [left][WindowInsets.getLeft] or [right][WindowInsets.getRight],
- * depending on the [LayoutDirection].
+ * Sets the width to that of [insets] at the [start][androidx.compose.ui.Alignment.Start] of the
+ * screen, using either [left][WindowInsets.getLeft] or [right][WindowInsets.getRight], depending on
+ * the [LayoutDirection].
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed
- * insets from [windowInsetsPadding] and [consumeWindowInsets], but won't consume any
- * insets.
+ * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
+ * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsStartWidthSample
  */
 @Stable
-fun Modifier.windowInsetsStartWidth(insets: WindowInsets) = this.then(
-    DerivedWidthModifier(insets, debugInspectorInfo {
-        name = "insetsStartWidth"
-        properties["insets"] = insets
-    }) { layoutDirection, density ->
-        if (layoutDirection == LayoutDirection.Ltr) {
-            getLeft(density, layoutDirection)
-        } else {
-            getRight(density, layoutDirection)
+fun Modifier.windowInsetsStartWidth(insets: WindowInsets) =
+    this.then(
+        DerivedWidthModifier(
+            insets,
+            debugInspectorInfo {
+                name = "insetsStartWidth"
+                properties["insets"] = insets
+            }
+        ) { layoutDirection, density ->
+            if (layoutDirection == LayoutDirection.Ltr) {
+                getLeft(density, layoutDirection)
+            } else {
+                getRight(density, layoutDirection)
+            }
         }
-    }
-)
+    )
 
 /**
- * Sets the width to that of [insets] at the [end][androidx.compose.ui.Alignment.End]
- * of the screen, using either [left][WindowInsets.getLeft] or [right][WindowInsets.getRight],
- * depending on the [LayoutDirection].
+ * Sets the width to that of [insets] at the [end][androidx.compose.ui.Alignment.End] of the screen,
+ * using either [left][WindowInsets.getLeft] or [right][WindowInsets.getRight], depending on the
+ * [LayoutDirection].
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed
- * insets from [windowInsetsPadding] and [consumeWindowInsets], but won't consume any
- * insets.
+ * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
+ * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsEndWidthSample
  */
 @Stable
-fun Modifier.windowInsetsEndWidth(insets: WindowInsets) = this.then(
-    DerivedWidthModifier(insets, debugInspectorInfo {
-        name = "insetsEndWidth"
-        properties["insets"] = insets
-    }) { layoutDirection, density ->
-        if (layoutDirection == LayoutDirection.Rtl) {
-            getLeft(density, layoutDirection)
-        } else {
-            getRight(density, layoutDirection)
+fun Modifier.windowInsetsEndWidth(insets: WindowInsets) =
+    this.then(
+        DerivedWidthModifier(
+            insets,
+            debugInspectorInfo {
+                name = "insetsEndWidth"
+                properties["insets"] = insets
+            }
+        ) { layoutDirection, density ->
+            if (layoutDirection == LayoutDirection.Rtl) {
+                getLeft(density, layoutDirection)
+            } else {
+                getRight(density, layoutDirection)
+            }
         }
-    }
-)
+    )
 
 /**
  * Sets the height to that of [insets] at the [top][WindowInsets.getTop] of the screen.
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed
- * insets from [windowInsetsPadding] and [consumeWindowInsets], but won't consume any
- * insets.
+ * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
+ * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsTopHeightSample
  */
 @Stable
-fun Modifier.windowInsetsTopHeight(insets: WindowInsets) = this.then(
-    DerivedHeightModifier(insets, debugInspectorInfo {
-        name = "insetsTopHeight"
-        properties["insets"] = insets
-    }) {
-        getTop(it)
-    }
-)
+fun Modifier.windowInsetsTopHeight(insets: WindowInsets) =
+    this.then(
+        DerivedHeightModifier(
+            insets,
+            debugInspectorInfo {
+                name = "insetsTopHeight"
+                properties["insets"] = insets
+            }
+        ) {
+            getTop(it)
+        }
+    )
 
 /**
  * Sets the height to that of [insets] at the [bottom][WindowInsets.getBottom] of the screen.
  *
- * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed
- * insets from [windowInsetsPadding] and [consumeWindowInsets], but won't consume any
- * insets.
+ * When used, the [WindowInsets][android.view.WindowInsets] will respect the consumed insets from
+ * [windowInsetsPadding] and [consumeWindowInsets], but won't consume any insets.
  *
  * @sample androidx.compose.foundation.layout.samples.insetsBottomHeightSample
  */
 @Stable
-fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) = this.then(
-    DerivedHeightModifier(insets, debugInspectorInfo {
-        name = "insetsBottomHeight"
-        properties["insets"] = insets
-    }) {
-        getBottom(it)
-    }
-)
+fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) =
+    this.then(
+        DerivedHeightModifier(
+            insets,
+            debugInspectorInfo {
+                name = "insetsBottomHeight"
+                properties["insets"] = insets
+            }
+        ) {
+            getBottom(it)
+        }
+    )
 
 /**
- * Sets the width based on [widthCalc]. If the width is 0, the height will also always be 0
- * and the content will not be placed.
+ * Sets the width based on [widthCalc]. If the width is 0, the height will also always be 0 and the
+ * content will not be placed.
  */
 @Stable
 private class DerivedWidthModifier(
@@ -140,19 +152,16 @@ private class DerivedWidthModifier(
     ): MeasureResult {
         val width = unconsumedInsets.widthCalc(layoutDirection, this)
         if (width == 0) {
-            return layout(0, 0) { }
+            return layout(0, 0) {}
         }
         // check for height first
         val childConstraints = constraints.copy(minWidth = width, maxWidth = width)
         val placeable = measurable.measure(childConstraints)
-        return layout(width, placeable.height) {
-            placeable.placeRelative(0, 0)
-        }
+        return layout(width, placeable.height) { placeable.placeRelative(0, 0) }
     }
 
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) = with(scope) {
-        unconsumedInsets = insets.exclude(ModifierLocalConsumedWindowInsets.current)
-    }
+    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) =
+        with(scope) { unconsumedInsets = insets.exclude(ModifierLocalConsumedWindowInsets.current) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -168,8 +177,8 @@ private class DerivedWidthModifier(
 }
 
 /**
- * Sets the height based on [heightCalc]. If the height is 0, the width will also always be 0
- * and the content will not be placed.
+ * Sets the height based on [heightCalc]. If the height is 0, the width will also always be 0 and
+ * the content will not be placed.
  */
 @Stable
 private class DerivedHeightModifier(
@@ -185,19 +194,16 @@ private class DerivedHeightModifier(
     ): MeasureResult {
         val height = unconsumedInsets.heightCalc(this)
         if (height == 0) {
-            return layout(0, 0) { }
+            return layout(0, 0) {}
         }
         // check for height first
         val childConstraints = constraints.copy(minHeight = height, maxHeight = height)
         val placeable = measurable.measure(childConstraints)
-        return layout(placeable.width, height) {
-            placeable.placeRelative(0, 0)
-        }
+        return layout(placeable.width, height) { placeable.placeRelative(0, 0) }
     }
 
-    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) = with(scope) {
-        unconsumedInsets = insets.exclude(ModifierLocalConsumedWindowInsets.current)
-    }
+    override fun onModifierLocalsUpdated(scope: ModifierLocalReadScope) =
+        with(scope) { unconsumedInsets = insets.exclude(ModifierLocalConsumedWindowInsets.current) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

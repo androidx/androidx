@@ -44,23 +44,17 @@ import org.jetbrains.skia.svg.SVGPreserveAspectRatioAlign
  * In contrast to [svgResource] this function isn't [Composable]
  *
  * @param inputStream input stream to load an SVG resource. All bytes will be read from this stream,
- * but stream will not be closed after this method.
+ *   but stream will not be closed after this method.
  * @param density density that will be used to set the intrinsic size of the Painter. If the image
- * will be drawn with the specified size, density will have no effect.
+ *   will be drawn with the specified size, density will have no effect.
  * @return the decoded SVG image associated with the resource
  */
-fun loadSvgPainter(
-    inputStream: InputStream,
-    density: Density
-): Painter {
+fun loadSvgPainter(inputStream: InputStream, density: Density): Painter {
     val data = Data.makeFromBytes(inputStream.readAllBytes())
     return SVGPainter(SVGDOM(data), density)
 }
 
-private class SVGPainter(
-    private val dom: SVGDOM,
-    private val density: Density
-) : Painter() {
+private class SVGPainter(private val dom: SVGDOM, private val density: Density) : Painter() {
     private val root = dom.root
 
     private val defaultSizePx: Size = run {
@@ -79,13 +73,14 @@ private class SVGPainter(
         }
     }
 
-    override val intrinsicSize: Size get() {
-        return if (defaultSizePx.isSpecified) {
-            defaultSizePx * density.density
-        } else {
-            Size.Unspecified
+    override val intrinsicSize: Size
+        get() {
+            return if (defaultSizePx.isSpecified) {
+                defaultSizePx * density.density
+            } else {
+                Size.Unspecified
+            }
         }
-    }
 
     private var previousDrawSize: Size = Size.Unspecified
     private var alpha: Float = 1.0f

@@ -22,35 +22,38 @@ import androidx.compose.ui.geometry.Offset
 
 /**
  * Modifier allowing to track pointer (i.e. mouse or trackpad) move events.
- *  @param onMove The callback invoked when pointer is moved inside a component,
- *  relative position inside a component is passed
- *  @param onEnter The callback invoked when pointer enters the component
- *  @param onExit The callback invoked when pointer leaves the component
+ *
+ * @param onMove The callback invoked when pointer is moved inside a component, relative position
+ *   inside a component is passed
+ * @param onEnter The callback invoked when pointer enters the component
+ * @param onExit The callback invoked when pointer leaves the component
  */
 @ExperimentalComposeUiApi
 fun Modifier.pointerMoveFilter(
     onMove: (position: Offset) -> Boolean = { false },
     onExit: () -> Boolean = { false },
     onEnter: () -> Boolean = { false },
-): Modifier = pointerInput(onMove, onExit, onEnter) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            val consumed = when (event.type) {
-                PointerEventType.Move -> {
-                    onMove(event.changes.first().position)
+): Modifier =
+    pointerInput(onMove, onExit, onEnter) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent()
+                val consumed =
+                    when (event.type) {
+                        PointerEventType.Move -> {
+                            onMove(event.changes.first().position)
+                        }
+                        PointerEventType.Enter -> {
+                            onEnter()
+                        }
+                        PointerEventType.Exit -> {
+                            onExit()
+                        }
+                        else -> false
+                    }
+                if (consumed) {
+                    event.changes.forEach { it.consume() }
                 }
-                PointerEventType.Enter -> {
-                    onEnter()
-                }
-                PointerEventType.Exit -> {
-                    onExit()
-                }
-                else -> false
-            }
-            if (consumed) {
-                event.changes.forEach { it.consume() }
             }
         }
     }
-}

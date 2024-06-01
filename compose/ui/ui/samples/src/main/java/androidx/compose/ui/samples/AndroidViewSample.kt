@@ -59,10 +59,7 @@ fun AndroidViewSample() {
     AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
     // Compose a View and update its size based on state. Note the modifiers.
     var size by remember { mutableStateOf(20) }
-    AndroidView(::View,
-        Modifier
-            .clickable { size += 20 }
-            .background(Color.Blue)) { view ->
+    AndroidView(::View, Modifier.clickable { size += 20 }.background(Color.Blue)) { view ->
         view.layoutParams = ViewGroup.LayoutParams(size, size)
     }
 }
@@ -87,9 +84,7 @@ fun AndroidViewWithReleaseSample() {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     AndroidView(
         factory = { context -> LifecycleAwareView(context) },
-        update = { view ->
-            view.lifecycle = lifecycle
-        },
+        update = { view -> view.lifecycle = lifecycle },
         onRelease = { view ->
             // Need to release the lifecycle to prevent a memory leak
             view.lifecycle = null
@@ -101,27 +96,27 @@ fun AndroidViewWithReleaseSample() {
 @Sampled
 @Composable
 fun ReusableAndroidViewInLazyColumnSample() {
-    val urls = listOf(
-        "https://developer.android.com/jetpack/compose",
-        "https://google.github.io/accompanist/",
-        "https://android-developers.googleblog.com/",
-        "https://io.google/",
-        // ...
-    )
+    val urls =
+        listOf(
+            "https://developer.android.com/jetpack/compose",
+            "https://google.github.io/accompanist/",
+            "https://android-developers.googleblog.com/",
+            "https://io.google/",
+            // ...
+        )
     LazyVerticalGrid(columns = GridCells.Adaptive(512.dp)) {
         items(urls) { url ->
             AndroidView(
                 factory = { context ->
                     WebView(context).apply {
                         settings.javaScriptEnabled = true
-                        webViewClient = object : WebViewClient() {
-                            // Optional overrides for WebViewClient
-                        }
+                        webViewClient =
+                            object : WebViewClient() {
+                                // Optional overrides for WebViewClient
+                            }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
+                modifier = Modifier.fillMaxWidth().aspectRatio(1f),
                 update = { webView -> webView.loadUrl(url) },
                 onReset = { webView ->
                     webView.stopLoading()
@@ -138,9 +133,8 @@ fun ReusableAndroidViewInLazyColumnSample() {
 fun AndroidDrawableInDrawScopeSample() {
     val drawable = LocalContext.current.getDrawable(R.drawable.sample_drawable)
     Box(
-        modifier = Modifier
-            .requiredSize(100.dp)
-            .drawBehind {
+        modifier =
+            Modifier.requiredSize(100.dp).drawBehind {
                 drawIntoCanvas { canvas ->
                     drawable?.let {
                         it.setBounds(0, 0, size.width.roundToInt(), size.height.roundToInt())

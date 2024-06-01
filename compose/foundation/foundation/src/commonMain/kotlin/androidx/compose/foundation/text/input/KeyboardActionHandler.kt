@@ -18,17 +18,16 @@ package androidx.compose.foundation.text.input
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.onPreviewKeyEvent
 
 @Stable
 fun interface KeyboardActionHandler {
 
     /**
      * This is run when an IME action is performed by the software keyboard, or enter key is pressed
-     * on a hardware keyboard when the associated TextField is configured as single line.
-     * This callback replaces the default behavior for certain actions such as closing the keyboard
-     * or moving the focus to next field. If you also want to execute the default behavior,
-     * invoke [performDefaultAction].
+     * on a hardware keyboard when the associated TextField is configured as single line. This
+     * callback replaces the default behavior for certain actions such as closing the keyboard or
+     * moving the focus to next field. If you also want to execute the default behavior, invoke
+     * [performDefaultAction].
      *
      * If you do not this callback to trigger when enter key is pressed on a single line TextField,
      * refer to [Modifier.onPreviewKeyEvent] on how to intercept key events.

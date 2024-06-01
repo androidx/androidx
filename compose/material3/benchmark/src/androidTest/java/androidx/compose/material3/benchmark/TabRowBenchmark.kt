@@ -35,8 +35,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class TabRowBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val tabRowTestCaseFactory = { TabRowTestCase() }
 
@@ -64,29 +63,19 @@ internal class TabRowTestCase : LayeredComposeTestCase(), ToggleableTestCase {
         val titles = listOf("TAB 1", "TAB 2", "TAB 3")
         PrimaryTabRow(selectedTabIndex = state) {
             titles.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title) },
-                    selected = state == index,
-                    onClick = { state = index }
-                )
+                Tab(text = { Text(title) }, selected = state == index, onClick = { state = index })
             }
         }
         PrimaryScrollableTabRow(selectedTabIndex = state) {
             titles.forEachIndexed { index, title ->
-                Tab(
-                    text = { Text(title) },
-                    selected = state == index,
-                    onClick = { state = index }
-                )
+                Tab(text = { Text(title) }, selected = state == index, onClick = { state = index })
             }
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

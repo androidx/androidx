@@ -27,6 +27,5 @@ actual fun rememberDefaultPrefetchScheduler(): PrefetchScheduler {
 
 @ExperimentalFoundationApi
 private object NoOpPrefetchScheduler : PrefetchScheduler {
-    override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {
-    }
+    override fun schedulePrefetch(prefetchRequest: PrefetchRequest) {}
 }

@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class HotReloadTests {
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun composeLayoutNode() {
@@ -52,12 +51,13 @@ class HotReloadTests {
         rule.activityRule.scenario.onActivity { activity = it }
         var value = "First value"
 
-        @Composable fun semanticsNode(text: String, id: Int) {
-            Box(Modifier.testTag("text$id").semantics { contentDescription = text }) {
-            }
+        @Composable
+        fun semanticsNode(text: String, id: Int) {
+            Box(Modifier.testTag("text$id").semantics { contentDescription = text }) {}
         }
 
-        @Composable fun columnNode(content: @Composable () -> Unit) {
+        @Composable
+        fun columnNode(content: @Composable () -> Unit) {
             content()
         }
 
@@ -66,12 +66,8 @@ class HotReloadTests {
         // Set the content of the view
         rule.runOnUiThread {
             activity.setContent {
-                columnNode {
-                    semanticsNode(text = value, id = 103)
-                }
-                SideEffect {
-                    composeLatch.countDown()
-                }
+                columnNode { semanticsNode(text = value, id = 103) }
+                SideEffect { composeLatch.countDown() }
             }
         }
 

@@ -45,9 +45,7 @@ class TrivialCompositionBenchmarkValidator : LayeredComposeTestCase(), Toggleabl
     }
 }
 
-private val measurePolicy = MeasurePolicy { _, _ ->
-    layout(300, 300) {}
-}
+private val measurePolicy = MeasurePolicy { _, _ -> layout(300, 300) {} }
 
 private val modifier = Modifier.fillMaxSize()
 
@@ -55,12 +53,9 @@ private val modifier = Modifier.fillMaxSize()
 @RunWith(Parameterized::class)
 class TrivialCompositionBenchmarkValidatorTest(private val testIteration: Int) {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
-    private val caseFactory = {
-        TrivialCompositionBenchmarkValidator()
-    }
+    private val caseFactory = { TrivialCompositionBenchmarkValidator() }
 
     companion object {
         @JvmStatic

@@ -18,9 +18,7 @@ package androidx.compose.ui.tooling.preview
 
 import androidx.annotation.IntDef
 
-/**
- * Wallpapers available to be used in the [Preview].
- */
+/** Wallpapers available to be used in the [Preview]. */
 object Wallpapers {
     /** Default value, representing dynamic theming not enabled. */
     const val NONE = -1
@@ -34,10 +32,13 @@ object Wallpapers {
     const val YELLOW_DOMINATED_EXAMPLE = 3
 }
 
-/**
- * Annotation for defining the wallpaper to use for dynamic theming in the [Preview].
- */
+/** Annotation for defining the wallpaper to use for dynamic theming in the [Preview]. */
 @Retention(AnnotationRetention.SOURCE)
-@IntDef(Wallpapers.NONE, Wallpapers.RED_DOMINATED_EXAMPLE, Wallpapers.GREEN_DOMINATED_EXAMPLE,
-    Wallpapers.BLUE_DOMINATED_EXAMPLE, Wallpapers.YELLOW_DOMINATED_EXAMPLE)
+@IntDef(
+    Wallpapers.NONE,
+    Wallpapers.RED_DOMINATED_EXAMPLE,
+    Wallpapers.GREEN_DOMINATED_EXAMPLE,
+    Wallpapers.BLUE_DOMINATED_EXAMPLE,
+    Wallpapers.YELLOW_DOMINATED_EXAMPLE
+)
 internal annotation class Wallpaper

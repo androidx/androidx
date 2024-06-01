@@ -45,8 +45,7 @@ fun PaddingModifier() {
 fun SymmetricPaddingModifier() {
     Box(Modifier.background(color = Color.Gray)) {
         Box(
-            Modifier
-                .padding(horizontal = 20.dp, vertical = 30.dp)
+            Modifier.padding(horizontal = 20.dp, vertical = 30.dp)
                 .size(50.dp)
                 .background(Color.Blue)
         )

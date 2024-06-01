@@ -47,9 +47,7 @@ class ApplicationTest {
         val appJob = launchApplication {
             DisposableEffect(Unit) {
                 isInit = true
-                onDispose {
-                    isDisposed = true
-                }
+                onDispose { isDisposed = true }
             }
         }
 
@@ -87,9 +85,10 @@ class ApplicationTest {
             if (isOpen1) {
                 Window(
                     onCloseRequest = {},
-                    state = rememberWindowState(
-                        size = DpSize(600.dp, 600.dp),
-                    )
+                    state =
+                        rememberWindowState(
+                            size = DpSize(600.dp, 600.dp),
+                        )
                 ) {
                     window1 = this.window
                     Box(Modifier.size(32.dp).background(Color.Red))
@@ -101,9 +100,10 @@ class ApplicationTest {
             if (isOpen2) {
                 Window(
                     onCloseRequest = {},
-                    state = rememberWindowState(
-                        size = DpSize(300.dp, 300.dp),
-                    )
+                    state =
+                        rememberWindowState(
+                            size = DpSize(300.dp, 300.dp),
+                        )
                 ) {
                     window2 = this.window
                     Box(Modifier.size(32.dp).background(Color.Blue))
@@ -133,16 +133,10 @@ class ApplicationTest {
         lateinit var windowClock: MonotonicFrameClock
 
         launchApplication {
-            LaunchedEffect(Unit) {
-                appClock = coroutineContext.monotonicFrameClock
-            }
+            LaunchedEffect(Unit) { appClock = coroutineContext.monotonicFrameClock }
 
-            Window(
-                onCloseRequest = {}
-            ) {
-                LaunchedEffect(Unit) {
-                    windowClock = coroutineContext.monotonicFrameClock
-                }
+            Window(onCloseRequest = {}) {
+                LaunchedEffect(Unit) { windowClock = coroutineContext.monotonicFrameClock }
             }
         }
 

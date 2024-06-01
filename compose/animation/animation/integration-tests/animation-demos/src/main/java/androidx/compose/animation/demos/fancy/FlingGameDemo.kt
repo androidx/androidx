@@ -46,57 +46,52 @@ fun FlingGameDemo() {
         Text("Throw me around, see what happens", Modifier.align(Alignment.Center))
         val anim = remember { Animatable(Offset(100f, 100f), Offset.VectorConverter) }
         Box(
-            Modifier.fillMaxSize().pointerInput(Unit) {
-                coroutineScope {
-                    while (true) {
-                        val velocityTracker = VelocityTracker()
-                        awaitPointerEventScope {
-                           val pointerId = awaitFirstDown().run {
-                                launch {
-                                    anim.snapTo(position)
+            Modifier.fillMaxSize()
+                .pointerInput(Unit) {
+                    coroutineScope {
+                        while (true) {
+                            val velocityTracker = VelocityTracker()
+                            awaitPointerEventScope {
+                                val pointerId =
+                                    awaitFirstDown().run {
+                                        launch { anim.snapTo(position) }
+                                        id
+                                    }
+
+                                drag(pointerId) {
+                                    launch { anim.snapTo(anim.value + it.positionChange()) }
+                                    velocityTracker.addPosition(it.uptimeMillis, it.position)
                                 }
-                                id
                             }
 
-                            drag(pointerId) {
-                                launch {
-                                    anim.snapTo(anim.value + it.positionChange())
-                                }
-                                velocityTracker.addPosition(
-                                    it.uptimeMillis,
-                                    it.position
-                                )
+                            val (x, y) = velocityTracker.calculateVelocity()
+                            anim.updateBounds(
+                                Offset(100f, 100f),
+                                Offset(size.width.toFloat() - 100f, size.height.toFloat() - 100f)
+                            )
+                            launch {
+                                var startVelocity = Offset(x, y)
+                                do {
+                                    val result =
+                                        anim.animateDecay(startVelocity, exponentialDecay())
+                                    startVelocity = result.endState.velocity
+
+                                    with(anim) {
+                                        if (value.x == upperBound?.x || value.x == lowerBound?.x) {
+                                            // x dimension hits bounds
+                                            startVelocity = startVelocity.copy(x = -startVelocity.x)
+                                        }
+                                        if (value.y == upperBound?.y || value.y == lowerBound?.y) {
+                                            // y dimension hits bounds
+                                            startVelocity = startVelocity.copy(y = -startVelocity.y)
+                                        }
+                                    }
+                                } while (result.endReason == AnimationEndReason.BoundReached)
                             }
-                        }
-
-                        val (x, y) = velocityTracker.calculateVelocity()
-                        anim.updateBounds(
-                            Offset(100f, 100f),
-                            Offset(size.width.toFloat() - 100f, size.height.toFloat() - 100f)
-                        )
-                        launch {
-                            var startVelocity = Offset(x, y)
-                            do {
-                                val result = anim.animateDecay(startVelocity, exponentialDecay())
-                                startVelocity = result.endState.velocity
-
-                                with(anim) {
-                                    if (value.x == upperBound?.x || value.x == lowerBound?.x) {
-                                        // x dimension hits bounds
-                                        startVelocity = startVelocity.copy(x = -startVelocity.x)
-                                    }
-                                    if (value.y == upperBound?.y || value.y == lowerBound?.y) {
-                                        // y dimension hits bounds
-                                        startVelocity = startVelocity.copy(y = -startVelocity.y)
-                                    }
-                                }
-                            } while (result.endReason == AnimationEndReason.BoundReached)
                         }
                     }
                 }
-            }.drawWithContent {
-                drawCircle(Color(0xff3c1361), 100f, anim.value)
-            }
+                .drawWithContent { drawCircle(Color(0xff3c1361), 100f, anim.value) }
         )
     }
 }

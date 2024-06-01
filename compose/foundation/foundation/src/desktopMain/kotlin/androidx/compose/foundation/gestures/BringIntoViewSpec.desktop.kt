@@ -21,10 +21,10 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /*
-* A composition local to customize the focus scrolling behavior used by some scrollable containers.
-* [LocalBringIntoViewSpec] has a platform defined behavior. The scroll default behavior will move
-* the least to bring the requested region into view.
-*/
+ * A composition local to customize the focus scrolling behavior used by some scrollable containers.
+ * [LocalBringIntoViewSpec] has a platform defined behavior. The scroll default behavior will move
+ * the least to bring the requested region into view.
+ */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:ExperimentalFoundationApi
 @ExperimentalFoundationApi

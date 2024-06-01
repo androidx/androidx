@@ -41,9 +41,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val LazyGridSnappingDemos = listOf(
-    ComposableDemo("Single Item - Same Size Items") { GridSingleItemSnapping() },
-)
+val LazyGridSnappingDemos =
+    listOf(
+        ComposableDemo("Single Item - Same Size Items") { GridSingleItemSnapping() },
+    )
 
 /**
  * Snapping happens to the next item and items have the same size. We use the top line in the grid
@@ -61,23 +62,20 @@ private fun GridSingleItemSnapping() {
 @Composable
 private fun GridSnappingDemoMainLayout(flingBehavior: FlingBehavior, lazyGridState: LazyGridState) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .drawWithContent {
+        modifier =
+            Modifier.fillMaxSize().drawWithContent {
                 drawContent()
                 drawAnchor(CenterAnchor)
-            }, contentAlignment = Alignment.Center
+            },
+        contentAlignment = Alignment.Center
     ) {
         LazyHorizontalGrid(
-            modifier = Modifier
-                .fillMaxHeight(0.7f),
+            modifier = Modifier.fillMaxHeight(0.7f),
             rows = GridCells.Fixed(3),
             state = lazyGridState,
             flingBehavior = flingBehavior
         ) {
-            items(100) {
-                GridSinglePageSnappingItem(it)
-            }
+            items(100) { GridSinglePageSnappingItem(it) }
         }
     }
 }
@@ -85,11 +83,8 @@ private fun GridSnappingDemoMainLayout(flingBehavior: FlingBehavior, lazyGridSta
 @Composable
 private fun GridSinglePageSnappingItem(position: Int) {
     Box(
-        modifier = Modifier
-            .size(100.dp)
-            .padding(4.dp)
-            .background(Color.Gray)
-            .drawWithContent {
+        modifier =
+            Modifier.size(100.dp).padding(4.dp).background(Color.Gray).drawWithContent {
                 drawContent()
                 drawAnchor(CenterAnchor)
             },

@@ -25,16 +25,16 @@ import kotlinx.coroutines.withContext
  * Idling strategy for use with Robolectric.
  *
  * When running on Robolectric, the following things are different:
- * 1. IdlingResources are not queried. We drive Compose from the ComposeIdlingResource, so we
- * need to do that manually here.
+ * 1. IdlingResources are not queried. We drive Compose from the ComposeIdlingResource, so we need
+ *    to do that manually here.
  * 2. Draw passes don't happen. Compose performs most measure and layout passes during the draw
- * pass, so we need to manually trigger an actual measure/layout pass when needed.
+ *    pass, so we need to manually trigger an actual measure/layout pass when needed.
  * 3. Awaiting idleness must happen on the main thread. On Espresso it's exactly the other way
- * around, so we need to invert our thread checks.
+ *    around, so we need to invert our thread checks.
  *
- * Note that we explicitly don't install our [IdlingResourceRegistry] into Espresso even though
- * it would be a noop anyway: if at some point in the future they will be supported, our behavior
- * would silently change (potentially leading to breakages).
+ * Note that we explicitly don't install our [IdlingResourceRegistry] into Espresso even though it
+ * would be a noop anyway: if at some point in the future they will be supported, our behavior would
+ * silently change (potentially leading to breakages).
  */
 internal class RobolectricIdlingStrategy(
     private val composeRootRegistry: ComposeRootRegistry,
@@ -76,19 +76,18 @@ internal class RobolectricIdlingStrategy(
     override suspend fun awaitIdle() {
         // On Robolectric, Espresso.onIdle() must be called from the main thread; so use
         // Dispatchers.Main. Use `.immediate` in case we're already on the main thread.
-        withContext(Dispatchers.Main.immediate) {
-            runUntilIdle()
-        }
+        withContext(Dispatchers.Main.immediate) { runUntilIdle() }
     }
 
     /**
-     * Calls [requestLayout][android.view.View.requestLayout] on all compose hosts that are
-     * awaiting a measure/layout pass, because the draw pass that it is normally awaiting never
-     * happens on Robolectric.
+     * Calls [requestLayout][android.view.View.requestLayout] on all compose hosts that are awaiting
+     * a measure/layout pass, because the draw pass that it is normally awaiting never happens on
+     * Robolectric.
      */
     private fun requestLayoutIfNeeded(): Boolean {
         val composeRoots = composeRootRegistry.getRegisteredComposeRoots()
-        return composeRoots.filter { it.shouldWaitForMeasureAndLayout }
+        return composeRoots
+            .filter { it.shouldWaitForMeasureAndLayout }
             .onEach { it.view.requestLayout() }
             .isNotEmpty()
     }

@@ -25,15 +25,16 @@ class AbstractApplierTest {
     private val root = Node("Root")
     private val applier = NodeApplier(root)
 
-    @Test fun upFromRootThrows() {
+    @Test
+    fun upFromRootThrows() {
         try {
             applier.up()
             fail()
-        } catch (_: IllegalStateException) {
-        }
+        } catch (_: IllegalStateException) {}
     }
 
-    @Test fun downGoesDown() {
+    @Test
+    fun downGoesDown() {
         val one = Node("one")
         applier.insertTopDown(0, one)
         applier.down(one)
@@ -45,7 +46,8 @@ class AbstractApplierTest {
         assertSame(two, applier.current)
     }
 
-    @Test fun upGoesUp() {
+    @Test
+    fun upGoesUp() {
         val one = Node("one")
         applier.insertTopDown(0, one)
         applier.down(one)
@@ -59,7 +61,8 @@ class AbstractApplierTest {
         assertSame(root, applier.current)
     }
 
-    @Test fun clearClearsAndPointsToRoot() {
+    @Test
+    fun clearClearsAndPointsToRoot() {
         val child = Node("child")
         applier.insertTopDown(0, child)
         applier.down(child)
@@ -69,7 +72,8 @@ class AbstractApplierTest {
         assertEquals(emptyList<Node>(), root.children)
     }
 
-    @Test fun removeSingle() {
+    @Test
+    fun removeSingle() {
         // Note: NodeApplier delegates to AbstractApplier's MutableList.remove
         // helper which is what is being tested here.
         val one = Node("one")
@@ -89,7 +93,8 @@ class AbstractApplierTest {
         assertEquals(listOf(three), root.children)
     }
 
-    @Test fun removeMultiple() {
+    @Test
+    fun removeMultiple() {
         // Note: NodeApplier delegates to AbstractApplier's MutableList.remove
         // helper which is what is being tested here.
         val one = Node("one")
@@ -115,7 +120,8 @@ class AbstractApplierTest {
         assertEquals(listOf(five), root.children)
     }
 
-    @Test fun moveSingleHigher() {
+    @Test
+    fun moveSingleHigher() {
         // Note: NodeApplier delegates to AbstractApplier's MutableList.move
         // helper which is what is being tested here.
         val one = Node("one")
@@ -135,7 +141,8 @@ class AbstractApplierTest {
         assertEquals(listOf(three, one, two), root.children)
     }
 
-    @Test fun moveSingleLower() {
+    @Test
+    fun moveSingleLower() {
         // Note: NodeApplier delegates to AbstractApplier's MutableList.move
         // helper which is what is being tested here.
         val one = Node("one")
@@ -155,7 +162,8 @@ class AbstractApplierTest {
         assertEquals(listOf(two, three, one), root.children)
     }
 
-    @Test fun moveMultipleHigher() {
+    @Test
+    fun moveMultipleHigher() {
         // Note: NodeApplier delegates to AbstractApplier's MutableList.move
         // helper which is what is being tested here.
         val one = Node("one")
@@ -171,7 +179,8 @@ class AbstractApplierTest {
         assertEquals(listOf(three, four, one, two), root.children)
     }
 
-    @Test fun moveMultipleLower() {
+    @Test
+    fun moveMultipleLower() {
         // Note: NodeApplier delegates to AbstractApplier's MutableList.move
         // helper which is what is being tested here.
         val one = Node("one")
@@ -190,6 +199,7 @@ class AbstractApplierTest {
 
 private class Node(val name: String) {
     val children = mutableListOf<Node>()
+
     override fun toString() = name + children.joinToString(",", "(", ")")
 }
 
@@ -198,7 +208,7 @@ private class NodeApplier(root: Node) : AbstractApplier<Node>(root) {
         current.children.add(index, instance)
     }
 
-    override fun insertBottomUp(index: Int, instance: Node) { }
+    override fun insertBottomUp(index: Int, instance: Node) {}
 
     override fun remove(index: Int, count: Int) {
         current.children.remove(index, count)

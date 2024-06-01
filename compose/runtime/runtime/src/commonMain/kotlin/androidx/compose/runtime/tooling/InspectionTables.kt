@@ -18,7 +18,5 @@ package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.staticCompositionLocalOf
 
-/**
- * A set of slot tables that where produced when in inspection mode.
- */
+/** A set of slot tables that where produced when in inspection mode. */
 val LocalInspectionTables = staticCompositionLocalOf<MutableSet<CompositionData>?> { null }

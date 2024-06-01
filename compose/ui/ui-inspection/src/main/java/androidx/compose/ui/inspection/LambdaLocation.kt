@@ -39,7 +39,6 @@ data class LambdaLocation(val fileName: String, val startLine: Int, val endLine:
             return resolve(o::class.java)
         }
 
-        @JvmStatic
-        private external fun resolve(clazz: Class<*>): LambdaLocation?
+        @JvmStatic private external fun resolve(clazz: Class<*>): LambdaLocation?
     }
 }

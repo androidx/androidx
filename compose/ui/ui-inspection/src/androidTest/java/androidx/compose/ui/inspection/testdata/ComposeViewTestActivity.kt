@@ -37,29 +37,29 @@ class ComposeViewTestActivity : ComponentActivity() {
                     LinearLayout(context).apply {
                         orientation = LinearLayout.VERTICAL
                         addView(TextView(context).apply { text = "AndroidView" })
-                        addView(ComposeView(context).apply {
-                            setContent {
-                                Column {
-                                    Text("two")
-                                    AndroidView({ context ->
-                                        LinearLayout(context).apply {
-                                            orientation = LinearLayout.VERTICAL
-                                            addView(ComposeView(context).apply {
-                                                setContent {
-                                                    Nested {
-                                                        Nested {
+                        addView(
+                            ComposeView(context).apply {
+                                setContent {
+                                    Column {
+                                        Text("two")
+                                        AndroidView({ context ->
+                                            LinearLayout(context).apply {
+                                                orientation = LinearLayout.VERTICAL
+                                                addView(
+                                                    ComposeView(context).apply {
+                                                        setContent {
                                                             Nested {
-                                                                Text("three")
+                                                                Nested { Nested { Text("three") } }
                                                             }
                                                         }
                                                     }
-                                                }
-                                            })
-                                        }
-                                    })
+                                                )
+                                            }
+                                        })
+                                    }
                                 }
                             }
-                        })
+                        )
                     }
                 })
             }

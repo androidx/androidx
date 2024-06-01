@@ -36,15 +36,14 @@ internal expect fun printToLog(tag: String, message: String)
  * collected before. So the output can change over time if the tree changes.
  *
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print just this node.
- * Must not be negative.
+ *   Must not be negative.
  */
 fun SemanticsNodeInteraction.printToString(
     /*@IntRange(from = 0)*/
     maxDepth: Int = Int.MAX_VALUE
 ): String {
     val result = fetchSemanticsNode()
-    return "Printing with useUnmergedTree = '$useUnmergedTree'\n" +
-        result.printToString(maxDepth)
+    return "Printing with useUnmergedTree = '$useUnmergedTree'\n" + result.printToString(maxDepth)
 }
 
 /**
@@ -58,7 +57,7 @@ fun SemanticsNodeInteraction.printToString(
  *
  * @param tag The tag to be used in the log messages.
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print just this node.
- * Must not be negative.
+ *   Must not be negative.
  */
 fun SemanticsNodeInteraction.printToLog(
     tag: String,
@@ -79,7 +78,7 @@ fun SemanticsNodeInteraction.printToLog(
  * collected before. So the output can change over time if the tree changes.
  *
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print nodes in this
- * collection only. Must not be negative.
+ *   collection only. Must not be negative.
  */
 fun SemanticsNodeInteractionCollection.printToString(
     /*@IntRange(from = 0)*/
@@ -105,7 +104,7 @@ fun SemanticsNodeInteractionCollection.printToString(
  *
  * @param tag The tag to be used in the log messages. Must not be negative.
  * @param maxDepth Max depth of the nodes in hierarchy to print. Zero will print nodes in this
- * collection only.
+ *   collection only.
  */
 fun SemanticsNodeInteractionCollection.printToLog(
     tag: String,
@@ -152,13 +151,14 @@ private fun SemanticsNode.printToStringInner(
     nestingIndent: String,
     isFollowedBySibling: Boolean
 ) {
-    val newIndent = if (nestingLevel == 0) {
-        ""
-    } else if (isFollowedBySibling) {
-        "$nestingIndent | "
-    } else {
-        "$nestingIndent   "
-    }
+    val newIndent =
+        if (nestingLevel == 0) {
+            ""
+        } else if (isFollowedBySibling) {
+            "$nestingIndent | "
+        } else {
+            "$nestingIndent   "
+        }
 
     if (nestingLevel > 0) {
         sb.append("$nestingIndent |-")
@@ -246,8 +246,10 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
         append(" = '")
 
         if (value is AnnotatedString) {
-            if (value.paragraphStyles.isEmpty() && value.spanStyles.isEmpty() && value
-                .getStringAnnotations(0, value.text.length).isEmpty()
+            if (
+                value.paragraphStyles.isEmpty() &&
+                    value.spanStyles.isEmpty() &&
+                    value.getStringAnnotations(0, value.text.length).isEmpty()
             ) {
                 append(value.text)
             } else {

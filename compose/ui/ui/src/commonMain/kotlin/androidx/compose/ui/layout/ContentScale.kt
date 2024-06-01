@@ -22,21 +22,17 @@ import androidx.compose.ui.geometry.Size
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * Represents a rule to apply to scale a source rectangle to be inscribed into a destination
- */
+/** Represents a rule to apply to scale a source rectangle to be inscribed into a destination */
 @Stable
 interface ContentScale {
 
     /**
-     * Computes the scale factor to apply to the horizontal and vertical axes independently
-     * of one another to fit the source appropriately with the given destination
+     * Computes the scale factor to apply to the horizontal and vertical axes independently of one
+     * another to fit the source appropriately with the given destination
      */
     fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor
 
-    /**
-     * Companion object containing commonly used [ContentScale] implementations
-     */
+    /** Companion object containing commonly used [ContentScale] implementations */
     companion object {
 
         /**
@@ -48,12 +44,11 @@ interface ContentScale {
          * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_CROP]
          */
         @Stable
-        val Crop = object : ContentScale {
-            override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
-                computeFillMaxDimension(srcSize, dstSize).let {
-                    ScaleFactor(it, it)
-                }
-        }
+        val Crop =
+            object : ContentScale {
+                override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
+                    computeFillMaxDimension(srcSize, dstSize).let { ScaleFactor(it, it) }
+            }
 
         /**
          * Scale the source uniformly (maintaining the source's aspect ratio) so that both
@@ -64,12 +59,11 @@ interface ContentScale {
          * provides similar behavior to [android.widget.ImageView.ScaleType.FIT_CENTER]
          */
         @Stable
-        val Fit = object : ContentScale {
-            override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
-                computeFillMinDimension(srcSize, dstSize).let {
-                    ScaleFactor(it, it)
-                }
-        }
+        val Fit =
+            object : ContentScale {
+                override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
+                    computeFillMinDimension(srcSize, dstSize).let { ScaleFactor(it, it) }
+            }
 
         /**
          * Scale the source maintaining the aspect ratio so that the bounds match the destination
@@ -77,74 +71,65 @@ interface ContentScale {
          * the width.
          */
         @Stable
-        val FillHeight = object : ContentScale {
-            override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
-                computeFillHeight(srcSize, dstSize).let {
-                    ScaleFactor(it, it)
-                }
-        }
+        val FillHeight =
+            object : ContentScale {
+                override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
+                    computeFillHeight(srcSize, dstSize).let { ScaleFactor(it, it) }
+            }
 
         /**
-         * Scale the source maintaining the aspect ratio so that the bounds match the
-         * destination width. This can cover a larger area than the destination if the width is
-         * larger than the height.
+         * Scale the source maintaining the aspect ratio so that the bounds match the destination
+         * width. This can cover a larger area than the destination if the width is larger than the
+         * height.
          */
         @Stable
-        val FillWidth = object : ContentScale {
-            override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
-                computeFillWidth(srcSize, dstSize).let {
-                    ScaleFactor(it, it)
-                }
-        }
+        val FillWidth =
+            object : ContentScale {
+                override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
+                    computeFillWidth(srcSize, dstSize).let { ScaleFactor(it, it) }
+            }
 
         /**
-         * Scale the source to maintain the aspect ratio to be inside the destination bounds
-         * if the source is larger than the destination. If the source is smaller than or equal
-         * to the destination in both dimensions, this behaves similarly to [None]. This will
-         * always be contained within the bounds of the destination.
+         * Scale the source to maintain the aspect ratio to be inside the destination bounds if the
+         * source is larger than the destination. If the source is smaller than or equal to the
+         * destination in both dimensions, this behaves similarly to [None]. This will always be
+         * contained within the bounds of the destination.
          *
          * This [ContentScale] implementation in combination with usage of [Alignment.Center]
          * provides similar behavior to [android.widget.ImageView.ScaleType.CENTER_INSIDE]
          */
         @Stable
-        val Inside = object : ContentScale {
+        val Inside =
+            object : ContentScale {
 
-            override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor {
-                return if (srcSize.width <= dstSize.width &&
-                    srcSize.height <= dstSize.height
-                ) {
-                    ScaleFactor(1.0f, 1.0f)
-                } else {
-                    computeFillMinDimension(srcSize, dstSize).let {
-                        ScaleFactor(it, it)
+                override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor {
+                    return if (srcSize.width <= dstSize.width && srcSize.height <= dstSize.height) {
+                        ScaleFactor(1.0f, 1.0f)
+                    } else {
+                        computeFillMinDimension(srcSize, dstSize).let { ScaleFactor(it, it) }
                     }
                 }
             }
-        }
 
-        /**
-         * Do not apply any scaling to the source
-         */
-        @Stable
-        val None = FixedScale(1.0f)
+        /** Do not apply any scaling to the source */
+        @Stable val None = FixedScale(1.0f)
 
-        /**
-         * Scale horizontal and vertically non-uniformly to fill the destination bounds.
-         */
+        /** Scale horizontal and vertically non-uniformly to fill the destination bounds. */
         @Stable
-        val FillBounds = object : ContentScale {
-            override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
-                ScaleFactor(
-                    computeFillWidth(srcSize, dstSize),
-                    computeFillHeight(srcSize, dstSize)
-                )
-        }
+        val FillBounds =
+            object : ContentScale {
+                override fun computeScaleFactor(srcSize: Size, dstSize: Size): ScaleFactor =
+                    ScaleFactor(
+                        computeFillWidth(srcSize, dstSize),
+                        computeFillHeight(srcSize, dstSize)
+                    )
+            }
     }
 }
 
 /**
- * [ContentScale] implementation that always scales the dimension by the provided
- * fixed floating point value
+ * [ContentScale] implementation that always scales the dimension by the provided fixed floating
+ * point value
  */
 @Immutable
 data class FixedScale(val value: Float) : ContentScale {
@@ -164,8 +149,6 @@ private fun computeFillMinDimension(srcSize: Size, dstSize: Size): Float {
     return min(widthScale, heightScale)
 }
 
-private fun computeFillWidth(srcSize: Size, dstSize: Size): Float =
-    dstSize.width / srcSize.width
+private fun computeFillWidth(srcSize: Size, dstSize: Size): Float = dstSize.width / srcSize.width
 
-private fun computeFillHeight(srcSize: Size, dstSize: Size): Float =
-    dstSize.height / srcSize.height
+private fun computeFillHeight(srcSize: Size, dstSize: Size): Float = dstSize.height / srcSize.height

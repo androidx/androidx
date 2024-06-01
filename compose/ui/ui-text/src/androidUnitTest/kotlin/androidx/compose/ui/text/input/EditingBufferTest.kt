@@ -137,20 +137,18 @@ class EditingBufferTest {
         assertThat(eb.compositionEnd).isEqualTo(-1)
     }
 
-    @Test fun setSelection_throws_whenNegativeStart() {
+    @Test
+    fun setSelection_throws_whenNegativeStart() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        assertFailsWith<IndexOutOfBoundsException> {
-            eb.setSelection(-1, 0)
-        }
+        assertFailsWith<IndexOutOfBoundsException> { eb.setSelection(-1, 0) }
     }
 
-    @Test fun setSelection_throws_whenNegativeEnd() {
+    @Test
+    fun setSelection_throws_whenNegativeEnd() {
         val eb = EditingBuffer("ABCDE", TextRange.Zero)
 
-        assertFailsWith<IndexOutOfBoundsException> {
-            eb.setSelection(0, -1)
-        }
+        assertFailsWith<IndexOutOfBoundsException> { eb.setSelection(0, -1) }
     }
 
     @Test

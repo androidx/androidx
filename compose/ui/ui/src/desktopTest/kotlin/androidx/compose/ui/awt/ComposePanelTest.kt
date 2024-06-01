@@ -65,9 +65,7 @@ class ComposePanelTest {
 
         runBlocking(Dispatchers.Swing) {
             val composePanel = ComposePanel()
-            composePanel.setContent {
-                Box(Modifier.requiredSize(300.dp, 400.dp))
-            }
+            composePanel.setContent { Box(Modifier.requiredSize(300.dp, 400.dp)) }
 
             val frame = JFrame()
             try {
@@ -96,10 +94,12 @@ class ComposePanelTest {
         runBlocking(Dispatchers.Swing) {
             val composePanel = ComposePanel()
             composePanel.setContent {
-                Box(Modifier.fillMaxSize().layout { _, constraints ->
-                    layoutPassConstraints.add(constraints)
-                    layout(0, 0) {}
-                })
+                Box(
+                    Modifier.fillMaxSize().layout { _, constraints ->
+                        layoutPassConstraints.add(constraints)
+                        layout(0, 0) {}
+                    }
+                )
             }
 
             val frame = JFrame()
@@ -110,14 +110,15 @@ class ComposePanelTest {
                 frame.isVisible = true
                 frame.paint(frame.graphics)
 
-                assertThat(layoutPassConstraints).isEqualTo(
-                    listOf(
-                        Constraints.fixed(
-                            width = (300 * frame.density.density).toInt(),
-                            height = (400 * frame.density.density).toInt()
+                assertThat(layoutPassConstraints)
+                    .isEqualTo(
+                        listOf(
+                            Constraints.fixed(
+                                width = (300 * frame.density.density).toInt(),
+                                height = (400 * frame.density.density).toInt()
+                            )
                         )
                     )
-                )
             } finally {
                 frame.dispose()
             }

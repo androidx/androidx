@@ -38,13 +38,12 @@ fun EmojiCompatDemo() {
     val emoji12Flamingo = "\uD83E\uDDA9"
     val emoji11PartyingFace = "\uD83E\uDD73"
 
-    val text = "11: $emoji11PartyingFace 12: $emoji12Flamingo $emoji12HoldingHands " +
-        "13: $emoji13DisguisedFace $emoji13WomanFeedingBaby " +
-        "14: $emoji14MeltingFace"
+    val text =
+        "11: $emoji11PartyingFace 12: $emoji12Flamingo $emoji12HoldingHands " +
+            "13: $emoji13DisguisedFace $emoji13WomanFeedingBaby " +
+            "14: $emoji14MeltingFace"
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(text = text, modifier = Modifier.padding(16.dp))
 
         val textFieldValue =

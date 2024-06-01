@@ -33,8 +33,7 @@ import org.junit.Test
 
 @OptIn(InternalTestApi::class)
 class DesktopSvgResourcesTest {
-    @get:Rule
-    val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/res")
+    @get:Rule val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/res")
 
     @Test
     fun `load SVG with specified size`() {

@@ -31,12 +31,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 
 /**
- * Creates a drawing environment that directs its drawing commands to an [ImageBitmap]
- * which can be drawn directly in another [DrawScope] instance. This is useful to cache
- * complicated drawing commands across frames especially if the content has not changed.
- * Additionally some drawing operations such as rendering paths are done purely in
- * software so it is beneficial to cache the result and render the contents
- * directly through a texture as done by [DrawScope.drawImage]
+ * Creates a drawing environment that directs its drawing commands to an [ImageBitmap] which can be
+ * drawn directly in another [DrawScope] instance. This is useful to cache complicated drawing
+ * commands across frames especially if the content has not changed. Additionally some drawing
+ * operations such as rendering paths are done purely in software so it is beneficial to cache the
+ * result and render the contents directly through a texture as done by [DrawScope.drawImage]
  */
 internal class DrawCache {
 
@@ -51,8 +50,8 @@ internal class DrawCache {
 
     /**
      * Draw the contents of the lambda with receiver scope into an [ImageBitmap] with the provided
-     * size. If the same size is provided across calls, the same [ImageBitmap] instance is
-     * re-used and the contents are cleared out before drawing content in it again
+     * size. If the same size is provided across calls, the same [ImageBitmap] instance is re-used
+     * and the contents are cleared out before drawing content in it again
      */
     fun drawCachedImage(
         config: ImageBitmapConfig,
@@ -65,11 +64,12 @@ internal class DrawCache {
         this.layoutDirection = layoutDirection
         var targetImage = mCachedImage
         var targetCanvas = cachedCanvas
-        if (targetImage == null ||
-            targetCanvas == null ||
-            size.width > targetImage.width ||
-            size.height > targetImage.height ||
-            this.config != config
+        if (
+            targetImage == null ||
+                targetCanvas == null ||
+                size.width > targetImage.width ||
+                size.height > targetImage.height ||
+                this.config != config
         ) {
             targetImage = ImageBitmap(size.width, size.height, config = config)
             targetCanvas = Canvas(targetImage)
@@ -86,14 +86,8 @@ internal class DrawCache {
         targetImage.prepareToDraw()
     }
 
-    /**
-     * Draw the cached content into the provided [DrawScope] instance
-     */
-    fun drawInto(
-        target: DrawScope,
-        alpha: Float = 1.0f,
-        colorFilter: ColorFilter? = null
-    ) {
+    /** Draw the cached content into the provided [DrawScope] instance */
+    fun drawInto(target: DrawScope, alpha: Float = 1.0f, colorFilter: ColorFilter? = null) {
         val targetImage = mCachedImage
         checkPrecondition(targetImage != null) {
             "drawCachedImage must be invoked first before attempting to draw the result " +

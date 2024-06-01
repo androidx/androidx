@@ -55,43 +55,40 @@ fun UCallExpression.isNotRemembered(): Boolean = isNotRememberedWithKeys()
  * function or lambda without being `remember`ed, or whether it is invoked inside a `remember call
  * without the provided [keys][keyClassNames].
  * - Returns true if this [UCallExpression] is directly invoked inside a Composable function or
- * lambda without being `remember`ed
+ *   lambda without being `remember`ed
  * - Returns true if this [UCallExpression] is invoked inside a call to `remember`, but without all
- * of the provided [keys][keyClassNames] being used as key parameters to `remember`
+ *   of the provided [keys][keyClassNames] being used as key parameters to `remember`
  * - Returns false if this [UCallExpression] is correctly `remember`ed with the provided
- * [keys][keyClassNames], or is not called inside a `remember` block, and is not called inside a
- * Composable function or lambda
+ *   [keys][keyClassNames], or is not called inside a `remember` block, and is not called inside a
+ *   Composable function or lambda
  *
  * @param keyClassNames [Name]s representing the expected classes that should be used as a key
- * parameter to the `remember` call
+ *   parameter to the `remember` call
  */
 fun UCallExpression.isNotRememberedWithKeys(vararg keyClassNames: Name): Boolean {
     val visitor = ComposableBodyVisitor(this)
     // The nearest method or lambda expression that contains this call expression
     val boundaryElement = visitor.parentUElements().last()
     // Check if the nearest lambda expression is actually a call to remember
-    val rememberCall: UCallExpression? = (boundaryElement.uastParent as? UCallExpression)?.takeIf {
-        it.methodName == Names.Runtime.Remember.shortName &&
-            it.resolve()?.isInPackageName(Names.Runtime.PackageName) == true
-    }
+    val rememberCall: UCallExpression? =
+        (boundaryElement.uastParent as? UCallExpression)?.takeIf {
+            it.methodName == Names.Runtime.Remember.shortName &&
+                it.resolve()?.isInPackageName(Names.Runtime.PackageName) == true
+        }
     return if (rememberCall == null) {
         visitor.isComposable()
     } else {
-        val parameterTypes = rememberCall.valueArguments.mapNotNull {
-            it.getExpressionType()?.canonicalText
-        }
-        !keyClassNames.all {
-            parameterTypes.contains(it.javaFqn)
-        }
+        val parameterTypes =
+            rememberCall.valueArguments.mapNotNull { it.getExpressionType()?.canonicalText }
+        !keyClassNames.all { parameterTypes.contains(it.javaFqn) }
     }
 }
 
 /**
- * Returns whether this [UExpression] is invoked within the body of a Composable function or
- * lambda.
+ * Returns whether this [UExpression] is invoked within the body of a Composable function or lambda.
  *
- * This searches parent declarations until we find a lambda expression or a function, and looks
- * to see if these are Composable.
+ * This searches parent declarations until we find a lambda expression or a function, and looks to
+ * see if these are Composable.
  */
 fun UExpression.isInvokedWithinComposable(): Boolean {
     return ComposableBodyVisitor(this).isComposable()
@@ -100,119 +97,108 @@ fun UExpression.isInvokedWithinComposable(): Boolean {
 // TODO: https://youtrack.jetbrains.com/issue/KT-45406
 // KotlinUMethodWithFakeLightDelegate.hasAnnotation() (for reified functions for example)
 // doesn't find annotations, so just look at the annotations directly.
-/**
- * Returns whether this method is @Composable or not
- */
+/** Returns whether this method is @Composable or not */
 val PsiMethod.isComposable
     get() = annotations.any { it.qualifiedName == Names.Runtime.Composable.javaFqn }
 
-/**
- * Returns whether this variable's type is @Composable or not
- */
+/** Returns whether this variable's type is @Composable or not */
 val UVariable.isComposable: Boolean
     get() {
         // Annotation on the lambda
-        val annotationOnLambda = when (val initializer = uastInitializer) {
-            is ULambdaExpression -> {
-                val source = initializer.sourcePsi
-                if (source is KtFunction) {
-                    // Anonymous function, val foo = @Composable fun() {}
-                    source.hasComposableAnnotation
-                } else {
-                    // Lambda, val foo = @Composable {}
-                    initializer.findAnnotation(Names.Runtime.Composable.javaFqn) != null
+        val annotationOnLambda =
+            when (val initializer = uastInitializer) {
+                is ULambdaExpression -> {
+                    val source = initializer.sourcePsi
+                    if (source is KtFunction) {
+                        // Anonymous function, val foo = @Composable fun() {}
+                        source.hasComposableAnnotation
+                    } else {
+                        // Lambda, val foo = @Composable {}
+                        initializer.findAnnotation(Names.Runtime.Composable.javaFqn) != null
+                    }
                 }
+                else -> false
             }
-            else -> false
-        }
         // Annotation on the type, foo: @Composable () -> Unit = { }
         val annotationOnType = typeReference?.isComposable == true
         return annotationOnLambda || annotationOnType
     }
 
-/**
- * Returns whether this parameter's type is @Composable or not
- */
+/** Returns whether this parameter's type is @Composable or not */
 private val PsiParameter.isComposable: Boolean
-    get() = when {
-        // The parameter is in a class file. Currently type annotations aren't currently added to
-        // the underlying type (https://youtrack.jetbrains.com/issue/KT-45307), so instead we use
-        // the metadata annotation.
-        this is ClsParameterImpl ||
-            // In some cases when a method is defined in bytecode and the call fails to resolve
-            // to the ClsMethodImpl, we will instead get a LightParameter. Note that some Kotlin
-            // declarations too will also appear as a LightParameter, so we can check to see if
-            // the source language is Java, which means that this is a LightParameter for
-            // bytecode, as opposed to for a Kotlin declaration.
-            // https://youtrack.jetbrains.com/issue/KT-46883
-            (this is LightParameter && this.language is JavaLanguage) -> {
-            // Find the containing method, so we can get metadata from the containing class
-            val containingMethod = getParentOfType<PsiMethod>(true)
-            val kmFunction = containingMethod!!.toKmFunction()
+    get() =
+        when {
+            // The parameter is in a class file. Currently type annotations aren't currently added
+            // to
+            // the underlying type (https://youtrack.jetbrains.com/issue/KT-45307), so instead we
+            // use
+            // the metadata annotation.
+            this is ClsParameterImpl ||
+                // In some cases when a method is defined in bytecode and the call fails to resolve
+                // to the ClsMethodImpl, we will instead get a LightParameter. Note that some Kotlin
+                // declarations too will also appear as a LightParameter, so we can check to see if
+                // the source language is Java, which means that this is a LightParameter for
+                // bytecode, as opposed to for a Kotlin declaration.
+                // https://youtrack.jetbrains.com/issue/KT-46883
+                (this is LightParameter && this.language is JavaLanguage) -> {
+                // Find the containing method, so we can get metadata from the containing class
+                val containingMethod = getParentOfType<PsiMethod>(true)
+                val kmFunction = containingMethod!!.toKmFunction()
 
-            val kmValueParameter = kmFunction?.valueParameters?.find {
-                it.name == name
+                val kmValueParameter = kmFunction?.valueParameters?.find { it.name == name }
+
+                kmValueParameter?.type?.annotations?.find {
+                    it.className == Names.Runtime.Composable.kmClassName
+                } != null
             }
-
-            kmValueParameter?.type?.annotations?.find {
-                it.className == Names.Runtime.Composable.kmClassName
-            } != null
+            // The parameter is in a source declaration
+            else -> (toUElement() as? UParameter)?.typeReference?.isComposable == true
         }
-        // The parameter is in a source declaration
-        else -> (toUElement() as? UParameter)?.typeReference?.isComposable == true
-    }
 
-/**
- * Returns whether this lambda expression is @Composable or not
- */
+/** Returns whether this lambda expression is @Composable or not */
 val ULambdaExpression.isComposable: Boolean
-    get() = when (val lambdaParent = uastParent) {
-        // Function call with a lambda parameter
-        is UCallExpression -> {
-            val parameter = lambdaParent.getParameterForArgument(this)
-            parameter?.isComposable == true
+    get() =
+        when (val lambdaParent = uastParent) {
+            // Function call with a lambda parameter
+            is UCallExpression -> {
+                val parameter = lambdaParent.getParameterForArgument(this)
+                parameter?.isComposable == true
+            }
+            // A local / non-local lambda variable
+            is UVariable -> {
+                lambdaParent.isComposable
+            }
+            // Either a new UAST type we haven't handled, or non-Kotlin declarations
+            else -> false
         }
-        // A local / non-local lambda variable
-        is UVariable -> {
-            lambdaParent.isComposable
-        }
-        // Either a new UAST type we haven't handled, or non-Kotlin declarations
-        else -> false
-    }
 
 /**
- * Helper class that visits parent declarations above the provided [expression], until it
- * finds a lambda or method. This 'boundary' is used as the indicator for whether this
- * [expression] can be considered to be inside a Composable body or not.
+ * Helper class that visits parent declarations above the provided [expression], until it finds a
+ * lambda or method. This 'boundary' is used as the indicator for whether this [expression] can be
+ * considered to be inside a Composable body or not.
  *
  * @see isComposable
  * @see parentUElements
  */
-private class ComposableBodyVisitor(
-    private val expression: UExpression
-) {
-    /**
-     * @return whether the body can be considered Composable or not
-     */
-    fun isComposable(): Boolean = when (val element = parentUElements.last()) {
-        is UMethod -> element.isComposable
-        is ULambdaExpression -> element.isComposable
-        else -> false
-    }
+private class ComposableBodyVisitor(private val expression: UExpression) {
+    /** @return whether the body can be considered Composable or not */
+    fun isComposable(): Boolean =
+        when (val element = parentUElements.last()) {
+            is UMethod -> element.isComposable
+            is ULambdaExpression -> element.isComposable
+            else -> false
+        }
 
-    /**
-     * Returns all parent [UElement]s until and including the boundary lambda / method.
-     */
+    /** Returns all parent [UElement]s until and including the boundary lambda / method. */
     fun parentUElements() = parentUElements
 
     /**
      * The outermost UElement that corresponds to the surrounding UDeclaration that contains
      * [expression], with the following special cases:
-     *
-     * - if the containing UDeclaration is a local property, we ignore it and search above as
-     * it still could be created in the context of a Composable body
-     * - if the containing UDeclaration is an anonymous class (object { }), we ignore it and
-     * search above as it still could be created in the context of a Composable body
+     * - if the containing UDeclaration is a local property, we ignore it and search above as it
+     *   still could be created in the context of a Composable body
+     * - if the containing UDeclaration is an anonymous class (object { }), we ignore it and search
+     *   above as it still could be created in the context of a Composable body
      */
     private val boundaryUElement by lazy {
         // The nearest property / function / etc declaration that contains this call expression
@@ -225,11 +211,9 @@ private class ComposableBodyVisitor(
 
         while (
             containingDeclaration != null &&
-            (
-                containingDeclaration.isLocalProperty() ||
+                (containingDeclaration.isLocalProperty() ||
                     containingDeclaration.isAnonymousClass() ||
-                    containingDeclaration.isPropertyInsideAnonymousClass()
-                )
+                    containingDeclaration.isPropertyInsideAnonymousClass())
         ) {
             containingDeclaration = containingDeclaration.getContainingDeclaration()
         }
@@ -260,9 +244,7 @@ private class ComposableBodyVisitor(
     }
 }
 
-/**
- * Returns whether this type reference is @Composable or not
- */
+/** Returns whether this type reference is @Composable or not */
 val UTypeReferenceExpression.isComposable: Boolean
     get() {
         if (type.hasAnnotation(Names.Runtime.Composable.javaFqn)) return true
@@ -273,10 +255,9 @@ val UTypeReferenceExpression.isComposable: Boolean
         return (sourcePsi as? KtTypeReference)?.hasComposableAnnotation == true
     }
 
-/**
- * Returns whether this annotated declaration has a Composable annotation
- */
+/** Returns whether this annotated declaration has a Composable annotation */
 private val KtAnnotated.hasComposableAnnotation: Boolean
-    get() = annotationEntries.any {
-        (it.toUElement() as UAnnotation).qualifiedName == Names.Runtime.Composable.javaFqn
-    }
+    get() =
+        annotationEntries.any {
+            (it.toUElement() as UAnnotation).qualifiedName == Names.Runtime.Composable.javaFqn
+        }

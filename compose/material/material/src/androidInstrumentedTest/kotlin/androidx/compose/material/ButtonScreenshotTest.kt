@@ -53,40 +53,33 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTestApi::class)
 class ButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
-    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
-        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-    }
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     @Test
     fun default_button() {
-        rule.setMaterialContent {
-            Button(onClick = { }) {
-                Text("Button")
-            }
-        }
+        rule.setMaterialContent { Button(onClick = {}) { Text("Button") } }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_default")
     }
 
     @Test
     fun disabled_button() {
-        rule.setMaterialContent {
-            Button(onClick = { }, enabled = false) {
-                Text("Button")
-            }
-        }
+        rule.setMaterialContent { Button(onClick = {}, enabled = false) { Text("Button") } }
 
-        rule.onNodeWithText("Button")
+        rule
+            .onNodeWithText("Button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_disabled")
     }
@@ -94,14 +87,11 @@ class ButtonScreenshotTest {
     @Test
     fun ripple() {
         rule.setMaterialContent {
-            Box(Modifier.requiredSize(200.dp, 100.dp).wrapContentSize()) {
-                Button(onClick = { }) { }
-            }
+            Box(Modifier.requiredSize(200.dp, 100.dp).wrapContentSize()) { Button(onClick = {}) {} }
         }
 
         // Start ripple
-        rule.onNode(hasClickAction())
-            .performTouchInput { down(center) }
+        rule.onNode(hasClickAction()).performTouchInput { down(center) }
 
         rule.waitForIdle()
         // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't
@@ -109,27 +99,20 @@ class ButtonScreenshotTest {
         // finished animating.
         Thread.sleep(300)
 
-        rule.onRoot()
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, "button_ripple")
+        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "button_ripple")
     }
 
     @Test
     fun hover() {
         rule.setMaterialContent {
-            Box(Modifier.requiredSize(200.dp, 100.dp).wrapContentSize()) {
-                Button(onClick = { }) { }
-            }
+            Box(Modifier.requiredSize(200.dp, 100.dp).wrapContentSize()) { Button(onClick = {}) {} }
         }
 
-        rule.onNode(hasClickAction())
-            .performMouseInput { enter(center) }
+        rule.onNode(hasClickAction()).performMouseInput { enter(center) }
 
         rule.waitForIdle()
 
-        rule.onRoot()
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, "button_hover")
+        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "button_hover")
     }
 
     @Test
@@ -140,11 +123,7 @@ class ButtonScreenshotTest {
         rule.setMaterialContent {
             localInputModeManager = LocalInputModeManager.current
             Box(Modifier.requiredSize(200.dp, 100.dp).wrapContentSize()) {
-                Button(
-                    onClick = { },
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
-                ) { }
+                Button(onClick = {}, modifier = Modifier.focusRequester(focusRequester)) {}
             }
         }
 
@@ -156,8 +135,6 @@ class ButtonScreenshotTest {
 
         rule.waitForIdle()
 
-        rule.onRoot()
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, "button_focus")
+        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "button_focus")
     }
 }

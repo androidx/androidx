@@ -29,14 +29,14 @@ import kotlinx.coroutines.launch
 annotation class ExperimentalAnimatableApi
 
 /**
- * [DeferredTargetAnimation] is intended for animations where the target is unknown at the time
- * of instantiation. Such use cases include, but are not limited to, size or position animations
+ * [DeferredTargetAnimation] is intended for animations where the target is unknown at the time of
+ * instantiation. Such use cases include, but are not limited to, size or position animations
  * created during composition or the initialization of a Modifier.Node, yet the target size or
  * position stays unknown until the later measure and placement phase.
  *
- * [DeferredTargetAnimation] offers a declarative [updateTarget] function, which requires a
- * target to either set up the animation or update the animation, and to read the current value
- * of the animation.
+ * [DeferredTargetAnimation] offers a declarative [updateTarget] function, which requires a target
+ * to either set up the animation or update the animation, and to read the current value of the
+ * animation.
  *
  * @sample androidx.compose.animation.core.samples.DeferredTargetAnimationSample
  */
@@ -44,15 +44,14 @@ annotation class ExperimentalAnimatableApi
 class DeferredTargetAnimation<T, V : AnimationVector>(
     private val vectorConverter: TwoWayConverter<T, V>
 ) {
-    /**
-     * Returns the target value from the most recent [updateTarget] call.
-     */
+    /** Returns the target value from the most recent [updateTarget] call. */
     val pendingTarget: T?
         get() = _pendingTarget
 
     private var _pendingTarget: T? by mutableStateOf(null)
     private val target: T?
         get() = animatable?.targetValue
+
     private var animatable: Animatable<T, V>? = null
 
     /**

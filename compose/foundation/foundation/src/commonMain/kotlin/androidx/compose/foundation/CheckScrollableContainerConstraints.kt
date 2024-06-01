@@ -20,17 +20,13 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.unit.Constraints
 
 /**
- * @throws [IllegalStateException] if the container was measured with the infinity constraints
- * in the direction of scrolling. This usually means nesting scrollable in the same direction
- * containers which is a performance issue and is discouraged.
- *
  * @param constraints [Constraints] used to measure the scrollable container
  * @param orientation orientation of the scrolling
+ * @throws [IllegalStateException] if the container was measured with the infinity constraints in
+ *   the direction of scrolling. This usually means nesting scrollable in the same direction
+ *   containers which is a performance issue and is discouraged.
  */
-fun checkScrollableContainerConstraints(
-    constraints: Constraints,
-    orientation: Orientation
-) {
+fun checkScrollableContainerConstraints(constraints: Constraints, orientation: Orientation) {
     if (orientation == Orientation.Vertical) {
         check(constraints.maxHeight != Constraints.Infinity) {
             "Vertically scrollable component was measured with an infinity maximum height " +

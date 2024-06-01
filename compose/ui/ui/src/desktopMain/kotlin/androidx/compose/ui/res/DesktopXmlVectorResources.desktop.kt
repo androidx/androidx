@@ -28,22 +28,18 @@ import org.xml.sax.InputSource
  * XML Vector Image is came from Android world. See:
  * https://developer.android.com/guide/topics/graphics/vector-drawable-resources
  *
- * On desktop it is fully implemented except there is no resource linking
- * (for example, we can't reference to color defined in another file)
+ * On desktop it is fully implemented except there is no resource linking (for example, we can't
+ * reference to color defined in another file)
  *
  * @param inputSource input source to load xml vector image. Will be closed automatically.
  * @param density density that will be used to set the default size of the ImageVector. If the image
- * will be drawn with the specified size, density will have no effect.
+ *   will be drawn with the specified size, density will have no effect.
  * @return the decoded vector image associated with the image
  */
-fun loadXmlImageVector(
-    inputSource: InputSource,
-    density: Density
-): ImageVector = DocumentBuilderFactory
-    .newInstance().apply {
-        isNamespaceAware = true
-    }
-    .newDocumentBuilder()
-    .parse(inputSource)
-    .documentElement
-    .parseVectorRoot(density)
+fun loadXmlImageVector(inputSource: InputSource, density: Density): ImageVector =
+    DocumentBuilderFactory.newInstance()
+        .apply { isNamespaceAware = true }
+        .newDocumentBuilder()
+        .parse(inputSource)
+        .documentElement
+        .parseVectorRoot(density)

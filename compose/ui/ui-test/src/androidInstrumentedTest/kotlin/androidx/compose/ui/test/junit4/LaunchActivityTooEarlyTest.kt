@@ -37,8 +37,9 @@ class LaunchActivityTooEarlyTest {
         @OptIn(ExperimentalTestApi::class)
         runEmptyComposeUiTest {
             expectError<IllegalStateException>(
-                expectedMessage = "No compose hierarchies found in the app\\. Possible reasons " +
-                    "include:.*\\bsetContent was called before the ComposeTestRule ran\\..*"
+                expectedMessage =
+                    "No compose hierarchies found in the app\\. Possible reasons " +
+                        "include:.*\\bsetContent was called before the ComposeTestRule ran\\..*"
             ) {
                 onNodeWithText("Hello").assertExists()
             }

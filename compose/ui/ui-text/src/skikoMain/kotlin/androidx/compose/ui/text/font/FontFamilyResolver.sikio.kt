@@ -44,9 +44,9 @@ fun createFontFamilyResolver(): FontFamily.Resolver {
  *
  * Usages inside of Composition should use LocalFontFamilyResolver.current
  *
- * Any [kotlinx.coroutines.CoroutineExceptionHandler] provided will be called with
- * exceptions related to fallback font loading. These exceptions are not fatal, and indicate
- * that font fallback continued to the next font load.
+ * Any [kotlinx.coroutines.CoroutineExceptionHandler] provided will be called with exceptions
+ * related to fallback font loading. These exceptions are not fatal, and indicate that font fallback
+ * continued to the next font load.
  *
  * If no [kotlinx.coroutines.CoroutineExceptionHandler] is provided, a default implementation will
  * be added that ignores all exceptions.
@@ -54,22 +54,16 @@ fun createFontFamilyResolver(): FontFamily.Resolver {
  * @param coroutineContext context to launch async requests in during resolution.
  */
 @ExperimentalTextApi
-fun createFontFamilyResolver(
-    coroutineContext: CoroutineContext
-): FontFamily.Resolver {
+fun createFontFamilyResolver(coroutineContext: CoroutineContext): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         SkiaFontLoader(),
         PlatformResolveInterceptor.Default,
         GlobalTypefaceRequestCache,
-        FontListFontFamilyTypefaceAdapter(
-            GlobalAsyncTypefaceCache,
-            coroutineContext
-        )
+        FontListFontFamilyTypefaceAdapter(GlobalAsyncTypefaceCache, coroutineContext)
     )
 }
-/**
- * For bridging between FontLoader and FontFamily.ResourceLoader. Can remove with FontLoader.
- */
+
+/** For bridging between FontLoader and FontFamily.ResourceLoader. Can remove with FontLoader. */
 @OptIn(ExperimentalTextApi::class)
 internal fun createFontFamilyResolver(fontCache: FontCache): FontFamily.Resolver {
     return FontFamilyResolverImpl(SkiaFontLoader(fontCache))

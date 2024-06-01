@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.input.InputTransformation.Companion.transformInput
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
@@ -28,24 +27,25 @@ import androidx.compose.ui.text.TextRange
  * A text buffer that can be edited, similar to [StringBuilder].
  *
  * This class provides methods for changing the text, such as:
- *  - [replace]
- *  - [append]
- *  - [insert]
- *  - [delete]
+ * - [replace]
+ * - [append]
+ * - [insert]
+ * - [delete]
  *
  * This class also stores and tracks the cursor position or selection range. The cursor position is
  * just a selection range with zero length. The cursor and selection can be changed using methods
  * such as:
- *  - [placeCursorAfterCharAt]
- *  - [placeCursorBeforeCharAt]
- *  - [placeCursorAtEnd]
- *  - [selectAll]
+ * - [placeCursorAfterCharAt]
+ * - [placeCursorBeforeCharAt]
+ * - [placeCursorAtEnd]
+ * - [selectAll]
  *
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
  */
 @OptIn(ExperimentalFoundationApi::class)
-class TextFieldBuffer internal constructor(
+class TextFieldBuffer
+internal constructor(
     initialValue: TextFieldCharSequence,
     initialChanges: ChangeTracker? = null,
     internal val originalValue: TextFieldCharSequence = initialValue,
@@ -54,20 +54,16 @@ class TextFieldBuffer internal constructor(
 
     private val buffer = PartialGapBuffer(initialValue)
 
-    private var backingChangeTracker: ChangeTracker? = initialChanges?.let {
-        ChangeTracker(initialChanges)
-    }
+    private var backingChangeTracker: ChangeTracker? =
+        initialChanges?.let { ChangeTracker(initialChanges) }
 
-    /**
-     * Lazily-allocated [ChangeTracker], initialized on the first access.
-     */
+    /** Lazily-allocated [ChangeTracker], initialized on the first access. */
     private val changeTracker: ChangeTracker
         get() = backingChangeTracker ?: ChangeTracker().also { backingChangeTracker = it }
 
-    /**
-     * The number of characters in the text field.
-     */
-    val length: Int get() = buffer.length
+    /** The number of characters in the text field. */
+    val length: Int
+        get() = buffer.length
 
     /**
      * Original text content of the buffer before any changes were applied. Calling
@@ -77,8 +73,8 @@ class TextFieldBuffer internal constructor(
         get() = originalValue.text
 
     /**
-     * Original selection before the changes. Calling [revertAllChanges] will set the selection
-     * to this value.
+     * Original selection before the changes. Calling [revertAllChanges] will set the selection to
+     * this value.
      */
     val originalSelection: TextRange
         get() = originalValue.selection
@@ -89,10 +85,12 @@ class TextFieldBuffer internal constructor(
      * this value at any given time, even those made after reading this property.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
+     *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
     @ExperimentalFoundationApi
-    val changes: ChangeList get() = changeTracker
+    val changes: ChangeList
+        get() = changeTracker
 
     /**
      * True if the selection range has non-zero length. If this is false, then the selection
@@ -137,7 +135,6 @@ class TextFieldBuffer internal constructor(
      * @param start The character offset of the first character to replace.
      * @param end The character offset of the first character after the text to replace.
      * @param text The text to replace the range `[start, end)` with.
-     *
      * @see append
      * @see insert
      * @see delete
@@ -155,7 +152,6 @@ class TextFieldBuffer internal constructor(
      * @param text The text to replace the range `[start, end)` with.
      * @param textStart The character offset of the first character in [text] to copy.
      * @param textEnd The character offset after the last character in [text] to copy.
-     *
      * @see append
      * @see insert
      * @see delete
@@ -258,16 +254,14 @@ class TextFieldBuffer internal constructor(
         selectionInChars = TextRange(selStart, selEnd)
     }
 
-    /**
-     * Returns the [Char] at [index] in this buffer.
-     */
+    /** Returns the [Char] at [index] in this buffer. */
     fun charAt(index: Int): Char = buffer[index]
 
     override fun toString(): String = buffer.toString()
 
     /**
-     * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will
-     * be visible in the returned sequence as well.
+     * Returns a [CharSequence] backed by this buffer. Any subsequent changes to this buffer will be
+     * visible in the returned sequence as well.
      */
     fun asCharSequence(): CharSequence = buffer
 
@@ -298,8 +292,7 @@ class TextFieldBuffer internal constructor(
      * [placeCursorAtEnd].
      *
      * @param index Character index to place cursor before, should be in range 0 to
-     * [TextFieldBuffer.length], inclusive.
-     *
+     *   [TextFieldBuffer.length], inclusive.
      * @see placeCursorAfterCharAt
      */
     fun placeCursorBeforeCharAt(index: Int) {
@@ -318,8 +311,7 @@ class TextFieldBuffer internal constructor(
      * [TextFieldBuffer.length] or call [placeCursorAtEnd].
      *
      * @param index Character index to place cursor after, should be in range 0 (inclusive) to
-     * [TextFieldBuffer.length] (exclusive).
-     *
+     *   [TextFieldBuffer.length] (exclusive).
      * @see placeCursorBeforeCharAt
      */
     fun placeCursorAfterCharAt(index: Int) {
@@ -332,52 +324,39 @@ class TextFieldBuffer internal constructor(
      * Returns an immutable [TextFieldCharSequence] that has the same contents of this buffer.
      *
      * @param selection The selection for the returned [TextFieldCharSequence]. Default value is
-     * this buffer's selection. Passing a different value in here _only_ affects the return value,
-     * it does not change the current selection in the buffer.
+     *   this buffer's selection. Passing a different value in here _only_ affects the return value,
+     *   it does not change the current selection in the buffer.
      * @param composition The composition range for the returned [TextFieldCharSequence]. Default
-     * value is no composition (null).
+     *   value is no composition (null).
      */
     internal fun toTextFieldCharSequence(
         selection: TextRange = this.selection,
         composition: TextRange? = null
-    ): TextFieldCharSequence = TextFieldCharSequence(
-        buffer.toString(),
-        selection = selection,
-        composition = composition
-    )
+    ): TextFieldCharSequence =
+        TextFieldCharSequence(buffer.toString(), selection = selection, composition = composition)
 
-    private fun requireValidIndex(
-        index: Int,
-        startExclusive: Boolean,
-        endExclusive: Boolean
-    ) {
+    private fun requireValidIndex(index: Int, startExclusive: Boolean, endExclusive: Boolean) {
         val start = if (startExclusive) 0 else -1
         val end = if (endExclusive) length else length + 1
 
-        require(index in start until end) {
-            "Expected $index to be in [$start, $end)"
-        }
+        require(index in start until end) { "Expected $index to be in [$start, $end)" }
     }
 
     private fun requireValidRange(range: TextRange) {
         val validRange = TextRange(0, length)
-        require(range in validRange) {
-            "Expected $range to be in $validRange"
-        }
+        require(range in validRange) { "Expected $range to be in $validRange" }
     }
 
     /**
      * The ordered list of non-overlapping and discontinuous changes performed on a
      * [TextFieldBuffer] during the current [edit][TextFieldState.edit] or
-     * [filter][InputTransformation.transformInput] operation. Changes are listed in the order they appear in the
-     * text, not the order in which they were made. Overlapping changes are represented as a single
-     * change.
+     * [filter][InputTransformation.transformInput] operation. Changes are listed in the order they
+     * appear in the text, not the order in which they were made. Overlapping changes are
+     * represented as a single change.
      */
     @ExperimentalFoundationApi
     interface ChangeList {
-        /**
-         * The number of changes that have been performed.
-         */
+        /** The number of changes that have been performed. */
         val changeCount: Int
 
         /**
@@ -404,7 +383,6 @@ class TextFieldBuffer internal constructor(
  *
  * @param index The character offset at which to insert [text].
  * @param text The text to insert.
- *
  * @see TextFieldBuffer.replace
  * @see TextFieldBuffer.append
  * @see TextFieldBuffer.delete
@@ -419,7 +397,6 @@ fun TextFieldBuffer.insert(index: Int, text: String) {
  *
  * @param start The character offset of the first character to delete.
  * @param end The character offset of the first character after the deleted range.
- *
  * @see TextFieldBuffer.replace
  * @see TextFieldBuffer.append
  * @see TextFieldBuffer.insert
@@ -428,16 +405,12 @@ fun TextFieldBuffer.delete(start: Int, end: Int) {
     replace(start, end, "")
 }
 
-/**
- * Places the cursor at the end of the text.
- */
+/** Places the cursor at the end of the text. */
 fun TextFieldBuffer.placeCursorAtEnd() {
     placeCursorBeforeCharAt(length)
 }
 
-/**
- * Places the selection around all the text.
- */
+/** Places the selection around all the text. */
 fun TextFieldBuffer.selectAll() {
     selection = TextRange(0, length)
 }
@@ -455,9 +428,7 @@ fun TextFieldBuffer.selectAll() {
  * @see forEachChangeReversed
  */
 @ExperimentalFoundationApi
-inline fun ChangeList.forEachChange(
-    block: (range: TextRange, originalRange: TextRange) -> Unit
-) {
+inline fun ChangeList.forEachChange(block: (range: TextRange, originalRange: TextRange) -> Unit) {
     var i = 0
     // Check the size every iteration in case more changes were performed.
     while (i < changeCount) {
@@ -530,12 +501,14 @@ internal inline fun findCommonPrefixAndSuffix(
                 }
             }
         } while (
-        // As soon as we've completely traversed one of the strings, if the other hasn't also
-        // finished being traversed then we've found the diff region.
-            aStart < aEnd && bStart < bEnd &&
-            // If we've found the end of the common prefix and the start of the common suffix we're
-            // done.
-            !(prefixFound && suffixFound)
+            // As soon as we've completely traversed one of the strings, if the other hasn't also
+            // finished being traversed then we've found the diff region.
+            aStart < aEnd &&
+                bStart < bEnd &&
+                // If we've found the end of the common prefix and the start of the common suffix
+                // we're
+                // done.
+                !(prefixFound && suffixFound)
         )
     }
 

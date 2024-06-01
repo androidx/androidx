@@ -42,22 +42,21 @@ import org.junit.Test
 class MultipleActivitiesClickTest {
 
     @Test
-    fun test() = runAndroidComposeUiTest<Activity1> {
-        val activity1 = activity!!
+    fun test() =
+        runAndroidComposeUiTest<Activity1> {
+            val activity1 = activity!!
 
-        activity1.startNewActivity()
-        waitUntil {
-            onAllNodesWithTag("activity2").isNotEmpty()
+            activity1.startNewActivity()
+            waitUntil { onAllNodesWithTag("activity2").isNotEmpty() }
+
+            onNodeWithTag("activity2").performTouchInput { click() }
+            val activity2 = getCurrentActivity() as Activity2
+
+            runOnIdle {
+                assertThat(activity1.clickCounter).isEqualTo(0)
+                assertThat(activity2.clickCounter).isEqualTo(1)
+            }
         }
-
-        onNodeWithTag("activity2").performTouchInput { click() }
-        val activity2 = getCurrentActivity() as Activity2
-
-        runOnIdle {
-            assertThat(activity1.clickCounter).isEqualTo(0)
-            assertThat(activity2.clickCounter).isEqualTo(1)
-        }
-    }
 
     private fun SemanticsNodeInteractionCollection.isNotEmpty(): Boolean {
         return fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
@@ -69,13 +68,16 @@ class MultipleActivitiesClickTest {
     private fun ComposeUiTest.getCurrentActivity(): Activity {
         var currentActivity: Activity? = null
         runOnUiThread {
-            currentActivity = ActivityLifecycleMonitorRegistry.getInstance()
-                .getActivitiesInStage(Stage.RESUMED).first()
+            currentActivity =
+                ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(Stage.RESUMED)
+                    .first()
         }
         return currentActivity!!
     }
 
     class Activity1 : ClickRecordingActivity("activity1")
+
     class Activity2 : ClickRecordingActivity("activity2")
 
     open class ClickRecordingActivity(private val tag: String) : ComponentActivity() {

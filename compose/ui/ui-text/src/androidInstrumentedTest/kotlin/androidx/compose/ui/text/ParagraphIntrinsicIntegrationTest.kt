@@ -48,10 +48,7 @@ class ParagraphIntrinsicIntegrationTest {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
 
-            val paragraphIntrinsics = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize
-            )
+            val paragraphIntrinsics = paragraphIntrinsics(text = text, fontSize = fontSize)
 
             assertThat(paragraphIntrinsics.maxIntrinsicWidth)
                 .isEqualTo(text.length * fontSize.toPx())
@@ -64,10 +61,7 @@ class ParagraphIntrinsicIntegrationTest {
             val text = "abc"
             val fontSize = 50.sp
 
-            val paragraphIntrinsics = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize
-            )
+            val paragraphIntrinsics = paragraphIntrinsics(text = text, fontSize = fontSize)
 
             assertThat(paragraphIntrinsics.maxIntrinsicWidth)
                 .isEqualTo(text.length * fontSize.toPx())
@@ -79,10 +73,7 @@ class ParagraphIntrinsicIntegrationTest {
         with(defaultDensity) {
             val text = "abc\nabc"
             val fontSize = 50.sp
-            val paragraphIntrinsics = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize
-            )
+            val paragraphIntrinsics = paragraphIntrinsics(text = text, fontSize = fontSize)
 
             assertThat(paragraphIntrinsics.maxIntrinsicWidth)
                 .isEqualTo(text.indexOf('\n') * fontSize.toPx())
@@ -95,17 +86,19 @@ class ParagraphIntrinsicIntegrationTest {
             val text = "a bb ccc"
             val fontSize = 12.sp
             val styledFontSize = 24.sp
-            val paragraph = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize,
-                spanStyles = listOf(
-                    Range(
-                        item = SpanStyle(fontSize = styledFontSize),
-                        start = "a ".length,
-                        end = "a bb ".length
-                    )
+            val paragraph =
+                paragraphIntrinsics(
+                    text = text,
+                    fontSize = fontSize,
+                    spanStyles =
+                        listOf(
+                            Range(
+                                item = SpanStyle(fontSize = styledFontSize),
+                                start = "a ".length,
+                                end = "a bb ".length
+                            )
+                        )
                 )
-            )
 
             // since "bb " is double font size, the whole width should be the text size, and the
             // additional width resulting from the "bb " length.
@@ -127,10 +120,7 @@ class ParagraphIntrinsicIntegrationTest {
             val text = "\u05D0\u05D1\u05D2"
             val fontSize = 50.sp
 
-            val paragraphIntrinsics = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize
-            )
+            val paragraphIntrinsics = paragraphIntrinsics(text = text, fontSize = fontSize)
 
             assertThat(paragraphIntrinsics.minIntrinsicWidth)
                 .isEqualTo(text.length * fontSize.toPx())
@@ -143,10 +133,7 @@ class ParagraphIntrinsicIntegrationTest {
             val text = "abc"
             val fontSize = 50.sp
 
-            val paragraphIntrinsics = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize
-            )
+            val paragraphIntrinsics = paragraphIntrinsics(text = text, fontSize = fontSize)
 
             assertThat(paragraphIntrinsics.minIntrinsicWidth)
                 .isEqualTo(text.length * fontSize.toPx())
@@ -158,14 +145,10 @@ class ParagraphIntrinsicIntegrationTest {
         with(defaultDensity) {
             // create words with length 1, 2, 3... 50; and append all with space.
             val maxWordLength = 50
-            val text = (1..maxWordLength).fold("") { string, next ->
-                string + "a".repeat(next) + " "
-            }
+            val text =
+                (1..maxWordLength).fold("") { string, next -> string + "a".repeat(next) + " " }
             val fontSize = 12.sp
-            val paragraph = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize
-            )
+            val paragraph = paragraphIntrinsics(text = text, fontSize = fontSize)
 
             // +1 is for the white space
             val expectedWidth = (maxWordLength + 1) * fontSize.toPx()
@@ -179,17 +162,19 @@ class ParagraphIntrinsicIntegrationTest {
             val text = "a bb ccc"
             val fontSize = 12.sp
             val styledFontSize = 24.sp
-            val paragraph = paragraphIntrinsics(
-                text = text,
-                fontSize = fontSize,
-                spanStyles = listOf(
-                    Range(
-                        item = SpanStyle(fontSize = styledFontSize),
-                        start = "a".length,
-                        end = "a bb ".length
-                    )
+            val paragraph =
+                paragraphIntrinsics(
+                    text = text,
+                    fontSize = fontSize,
+                    spanStyles =
+                        listOf(
+                            Range(
+                                item = SpanStyle(fontSize = styledFontSize),
+                                start = "a".length,
+                                end = "a bb ".length
+                            )
+                        )
                 )
-            )
 
             val expectedWidth = "bb ".length * styledFontSize.toPx()
             assertThat(paragraph.minIntrinsicWidth).isEqualTo(expectedWidth)
@@ -206,10 +191,7 @@ class ParagraphIntrinsicIntegrationTest {
             text = text,
             spanStyles = spanStyles,
             placeholders = listOf(),
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = fontSize
-            ).merge(style),
+            style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize).merge(style),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context)
         )

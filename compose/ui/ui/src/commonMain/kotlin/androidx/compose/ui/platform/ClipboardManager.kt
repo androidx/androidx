@@ -18,30 +18,24 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.text.AnnotatedString
 
-/**
- * Interface for managing the Clipboard.
- */
+/** Interface for managing the Clipboard. */
 interface ClipboardManager {
     /**
      * This method put the text into the Clipboard.
      *
      * @param annotatedString The [AnnotatedString] to be put into Clipboard.
      */
-    @Suppress("GetterSetterNames")
-    fun setText(annotatedString: AnnotatedString)
+    @Suppress("GetterSetterNames") fun setText(annotatedString: AnnotatedString)
 
     /**
      * This method get the text from the Clipboard.
      *
-     * @return The text in the Clipboard.
-     * It could be null due to 2 reasons: 1. Clipboard is empty; 2. Cannot convert the
-     * [CharSequence] text in Clipboard to [AnnotatedString].
+     * @return The text in the Clipboard. It could be null due to 2 reasons: 1. Clipboard is
+     *   empty; 2. Cannot convert the [CharSequence] text in Clipboard to [AnnotatedString].
      */
     fun getText(): AnnotatedString?
 
-    /**
-     * This method returns true if there is a text in the Clipboard, false otherwise.
-     */
+    /** This method returns true if there is a text in the Clipboard, false otherwise. */
     fun hasText(): Boolean = getText()?.isNotEmpty() == true
 
     /**
@@ -59,16 +53,15 @@ interface ClipboardManager {
      * Puts the given [clipEntry] in platform's ClipboardManager.
      *
      * @param clipEntry Platform specific clip object that either holds data or links to it. Pass
-     * null to clear the clipboard.
+     *   null to clear the clipboard.
      */
-    @Suppress("GetterSetterNames")
-    fun setClip(clipEntry: ClipEntry?) = Unit
+    @Suppress("GetterSetterNames") fun setClip(clipEntry: ClipEntry?) = Unit
 
     /**
      * Returns the native clipboard that exposes the full functionality of platform clipboard.
      *
      * @throws UnsupportedOperationException If the current platform does not offer a native
-     * Clipboard interface.
+     *   Clipboard interface.
      */
     val nativeClipboard: NativeClipboard
         get() {
@@ -76,9 +69,7 @@ interface ClipboardManager {
         }
 }
 
-/**
- * Platform specific protocol that expresses an item in the native Clipboard.
- */
+/** Platform specific protocol that expresses an item in the native Clipboard. */
 expect class ClipEntry {
 
     /**
@@ -92,12 +83,10 @@ expect class ClipEntry {
 }
 
 /**
- * Platform specific protocol that describes an item in the native Clipboard. This object should
- * not contain any actual piece of data.
+ * Platform specific protocol that describes an item in the native Clipboard. This object should not
+ * contain any actual piece of data.
  */
 expect class ClipMetadata
 
-/**
- * Native Clipboard specific to each platform.
- */
+/** Native Clipboard specific to each platform. */
 expect class NativeClipboard

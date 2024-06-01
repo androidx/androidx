@@ -52,10 +52,7 @@ import androidx.compose.ui.unit.dp
 fun NavigationRailDemo() {
     val alwaysShowLabelsState = remember { mutableStateOf(false) }
     val compactNavRail = remember { mutableStateOf(false) }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
         if (compactNavRail.value) {
             CompactNavigationRailSample()
         } else {
@@ -91,40 +88,32 @@ private fun LabelsConfig(enabled: Boolean, alwaysShowLabelsState: MutableState<B
             .padding(start = 16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .selectable(
-                    enabled = enabled,
-                    selected = !alwaysShowLabelsState.value,
-                    onClick = { alwaysShowLabelsState.value = false }
-                ),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .height(56.dp)
+                    .selectable(
+                        enabled = enabled,
+                        selected = !alwaysShowLabelsState.value,
+                        onClick = { alwaysShowLabelsState.value = false }
+                    ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            RadioButton(
-                enabled = enabled,
-                selected = !alwaysShowLabelsState.value,
-                onClick = null
-            )
+            RadioButton(enabled = enabled, selected = !alwaysShowLabelsState.value, onClick = null)
             Spacer(Modifier.requiredWidth(16.dp))
             Text("Only show labels when selected")
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .selectable(
-                    enabled = enabled,
-                    selected = alwaysShowLabelsState.value,
-                    onClick = { alwaysShowLabelsState.value = true }
-                ),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .height(56.dp)
+                    .selectable(
+                        enabled = enabled,
+                        selected = alwaysShowLabelsState.value,
+                        onClick = { alwaysShowLabelsState.value = true }
+                    ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            RadioButton(
-                enabled = enabled,
-                selected = alwaysShowLabelsState.value,
-                onClick = null
-            )
+            RadioButton(enabled = enabled, selected = alwaysShowLabelsState.value, onClick = null)
             Spacer(Modifier.requiredWidth(16.dp))
             Text("Always show labels")
         }
@@ -134,20 +123,17 @@ private fun LabelsConfig(enabled: Boolean, alwaysShowLabelsState: MutableState<B
 @Composable
 private fun CompactNavRailConfig(compactNavRailState: MutableState<Boolean>) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp)
-            .height(56.dp)
-            .toggleable(
-                value = compactNavRailState.value,
-                onValueChange = { compactNavRailState.value = !compactNavRailState.value }
-            ),
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(start = 16.dp)
+                .height(56.dp)
+                .toggleable(
+                    value = compactNavRailState.value,
+                    onValueChange = { compactNavRailState.value = !compactNavRailState.value }
+                ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            checked = compactNavRailState.value,
-            onCheckedChange = null
-        )
+        Checkbox(checked = compactNavRailState.value, onCheckedChange = null)
         Spacer(Modifier.requiredWidth(16.dp))
         Text("Compact Navigation Rail")
     }

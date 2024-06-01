@@ -72,8 +72,11 @@ private val DefaultFontSize = 16.sp
 @Suppress("DEPRECATION")
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
-    replaceWith = ReplaceWith("ActualParagraph(text, style, spanStyles, placeholders, " +
-        "maxLines, ellipsis, width, density, fontFamilyResolver)"),
+    replaceWith =
+        ReplaceWith(
+            "ActualParagraph(text, style, spanStyles, placeholders, " +
+                "maxLines, ellipsis, width, density, fontFamilyResolver)"
+        ),
 )
 internal actual fun ActualParagraph(
     text: String,
@@ -85,19 +88,20 @@ internal actual fun ActualParagraph(
     width: Float,
     density: Density,
     @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader
-): Paragraph = SkiaParagraph(
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        density,
-        createFontFamilyResolver(resourceLoader)
-    ),
-    maxLines,
-    ellipsis,
-    Constraints(maxWidth = width.ceilToInt())
-)
+): Paragraph =
+    SkiaParagraph(
+        SkiaParagraphIntrinsics(
+            text,
+            style,
+            spanStyles,
+            placeholders,
+            density,
+            createFontFamilyResolver(resourceLoader)
+        ),
+        maxLines,
+        ellipsis,
+        Constraints(maxWidth = width.ceilToInt())
+    )
 
 internal actual fun ActualParagraph(
     text: String,
@@ -109,19 +113,13 @@ internal actual fun ActualParagraph(
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
-): Paragraph = SkiaParagraph(
-    SkiaParagraphIntrinsics(
-        text,
-        style,
-        spanStyles,
-        placeholders,
-        density,
-        fontFamilyResolver
-    ),
-    maxLines,
-    ellipsis,
-    constraints
-)
+): Paragraph =
+    SkiaParagraph(
+        SkiaParagraphIntrinsics(text, style, spanStyles, placeholders, density, fontFamilyResolver),
+        maxLines,
+        ellipsis,
+        constraints
+    )
 
 @Suppress("UNUSED_PARAMETER")
 internal actual fun ActualParagraph(
@@ -129,12 +127,8 @@ internal actual fun ActualParagraph(
     maxLines: Int,
     ellipsis: Boolean,
     constraints: Constraints
-): Paragraph = SkiaParagraph(
-    paragraphIntrinsics as SkiaParagraphIntrinsics,
-    maxLines,
-    ellipsis,
-    constraints
-)
+): Paragraph =
+    SkiaParagraph(paragraphIntrinsics as SkiaParagraphIntrinsics, maxLines, ellipsis, constraints)
 
 private fun fontSizeInHierarchy(density: Density, base: Float, other: TextUnit): Float {
     return when {
@@ -165,7 +159,10 @@ internal data class ComputedStyle(
     var shadow: Shadow?
 ) {
 
-    constructor(density: Density, spanStyle: SpanStyle) : this(
+    constructor(
+        density: Density,
+        spanStyle: SpanStyle
+    ) : this(
         color = spanStyle.color,
         fontSize = with(density) { spanStyle.fontSize.toPx() },
         fontWeight = spanStyle.fontWeight,
@@ -173,13 +170,12 @@ internal data class ComputedStyle(
         fontSynthesis = spanStyle.fontSynthesis,
         fontFamily = spanStyle.fontFamily,
         fontFeatureSettings = spanStyle.fontFeatureSettings,
-        letterSpacing = if (spanStyle.letterSpacing.isUnspecified) {
-            null
-        } else {
-            with(density) {
-                spanStyle.letterSpacing.toPx()
-            }
-        },
+        letterSpacing =
+            if (spanStyle.letterSpacing.isUnspecified) {
+                null
+            } else {
+                with(density) { spanStyle.letterSpacing.toPx() }
+            },
         baselineShift = spanStyle.baselineShift,
         textGeometricTransform = spanStyle.textGeometricTransform,
         localeList = spanStyle.localeList,
@@ -194,37 +190,28 @@ internal data class ComputedStyle(
         if (color != Color.Unspecified) {
             res.color = color.toArgb()
         }
-        fontStyle?.let {
-            res.fontStyle = it.toSkFontStyle()
-        }
-        textDecoration?.let {
-            res.decorationStyle = it.toSkDecorationStyle(this.color)
-        }
+        fontStyle?.let { res.fontStyle = it.toSkFontStyle() }
+        textDecoration?.let { res.decorationStyle = it.toSkDecorationStyle(this.color) }
         if (background != Color.Unspecified) {
-            res.background = Paint().also {
-                it.color = background.toArgb()
-            }
+            res.background = Paint().also { it.color = background.toArgb() }
         }
-        fontWeight?.let {
-            res.fontStyle = res.fontStyle.withWeight(it.weight)
-        }
-        shadow?.let {
-            res.addShadow(it.toSkShadow())
-        }
+        fontWeight?.let { res.fontStyle = res.fontStyle.withWeight(it.weight) }
+        shadow?.let { res.addShadow(it.toSkShadow()) }
 
-        letterSpacing?.let {
-            res.letterSpacing = it
-        }
+        letterSpacing?.let { res.letterSpacing = it }
 
         res.fontSize = fontSize
         fontFamily?.let {
             @Suppress("UNCHECKED_CAST")
-            val resolved = fontFamilyResolver.resolve(
-                it,
-                fontWeight ?: FontWeight.Normal,
-                fontStyle ?: FontStyle.Normal,
-                fontSynthesis ?: FontSynthesis.None
-            ).value as FontLoadResult
+            val resolved =
+                fontFamilyResolver
+                    .resolve(
+                        it,
+                        fontWeight ?: FontWeight.Normal,
+                        fontStyle ?: FontStyle.Normal,
+                        fontSynthesis ?: FontSynthesis.None
+                    )
+                    .value as FontLoadResult
             res.fontFamilies = resolved.aliases.toTypedArray()
         }
         return res
@@ -243,12 +230,9 @@ internal data class ComputedStyle(
         other.fontFeatureSettings?.let { fontFeatureSettings = it }
         if (!other.letterSpacing.isUnspecified) {
             when {
-                other.letterSpacing.isEm ->
-                    letterSpacing = fontSize * other.letterSpacing.value
+                other.letterSpacing.isEm -> letterSpacing = fontSize * other.letterSpacing.value
                 other.letterSpacing.isSp ->
-                    letterSpacing = with(density) {
-                        other.letterSpacing.toPx()
-                    }
+                    letterSpacing = with(density) { other.letterSpacing.toPx() }
                 else -> throw UnsupportedOperationException()
             }
         }
@@ -286,23 +270,19 @@ internal class ParagraphBuilder(
     private lateinit var ops: List<Op>
 
     /**
-     * SkParagraph styles model doesn't match Compose's one.
-     * SkParagraph has only a stack-based push/pop styles interface that works great with Span
-     * trees.
-     * But in Compose we have a list of SpanStyles attached to arbitrary ranges, possibly
-     * overlapped, where a position in the list denotes style's priority
-     * We map Compose styles to SkParagraph styles by projecting every range start/end to single
-     * positions line and maintaining a list of active styles while building a paragraph. This list
-     * of active styles is being compiled into single SkParagraph's style for every chunk of text
+     * SkParagraph styles model doesn't match Compose's one. SkParagraph has only a stack-based
+     * push/pop styles interface that works great with Span trees. But in Compose we have a list of
+     * SpanStyles attached to arbitrary ranges, possibly overlapped, where a position in the list
+     * denotes style's priority We map Compose styles to SkParagraph styles by projecting every
+     * range start/end to single positions line and maintaining a list of active styles while
+     * building a paragraph. This list of active styles is being compiled into single SkParagraph's
+     * style for every chunk of text
      */
     @OptIn(ExperimentalTextApi::class)
     fun build(): SkParagraph {
         initialStyle = textStyle.toSpanStyle().withDefaultFontSize()
         defaultStyle = ComputedStyle(density, initialStyle)
-        ops = makeOps(
-            spanStyles,
-            placeholders
-        )
+        ops = makeOps(spanStyles, placeholders)
 
         var pos = 0
         val ps = textStyleToParagraphStyle(textStyle, defaultStyle)
@@ -315,10 +295,11 @@ internal class ParagraphBuilder(
         // this downcast is always safe because of sealed types and we control construction
         @OptIn(ExperimentalTextApi::class)
         val platformFontLoader = (fontFamilyResolver as FontFamilyResolverImpl).platformFontLoader
-        val fontCollection = when (platformFontLoader) {
-            is SkiaFontLoader -> platformFontLoader.fontCollection
-            else -> throw IllegalStateException("Unsupported font loader $platformFontLoader")
-        }
+        val fontCollection =
+            when (platformFontLoader) {
+                is SkiaFontLoader -> platformFontLoader.fontCollection
+                else -> throw IllegalStateException("Unsupported font loader $platformFontLoader")
+            }
 
         val pb = SkParagraphBuilder(ps, fontCollection)
 
@@ -345,9 +326,9 @@ internal class ParagraphBuilder(
                         PlaceholderStyle(
                             op.width,
                             op.height,
-                            op.cut.placeholder.placeholderVerticalAlign
-                                .toSkPlaceholderAlignment(),
-                            // TODO: figure out how exactly we have to work with BaselineMode & offset
+                            op.cut.placeholder.placeholderVerticalAlign.toSkPlaceholderAlignment(),
+                            // TODO: figure out how exactly we have to work with BaselineMode &
+                            // offset
                             BaselineMode.ALPHABETIC,
                             0f
                         )
@@ -372,10 +353,7 @@ internal class ParagraphBuilder(
     private sealed class Op {
         abstract val position: Int
 
-        data class StyleAdd(
-            override val position: Int,
-            val style: ComputedStyle
-        ) : Op()
+        data class StyleAdd(override val position: Int, val style: ComputedStyle) : Op()
 
         data class PutPlaceholder(
             val cut: Cut.PutPlaceholder,
@@ -385,9 +363,7 @@ internal class ParagraphBuilder(
             override val position: Int by cut::position
         }
 
-        data class EndPlaceholder(
-            val cut: Cut.EndPlaceholder
-        ) : Op() {
+        data class EndPlaceholder(val cut: Cut.EndPlaceholder) : Op() {
             override val position: Int by cut::position
         }
     }
@@ -395,15 +371,9 @@ internal class ParagraphBuilder(
     private sealed class Cut {
         abstract val position: Int
 
-        data class StyleAdd(
-            override val position: Int,
-            val style: SpanStyle
-        ) : Cut()
+        data class StyleAdd(override val position: Int, val style: SpanStyle) : Cut()
 
-        data class StyleRemove(
-            override val position: Int,
-            val style: SpanStyle
-        ) : Cut()
+        data class StyleRemove(override val position: Int, val style: SpanStyle) : Cut()
 
         data class PutPlaceholder(
             override val position: Int,
@@ -453,23 +423,25 @@ internal class ParagraphBuilder(
                 }
                 cut is Cut.PutPlaceholder -> {
                     val currentStyle = mergeStyles(activeStyles)
-                    val op = Op.PutPlaceholder(
-                        cut = cut,
-                        width = fontSizeInHierarchy(
-                            density,
-                            currentStyle.fontSize,
-                            cut.placeholder.width
-                        ),
-                        height = fontSizeInHierarchy(
-                            density,
-                            currentStyle.fontSize,
-                            cut.placeholder.height
-                        ),
-                    )
+                    val op =
+                        Op.PutPlaceholder(
+                            cut = cut,
+                            width =
+                                fontSizeInHierarchy(
+                                    density,
+                                    currentStyle.fontSize,
+                                    cut.placeholder.width
+                                ),
+                            height =
+                                fontSizeInHierarchy(
+                                    density,
+                                    currentStyle.fontSize,
+                                    cut.placeholder.height
+                                ),
+                        )
                     ops.add(op)
                 }
-                cut is Cut.EndPlaceholder ->
-                    ops.add(Op.EndPlaceholder(cut))
+                cut is Cut.EndPlaceholder -> ops.add(Op.EndPlaceholder(cut))
             }
         }
         return ops
@@ -498,25 +470,20 @@ internal class ParagraphBuilder(
     ): ParagraphStyle {
         val pStyle = ParagraphStyle()
         pStyle.textStyle = makeSkTextStyle(computedStyle)
-        style.textAlign.let {
-            pStyle.alignment = it.toSkAlignment()
-        }
+        style.textAlign.let { pStyle.alignment = it.toSkAlignment() }
 
         if (style.lineHeight.isSpecified) {
             val strutStyle = StrutStyle()
 
             strutStyle.isEnabled = true
             strutStyle.isHeightOverridden = true
-            val fontSize = with(density) {
-                style.fontSize.orDefaultFontSize().toPx()
-            }
-            val lineHeight = when {
-                style.lineHeight.isSp -> with(density) {
-                    style.lineHeight.toPx()
+            val fontSize = with(density) { style.fontSize.orDefaultFontSize().toPx() }
+            val lineHeight =
+                when {
+                    style.lineHeight.isSp -> with(density) { style.lineHeight.toPx() }
+                    style.lineHeight.isEm -> fontSize * style.lineHeight.value
+                    else -> error("Unexpected size in textStyleToParagraphStyle")
                 }
-                style.lineHeight.isEm -> fontSize * style.lineHeight.value
-                else -> error("Unexpected size in textStyleToParagraphStyle")
-            }
             strutStyle.height = lineHeight / fontSize
             pStyle.strutStyle = strutStyle
         }
@@ -525,46 +492,44 @@ internal class ParagraphBuilder(
     }
 
     private fun makeSkTextStyle(style: ComputedStyle): SkTextStyle {
-        return skTextStylesCache.getOrPut(style) {
-            style.toSkTextStyle(fontFamilyResolver)
-        }
+        return skTextStylesCache.getOrPut(style) { style.toSkTextStyle(fontFamilyResolver) }
     }
 
     @OptIn(ExperimentalTextApi::class)
     internal val defaultFont by lazy {
-        val loadResult = textStyle.fontFamily?.let {
-            @Suppress("UNCHECKED_CAST")
-            fontFamilyResolver.resolve(
-                it,
-                textStyle.fontWeight ?: FontWeight.Normal,
-                textStyle.fontStyle ?: FontStyle.Normal,
-                textStyle.fontSynthesis ?: FontSynthesis.All
-            ).value as FontLoadResult
-        }
+        val loadResult =
+            textStyle.fontFamily?.let {
+                @Suppress("UNCHECKED_CAST")
+                fontFamilyResolver
+                    .resolve(
+                        it,
+                        textStyle.fontWeight ?: FontWeight.Normal,
+                        textStyle.fontStyle ?: FontStyle.Normal,
+                        textStyle.fontSynthesis ?: FontSynthesis.All
+                    )
+                    .value as FontLoadResult
+            }
         SkFont(loadResult?.typeface, defaultStyle.fontSize)
     }
 
-    internal val defaultHeight by lazy {
-        defaultFont.metrics.height
-    }
+    internal val defaultHeight by lazy { defaultFont.metrics.height }
 }
 
-private fun TextUnit.orDefaultFontSize() = when {
-    isUnspecified -> DefaultFontSize
-    isEm -> DefaultFontSize * value
-    else -> this
-}
+private fun TextUnit.orDefaultFontSize() =
+    when {
+        isUnspecified -> DefaultFontSize
+        isEm -> DefaultFontSize * value
+        else -> this
+    }
 
 private fun SpanStyle.withDefaultFontSize(): SpanStyle {
     val fontSize = this.fontSize.orDefaultFontSize()
-    val letterSpacing = when {
-        this.letterSpacing.isEm -> fontSize * this.letterSpacing.value
-        else -> this.letterSpacing
-    }
-    return this.copy(
-        fontSize = fontSize,
-        letterSpacing = letterSpacing
-    )
+    val letterSpacing =
+        when {
+            this.letterSpacing.isEm -> fontSize * this.letterSpacing.value
+            else -> this.letterSpacing
+        }
+    return this.copy(fontSize = fontSize, letterSpacing = letterSpacing)
 }
 
 fun FontStyle.toSkFontStyle(): SkFontStyle {

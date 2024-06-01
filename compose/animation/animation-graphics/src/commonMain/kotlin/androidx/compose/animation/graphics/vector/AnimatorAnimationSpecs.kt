@@ -28,9 +28,7 @@ import androidx.compose.ui.util.fastMap
 
 private const val MillisToNanos = 1_000_000L
 
-/**
- * Returns this [FiniteAnimationSpec] reversed.
- */
+/** Returns this [FiniteAnimationSpec] reversed. */
 internal fun <T> FiniteAnimationSpec<T>.reversed(durationMillis: Int): FiniteAnimationSpec<T> {
     return ReversedSpec(this, durationMillis)
 }
@@ -71,12 +69,14 @@ private class VectorizedReversedSpec<V : AnimationVector>(
         targetValue: V,
         initialVelocity: V
     ): V {
-        return animation.getVelocityFromNanos(
-            durationNanos - playTimeNanos,
-            targetValue,
-            initialValue,
-            initialVelocity
-        ).reversed()
+        return animation
+            .getVelocityFromNanos(
+                durationNanos - playTimeNanos,
+                targetValue,
+                initialValue,
+                initialVelocity
+            )
+            .reversed()
     }
 
     override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long {
@@ -85,18 +85,15 @@ private class VectorizedReversedSpec<V : AnimationVector>(
 }
 
 /**
- * Creates a [FiniteAnimationSpec] that combine and run multiple [specs] based on the start time
- * (in milliseconds) specified as the first half of the pairs.
+ * Creates a [FiniteAnimationSpec] that combine and run multiple [specs] based on the start time (in
+ * milliseconds) specified as the first half of the pairs.
  */
-internal fun <T> combined(
-    specs: List<Pair<Int, FiniteAnimationSpec<T>>>
-): FiniteAnimationSpec<T> {
+internal fun <T> combined(specs: List<Pair<Int, FiniteAnimationSpec<T>>>): FiniteAnimationSpec<T> {
     return CombinedSpec(specs)
 }
 
-private class CombinedSpec<T>(
-    private val specs: List<Pair<Int, FiniteAnimationSpec<T>>>
-) : FiniteAnimationSpec<T> {
+private class CombinedSpec<T>(private val specs: List<Pair<Int, FiniteAnimationSpec<T>>>) :
+    FiniteAnimationSpec<T> {
 
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
@@ -114,9 +111,8 @@ private class VectorizedCombinedSpec<V : AnimationVector>(
 ) : VectorizedFiniteAnimationSpec<V> {
 
     private fun chooseAnimation(playTimeNanos: Long): Pair<Long, VectorizedFiniteAnimationSpec<V>> {
-        return animations.lastOrNull { (timeNanos, _) ->
-            timeNanos <= playTimeNanos
-        } ?: animations.first()
+        return animations.lastOrNull { (timeNanos, _) -> timeNanos <= playTimeNanos }
+            ?: animations.first()
     }
 
     override fun getValueFromNanos(

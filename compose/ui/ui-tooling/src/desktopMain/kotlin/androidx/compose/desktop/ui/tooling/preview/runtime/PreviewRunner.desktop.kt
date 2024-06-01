@@ -36,22 +36,23 @@ internal class PreviewRunner {
             val className = previewFqName.substringBeforeLast(".")
             val methodName = previewFqName.substringAfterLast(".")
 
-            previewComposition = @Composable {
-                // We need to delay the reflection instantiation of the class until we are in the
-                // composable to ensure all the right initialization has happened and the Composable
-                // class loads correctly.
-                androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(
-                    className,
-                    methodName,
-                    currentComposer
-                )
-            }
+            previewComposition =
+                @Composable {
+                    // We need to delay the reflection instantiation of the class until we are in
+                    // the
+                    // composable to ensure all the right initialization has happened and the
+                    // Composable
+                    // class loads correctly.
+                    androidx.compose.ui.tooling.ComposableInvoker.invokeComposable(
+                        className,
+                        methodName,
+                        currentComposer
+                    )
+                }
 
             @OptIn(DelicateCoroutinesApi::class)
             GlobalScope.launchApplication {
-                Window(onCloseRequest = ::exitApplication) {
-                    previewComposition()
-                }
+                Window(onCloseRequest = ::exitApplication) { previewComposition() }
             }
         }
     }

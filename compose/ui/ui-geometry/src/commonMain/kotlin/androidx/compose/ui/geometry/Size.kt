@@ -27,11 +27,8 @@ import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * Constructs a [Size] from the given width and height
- */
-@Stable
-fun Size(width: Float, height: Float) = Size(packFloats(width, height))
+/** Constructs a [Size] from the given width and height */
+@Stable fun Size(width: Float, height: Float) = Size(packFloats(width, height))
 
 /**
  * Holds a 2D floating-point size.
@@ -61,36 +58,25 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
             return unpackFloat2(packedValue)
         }
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component1(): Float = width
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component1(): Float = width
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component2(): Float = height
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component2(): Float = height
 
-    /**
-     * Returns a copy of this Size instance optionally overriding the
-     * width or height parameter
-     */
+    /** Returns a copy of this Size instance optionally overriding the width or height parameter */
     fun copy(width: Float = unpackFloat1(packedValue), height: Float = unpackFloat2(packedValue)) =
         Size(packFloats(width, height))
 
     companion object {
 
-        /**
-         * An empty size, one with a zero width and a zero height.
-         */
-        @Stable
-        val Zero = Size(0x0L)
+        /** An empty size, one with a zero width and a zero height. */
+        @Stable val Zero = Size(0x0L)
 
         /**
-         * A size whose [width] and [height] are unspecified. This is a sentinel
-         * value used to initialize a non-null parameter.
-         * Access to width or height on an unspecified size is not allowed.
+         * A size whose [width] and [height] are unspecified. This is a sentinel value used to
+         * initialize a non-null parameter. Access to width or height on an unspecified size is not
+         * allowed.
          */
-        @Stable
-        val Unspecified = Size(UnspecifiedPackedFloats)
+        @Stable val Unspecified = Size(UnspecifiedPackedFloats)
     }
 
     /**
@@ -119,9 +105,8 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
     /**
      * Multiplication operator.
      *
-     * Returns a [Size] whose dimensions are the dimensions of the left-hand-side
-     * operand (a [Size]) multiplied by the scalar right-hand-side operand (a
-     * [Float]).
+     * Returns a [Size] whose dimensions are the dimensions of the left-hand-side operand (a [Size])
+     * multiplied by the scalar right-hand-side operand (a [Float]).
      */
     @Stable
     operator fun times(operand: Float): Size {
@@ -129,19 +114,15 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
             throwIllegalStateException("Size is unspecified")
         }
         return Size(
-            packFloats(
-                unpackFloat1(packedValue) * operand,
-                unpackFloat2(packedValue) * operand
-            )
+            packFloats(unpackFloat1(packedValue) * operand, unpackFloat2(packedValue) * operand)
         )
     }
 
     /**
      * Division operator.
      *
-     * Returns a [Size] whose dimensions are the dimensions of the left-hand-side
-     * operand (a [Size]) divided by the scalar right-hand-side operand (a
-     * [Float]).
+     * Returns a [Size] whose dimensions are the dimensions of the left-hand-side operand (a [Size])
+     * divided by the scalar right-hand-side operand (a [Float]).
      */
     @Stable
     operator fun div(operand: Float): Size {
@@ -149,16 +130,11 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
             throwIllegalStateException("Size is unspecified")
         }
         return Size(
-            packFloats(
-                unpackFloat1(packedValue) / operand,
-                unpackFloat2(packedValue) / operand
-            )
+            packFloats(unpackFloat1(packedValue) / operand, unpackFloat2(packedValue) / operand)
         )
     }
 
-    /**
-     * The lesser of the magnitudes of the [width] and the [height].
-     */
+    /** The lesser of the magnitudes of the [width] and the [height]. */
     @Stable
     val minDimension: Float
         get() {
@@ -168,9 +144,7 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
             return min(unpackAbsFloat1(packedValue), unpackAbsFloat2(packedValue))
         }
 
-    /**
-     * The greater of the magnitudes of the [width] and the [height].
-     */
+    /** The greater of the magnitudes of the [width] and the [height]. */
     @Stable
     val maxDimension: Float
         get() {
@@ -190,47 +164,39 @@ value class Size internal constructor(@PublishedApi internal val packedValue: Lo
         }
 }
 
-/**
- * `false` when this is [Size.Unspecified].
- */
+/** `false` when this is [Size.Unspecified]. */
 @Stable
 inline val Size.isSpecified: Boolean
     get() = packedValue != 0x7fc00000_7fc00000L // NaN_NaN, see UnspecifiedPackedFloats
 
-/**
- * `true` when this is [Size.Unspecified].
- */
+/** `true` when this is [Size.Unspecified]. */
 @Stable
 inline val Size.isUnspecified: Boolean
     get() = packedValue == 0x7fc00000_7fc00000L // NaN_NaN, see UnspecifiedPackedFloats
 
 /**
- * If this [Size]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
- * and its result is returned.
+ * If this [Size]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed and its
+ * result is returned.
  */
-inline fun Size.takeOrElse(block: () -> Size): Size =
-    if (isSpecified) this else block()
+inline fun Size.takeOrElse(block: () -> Size): Size = if (isSpecified) this else block()
 
 /**
  * Linearly interpolate between two sizes
  *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid (and can
- * easily be generated by curves).
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning that the
+ * interpolation has not started, returning [start] (or something equivalent to [start]), 1.0
+ * meaning that the interpolation has finished, returning [stop] (or something equivalent to
+ * [stop]), and values in between meaning that the interpolation is at the relevant point on the
+ * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
+ * negative values and values greater than 1.0 are valid (and can easily be generated by curves).
  *
- * Values for [fraction] are usually obtained from an [Animation<Float>], such as
- * an `AnimationController`.
+ * Values for [fraction] are usually obtained from an [Animation<Float>], such as an
+ * `AnimationController`.
  */
 @Stable
 fun lerp(start: Size, stop: Size, fraction: Float): Size {
     if (
-        start.packedValue == UnspecifiedPackedFloats ||
-        stop.packedValue == UnspecifiedPackedFloats
+        start.packedValue == UnspecifiedPackedFloats || stop.packedValue == UnspecifiedPackedFloats
     ) {
         throwIllegalStateException("Offset is unspecified")
     }
@@ -242,43 +208,31 @@ fun lerp(start: Size, stop: Size, fraction: Float): Size {
     )
 }
 
-/**
- * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
- */
+/** Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this] */
 @Suppress("NOTHING_TO_INLINE")
 @Stable
 inline operator fun Int.times(size: Size) = size * this.toFloat()
 
-/**
- * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
- */
+/** Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this] */
 @Suppress("NOTHING_TO_INLINE")
 @Stable
 inline operator fun Double.times(size: Size) = size * this.toFloat()
 
-/**
- * Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this]
- */
-@Suppress("NOTHING_TO_INLINE")
-@Stable
-inline operator fun Float.times(size: Size) = size * this
+/** Returns a [Size] with [size]'s [Size.width] and [Size.height] multiplied by [this] */
+@Suppress("NOTHING_TO_INLINE") @Stable inline operator fun Float.times(size: Size) = size * this
 
-/**
- * Convert a [Size] to a [Rect].
- */
+/** Convert a [Size] to a [Rect]. */
 @Stable
 fun Size.toRect(): Rect {
     return Rect(Offset.Zero, this)
 }
 
-/**
- * Returns the [Offset] of the center of the rect from the point of [0, 0]
- * with this [Size].
- */
+/** Returns the [Offset] of the center of the rect from the point of [0, 0] with this [Size]. */
 @Stable
-val Size.center: Offset get() {
-    if (packedValue == UnspecifiedPackedFloats) {
-        throwIllegalStateException("Size is unspecified")
+val Size.center: Offset
+    get() {
+        if (packedValue == UnspecifiedPackedFloats) {
+            throwIllegalStateException("Size is unspecified")
+        }
+        return Offset(unpackFloat1(packedValue) / 2f, unpackFloat2(packedValue) / 2f)
     }
-    return Offset(unpackFloat1(packedValue) / 2f, unpackFloat2(packedValue) / 2f)
-}

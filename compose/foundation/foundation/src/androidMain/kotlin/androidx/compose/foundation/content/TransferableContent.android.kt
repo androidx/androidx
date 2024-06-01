@@ -32,10 +32,8 @@ import androidx.compose.ui.platform.toClipMetadata
  * @property extras Extras bundle that's passed by InputConnection#commitContent.
  */
 @ExperimentalFoundationApi
-actual class PlatformTransferableContent internal constructor(
-    val linkUri: Uri?,
-    val extras: Bundle
-) {
+actual class PlatformTransferableContent
+internal constructor(val linkUri: Uri?, val extras: Bundle) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PlatformTransferableContent) return false
@@ -53,9 +51,7 @@ actual class PlatformTransferableContent internal constructor(
     }
 
     override fun toString(): String {
-        return "PlatformTransferableContent(" +
-            "linkUri=$linkUri, " +
-            "extras=$extras)"
+        return "PlatformTransferableContent(" + "linkUri=$linkUri, " + "extras=$extras)"
     }
 }
 
@@ -67,8 +63,8 @@ actual class PlatformTransferableContent internal constructor(
  * @sample androidx.compose.foundation.samples.ReceiveContentBasicSample
  *
  * @param predicate Decides whether to consume or leave the given item out. Return true to indicate
- * that this particular item was processed here, it shouldn't be passed further down the content
- * receiver chain. Return false to keep it in the returned [TransferableContent].
+ *   that this particular item was processed here, it shouldn't be passed further down the content
+ *   receiver chain. Return false to keep it in the returned [TransferableContent].
  * @return Remaining parts of this [TransferableContent].
  */
 @ExperimentalFoundationApi

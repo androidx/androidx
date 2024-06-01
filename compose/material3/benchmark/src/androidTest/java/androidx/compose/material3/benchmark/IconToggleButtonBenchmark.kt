@@ -53,8 +53,7 @@ class IconToggleButtonBenchmark(private val type: IconToggleButtonType) {
         fun parameters() = IconToggleButtonType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val iconToggleButtonTestCaseFactory = { IconToggleButtonTestCase(type) }
 
@@ -88,9 +87,8 @@ class IconToggleButtonBenchmark(private val type: IconToggleButtonType) {
     }
 }
 
-internal class IconToggleButtonTestCase(
-    private val type: IconToggleButtonType
-) : LayeredComposeTestCase(), ToggleableTestCase {
+internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) :
+    LayeredComposeTestCase(), ToggleableTestCase {
 
     private var state by mutableStateOf(false)
 
@@ -99,40 +97,25 @@ internal class IconToggleButtonTestCase(
         when (type) {
             IconToggleButtonType.IconToggleButton ->
                 IconToggleButton(checked = state, onCheckedChange = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
-
             IconToggleButtonType.FilledIconToggleButton ->
-                FilledIconToggleButton(
-                    checked = state,
-                    onCheckedChange = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                FilledIconToggleButton(checked = state, onCheckedChange = { /* Do something! */ }) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
-
             IconToggleButtonType.FilledTonalIconToggleButton ->
                 FilledTonalIconToggleButton(
                     checked = state,
-                    onCheckedChange = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    onCheckedChange = { /* Do something! */ }
+                ) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
-
             IconToggleButtonType.OutlinedIconToggleButton ->
                 OutlinedIconToggleButton(
                     checked = state,
-                    onCheckedChange = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    onCheckedChange = { /* Do something! */ }
+                ) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
         }
     }
@@ -143,12 +126,13 @@ internal class IconToggleButtonTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class IconToggleButtonType {
-    IconToggleButton, FilledIconToggleButton, FilledTonalIconToggleButton, OutlinedIconToggleButton
+    IconToggleButton,
+    FilledIconToggleButton,
+    FilledTonalIconToggleButton,
+    OutlinedIconToggleButton
 }

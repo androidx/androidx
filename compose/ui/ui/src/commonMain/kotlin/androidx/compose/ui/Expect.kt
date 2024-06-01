@@ -35,6 +35,4 @@ internal expect fun classKeyForObject(a: Any): Any
  */
 // TODO: For non-JVM platforms, you can revive the kotlin-reflect implementation from
 //  https://android-review.googlesource.com/c/platform/frameworks/support/+/2441379
-internal expect fun InspectorInfo.tryPopulateReflectively(
-    element: ModifierNodeElement<*>
-)
+internal expect fun InspectorInfo.tryPopulateReflectively(element: ModifierNodeElement<*>)

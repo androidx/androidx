@@ -35,25 +35,19 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * The benchmark for [Text] composable with the input being a plain string.
- */
+/** The benchmark for [Text] composable with the input being a plain string. */
 @LargeTest
 @RunWith(Parameterized::class)
-class TextBasicBenchmark(
-    private val textLength: Int
-) {
+class TextBasicBenchmark(private val textLength: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0}")
         fun initParameters(): Array<Any> = arrayOf(32, 512).filterForCi()
     }
 
-    @get:Rule
-    val textBenchmarkRule = TextBenchmarkTestRule()
+    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule()
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
@@ -63,23 +57,18 @@ class TextBasicBenchmark(
             /**
              * Text render has a word cache in the underlying system. To get a proper metric of its
              * performance, the cache needs to be disabled, which unfortunately is not doable via
-             * public API. Here is a workaround which generates a new string when a new test case
-             * is created.
+             * public API. Here is a workaround which generates a new string when a new test case is
+             * created.
              */
-            val texts = List(textBenchmarkRule.repeatTimes) {
-                textGenerator.nextParagraph(textLength)
-            }
-            TextInColumnTestCase(
-                texts = texts,
-                width = width,
-                fontSize = fontSize
-            )
+            val texts =
+                List(textBenchmarkRule.repeatTimes) { textGenerator.nextParagraph(textLength) }
+            TextInColumnTestCase(texts = texts, width = width, fontSize = fontSize)
         }
     }
 
     /**
-     * Measure the time taken to compose a [Text] composable from scratch with the given input.
-     * This is the time taken to call the [Text] composable function.
+     * Measure the time taken to compose a [Text] composable from scratch with the given input. This
+     * is the time taken to call the [Text] composable function.
      */
     @Test
     fun first_compose() {
@@ -104,9 +93,7 @@ class TextBasicBenchmark(
         benchmarkRule.benchmarkFirstLayout(caseFactory)
     }
 
-    /**
-     * Measure the time taken by first time draw the [Text] composable with the given input.
-     */
+    /** Measure the time taken by first time draw the [Text] composable with the given input. */
     @Test
     fun first_draw() {
         benchmarkRule.benchmarkFirstDraw(caseFactory)
@@ -121,33 +108,25 @@ class TextBasicBenchmark(
         benchmarkRule.benchmarkLayoutPerf(caseFactory)
     }
 
-    /**
-     * Measure the time taken to recompose the [Text] composable when color gets toggled.
-     */
+    /** Measure the time taken to recompose the [Text] composable when color gets toggled. */
     @Test
     fun toggleColor_recompose() {
         benchmarkRule.toggleStateBenchmarkRecompose(caseFactory)
     }
 
-    /**
-     * Measure the time taken to measure the [Text] composable when color gets toggled.
-     */
+    /** Measure the time taken to measure the [Text] composable when color gets toggled. */
     @Test
     fun toggleColor_measure() {
         benchmarkRule.toggleStateBenchmarkMeasure(caseFactory)
     }
 
-    /**
-     * Measure the time taken to layout the [Text] composable when color gets toggled.
-     */
+    /** Measure the time taken to layout the [Text] composable when color gets toggled. */
     @Test
     fun toggleColor_layout() {
         benchmarkRule.toggleStateBenchmarkLayout(caseFactory)
     }
 
-    /**
-     * Measure the time taken to draw the [Text] composable when color gets toggled.
-     */
+    /** Measure the time taken to draw the [Text] composable when color gets toggled. */
     @Test
     fun toggleColor_draw() {
         benchmarkRule.toggleStateBenchmarkDraw(caseFactory)

@@ -19,18 +19,17 @@ package androidx.compose.foundation.gestures.snapping
 import androidx.compose.runtime.Stable
 
 /**
- * Describes the snapping positioning (i.e. final positioning after snapping animation finishes)
- * of a given snap item in its containing layout.
+ * Describes the snapping positioning (i.e. final positioning after snapping animation finishes) of
+ * a given snap item in its containing layout.
  */
 @Stable
 interface SnapPosition {
     /**
-     * Calculates the snap position where items will be aligned to in a snapping
-     * container. For instance, if [SnapPosition.Center] is used, once the snapping finishes
-     * the center of one of the items in the snapping container will be aligned exactly to the
-     * center of the snapping container, that is because the value returned by [position] was
-     * calculated as such a way that when one applies it to the item's current offset
-     * it will generate that final positioning.
+     * Calculates the snap position where items will be aligned to in a snapping container. For
+     * instance, if [SnapPosition.Center] is used, once the snapping finishes the center of one of
+     * the items in the snapping container will be aligned exactly to the center of the snapping
+     * container, that is because the value returned by [position] was calculated as such a way that
+     * when one applies it to the item's current offset it will generate that final positioning.
      *
      * The reference point is with respect to the start of the layout (including the content
      * padding)
@@ -38,17 +37,14 @@ interface SnapPosition {
      * @sample androidx.compose.foundation.samples.SnapFlingBehaviorSnapPosition
      *
      * @param layoutSize The main axis layout size within which an item can be positioned.
-     * @param itemSize The main axis size for the item being positioned within this snapping
-     * layout.
+     * @param itemSize The main axis size for the item being positioned within this snapping layout.
      * @param beforeContentPadding The content padding in pixels applied before this Layout's
-     * content.
-     * @param afterContentPadding The content padding in pixels applied after this Layout's
-     * content.
+     *   content.
+     * @param afterContentPadding The content padding in pixels applied after this Layout's content.
      * @param itemIndex The index of the item being positioned.
      * @param itemCount The total amount of items in the snapping container.
-     *
      * @return The offset of the snap position where items will be aligned to in a snapping
-     * container.
+     *   container.
      */
     fun position(
         layoutSize: Int,
@@ -59,9 +55,7 @@ interface SnapPosition {
         itemCount: Int
     ): Int
 
-    /**
-     * Aligns the center of the item with the center of the containing layout.
-     */
+    /** Aligns the center of the item with the center of the containing layout. */
     object Center : SnapPosition {
         override fun position(
             layoutSize: Int,
@@ -82,9 +76,7 @@ interface SnapPosition {
         }
     }
 
-    /**
-     * Aligns the start of the item with the start of the containing layout.
-     */
+    /** Aligns the start of the item with the start of the containing layout. */
     object Start : SnapPosition {
         override fun position(
             layoutSize: Int,
@@ -100,9 +92,7 @@ interface SnapPosition {
         }
     }
 
-    /**
-     * Aligns the end of the item with the end of the containing layout.
-     */
+    /** Aligns the end of the item with the end of the containing layout. */
     object End : SnapPosition {
         override fun position(
             layoutSize: Int,
@@ -134,16 +124,18 @@ internal fun calculateDistanceToDesiredSnapPosition(
     snapPosition: SnapPosition,
     itemCount: Int
 ): Float {
-    val desiredDistance = with(snapPosition) {
-        position(
-            mainAxisViewPortSize,
-            itemSize,
-            beforeContentPadding,
-            afterContentPadding,
-            itemIndex,
-            itemCount
-        )
-    }.toFloat()
+    val desiredDistance =
+        with(snapPosition) {
+                position(
+                    mainAxisViewPortSize,
+                    itemSize,
+                    beforeContentPadding,
+                    afterContentPadding,
+                    itemIndex,
+                    itemCount
+                )
+            }
+            .toFloat()
 
     return itemOffset - desiredDistance
 }

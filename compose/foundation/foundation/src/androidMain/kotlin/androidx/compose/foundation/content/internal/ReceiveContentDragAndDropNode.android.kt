@@ -35,33 +35,34 @@ internal actual fun ReceiveContentDragAndDropNode(
             // accept any dragging item. The actual decider will be the onReceive callback.
             true
         },
-        target = object : DragAndDropTarget {
-            override fun onStarted(event: DragAndDropEvent) {
-                receiveContentConfiguration.receiveContentListener.onDragStart()
-            }
+        target =
+            object : DragAndDropTarget {
+                override fun onStarted(event: DragAndDropEvent) {
+                    receiveContentConfiguration.receiveContentListener.onDragStart()
+                }
 
-            override fun onEnded(event: DragAndDropEvent) {
-                receiveContentConfiguration.receiveContentListener.onDragEnd()
-            }
+                override fun onEnded(event: DragAndDropEvent) {
+                    receiveContentConfiguration.receiveContentListener.onDragEnd()
+                }
 
-            override fun onEntered(event: DragAndDropEvent) {
-                receiveContentConfiguration.receiveContentListener.onDragEnter()
-            }
+                override fun onEntered(event: DragAndDropEvent) {
+                    receiveContentConfiguration.receiveContentListener.onDragEnter()
+                }
 
-            override fun onExited(event: DragAndDropEvent) {
-                receiveContentConfiguration.receiveContentListener.onDragExit()
-            }
+                override fun onExited(event: DragAndDropEvent) {
+                    receiveContentConfiguration.receiveContentListener.onDragExit()
+                }
 
-            override fun onDrop(event: DragAndDropEvent): Boolean {
-                dragAndDropRequestPermission(event)
+                override fun onDrop(event: DragAndDropEvent): Boolean {
+                    dragAndDropRequestPermission(event)
 
-                val original = event.toTransferableContent()
-                val remaining = receiveContentConfiguration
-                    .receiveContentListener
-                    .onReceive(original)
-                return original != remaining
+                    val original = event.toTransferableContent()
+                    val remaining =
+                        receiveContentConfiguration.receiveContentListener.onReceive(original)
+                    return original != remaining
+                }
             }
-        })
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

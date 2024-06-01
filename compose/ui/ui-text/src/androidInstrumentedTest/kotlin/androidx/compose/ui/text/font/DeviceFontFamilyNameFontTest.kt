@@ -70,8 +70,10 @@ class DeviceFontFamilyNameFontTest {
     @Test
     fun cursive_resolvesNonNull() {
         // this family name is defined in aosp fonts.xml, and is generally available
-        assumeTrue(Typeface.create("cursive", Typeface.NORMAL)
-            != Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+        assumeTrue(
+            Typeface.create("cursive", Typeface.NORMAL) !=
+                Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        )
         val name = DeviceFontFamilyName("cursive")
         val font = Font(name) as AndroidFont
         val actual = font.typefaceLoader.loadBlocking(context, font)
@@ -81,8 +83,10 @@ class DeviceFontFamilyNameFontTest {
     @Test
     fun cursive_resolvesNonNull_allWeightAllStyles() {
         // this family name is defined in aosp fonts.xml, and is generally available
-        assumeTrue(Typeface.create("cursive", Typeface.NORMAL)
-            != Typeface.create(Typeface.DEFAULT, Typeface.NORMAL))
+        assumeTrue(
+            Typeface.create("cursive", Typeface.NORMAL) !=
+                Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        )
         val name = DeviceFontFamilyName("cursive")
         for (style in listOf(FontStyle.Italic, FontStyle.Normal)) {
             for (weight in 100..1000) {
@@ -94,12 +98,15 @@ class DeviceFontFamilyNameFontTest {
     }
 
     private fun fontNameNotInstalledOnSystem(): String {
-        var fontName = "This is a font name that is not installed, like actually, and we will " +
-            "append random characters until it fails to lookup"
+        var fontName =
+            "This is a font name that is not installed, like actually, and we will " +
+                "append random characters until it fails to lookup"
         var index = 0
         // check that it's actually not installed, and append nonsense until wo confirm it misses
-        while (Typeface.create(fontName, Typeface.NORMAL)
-            != Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)) {
+        while (
+            Typeface.create(fontName, Typeface.NORMAL) !=
+                Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        ) {
             fontName += index++.toString()
         }
         return fontName

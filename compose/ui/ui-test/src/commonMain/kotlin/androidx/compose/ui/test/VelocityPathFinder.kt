@@ -46,9 +46,7 @@ internal abstract class VelocityPathFinder {
          * requirements, and [IllegalArgumentException] is thrown.
          */
         fun calculateDefaultDuration(start: Offset, end: Offset, endVelocity: Float): Long {
-            require(endVelocity >= 0f) {
-                "Velocity cannot be $endVelocity, it must be positive"
-            }
+            require(endVelocity >= 0f) { "Velocity cannot be $endVelocity, it must be positive" }
             require(start != end || endVelocity == 0f) {
                 "When start == end; velocity cannot be $endVelocity, it must be 0f"
             }
@@ -145,9 +143,7 @@ internal class ImpulseVelocityPathFinder(
         val T = durationMillis
 
         if (start == end) {
-            require(abs(velocity) < 0.1) {
-                "Can't have matching positions, but nonzero velocity"
-            }
+            require(abs(velocity) < 0.1) { "Can't have matching positions, but nonzero velocity" }
             return start
         }
 
@@ -169,9 +165,7 @@ internal class ImpulseVelocityPathFinder(
                 time == 0L -> start
                 time < (T - HorizonMilliseconds) ->
                     start + (positionAtHorizonStart - start) / (T - HorizonMilliseconds) * time
-
-                else ->
-                    end - (T - time) * velocity.toFloat()
+                else -> end - (T - time) * velocity.toFloat()
             }
         }
 
@@ -191,10 +185,10 @@ internal class ImpulseVelocityPathFinder(
                 return when {
                     time < T - HorizonMilliseconds ->
                         start + (xHorizon - start) / (T - HorizonMilliseconds) * time
-
                     else ->
-                        xHorizon + (end - xHorizon) / (HorizonMilliseconds) *
-                            (time - (T - HorizonMilliseconds))
+                        xHorizon +
+                            (end - xHorizon) / (HorizonMilliseconds) *
+                                (time - (T - HorizonMilliseconds))
                 }
             }
             // Move the 'start' coordinate to a time of 'T-HorizonMilliseconds'. Therefore, we will
@@ -207,7 +201,11 @@ internal class ImpulseVelocityPathFinder(
                     time < T - HorizonMilliseconds -> start
                     else ->
                         computePosition(
-                            start, end, HorizonMilliseconds, d, x,
+                            start,
+                            end,
+                            HorizonMilliseconds,
+                            d,
+                            x,
                             time - (T - HorizonMilliseconds)
                         )
                 }
@@ -222,33 +220,40 @@ internal class ImpulseVelocityPathFinder(
     }
 
     /**
-     * Compute the position at time t when the path is piecewise defined as 2 lines:
-     * one from (0, start) -> (d, x)
-     * and another from (d, x) -> (T, end)
+     * Compute the position at time t when the path is piecewise defined as 2 lines: one from (0,
+     * start) -> (d, x) and another from (d, x) -> (T, end)
+     *
      * @param start Position where the curve starts.
      * @param end Position where the curve ends.
      * @param T Time at end position.
      * @param d Time at the end of the first piecewise line (and start of the second line).
      * @param x Position at the end of the first piecewise line (and start of the second line).
      * @param t The time in which we're interested to calculate this position at, given a time based
-     * curve, one of the point in this curve.
+     *   curve, one of the point in this curve.
      */
-    private fun computePosition(start: Float, end: Float, T: Long, d: Long, x: Float, t: Long):
-        Float {
-        require(t in 0L..T) {
-            "You must provide 0 <= t <= $T, but received t=$t instead"
-        }
+    private fun computePosition(
+        start: Float,
+        end: Float,
+        T: Long,
+        d: Long,
+        x: Float,
+        t: Long
+    ): Float {
+        require(t in 0L..T) { "You must provide 0 <= t <= $T, but received t=$t instead" }
         if (t < d) {
             return start + (x - start) / d * t
         }
         return end - (end - x) / (T - d) * (T - t)
     }
 
-    /**
-     * Inject a 2-line path into VelocityTracker and find the resulting velocity.
-     */
-    private fun calculateVelocityFullPath(start: Float, end: Float, T: Long, d: Long, x: Float):
-        Float {
+    /** Inject a 2-line path into VelocityTracker and find the resulting velocity. */
+    private fun calculateVelocityFullPath(
+        start: Float,
+        end: Float,
+        T: Long,
+        d: Long,
+        x: Float
+    ): Float {
         val vt = VelocityTracker()
 
         vt.addPosition(0, Offset(start, 0f))
@@ -269,8 +274,12 @@ internal class ImpulseVelocityPathFinder(
      * Numerically find a path that best provides a motion that results in the velocity of
      * targetVelocity.
      */
-    private fun searchPath(start: Float, end: Float, T: Long, targetVelocity: Float):
-        FittingResult? {
+    private fun searchPath(
+        start: Float,
+        end: Float,
+        T: Long,
+        targetVelocity: Float
+    ): FittingResult? {
         val TOLERANCE = 1f
         val step = (max(end, start) - min(end, start)) / 1000f
         for (d in 1 until T) {
@@ -319,30 +328,24 @@ internal class LsqVelocityPathFinder(
     }
 
     /**
-     * Generates a function f(t) where `f(0) = start`, `f(T) = end`, and the polynomial fit over
-     * the last 100ms is of the form `f(t) = a*(t-T)^2 + b*(t-T) + c`, with
-     * `start = [startPosition]`, `end = [endPosition])`,
-     * `b = [velocity]` and `T = [durationMillis]`. Note that this implies `f'(T) = [velocity]`.
+     * Generates a function f(t) where `f(0) = start`, `f(T) = end`, and the polynomial fit over the
+     * last 100ms is of the form `f(t) = a*(t-T)^2 + b*(t-T) + c`, with `start = [startPosition]`,
+     * `end = [endPosition])`, `b = [velocity]` and `T = [durationMillis]`. Note that this implies
+     * `f'(T) = [velocity]`.
      *
      * There are three different shapes that the function can take: a flat line, a flat line
-     * followed by a parabola that starts with `f'(t) = 0`, or a parabola that starts with
-     * `f'(0) > 0`.
-     *
-     * 1. Flat line:
-     * This happens when start == end and requires that the requested velocity is 0.
-     *
-     * 2. Flat line followed by a parabola:
-     * This happens when there is a parabola that satisfies `f(t_d) = start`, `f'(t_d) = 0`,
-     * `f'(T) = velocity` and `t_d >= 0`. The gesture will wait at the start location until t_d
-     * and then follow that parabola till `f(T) = end`.
-     *
-     * 3. Parabola that starts with `f'(0) > 0`:
-     * If there is a parabola that satisfies `f(t_d) = start`, `f'(t_d) = 0`, `f'(T) = velocity`,
-     * but `t_d < 0`; or if `velocity = 0` (in which case the previously mentioned parabola
-     * doesn't exist); we can't follow that parabola because we'd have to start following it in
-     * the past (`t_d < 0`). Instead, it can be shown that in this case we can always create a
-     * parabola that satisfies `f(0) = start`, `f(T) = end` and `f'(T) = velocity`. This parabola
-     * will have `f'(0) > 0`.
+     * followed by a parabola that starts with `f'(t) = 0`, or a parabola that starts with `f'(0) >
+     * 0`.
+     * 1. Flat line: This happens when start == end and requires that the requested velocity is 0.
+     * 2. Flat line followed by a parabola: This happens when there is a parabola that satisfies
+     *    `f(t_d) = start`, `f'(t_d) = 0`, `f'(T) = velocity` and `t_d >= 0`. The gesture will wait
+     *    at the start location until t_d and then follow that parabola till `f(T) = end`.
+     * 3. Parabola that starts with `f'(0) > 0`: If there is a parabola that satisfies `f(t_d) =
+     *    start`, `f'(t_d) = 0`, `f'(T) = velocity`, but `t_d < 0`; or if `velocity = 0` (in which
+     *    case the previously mentioned parabola doesn't exist); we can't follow that parabola
+     *    because we'd have to start following it in the past (`t_d < 0`). Instead, it can be shown
+     *    that in this case we can always create a parabola that satisfies `f(0) = start`, `f(T) =
+     *    end` and `f'(T) = velocity`. This parabola will have `f'(0) > 0`.
      *
      * In the calculations below, instead of calculating t_d, we calculate `d = T - t_d`, and
      * immediately cap it to T.
@@ -358,11 +361,12 @@ internal class LsqVelocityPathFinder(
         val T = durationMillis
         // `d = T - t_d` in scenario 2 (see documentation above)
         // `d = T` in scenario 1 and 3 (see documentation above)
-        val d = if (start == end) {
-            T.toDouble()
-        } else {
-            min(T.toDouble(), 2 / velocity * (end - start))
-        }
+        val d =
+            if (start == end) {
+                T.toDouble()
+            } else {
+                min(T.toDouble(), 2 / velocity * (end - start))
+            }
         val a = (start + velocity * d - end) / (d * d)
 
         require(d >= min(T, HorizonMilliseconds)) {

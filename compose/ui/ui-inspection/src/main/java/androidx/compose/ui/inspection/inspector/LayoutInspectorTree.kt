@@ -63,27 +63,24 @@ import kotlin.math.roundToInt
  *
  * The interval -10000..-2 is reserved for the generated ids.
  */
-@VisibleForTesting
-const val RESERVED_FOR_GENERATED_IDS = -10000L
+@VisibleForTesting const val RESERVED_FOR_GENERATED_IDS = -10000L
 const val PLACEHOLDER_ID = Long.MAX_VALUE
 
 private val emptySize = IntSize(0, 0)
 
-private val unwantedCalls = setOf(
-    "CompositionLocalProvider",
-    "Content",
-    "Inspectable",
-    "ProvideAndroidCompositionLocals",
-    "ProvideCommonCompositionLocals",
-)
+private val unwantedCalls =
+    setOf(
+        "CompositionLocalProvider",
+        "Content",
+        "Inspectable",
+        "ProvideAndroidCompositionLocals",
+        "ProvideCommonCompositionLocals",
+    )
 
-/**
- * Generator of a tree for the Layout Inspector.
- */
+/** Generator of a tree for the Layout Inspector. */
 @OptIn(UiToolingDataApi::class)
 class LayoutInspectorTree {
-    @Suppress("MemberVisibilityCanBePrivate")
-    var hideSystemNodes = true
+    @Suppress("MemberVisibilityCanBePrivate") var hideSystemNodes = true
     var includeNodesOutsizeOfWindow = true
     var includeAllParameters = true
     private var foundNode: InspectorNode? = null
@@ -109,16 +106,14 @@ class LayoutInspectorTree {
     private val contextCache = ContextCache()
     private val anchorMap = AnchorMap()
 
-    /**
-     * Converts the [CompositionData] set held by [view] into a list of root nodes.
-     */
+    /** Converts the [CompositionData] set held by [view] into a list of root nodes. */
     fun convert(view: View): List<InspectorNode> {
         windowSize = IntSize(view.width, view.height)
         parameterFactory.density = Density(view.context)
         @Suppress("UNCHECKED_CAST")
-        val tables = view.getTag(R.id.inspection_slot_table_set) as?
-            Set<CompositionData>
-            ?: return emptyList()
+        val tables =
+            view.getTag(R.id.inspection_slot_table_set) as? Set<CompositionData>
+                ?: return emptyList()
         clear()
         collectSemantics(view)
         val result = convert(tables, view)
@@ -132,9 +127,8 @@ class LayoutInspectorTree {
         val identity = anchorMap[anchorId] ?: return null
 
         @Suppress("UNCHECKED_CAST")
-        val tables = view.getTag(R.id.inspection_slot_table_set) as?
-            Set<CompositionData>
-            ?: return null
+        val tables =
+            view.getTag(R.id.inspection_slot_table_set) as? Set<CompositionData> ?: return null
         val node = newNode().apply { this.anchorId = anchorId }
         val group = tables.firstNotNullOfOrNull { it.find(identity) } ?: return null
         group.findParameters(contextCache).forEach {
@@ -153,8 +147,8 @@ class LayoutInspectorTree {
         subCompositions.addRoot(view, nodes)
 
     /**
-     * Extract the merged semantics for this semantics owner such that they can be added
-     * to compose nodes during the conversion of Group nodes.
+     * Extract the merged semantics for this semantics owner such that they can be added to compose
+     * nodes during the conversion of Group nodes.
      */
     private fun collectSemantics(view: View) {
         val root = view as? RootForTest ?: return
@@ -168,9 +162,7 @@ class LayoutInspectorTree {
         }
     }
 
-    /**
-     * Converts the [RawParameter]s of the [node] into displayable parameters.
-     */
+    /** Converts the [RawParameter]s of the [node] into displayable parameters. */
     fun convertParameters(
         rootId: Long,
         node: InspectorNode,
@@ -195,9 +187,9 @@ class LayoutInspectorTree {
     }
 
     /**
-     * Converts a part of the [RawParameter] identified by [reference] into a
-     * displayable parameter. If the parameter is some sort of a collection
-     * then [startIndex] and [maxElements] describes the scope of the data returned.
+     * Converts a part of the [RawParameter] identified by [reference] into a displayable parameter.
+     * If the parameter is some sort of a collection then [startIndex] and [maxElements] describes
+     * the scope of the data returned.
      */
     fun expandParameter(
         rootId: Long,
@@ -227,9 +219,7 @@ class LayoutInspectorTree {
         )
     }
 
-    /**
-     * Reset any state accumulated between windows.
-     */
+    /** Reset any state accumulated between windows. */
     @Suppress("unused")
     fun resetAccumulativeState() {
         subCompositions.resetAccumulativeState()
@@ -263,9 +253,9 @@ class LayoutInspectorTree {
     /**
      * Stitch separate trees together using the [LayoutInfo]s found in the [CompositionData]s.
      *
-     * Some constructs in Compose (e.g. ModalDrawer) will result is multiple
-     * [CompositionData]s. This code will attempt to stitch the resulting [InspectorNode] trees
-     * together by looking at the parent of each [LayoutInfo].
+     * Some constructs in Compose (e.g. ModalDrawer) will result is multiple [CompositionData]s.
+     * This code will attempt to stitch the resulting [InspectorNode] trees together by looking at
+     * the parent of each [LayoutInfo].
      *
      * If this algorithm is successful the result of this function will be a list with a single
      * tree.
@@ -275,10 +265,12 @@ class LayoutInspectorTree {
         trees.forEach { tree -> tree.layoutNodes.forEach { layoutToTreeMap[it] = tree } }
         trees.forEach { tree ->
             val layout = tree.layoutNodes.lastOrNull()
-            val parentLayout = generateSequence(layout) { it.parentInfo }.firstOrNull {
-                val otherTree = layoutToTreeMap[it]
-                otherTree != null && otherTree != tree
-            }
+            val parentLayout =
+                generateSequence(layout) { it.parentInfo }
+                    .firstOrNull {
+                        val otherTree = layoutToTreeMap[it]
+                        otherTree != null && otherTree != tree
+                    }
             if (parentLayout != null) {
                 val ownerNode = claimedNodes[parentLayout]
                 val ownerTree = layoutToTreeMap[parentLayout]
@@ -300,13 +292,15 @@ class LayoutInspectorTree {
     }
 
     /**
-     * Return a parent tree where the children trees (to be stitched under the parent) are not
-     * a parent themselves. Do this to avoid rebuilding the same tree more than once.
+     * Return a parent tree where the children trees (to be stitched under the parent) are not a
+     * parent themselves. Do this to avoid rebuilding the same tree more than once.
      */
     private fun findDeepParentTree(): MutableInspectorNode? =
-        treeMap.entries.asSequence()
+        treeMap.entries
+            .asSequence()
             .filter { (_, children) -> children.none { treeMap.containsKey(it) } }
-            .firstOrNull()?.key
+            .firstOrNull()
+            ?.key
 
     private fun addSubTrees(tree: MutableInspectorNode) {
         for ((index, child) in tree.children.withIndex()) {
@@ -315,9 +309,9 @@ class LayoutInspectorTree {
     }
 
     /**
-     * Rebuild [node] with any possible sub trees added (stitched in).
-     * Return the rebuild node, or null if no changes were found in this node or its children.
-     * Lazily allocate the new node to avoid unnecessary allocations.
+     * Rebuild [node] with any possible sub trees added (stitched in). Return the rebuild node, or
+     * null if no changes were found in this node or its children. Lazily allocate the new node to
+     * avoid unnecessary allocations.
      */
     private fun addSubTrees(node: InspectorNode): InspectorNode? {
         var newNode: MutableInspectorNode? = null
@@ -342,8 +336,8 @@ class LayoutInspectorTree {
     }
 
     /**
-     * Add [tree] to the end of the [out] list.
-     * The root nodes of [tree] may be a fake node that hold a list of [LayoutInfo].
+     * Add [tree] to the end of the [out] list. The root nodes of [tree] may be a fake node that
+     * hold a list of [LayoutInfo].
      */
     private fun addTree(
         out: MutableList<InspectorNode>,
@@ -378,9 +372,9 @@ class LayoutInspectorTree {
     }
 
     /**
-     * Adds the nodes in [input] to the children of [parentNode].
-     * Nodes without a reference to a wanted Composable are skipped unless [buildFakeChildNodes].
-     * A single skipped render id and layoutNode will be added to [parentNode].
+     * Adds the nodes in [input] to the children of [parentNode]. Nodes without a reference to a
+     * wanted Composable are skipped unless [buildFakeChildNodes]. A single skipped render id and
+     * layoutNode will be added to [parentNode].
      */
     private fun addToParent(
         parentNode: MutableInspectorNode,
@@ -394,14 +388,13 @@ class LayoutInspectorTree {
         // and the desired node that the View should be associated with in the inspector. If
         // there's more than one input node with a View ID, we skip this step since it's
         // unclear how these views would be related.
-        input.singleOrNull { it.viewId != UNDEFINED_ID }
+        input
+            .singleOrNull { it.viewId != UNDEFINED_ID }
             ?.takeIf { node ->
                 // Take if the node has been marked as unwanted
                 node.id == UNDEFINED_ID
             }
-            ?.let { nodeWithView ->
-                parentNode.viewId = nodeWithView.viewId
-            }
+            ?.let { nodeWithView -> parentNode.viewId = nodeWithView.viewId }
 
         var id: Long? = null
         input.forEach { node ->
@@ -453,9 +446,7 @@ class LayoutInspectorTree {
         // will be the view itself, but we want to use the `AndroidViewHolder` that hosts the view
         // instead of the view directly.
         (group.node as? InteroperableComposeUiNode?)?.getInteropView()?.let { interopView ->
-            (interopView.parent as? View)?.uniqueDrawingId?.let { viewId ->
-                node.viewId = viewId
-            }
+            (interopView.parent as? View)?.uniqueDrawingId?.let { viewId -> node.viewId = viewId }
         }
 
         val layoutInfo = group.node as? LayoutInfo
@@ -514,17 +505,27 @@ class LayoutInspectorTree {
                 toIntOffset(coordinates.localToWindow(Offset(size.width, size.height)))
             val bottomLeft = toIntOffset(coordinates.localToWindow(Offset(0f, size.height)))
 
-            if (topLeft.x != box.left || topLeft.y != box.top ||
-                topRight.x != box.right || topRight.y != box.top ||
-                bottomRight.x != box.right || bottomRight.y != box.bottom ||
-                bottomLeft.x != box.left || bottomLeft.y != box.bottom
+            if (
+                topLeft.x != box.left ||
+                    topLeft.y != box.top ||
+                    topRight.x != box.right ||
+                    topRight.y != box.top ||
+                    bottomRight.x != box.right ||
+                    bottomRight.y != box.bottom ||
+                    bottomLeft.x != box.left ||
+                    bottomLeft.y != box.bottom
             ) {
-                bounds = QuadBounds(
-                    topLeft.x, topLeft.y,
-                    topRight.x, topRight.y,
-                    bottomRight.x, bottomRight.y,
-                    bottomLeft.x, bottomLeft.y,
-                )
+                bounds =
+                    QuadBounds(
+                        topLeft.x,
+                        topLeft.y,
+                        topRight.x,
+                        topRight.y,
+                        bottomRight.x,
+                        bottomRight.y,
+                        bottomLeft.x,
+                        bottomLeft.y,
+                    )
             }
         }
         if (!includeNodesOutsizeOfWindow) {
@@ -550,11 +551,13 @@ class LayoutInspectorTree {
             node.mergedSemantics.addAll(mergedSemantics)
         }
 
-        node.id = modifierInfo.asSequence()
-            .map { it.extra }
-            .filterIsInstance<GraphicLayerInfo>()
-            .map { it.layerId }
-            .firstOrNull() ?: UNDEFINED_ID
+        node.id =
+            modifierInfo
+                .asSequence()
+                .map { it.extra }
+                .filterIsInstance<GraphicLayerInfo>()
+                .map { it.layerId }
+                .firstOrNull() ?: UNDEFINED_ID
 
         return node
     }
@@ -570,9 +573,9 @@ class LayoutInspectorTree {
     /**
      * Returns true if the [layoutNodes] belong under the specified [view].
      *
-     * For: popups & Dialogs we may encounter parts of a compose tree that belong under
-     * a different sub-composition. Consider these nodes to "belong" to the current sub-composition
-     * under [view] if the ownerViews contains [view] or doesn't contain any owner views at all.
+     * For: popups & Dialogs we may encounter parts of a compose tree that belong under a different
+     * sub-composition. Consider these nodes to "belong" to the current sub-composition under [view]
+     * if the ownerViews contains [view] or doesn't contain any owner views at all.
      */
     private fun belongsToView(layoutNodes: List<LayoutInfo>, view: View): Boolean {
         val ownerViewIds = ownerViews(layoutNodes)
@@ -605,8 +608,7 @@ class LayoutInspectorTree {
         return inlineClassConverter.castParameterValue(parameter.inlineClass, value)
     }
 
-    private fun isPrimitive(cls: Class<*>): Boolean =
-        cls.kotlin.javaPrimitiveType != null
+    private fun isPrimitive(cls: Class<*>): Boolean = cls.kotlin.javaPrimitiveType != null
 
     private fun toIntOffset(offset: Offset): IntOffset =
         IntOffset(offset.x.roundToInt(), offset.y.roundToInt())
@@ -619,10 +621,8 @@ class LayoutInspectorTree {
         when (node.name) {
             "rememberCompositionContext" ->
                 subCompositions.rememberCompositionContext(node, context)
-            "remember" ->
-                subCompositions.remember(node, group)
-            else ->
-                node.apply { markUnwanted() }
+            "remember" -> subCompositions.remember(node, group)
+            else -> node.apply { markUnwanted() }
         }
 
     private fun parseCallLocation(node: MutableInspectorNode, location: SourceLocation?) {
@@ -638,9 +638,7 @@ class LayoutInspectorTree {
         node.packageHash in systemPackages && hideSystemNodes
 
     private fun unwantedName(name: String): Boolean =
-        name.isEmpty() ||
-            name.startsWith("remember") ||
-            name in unwantedCalls
+        name.isEmpty() || name.startsWith("remember") || name in unwantedCalls
 
     private fun unwantedOutsideWindow(
         node: MutableInspectorNode,
@@ -649,8 +647,9 @@ class LayoutInspectorTree {
         if (includeNodesOutsizeOfWindow) {
             return false
         }
-        node.outerBox = if (children.isEmpty()) outsideBox else
-            children.map { g -> g.outerBox }.reduce { acc, box -> box.union(acc) }
+        node.outerBox =
+            if (children.isEmpty()) outsideBox
+            else children.map { g -> g.outerBox }.reduce { acc, box -> box.union(acc) }
         return !node.outerBox.inWindow()
     }
 
@@ -675,19 +674,17 @@ class LayoutInspectorTree {
      * Keep track of sub-composition roots.
      *
      * Examples:
-     * - Popup, Dialog: When one of these is open an extra Android Window is created with
-     *   its own AndroidComposeView. The contents of the Composable is a sub-composition that
-     *   will be computed by calling convert.
+     * - Popup, Dialog: When one of these is open an extra Android Window is created with its own
+     *   AndroidComposeView. The contents of the Composable is a sub-composition that will be
+     *   computed by calling convert.
      *
-     *   The Popup/Dialog composable itself, and a few helping composables (the root) will
-     *   not be included in the SlotTree with the contents, instead these composables
-     *   will be found in the SlotTree for the main app and they all have empty sizes.
-     *   The aim is to collect these sub-composition roots such that they can be added to
-     *   the [InspectorNode]s of the contents.
-     *
-     * - AndroidView: When this is used in a compose app we will see a similar pattern in
-     *   the SlotTree except there isn't a sub-composition to stitch in. But we need to
-     *   collect the view id separately from the "AndroidView" node itself.
+     *   The Popup/Dialog composable itself, and a few helping composables (the root) will not be
+     *   included in the SlotTree with the contents, instead these composables will be found in the
+     *   SlotTree for the main app and they all have empty sizes. The aim is to collect these
+     *   sub-composition roots such that they can be added to the [InspectorNode]s of the contents.
+     * - AndroidView: When this is used in a compose app we will see a similar pattern in the
+     *   SlotTree except there isn't a sub-composition to stitch in. But we need to collect the view
+     *   id separately from the "AndroidView" node itself.
      */
     private inner class SubCompositionRoots {
         /** Set to true when the nodes found should be added to a sub-composition root */
@@ -709,8 +706,8 @@ class LayoutInspectorTree {
         /**
          * The sub-composition roots found.
          *
-         * Map from View owner to a pair of [InspectorNode] indicating the actual root,
-         * and the node where the content should be stitched in.
+         * Map from View owner to a pair of [InspectorNode] indicating the actual root, and the node
+         * where the content should be stitched in.
          */
         private val found = mutableLongObjectMapOf<InspectorNode>()
 
@@ -730,9 +727,9 @@ class LayoutInspectorTree {
         }
 
         /**
-         * When a "rememberCompositionContext" is found in the slot tree, it indicates
-         * that a sub-composition was started. We should capture all parent nodes with
-         * an empty size as the "root" of the sub-composition.
+         * When a "rememberCompositionContext" is found in the slot tree, it indicates that a
+         * sub-composition was started. We should capture all parent nodes with an empty size as the
+         * "root" of the sub-composition.
          */
         fun rememberCompositionContext(
             node: MutableInspectorNode,
@@ -749,8 +746,8 @@ class LayoutInspectorTree {
         }
 
         /**
-         * When "remember" is found in the slot tree and we are currently capturing,
-         * the data of the [group] may contain the owner of the sub-composition.
+         * When "remember" is found in the slot tree and we are currently capturing, the data of the
+         * [group] may contain the owner of the sub-composition.
          */
         fun remember(node: MutableInspectorNode, group: CompositionGroup): MutableInspectorNode {
             node.markUnwanted()
@@ -774,14 +771,14 @@ class LayoutInspectorTree {
         }
 
         private fun findSingleRootInGroupData(group: CompositionGroup): ViewRootForInspector? {
-            group.data.filterIsInstance<ViewRootForInspector>().singleOrNull()?.let { return it }
+            group.data.filterIsInstance<ViewRootForInspector>().singleOrNull()?.let {
+                return it
+            }
             val refs = group.data.filterIsInstance<Ref<*>>().map { it.value }
             return refs.filterIsInstance<ViewRootForInspector>().singleOrNull()
         }
 
-        /**
-         * Capture the top node of the sub-composition root until a non empty node is found.
-         */
+        /** Capture the top node of the sub-composition root until a non empty node is found. */
         fun captureNode(node: MutableInspectorNode, context: SourceContext) {
             if (!capturing) {
                 return
@@ -803,9 +800,7 @@ class LayoutInspectorTree {
             return id
         }
 
-        /**
-         * If a sub-composition root has been captured, save it now.
-         */
+        /** If a sub-composition root has been captured, save it now. */
         private fun save() {
             val node = rootNode
             if (node != null && ownerView != UNDEFINED_ID) {

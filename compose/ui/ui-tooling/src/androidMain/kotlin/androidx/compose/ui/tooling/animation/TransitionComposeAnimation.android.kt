@@ -21,9 +21,8 @@ import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 
 /**
- * Parses the [Transition] into a [TransitionComposeAnimation].
- * [Transition] can have nullable state.
- * Compose Tooling is not handling the case if [Transition.currentState] is null.
+ * Parses the [Transition] into a [TransitionComposeAnimation]. [Transition] can have nullable
+ * state. Compose Tooling is not handling the case if [Transition.currentState] is null.
  */
 internal fun Transition<*>.parse(): TransitionComposeAnimation<*>? {
     return currentState?.let { state ->
@@ -32,9 +31,7 @@ internal fun Transition<*>.parse(): TransitionComposeAnimation<*>? {
     }
 }
 
-/**
- * [ComposeAnimation] of type [ComposeAnimationType.TRANSITION_ANIMATION].
- */
+/** [ComposeAnimation] of type [ComposeAnimationType.TRANSITION_ANIMATION]. */
 internal class TransitionComposeAnimation<T>(
     override val animationObject: Transition<T>,
     override val states: Set<Any>,

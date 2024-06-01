@@ -24,20 +24,22 @@ import androidx.startup.Initializer
 import androidx.tracing.perfetto.PerfettoSdkTrace
 
 /**
- * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific
- * information (e.g. Composable function names) in a Perfetto SDK trace
+ * Configures Perfetto SDK tracing in the app allowing for capturing Compose specific information
+ * (e.g. Composable function names) in a Perfetto SDK trace
  */
 @OptIn(InternalComposeTracingApi::class)
 class ComposeTracingInitializer : Initializer<Unit> {
     override fun create(context: Context) {
-        Composer.setTracer(object : CompositionTracer {
-            override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) =
-                PerfettoSdkTrace.beginSection(info)
+        Composer.setTracer(
+            object : CompositionTracer {
+                override fun traceEventStart(key: Int, dirty1: Int, dirty2: Int, info: String) =
+                    PerfettoSdkTrace.beginSection(info)
 
-            override fun traceEventEnd() = PerfettoSdkTrace.endSection()
+                override fun traceEventEnd() = PerfettoSdkTrace.endSection()
 
-            override fun isTraceInProgress(): Boolean = PerfettoSdkTrace.isEnabled
-        })
+                override fun isTraceInProgress(): Boolean = PerfettoSdkTrace.isEnabled
+            }
+        )
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()

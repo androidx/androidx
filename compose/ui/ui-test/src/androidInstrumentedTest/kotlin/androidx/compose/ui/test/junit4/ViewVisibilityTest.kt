@@ -54,11 +54,7 @@ class ViewVisibilityTest(private val visibility: Int) {
     companion object {
         @JvmStatic
         @Parameters(name = "visibility={0}")
-        fun params() = listOf(
-            View.VISIBLE,
-            View.INVISIBLE,
-            View.GONE
-        )
+        fun params() = listOf(View.VISIBLE, View.INVISIBLE, View.GONE)
     }
 
     private var offset by mutableStateOf(0)
@@ -72,9 +68,7 @@ class ViewVisibilityTest(private val visibility: Int) {
         runComposeUiTest {
             setContent {
                 val hostView = LocalView.current
-                SideEffect {
-                    hostView.visibility = visibility
-                }
+                SideEffect { hostView.visibility = visibility }
                 TestContent()
             }
 
@@ -93,9 +87,7 @@ class ViewVisibilityTest(private val visibility: Int) {
                 val composeView = ComposeView(activity)
                 composeView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                 composeView.visibility = visibility
-                composeView.setContent {
-                    TestContent()
-                }
+                composeView.setContent { TestContent() }
                 activity.setContentView(composeView)
             }
 
@@ -112,13 +104,11 @@ class ViewVisibilityTest(private val visibility: Int) {
         // not measure. Because measure is not affected, the containing View doesn't need to be
         // remeasured and Compose will do its measure/layout pass in the draw pass, meaning the
         // View will be invalidated but no layout will be requested.
-        Layout({
-            Box(Modifier.size(10.dp))
-        }, Modifier.fillMaxSize().testTag("box")) { measurables, constraints ->
+        Layout({ Box(Modifier.size(10.dp)) }, Modifier.fillMaxSize().testTag("box")) {
+            measurables,
+            constraints ->
             val placeable = measurables.first().measure(constraints)
-            layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(offset, 0)
-            }
+            layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(offset, 0) }
         }
     }
 

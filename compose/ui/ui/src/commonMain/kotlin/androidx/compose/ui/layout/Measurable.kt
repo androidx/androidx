@@ -19,13 +19,13 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.unit.Constraints
 
 /**
- * A part of the composition that can be measured. This represents a layout.
- * The instance should never be stored.
+ * A part of the composition that can be measured. This represents a layout. The instance should
+ * never be stored.
  */
 interface Measurable : IntrinsicMeasurable {
     /**
-     * Measures the layout with [constraints], returning a [Placeable] layout that has its new
-     * size. A [Measurable] can only be measured once inside a layout pass.
+     * Measures the layout with [constraints], returning a [Placeable] layout that has its new size.
+     * A [Measurable] can only be measured once inside a layout pass.
      */
     fun measure(constraints: Constraints): Placeable
 }

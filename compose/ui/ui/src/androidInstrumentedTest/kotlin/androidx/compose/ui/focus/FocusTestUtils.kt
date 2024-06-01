@@ -42,10 +42,10 @@ import com.google.common.truth.IterableSubject
  * [View.requestFocus()][android.view.View.requestFocus] will not take focus if the view has no
  * size.
  *
- * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is
- * useful in cases where we need tests that could be affected by initial focus. Eg. When there is
- * only one focusable item and we clear focus, that item could end up being focused on again by the
- * initial focus logic.
+ * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is useful
+ *   in cases where we need tests that could be affected by initial focus. Eg. When there is only
+ *   one focusable item and we clear focus, that item could end up being focused on again by the
+ *   initial focus logic.
  */
 internal fun ComposeContentTestRule.setFocusableContent(
     extraItemForInitialFocus: Boolean = true,
@@ -81,22 +81,24 @@ internal fun FocusableBox(
 ) {
     Layout(
         content = content,
-        modifier = modifier
-            .offset { IntOffset(x, y) }
-            .focusRequester(focusRequester ?: remember { FocusRequester() })
-            .onFocusChanged { isFocused.value = it.isFocused }
-            .focusProperties { canFocus = !deactivated }
-            .focusTarget(),
-        measurePolicy = remember(width, height) {
-            MeasurePolicy { measurableList, constraint ->
-                layout(width, height) {
-                    measurableList.forEach {
-                        val placeable = it.measure(constraint)
-                        placeable.placeRelative(0, 0)
+        modifier =
+            modifier
+                .offset { IntOffset(x, y) }
+                .focusRequester(focusRequester ?: remember { FocusRequester() })
+                .onFocusChanged { isFocused.value = it.isFocused }
+                .focusProperties { canFocus = !deactivated }
+                .focusTarget(),
+        measurePolicy =
+            remember(width, height) {
+                MeasurePolicy { measurableList, constraint ->
+                    layout(width, height) {
+                        measurableList.forEach {
+                            val placeable = it.measure(constraint)
+                            placeable.placeRelative(0, 0)
+                        }
                     }
                 }
             }
-        }
     )
 }
 
@@ -104,8 +106,8 @@ internal fun FocusableBox(
  * Asserts that the elements appear in the specified order.
  *
  * Consider using this helper function instead of
- * [containsExactlyElementsIn][com.google.common.truth.IterableSubject.containsExactlyElementsIn]
- * or [containsExactly][com.google.common.truth.IterableSubject.containsExactly] as it also asserts
+ * [containsExactlyElementsIn][com.google.common.truth.IterableSubject.containsExactlyElementsIn] or
+ * [containsExactly][com.google.common.truth.IterableSubject.containsExactly] as it also asserts
  * that the elements are in the specified order.
  */
 fun IterableSubject.isExactly(vararg expected: Any?) {
@@ -123,10 +125,5 @@ fun FocusableView(context: Context): View {
 
 @Composable
 fun FocusableComponent(tag: String? = null) {
-    Box(
-        Modifier
-            .then(if (tag != null) Modifier.testTag(tag) else Modifier)
-            .size(50.dp)
-            .focusable()
-    )
+    Box(Modifier.then(if (tag != null) Modifier.testTag(tag) else Modifier).size(50.dp).focusable())
 }

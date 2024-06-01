@@ -36,13 +36,13 @@ class LocaleListBenchmark(val languageTag: String) {
         fun initParameters(): Array<Any> =
             // Generates the comma separated language tags from the sliced langTagPresets array.
             // e.g. this generates, "en-US", "en-US,ja-JP", "en-US,ja-JP,zh-CH", ...
-            langTagPresets.mapIndexed { index, _ -> langTagPresets.sliceArray(0..index) }
+            langTagPresets
+                .mapIndexed { index, _ -> langTagPresets.sliceArray(0..index) }
                 .map { it.joinToString(",") }
                 .toTypedArray()
     }
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun create() {

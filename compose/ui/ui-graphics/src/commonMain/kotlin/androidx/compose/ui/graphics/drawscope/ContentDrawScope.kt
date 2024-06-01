@@ -18,14 +18,11 @@ package androidx.compose.ui.graphics.drawscope
 import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 
 /**
- * Receiver scope for drawing content into a layout, where the content can
- * be drawn between other canvas operations. If [drawContent] is not called,
- * the contents of the layout will not be drawn.
+ * Receiver scope for drawing content into a layout, where the content can be drawn between other
+ * canvas operations. If [drawContent] is not called, the contents of the layout will not be drawn.
  */
 @JvmDefaultWithCompatibility
 interface ContentDrawScope : DrawScope {
-    /**
-     * Causes child drawing operations to run during the `onPaint` lambda.
-     */
+    /** Causes child drawing operations to run during the `onPaint` lambda. */
     fun drawContent()
 }

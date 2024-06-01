@@ -24,55 +24,67 @@ class TestInferApplier {
     private val resolutions = resolve(data)
     private val containers = containersOf(data)
 
-    private val typeAdapter = object : TypeAdapter<FunctionType> {
-        override fun declaredSchemaOf(type: FunctionType): Scheme = type.toScheme()
-        override fun currentInferredSchemeOf(type: FunctionType): Scheme? = null
-        override fun updatedInferredScheme(type: FunctionType, scheme: Scheme) { }
-    }
+    private val typeAdapter =
+        object : TypeAdapter<FunctionType> {
+            override fun declaredSchemaOf(type: FunctionType): Scheme = type.toScheme()
 
-    private val nodeAdapter = object : NodeAdapter<FunctionType, Node> {
-        override fun containerOf(node: Node) =
-            containers[node]
-                ?: (node as? ResolvedParameter)?.let { containers[it.parameter] }
-                ?: (node as? ResolvedVariable)?.let { containers[it.variable] }
-                ?: (node as? ResolvedExpression)?.let { containers[it.node] }
-                ?: error("Could not find container for $node")
-        override fun kindOf(node: Node): NodeKind = when (node) {
-            is Function -> NodeKind.Function
-            is Lambda -> NodeKind.Lambda
-            is ResolvedParameter -> NodeKind.ParameterReference
-            is ResolvedVariable -> NodeKind.Variable
-            is ResolvedExpression -> kindOf(node.node)
-            else -> NodeKind.Expression
-        }
-        override fun schemeParameterIndexOf(node: Node, container: Node): Int {
-            val parameter = node as? ResolvedParameter ?: return -1
-            val type = typeOf(container) ?: return -1
-            val parameters = type.parameters.filter { it.type is FunctionType }
-            return parameters.indexOf(parameter.parameter)
-        }
-        override fun typeOf(node: Node): FunctionType? = when (node) {
-            is Function -> node.type
-            is Lambda -> node.type
-            is ResolvedParameter -> node.type as? FunctionType
-            is ResolvedExpression -> node.type as? FunctionType
-            is ResolvedVariable -> node.type as? FunctionType
-            else -> null
+            override fun currentInferredSchemeOf(type: FunctionType): Scheme? = null
+
+            override fun updatedInferredScheme(type: FunctionType, scheme: Scheme) {}
         }
 
-        override fun referencedContainerOf(node: Node): Node? =
-            ((node as? ResolvedExpression)?.node as? Function)?.let {
-                if (it.type.isOpen || it.type.isBound) null else it
+    private val nodeAdapter =
+        object : NodeAdapter<FunctionType, Node> {
+            override fun containerOf(node: Node) =
+                containers[node]
+                    ?: (node as? ResolvedParameter)?.let { containers[it.parameter] }
+                    ?: (node as? ResolvedVariable)?.let { containers[it.variable] }
+                    ?: (node as? ResolvedExpression)?.let { containers[it.node] }
+                    ?: error("Could not find container for $node")
+
+            override fun kindOf(node: Node): NodeKind =
+                when (node) {
+                    is Function -> NodeKind.Function
+                    is Lambda -> NodeKind.Lambda
+                    is ResolvedParameter -> NodeKind.ParameterReference
+                    is ResolvedVariable -> NodeKind.Variable
+                    is ResolvedExpression -> kindOf(node.node)
+                    else -> NodeKind.Expression
+                }
+
+            override fun schemeParameterIndexOf(node: Node, container: Node): Int {
+                val parameter = node as? ResolvedParameter ?: return -1
+                val type = typeOf(container) ?: return -1
+                val parameters = type.parameters.filter { it.type is FunctionType }
+                return parameters.indexOf(parameter.parameter)
             }
-    }
 
-    private fun lazySchemeStorage() = object : LazySchemeStorage<Node> {
-        private val map = mutableMapOf<Node, LazyScheme>()
-        override fun getLazyScheme(node: Node): LazyScheme? = map[node.storageNode()]
-        override fun storeLazyScheme(node: Node, value: LazyScheme) {
-            map[node.storageNode()] = value
+            override fun typeOf(node: Node): FunctionType? =
+                when (node) {
+                    is Function -> node.type
+                    is Lambda -> node.type
+                    is ResolvedParameter -> node.type as? FunctionType
+                    is ResolvedExpression -> node.type as? FunctionType
+                    is ResolvedVariable -> node.type as? FunctionType
+                    else -> null
+                }
+
+            override fun referencedContainerOf(node: Node): Node? =
+                ((node as? ResolvedExpression)?.node as? Function)?.let {
+                    if (it.type.isOpen || it.type.isBound) null else it
+                }
         }
-    }
+
+    private fun lazySchemeStorage() =
+        object : LazySchemeStorage<Node> {
+            private val map = mutableMapOf<Node, LazyScheme>()
+
+            override fun getLazyScheme(node: Node): LazyScheme? = map[node.storageNode()]
+
+            override fun storeLazyScheme(node: Node, value: LazyScheme) {
+                map[node.storageNode()] = value
+            }
+        }
 
     private fun errorReporter(): Pair<ErrorReporter<Node>, List<Call>> {
         val errors = mutableListOf<Call>()
@@ -114,6 +126,7 @@ class TestInferApplier {
                         val target = call.target
                         if (target is Ref && target.name == part) current = call
                     }
+
                     override fun visit(lambda: Lambda) {
                         walkChildren(lambda, this)
                     }
@@ -168,9 +181,10 @@ class TestInferApplier {
     fun resolve(resolvedType: ResolvedType): Node =
         when (resolvedType.node) {
             is Lambda -> resolvedType.node
-            is Function -> if ((resolvedType.type as FunctionType).isBound) {
-                ResolvedExpression(resolvedType.node, resolvedType.type)
-            } else resolvedType.node
+            is Function ->
+                if ((resolvedType.type as FunctionType).isBound) {
+                    ResolvedExpression(resolvedType.node, resolvedType.type)
+                } else resolvedType.node
             is Parameter -> ResolvedParameter(resolvedType.node, resolvedType.type)
             is Variable -> ResolvedVariable(resolvedType.node, resolvedType.type)
             else -> ResolvedExpression(resolvedType.node, resolvedType.type)
@@ -184,10 +198,10 @@ class TestInferApplier {
             override fun visit(call: Call) {
                 val resolvedCall = resolutions.calls[call] ?: error("Could not resolve $call")
                 val target = resolve(resolvedCall.target)
-                val arguments = resolvedCall.arguments.mapNotNull { resolvedType ->
-                    if (resolvedType.type is FunctionType) resolve(resolvedType)
-                    else null
-                }
+                val arguments =
+                    resolvedCall.arguments.mapNotNull { resolvedType ->
+                        if (resolvedType.type is FunctionType) resolve(resolvedType) else null
+                    }
                 val resolvedCallNode = resolve(call)
                 inferApplier.visitCall(resolvedCallNode, target, arguments)
             }
@@ -204,25 +218,16 @@ class TestInferApplier {
     fun prefixOrderWalk() {
         val (errorReporter, errors) = errorReporter()
         val lazySchemeStorage = lazySchemeStorage()
-        val inferApplier = ApplierInferencer(
-            typeAdapter,
-            nodeAdapter,
-            lazySchemeStorage,
-            errorReporter
-        )
+        val inferApplier =
+            ApplierInferencer(typeAdapter, nodeAdapter, lazySchemeStorage, errorReporter)
 
         val visitor = dataVisitor(inferApplier)
 
         walkData(visitor)
 
-        expectCorrectInference {
-            inferApplier.toFinalScheme(it)
-        }
+        expectCorrectInference { inferApplier.toFinalScheme(it) }
 
-        assertTrue(
-            "Expected Circle in e1 to be in error",
-            findNode("e1", "Circle") in errors
-        )
+        assertTrue("Expected Circle in e1 to be in error", findNode("e1", "Circle") in errors)
         assertTrue(
             "Expected Circle in e2 to be in error",
             findNode("e2", "Provider", "Circle") in errors
@@ -234,36 +239,34 @@ class TestInferApplier {
     fun randomOrderWalk() {
         val (errorReporter, _) = errorReporter()
         val lazySchemeStorage = lazySchemeStorage()
-        val inferApplier = ApplierInferencer(
-            typeAdapter,
-            nodeAdapter,
-            lazySchemeStorage,
-            errorReporter
-        )
+        val inferApplier =
+            ApplierInferencer(typeAdapter, nodeAdapter, lazySchemeStorage, errorReporter)
         val visitor = dataVisitor(inferApplier)
 
         randomlyWalkData(visitor)
 
-        expectCorrectInference {
-            inferApplier.toFinalScheme(it)
-        }
+        expectCorrectInference { inferApplier.toFinalScheme(it) }
 
-        // Randomly walking the tree produces random errors as well for trees that can be interpreted multiple ways
+        // Randomly walking the tree produces random errors as well for trees that can be
+        // interpreted multiple ways
         // such as data contains, so don't assert on the errors.
     }
 }
 
 private class ResolvedParameter(val parameter: Parameter, val type: Type) : Leaf() {
     override fun accept(visitor: Visitor) = visitor.visit(parameter)
+
     override fun storageNode(): Node = parameter
 }
 
 private class ResolvedVariable(val variable: Variable, val type: Type) : Leaf() {
     override fun accept(visitor: Visitor) = visitor.visit(variable)
+
     override fun storageNode(): Node = variable
 }
 
 private class ResolvedExpression(val node: Node, val type: Type) : Leaf() {
-    override fun accept(visitor: Visitor) { }
+    override fun accept(visitor: Visitor) {}
+
     override fun storageNode(): Node = node
 }

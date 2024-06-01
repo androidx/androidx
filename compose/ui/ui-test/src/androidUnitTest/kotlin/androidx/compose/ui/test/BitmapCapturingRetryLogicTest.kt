@@ -30,8 +30,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BitmapCapturingRetryLogicTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun pixelCopyRequest_succeeded_noRetries() {
@@ -88,9 +87,7 @@ class BitmapCapturingRetryLogicTest {
     @Test
     fun pixelCopyRequest_error_rethrow() {
         expectError<PixelCopyException> {
-            runWithRetryWhenNoData {
-                throw PixelCopyException(PixelCopy.ERROR_UNKNOWN)
-            }
+            runWithRetryWhenNoData { throw PixelCopyException(PixelCopy.ERROR_UNKNOWN) }
         }
     }
 

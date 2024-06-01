@@ -33,95 +33,64 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DeclarativeGraphicsDemo() {
     /**
-     * Demo that shows how to leverage DrawScope to draw 4 rectangular quadrants
-     * inset by a given dimension with a diamond drawn within each of the quadrants
+     * Demo that shows how to leverage DrawScope to draw 4 rectangular quadrants inset by a given
+     * dimension with a diamond drawn within each of the quadrants
      */
     Canvas(
-        modifier =
-            Modifier.fillMaxSize()
-                .wrapContentSize(Alignment.Center)
-                .size(120.dp, 120.dp)
+        modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center).size(120.dp, 120.dp)
     ) {
         drawRect(color = Color.Gray)
         // Inset content by 10 pixels on the left/right sides and 12 by the
         // top/bottom
         inset(10.0f, 12.0f) {
             val quadrantSize = size / 2.0f
-            drawRect(
-                size = quadrantSize,
-                color = Color.Red
-            )
+            drawRect(size = quadrantSize, color = Color.Red)
             // Scale the drawing environment down by 50% about the center of the square drawn
             // in the top left quadrant
             scale(0.5f, Offset(size.width / 4, size.height / 4)) {
                 // Rotate the drawing environment 45 degrees about the center of the square
                 // drawn in the top left
                 rotate(45.0f, Offset(size.width / 4, size.height / 4)) {
-                    drawRect(
-                        size = quadrantSize,
-                        color = Color.Yellow,
-                        alpha = 0.75f
-                    )
+                    drawRect(size = quadrantSize, color = Color.Yellow, alpha = 0.75f)
                 }
             }
             // Translate the drawing environment to the right by half the size of the current
             // width
             translate(size.width / 2, 0.0f) {
-                drawRect(
-                    size = quadrantSize,
-                    color = Color.Yellow
-                )
+                drawRect(size = quadrantSize, color = Color.Yellow)
                 // Scale the drawing environment down by 50% about the center of the square drawn
                 // in the top right quadrant
                 scale(0.5f, Offset(size.width / 4, size.height / 4)) {
                     // rotate the drawing environment 45 degrees about the center of the drawn
                     // square in the top right
                     rotate(45.0f, Offset(size.width / 4, size.height / 4)) {
-                        drawRect(
-                            size = quadrantSize,
-                            color = Color.Red,
-                            alpha = 0.75f
-                        )
+                        drawRect(size = quadrantSize, color = Color.Red, alpha = 0.75f)
                     }
                 }
             }
             // Translate the drawing environment down by half the size of the current height
             translate(0.0f, size.height / 2) {
-                drawRect(
-                    size = quadrantSize,
-                    color = Color.Green
-                )
+                drawRect(size = quadrantSize, color = Color.Green)
                 // Scale the drawing environment down by 50% about the center of the square drawn
                 // in the bottom left quadrant
                 scale(0.5f, Offset(size.width / 4, size.height / 4)) {
                     // Rotate the drawing environment by 45 degrees about the center of the
                     // square drawn in the bottom left quadrant
                     rotate(45.0f, Offset(size.width / 4, size.height / 4)) {
-                        drawRect(
-                            size = quadrantSize,
-                            color = Color.Blue,
-                            alpha = 0.75f
-                        )
+                        drawRect(size = quadrantSize, color = Color.Blue, alpha = 0.75f)
                     }
                 }
             }
             // Translate the drawing environment to the bottom right quadrant of the inset bounds
             translate(size.width / 2, size.height / 2) {
-                drawRect(
-                    size = quadrantSize,
-                    color = Color.Blue
-                )
+                drawRect(size = quadrantSize, color = Color.Blue)
                 // Scale the drawing environment down by 50% about the center of the square drawn
                 // in the bottom right quadrant
                 scale(0.5f, Offset(size.width / 4, size.height / 4)) {
                     // Rotate the drawing environment 45 degrees about the center of the drawn
                     // square in the bottom right
                     rotate(45.0f, Offset(size.width / 4, size.height / 4)) {
-                        drawRect(
-                            size = quadrantSize,
-                            color = Color.Green,
-                            alpha = 0.75f
-                        )
+                        drawRect(size = quadrantSize, color = Color.Green, alpha = 0.75f)
                     }
                 }
             }

@@ -66,18 +66,18 @@ class InputTransformationTest {
 
     @Test
     fun chainedFilters_haveNullKeyboardOptions_whenBothOptionsAreNull() {
-        val filter1 = object : InputTransformation {
-            override val keyboardOptions = null
+        val filter1 =
+            object : InputTransformation {
+                override val keyboardOptions = null
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
-        val filter2 = object : InputTransformation {
-            override val keyboardOptions = null
+        val filter2 =
+            object : InputTransformation {
+                override val keyboardOptions = null
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
 
         val chain = filter1.then(filter2)
 
@@ -87,18 +87,18 @@ class InputTransformationTest {
     @Test
     fun chainedFilters_takeFirstKeyboardOptions_whenSecondOptionsAreNull() {
         val options = KeyboardOptions()
-        val filter1 = object : InputTransformation {
-            override val keyboardOptions = options
+        val filter1 =
+            object : InputTransformation {
+                override val keyboardOptions = options
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
-        val filter2 = object : InputTransformation {
-            override val keyboardOptions = null
+        val filter2 =
+            object : InputTransformation {
+                override val keyboardOptions = null
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
 
         val chain = filter1.then(filter2)
 
@@ -108,18 +108,18 @@ class InputTransformationTest {
     @Test
     fun chainedFilters_takeSecondKeyboardOptions_whenFirstOptionsAreNull() {
         val options = KeyboardOptions()
-        val filter1 = object : InputTransformation {
-            override val keyboardOptions = null
+        val filter1 =
+            object : InputTransformation {
+                override val keyboardOptions = null
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
-        val filter2 = object : InputTransformation {
-            override val keyboardOptions = options
+        val filter2 =
+            object : InputTransformation {
+                override val keyboardOptions = options
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
 
         val chain = filter1.then(filter2)
 
@@ -130,18 +130,18 @@ class InputTransformationTest {
     fun chainedFilters_takeSecondKeyboardOptions_whenFirstOptionsAreNotNull() {
         val options1 = KeyboardOptions()
         val options2 = KeyboardOptions()
-        val filter1 = object : InputTransformation {
-            override val keyboardOptions = options1
+        val filter1 =
+            object : InputTransformation {
+                override val keyboardOptions = options1
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
-        val filter2 = object : InputTransformation {
-            override val keyboardOptions = options2
+        val filter2 =
+            object : InputTransformation {
+                override val keyboardOptions = options2
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
 
         val chain = filter1.then(filter2)
 
@@ -150,56 +150,56 @@ class InputTransformationTest {
 
     @Test
     fun chainedFilters_mergeKeyboardOptions_withPrecedenceToNext() {
-        val options1 = KeyboardOptions(
-            keyboardType = KeyboardType.Password,
-            capitalization = KeyboardCapitalization.Sentences
-        )
-        val options2 = KeyboardOptions(
-            keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Search
-        )
-        val filter1 = object : InputTransformation {
-            override val keyboardOptions = options1
+        val options1 =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                capitalization = KeyboardCapitalization.Sentences
+            )
+        val options2 =
+            KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Search)
+        val filter1 =
+            object : InputTransformation {
+                override val keyboardOptions = options1
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
-        val filter2 = object : InputTransformation {
-            override val keyboardOptions = options2
+        val filter2 =
+            object : InputTransformation {
+                override val keyboardOptions = options2
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
 
         val chain = filter1.then(filter2)
 
-        assertThat(chain.keyboardOptions).isEqualTo(
-            KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Search
+        assertThat(chain.keyboardOptions)
+            .isEqualTo(
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    capitalization = KeyboardCapitalization.Sentences,
+                    imeAction = ImeAction.Search
+                )
             )
-        )
     }
 
     @Test
     fun chainedFilters_applySecondSemantics_afterFirstSemantics() {
-        val filter1 = object : InputTransformation {
-            override fun SemanticsPropertyReceiver.applySemantics() {
-                maxTextLength = 10
-            }
+        val filter1 =
+            object : InputTransformation {
+                override fun SemanticsPropertyReceiver.applySemantics() {
+                    maxTextLength = 10
+                }
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
-        val filter2 = object : InputTransformation {
-            override fun SemanticsPropertyReceiver.applySemantics() {
-                maxTextLength = 20
-            }
+        val filter2 =
+            object : InputTransformation {
+                override fun SemanticsPropertyReceiver.applySemantics() {
+                    maxTextLength = 20
+                }
 
-            override fun TextFieldBuffer.transformInput() {
+                override fun TextFieldBuffer.transformInput() {}
             }
-        }
 
         val chain = filter1.then(filter2)
 

@@ -23,9 +23,7 @@ import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 import org.jetbrains.annotations.TestOnly
 
-/**
- * [ComposeAnimation] of type [ComposeAnimationType.ANIMATE_X_AS_STATE].
- */
+/** [ComposeAnimation] of type [ComposeAnimationType.ANIMATE_X_AS_STATE]. */
 internal class AnimateXAsStateComposeAnimation<T, V : AnimationVector>
 private constructor(
     val toolingState: ToolingState<T>,
@@ -34,9 +32,8 @@ private constructor(
 ) : ComposeAnimation {
     override val type = ComposeAnimationType.ANIMATE_X_AS_STATE
 
-    override val states: Set<Any> = (animationObject.value as Any).let {
-        it.javaClass.enumConstants?.toSet() ?: setOf(it)
-    }
+    override val states: Set<Any> =
+        (animationObject.value as Any).let { it.javaClass.enumConstants?.toSet() ?: setOf(it) }
 
     override val label: String = animationObject.label
 
@@ -57,15 +54,12 @@ private constructor(
             enumValues<ComposeAnimationType>().any { it.name == "ANIMATE_X_AS_STATE" }
             private set
 
-        internal fun <T, V : AnimationVector> AnimationSearch
-        .AnimateXAsStateSearchInfo<T, V>.parse():
-            AnimateXAsStateComposeAnimation<*, *>? {
+        internal fun <T, V : AnimationVector> AnimationSearch.AnimateXAsStateSearchInfo<T, V>
+            .parse(): AnimateXAsStateComposeAnimation<*, *>? {
             if (!apiAvailable) return null
             // Tooling can't control nullable Animatable with value set to null.
             if (animatable.value == null) return null
-            return AnimateXAsStateComposeAnimation(
-                toolingState, animationSpec, animatable
-            )
+            return AnimateXAsStateComposeAnimation(toolingState, animationSpec, animatable)
         }
 
         /** This method is for testing only. */

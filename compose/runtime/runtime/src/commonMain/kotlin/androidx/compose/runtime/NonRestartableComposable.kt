@@ -18,13 +18,10 @@ package androidx.compose.runtime
 
 /**
  * This annotation can be applied to [Composable] functions in order to prevent code from being
- * generated which allow this function's execution to be skipped or restarted. This may be
- * desirable for small functions which just directly call another composable function and have
- * very little machinery in them directly, and are unlikely to be invalidated themselves.
+ * generated which allow this function's execution to be skipped or restarted. This may be desirable
+ * for small functions which just directly call another composable function and have very little
+ * machinery in them directly, and are unlikely to be invalidated themselves.
  */
 @Retention(AnnotationRetention.SOURCE)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER
-)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 annotation class NonRestartableComposable

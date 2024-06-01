@@ -42,13 +42,9 @@ fun DoubleTapInTapDemo() {
     val innerColor = remember { mutableStateOf(defaultColor) }
     val outerColor = remember { mutableStateOf(defaultColor) }
 
-    val onTap: (Offset) -> Unit = {
-        outerColor.value = outerColor.value.next()
-    }
+    val onTap: (Offset) -> Unit = { outerColor.value = outerColor.value.next() }
 
-    val onDoubleTap: (Offset) -> Unit = { _ ->
-        innerColor.value = innerColor.value.prev()
-    }
+    val onDoubleTap: (Offset) -> Unit = { _ -> innerColor.value = innerColor.value.prev() }
 
     Column {
         Text(
@@ -63,8 +59,7 @@ fun DoubleTapInTapDemo() {
                 "change as one would expect."
         )
         Box(
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
                 .size(192.dp)
                 .pointerInput(Unit) { detectTapGestures(onTap = onTap) }

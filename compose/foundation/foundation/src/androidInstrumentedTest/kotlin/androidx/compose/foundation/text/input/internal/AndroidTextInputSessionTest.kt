@@ -58,8 +58,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidTextInputSessionTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var hostView: View
@@ -70,13 +69,7 @@ class AndroidTextInputSessionTest {
         rule.setContent {
             coroutineScope = rememberCoroutineScope()
             hostView = LocalView.current
-            Box(
-                modifier = Modifier
-                    .size(1.dp)
-                    .testTag("tag")
-                    .then(TestTextElement())
-                    .focusable()
-            )
+            Box(modifier = Modifier.size(1.dp).testTag("tag").then(TestTextElement()).focusable())
         }
         rule.onNodeWithTag("tag").requestFocus()
         rule.waitForIdle()
@@ -88,21 +81,18 @@ class AndroidTextInputSessionTest {
         launchInputSessionWithDefaultsForTest(state)
         val editorInfo = EditorInfo()
 
-        rule.runOnUiThread {
-            hostView.onCreateInputConnection(editorInfo)
-        }
+        rule.runOnUiThread { hostView.onCreateInputConnection(editorInfo) }
 
         Truth.assertThat(editorInfo.initialSelStart).isEqualTo(0)
         Truth.assertThat(editorInfo.initialSelEnd).isEqualTo(5)
-        Truth.assertThat(editorInfo.inputType).isEqualTo(
-            InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
-        )
-        Truth.assertThat(editorInfo.imeOptions).isEqualTo(
-            EditorInfo.IME_FLAG_NO_FULLSCREEN or
-                EditorInfo.IME_FLAG_NO_ENTER_ACTION
-        )
+        Truth.assertThat(editorInfo.inputType)
+            .isEqualTo(
+                InputType.TYPE_CLASS_TEXT or
+                    InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                    InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
+            )
+        Truth.assertThat(editorInfo.imeOptions)
+            .isEqualTo(EditorInfo.IME_FLAG_NO_FULLSCREEN or EditorInfo.IME_FLAG_NO_ENTER_ACTION)
     }
 
     @Test
@@ -112,8 +102,7 @@ class AndroidTextInputSessionTest {
         launchInputSessionWithDefaultsForTest(state1)
 
         rule.runOnIdle {
-            hostView.onCreateInputConnection(EditorInfo())
-                .commitText("hello", 1)
+            hostView.onCreateInputConnection(EditorInfo()).commitText("hello", 1)
 
             Truth.assertThat(state1.text.toString()).isEqualTo("hello")
             Truth.assertThat(state2.text.toString()).isEqualTo("")
@@ -122,8 +111,7 @@ class AndroidTextInputSessionTest {
         launchInputSessionWithDefaultsForTest(state2)
 
         rule.runOnIdle {
-            hostView.onCreateInputConnection(EditorInfo())
-                .commitText("world", 1)
+            hostView.onCreateInputConnection(EditorInfo()).commitText("world", 1)
 
             Truth.assertThat(state1.text.toString()).isEqualTo("hello")
             Truth.assertThat(state2.text.toString()).isEqualTo("world")
@@ -141,7 +129,8 @@ class AndroidTextInputSessionTest {
         )
 
         rule.runOnIdle {
-            hostView.onCreateInputConnection(EditorInfo())
+            hostView
+                .onCreateInputConnection(EditorInfo())
                 .performEditorAction(EditorInfo.IME_ACTION_DONE)
 
             Truth.assertThat(imeActionFromOne).isEqualTo(ImeAction.Done)
@@ -154,7 +143,8 @@ class AndroidTextInputSessionTest {
         )
 
         rule.runOnIdle {
-            hostView.onCreateInputConnection(EditorInfo())
+            hostView
+                .onCreateInputConnection(EditorInfo())
                 .performEditorAction(EditorInfo.IME_ACTION_GO)
 
             Truth.assertThat(imeActionFromOne).isEqualTo(ImeAction.Done)
@@ -165,28 +155,27 @@ class AndroidTextInputSessionTest {
     @Test
     fun createInputConnection_updatesEditorInfo() {
         launchInputSessionWithDefaultsForTest(
-            imeOptions = ImeOptions(
-                singleLine = true,
-                keyboardType = KeyboardType.Email,
-                autoCorrect = false,
-                imeAction = ImeAction.Search,
-                capitalization = KeyboardCapitalization.Words
-            )
+            imeOptions =
+                ImeOptions(
+                    singleLine = true,
+                    keyboardType = KeyboardType.Email,
+                    autoCorrect = false,
+                    imeAction = ImeAction.Search,
+                    capitalization = KeyboardCapitalization.Words
+                )
         )
         val editorInfo = EditorInfo()
 
-        rule.runOnIdle {
-            hostView.onCreateInputConnection(editorInfo)
-        }
+        rule.runOnIdle { hostView.onCreateInputConnection(editorInfo) }
 
-        Truth.assertThat(editorInfo.inputType).isEqualTo(
-            InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS or
-                InputType.TYPE_TEXT_FLAG_CAP_WORDS
-        )
-        Truth.assertThat(editorInfo.imeOptions).isEqualTo(
-            EditorInfo.IME_ACTION_SEARCH or EditorInfo.IME_FLAG_NO_FULLSCREEN
-        )
+        Truth.assertThat(editorInfo.inputType)
+            .isEqualTo(
+                InputType.TYPE_CLASS_TEXT or
+                    InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS or
+                    InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            )
+        Truth.assertThat(editorInfo.imeOptions)
+            .isEqualTo(EditorInfo.IME_ACTION_SEARCH or EditorInfo.IME_FLAG_NO_FULLSCREEN)
     }
 
     @Test
@@ -228,11 +217,7 @@ class AndroidTextInputSessionTest {
                         composeImm = composeImm
                     )
                 } else {
-                    inputSessionWithDefaultsForTest(
-                        state,
-                        imeOptions,
-                        onImeAction
-                    )
+                    inputSessionWithDefaultsForTest(state, imeOptions, onImeAction)
                 }
             }
         }
@@ -244,25 +229,30 @@ class AndroidTextInputSessionTest {
         onImeAction: (ImeAction) -> Unit = {},
         receiveContentConfiguration: ReceiveContentConfiguration? = null,
         composeImm: ComposeInputMethodManager = ComposeInputMethodManager(view)
-    ): Nothing = platformSpecificTextInputSession(
-        state = TransformedTextFieldState(
-            textFieldState = state,
-            inputTransformation = null,
-            codepointTransformation = null
-        ),
-        layoutState = TextLayoutState(),
-        imeOptions = imeOptions,
-        composeImm = composeImm,
-        receiveContentConfiguration = receiveContentConfiguration,
-        onImeAction = onImeAction,
-        stylusHandwritingTrigger = null,
-        viewConfiguration = null
-    )
+    ): Nothing =
+        platformSpecificTextInputSession(
+            state =
+                TransformedTextFieldState(
+                    textFieldState = state,
+                    inputTransformation = null,
+                    codepointTransformation = null
+                ),
+            layoutState = TextLayoutState(),
+            imeOptions = imeOptions,
+            composeImm = composeImm,
+            receiveContentConfiguration = receiveContentConfiguration,
+            onImeAction = onImeAction,
+            stylusHandwritingTrigger = null,
+            viewConfiguration = null
+        )
 
     private inner class TestTextElement : ModifierNodeElement<TestTextNode>() {
         override fun create(): TestTextNode = TestTextNode()
+
         override fun update(node: TestTextNode) {}
+
         override fun hashCode(): Int = 0
+
         override fun equals(other: Any?): Boolean = other is TestTextElement
     }
 

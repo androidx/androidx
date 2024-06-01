@@ -77,17 +77,14 @@ import androidx.compose.ui.unit.sp
 @Preview
 @Composable
 fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selected = items[1] } }) {
-    BackHandler {
-        model.selected = null
-    }
+    BackHandler { model.selected = null }
     SharedTransitionLayout {
         AnimatedContent(
             model.selected,
             transitionSpec = {
                 fadeIn(tween(600)) togetherWith
-                    fadeOut(tween(600)) using SizeTransform { _, _ ->
-                    spring()
-                }
+                    fadeOut(tween(600)) using
+                    SizeTransform { _, _ -> spring() }
             },
             label = ""
         ) {
@@ -105,8 +102,7 @@ context(SharedTransitionScope, AnimatedVisibilityScope)
 @Composable
 fun Details(kitty: Kitty) {
     Column(
-        Modifier
-            .padding(start = 10.dp, end = 10.dp, top = 10.dp)
+        Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
             .fillMaxHeight()
             .wrapContentHeight(Alignment.Top)
             .fillMaxWidth()
@@ -119,23 +115,23 @@ fun Details(kitty: Kitty) {
                 Text(
                     kitty.name,
                     fontSize = 25.sp,
-                    modifier = Modifier
-                        .padding(start = 10.dp)
-                        .sharedBounds(
-                            rememberSharedContentState(key = kitty.name + kitty.id),
-                            this@AnimatedVisibilityScope
-                        )
+                    modifier =
+                        Modifier.padding(start = 10.dp)
+                            .sharedBounds(
+                                rememberSharedContentState(key = kitty.name + kitty.id),
+                                this@AnimatedVisibilityScope
+                            )
                 )
                 Text(
                     kitty.breed,
                     fontSize = 22.sp,
                     color = Color.Gray,
-                    modifier = Modifier
-                        .padding(start = 10.dp)
-                        .sharedBounds(
-                            rememberSharedContentState(key = kitty.breed + kitty.id),
-                            this@AnimatedVisibilityScope
-                        )
+                    modifier =
+                        Modifier.padding(start = 10.dp)
+                            .sharedBounds(
+                                rememberSharedContentState(key = kitty.breed + kitty.id),
+                                this@AnimatedVisibilityScope
+                            )
                 )
                 Spacer(Modifier.size(10.dp))
             }
@@ -143,55 +139,53 @@ fun Details(kitty: Kitty) {
             Icon(
                 Icons.Outlined.Favorite,
                 contentDescription = null,
-                Modifier
-                    .background(Color(0xffffddee), CircleShape)
-                    .padding(10.dp)
+                Modifier.background(Color(0xffffddee), CircleShape).padding(10.dp)
             )
             Spacer(Modifier.size(10.dp))
         }
         Box(
-            modifier = Modifier
-                .padding(bottom = 10.dp)
-                .height(2.dp)
-                .fillMaxWidth()
-                .background(Color(0xffeeeeee))
+            modifier =
+                Modifier.padding(bottom = 10.dp)
+                    .height(2.dp)
+                    .fillMaxWidth()
+                    .background(Color(0xffeeeeee))
         )
         Text(
             text =
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla" +
-                " mollis efficitur. Maecenas sit amet urna eu urna blandit suscipit efficitur" +
-                " eget mauris. Nullam eget aliquet ligula. Nunc id euismod elit. Morbi aliquam" +
-                " enim eros, eget consequat dolor consequat id. Quisque elementum faucibus" +
-                " congue. Curabitur mollis aliquet turpis, ut pellentesque justo eleifend nec.\n" +
-                "\n" +
-                "Suspendisse ac consequat turpis, euismod lacinia quam. Nulla lacinia tellus" +
-                " eu felis tristique ultricies. Vivamus et ultricies dolor. Orci varius" +
-                " natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus." +
-                " Ut gravida porttitor arcu elementum elementum. Phasellus ultrices vel turpis" +
-                " volutpat mollis. Vivamus leo diam, placerat quis leo efficitur, ultrices" +
-                " placerat ex. Nullam mollis et metus ac ultricies. Ut ligula metus, congue" +
-                " gravida metus in, vestibulum posuere velit. Sed et ex nisl. Fusce tempor" +
-                " odio eget sapien pellentesque, sed cursus velit fringilla. Nullam odio" +
-                " ipsum, eleifend non consectetur vitae, congue id libero. Etiam tincidunt" +
-                " mauris at urna dictum ornare.\n" +
-                "\n" +
-                "Etiam at facilisis ex. Sed quis arcu diam. Quisque semper pharetra leo eget" +
-                " fermentum. Nulla dapibus eget mi id porta. Nunc quis sodales nulla, eget" +
-                " commodo sem. Donec lacus enim, pharetra non risus nec, eleifend ultrices" +
-                " augue. Donec sit amet orci porttitor, auctor mauris et, facilisis dolor." +
-                " Nullam mattis luctus orci at pulvinar.\n" +
-                "\n" +
-                "Sed accumsan est massa, ut aliquam nulla dignissim id. Suspendisse in urna" +
-                " condimentum, convallis purus at, molestie nisi. In hac habitasse platea" +
-                " dictumst. Pellentesque id justo quam. Cras iaculis tellus libero, eu" +
-                " feugiat ex pharetra eget. Nunc ultrices, magna ut gravida egestas, mauris" +
-                " justo blandit sapien, eget congue nisi felis congue diam. Mauris at felis" +
-                " vitae erat porta auctor. Pellentesque iaculis sem metus. Phasellus quam" +
-                " neque, congue at est eget, sodales interdum justo. Aenean a pharetra dui." +
-                " Morbi odio nibh, hendrerit vulputate odio eget, sollicitudin egestas ex." +
-                " Fusce nisl ex, fermentum a ultrices id, rhoncus vitae urna. Aliquam quis" +
-                " lobortis turpis.\n" +
-                "\n",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla" +
+                    " mollis efficitur. Maecenas sit amet urna eu urna blandit suscipit efficitur" +
+                    " eget mauris. Nullam eget aliquet ligula. Nunc id euismod elit. Morbi aliquam" +
+                    " enim eros, eget consequat dolor consequat id. Quisque elementum faucibus" +
+                    " congue. Curabitur mollis aliquet turpis, ut pellentesque justo eleifend nec.\n" +
+                    "\n" +
+                    "Suspendisse ac consequat turpis, euismod lacinia quam. Nulla lacinia tellus" +
+                    " eu felis tristique ultricies. Vivamus et ultricies dolor. Orci varius" +
+                    " natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus." +
+                    " Ut gravida porttitor arcu elementum elementum. Phasellus ultrices vel turpis" +
+                    " volutpat mollis. Vivamus leo diam, placerat quis leo efficitur, ultrices" +
+                    " placerat ex. Nullam mollis et metus ac ultricies. Ut ligula metus, congue" +
+                    " gravida metus in, vestibulum posuere velit. Sed et ex nisl. Fusce tempor" +
+                    " odio eget sapien pellentesque, sed cursus velit fringilla. Nullam odio" +
+                    " ipsum, eleifend non consectetur vitae, congue id libero. Etiam tincidunt" +
+                    " mauris at urna dictum ornare.\n" +
+                    "\n" +
+                    "Etiam at facilisis ex. Sed quis arcu diam. Quisque semper pharetra leo eget" +
+                    " fermentum. Nulla dapibus eget mi id porta. Nunc quis sodales nulla, eget" +
+                    " commodo sem. Donec lacus enim, pharetra non risus nec, eleifend ultrices" +
+                    " augue. Donec sit amet orci porttitor, auctor mauris et, facilisis dolor." +
+                    " Nullam mattis luctus orci at pulvinar.\n" +
+                    "\n" +
+                    "Sed accumsan est massa, ut aliquam nulla dignissim id. Suspendisse in urna" +
+                    " condimentum, convallis purus at, molestie nisi. In hac habitasse platea" +
+                    " dictumst. Pellentesque id justo quam. Cras iaculis tellus libero, eu" +
+                    " feugiat ex pharetra eget. Nunc ultrices, magna ut gravida egestas, mauris" +
+                    " justo blandit sapien, eget congue nisi felis congue diam. Mauris at felis" +
+                    " vitae erat porta auctor. Pellentesque iaculis sem metus. Phasellus quam" +
+                    " neque, congue at est eget, sodales interdum justo. Aenean a pharetra dui." +
+                    " Morbi odio nibh, hendrerit vulputate odio eget, sollicitudin egestas ex." +
+                    " Fusce nisl ex, fermentum a ultrices id, rhoncus vitae urna. Aliquam quis" +
+                    " lobortis turpis.\n" +
+                    "\n",
             color = Color.Gray,
             fontSize = 15.sp,
         )
@@ -201,25 +195,16 @@ fun Details(kitty: Kitty) {
 context(AnimatedVisibilityScope, SharedTransitionScope)
 @Suppress("UNUSED_PARAMETER")
 @Composable
-fun DetailView(
-    model: MyModel,
-    selected: Kitty,
-    next: Kitty?
-) {
+fun DetailView(model: MyModel, selected: Kitty, next: Kitty?) {
     Column(
-        Modifier
-            .clickable(
-                interactionSource = remember {
-                    MutableInteractionSource()
-                },
+        Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
                 model.selected = null
             }
             .sharedBounds(
-                rememberSharedContentState(
-                    key = "container + ${selected.id}"
-                ),
+                rememberSharedContentState(key = "container + ${selected.id}"),
                 this@AnimatedVisibilityScope,
                 fadeIn(),
                 fadeOut(),
@@ -232,28 +217,28 @@ fun DetailView(
                 painter = painterResource(selected.photoResId),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .sharedElement(
-                        rememberSharedContentState(key = selected.id),
-                        this@AnimatedVisibilityScope,
-                        placeHolderSize = animatedSize
-                    )
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(20.dp))
+                modifier =
+                    Modifier.padding(10.dp)
+                        .sharedElement(
+                            rememberSharedContentState(key = selected.id),
+                            this@AnimatedVisibilityScope,
+                            placeHolderSize = animatedSize
+                        )
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(20.dp))
             )
             if (next != null) {
                 Image(
                     painter = painterResource(next.photoResId),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(20.dp))
-                        .blur(10.dp)
+                    modifier =
+                        Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(20.dp))
+                            .blur(10.dp)
                 )
             }
         }
@@ -266,8 +251,7 @@ context(AnimatedVisibilityScope, SharedTransitionScope)
 fun GridView(model: MyModel) {
     Box(Modifier.background(lessVibrantPurple)) {
         Box(
-            Modifier
-                .padding(20.dp)
+            Modifier.padding(20.dp)
                 .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 2f)
                 .animateEnterExit(fadeIn(), fadeOut())
         ) {
@@ -278,9 +262,7 @@ fun GridView(model: MyModel) {
             contentPadding = PaddingValues(top = 90.dp)
         ) {
             items(6) {
-                Box(modifier = Modifier.clickable {
-                    model.selected = model.items[it]
-                }) {
+                Box(modifier = Modifier.clickable { model.selected = model.items[it] }) {
                     KittyItem(model.items[it])
                 }
             }
@@ -289,15 +271,16 @@ fun GridView(model: MyModel) {
 }
 
 class MyModel {
-    val items = mutableListOf(
-        Kitty("Waffle", R.drawable.waffle, "American Short Hair", 0),
-        Kitty("油条", R.drawable.yt_profile, "Tabby", 1),
-        Kitty("Cowboy", R.drawable.cowboy, "American Short Hair", 2),
-        Kitty("Pepper", R.drawable.pepper, "Tabby", 3),
-        Kitty("Unknown", R.drawable.question_mark, "Unknown Breed", 4),
-        Kitty("Unknown", R.drawable.question_mark, "Unknown Breed", 5),
-        Kitty("YT", R.drawable.yt_profile2, "Tabby", 6),
-    )
+    val items =
+        mutableListOf(
+            Kitty("Waffle", R.drawable.waffle, "American Short Hair", 0),
+            Kitty("油条", R.drawable.yt_profile, "Tabby", 1),
+            Kitty("Cowboy", R.drawable.cowboy, "American Short Hair", 2),
+            Kitty("Pepper", R.drawable.pepper, "Tabby", 3),
+            Kitty("Unknown", R.drawable.question_mark, "Unknown Breed", 4),
+            Kitty("Unknown", R.drawable.question_mark, "Unknown Breed", 5),
+            Kitty("YT", R.drawable.yt_profile2, "Tabby", 6),
+        )
     var selected: Kitty? by mutableStateOf(null)
 }
 
@@ -305,8 +288,7 @@ context(AnimatedVisibilityScope, SharedTransitionScope)
 @Composable
 fun KittyItem(kitty: Kitty) {
     Column(
-        Modifier
-            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+        Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
             .sharedBounds(
                 rememberSharedContentState(key = "container + ${kitty.id}"),
                 this@AnimatedVisibilityScope,
@@ -317,37 +299,37 @@ fun KittyItem(kitty: Kitty) {
             painter = painterResource(kitty.photoResId),
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .sharedElement(
-                    rememberSharedContentState(key = kitty.id),
-                    this@AnimatedVisibilityScope,
-                    placeHolderSize = animatedSize
-                )
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(20.dp))
+            modifier =
+                Modifier.sharedElement(
+                        rememberSharedContentState(key = kitty.id),
+                        this@AnimatedVisibilityScope,
+                        placeHolderSize = animatedSize
+                    )
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(20.dp))
         )
         Spacer(Modifier.size(10.dp))
         Text(
             kitty.name,
             fontSize = 18.sp,
-            modifier = Modifier
-                .padding(start = 10.dp)
-                .sharedBounds(
-                    rememberSharedContentState(key = kitty.name + kitty.id),
-                    this@AnimatedVisibilityScope
-                )
+            modifier =
+                Modifier.padding(start = 10.dp)
+                    .sharedBounds(
+                        rememberSharedContentState(key = kitty.name + kitty.id),
+                        this@AnimatedVisibilityScope
+                    )
         )
         Spacer(Modifier.size(5.dp))
         Text(
             kitty.breed,
             fontSize = 15.sp,
             color = Color.Gray,
-            modifier = Modifier
-                .padding(start = 10.dp)
-                .sharedBounds(
-                    rememberSharedContentState(key = kitty.breed + kitty.id),
-                    this@AnimatedVisibilityScope
-                )
+            modifier =
+                Modifier.padding(start = 10.dp)
+                    .sharedBounds(
+                        rememberSharedContentState(key = kitty.breed + kitty.id),
+                        this@AnimatedVisibilityScope
+                    )
         )
         Spacer(Modifier.size(10.dp))
     }

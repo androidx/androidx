@@ -38,33 +38,31 @@ class CompilerPluginRuntimeVersionCheckTest {
         private const val SOURCE_DIR = "$MAIN_DIR/java/androidx/compose/compiler/test"
     }
 
-    @get:Rule
-    val projectSetup = ProjectSetupRule()
+    @get:Rule val projectSetup = ProjectSetupRule()
 
     private lateinit var gradleRunner: GradleRunner
 
     private lateinit var projectRoot: File
 
     private val compilerPluginVersion by lazy {
-        val metadataFile = File(projectSetup.props.tipOfTreeMavenRepoPath).resolve(
-            "androidx/compose/compiler/compiler/maven-metadata.xml"
-        )
+        val metadataFile =
+            File(projectSetup.props.tipOfTreeMavenRepoPath)
+                .resolve("androidx/compose/compiler/compiler/maven-metadata.xml")
         check(metadataFile.exists()) {
             "Cannot find compose metadata file in ${metadataFile.absolutePath}"
         }
-        check(metadataFile.isFile) {
-            "Metadata file should be a file but it is not."
-        }
-        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(metadataFile)
-        val latestVersionNode = XPathFactory.newInstance().newXPath()
-            .compile("/metadata/versioning/latest").evaluate(
-                xmlDoc, XPathConstants.STRING
-            )
+        check(metadataFile.isFile) { "Metadata file should be a file but it is not." }
+        val xmlDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(metadataFile)
+        val latestVersionNode =
+            XPathFactory.newInstance()
+                .newXPath()
+                .compile("/metadata/versioning/latest")
+                .evaluate(xmlDoc, XPathConstants.STRING)
         check(latestVersionNode is String) {
             """Unexpected node for latest version:
                 $latestVersionNode / ${latestVersionNode::class.java}
-            """.trimIndent()
+            """
+                .trimIndent()
         }
         latestVersionNode
     }
@@ -72,9 +70,10 @@ class CompilerPluginRuntimeVersionCheckTest {
     @Before
     fun setup() {
         projectRoot = projectSetup.rootDir
-        gradleRunner = GradleRunner.create()
-            .withProjectDir(projectRoot)
-            .withArguments("clean", "compileDebugKotlin")
+        gradleRunner =
+            GradleRunner.create()
+                .withProjectDir(projectRoot)
+                .withArguments("clean", "compileDebugKotlin")
         setupProjectBuildGradle()
         setupSettingsGradle()
         setupAndroidManifest()
@@ -118,7 +117,8 @@ class CompilerPluginRuntimeVersionCheckTest {
                     maven {
                         url "$it"
                     }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
             appendLine("}")
@@ -141,7 +141,8 @@ class CompilerPluginRuntimeVersionCheckTest {
             task clean(type: Delete) {
                 delete rootProject.buildDir
             }
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -183,7 +184,8 @@ class CompilerPluginRuntimeVersionCheckTest {
                     jvmTarget = "1.8"
                 }
             }
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -192,7 +194,8 @@ class CompilerPluginRuntimeVersionCheckTest {
             "settings.gradle",
             """
             include ':app'
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -201,7 +204,8 @@ class CompilerPluginRuntimeVersionCheckTest {
             "$MAIN_DIR/AndroidManifest.xml",
             """
             <manifest/>
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -212,7 +216,8 @@ class CompilerPluginRuntimeVersionCheckTest {
             """
             package androidx.compose.compiler.test
             const val number = 5
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 

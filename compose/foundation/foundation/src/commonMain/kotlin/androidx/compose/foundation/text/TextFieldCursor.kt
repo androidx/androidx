@@ -42,56 +42,67 @@ internal fun Modifier.cursor(
     offsetMapping: OffsetMapping,
     cursorBrush: Brush,
     enabled: Boolean
-) = if (enabled) composed {
-    val cursorAnimation = remember { CursorAnimationState() }
-    // Don't bother animating the cursor if it wouldn't draw any pixels.
-    val isBrushSpecified = !(cursorBrush is SolidColor && cursorBrush.value.isUnspecified)
-    // Only animate the cursor when its window is actually focused. This also disables the cursor
-    // animation when the screen is off.
-    // TODO confirm screen-off behavior.
-    val isWindowFocused = LocalWindowInfo.current.isWindowFocused
-    if (isWindowFocused && state.hasFocus && value.selection.collapsed && isBrushSpecified) {
-        LaunchedEffect(value.annotatedString, value.selection) {
-            cursorAnimation.snapToVisibleAndAnimate()
-        }
-        drawWithContent {
-            this.drawContent()
-            val cursorAlphaValue = cursorAnimation.cursorAlpha
-            if (cursorAlphaValue != 0f) {
-                val transformedOffset = offsetMapping
-                    .originalToTransformed(value.selection.start)
-                val cursorRect = state.layoutResult?.value?.getCursorRect(transformedOffset)
-                    ?: Rect(0f, 0f, 0f, 0f)
-                val cursorWidth = DefaultCursorThickness.toPx()
-                val cursorX = (cursorRect.left + cursorWidth / 2)
-                    // Do not use coerceIn because it is not guaranteed that the minimum value is
-                    // smaller than the maximum value.
-                    .coerceAtMost(size.width - cursorWidth / 2)
-                    .coerceAtLeast(cursorWidth / 2)
+) =
+    if (enabled)
+        composed {
+            val cursorAnimation = remember { CursorAnimationState() }
+            // Don't bother animating the cursor if it wouldn't draw any pixels.
+            val isBrushSpecified = !(cursorBrush is SolidColor && cursorBrush.value.isUnspecified)
+            // Only animate the cursor when its window is actually focused. This also disables the
+            // cursor
+            // animation when the screen is off.
+            // TODO confirm screen-off behavior.
+            val isWindowFocused = LocalWindowInfo.current.isWindowFocused
+            if (
+                isWindowFocused && state.hasFocus && value.selection.collapsed && isBrushSpecified
+            ) {
+                LaunchedEffect(value.annotatedString, value.selection) {
+                    cursorAnimation.snapToVisibleAndAnimate()
+                }
+                drawWithContent {
+                    this.drawContent()
+                    val cursorAlphaValue = cursorAnimation.cursorAlpha
+                    if (cursorAlphaValue != 0f) {
+                        val transformedOffset =
+                            offsetMapping.originalToTransformed(value.selection.start)
+                        val cursorRect =
+                            state.layoutResult?.value?.getCursorRect(transformedOffset)
+                                ?: Rect(0f, 0f, 0f, 0f)
+                        val cursorWidth = DefaultCursorThickness.toPx()
+                        val cursorX =
+                            (cursorRect.left + cursorWidth / 2)
+                                // Do not use coerceIn because it is not guaranteed that the minimum
+                                // value is
+                                // smaller than the maximum value.
+                                .coerceAtMost(size.width - cursorWidth / 2)
+                                .coerceAtLeast(cursorWidth / 2)
 
-                drawLine(
-                    cursorBrush,
-                    Offset(cursorX, cursorRect.top),
-                    Offset(cursorX, cursorRect.bottom),
-                    alpha = cursorAlphaValue,
-                    strokeWidth = cursorWidth
-                )
+                        drawLine(
+                            cursorBrush,
+                            Offset(cursorX, cursorRect.top),
+                            Offset(cursorX, cursorRect.bottom),
+                            alpha = cursorAlphaValue,
+                            strokeWidth = cursorWidth
+                        )
+                    }
+                }
+            } else {
+                Modifier
             }
         }
-    } else {
-        Modifier
-    }
-} else this
+    else this
 
-private val cursorAnimationSpec: AnimationSpec<Float> = infiniteRepeatable(
-    animation = keyframes {
-        durationMillis = 1000
-        1f at 0
-        1f at 499
-        0f at 500
-        0f at 999
-    }
-)
+private val cursorAnimationSpec: AnimationSpec<Float> =
+    infiniteRepeatable(
+        animation =
+            keyframes {
+                durationMillis = 1000
+                1f at 0
+                1f at 499
+                0f at 500
+                0f at 999
+            }
+    )
 
 internal val DefaultCursorThickness = 2.dp
 

@@ -52,8 +52,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class DefaultKeyboardActionsTest(param: Param) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
@@ -68,10 +67,16 @@ class DefaultKeyboardActionsTest(param: Param) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "ImeAction = {0}")
-        fun initParameters() = listOf(
-            // OS never shows a Default or None ImeAction.
-            Param(Go), Param(Search), Param(Send), Param(Previous), Param(Next), Param(Done)
-        )
+        fun initParameters() =
+            listOf(
+                // OS never shows a Default or None ImeAction.
+                Param(Go),
+                Param(Search),
+                Param(Send),
+                Param(Previous),
+                Param(Next),
+                Param(Done)
+            )
     }
 
     @Test
@@ -85,33 +90,36 @@ class DefaultKeyboardActionsTest(param: Param) {
         val keyboardController = TestSoftwareKeyboardController(rule)
 
         inputMethodInterceptor.setContent {
-            CompositionLocalProvider(
-                LocalSoftwareKeyboardController provides keyboardController
-            ) {
+            CompositionLocalProvider(LocalSoftwareKeyboardController provides keyboardController) {
                 Column {
                     CoreTextField(
                         value = value1,
                         onValueChange = {},
-                        modifier = Modifier
-                            .focusRequester(textField1)
-                            .onFocusChanged { focusState1 = it.isFocused }
+                        modifier =
+                            Modifier.focusRequester(textField1).onFocusChanged {
+                                focusState1 = it.isFocused
+                            }
                     )
                     CoreTextField(
                         value = value2,
                         onValueChange = {},
-                        modifier = Modifier
-                            .testTag(initialTextField)
-                            .focusRequester(textField2)
-                            .focusProperties { previous = textField1; next = textField3 }
-                            .onFocusChanged { focusState2 = it.isFocused },
+                        modifier =
+                            Modifier.testTag(initialTextField)
+                                .focusRequester(textField2)
+                                .focusProperties {
+                                    previous = textField1
+                                    next = textField3
+                                }
+                                .onFocusChanged { focusState2 = it.isFocused },
                         imeOptions = ImeOptions(imeAction = imeAction)
                     )
                     CoreTextField(
                         value = value3,
                         onValueChange = {},
-                        modifier = Modifier
-                            .focusRequester(textField3)
-                            .onFocusChanged { focusState3 = it.isFocused }
+                        modifier =
+                            Modifier.focusRequester(textField3).onFocusChanged {
+                                focusState3 = it.isFocused
+                            }
                     )
                 }
             }
@@ -168,41 +176,45 @@ class DefaultKeyboardActionsTest(param: Param) {
         val keyboardController = TestSoftwareKeyboardController(rule)
 
         inputMethodInterceptor.setContent {
-            CompositionLocalProvider(
-                LocalSoftwareKeyboardController provides keyboardController
-            ) {
+            CompositionLocalProvider(LocalSoftwareKeyboardController provides keyboardController) {
                 Column {
                     CoreTextField(
                         value = value1,
                         onValueChange = {},
-                        modifier = Modifier
-                            .focusRequester(textField1)
-                            .onFocusChanged { focusState1 = it.isFocused }
+                        modifier =
+                            Modifier.focusRequester(textField1).onFocusChanged {
+                                focusState1 = it.isFocused
+                            }
                     )
                     CoreTextField(
                         value = value2,
                         onValueChange = {},
-                        modifier = Modifier
-                            .testTag(initialTextField)
-                            .focusRequester(textField2)
-                            .focusProperties { previous = textField1; next = textField3 }
-                            .onFocusChanged { focusState2 = it.isFocused },
+                        modifier =
+                            Modifier.testTag(initialTextField)
+                                .focusRequester(textField2)
+                                .focusProperties {
+                                    previous = textField1
+                                    next = textField3
+                                }
+                                .onFocusChanged { focusState2 = it.isFocused },
                         imeOptions = ImeOptions(imeAction = imeAction),
-                        keyboardActions = KeyboardActions(
-                            onDone = { defaultKeyboardAction(Done) },
-                            onGo = { defaultKeyboardAction(Go) },
-                            onNext = { defaultKeyboardAction(Next) },
-                            onPrevious = { defaultKeyboardAction(Previous) },
-                            onSearch = { defaultKeyboardAction(Search) },
-                            onSend = { defaultKeyboardAction(Send) },
-                        )
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = { defaultKeyboardAction(Done) },
+                                onGo = { defaultKeyboardAction(Go) },
+                                onNext = { defaultKeyboardAction(Next) },
+                                onPrevious = { defaultKeyboardAction(Previous) },
+                                onSearch = { defaultKeyboardAction(Search) },
+                                onSend = { defaultKeyboardAction(Send) },
+                            )
                     )
                     CoreTextField(
                         value = value3,
                         onValueChange = {},
-                        modifier = Modifier
-                            .focusRequester(textField3)
-                            .onFocusChanged { focusState3 = it.isFocused }
+                        modifier =
+                            Modifier.focusRequester(textField3).onFocusChanged {
+                                focusState3 = it.isFocused
+                            }
                     )
                 }
             }
@@ -262,27 +274,29 @@ class DefaultKeyboardActionsTest(param: Param) {
                 CoreTextField(
                     value = value1,
                     onValueChange = {},
-                    modifier = Modifier
-                        .testTag(initialTextField)
-                        .focusRequester(textField1)
-                        .focusProperties { next = textField2 }
-                        .onFocusChanged { focusState1 = it.isFocused },
+                    modifier =
+                        Modifier.testTag(initialTextField)
+                            .focusRequester(textField1)
+                            .focusProperties { next = textField2 }
+                            .onFocusChanged { focusState1 = it.isFocused },
                     imeOptions = ImeOptions(imeAction = imeAction),
-                    keyboardActions = KeyboardActions(
-                        onDone = { defaultKeyboardAction(Next) },
-                        onGo = { defaultKeyboardAction(Next) },
-                        onNext = { defaultKeyboardAction(Next) },
-                        onPrevious = { defaultKeyboardAction(Next) },
-                        onSearch = { defaultKeyboardAction(Next) },
-                        onSend = { defaultKeyboardAction(Next) },
-                    )
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = { defaultKeyboardAction(Next) },
+                            onGo = { defaultKeyboardAction(Next) },
+                            onNext = { defaultKeyboardAction(Next) },
+                            onPrevious = { defaultKeyboardAction(Next) },
+                            onSearch = { defaultKeyboardAction(Next) },
+                            onSend = { defaultKeyboardAction(Next) },
+                        )
                 )
                 CoreTextField(
                     value = value2,
                     onValueChange = {},
-                    modifier = Modifier
-                        .focusRequester(textField2)
-                        .onFocusChanged { focusState2 = it.isFocused }
+                    modifier =
+                        Modifier.focusRequester(textField2).onFocusChanged {
+                            focusState2 = it.isFocused
+                        }
                 )
             }
         }

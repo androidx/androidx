@@ -205,65 +205,70 @@ fun CenterMenu(
     visible: Boolean
 ) {
     Box(modifier.fillMaxHeight()) {
-
         val animationAlignment = if (oppositeDirection) opposite(alignment) else alignment
-        val expand = when (animationAlignment) {
-            TopCenter -> expandVertically(expandFrom = Top)
-            BottomCenter -> expandVertically(expandFrom = Bottom)
-            CenterStart -> expandHorizontally(expandFrom = Start)
-            CenterEnd -> expandHorizontally(expandFrom = End)
-            else -> expandIn(expandFrom = animationAlignment)
-        }
+        val expand =
+            when (animationAlignment) {
+                TopCenter -> expandVertically(expandFrom = Top)
+                BottomCenter -> expandVertically(expandFrom = Bottom)
+                CenterStart -> expandHorizontally(expandFrom = Start)
+                CenterEnd -> expandHorizontally(expandFrom = End)
+                else -> expandIn(expandFrom = animationAlignment)
+            }
 
-        val shrink = when (animationAlignment) {
-            TopCenter -> shrinkVertically(shrinkTowards = Top)
-            BottomCenter -> shrinkVertically(shrinkTowards = Bottom)
-            CenterStart -> shrinkHorizontally(shrinkTowards = Start)
-            CenterEnd -> shrinkHorizontally(shrinkTowards = End)
-            else -> shrinkOut(shrinkTowards = animationAlignment)
-        }
+        val shrink =
+            when (animationAlignment) {
+                TopCenter -> shrinkVertically(shrinkTowards = Top)
+                BottomCenter -> shrinkVertically(shrinkTowards = Bottom)
+                CenterStart -> shrinkHorizontally(shrinkTowards = Start)
+                CenterEnd -> shrinkHorizontally(shrinkTowards = End)
+                else -> shrinkOut(shrinkTowards = animationAlignment)
+            }
 
-        val slideIn = when (alignment) {
-            TopCenter -> slideInVertically { -it }
-            BottomCenter -> slideInVertically { it }
-            CenterStart -> slideInHorizontally { -it }
-            CenterEnd -> slideInHorizontally { it }
-            TopStart -> slideIn { IntOffset(-it.width, -it.height) }
-            BottomStart -> slideIn { IntOffset(-it.width, it.height) }
-            TopEnd -> slideIn { IntOffset(it.width, -it.height) }
-            BottomEnd -> slideIn { IntOffset(it.width, it.height) }
-            else -> slideIn { alignment.align(it, IntSize.Zero, LayoutDirection.Ltr) }
-        }
-        val slideOut = when (alignment) {
-            TopCenter -> slideOutVertically { -it }
-            BottomCenter -> slideOutVertically { it }
-            CenterStart -> slideOutHorizontally { -it }
-            CenterEnd -> slideOutHorizontally { it }
-            TopStart -> slideOut { IntOffset(-it.width, -it.height) }
-            BottomStart -> slideOut { IntOffset(-it.width, it.height) }
-            TopEnd -> slideOut { IntOffset(it.width, -it.height) }
-            BottomEnd -> slideOut { IntOffset(it.width, it.height) }
-            else -> slideOut { alignment.align(IntSize.Zero, it, LayoutDirection.Ltr) }
-        }
+        val slideIn =
+            when (alignment) {
+                TopCenter -> slideInVertically { -it }
+                BottomCenter -> slideInVertically { it }
+                CenterStart -> slideInHorizontally { -it }
+                CenterEnd -> slideInHorizontally { it }
+                TopStart -> slideIn { IntOffset(-it.width, -it.height) }
+                BottomStart -> slideIn { IntOffset(-it.width, it.height) }
+                TopEnd -> slideIn { IntOffset(it.width, -it.height) }
+                BottomEnd -> slideIn { IntOffset(it.width, it.height) }
+                else -> slideIn { alignment.align(it, IntSize.Zero, LayoutDirection.Ltr) }
+            }
+        val slideOut =
+            when (alignment) {
+                TopCenter -> slideOutVertically { -it }
+                BottomCenter -> slideOutVertically { it }
+                CenterStart -> slideOutHorizontally { -it }
+                CenterEnd -> slideOutHorizontally { it }
+                TopStart -> slideOut { IntOffset(-it.width, -it.height) }
+                BottomStart -> slideOut { IntOffset(-it.width, it.height) }
+                TopEnd -> slideOut { IntOffset(it.width, -it.height) }
+                BottomEnd -> slideOut { IntOffset(it.width, it.height) }
+                else -> slideOut { alignment.align(IntSize.Zero, it, LayoutDirection.Ltr) }
+            }
 
         var enter: EnterTransition? = null
         selectedOptions.forEachIndexed { index: Int, selected: Boolean ->
             if (selected) {
-                enter = when (index) {
-                    0 -> enter?.plus(fadeIn()) ?: fadeIn()
-                    1 -> enter?.plus(expand) ?: expand
-                    else -> enter?.plus(slideIn) ?: slideIn
-                }
+                enter =
+                    when (index) {
+                        0 -> enter?.plus(fadeIn()) ?: fadeIn()
+                        1 -> enter?.plus(expand) ?: expand
+                        else -> enter?.plus(slideIn) ?: slideIn
+                    }
             }
         }
         var exit: ExitTransition? = null
         selectedOptions.forEachIndexed { index: Int, selected: Boolean ->
             if (selected) {
-                exit = when (index) {
-                    0 -> exit?.plus(fadeOut()) ?: fadeOut()
-                    1 -> exit?.plus(shrink) ?: shrink
-                    else -> exit?.plus(slideOut) ?: slideOut
-                }
+                exit =
+                    when (index) {
+                        0 -> exit?.plus(fadeOut()) ?: fadeOut()
+                        1 -> exit?.plus(shrink) ?: shrink
+                        else -> exit?.plus(slideOut) ?: slideOut
+                    }
             }
         }
 
@@ -281,9 +286,7 @@ fun CenterMenu(
                 }
             }
             LazyColumn(Modifier.fillMaxSize().background(Color(0xFFd8c7ff))) {
-                items(menuText) {
-                    Text(it, Modifier.padding(5.dp))
-                }
+                items(menuText) { Text(it, Modifier.padding(5.dp)) }
             }
         }
     }
@@ -292,28 +295,17 @@ fun CenterMenu(
 @Composable
 fun TransitionOptions(selectedOptions: List<Boolean>, onOptionSelected: (Int) -> Unit) {
     Column {
-        val radioOptions =
-            listOf("Fade", "Expand/Shrink", "Slide")
+        val radioOptions = listOf("Fade", "Expand/Shrink", "Slide")
         radioOptions.forEachIndexed { i, text ->
             Row(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(30.dp)
-                    .selectable(
-                        selected = selectedOptions[i],
-                        onClick = { onOptionSelected(i) }
-                    )
+                    .selectable(selected = selectedOptions[i], onClick = { onOptionSelected(i) })
                     .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Checkbox(
-                    checked = selectedOptions[i],
-                    onCheckedChange = { onOptionSelected(i) }
-                )
-                Text(
-                    text = text,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
+                Checkbox(checked = selectedOptions[i], onCheckedChange = { onOptionSelected(i) })
+                Text(text = text, modifier = Modifier.padding(start = 16.dp))
             }
         }
     }

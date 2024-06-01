@@ -63,9 +63,7 @@ internal fun TextWithMetrics(
         modifier = Modifier.drawTextMetrics(textLayout.value, colors).background(Color.LightGray),
         maxLines = maxLines,
         overflow = overflow,
-        onTextLayout = {
-            textLayout.value = it
-        },
+        onTextLayout = { textLayout.value = it },
         softWrap = softWrap
     )
 }
@@ -88,9 +86,7 @@ internal fun TextFieldWithMetrics(
         textStyle = style,
         singleLine = !softWrap,
         maxLines = maxLines,
-        onTextLayout = {
-            textLayout = it
-        }
+        onTextLayout = { textLayout = it }
     )
 }
 
@@ -140,14 +136,19 @@ private class TextMetricHelper(
     drawScope: DrawScope
 ) : DrawScope by drawScope {
 
-    private enum class Alignment { Left, Right, Center }
+    private enum class Alignment {
+        Left,
+        Right,
+        Center
+    }
 
     private val pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))
     private val overflow = 3 * thickness
-    private val textPaint = android.graphics.Paint().apply {
-        textSize = labelSize
-        setShadowLayer(Float.MIN_VALUE, 4f, 4f, android.graphics.Color.WHITE)
-    }
+    private val textPaint =
+        android.graphics.Paint().apply {
+            textSize = labelSize
+            setShadowLayer(Float.MIN_VALUE, 4f, 4f, android.graphics.Color.WHITE)
+        }
 
     fun drawTextLayout(textLayout: TextLayoutResult?) {
         if (textLayout == null) return
@@ -184,11 +185,12 @@ private class TextMetricHelper(
             strokeWidth = thickness,
             pathEffect = pathEffect
         )
-        val x = when (alignment) {
-            Left -> startX + textOffset
-            Right -> endX - labelSize - textOffset
-            Center -> startX + (endX - startX) / 2f + textOffset
-        }
+        val x =
+            when (alignment) {
+                Left -> startX + textOffset
+                Right -> endX - labelSize - textOffset
+                Center -> startX + (endX - startX) / 2f + textOffset
+            }
 
         if (text.isNotBlank()) {
             text(text, color, x, y)

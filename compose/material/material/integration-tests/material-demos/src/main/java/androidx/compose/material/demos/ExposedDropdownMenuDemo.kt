@@ -36,9 +36,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ExposedDropdownMenuDemo() {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(DefaultSpace)
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(DefaultSpace)) {
         ExposedDropdownMenuSample()
 
         EditableExposedDropdownMenuSample()
@@ -61,23 +59,14 @@ fun ExposedDropdownMenuImpl(isOutlined: Boolean, isReadOnly: Boolean) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf(if (isReadOnly) options[0] else "") }
     // We want to react on tap/press on TextField to show menu
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         if (isOutlined) {
             OutlinedTextField(
                 readOnly = isReadOnly,
                 value = selectedOptionText,
                 onValueChange = { selectedOptionText = it },
                 label = { Text("Label") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = expanded
-                    )
-                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
             )
         } else {
@@ -86,33 +75,16 @@ fun ExposedDropdownMenuImpl(isOutlined: Boolean, isReadOnly: Boolean) {
                 value = selectedOptionText,
                 onValueChange = { selectedOptionText = it },
                 label = { Text("Label") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = expanded
-                    )
-                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.textFieldColors()
             )
         }
-        if (
-            options.any {
-                it.contains(
-                        selectedOptionText,
-                        ignoreCase = true
-                    )
-            } || isReadOnly
-        ) {
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                }
-            ) {
+        if (options.any { it.contains(selectedOptionText, ignoreCase = true) } || isReadOnly) {
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 options.forEach { selectionOption ->
-                    if (selectionOption.contains(
-                            selectedOptionText,
-                            ignoreCase = true
-                        ) || isReadOnly
+                    if (
+                        selectionOption.contains(selectedOptionText, ignoreCase = true) ||
+                            isReadOnly
                     ) {
                         DropdownMenuItem(
                             onClick = {

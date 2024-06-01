@@ -26,55 +26,60 @@ import org.junit.Test
 class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
-        languageVersionSettings = LanguageVersionSettingsImpl(
-            languageVersion = languageVersionSettings.languageVersion,
-            apiVersion = languageVersionSettings.apiVersion,
-            specificFeatures = mapOf(
-                LanguageFeature.ContextReceivers to LanguageFeature.State.ENABLED
+        languageVersionSettings =
+            LanguageVersionSettingsImpl(
+                languageVersion = languageVersionSettings.languageVersion,
+                apiVersion = languageVersionSettings.apiVersion,
+                specificFeatures =
+                    mapOf(LanguageFeature.ContextReceivers to LanguageFeature.State.ENABLED)
             )
-        )
     }
 
     private fun contextReceivers(
-        @Language("kotlin")
-        unchecked: String,
-        @Language("kotlin")
-        checked: String,
-    ) = verifyGoldenComposeIrTransform(
-        source = """
+        @Language("kotlin") unchecked: String,
+        @Language("kotlin") checked: String,
+    ) =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.Composable
 
             $checked
-        """.trimIndent(),
-        extra = """
+        """
+                    .trimIndent(),
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             $unchecked
 
             fun used(x: Any?) {}
-        """.trimIndent(),
-    )
+        """
+                    .trimIndent(),
+        )
 
     @Test
-    fun testTrivialContextReceivers(): Unit = contextReceivers(
-        """
+    fun testTrivialContextReceivers(): Unit =
+        contextReceivers(
+            """
             class Foo { }
         """,
-        """
+            """
             context(Foo)
             @Composable
             fun Test() { }
         """
-    )
+        )
 
     @Test
-    fun testMultipleContextReceivers(): Unit = contextReceivers(
-        """
+    fun testMultipleContextReceivers(): Unit =
+        contextReceivers(
+            """
             class Foo { }
             class Bar { }
             class FooBar { }
         """,
-        """
+            """
             context(Foo, Bar)
             @Composable
             fun A() { }
@@ -83,16 +88,17 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
             @Composable
             fun B() { }
         """
-    )
+        )
 
     @Test
-    fun testContextReceiversAndExtensionReceiver(): Unit = contextReceivers(
-        """
+    fun testContextReceiversAndExtensionReceiver(): Unit =
+        contextReceivers(
+            """
             class Foo { }
             class Bar { }
             class FooBar { }
         """,
-        """
+            """
             context(Foo, Bar)
             @Composable
             fun String.A() { }
@@ -101,16 +107,17 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
             @Composable
             fun String.B() { }
         """
-    )
+        )
 
     @Test
-    fun testContextReceiversAndDefaultParams(): Unit = contextReceivers(
-        """
+    fun testContextReceiversAndDefaultParams(): Unit =
+        contextReceivers(
+            """
             class Foo { }
             class Bar { }
             class FooBar { }
         """,
-        """
+            """
             context(Foo, Bar)
             @Composable
             fun A(a: Int = 1) { }
@@ -123,32 +130,34 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
             @Composable
             fun C(a: Int, bar: Bar = Bar()) { }
         """
-    )
+        )
 
     @Test
-    fun testContextReceiversAndExtensionReceiverAndDefaultParams(): Unit = contextReceivers(
-        """
+    fun testContextReceiversAndExtensionReceiverAndDefaultParams(): Unit =
+        contextReceivers(
+            """
             class Foo { }
             class Bar { }
             class FooBar { }
         """,
-        """
+            """
             context(Foo, Bar, FooBar)
             @Composable
             fun String.B(a: Int, b: String = "", c: Int = 1) { }
         """
-    )
+        )
 
     @Test
-    fun testContextReceiversWith(): Unit = contextReceivers(
-        """
+    fun testContextReceiversWith(): Unit =
+        contextReceivers(
+            """
             context(Foo)
             @Composable
             fun A() { }
 
             class Foo { }
         """,
-        """
+            """
 
             @Composable
             fun Test(foo: Foo) {
@@ -157,11 +166,12 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testContextReceiversNestedWith(): Unit = contextReceivers(
-        """
+    fun testContextReceiversNestedWith(): Unit =
+        contextReceivers(
+            """
             context(Foo)
             @Composable
             fun A() { }
@@ -173,7 +183,7 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
             class Foo { }
             class Bar { }
         """,
-        """
+            """
             @Composable
             fun Test(foo: Foo) {
                 with(foo) {
@@ -184,18 +194,19 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testContextReceiversWithAndDefaultParam(): Unit = contextReceivers(
-        """
+    fun testContextReceiversWithAndDefaultParam(): Unit =
+        contextReceivers(
+            """
             context(Foo)
             @Composable
             fun String.A(param1: Int, param2: String = "") { }
 
             class Foo { }
         """,
-        """
+            """
             @Composable
             fun Test(foo: Foo) {
                 with(foo) {
@@ -203,11 +214,12 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testLotsOfContextReceivers(): Unit = contextReceivers(
-        """
+    fun testLotsOfContextReceivers(): Unit =
+        contextReceivers(
+            """
             class A { }
             class B { }
             class C { }
@@ -221,13 +233,13 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
             class K { }
             class L { }
         """,
-        """
+            """
             context(A, B, C, D, E, F, G, H, I, J, K, L)
             @Composable
             fun Test() {
             }
         """
-    )
+        )
 
     @Test
     fun testContextReceiverAndComposableLambdaParam() {
@@ -246,13 +258,14 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
     }
 
     @Test
-    fun testContextReceiverAndDefaultParamsUsage(): Unit = contextReceivers(
-        """
+    fun testContextReceiverAndDefaultParamsUsage(): Unit =
+        contextReceivers(
+            """
             class Foo {
                 val someString = "Some String"
             }
         """,
-        """
+            """
             @Composable
             fun Parent() {
                 with(Foo()) {
@@ -272,5 +285,5 @@ class ContextReceiversTransformTests(useFir: Boolean) : AbstractIrTransformTest(
                 }
             }
         """
-    )
+        )
 }

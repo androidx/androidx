@@ -31,30 +31,28 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 
 /**
- * This demo draws a straight line from where the screen was first touched to where the
- * pointer is now. It basically tracks drag operations, drawing a line between the start
- * and end positions of that drag. The intention of this app is to allow easy testing of
- * what Compose is doing during drag operations (allocations, etc).
+ * This demo draws a straight line from where the screen was first touched to where the pointer is
+ * now. It basically tracks drag operations, drawing a line between the start and end positions of
+ * that drag. The intention of this app is to allow easy testing of what Compose is doing during
+ * drag operations (allocations, etc).
  */
 @Preview
 @Composable
 fun DrawingDemo() {
     val start = remember { mutableStateOf(Offset(0f, 0f)) }
     val end = remember { mutableStateOf(Offset(0f, 0f)) }
-    Canvas(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-        .background(Color.White)
-        .pointerInput(Unit) {
-            detectDragGestures(
-                onDragStart = {
-                    start.value = it
-                    end.value = it
+    Canvas(
+        modifier =
+            Modifier.fillMaxWidth().fillMaxHeight().background(Color.White).pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        start.value = it
+                        end.value = it
+                    }
+                ) { _, dragAmount ->
+                    end.value += dragAmount
                 }
-            ) { _, dragAmount ->
-                end.value += dragAmount
             }
-        }
     ) {
         drawLine(Color.Blue, start = start.value, end = end.value)
     }

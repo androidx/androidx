@@ -30,11 +30,9 @@ import kotlin.math.abs
 sealed class Brush {
 
     /**
-     * Return the intrinsic size of the [Brush].
-     * If the there is no intrinsic size (i.e. filling bounds with an arbitrary color) return
-     * [Size.Unspecified].
-     * If there is no intrinsic size in a single dimension, return [Size] with
-     * [Float.NaN] in the desired dimension.
+     * Return the intrinsic size of the [Brush]. If the there is no intrinsic size (i.e. filling
+     * bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic size in a
+     * single dimension, return [Size] with [Float.NaN] in the desired dimension.
      */
     open val intrinsicSize: Size = Size.Unspecified
 
@@ -44,8 +42,8 @@ sealed class Brush {
 
         /**
          * Creates a linear gradient with the provided colors along the given start and end
-         * coordinates. The colors are dispersed at the provided offset defined in the
-         * colorstop pair.
+         * coordinates. The colors are dispersed at the provided offset defined in the colorstop
+         * pair.
          *
          * ```
          *  Brush.linearGradient(
@@ -58,15 +56,16 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.LinearGradientColorStopSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and their offset in the gradient area
-         * @param start Starting position of the linear gradient. This can be set to
-         * [Offset.Zero] to position at the far left and top of the drawing area
-         * @param end Ending position of the linear gradient. This can be set to
-         * [Offset.Infinite] to position at the far right and bottom of the drawing area
+         * @param start Starting position of the linear gradient. This can be set to [Offset.Zero]
+         *   to position at the far left and top of the drawing area
+         * @param end Ending position of the linear gradient. This can be set to [Offset.Infinite]
+         *   to position at the far right and bottom of the drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun linearGradient(
@@ -74,17 +73,18 @@ sealed class Brush {
             start: Offset = Offset.Zero,
             end: Offset = Offset.Infinite,
             tileMode: TileMode = TileMode.Clamp
-        ): Brush = LinearGradient(
-            colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
-            stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
-            start = start,
-            end = end,
-            tileMode = tileMode
-        )
+        ): Brush =
+            LinearGradient(
+                colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
+                stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
+                start = start,
+                end = end,
+                tileMode = tileMode
+            )
 
         /**
-         * Creates a linear gradient with the provided colors along the given start and end coordinates.
-         * The colors are
+         * Creates a linear gradient with the provided colors along the given start and end
+         * coordinates. The colors are
          *
          * ```
          *  Brush.linearGradient(
@@ -95,15 +95,16 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.LinearGradientSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors Colors to be rendered as part of the gradient
-         * @param start Starting position of the linear gradient. This can be set to
-         * [Offset.Zero] to position at the far left and top of the drawing area
-         * @param end Ending position of the linear gradient. This can be set to
-         * [Offset.Infinite] to position at the far right and bottom of the drawing area
+         * @param start Starting position of the linear gradient. This can be set to [Offset.Zero]
+         *   to position at the far left and top of the drawing area
+         * @param end Ending position of the linear gradient. This can be set to [Offset.Infinite]
+         *   to position at the far right and bottom of the drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun linearGradient(
@@ -111,13 +112,14 @@ sealed class Brush {
             start: Offset = Offset.Zero,
             end: Offset = Offset.Infinite,
             tileMode: TileMode = TileMode.Clamp
-        ): Brush = LinearGradient(
-            colors = colors,
-            stops = null,
-            start = start,
-            end = end,
-            tileMode = tileMode
-        )
+        ): Brush =
+            LinearGradient(
+                colors = colors,
+                stops = null,
+                start = start,
+                end = end,
+                tileMode = tileMode
+            )
 
         /**
          * Creates a horizontal gradient with the given colors evenly dispersed within the gradient
@@ -132,16 +134,16 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.HorizontalGradientSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors colors Colors to be rendered as part of the gradient
          * @param startX Starting x position of the horizontal gradient. Defaults to 0 which
-         * represents the left of the drawing area
-         * @param endX Ending x position of the horizontal gradient.
-         * Defaults to [Float.POSITIVE_INFINITY] which indicates the right of the specified
-         * drawing area
+         *   represents the left of the drawing area
+         * @param endX Ending x position of the horizontal gradient. Defaults to
+         *   [Float.POSITIVE_INFINITY] which indicates the right of the specified drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun horizontalGradient(
@@ -167,17 +169,17 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.HorizontalGradientColorStopSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
-         * the vertical gradient
+         *   the vertical gradient
          * @param startX Starting x position of the horizontal gradient. Defaults to 0 which
-         * represents the left of the drawing area
-         * @param endX Ending x position of the horizontal gradient.
-         * Defaults to [Float.POSITIVE_INFINITY] which indicates the right of the specified
-         * drawing area
+         *   represents the left of the drawing area
+         * @param endX Ending x position of the horizontal gradient. Defaults to
+         *   [Float.POSITIVE_INFINITY] which indicates the right of the specified drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun horizontalGradient(
@@ -185,12 +187,13 @@ sealed class Brush {
             startX: Float = 0.0f,
             endX: Float = Float.POSITIVE_INFINITY,
             tileMode: TileMode = TileMode.Clamp
-        ): Brush = linearGradient(
-            *colorStops,
-            start = Offset(startX, 0.0f),
-            end = Offset(endX, 0.0f),
-            tileMode = tileMode
-        )
+        ): Brush =
+            linearGradient(
+                *colorStops,
+                start = Offset(startX, 0.0f),
+                end = Offset(endX, 0.0f),
+                tileMode = tileMode
+            )
 
         /**
          * Creates a vertical gradient with the given colors evenly dispersed within the gradient
@@ -204,16 +207,16 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.VerticalGradientSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors colors Colors to be rendered as part of the gradient
          * @param startY Starting y position of the vertical gradient. Defaults to 0 which
-         * represents the top of the drawing area
-         * @param endY Ending y position of the vertical gradient.
-         * Defaults to [Float.POSITIVE_INFINITY] which indicates the bottom of the specified
-         * drawing area
+         *   represents the top of the drawing area
+         * @param endY Ending y position of the vertical gradient. Defaults to
+         *   [Float.POSITIVE_INFINITY] which indicates the bottom of the specified drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun verticalGradient(
@@ -224,8 +227,8 @@ sealed class Brush {
         ): Brush = linearGradient(colors, Offset(0.0f, startY), Offset(0.0f, endY), tileMode)
 
         /**
-         * Creates a vertical gradient with the given colors at the provided offset defined
-         * in the [Pair<Float, Color>]
+         * Creates a vertical gradient with the given colors at the provided offset defined in the
+         * [Pair<Float, Color>]
          *
          * Ex:
          * ```
@@ -239,17 +242,17 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.VerticalGradientColorStopSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
-         * the vertical gradient
+         *   the vertical gradient
          * @param startY Starting y position of the vertical gradient. Defaults to 0 which
-         * represents the top of the drawing area
-         * @param endY Ending y position of the vertical gradient.
-         * Defaults to [Float.POSITIVE_INFINITY] which indicates the bottom of the specified
-         * drawing area
+         *   represents the top of the drawing area
+         * @param endY Ending y position of the vertical gradient. Defaults to
+         *   [Float.POSITIVE_INFINITY] which indicates the bottom of the specified drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun verticalGradient(
@@ -257,16 +260,18 @@ sealed class Brush {
             startY: Float = 0f,
             endY: Float = Float.POSITIVE_INFINITY,
             tileMode: TileMode = TileMode.Clamp
-        ): Brush = linearGradient(
-            *colorStops,
-            start = Offset(0.0f, startY),
-            end = Offset(0.0f, endY),
-            tileMode = tileMode
-        )
+        ): Brush =
+            linearGradient(
+                *colorStops,
+                start = Offset(0.0f, startY),
+                end = Offset(0.0f, endY),
+                tileMode = tileMode
+            )
 
         /**
-         * Creates a radial gradient with the given colors at the provided offset
-         * defined in the colorstop pair.
+         * Creates a radial gradient with the given colors at the provided offset defined in the
+         * colorstop pair.
+         *
          * ```
          * Brush.radialGradient(
          *      0.0f to Color.Red,
@@ -279,18 +284,19 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.RadialBrushColorStopSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
-         * the radial gradient
+         *   the radial gradient
          * @param center Center position of the radial gradient circle. If this is set to
-         * [Offset.Unspecified] then the center of the drawing area is used as the center for
-         * the radial gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or
-         * [Offset.y] to indicate the far right or far bottom of the drawing area respectively.
+         *   [Offset.Unspecified] then the center of the drawing area is used as the center for the
+         *   radial gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or
+         *   [Offset.y] to indicate the far right or far bottom of the drawing area respectively.
          * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate
-         * the largest radius that can fit within the bounds of the drawing area
+         *   the largest radius that can fit within the bounds of the drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun radialGradient(
@@ -298,16 +304,18 @@ sealed class Brush {
             center: Offset = Offset.Unspecified,
             radius: Float = Float.POSITIVE_INFINITY,
             tileMode: TileMode = TileMode.Clamp
-        ): Brush = RadialGradient(
-            colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
-            stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
-            center = center,
-            radius = radius,
-            tileMode = tileMode
-        )
+        ): Brush =
+            RadialGradient(
+                colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
+                stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
+                center = center,
+                radius = radius,
+                tileMode = tileMode
+            )
 
         /**
          * Creates a radial gradient with the given colors evenly dispersed within the gradient
+         *
          * ```
          * Brush.radialGradient(
          *      listOf(Color.Red, Color.Green, Color.Blue),
@@ -318,17 +326,18 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.RadialBrushSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors Colors to be rendered as part of the gradient
          * @param center Center position of the radial gradient circle. If this is set to
-         * [Offset.Unspecified] then the center of the drawing area is used as the center for
-         * the radial gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or
-         * [Offset.y] to indicate the far right or far bottom of the drawing area respectively.
+         *   [Offset.Unspecified] then the center of the drawing area is used as the center for the
+         *   radial gradient. [Float.POSITIVE_INFINITY] can be used for either [Offset.x] or
+         *   [Offset.y] to indicate the far right or far bottom of the drawing area respectively.
          * @param radius Radius for the radial gradient. Defaults to positive infinity to indicate
-         * the largest radius that can fit within the bounds of the drawing area
+         *   the largest radius that can fit within the bounds of the drawing area
          * @param tileMode Determines the behavior for how the shader is to fill a region outside
-         * its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
+         *   its bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
          */
         @Stable
         fun radialGradient(
@@ -336,17 +345,18 @@ sealed class Brush {
             center: Offset = Offset.Unspecified,
             radius: Float = Float.POSITIVE_INFINITY,
             tileMode: TileMode = TileMode.Clamp
-        ): Brush = RadialGradient(
-            colors = colors,
-            stops = null,
-            center = center,
-            radius = radius,
-            tileMode = tileMode
-        )
+        ): Brush =
+            RadialGradient(
+                colors = colors,
+                stops = null,
+                center = center,
+                radius = radius,
+                tileMode = tileMode
+            )
 
         /**
-         * Creates a sweep gradient with the given colors dispersed around the center with
-         * offsets defined in each colorstop pair. The sweep begins relative to 3 o'clock and continues
+         * Creates a sweep gradient with the given colors dispersed around the center with offsets
+         * defined in each colorstop pair. The sweep begins relative to 3 o'clock and continues
          * clockwise until it reaches the starting position again.
          *
          * Ex:
@@ -360,28 +370,30 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.SweepGradientColorStopSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colorStops Colors and offsets to determine how the colors are dispersed throughout
-         * the sweep gradient
+         *   the sweep gradient
          * @param center Center position of the sweep gradient circle. If this is set to
-         * [Offset.Unspecified] then the center of the drawing area is used as the center for
-         * the sweep gradient
+         *   [Offset.Unspecified] then the center of the drawing area is used as the center for the
+         *   sweep gradient
          */
         @Stable
         fun sweepGradient(
             vararg colorStops: Pair<Float, Color>,
             center: Offset = Offset.Unspecified
-        ): Brush = SweepGradient(
-            colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
-            stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
-            center = center
-        )
+        ): Brush =
+            SweepGradient(
+                colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
+                stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
+                center = center
+            )
 
         /**
-         * Creates a sweep gradient with the given colors dispersed evenly around the center.
-         * The sweep begins relative to 3 o'clock and continues clockwise until it reaches the
-         * starting position again.
+         * Creates a sweep gradient with the given colors dispersed evenly around the center. The
+         * sweep begins relative to 3 o'clock and continues clockwise until it reaches the starting
+         * position again.
          *
          * Ex:
          * ```
@@ -392,22 +404,17 @@ sealed class Brush {
          * ```
          *
          * @sample androidx.compose.ui.graphics.samples.SweepGradientSample
+         *
          * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
          *
          * @param colors List of colors to fill the sweep gradient
          * @param center Center position of the sweep gradient circle. If this is set to
-         * [Offset.Unspecified] then the center of the drawing area is used as the center for
-         * the sweep gradient
+         *   [Offset.Unspecified] then the center of the drawing area is used as the center for the
+         *   sweep gradient
          */
         @Stable
-        fun sweepGradient(
-            colors: List<Color>,
-            center: Offset = Offset.Unspecified
-        ): Brush = SweepGradient(
-            colors = colors,
-            stops = null,
-            center = center
-        )
+        fun sweepGradient(colors: List<Color>, center: Offset = Offset.Unspecified): Brush =
+            SweepGradient(colors = colors, stops = null, center = center)
     }
 }
 
@@ -415,11 +422,12 @@ sealed class Brush {
 class SolidColor(val value: Color) : Brush() {
     override fun applyTo(size: Size, p: Paint, alpha: Float) {
         p.alpha = DefaultAlpha
-        p.color = if (alpha != DefaultAlpha) {
-            value.copy(alpha = value.alpha * alpha)
-        } else {
-            value
-        }
+        p.color =
+            if (alpha != DefaultAlpha) {
+                value.copy(alpha = value.alpha * alpha)
+            } else {
+                value
+            }
         if (p.shader != null) p.shader = null
     }
 
@@ -440,11 +448,10 @@ class SolidColor(val value: Color) : Brush() {
     }
 }
 
-/**
- * Brush implementation used to apply a linear gradient on a given [Paint]
- */
+/** Brush implementation used to apply a linear gradient on a given [Paint] */
 @Immutable
-class LinearGradient internal constructor(
+class LinearGradient
+internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
     private val start: Offset,
@@ -506,11 +513,10 @@ class LinearGradient internal constructor(
     }
 }
 
-/**
- * Brush implementation used to apply a radial gradient on a given [Paint]
- */
+/** Brush implementation used to apply a radial gradient on a given [Paint] */
 @Immutable
-class RadialGradient internal constructor(
+class RadialGradient
+internal constructor(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
     private val center: Offset,
@@ -576,11 +582,10 @@ class RadialGradient internal constructor(
     }
 }
 
-/**
- * Brush implementation used to apply a sweep gradient on a given [Paint]
- */
+/** Brush implementation used to apply a sweep gradient on a given [Paint] */
 @Immutable
-class SweepGradient internal constructor(
+class SweepGradient
+internal constructor(
     private val center: Offset,
     private val colors: List<Color>,
     private val stops: List<Float>? = null
@@ -620,9 +625,7 @@ class SweepGradient internal constructor(
 
     override fun toString(): String {
         val centerValue = if (center.isSpecified) "center=$center, " else ""
-        return "SweepGradient(" +
-            centerValue +
-            "colors=$colors, stops=$stops)"
+        return "SweepGradient(" + centerValue + "colors=$colors, stops=$stops)"
     }
 }
 
@@ -630,17 +633,16 @@ class SweepGradient internal constructor(
  * Convenience method to create a ShaderBrush that always returns the same shader instance
  * regardless of size
  */
-fun ShaderBrush(shader: Shader) = object : ShaderBrush() {
+fun ShaderBrush(shader: Shader) =
+    object : ShaderBrush() {
 
-    /**
-     * Create a shader based on the given size that represents the current drawing area
-     */
-    override fun createShader(size: Size): Shader = shader
-}
+        /** Create a shader based on the given size that represents the current drawing area */
+        override fun createShader(size: Size): Shader = shader
+    }
 
 /**
- * Brush implementation that wraps and applies a the provided shader to a [Paint]
- * The shader can be lazily created based on a given size, or provided directly as a parameter
+ * Brush implementation that wraps and applies a the provided shader to a [Paint] The shader can be
+ * lazily created based on a given size, or provided directly as a parameter
  */
 @Immutable
 abstract class ShaderBrush() : Brush() {

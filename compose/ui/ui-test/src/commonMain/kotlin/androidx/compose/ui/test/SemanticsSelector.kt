@@ -43,28 +43,26 @@ class SemanticsSelector(
         val inputNodes = chainedResult?.selectedNodes ?: nodes
         if (requiresExactlyOneNode && inputNodes.count() != 1) {
             throw AssertionError(
-                chainedResult?.customErrorOnNoMatch ?: buildErrorMessageForCountMismatch(
-                    errorMessage = errorOnFail,
-                    foundNodes = inputNodes.toList(),
-                    expectedCount = 1,
-                    selector = chainedInputSelector ?: this
-                )
+                chainedResult?.customErrorOnNoMatch
+                    ?: buildErrorMessageForCountMismatch(
+                        errorMessage = errorOnFail,
+                        foundNodes = inputNodes.toList(),
+                        expectedCount = 1,
+                        selector = chainedInputSelector ?: this
+                    )
             )
         }
         return selector(inputNodes)
     }
 }
 
-/**
- * Creates a new [SemanticsSelector] based on the given [SemanticsMatcher].
- */
+/** Creates a new [SemanticsSelector] based on the given [SemanticsMatcher]. */
 internal fun SemanticsSelector(matcher: SemanticsMatcher): SemanticsSelector {
     return SemanticsSelector(
         matcher.description,
         requiresExactlyOneNode = false,
         chainedInputSelector = null
-    ) {
-        nodes ->
+    ) { nodes ->
         SelectionResult(nodes.filter { matcher.matches(it) })
     }
 }
@@ -74,8 +72,8 @@ internal fun SemanticsSelector(matcher: SemanticsMatcher): SemanticsSelector {
  *
  * @param selectedNodes The result nodes found.
  * @param customErrorOnNoMatch If the projection failed to map nodes due to wrong input (e.g.
- * selector expected only 1 node but got multiple) it will provide a custom error exactly explaining
- * what selection was performed and what nodes it received.
+ *   selector expected only 1 node but got multiple) it will provide a custom error exactly
+ *   explaining what selection was performed and what nodes it received.
  */
 class SelectionResult(
     val selectedNodes: List<SemanticsNode>,
@@ -95,18 +93,13 @@ internal fun SemanticsSelector.addSelectionFromSingleNode(
         "(${this.description}).$description",
         requiresExactlyOneNode = true,
         chainedInputSelector = this
-    ) {
-        nodes ->
+    ) { nodes ->
         SelectionResult(selector(nodes.first()))
     }
 }
 
-/**
- * Chains a new selector that retrieves node from this selector at the given [index].
- */
-internal fun SemanticsSelector.addIndexSelector(
-    index: Int
-): SemanticsSelector {
+/** Chains a new selector that retrieves node from this selector at the given [index]. */
+internal fun SemanticsSelector.addIndexSelector(index: Int): SemanticsSelector {
     return SemanticsSelector(
         "(${this.description})[$index]",
         requiresExactlyOneNode = false,
@@ -122,9 +115,7 @@ internal fun SemanticsSelector.addIndexSelector(
     }
 }
 
-/**
- * Chains a new selector that retrieves the last node returned from this selector.
- */
+/** Chains a new selector that retrieves the last node returned from this selector. */
 internal fun SemanticsSelector.addLastNodeSelector(): SemanticsSelector {
     return SemanticsSelector(
         "(${this.description}).last",

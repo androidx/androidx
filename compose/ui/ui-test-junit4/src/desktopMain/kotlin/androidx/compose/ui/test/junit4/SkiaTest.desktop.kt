@@ -60,6 +60,7 @@ class SkiaTestAlbum(val config: GoldenConfig) {
 
     private val screenshots: MutableMap<String, ScreenshotResultProto> = mutableMapOf()
     private val report = Report(screenshots)
+
     fun snap(surface: Surface, id: String) {
         write(surface.makeImageSnapshot(), id)
     }
@@ -84,17 +85,14 @@ class SkiaTestAlbum(val config: GoldenConfig) {
             return
         }
 
-        val status = if (compareImages(actual = actual, expected = expected)) {
-            ScreenshotResultProto.Status.PASSED
-        } else {
-            ScreenshotResultProto.Status.FAILED
-        }
+        val status =
+            if (compareImages(actual = actual, expected = expected)) {
+                ScreenshotResultProto.Status.PASSED
+            } else {
+                ScreenshotResultProto.Status.FAILED
+            }
 
-        reportResult(
-            status = status,
-            id = id,
-            actual = actual
-        )
+        reportResult(status = status, id = id, actual = actual)
     }
 
     fun check(): Report {
@@ -124,9 +122,7 @@ class SkiaTestAlbum(val config: GoldenConfig) {
     }
 
     private fun calcHash(input: ByteArray): ByteArray {
-        return MessageDigest
-            .getInstance("SHA-256")
-            .digest(input)
+        return MessageDigest.getInstance("SHA-256").digest(input)
     }
 
     // TODO: switch to androidx.test.screenshot.matchers.BitmapMatcher#compareBitmaps
@@ -154,15 +150,16 @@ class SkiaTestAlbum(val config: GoldenConfig) {
             currentScreenshotFileName = inModuleImagePath(id)
         }
 
-        screenshots[id] = ScreenshotResultProto(
-            result = status,
-            comparisonStatistics = comparisonStatistics.orEmpty(),
-            repoRootPath = config.repoGoldenPath,
-            locationOfGoldenInRepo = inModuleImagePath(id),
-            currentScreenshotFileName = currentScreenshotFileName,
-            expectedImageFileName = inModuleImagePath(id),
-            diffImageFileName = null
-        )
+        screenshots[id] =
+            ScreenshotResultProto(
+                result = status,
+                comparisonStatistics = comparisonStatistics.orEmpty(),
+                repoRootPath = config.repoGoldenPath,
+                locationOfGoldenInRepo = inModuleImagePath(id),
+                currentScreenshotFileName = currentScreenshotFileName,
+                expectedImageFileName = inModuleImagePath(id),
+                diffImageFileName = null
+            )
     }
 }
 
@@ -186,8 +183,12 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRu
         return object : Statement() {
             override fun evaluate() {
                 album = SkiaTestAlbum(config)
-                testIdentifier = "${description!!.className}_${description.methodName}"
-                    .replace(".", "_").replace(",", "_").replace(" ", "_").replace("__", "_")
+                testIdentifier =
+                    "${description!!.className}_${description.methodName}"
+                        .replace(".", "_")
+                        .replace(",", "_")
+                        .replace(" ", "_")
+                        .replace("__", "_")
                 base.evaluate()
                 runExecutionQueue()
                 handleReport(album.check())
@@ -213,9 +214,7 @@ class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRu
     private fun handleReport(report: SkiaTestAlbum.Report) {
         report.screenshots.forEach { (_, sReport) ->
             when (sReport.result) {
-                ScreenshotResultProto.Status.PASSED -> {
-                }
-
+                ScreenshotResultProto.Status.PASSED -> {}
                 ScreenshotResultProto.Status.MISSING_GOLDEN ->
                     throw AssertionError(
                         "Missing golden image " +

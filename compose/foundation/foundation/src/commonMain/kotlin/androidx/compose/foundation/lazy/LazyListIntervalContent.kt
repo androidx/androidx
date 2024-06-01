@@ -28,7 +28,8 @@ internal class LazyListIntervalContent(
     override val intervals: MutableIntervalList<LazyListInterval> = MutableIntervalList()
 
     private var _headerIndexes: MutableList<Int>? = null
-    val headerIndexes: List<Int> get() = _headerIndexes ?: emptyList()
+    val headerIndexes: List<Int>
+        get() = _headerIndexes ?: emptyList()
 
     init {
         apply(content)
@@ -42,11 +43,7 @@ internal class LazyListIntervalContent(
     ) {
         intervals.addInterval(
             count,
-            LazyListInterval(
-                key = key,
-                type = contentType,
-                item = itemContent
-            )
+            LazyListInterval(key = key, type = contentType, item = itemContent)
         )
     }
 
@@ -67,9 +64,7 @@ internal class LazyListIntervalContent(
         contentType: Any?,
         content: @Composable LazyItemScope.() -> Unit
     ) {
-        val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also {
-            _headerIndexes = it
-        }
+        val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also { _headerIndexes = it }
         headersIndexes.add(intervals.size)
 
         item(key, contentType, content)

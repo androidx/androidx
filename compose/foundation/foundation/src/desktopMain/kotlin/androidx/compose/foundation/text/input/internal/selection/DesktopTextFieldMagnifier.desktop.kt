@@ -19,19 +19,18 @@ package androidx.compose.foundation.text.input.internal.selection
 import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 
-/**
- * There is no magnifier on Desktop. Return a noop [TextFieldMagnifierNode] implementation.
- */
+/** There is no magnifier on Desktop. Return a noop [TextFieldMagnifierNode] implementation. */
 internal actual fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
     visible: Boolean
-) = object : TextFieldMagnifierNode() {
-    override fun update(
-        textFieldState: TransformedTextFieldState,
-        textFieldSelectionState: TextFieldSelectionState,
-        textLayoutState: TextLayoutState,
-        visible: Boolean
-    ) {}
-}
+) =
+    object : TextFieldMagnifierNode() {
+        override fun update(
+            textFieldState: TransformedTextFieldState,
+            textFieldSelectionState: TextFieldSelectionState,
+            textLayoutState: TextLayoutState,
+            visible: Boolean
+        ) {}
+    }

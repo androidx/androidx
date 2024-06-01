@@ -26,8 +26,8 @@ import androidx.compose.ui.node.LayoutNode
 /**
  * Composes the given composable into [SkiaBasedOwner]
  *
- * @param parent The parent composition reference to coordinate scheduling of composition updates
- *        If null then default root composition will be used.
+ * @param parent The parent composition reference to coordinate scheduling of composition updates If
+ *   null then default root composition will be used.
  * @param content A `@Composable` function declaring the UI contents
  */
 @OptIn(ExperimentalComposeUiApi::class)
@@ -53,7 +53,4 @@ internal fun SkiaBasedOwner.setContent(
 internal actual fun createSubcomposition(
     container: LayoutNode,
     parent: CompositionContext
-): ReusableComposition = ReusableComposition(
-    DefaultUiApplier(container),
-    parent
-)
+): ReusableComposition = ReusableComposition(DefaultUiApplier(container), parent)

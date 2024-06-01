@@ -33,9 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple [detectTransformGestures] demo with scale only.
- */
+/** Simple [detectTransformGestures] demo with scale only. */
 @Composable
 fun ScaleGestureFilterDemo() {
     val size = remember { mutableStateOf(192.dp) }

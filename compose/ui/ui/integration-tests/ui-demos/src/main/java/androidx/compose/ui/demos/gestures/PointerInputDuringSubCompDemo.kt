@@ -44,9 +44,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 
-/**
- * Demonstration of how various press/tap gesture interact together in a nested fashion.
- */
+/** Demonstration of how various press/tap gesture interact together in a nested fashion. */
 @Composable
 fun PointerInputDuringSubComp() {
     Column {
@@ -63,8 +61,7 @@ fun PointerInputDuringSubComp() {
                 "your finger there and then add more fingers, it will track those new fingers."
         )
         LazyColumn(
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .wrapContentSize(Alignment.Center)
                 .requiredSize(200.dp)
                 .background(color = Color.White)
@@ -78,20 +75,14 @@ fun PointerInputDuringSubComp() {
                         .pointerCounterGestureFilter { newCount -> pointerCount = newCount },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        "$pointerCount",
-                        fontSize = 16.em,
-                        color = Color.Black
-                    )
+                    Text("$pointerCount", fontSize = 16.em, color = Color.Black)
                 }
             }
         }
     }
 }
 
-fun Modifier.pointerCounterGestureFilter(
-    onPointerCountChanged: (Int) -> Unit
-): Modifier =
+fun Modifier.pointerCounterGestureFilter(onPointerCountChanged: (Int) -> Unit): Modifier =
     composed {
         val filter = remember { PointerCounterGestureFilter() }
         filter.onPointerCountChanged = onPointerCountChanged
@@ -113,9 +104,8 @@ internal class PointerCounterGestureFilter : PointerInputFilter() {
         val changes = pointerEvent.changes
 
         if (pass == PointerEventPass.Main) {
-            if (changes.any {
-                it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
-            }
+            if (
+                changes.any { it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed() }
             ) {
                 onPointerCountChanged.invoke(changes.count { it.pressed })
             }

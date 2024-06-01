@@ -83,9 +83,7 @@ class IsMonotonicBetweenTest(private val config: TestConfig) {
     @Test
     fun testIsMonotonicBetween() {
         config.apply {
-            expectAssertionError(expectError) {
-                values.isMonotonicBetween(a, b, tolerance)
-            }
+            expectAssertionError(expectError) { values.isMonotonicBetween(a, b, tolerance) }
         }
     }
 }

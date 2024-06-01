@@ -38,9 +38,7 @@ class DpAssertionsTest {
 
     @Test
     fun dp_assertEquals_fail() {
-        expectError<AssertionError> {
-            5.dp.assertIsEqualTo(6.dp)
-        }
+        expectError<AssertionError> { 5.dp.assertIsEqualTo(6.dp) }
     }
 
     @Test

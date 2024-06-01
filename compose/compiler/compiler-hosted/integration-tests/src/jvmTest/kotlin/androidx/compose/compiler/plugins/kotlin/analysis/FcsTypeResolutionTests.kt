@@ -22,8 +22,9 @@ import org.junit.Test
 
 class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(useFir) {
     @Test
-    fun testImplicitlyPassedReceiverScope1() = check(
-        """
+    fun testImplicitlyPassedReceiverScope1() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -31,11 +32,12 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 content()
             }
         """
-    )
+        )
 
     @Test
-    fun testImplicitlyPassedReceiverScope2() = check(
-        """
+    fun testImplicitlyPassedReceiverScope2() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -48,7 +50,7 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 content<!NO_VALUE_FOR_PARAMETER!>()<!>
             }
         """
-    )
+        )
 
     @Test
     fun testSmartCastsAndPunning() {
@@ -73,8 +75,9 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
     }
 
     @Test
-    fun testExtensionInvoke() = check(
-        """
+    fun testExtensionInvoke() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             class Foo {}
@@ -84,11 +87,12 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 Foo()
             }
         """
-    )
+        )
 
     @Test
-    fun testResolutionInsideWhenExpression() = check(
-        """
+    fun testResolutionInsideWhenExpression() =
+        check(
+            """
             import androidx.compose.runtime.*
             
             @Composable fun TextView(text: String) { print(text) }
@@ -100,11 +104,12 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testUsedParameters() = check(
-        """
+    fun testUsedParameters() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Foo(x: Int, composeItem: @Composable () -> Unit = {}) {
@@ -143,11 +148,12 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 })
             }
         """
-    )
+        )
 
     @Test
-    fun testDispatchInvoke() = check(
-        """
+    fun testDispatchInvoke() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             class Bam {
@@ -160,11 +166,12 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testDispatchAndExtensionReceiver() = check(
-        """
+    fun testDispatchAndExtensionReceiver() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             class Bam {
@@ -179,11 +186,12 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testDispatchAndExtensionReceiverLocal() = check(
-        """
+    fun testDispatchAndExtensionReceiverLocal() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             class Foo {}
@@ -196,7 +204,7 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
             }
 
         """
-    )
+        )
 
     @Test
     fun testMissingAttributes() {
@@ -229,13 +237,15 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 F(<!NAMED_ARGUMENTS_NOT_ALLOWED!>x<!>=x)
             }
 
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
     @Test
-    fun testDuplicateAttributes() = check(
-        """
+    fun testDuplicateAttributes() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             data class Foo(val value: Int)
@@ -250,12 +260,14 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 A(x=x, <!ARGUMENT_PASSED_TWICE!>x<!>=x)
             }
 
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
-    fun testChildrenNamedAndBodyDuplicate() = check(
-        """
+    fun testChildrenNamedAndBodyDuplicate() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun A(content: @Composable () -> Unit) { content() }
@@ -264,12 +276,14 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 A(content={}) <!TOO_MANY_ARGUMENTS!>{ }<!>
             }
 
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
-    fun testAbstractClassTags() = check(
-        """
+    fun testAbstractClassTags() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             class Context
@@ -284,8 +298,9 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 <!CREATING_AN_INSTANCE_OF_ABSTRACT_CLASS!>Bar<!NO_VALUE_FOR_PARAMETER!>()<!><!>
             }
 
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun testGenerics() {
@@ -322,7 +337,8 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                     )
                 }
 
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -358,14 +374,16 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                     )
                 }
 
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
     // TODO(lmr): this triggers an exception!
     @Test
-    fun testEmptyAttributeValue() = check(
-        """
+    fun testEmptyAttributeValue() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Foo(abc: Int, xyz: Int) {
@@ -382,18 +400,20 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 Foo(abc=123, xyz=)
             }
 
-        """.trimIndent(),
-        ignoreParseErrors = true
-    )
+        """
+                .trimIndent(),
+            ignoreParseErrors = true
+        )
 
     @Test
     fun testMismatchedAttributes() {
         val typeMismatch = if (useFir) "ARGUMENT_TYPE_MISMATCH" else "TYPE_MISMATCH"
-        val constantTypeMismatch = if (useFir) {
-            "ARGUMENT_TYPE_MISMATCH"
-        } else {
-            "CONSTANT_EXPECTED_TYPE_MISMATCH"
-        }
+        val constantTypeMismatch =
+            if (useFir) {
+                "ARGUMENT_TYPE_MISMATCH"
+            } else {
+                "CONSTANT_EXPECTED_TYPE_MISMATCH"
+            }
         check(
             """
                 import androidx.compose.runtime.*
@@ -425,13 +445,15 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                     )
                 }
 
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
     @Test
-    fun testErrorAttributeValue() = check(
-        """
+    fun testErrorAttributeValue() =
+        check(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Foo(x: Int = 1) { print(x) }
@@ -443,16 +465,18 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                 )
             }
 
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun testUnresolvedQualifiedTag() {
-        val functionExpected = if (useFir) {
-            "FUNCTION_EXPECTED"
-        } else {
-            "UNRESOLVED_REFERENCE_WRONG_RECEIVER"
-        }
+        val functionExpected =
+            if (useFir) {
+                "FUNCTION_EXPECTED"
+            } else {
+                "UNRESOLVED_REFERENCE_WRONG_RECEIVER"
+            }
         check(
             """
                 import androidx.compose.runtime.*
@@ -507,14 +531,16 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
 
                 }
 
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
     // TODO(lmr): overloads creates resolution exception
     @Test
     fun testChildren() {
-        val declarations = """
+        val declarations =
+            """
                 import androidx.compose.runtime.*
 
                 @Composable fun ChildrenRequired2(content: @Composable () -> Unit) { content() }
@@ -528,7 +554,8 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
 
                 @Composable
                 fun MultiChildren(c: @Composable (x: Int, y: Int) -> Unit = { x, y ->println(x + y) }) { c(1,1) }
-        """.trimIndent()
+        """
+                .trimIndent()
         if (!useFir) {
             check(
                 """
@@ -556,7 +583,9 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                         println(x + y + z)
                     }
                 }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
         } else {
             check(
                 """
@@ -586,7 +615,9 @@ class FcsTypeResolutionTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(u
                         <!OVERLOAD_RESOLUTION_AMBIGUITY!>println<!>(x <!OVERLOAD_RESOLUTION_AMBIGUITY!>+<!> y <!OVERLOAD_RESOLUTION_AMBIGUITY!>+<!> z)
                     }
                 }
-            """.trimIndent())
+            """
+                    .trimIndent()
+            )
         }
     }
 }

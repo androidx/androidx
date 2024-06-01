@@ -39,12 +39,11 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class IntrinsicsMeasurementTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     /**
-     * When intrinsics are used for child content measurement and the content changes,
-     * then the intrinsics measurement should be triggered again.
+     * When intrinsics are used for child content measurement and the content changes, then the
+     * intrinsics measurement should be triggered again.
      */
     @Test
     fun intrinsicsChangeCausesParentRemeasure() {
@@ -62,17 +61,14 @@ class IntrinsicsMeasurementTest {
                     }
                 }
             }
-            Layout(
-                content = content,
-                modifier = Modifier.onPlaced { coords = it }
-            ) { measurables, _ ->
+            Layout(content = content, modifier = Modifier.onPlaced { coords = it }) { measurables, _
+                ->
                 val intrinsicHeight = measurables[0].minIntrinsicHeight(Constraints.Infinity)
-                val placeable = measurables[0].measure(
-                    Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
-                )
-                layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
+                val placeable =
+                    measurables[0].measure(
+                        Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
+                    )
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
         }
 
@@ -86,14 +82,12 @@ class IntrinsicsMeasurementTest {
             showContent = true
         }
 
-        rule.runOnIdle {
-            assertThat(coords.size.height).isEqualTo(24)
-        }
+        rule.runOnIdle { assertThat(coords.size.height).isEqualTo(24) }
     }
 
     /**
-     * When intrinsics are used in the measure block, and measurement is in the layout block,
-     * and the content changes, then the intrinsics measurement should be triggered again.
+     * When intrinsics are used in the measure block, and measurement is in the layout block, and
+     * the content changes, then the intrinsics measurement should be triggered again.
      */
     @Test
     fun intrinsicsChangeCausesParentRemeasureWhenMeasuredInPlacement() {
@@ -111,16 +105,13 @@ class IntrinsicsMeasurementTest {
                     }
                 }
             }
-            Layout(
-                content = content,
-                modifier = Modifier.onPlaced { coords = it }
-            ) { measurables, constraints ->
+            Layout(content = content, modifier = Modifier.onPlaced { coords = it }) {
+                measurables,
+                constraints ->
                 val width = if (constraints.hasBoundedWidth) constraints.maxWidth else 100
                 val height = (measurables[0].minIntrinsicHeight(width) * 1.2).roundToInt()
                 layout(width, height) {
-                    val placeable = measurables[0].measure(
-                        Constraints.fixed(width, height)
-                    )
+                    val placeable = measurables[0].measure(Constraints.fixed(width, height))
                     placeable.place(0, 0)
                 }
             }
@@ -136,14 +127,12 @@ class IntrinsicsMeasurementTest {
             showContent = true
         }
 
-        rule.runOnIdle {
-            assertThat(coords.size.height).isEqualTo(24)
-        }
+        rule.runOnIdle { assertThat(coords.size.height).isEqualTo(24) }
     }
 
     /**
-     * When intrinsics are used for child content measurement inside the layout block
-     * and the content changes, then the intrinsics measurement should be triggered again.
+     * When intrinsics are used for child content measurement inside the layout block and the
+     * content changes, then the intrinsics measurement should be triggered again.
      */
     @Test
     fun intrinsicsUseInPlacementOnlyRelayout() {
@@ -163,9 +152,7 @@ class IntrinsicsMeasurementTest {
                     }
                 }
             }
-            Layout(
-                content = content
-            ) { measurables, constraints ->
+            Layout(content = content) { measurables, constraints ->
                 val width = if (constraints.hasBoundedWidth) constraints.maxWidth else 100
                 val height = if (constraints.hasBoundedHeight) constraints.maxHeight else 100
                 measureCount++
@@ -173,9 +160,7 @@ class IntrinsicsMeasurementTest {
                     placeCount++
                     val adjustedHeight =
                         (measurables[0].minIntrinsicHeight(width) * 1.2).roundToInt()
-                    val placeable = measurables[0].measure(
-                        Constraints.fixed(width, adjustedHeight)
-                    )
+                    val placeable = measurables[0].measure(Constraints.fixed(width, adjustedHeight))
                     placeable.place(0, 0)
                 }
             }
@@ -204,9 +189,9 @@ class IntrinsicsMeasurementTest {
     }
 
     /**
-     * When intrinsics are used for child content measurement and the content changes,
-     * then the intrinsics measurement should be triggered again. This should work when the
-     * content is not a direct child of the intrinsic measurement.
+     * When intrinsics are used for child content measurement and the content changes, then the
+     * intrinsics measurement should be triggered again. This should work when the content is not a
+     * direct child of the intrinsic measurement.
      */
     @Test
     fun grandchildChangeCausesRemeasure() {
@@ -226,17 +211,14 @@ class IntrinsicsMeasurementTest {
                     }
                 }
             }
-            Layout(
-                content = content,
-                modifier = Modifier.onPlaced { coords = it }
-            ) { measurables, _ ->
+            Layout(content = content, modifier = Modifier.onPlaced { coords = it }) { measurables, _
+                ->
                 val intrinsicHeight = measurables[0].minIntrinsicHeight(Constraints.Infinity)
-                val placeable = measurables[0].measure(
-                    Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
-                )
-                layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
+                val placeable =
+                    measurables[0].measure(
+                        Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
+                    )
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
         }
 
@@ -250,15 +232,13 @@ class IntrinsicsMeasurementTest {
             showContent = true
         }
 
-        rule.runOnIdle {
-            assertThat(coords.size.height).isEqualTo(24)
-        }
+        rule.runOnIdle { assertThat(coords.size.height).isEqualTo(24) }
     }
 
     /**
-     * When the intrinsics usage changes, the content should only be measured properly.
-     * In this case, the intrinsics is used in the measure block and then not used, so the
-     * content changing shouldn't cause measurement.
+     * When the intrinsics usage changes, the content should only be measured properly. In this
+     * case, the intrinsics is used in the measure block and then not used, so the content changing
+     * shouldn't cause measurement.
      */
     @Test
     fun intrinsicsUsageChanges() {
@@ -268,33 +248,30 @@ class IntrinsicsMeasurementTest {
         var measureCount = 0
         var placeCount = 0
 
-        val sometimesIntrinsicsMeasurePolicy = object : MeasurePolicy {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureResult {
-                if (useIntrinsics) {
-                    val placeable = measurables[0].measure(constraints)
-                    return layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
+        val sometimesIntrinsicsMeasurePolicy =
+            object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    if (useIntrinsics) {
+                        val placeable = measurables[0].measure(constraints)
+                        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                     }
+                    val placeable = measurables[0].measure(constraints)
+                    return layout(100, 100) { placeable.place(0, 0) }
                 }
-                val placeable = measurables[0].measure(constraints)
-                return layout(100, 100) {
-                    placeable.place(0, 0)
-                }
-            }
 
-            override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                measurables: List<IntrinsicMeasurable>,
-                width: Int
-            ): Int {
-                if (useIntrinsics) {
-                    return measurables[0].minIntrinsicHeight(width)
+                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ): Int {
+                    if (useIntrinsics) {
+                        return measurables[0].minIntrinsicHeight(width)
+                    }
+                    return 100
                 }
-                return 100
             }
-        }
 
         rule.setContent {
             val content1: @Composable () -> Unit = {
@@ -308,19 +285,17 @@ class IntrinsicsMeasurementTest {
                 }
             }
             val content2: @Composable () -> Unit = {
-                Box {
-                    Layout(content1, Modifier, sometimesIntrinsicsMeasurePolicy)
-                }
+                Box { Layout(content1, Modifier, sometimesIntrinsicsMeasurePolicy) }
             }
-            Layout(
-                content = content2,
-                modifier = Modifier.onPlaced { coords = it }
-            ) { measurables, _ ->
+            Layout(content = content2, modifier = Modifier.onPlaced { coords = it }) {
+                measurables,
+                _ ->
                 measureCount++
                 val intrinsicHeight = measurables[0].minIntrinsicHeight(Constraints.Infinity)
-                val placeable = measurables[0].measure(
-                    Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
-                )
+                val placeable =
+                    measurables[0].measure(
+                        Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
+                    )
                 layout(placeable.width, placeable.height) {
                     placeCount++
                     placeable.place(0, 0)
@@ -364,9 +339,9 @@ class IntrinsicsMeasurementTest {
     }
 
     /**
-     * When the intrinsics usage changes, the content should only be measured properly.
-     * In this case, the measure block and intrinsics change from using the child's size
-     * to not using the child's size for its own size.
+     * When the intrinsics usage changes, the content should only be measured properly. In this
+     * case, the measure block and intrinsics change from using the child's size to not using the
+     * child's size for its own size.
      */
     @Test
     fun intrinsicsUsageChangesInPlacement() {
@@ -375,33 +350,32 @@ class IntrinsicsMeasurementTest {
         var measureCount = 0
         var placeCount = 0
 
-        val sometimesIntrinsicsMeasurePolicy = object : MeasurePolicy {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureResult {
-                if (useIntrinsics) {
-                    val placeable = measurables[0].measure(constraints)
-                    return layout(placeable.width, placeable.height) {
+        val sometimesIntrinsicsMeasurePolicy =
+            object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    if (useIntrinsics) {
+                        val placeable = measurables[0].measure(constraints)
+                        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                    }
+                    return layout(100, 100) {
+                        val placeable = measurables[0].measure(constraints)
                         placeable.place(0, 0)
                     }
                 }
-                return layout(100, 100) {
-                    val placeable = measurables[0].measure(constraints)
-                    placeable.place(0, 0)
-                }
-            }
 
-            override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                measurables: List<IntrinsicMeasurable>,
-                width: Int
-            ): Int {
-                if (useIntrinsics) {
-                    return measurables[0].minIntrinsicHeight(width)
+                override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ): Int {
+                    if (useIntrinsics) {
+                        return measurables[0].minIntrinsicHeight(width)
+                    }
+                    return 100
                 }
-                return 100
             }
-        }
 
         rule.setContent {
             val content1: @Composable () -> Unit = {
@@ -419,16 +393,15 @@ class IntrinsicsMeasurementTest {
             val content2: @Composable () -> Unit = {
                 Layout(content1, Modifier, sometimesIntrinsicsMeasurePolicy)
             }
-            Layout(
-                content = content2
-            ) { measurables, _ ->
+            Layout(content = content2) { measurables, _ ->
                 measureCount++
                 layout(100, 100) {
                     placeCount++
                     val intrinsicHeight = measurables[0].minIntrinsicHeight(Constraints.Infinity)
-                    val placeable = measurables[0].measure(
-                        Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
-                    )
+                    val placeable =
+                        measurables[0].measure(
+                            Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
+                        )
                     placeable.place(0, 0)
                 }
             }
@@ -467,8 +440,8 @@ class IntrinsicsMeasurementTest {
     }
 
     /**
-     * The parent starts off using intrinsics in the measure block and then switches to
-     * using it in the layout block.
+     * The parent starts off using intrinsics in the measure block and then switches to using it in
+     * the layout block.
      */
     @Test
     fun changeIntrinsicsUsageFromMeasureToLayout() {
@@ -496,30 +469,28 @@ class IntrinsicsMeasurementTest {
             ) { measurables, _ ->
                 if (intrinsicsInMeasure) {
                     val intrinsicHeight = measurables[0].minIntrinsicHeight(Constraints.Infinity)
-                    val placeable = measurables[0].measure(
-                        Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
-                    )
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
+                    val placeable =
+                        measurables[0].measure(
+                            Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
+                        )
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                 } else {
                     measureCount++
                     layout(100, 100) {
                         placeCount++
                         val intrinsicHeight =
                             measurables[0].minIntrinsicHeight(Constraints.Infinity)
-                        val placeable = measurables[0].measure(
-                            Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
-                        )
+                        val placeable =
+                            measurables[0].measure(
+                                Constraints.fixedHeight((intrinsicHeight * 1.2).roundToInt())
+                            )
                         placeable.place(0, 0)
                     }
                 }
             }
         }
 
-        rule.runOnIdle {
-            intrinsicsInMeasure = false
-        }
+        rule.runOnIdle { intrinsicsInMeasure = false }
 
         rule.runOnIdle {
             assertThat(coords.size.height).isEqualTo(24)
@@ -547,23 +518,23 @@ class IntrinsicsMeasurementTest {
     @Test
     fun measureWidthTooLarge() {
         var exception: IllegalStateException? = null
-        val measurePolicy: MeasurePolicy = object : MeasurePolicy {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureResult {
-                return layout(0, 0) {}
-            }
+        val measurePolicy: MeasurePolicy =
+            object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    return layout(0, 0) {}
+                }
 
-            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                measurables: List<IntrinsicMeasurable>,
-                height: Int
-            ): Int = 1 shl 24
-        }
+                override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                    measurables: List<IntrinsicMeasurable>,
+                    height: Int
+                ): Int = 1 shl 24
+            }
         rule.setContent {
             Layout(
-                Modifier
-                    .layout { measurable, _ ->
+                Modifier.layout { measurable, _ ->
                         try {
                             measurable.maxIntrinsicWidth(100)
                         } catch (e: IllegalStateException) {
@@ -573,10 +544,10 @@ class IntrinsicsMeasurementTest {
                     }
                     .layout { m, c ->
                         val p = m.measure(c)
-                        layout(p.width, p.height) {
-                            p.place(0, 0)
-                        }
-                    }, measurePolicy = measurePolicy)
+                        layout(p.width, p.height) { p.place(0, 0) }
+                    },
+                measurePolicy = measurePolicy
+            )
         }
         rule.waitForIdle()
         assertThat(exception).isNotNull()
@@ -585,23 +556,23 @@ class IntrinsicsMeasurementTest {
     @Test
     fun measureHeightTooLarge() {
         var exception: IllegalStateException? = null
-        val measurePolicy: MeasurePolicy = object : MeasurePolicy {
-            override fun MeasureScope.measure(
-                measurables: List<Measurable>,
-                constraints: Constraints
-            ): MeasureResult {
-                return layout(0, 0) {}
-            }
+        val measurePolicy: MeasurePolicy =
+            object : MeasurePolicy {
+                override fun MeasureScope.measure(
+                    measurables: List<Measurable>,
+                    constraints: Constraints
+                ): MeasureResult {
+                    return layout(0, 0) {}
+                }
 
-            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                measurables: List<IntrinsicMeasurable>,
-                width: Int
-            ): Int = 1 shl 24
-        }
+                override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                    measurables: List<IntrinsicMeasurable>,
+                    width: Int
+                ): Int = 1 shl 24
+            }
         rule.setContent {
             Layout(
-                Modifier
-                    .layout { measurable, _ ->
+                Modifier.layout { measurable, _ ->
                         try {
                             measurable.maxIntrinsicHeight(100)
                         } catch (e: IllegalStateException) {
@@ -611,10 +582,9 @@ class IntrinsicsMeasurementTest {
                     }
                     .layout { m, c ->
                         val p = m.measure(c)
-                        layout(p.width, p.height) {
-                            p.place(0, 0)
-                        }
-                    }, measurePolicy = measurePolicy
+                        layout(p.width, p.height) { p.place(0, 0) }
+                    },
+                measurePolicy = measurePolicy
             )
         }
         rule.waitForIdle()

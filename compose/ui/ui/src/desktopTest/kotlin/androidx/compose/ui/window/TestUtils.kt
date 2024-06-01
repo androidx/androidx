@@ -44,8 +44,8 @@ internal fun runApplicationTest(
      * Set this property only if you sure that you can't easily make the test deterministic
      * (non-flaky).
      *
-     * We have to use `useDelay` in some Linux Tests, because Linux can behave in
-     * non-deterministic way when we change position/size very fast (see the snippet below)
+     * We have to use `useDelay` in some Linux Tests, because Linux can behave in non-deterministic
+     * way when we change position/size very fast (see the snippet below)
      */
     useDelay: Boolean = false,
     body: suspend WindowTestScope.() -> Unit
@@ -107,10 +107,8 @@ fun main()  {
 }
 */
 
-internal class WindowTestScope(
-    private val scope: CoroutineScope,
-    private val useDelay: Boolean
-) : CoroutineScope by CoroutineScope(scope.coroutineContext + Job()) {
+internal class WindowTestScope(private val scope: CoroutineScope, private val useDelay: Boolean) :
+    CoroutineScope by CoroutineScope(scope.coroutineContext + Job()) {
     var isOpen by mutableStateOf(true)
     private val initialRecomposers = Recomposer.runningRecomposers.value
 
@@ -129,9 +127,7 @@ internal class WindowTestScope(
         //  because there are Swing/system events that we don't control).
         // Most of the work usually is done after the first yield(), almost all of the work -
         // after fourth yield()
-        repeat(100) {
-            yield()
-        }
+        repeat(100) { yield() }
 
         Snapshot.sendApplyNotifications()
         for (recomposerInfo in Recomposer.runningRecomposers.value - initialRecomposers) {

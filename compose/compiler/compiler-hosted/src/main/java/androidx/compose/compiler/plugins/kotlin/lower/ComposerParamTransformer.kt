@@ -107,8 +107,8 @@ class ComposerParamTransformer(
     ModuleLoweringPass {
 
     /**
-     * Used to identify module fragment in case of incremental compilation
-     * see [externallyTransformed]
+     * Used to identify module fragment in case of incremental compilation see
+     * [externallyTransformed]
      */
     private var currentModule: IrModuleFragment? = null
 
@@ -123,23 +123,15 @@ class ComposerParamTransformer(
 
         module.acceptVoid(symbolRemapper)
 
-        val typeRemapper = ComposerTypeRemapper(
-            context,
-            symbolRemapper,
-            composerType
-        )
+        val typeRemapper = ComposerTypeRemapper(context, symbolRemapper, composerType)
         // for each declaration, we create a deepCopy transformer It is important here that we
         // use the "preserving metadata" variant since we are using this copy to *replace* the
         // originals, or else the module we would produce wouldn't have any metadata in it.
-        val transformer = DeepCopyIrTreeWithRemappedComposableTypes(
-            context,
-            symbolRemapper,
-            typeRemapper
-        ).also { typeRemapper.deepCopy = it }
-        module.transformChildren(
-            transformer,
-            null
-        )
+        val transformer =
+            DeepCopyIrTreeWithRemappedComposableTypes(context, symbolRemapper, typeRemapper).also {
+                typeRemapper.deepCopy = it
+            }
+        module.transformChildren(transformer, null)
         // just go through and patch all of the parents to make sure things are properly wired
         // up.
         module.patchDeclarationParents()
@@ -197,90 +189,78 @@ class ComposerParamTransformer(
         )
 
     fun IrCall.withComposerParamIfNeeded(composerParam: IrValueParameter): IrCall {
-        val ownerFn = when {
-            symbol.owner.isComposableDelegatedAccessor() -> {
-                if (!symbol.owner.hasComposableAnnotation()) {
-                    symbol.owner.annotations += createComposableAnnotation()
+        val ownerFn =
+            when {
+                symbol.owner.isComposableDelegatedAccessor() -> {
+                    if (!symbol.owner.hasComposableAnnotation()) {
+                        symbol.owner.annotations += createComposableAnnotation()
+                    }
+                    symbol.owner.withComposerParamIfNeeded()
                 }
-                symbol.owner.withComposerParamIfNeeded()
+                isComposableLambdaInvoke() -> symbol.owner.lambdaInvokeWithComposerParam()
+                symbol.owner.hasComposableAnnotation() -> symbol.owner.withComposerParamIfNeeded()
+                // Not a composable call
+                else -> return this
             }
-            isComposableLambdaInvoke() ->
-                symbol.owner.lambdaInvokeWithComposerParam()
-            symbol.owner.hasComposableAnnotation() ->
-                symbol.owner.withComposerParamIfNeeded()
-            // Not a composable call
-            else -> return this
-        }
 
         return IrCallImpl(
-            startOffset,
-            endOffset,
-            type,
-            ownerFn.symbol,
-            typeArgumentsCount,
-            ownerFn.valueParameters.size,
-            origin,
-            superQualifierSymbol
-        ).also {
-            it.copyAttributes(this)
-            it.copyTypeArgumentsFrom(this)
-            it.dispatchReceiver = dispatchReceiver
-            it.extensionReceiver = extensionReceiver
-            val argumentsMissing = mutableListOf<Boolean>()
-            for (i in 0 until valueArgumentsCount) {
-                val arg = getValueArgument(i)
-                val param = ownerFn.valueParameters[i]
-                val hasDefault = ownerFn.hasDefaultExpressionDefinedForValueParameter(i)
-                argumentsMissing.add(arg == null && hasDefault)
-                if (arg != null) {
-                    it.putValueArgument(i, arg)
-                } else if (param.isVararg) {
-                    // do nothing
-                } else {
-                    it.putValueArgument(i, defaultArgumentFor(param))
-                }
-            }
-            val valueParams = valueArgumentsCount
-            val realValueParams = valueParams - ownerFn.contextReceiverParametersCount
-            var argIndex = valueArgumentsCount
-            it.putValueArgument(
-                argIndex++,
-                IrGetValueImpl(
-                    UNDEFINED_OFFSET,
-                    UNDEFINED_OFFSET,
-                    composerParam.symbol
-                )
+                startOffset,
+                endOffset,
+                type,
+                ownerFn.symbol,
+                typeArgumentsCount,
+                ownerFn.valueParameters.size,
+                origin,
+                superQualifierSymbol
             )
+            .also {
+                it.copyAttributes(this)
+                it.copyTypeArgumentsFrom(this)
+                it.dispatchReceiver = dispatchReceiver
+                it.extensionReceiver = extensionReceiver
+                val argumentsMissing = mutableListOf<Boolean>()
+                for (i in 0 until valueArgumentsCount) {
+                    val arg = getValueArgument(i)
+                    val param = ownerFn.valueParameters[i]
+                    val hasDefault = ownerFn.hasDefaultExpressionDefinedForValueParameter(i)
+                    argumentsMissing.add(arg == null && hasDefault)
+                    if (arg != null) {
+                        it.putValueArgument(i, arg)
+                    } else if (param.isVararg) {
+                        // do nothing
+                    } else {
+                        it.putValueArgument(i, defaultArgumentFor(param))
+                    }
+                }
+                val valueParams = valueArgumentsCount
+                val realValueParams = valueParams - ownerFn.contextReceiverParametersCount
+                var argIndex = valueArgumentsCount
+                it.putValueArgument(
+                    argIndex++,
+                    IrGetValueImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, composerParam.symbol)
+                )
 
-            // $changed[n]
-            for (i in 0 until changedParamCount(realValueParams, ownerFn.thisParamCount)) {
-                if (argIndex < ownerFn.valueParameters.size) {
-                    it.putValueArgument(
-                        argIndex++,
-                        irConst(0)
-                    )
-                } else {
-                    error("1. expected value parameter count to be higher: ${this.dumpSrc()}")
+                // $changed[n]
+                for (i in 0 until changedParamCount(realValueParams, ownerFn.thisParamCount)) {
+                    if (argIndex < ownerFn.valueParameters.size) {
+                        it.putValueArgument(argIndex++, irConst(0))
+                    } else {
+                        error("1. expected value parameter count to be higher: ${this.dumpSrc()}")
+                    }
+                }
+
+                // $default[n]
+                for (i in 0 until defaultParamCount(valueParams)) {
+                    val start = i * BITS_PER_INT
+                    val end = min(start + BITS_PER_INT, valueParams)
+                    if (argIndex < ownerFn.valueParameters.size) {
+                        val bits = argumentsMissing.toBooleanArray().sliceArray(start until end)
+                        it.putValueArgument(argIndex++, irConst(bitMask(*bits)))
+                    } else if (argumentsMissing.any { it }) {
+                        error("2. expected value parameter count to be higher: ${this.dumpSrc()}")
+                    }
                 }
             }
-
-            // $default[n]
-            for (i in 0 until defaultParamCount(valueParams)) {
-                val start = i * BITS_PER_INT
-                val end = min(start + BITS_PER_INT, valueParams)
-                if (argIndex < ownerFn.valueParameters.size) {
-                    val bits = argumentsMissing
-                        .toBooleanArray()
-                        .sliceArray(start until end)
-                    it.putValueArgument(
-                        argIndex++,
-                        irConst(bitMask(*bits))
-                    )
-                } else if (argumentsMissing.any { it }) {
-                    error("2. expected value parameter count to be higher: ${this.dumpSrc()}")
-                }
-            }
-        }
     }
 
     private fun defaultArgumentFor(param: IrValueParameter): IrExpression? {
@@ -328,21 +308,23 @@ class ComposerParamTransformer(
             // TODO(lmr): We should not be calling the constructor here, but this seems like a
             //  reasonable interim solution.
             return IrConstructorCallImpl(
-                startOffset,
-                endOffset,
-                this,
-                ctor,
-                typeArgumentsCount = 0,
-                constructorTypeArgumentsCount = 0,
-                valueArgumentsCount = 1,
-                origin = null
-            ).also {
-                it.putValueArgument(0, underlyingType.defaultValue(startOffset, endOffset))
-            }
+                    startOffset,
+                    endOffset,
+                    this,
+                    ctor,
+                    typeArgumentsCount = 0,
+                    constructorTypeArgumentsCount = 0,
+                    valueArgumentsCount = 1,
+                    origin = null
+                )
+                .also {
+                    it.putValueArgument(0, underlyingType.defaultValue(startOffset, endOffset))
+                }
         }
     }
 
-    // Transform `@Composable fun foo(params): RetType` into `fun foo(params, $composer: Composer): RetType`
+    // Transform `@Composable fun foo(params): RetType` into `fun foo(params, $composer: Composer):
+    // RetType`
     private fun IrSimpleFunction.withComposerParamIfNeeded(): IrSimpleFunction {
         // don't transform functions that themselves were produced by this function. (ie, if we
         // call this with a function that has the synthetic composer parameter, we don't want to
@@ -374,98 +356,93 @@ class ComposerParamTransformer(
         val argCount = valueParameters.size
         val extraParams = composeSyntheticParamCount(argCount)
         val newFnClass = context.function(argCount + extraParams).owner
-        val newInvoke = newFnClass.functions.first {
-            it.name == OperatorNameConventions.INVOKE
-        }
+        val newInvoke = newFnClass.functions.first { it.name == OperatorNameConventions.INVOKE }
         return newInvoke
     }
 
     private fun IrSimpleFunction.copy(): IrSimpleFunction {
         // TODO(lmr): use deepCopy instead?
-        return context.irFactory.createSimpleFunction(
-            startOffset = startOffset,
-            endOffset = endOffset,
-            origin = origin,
-            name = name,
-            visibility = visibility,
-            isInline = isInline,
-            isExpect = isExpect,
-            returnType = returnType,
-            modality = modality,
-            symbol = IrSimpleFunctionSymbolImpl(),
-            isTailrec = isTailrec,
-            isSuspend = isSuspend,
-            isOperator = isOperator,
-            isInfix = isInfix,
-            isExternal = isExternal,
-            containerSource = containerSource
-        ).also { fn ->
-            fn.copyAttributes(this)
-            val propertySymbol = correspondingPropertySymbol
-            if (propertySymbol != null) {
-                fn.correspondingPropertySymbol = propertySymbol
-                if (propertySymbol.owner.getter == this) {
-                    propertySymbol.owner.getter = fn
+        return context.irFactory
+            .createSimpleFunction(
+                startOffset = startOffset,
+                endOffset = endOffset,
+                origin = origin,
+                name = name,
+                visibility = visibility,
+                isInline = isInline,
+                isExpect = isExpect,
+                returnType = returnType,
+                modality = modality,
+                symbol = IrSimpleFunctionSymbolImpl(),
+                isTailrec = isTailrec,
+                isSuspend = isSuspend,
+                isOperator = isOperator,
+                isInfix = isInfix,
+                isExternal = isExternal,
+                containerSource = containerSource
+            )
+            .also { fn ->
+                fn.copyAttributes(this)
+                val propertySymbol = correspondingPropertySymbol
+                if (propertySymbol != null) {
+                    fn.correspondingPropertySymbol = propertySymbol
+                    if (propertySymbol.owner.getter == this) {
+                        propertySymbol.owner.getter = fn
+                    }
+                    if (propertySymbol.owner.setter == this) {
+                        propertySymbol.owner.setter = fn
+                    }
                 }
-                if (propertySymbol.owner.setter == this) {
-                    propertySymbol.owner.setter = fn
-                }
+                fn.parent = parent
+                fn.copyTypeParametersFrom(this)
+
+                fun IrType.remapTypeParameters(): IrType = remapTypeParameters(this@copy, fn)
+
+                fn.returnType = returnType.remapTypeParameters()
+
+                fn.dispatchReceiverParameter = dispatchReceiverParameter?.copyTo(fn)
+                fn.extensionReceiverParameter = extensionReceiverParameter?.copyTo(fn)
+                fn.valueParameters =
+                    valueParameters.map { param ->
+                        // Composable lambdas will always have `IrGet`s of all of their parameters
+                        // generated, since they are passed into the restart lambda. This causes an
+                        // interesting corner case with "anonymous parameters" of composable
+                        // functions.
+                        // If a parameter is anonymous (using the name `_`) in user code, you can
+                        // usually
+                        // make the assumption that it is never used, but this is technically not
+                        // the
+                        // case in composable lambdas. The synthetic name that kotlin generates for
+                        // anonymous parameters has an issue where it is not safe to dex, so we
+                        // sanitize
+                        // the names here to ensure that dex is always safe.
+                        val newName = dexSafeName(param.name)
+                        param.copyTo(
+                            fn,
+                            name = newName,
+                            isAssignable = param.defaultValue != null,
+                            defaultValue =
+                                param.defaultValue?.copyWithNewTypeParams(
+                                    source = this,
+                                    target = fn
+                                )
+                        )
+                    }
+                fn.contextReceiverParametersCount = contextReceiverParametersCount
+                fn.annotations = annotations.toList()
+                fn.metadata = metadata
+                fn.body = moveBodyTo(fn)?.copyWithNewTypeParams(this, fn)
             }
-            fn.parent = parent
-            fn.copyTypeParametersFrom(this)
-
-            fun IrType.remapTypeParameters(): IrType =
-                remapTypeParameters(this@copy, fn)
-
-            fn.returnType = returnType.remapTypeParameters()
-
-            fn.dispatchReceiverParameter = dispatchReceiverParameter?.copyTo(fn)
-            fn.extensionReceiverParameter = extensionReceiverParameter?.copyTo(fn)
-            fn.valueParameters = valueParameters.map { param ->
-                // Composable lambdas will always have `IrGet`s of all of their parameters
-                // generated, since they are passed into the restart lambda. This causes an
-                // interesting corner case with "anonymous parameters" of composable functions.
-                // If a parameter is anonymous (using the name `_`) in user code, you can usually
-                // make the assumption that it is never used, but this is technically not the
-                // case in composable lambdas. The synthetic name that kotlin generates for
-                // anonymous parameters has an issue where it is not safe to dex, so we sanitize
-                // the names here to ensure that dex is always safe.
-                val newName = dexSafeName(param.name)
-                param.copyTo(
-                    fn,
-                    name = newName,
-                    isAssignable = param.defaultValue != null,
-                    defaultValue = param.defaultValue?.copyWithNewTypeParams(
-                        source = this, target = fn
-                    )
-                )
-            }
-            fn.contextReceiverParametersCount = contextReceiverParametersCount
-            fn.annotations = annotations.toList()
-            fn.metadata = metadata
-            fn.body = moveBodyTo(fn)?.copyWithNewTypeParams(this, fn)
-        }
     }
 
     private fun jvmNameAnnotation(name: String): IrConstructorCall {
         val jvmName = getTopLevelClass(StandardClassIds.Annotations.JvmName)
         val ctor = jvmName.constructors.first { it.owner.isPrimary }
         val type = jvmName.createType(false, emptyList())
-        return IrConstructorCallImpl(
-            UNDEFINED_OFFSET,
-            UNDEFINED_OFFSET,
-            type,
-            ctor,
-            0, 0, 1
-        ).also {
+        return IrConstructorCallImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, type, ctor, 0, 0, 1).also {
             it.putValueArgument(
                 0,
-                IrConstImpl.string(
-                    UNDEFINED_OFFSET,
-                    UNDEFINED_OFFSET,
-                    builtIns.stringType,
-                    name
-                )
+                IrConstImpl.string(UNDEFINED_OFFSET, UNDEFINED_OFFSET, builtIns.stringType, name)
             )
         }
     }
@@ -509,9 +486,8 @@ class ComposerParamTransformer(
 
             // The overridden symbols might also be composable functions, so we want to make sure
             // and transform them as well
-            fn.overriddenSymbols = overriddenSymbols.map {
-                it.owner.withComposerParamIfNeeded().symbol
-            }
+            fn.overriddenSymbols =
+                overriddenSymbols.map { it.owner.withComposerParamIfNeeded().symbol }
 
             // if we are transforming a composable property, the jvm signature of the
             // corresponding getters and setters have a composer parameter. Since Kotlin uses the
@@ -522,29 +498,29 @@ class ComposerParamTransformer(
             fn.correspondingPropertySymbol?.let { propertySymbol ->
                 if (!fn.hasAnnotation(DescriptorUtils.JVM_NAME)) {
                     val propertyName = propertySymbol.owner.name.identifier
-                    val name = if (fn.isGetter) {
-                        JvmAbi.getterName(propertyName)
-                    } else {
-                        JvmAbi.setterName(propertyName)
-                    }
+                    val name =
+                        if (fn.isGetter) {
+                            JvmAbi.getterName(propertyName)
+                        } else {
+                            JvmAbi.setterName(propertyName)
+                        }
                     fn.annotations += jvmNameAnnotation(name)
                 }
             }
 
-            val valueParametersMapping = explicitParameters
-                .zip(fn.explicitParameters)
-                .toMap()
+            val valueParametersMapping = explicitParameters.zip(fn.explicitParameters).toMap()
 
             val currentParams = fn.valueParameters.size
             val realParams = currentParams - fn.contextReceiverParametersCount
 
             // $composer
-            val composerParam = fn.addValueParameter {
-                name = ComposeNames.COMPOSER_PARAMETER
-                type = composerType.makeNullable()
-                origin = IrDeclarationOrigin.DEFINED
-                isAssignable = true
-            }
+            val composerParam =
+                fn.addValueParameter {
+                    name = ComposeNames.COMPOSER_PARAMETER
+                    type = composerType.makeNullable()
+                    origin = IrDeclarationOrigin.DEFINED
+                    isAssignable = true
+                }
 
             // $changed[n]
             val changed = ComposeNames.CHANGED_PARAMETER.identifier
@@ -579,94 +555,98 @@ class ComposerParamTransformer(
 
             // update parameter types so they are ready to accept the default values
             fn.valueParameters.fastForEach { param ->
-                val newType = defaultParameterType(
-                    param,
-                    fn.hasDefaultExpressionDefinedForValueParameter(param.index)
-                )
+                val newType =
+                    defaultParameterType(
+                        param,
+                        fn.hasDefaultExpressionDefinedForValueParameter(param.index)
+                    )
                 param.type = newType
             }
 
             inlineLambdaInfo.scan(fn)
 
-            fn.transformChildrenVoid(object : IrElementTransformerVoid() {
-                var isNestedScope = false
-                override fun visitGetValue(expression: IrGetValue): IrGetValue {
-                    val newParam = valueParametersMapping[expression.symbol.owner]
-                    return if (newParam != null) {
-                        IrGetValueImpl(
-                            expression.startOffset,
-                            expression.endOffset,
-                            expression.type,
-                            newParam.symbol,
-                            expression.origin
-                        )
-                    } else expression
-                }
+            fn.transformChildrenVoid(
+                object : IrElementTransformerVoid() {
+                    var isNestedScope = false
 
-                override fun visitReturn(expression: IrReturn): IrExpression {
-                    if (expression.returnTargetSymbol == oldFn.symbol) {
-                        // update the return statement to point to the new function, or else
-                        // it will be interpreted as a non-local return
-                        return super.visitReturn(
-                            IrReturnImpl(
+                    override fun visitGetValue(expression: IrGetValue): IrGetValue {
+                        val newParam = valueParametersMapping[expression.symbol.owner]
+                        return if (newParam != null) {
+                            IrGetValueImpl(
                                 expression.startOffset,
                                 expression.endOffset,
                                 expression.type,
-                                fn.symbol,
-                                expression.value
+                                newParam.symbol,
+                                expression.origin
                             )
-                        )
+                        } else expression
                     }
-                    return super.visitReturn(expression)
-                }
 
-                override fun visitFunction(declaration: IrFunction): IrStatement {
-                    val wasNested = isNestedScope
-                    try {
-                        // we don't want to pass the composer parameter in to composable calls
-                        // inside of nested scopes.... *unless* the scope was inlined.
-                        isNestedScope = wasNested ||
-                            !inlineLambdaInfo.isInlineLambda(declaration) ||
-                            declaration.hasComposableAnnotation()
-                        return super.visitFunction(declaration)
-                    } finally {
-                        isNestedScope = wasNested
+                    override fun visitReturn(expression: IrReturn): IrExpression {
+                        if (expression.returnTargetSymbol == oldFn.symbol) {
+                            // update the return statement to point to the new function, or else
+                            // it will be interpreted as a non-local return
+                            return super.visitReturn(
+                                IrReturnImpl(
+                                    expression.startOffset,
+                                    expression.endOffset,
+                                    expression.type,
+                                    fn.symbol,
+                                    expression.value
+                                )
+                            )
+                        }
+                        return super.visitReturn(expression)
+                    }
+
+                    override fun visitFunction(declaration: IrFunction): IrStatement {
+                        val wasNested = isNestedScope
+                        try {
+                            // we don't want to pass the composer parameter in to composable calls
+                            // inside of nested scopes.... *unless* the scope was inlined.
+                            isNestedScope =
+                                wasNested ||
+                                    !inlineLambdaInfo.isInlineLambda(declaration) ||
+                                    declaration.hasComposableAnnotation()
+                            return super.visitFunction(declaration)
+                        } finally {
+                            isNestedScope = wasNested
+                        }
+                    }
+
+                    override fun visitCall(expression: IrCall): IrExpression {
+                        val expr =
+                            if (!isNestedScope) {
+                                expression.withComposerParamIfNeeded(composerParam)
+                            } else expression
+                        return super.visitCall(expr)
                     }
                 }
-
-                override fun visitCall(expression: IrCall): IrExpression {
-                    val expr = if (!isNestedScope) {
-                        expression.withComposerParamIfNeeded(composerParam)
-                    } else
-                        expression
-                    return super.visitCall(expr)
-                }
-            })
+            )
         }
     }
 
-    private fun defaultParameterType(
-        param: IrValueParameter,
-        hasDefaultValue: Boolean
-    ): IrType {
+    private fun defaultParameterType(param: IrValueParameter, hasDefaultValue: Boolean): IrType {
         val type = param.type
         if (!hasDefaultValue) return type
-        val constructorAccessible = !type.isPrimitiveType() &&
-            type.classOrNull?.owner?.primaryConstructor != null
+        val constructorAccessible =
+            !type.isPrimitiveType() && type.classOrNull?.owner?.primaryConstructor != null
         return when {
             type.isPrimitiveType() -> type
-            type.isInlineClassType() -> if (context.platform.isJvm() || constructorAccessible) {
-                if (type.unboxInlineClass().isPrimitiveType()) {
-                    type
+            type.isInlineClassType() ->
+                if (context.platform.isJvm() || constructorAccessible) {
+                    if (type.unboxInlineClass().isPrimitiveType()) {
+                        type
+                    } else {
+                        type.makeNullable()
+                    }
                 } else {
+                    // k/js and k/native: private constructors of value classes can be not
+                    // accessible.
+                    // Therefore it won't be possible to create a "fake" default argument for calls.
+                    // Making it nullable allows to pass null.
                     type.makeNullable()
                 }
-            } else {
-                // k/js and k/native: private constructors of value classes can be not accessible.
-                // Therefore it won't be possible to create a "fake" default argument for calls.
-                // Making it nullable allows to pass null.
-                type.makeNullable()
-            }
             else -> type.makeNullable()
         }
     }
@@ -679,19 +659,18 @@ class ComposerParamTransformer(
      * before, so if the function comes from other [IrModuleFragment], we must skip it.
      *
      * NOTE: [ModuleDescriptor] will not work here, as incremental compilation of the same module
-     * can contain some functions that were transformed during previous compilation in a
-     * different module fragment with the same [ModuleDescriptor]
+     * can contain some functions that were transformed during previous compilation in a different
+     * module fragment with the same [ModuleDescriptor]
      */
     private fun IrFunction.externallyTransformed(): Boolean =
-        decoysEnabled && valueParameters.firstOrNull {
-            it.name == ComposeNames.COMPOSER_PARAMETER
-        } != null
+        decoysEnabled &&
+            valueParameters.firstOrNull { it.name == ComposeNames.COMPOSER_PARAMETER } != null
 
     /**
      * Creates stubs for @Composable function with value class parameters that have a default and
-     * are wrapping a non-primitive instance.
-     * Before Compose compiler 1.5.12, not specifying such parameter resulted in a nullptr exception
-     * (b/330655412) at runtime, caused by Kotlin compiler inserting checkParameterNotNull.
+     * are wrapping a non-primitive instance. Before Compose compiler 1.5.12, not specifying such
+     * parameter resulted in a nullptr exception (b/330655412) at runtime, caused by Kotlin compiler
+     * inserting checkParameterNotNull.
      *
      * Converting such parameters to be nullable caused a binary compatibility issue because
      * nullability changed the value class mangle on a function signature. This stub creates a
@@ -713,9 +692,7 @@ class ComposerParamTransformer(
                 hasDefaultExpressionDefinedForValueParameter(i) &&
                     param.type.isInlineClassType() &&
                     !param.type.isNullable() &&
-                    param.type.unboxInlineClass().let {
-                        !it.isPrimitiveType() && !it.isNullable()
-                    }
+                    param.type.unboxInlineClass().let { !it.isPrimitiveType() && !it.isNullable() }
             ) {
                 makeStub = true
                 break
@@ -728,39 +705,39 @@ class ComposerParamTransformer(
 
         val source = this
         val copy = source.deepCopyWithSymbols(parent)
-        copy.valueParameters.fastForEach {
-            it.defaultValue = null
-        }
+        copy.valueParameters.fastForEach { it.defaultValue = null }
         copy.origin = ComposeDefaultValueStubOrigin
-        copy.annotations += IrConstructorCallImpl(
-            UNDEFINED_OFFSET,
-            UNDEFINED_OFFSET,
-            jvmSyntheticIrClass.defaultType,
-            jvmSyntheticIrClass.primaryConstructor!!.symbol,
-            0,
-            0,
-            0,
-        )
-        copy.body = context.irFactory.createBlockBody(UNDEFINED_OFFSET, UNDEFINED_OFFSET) {
-            statements.add(
-                IrReturnImpl(
-                    UNDEFINED_OFFSET,
-                    UNDEFINED_OFFSET,
-                    copy.returnType,
-                    copy.symbol,
-                    irCall(source).apply {
-                        dispatchReceiver = copy.dispatchReceiverParameter?.let { irGet(it) }
-                        extensionReceiver = copy.extensionReceiverParameter?.let { irGet(it) }
-                        copy.typeParameters.fastForEachIndexed { index, param ->
-                            putTypeArgument(index, param.defaultType)
-                        }
-                        copy.valueParameters.fastForEachIndexed { index, param ->
-                            putValueArgument(index, irGet(param))
-                        }
-                    }
-                )
+        copy.annotations +=
+            IrConstructorCallImpl(
+                UNDEFINED_OFFSET,
+                UNDEFINED_OFFSET,
+                jvmSyntheticIrClass.defaultType,
+                jvmSyntheticIrClass.primaryConstructor!!.symbol,
+                0,
+                0,
+                0,
             )
-        }
+        copy.body =
+            context.irFactory.createBlockBody(UNDEFINED_OFFSET, UNDEFINED_OFFSET) {
+                statements.add(
+                    IrReturnImpl(
+                        UNDEFINED_OFFSET,
+                        UNDEFINED_OFFSET,
+                        copy.returnType,
+                        copy.symbol,
+                        irCall(source).apply {
+                            dispatchReceiver = copy.dispatchReceiverParameter?.let { irGet(it) }
+                            extensionReceiver = copy.extensionReceiverParameter?.let { irGet(it) }
+                            copy.typeParameters.fastForEachIndexed { index, param ->
+                                putTypeArgument(index, param.defaultType)
+                            }
+                            copy.valueParameters.fastForEachIndexed { index, param ->
+                                putValueArgument(index, irGet(param))
+                            }
+                        }
+                    )
+                )
+            }
 
         transformedFunctions[copy] = copy
         transformedFunctionSet += copy
@@ -769,8 +746,7 @@ class ComposerParamTransformer(
     }
 
     private val PublishedApiFqName = StandardClassIds.Annotations.PublishedApi.asSingleFqName()
-    object ComposeDefaultValueStubOrigin : IrDeclarationOriginImpl(
-        name = "ComposeDefaultValueStubOrigin",
-        isSynthetic = true
-    )
+
+    object ComposeDefaultValueStubOrigin :
+        IrDeclarationOriginImpl(name = "ComposeDefaultValueStubOrigin", isSynthetic = true)
 }

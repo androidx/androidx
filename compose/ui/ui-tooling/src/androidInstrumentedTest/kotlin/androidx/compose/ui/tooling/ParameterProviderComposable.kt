@@ -29,48 +29,34 @@ import androidx.compose.ui.tooling.preview.Preview
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
-fun OneStringParameter(
-    parameter: String
-) {
-    Surface(color = Color.Red) {
-        Text(parameter)
-    }
+fun OneStringParameter(parameter: String) {
+    Surface(color = Color.Red) { Text(parameter) }
 }
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
 fun OneIntParameter(parameter: Integer) {
-    Surface(color = Color.Red) {
-        Text("$parameter")
-    }
+    Surface(color = Color.Red) { Text("$parameter") }
 }
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
 fun ColorsParameter(parameter: Colors) {
-    MaterialTheme(colors = parameter) {
-        Button(onClick = {}) {
-            Text("Hello colors")
-        }
-    }
+    MaterialTheme(colors = parameter) { Button(onClick = {}) { Text("Hello colors") } }
 }
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
-fun BooleanParameter(
-    valueParameter: Boolean
-) {
+fun BooleanParameter(valueParameter: Boolean) {
     Text(valueParameter.toString())
 }
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
-fun CornerRadiusParameter(
-    radius: CornerRadius
-) {
+fun CornerRadiusParameter(radius: CornerRadius) {
     Text(radius.toString())
 }

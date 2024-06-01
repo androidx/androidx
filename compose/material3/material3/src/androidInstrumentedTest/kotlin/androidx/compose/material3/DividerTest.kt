@@ -35,17 +35,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DividerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val defaultThickness = 1.dp
 
     @Test
     fun horizontalDivider_defaultSize() {
         rule
-            .setMaterialContentForSizeAssertions {
-                HorizontalDivider()
-            }
+            .setMaterialContentForSizeAssertions { HorizontalDivider() }
             .assertHeightIsEqualTo(defaultThickness)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
@@ -54,9 +51,7 @@ class DividerTest {
     fun horizontalDivider_customSize() {
         val thickness = 20.dp
         rule
-            .setMaterialContentForSizeAssertions {
-                HorizontalDivider(thickness = thickness)
-            }
+            .setMaterialContentForSizeAssertions { HorizontalDivider(thickness = thickness) }
             .assertWidthIsEqualTo(rule.rootWidth())
             .assertHeightIsEqualTo(thickness)
     }
@@ -64,9 +59,7 @@ class DividerTest {
     @Test
     fun verticalDivider_defaultSize() {
         rule
-            .setMaterialContentForSizeAssertions {
-                VerticalDivider()
-            }
+            .setMaterialContentForSizeAssertions { VerticalDivider() }
             .assertHeightIsEqualTo(rule.rootHeight())
             .assertWidthIsEqualTo(defaultThickness)
     }
@@ -75,9 +68,7 @@ class DividerTest {
     fun verticalDivider_customSize() {
         val thickness = 20.dp
         rule
-            .setMaterialContentForSizeAssertions {
-                VerticalDivider(thickness = thickness)
-            }
+            .setMaterialContentForSizeAssertions { VerticalDivider(thickness = thickness) }
             .assertWidthIsEqualTo(thickness)
             .assertHeightIsEqualTo(rule.rootHeight())
     }

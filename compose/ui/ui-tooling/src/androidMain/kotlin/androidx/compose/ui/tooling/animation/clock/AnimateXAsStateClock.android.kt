@@ -23,18 +23,13 @@ import androidx.compose.animation.tooling.TransitionInfo
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.states.TargetState
 
-/**
- * [ComposeAnimationClock] for [AnimateXAsStateComposeAnimation].
- */
+/** [ComposeAnimationClock] for [AnimateXAsStateComposeAnimation]. */
 internal class AnimateXAsStateClock<T, V : AnimationVector>(
     override val animation: AnimateXAsStateComposeAnimation<T, V>
-) :
-    ComposeAnimationClock<AnimateXAsStateComposeAnimation<T, V>, TargetState<T>> {
+) : ComposeAnimationClock<AnimateXAsStateComposeAnimation<T, V>, TargetState<T>> {
 
-    override var state = TargetState(
-        animation.animationObject.value,
-        animation.animationObject.value
-    )
+    override var state =
+        TargetState(animation.animationObject.value, animation.animationObject.value)
         set(value) {
             field = value
             currAnimation = getCurrentAnimation()
@@ -50,9 +45,7 @@ internal class AnimateXAsStateClock<T, V : AnimationVector>(
     private var currAnimation: TargetBasedAnimation<T, V> = getCurrentAnimation()
 
     override fun setStateParameters(par1: Any, par2: Any?) {
-        parseParametersToValue(currentValue, par1, par2)?.let {
-            state = it
-        }
+        parseParametersToValue(currentValue, par1, par2)?.let { state = it }
     }
 
     override fun getAnimatedProperties(): List<ComposeAnimatedProperty> {
@@ -69,9 +62,7 @@ internal class AnimateXAsStateClock<T, V : AnimationVector>(
 
     override fun getTransitions(stepMillis: Long): List<TransitionInfo> {
         return listOf(
-            currAnimation.createTransitionInfo(
-                animation.label, animation.animationSpec, stepMillis
-            )
+            currAnimation.createTransitionInfo(animation.label, animation.animationSpec, stepMillis)
         )
     }
 

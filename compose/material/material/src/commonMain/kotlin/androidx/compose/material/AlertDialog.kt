@@ -46,11 +46,13 @@ import androidx.compose.ui.window.DialogProperties
 import kotlin.math.max
 
 /**
- * <a href="https://material.io/components/dialogs#alert-dialog" class="external" target="_blank">Material Design alert dialog</a>.
+ * <a href="https://material.io/components/dialogs#alert-dialog" class="external"
+ * target="_blank">Material Design alert dialog</a>.
  *
  * Alert dialogs interrupt users with urgent information, details, or actions.
  *
- * ![Dialogs image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
+ * ![Dialogs
+ * image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
  *
  * The dialog will position its buttons based on the available space. By default it will try to
  * place them horizontally next to each other and fallback to horizontal placement if not enough
@@ -58,21 +60,22 @@ import kotlin.math.max
  * to provide custom buttons layout.
  *
  * Sample of dialog:
+ *
  * @sample androidx.compose.material.samples.AlertDialogSample
  *
- * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
- * or pressing the back button. This is not called when the dismiss button is clicked.
- * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
- * what triggered the dialog. The dialog does not set up any events for this button so they need
- * to be set up by the caller.
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside or
+ *   pressing the back button. This is not called when the dismiss button is clicked.
+ * @param confirmButton A button which is meant to confirm a proposed action, thus resolving what
+ *   triggered the dialog. The dialog does not set up any events for this button so they need to be
+ *   set up by the caller.
  * @param modifier Modifier to be applied to the layout of the dialog.
  * @param dismissButton A button which is meant to dismiss the dialog. The dialog does not set up
- * any events for this button so they need to be set up by the caller.
- * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
- * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [Typography.subtitle1].
+ *   any events for this button so they need to be set up by the caller.
+ * @param title The title of the Dialog which should specify the purpose of the Dialog. The title is
+ *   not mandatory, because there may be sufficient information inside the [text]. Provided text
+ *   style will be [Typography.subtitle1].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [Typography.body2].
+ *   style will be [Typography.body2].
  * @param shape Defines the Dialog's shape
  * @param backgroundColor The background color of the dialog.
  * @param contentColor The preferred content color provided by this dialog to its children.
@@ -93,25 +96,27 @@ expect fun AlertDialog(
 )
 
 /**
- * <a href="https://material.io/components/dialogs#alert-dialog" class="external" target="_blank">Material Design alert dialog</a>.
+ * <a href="https://material.io/components/dialogs#alert-dialog" class="external"
+ * target="_blank">Material Design alert dialog</a>.
  *
  * Alert dialogs interrupt users with urgent information, details, or actions.
  *
- * ![Dialogs image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
+ * ![Dialogs
+ * image](https://developer.android.com/images/reference/androidx/compose/material/dialogs.png)
  *
  * This function can be used to fully customize the button area, e.g. with:
  *
  * @sample androidx.compose.material.samples.CustomAlertDialogSample
  *
- * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
- * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside or
+ *   pressing the back button. This is not called when the dismiss button is clicked.
  * @param buttons Function that emits the layout with the buttons.
  * @param modifier Modifier to be applied to the layout of the dialog.
- * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
- * is not mandatory, because there may be sufficient information inside the [text]. Provided text
- * style will be [Typography.subtitle1].
+ * @param title The title of the Dialog which should specify the purpose of the Dialog. The title is
+ *   not mandatory, because there may be sufficient information inside the [text]. Provided text
+ *   style will be [Typography.subtitle1].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
- * style will be [Typography.body2].
+ *   style will be [Typography.body2].
  * @param shape Defines the Dialog's shape.
  * @param backgroundColor The background color of the dialog.
  * @param contentColor The preferred content color provided by this dialog to its children.
@@ -143,28 +148,26 @@ internal inline fun AlertDialogImpl(
     backgroundColor: Color,
     contentColor: Color,
     properties: DialogProperties
-): Unit = AlertDialog(
-    onDismissRequest = onDismissRequest,
-    buttons = {
-        // TODO: move the modifiers to FlowRow when it supports a modifier parameter
-        Box(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp)) {
-            AlertDialogFlowRow(
-                mainAxisSpacing = 8.dp,
-                crossAxisSpacing = 12.dp
-            ) {
-                dismissButton?.invoke()
-                confirmButton()
+): Unit =
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        buttons = {
+            // TODO: move the modifiers to FlowRow when it supports a modifier parameter
+            Box(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp)) {
+                AlertDialogFlowRow(mainAxisSpacing = 8.dp, crossAxisSpacing = 12.dp) {
+                    dismissButton?.invoke()
+                    confirmButton()
+                }
             }
-        }
-    },
-    modifier = modifier,
-    title = title,
-    text = text,
-    shape = shape,
-    backgroundColor = backgroundColor,
-    contentColor = contentColor,
-    properties = properties
-)
+        },
+        modifier = modifier,
+        title = title,
+        text = text,
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        properties = properties
+    )
 
 @Suppress("NOTHING_TO_INLINE")
 @Composable
@@ -178,20 +181,18 @@ internal inline fun AlertDialogImpl(
     backgroundColor: Color,
     contentColor: Color,
     properties: DialogProperties
-): Unit = Dialog(
-    onDismissRequest = onDismissRequest,
-    properties = properties
-) {
-    AlertDialogContent(
-        buttons = buttons,
-        modifier = modifier,
-        title = title,
-        text = text,
-        shape = shape,
-        backgroundColor = backgroundColor,
-        contentColor = contentColor
-    )
-}
+): Unit =
+    Dialog(onDismissRequest = onDismissRequest, properties = properties) {
+        AlertDialogContent(
+            buttons = buttons,
+            modifier = modifier,
+            title = title,
+            text = text,
+            shape = shape,
+            backgroundColor = backgroundColor,
+            contentColor = contentColor
+        )
+    }
 
 @Composable
 internal fun AlertDialogContent(
@@ -211,24 +212,26 @@ internal fun AlertDialogContent(
     ) {
         Column {
             AlertDialogBaselineLayout(
-                title = title?.let {
-                    @Composable {
-                        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                            val textStyle = MaterialTheme.typography.subtitle1
-                            ProvideTextStyle(textStyle, title)
+                title =
+                    title?.let {
+                        @Composable {
+                            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+                                val textStyle = MaterialTheme.typography.subtitle1
+                                ProvideTextStyle(textStyle, title)
+                            }
+                        }
+                    },
+                text =
+                    text?.let {
+                        @Composable {
+                            CompositionLocalProvider(
+                                LocalContentAlpha provides ContentAlpha.medium
+                            ) {
+                                val textStyle = MaterialTheme.typography.body2
+                                ProvideTextStyle(textStyle, text)
+                            }
                         }
                     }
-                },
-                text = text?.let {
-                    @Composable {
-                        CompositionLocalProvider(
-                            LocalContentAlpha provides ContentAlpha.medium
-                        ) {
-                            val textStyle = MaterialTheme.typography.body2
-                            ProvideTextStyle(textStyle, text)
-                        }
-                    }
-                }
             )
             buttons()
         }
@@ -250,79 +253,85 @@ internal fun ColumnScope.AlertDialogBaselineLayout(
     Layout(
         {
             title?.let { title ->
-                Box(TitlePadding.layoutId("title").align(Alignment.Start)) {
-                    title()
-                }
+                Box(TitlePadding.layoutId("title").align(Alignment.Start)) { title() }
             }
             text?.let { text ->
-                Box(TextPadding.layoutId("text").align(Alignment.Start)) {
-                    text()
-                }
+                Box(TextPadding.layoutId("text").align(Alignment.Start)) { text() }
             }
         },
         Modifier.weight(1f, false)
     ) { measurables, constraints ->
         // Measure with loose constraints for height as we don't want the text to take up more
         // space than it needs
-        val titlePlaceable = measurables.fastFirstOrNull { it.layoutId == "title" }?.measure(
-            constraints.copy(minHeight = 0)
-        )
-        val textPlaceable = measurables.fastFirstOrNull { it.layoutId == "text" }?.measure(
-            constraints.copy(minHeight = 0)
-        )
+        val titlePlaceable =
+            measurables
+                .fastFirstOrNull { it.layoutId == "title" }
+                ?.measure(constraints.copy(minHeight = 0))
+        val textPlaceable =
+            measurables
+                .fastFirstOrNull { it.layoutId == "text" }
+                ?.measure(constraints.copy(minHeight = 0))
 
         val layoutWidth = max(titlePlaceable?.width ?: 0, textPlaceable?.width ?: 0)
 
-        val firstTitleBaseline = titlePlaceable?.get(FirstBaseline)?.let { baseline ->
-            if (baseline == AlignmentLine.Unspecified) null else baseline
-        } ?: 0
-        val lastTitleBaseline = titlePlaceable?.get(LastBaseline)?.let { baseline ->
-            if (baseline == AlignmentLine.Unspecified) null else baseline
-        } ?: 0
+        val firstTitleBaseline =
+            titlePlaceable?.get(FirstBaseline)?.let { baseline ->
+                if (baseline == AlignmentLine.Unspecified) null else baseline
+            } ?: 0
+        val lastTitleBaseline =
+            titlePlaceable?.get(LastBaseline)?.let { baseline ->
+                if (baseline == AlignmentLine.Unspecified) null else baseline
+            } ?: 0
 
         val titleOffset = TitleBaselineDistanceFromTop.roundToPx()
 
         // Place the title so that its first baseline is titleOffset from the top
         val titlePositionY = titleOffset - firstTitleBaseline
 
-        val firstTextBaseline = textPlaceable?.get(FirstBaseline)?.let { baseline ->
-            if (baseline == AlignmentLine.Unspecified) null else baseline
-        } ?: 0
+        val firstTextBaseline =
+            textPlaceable?.get(FirstBaseline)?.let { baseline ->
+                if (baseline == AlignmentLine.Unspecified) null else baseline
+            } ?: 0
 
-        val textOffset = if (titlePlaceable == null) {
-            TextBaselineDistanceFromTop.roundToPx()
-        } else {
-            TextBaselineDistanceFromTitle.roundToPx()
-        }
+        val textOffset =
+            if (titlePlaceable == null) {
+                TextBaselineDistanceFromTop.roundToPx()
+            } else {
+                TextBaselineDistanceFromTitle.roundToPx()
+            }
 
         // Combined height of title and spacing above
         val titleHeightWithSpacing = titlePlaceable?.let { it.height + titlePositionY } ?: 0
 
         // Align the bottom baseline of the text with the bottom baseline of the title, and then
         // add the offset
-        val textPositionY = if (titlePlaceable == null) {
-            // If there is no title, just place the text offset from the top of the dialog
-            textOffset - firstTextBaseline
-        } else {
-            if (lastTitleBaseline == 0) {
-                // If `title` has no baseline, just place the text's baseline textOffset from the
-                // bottom of the title
-                titleHeightWithSpacing - firstTextBaseline + textOffset
+        val textPositionY =
+            if (titlePlaceable == null) {
+                // If there is no title, just place the text offset from the top of the dialog
+                textOffset - firstTextBaseline
             } else {
-                // Otherwise place the text's baseline textOffset from the title's last baseline
-                (titlePositionY + lastTitleBaseline) - firstTextBaseline + textOffset
+                if (lastTitleBaseline == 0) {
+                    // If `title` has no baseline, just place the text's baseline textOffset from
+                    // the
+                    // bottom of the title
+                    titleHeightWithSpacing - firstTextBaseline + textOffset
+                } else {
+                    // Otherwise place the text's baseline textOffset from the title's last baseline
+                    (titlePositionY + lastTitleBaseline) - firstTextBaseline + textOffset
+                }
             }
-        }
 
         // Combined height of text and spacing above
-        val textHeightWithSpacing = textPlaceable?.let {
-            if (lastTitleBaseline == 0) {
-                textPlaceable.height + textOffset - firstTextBaseline
-            } else {
-                textPlaceable.height + textOffset - firstTextBaseline -
-                    ((titlePlaceable?.height ?: 0) - lastTitleBaseline)
-            }
-        } ?: 0
+        val textHeightWithSpacing =
+            textPlaceable?.let {
+                if (lastTitleBaseline == 0) {
+                    textPlaceable.height + textOffset - firstTextBaseline
+                } else {
+                    textPlaceable.height + textOffset -
+                        firstTextBaseline -
+                        ((titlePlaceable?.height ?: 0) - lastTitleBaseline)
+                }
+            } ?: 0
 
         val layoutHeight = titleHeightWithSpacing + textHeightWithSpacing
 
@@ -359,8 +368,9 @@ internal fun AlertDialogFlowRow(
 
         // Return whether the placeable can be added to the current sequence.
         fun canAddToCurrentSequence(placeable: Placeable) =
-            currentSequence.isEmpty() || currentMainAxisSize + mainAxisSpacing.roundToPx() +
-                placeable.width <= constraints.maxWidth
+            currentSequence.isEmpty() ||
+                currentMainAxisSize + mainAxisSpacing.roundToPx() + placeable.width <=
+                    constraints.maxWidth
 
         // Store current sequence information and start a new sequence.
         fun startNewSequence() {
@@ -368,8 +378,7 @@ internal fun AlertDialogFlowRow(
                 crossAxisSpace += crossAxisSpacing.roundToPx()
             }
             // Ensures that confirming actions appear above dismissive actions.
-            @Suppress("ListIterator")
-            sequences.add(0, currentSequence.toList())
+            @Suppress("ListIterator") sequences.add(0, currentSequence.toList())
             crossAxisSizes += currentCrossAxisSize
             crossAxisPositions += crossAxisSpace
 
@@ -399,11 +408,12 @@ internal fun AlertDialogFlowRow(
 
         if (currentSequence.isNotEmpty()) startNewSequence()
 
-        val mainAxisLayoutSize = if (constraints.maxWidth != Constraints.Infinity) {
-            constraints.maxWidth
-        } else {
-            max(mainAxisSpace, constraints.minWidth)
-        }
+        val mainAxisLayoutSize =
+            if (constraints.maxWidth != Constraints.Infinity) {
+                constraints.maxWidth
+            } else {
+                max(mainAxisSpace, constraints.minWidth)
+            }
         val crossAxisLayoutSize = max(crossAxisSpace, constraints.minHeight)
 
         val layoutWidth = mainAxisLayoutSize
@@ -412,10 +422,11 @@ internal fun AlertDialogFlowRow(
 
         layout(layoutWidth, layoutHeight) {
             sequences.fastForEachIndexed { i, placeables ->
-                val childrenMainAxisSizes = IntArray(placeables.size) { j ->
-                    placeables[j].width +
-                        if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
-                }
+                val childrenMainAxisSizes =
+                    IntArray(placeables.size) { j ->
+                        placeables[j].width +
+                            if (j < placeables.lastIndex) mainAxisSpacing.roundToPx() else 0
+                    }
                 val arrangement = Arrangement.Bottom
                 // TODO(soboleva): rtl support
                 // Handle vertical direction
@@ -424,10 +435,7 @@ internal fun AlertDialogFlowRow(
                     arrange(mainAxisLayoutSize, childrenMainAxisSizes, mainAxisPositions)
                 }
                 placeables.fastForEachIndexed { j, placeable ->
-                    placeable.place(
-                        x = mainAxisPositions[j],
-                        y = crossAxisPositions[i]
-                    )
+                    placeable.place(x = mainAxisPositions[j], y = crossAxisPositions[i])
                 }
             }
         }

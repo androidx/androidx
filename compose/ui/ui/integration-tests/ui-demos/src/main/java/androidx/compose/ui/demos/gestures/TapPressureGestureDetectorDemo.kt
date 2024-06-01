@@ -46,27 +46,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
- * Simple demonstration of subscribing to pressure changes.
- */
+/** Simple demonstration of subscribing to pressure changes. */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DetectTapPressureGesturesDemo() {
     val pressureBoxTextSize = 28.sp
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier = Modifier.fillMaxWidth().weight(1f),
             textAlign = TextAlign.Center,
-            text = "Each box displays pressure (with and without gestures).\n" +
-                "Use a stylus or finger to see pressure values.\n" +
-                "For some pen supported devices, a finger touch pressure will equal 1.0."
+            text =
+                "Each box displays pressure (with and without gestures).\n" +
+                    "Use a stylus or finger to see pressure values.\n" +
+                    "For some pen supported devices, a finger touch pressure will equal 1.0."
         )
 
         var gestureOffsetX by remember { mutableFloatStateOf(0f) }
@@ -75,31 +68,32 @@ fun DetectTapPressureGesturesDemo() {
 
         // Gestures (detectDragGestures) with pressure.
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(3f)
-                .background(Color.Blue)
-                .wrapContentSize(Alignment.Center)
-                .clipToBounds()
-                .border(BorderStroke(2.dp, BorderColor))
-                // Resets x & y when a new press is detected (not necessarily needed for pressure).
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onPress = {
-                            gestureOffsetX = 0f
-                            gestureOffsetY = 0f
-                        }
-                    )
-                }
-                // Retrieves pressure from [PointerInputChange].
-                .pointerInput(Unit) {
-                    detectDragGestures { change: PointerInputChange, dragAmount: Offset ->
-                        change.consume()
-                        gestureOffsetX += dragAmount.x
-                        gestureOffsetY += dragAmount.y
-                        gesturePressure = change.pressure
+            modifier =
+                Modifier.fillMaxWidth()
+                    .weight(3f)
+                    .background(Color.Blue)
+                    .wrapContentSize(Alignment.Center)
+                    .clipToBounds()
+                    .border(BorderStroke(2.dp, BorderColor))
+                    // Resets x & y when a new press is detected (not necessarily needed for
+                    // pressure).
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                gestureOffsetX = 0f
+                                gestureOffsetY = 0f
+                            }
+                        )
                     }
-                },
+                    // Retrieves pressure from [PointerInputChange].
+                    .pointerInput(Unit) {
+                        detectDragGestures { change: PointerInputChange, dragAmount: Offset ->
+                            change.consume()
+                            gestureOffsetX += dragAmount.x
+                            gestureOffsetY += dragAmount.y
+                            gesturePressure = change.pressure
+                        }
+                    },
             contentAlignment = Alignment.TopCenter
         ) {
             Text(
@@ -107,37 +101,36 @@ fun DetectTapPressureGesturesDemo() {
                 fontSize = pressureBoxTextSize,
                 textAlign = TextAlign.Center,
                 color = Color.White,
-                text = "detectDragGestures + pressure:\n" +
-                    "x: $gestureOffsetX, y: $gestureOffsetY,\n" +
-                    "pressure: $gesturePressure"
+                text =
+                    "detectDragGestures + pressure:\n" +
+                        "x: $gestureOffsetX, y: $gestureOffsetY,\n" +
+                        "pressure: $gesturePressure"
             )
         }
 
-        var awaitPointerEventScopePressureMessage by remember {
-            mutableStateOf("Press for value")
-        }
+        var awaitPointerEventScopePressureMessage by remember { mutableStateOf("Press for value") }
 
         // awaitPointerEventScope with pressure.
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(3f)
-                .background(Color.Green)
-                .wrapContentSize(Alignment.Center)
-                .clipToBounds()
-                .border(BorderStroke(2.dp, BorderColor))
-                // Retrieves pressure from [PointerInputChange].
-                .pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            event.changes.forEach {
-                                awaitPointerEventScopePressureMessage = "${it.pressure}"
-                                it.consume()
+            modifier =
+                Modifier.fillMaxWidth()
+                    .weight(3f)
+                    .background(Color.Green)
+                    .wrapContentSize(Alignment.Center)
+                    .clipToBounds()
+                    .border(BorderStroke(2.dp, BorderColor))
+                    // Retrieves pressure from [PointerInputChange].
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                event.changes.forEach {
+                                    awaitPointerEventScopePressureMessage = "${it.pressure}"
+                                    it.consume()
+                                }
                             }
                         }
-                    }
-                },
+                    },
             contentAlignment = Alignment.TopCenter
         ) {
             Text(

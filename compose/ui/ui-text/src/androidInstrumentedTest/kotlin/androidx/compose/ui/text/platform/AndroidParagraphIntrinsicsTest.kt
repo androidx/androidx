@@ -53,19 +53,22 @@ class AndroidParagraphIntrinsicsTest {
     @Test
     fun whenEmojiCompatLoads_hasStaleFontsIsTrue() {
         val fontState = mutableStateOf(false)
-        EmojiCompatStatus.setDelegateForTesting(object : EmojiCompatStatusDelegate {
-            override val fontLoaded: State<Boolean>
-                get() = fontState
-        })
-
-        val subject = ActualParagraphIntrinsics(
-            "text",
-            TextStyle.Default,
-            listOf(),
-            listOf(),
-            Density(1f),
-            createFontFamilyResolver(context)
+        EmojiCompatStatus.setDelegateForTesting(
+            object : EmojiCompatStatusDelegate {
+                override val fontLoaded: State<Boolean>
+                    get() = fontState
+            }
         )
+
+        val subject =
+            ActualParagraphIntrinsics(
+                "text",
+                TextStyle.Default,
+                listOf(),
+                listOf(),
+                Density(1f),
+                createFontFamilyResolver(context)
+            )
 
         assertThat(subject.hasStaleResolvedFonts).isFalse()
         fontState.value = true
@@ -75,24 +78,24 @@ class AndroidParagraphIntrinsicsTest {
     @Test
     fun whenStyleSaysNoemojiCompat_NoEmojiCompat() {
         val fontState = mutableStateOf(false)
-        EmojiCompatStatus.setDelegateForTesting(object : EmojiCompatStatusDelegate {
-            override val fontLoaded: State<Boolean>
-                get() = fontState
-        })
+        EmojiCompatStatus.setDelegateForTesting(
+            object : EmojiCompatStatusDelegate {
+                override val fontLoaded: State<Boolean>
+                    get() = fontState
+            }
+        )
 
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                emojiSupportMatch = EmojiSupportMatch.None
+        val style =
+            TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None))
+        val subject =
+            ActualParagraphIntrinsics(
+                "text",
+                style,
+                listOf(),
+                listOf(),
+                Density(1f),
+                createFontFamilyResolver(context)
             )
-        )
-        val subject = ActualParagraphIntrinsics(
-            "text",
-            style,
-            listOf(),
-            listOf(),
-            Density(1f),
-            createFontFamilyResolver(context)
-        )
         fontState.value = true
         assertThat(subject.hasStaleResolvedFonts).isFalse()
     }
@@ -106,16 +109,15 @@ class AndroidParagraphIntrinsicsTest {
             .thenReturn("")
         EmojiCompat.reset(mock)
 
-        EmojiCompatStatus.setDelegateForTesting(object : EmojiCompatStatusDelegate {
-            override val fontLoaded: State<Boolean>
-                get() = mutableStateOf(true)
-        })
-
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                emojiSupportMatch = EmojiSupportMatch.All
-            )
+        EmojiCompatStatus.setDelegateForTesting(
+            object : EmojiCompatStatusDelegate {
+                override val fontLoaded: State<Boolean>
+                    get() = mutableStateOf(true)
+            }
         )
+
+        val style =
+            TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.All))
         ActualParagraphIntrinsics(
             "text",
             style,
@@ -125,13 +127,14 @@ class AndroidParagraphIntrinsicsTest {
             createFontFamilyResolver(context)
         )
 
-        verify(mock).process(
-            eq("text"),
-            eq(0),
-            eq("text".length),
-            eq(Int.MAX_VALUE),
-            eq(EmojiCompat.REPLACE_STRATEGY_ALL)
-        )
+        verify(mock)
+            .process(
+                eq("text"),
+                eq(0),
+                eq("text".length),
+                eq(Int.MAX_VALUE),
+                eq(EmojiCompat.REPLACE_STRATEGY_ALL)
+            )
     }
 
     @Test
@@ -143,16 +146,17 @@ class AndroidParagraphIntrinsicsTest {
             .thenReturn("")
         EmojiCompat.reset(mock)
 
-        EmojiCompatStatus.setDelegateForTesting(object : EmojiCompatStatusDelegate {
-            override val fontLoaded: State<Boolean>
-                get() = mutableStateOf(true)
-        })
-
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                emojiSupportMatch = EmojiSupportMatch.Default
-            )
+        EmojiCompatStatus.setDelegateForTesting(
+            object : EmojiCompatStatusDelegate {
+                override val fontLoaded: State<Boolean>
+                    get() = mutableStateOf(true)
+            }
         )
+
+        val style =
+            TextStyle(
+                platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.Default)
+            )
         ActualParagraphIntrinsics(
             "text",
             style,
@@ -162,12 +166,13 @@ class AndroidParagraphIntrinsicsTest {
             createFontFamilyResolver(context)
         )
 
-        verify(mock).process(
-            eq("text"),
-            eq(0),
-            eq("text".length),
-            eq(Int.MAX_VALUE),
-            eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT)
-        )
+        verify(mock)
+            .process(
+                eq("text"),
+                eq(0),
+                eq("text".length),
+                eq(Int.MAX_VALUE),
+                eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT)
+            )
     }
 }

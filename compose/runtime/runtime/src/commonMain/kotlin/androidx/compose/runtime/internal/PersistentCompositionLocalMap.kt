@@ -30,7 +30,8 @@ import androidx.compose.runtime.read
 internal class PersistentCompositionLocalHashMap(
     node: TrieNode<CompositionLocal<Any?>, ValueHolder<Any?>>,
     size: Int
-) : PersistentHashMap<CompositionLocal<Any?>, ValueHolder<Any?>>(node, size),
+) :
+    PersistentHashMap<CompositionLocal<Any?>, ValueHolder<Any?>>(node, size),
     PersistentCompositionLocalMap {
 
     override val entries: ImmutableSet<Map.Entry<CompositionLocal<Any?>, ValueHolder<Any?>>>
@@ -43,37 +44,35 @@ internal class PersistentCompositionLocalHashMap(
         value: ValueHolder<Any?>
     ): PersistentCompositionLocalMap {
         val newNodeResult = node.put(key.hashCode(), key, value, 0) ?: return this
-        return PersistentCompositionLocalHashMap(
-            newNodeResult.node,
-            size + newNodeResult.sizeDelta
-        )
+        return PersistentCompositionLocalHashMap(newNodeResult.node, size + newNodeResult.sizeDelta)
     }
 
     override fun builder(): Builder {
         return Builder(this)
     }
 
-    class Builder(
-        internal var map: PersistentCompositionLocalHashMap
-    ) : PersistentHashMapBuilder<CompositionLocal<Any?>, ValueHolder<Any?>>(map),
+    class Builder(internal var map: PersistentCompositionLocalHashMap) :
+        PersistentHashMapBuilder<CompositionLocal<Any?>, ValueHolder<Any?>>(map),
         PersistentCompositionLocalMap.Builder {
         override fun build(): PersistentCompositionLocalHashMap {
-            map = if (node === map.node) {
-                map
-            } else {
-                ownership = MutabilityOwnership()
-                PersistentCompositionLocalHashMap(node, size)
-            }
+            map =
+                if (node === map.node) {
+                    map
+                } else {
+                    ownership = MutabilityOwnership()
+                    PersistentCompositionLocalHashMap(node, size)
+                }
             return map
         }
     }
 
     companion object {
         @Suppress("UNCHECKED_CAST")
-        val Empty = PersistentCompositionLocalHashMap(
-            node = TrieNode.EMPTY as TrieNode<CompositionLocal<Any?>, ValueHolder<Any?>>,
-            size = 0
-        )
+        val Empty =
+            PersistentCompositionLocalHashMap(
+                node = TrieNode.EMPTY as TrieNode<CompositionLocal<Any?>, ValueHolder<Any?>>,
+                size = 0
+            )
     }
 }
 

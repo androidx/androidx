@@ -44,8 +44,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AwaitTouchEventTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -67,32 +66,22 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                longClick()
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { longClick() }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -103,32 +92,22 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                click()
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { click() }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
     }
 
     @Test
@@ -139,42 +118,31 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(center)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(center) }
 
         rule.mainClock.advanceTimeBy(100L)
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                move()
-                up()
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput {
+            move()
+            up()
+        }
 
         rule.mainClock.advanceTimeBy(400L)
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
     }
 
     @Test
@@ -185,42 +153,31 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(center)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(center) }
 
         rule.mainClock.advanceTimeBy(100L)
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                move()
-                cancel()
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput {
+            move()
+            cancel()
+        }
 
         rule.mainClock.advanceTimeBy(400L)
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
     }
 
     @Test
@@ -231,44 +188,31 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
         val firstFingerId = 1
         val secondFingerId = 2
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(firstFingerId, center)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(firstFingerId, center) }
 
         rule.mainClock.advanceTimeBy(100L)
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(secondFingerId, centerRight)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(secondFingerId, centerRight) }
 
         rule.mainClock.advanceTimeBy(400L)
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
     }
 
     // Tests this set of events:
@@ -285,51 +229,35 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
         val firstFinger = 1
         val secondFinger = 2
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(firstFinger, center)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(firstFinger, center) }
 
         rule.mainClock.advanceTimeBy(100L)
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(secondFinger, centerRight)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(secondFinger, centerRight) }
 
         rule.mainClock.advanceTimeBy(100L)
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                up(firstFinger)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { up(firstFinger) }
 
         rule.mainClock.advanceTimeBy(300L)
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -340,44 +268,33 @@ class AwaitTouchEventTest {
             Box {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(center)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput { down(center) }
 
         rule.mainClock.advanceTimeBy(100L)
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                // Moves touch outside of bounds
-                moveTo(Offset(right + 10, centerY))
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput {
+            // Moves touch outside of bounds
+            moveTo(Offset(right + 10, centerY))
+        }
 
         // With this time change, time will have passed the long press threshold, but because the
         // touch moved outside the bounds, it won't have been counted.
         rule.mainClock.advanceTimeBy(400L)
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
     }
 
     @Test
@@ -386,9 +303,8 @@ class AwaitTouchEventTest {
 
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .testTag("MyLongPressParent")
-                    .pointerInput(Unit) {
+                modifier =
+                    Modifier.testTag("MyLongPressParent").pointerInput(Unit) {
                         awaitEachGesture {
                             while (true) {
                                 val event = awaitPointerEvent(PointerEventPass.Final)
@@ -401,34 +317,26 @@ class AwaitTouchEventTest {
             ) {
                 BasicText(
                     "LongPressText",
-                    modifier = Modifier
-                        .testTag("myLongPress")
-                        .pointerInput(Unit) {
+                    modifier =
+                        Modifier.testTag("myLongPress").pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                awaitLongPressOrCancellation(down.id)?.let {
-                                    counter++
-                                }
+                                awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
                         }
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
 
-        rule.onNodeWithTag("myLongPress")
-            .performTouchInput {
-                down(center)
-                moveTo(centerRight)
-            }
+        rule.onNodeWithTag("myLongPress").performTouchInput {
+            down(center)
+            moveTo(centerRight)
+        }
 
         rule.mainClock.advanceTimeBy(400L)
 
-        rule.runOnIdle {
-            Truth.assertThat(counter).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(counter).isEqualTo(0) }
     }
 }

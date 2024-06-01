@@ -114,12 +114,10 @@ import org.junit.runner.RunWith
 class GraphicsLayerTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testLayerBoundsPosition() {
@@ -127,13 +125,9 @@ class GraphicsLayerTest {
         rule.setContent {
             FixedSize(
                 30,
-                Modifier
-                    .padding(10)
-                    .graphicsLayer()
-                    .onGloballyPositioned {
-                        coords = it
-                    }
-            ) { /* no-op */ }
+                Modifier.padding(10).graphicsLayer().onGloballyPositioned { coords = it }
+            ) { /* no-op */
+            }
         }
 
         rule.onRoot().apply {
@@ -157,13 +151,10 @@ class GraphicsLayerTest {
             Padding(10) {
                 FixedSize(
                     10,
-                    Modifier
-                        .graphicsLayer(scaleX = 2f, scaleY = 3f)
-                        .onGloballyPositioned {
-                            coords = it
-                        }
-                ) {
-                }
+                    Modifier.graphicsLayer(scaleX = 2f, scaleY = 3f).onGloballyPositioned {
+                        coords = it
+                    }
+                ) {}
             }
         }
 
@@ -182,13 +173,8 @@ class GraphicsLayerTest {
             Padding(10) {
                 FixedSize(
                     10,
-                    Modifier
-                        .scale(scaleX = 2f, scaleY = 3f)
-                        .onGloballyPositioned {
-                            coords = it
-                        }
-                ) {
-                }
+                    Modifier.scale(scaleX = 2f, scaleY = 3f).onGloballyPositioned { coords = it }
+                ) {}
             }
         }
 
@@ -205,15 +191,7 @@ class GraphicsLayerTest {
         var coords: LayoutCoordinates? = null
         rule.setContent {
             Padding(10) {
-                FixedSize(
-                    10,
-                    Modifier
-                        .scale(scale = 2f)
-                        .onGloballyPositioned {
-                            coords = it
-                        }
-                ) {
-                }
+                FixedSize(10, Modifier.scale(scale = 2f).onGloballyPositioned { coords = it }) {}
             }
         }
 
@@ -232,13 +210,10 @@ class GraphicsLayerTest {
             Padding(10) {
                 FixedSize(
                     10,
-                    Modifier
-                        .graphicsLayer(scaleY = 3f, rotationZ = 90f)
-                        .onGloballyPositioned {
-                            coords = it
-                        }
-                ) {
-                }
+                    Modifier.graphicsLayer(scaleY = 3f, rotationZ = 90f).onGloballyPositioned {
+                        coords = it
+                    }
+                ) {}
             }
         }
 
@@ -255,15 +230,7 @@ class GraphicsLayerTest {
         var coords: LayoutCoordinates? = null
         rule.setContent {
             Padding(10) {
-                FixedSize(
-                    10,
-                    Modifier
-                        .rotate(90f)
-                        .onGloballyPositioned {
-                            coords = it
-                        }
-                ) {
-                }
+                FixedSize(10, Modifier.rotate(90f).onGloballyPositioned { coords = it }) {}
             }
         }
 
@@ -282,14 +249,11 @@ class GraphicsLayerTest {
             Padding(10) {
                 FixedSize(
                     10,
-                    Modifier
-                        .graphicsLayer(
+                    Modifier.graphicsLayer(
                             rotationZ = 90f,
                             transformOrigin = TransformOrigin(1.0f, 1.0f)
                         )
-                        .onGloballyPositioned {
-                            coords = it
-                        }
+                        .onGloballyPositioned { coords = it }
                 )
             }
         }
@@ -309,14 +273,8 @@ class GraphicsLayerTest {
             Padding(10) {
                 FixedSize(
                     10,
-                    Modifier
-                        .graphicsLayer(
-                            translationX = 5.0f,
-                            translationY = 8.0f
-                        )
-                        .onGloballyPositioned {
-                            coords = it
-                        }
+                    Modifier.graphicsLayer(translationX = 5.0f, translationY = 8.0f)
+                        .onGloballyPositioned { coords = it }
                 )
             }
         }
@@ -337,13 +295,8 @@ class GraphicsLayerTest {
                 FixedSize(10, Modifier.graphicsLayer(clip = true)) {
                     FixedSize(
                         10,
-                        Modifier
-                            .graphicsLayer(scaleX = 2f)
-                            .onGloballyPositioned {
-                                coords = it
-                            }
-                    ) {
-                    }
+                        Modifier.graphicsLayer(scaleX = 2f).onGloballyPositioned { coords = it }
+                    ) {}
                 }
             }
         }
@@ -363,39 +316,26 @@ class GraphicsLayerTest {
         var coords2: LayoutCoordinates? = null
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .requiredSize(25.toDp())
-                        .graphicsLayer(
-                            rotationZ = 30f,
-                            clip = true
-                        )
-                ) {
+                Box(Modifier.requiredSize(25.toDp()).graphicsLayer(rotationZ = 30f, clip = true)) {
                     Box(
-                        Modifier
-                            .graphicsLayer(
+                        Modifier.graphicsLayer(
                                 rotationZ = 90f,
                                 transformOrigin = TransformOrigin(0f, 1f),
                                 clip = true
                             )
                             .requiredSize(20.toDp(), 10.toDp())
                             .align(AbsoluteAlignment.TopLeft)
-                            .onGloballyPositioned {
-                                coords1 = it
-                            }
+                            .onGloballyPositioned { coords1 = it }
                     )
                     Box(
-                        Modifier
-                            .graphicsLayer(
+                        Modifier.graphicsLayer(
                                 rotationZ = -90f,
                                 transformOrigin = TransformOrigin(0f, 1f),
                                 clip = true
                             )
                             .requiredSize(10.toDp())
                             .align(AbsoluteAlignment.BottomRight)
-                            .onGloballyPositioned {
-                                coords2 = it
-                            }
+                            .onGloballyPositioned { coords2 = it }
                     )
                 }
             }
@@ -404,14 +344,8 @@ class GraphicsLayerTest {
         rule.onRoot().apply {
             assertEquals(Offset(15f, 5f), coords2!!.localPositionOf(coords1!!, Offset.Zero))
             assertEquals(Offset(-5f, 5f), coords2!!.localPositionOf(coords1!!, Offset(20f, 0f)))
-            assertEquals(
-                Rect(-5f, -5f, 15f, 5f),
-                coords2!!.localBoundingBoxOf(coords1!!, false)
-            )
-            assertEquals(
-                Rect(0f, 0f, 10f, 5f),
-                coords2!!.localBoundingBoxOf(coords1!!, true)
-            )
+            assertEquals(Rect(-5f, -5f, 15f, 5f), coords2!!.localBoundingBoxOf(coords1!!, false))
+            assertEquals(Rect(0f, 0f, 10f, 5f), coords2!!.localBoundingBoxOf(coords1!!, true))
         }
     }
 
@@ -422,15 +356,13 @@ class GraphicsLayerTest {
         if (Build.VERSION.SDK_INT == 28) return // b/260095151
         val testTag = "parent"
         rule.setContent {
-            Box(modifier = Modifier
-                .testTag(testTag)
-                .wrapContentSize()) {
+            Box(modifier = Modifier.testTag(testTag).wrapContentSize()) {
                 Box(
-                    modifier = Modifier
-                        .requiredSize(100.dp)
-                        .background(Color.Gray)
-                        .graphicsLayer(rotationY = 25f, cameraDistance = 1.0f)
-                        .background(Color.Red)
+                    modifier =
+                        Modifier.requiredSize(100.dp)
+                            .background(Color.Gray)
+                            .graphicsLayer(rotationY = 25f, cameraDistance = 1.0f)
+                            .background(Color.Red)
                 ) {
                     Box(modifier = Modifier.requiredSize(100.dp))
                 }
@@ -451,24 +383,22 @@ class GraphicsLayerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testEmptyClip() {
-        val EmptyRectangle = object : Shape {
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ) = Outline.Rectangle(Rect.Zero)
-        }
+        val EmptyRectangle =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density
+                ) = Outline.Rectangle(Rect.Zero)
+            }
         val tag = "testTag"
         rule.setContent {
-            Box(modifier = Modifier
-                .testTag(tag)
-                .requiredSize(100.dp)
-                .background(Color.Blue)) {
+            Box(modifier = Modifier.testTag(tag).requiredSize(100.dp).background(Color.Blue)) {
                 Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .graphicsLayer(clip = true, shape = EmptyRectangle)
-                        .background(Color.Red)
+                    modifier =
+                        Modifier.matchParentSize()
+                            .graphicsLayer(clip = true, shape = EmptyRectangle)
+                            .background(Color.Red)
                 )
             }
         }
@@ -484,15 +414,7 @@ class GraphicsLayerTest {
         rule.setContent {
             Padding(10) {
                 FixedSize(10, Modifier.graphicsLayer(clip = true)) {
-                    FixedSize(
-                        10,
-                        Modifier
-                            .padding(20)
-                            .onGloballyPositioned {
-                                coords = it
-                            }
-                    ) {
-                    }
+                    FixedSize(10, Modifier.padding(20).onGloballyPositioned { coords = it }) {}
                 }
             }
         }
@@ -513,9 +435,7 @@ class GraphicsLayerTest {
             (size / LocalDensity.current.density).dp,
             ({ BlurEffect(blurRadius, blurRadius, TileMode.Decal) })
         ) {
-            inset(blurRadius, blurRadius) {
-                drawRect(androidx.compose.ui.graphics.Color.Blue)
-            }
+            inset(blurRadius, blurRadius) { drawRect(androidx.compose.ui.graphics.Color.Blue) }
         }
     }
 
@@ -527,13 +447,10 @@ class GraphicsLayerTest {
         drawBlock: DrawScope.() -> Unit
     ) {
         Box(
-            Modifier
-                .testTag(tag)
+            Modifier.testTag(tag)
                 .size(size)
                 .background(Color.Black)
-                .graphicsLayer {
-                    renderEffect = renderEffectCreator()
-                }
+                .graphicsLayer { renderEffect = renderEffectCreator() }
                 .drawBehind(drawBlock)
         )
     }
@@ -544,9 +461,7 @@ class GraphicsLayerTest {
         val tag = "blurTag"
         val size = 100f
         val blurRadius = 10f
-        rule.setContent {
-            BoxBlur(tag, size, blurRadius)
-        }
+        rule.setContent { BoxBlur(tag, size, blurRadius) }
         rule.onNodeWithTag(tag).captureToImage().apply {
             val pixelMap = toPixelMap()
             var nonPureBlueCount = 0
@@ -571,23 +486,20 @@ class GraphicsLayerTest {
         val tag = "blurTag"
         val size = 100f
         val blurRadius = 10f
-        rule.setContent {
-            BoxBlur(tag, size, blurRadius)
-        }
+        rule.setContent { BoxBlur(tag, size, blurRadius) }
         rule.onNodeWithTag(tag).captureToImage().apply {
             with(toPixelMap()) {
                 for (x in 0 until width) {
                     for (y in 0 until height) {
-                        if (x >= blurRadius && x < width - blurRadius &&
-                            y >= blurRadius && y < height - blurRadius
+                        if (
+                            x >= blurRadius &&
+                                x < width - blurRadius &&
+                                y >= blurRadius &&
+                                y < height - blurRadius
                         ) {
-                            assertPixelColor(Color.Blue, x, y) {
-                                "Index $x, $y should be blue"
-                            }
+                            assertPixelColor(Color.Blue, x, y) { "Index $x, $y should be blue" }
                         } else {
-                            assertPixelColor(Color.Black, x, y) {
-                                "Index $x, $y should be black"
-                            }
+                            assertPixelColor(Color.Black, x, y) { "Index $x, $y should be black" }
                         }
                     }
                 }
@@ -606,10 +518,7 @@ class GraphicsLayerTest {
                 (size / LocalDensity.current.density).dp,
                 { OffsetEffect(20f, 20f) }
             ) {
-                drawRect(
-                    Color.Blue,
-                    size = Size(this.size.width - 20, this.size.height - 20)
-                )
+                drawRect(Color.Blue, size = Size(this.size.width - 20, this.size.height - 20))
             }
         }
         rule.onNodeWithTag(tag).captureToImage().apply {
@@ -641,14 +550,9 @@ class GraphicsLayerTest {
             val size = (sizePx / density)
             val squareSize = (squarePx / density)
             offset = (20f / density).roundToInt()
-            Box(
-                Modifier
-                    .size(size.dp)
-                    .background(Color.LightGray)
-                    .testTag(testTag)) {
+            Box(Modifier.size(size.dp).background(Color.LightGray).testTag(testTag)) {
                 Box(
-                    Modifier
-                        .layout { measurable, constraints ->
+                    Modifier.layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeWithLayer(offset, offset) {
@@ -703,14 +607,9 @@ class GraphicsLayerTest {
             val size = (sizePx / density)
             val squareSize = (squarePx / density)
             offset = (20f / density).roundToInt()
-            Box(
-                Modifier
-                    .size(size.dp)
-                    .background(Color.LightGray)
-                    .testTag(testTag)) {
+            Box(Modifier.size(size.dp).background(Color.LightGray).testTag(testTag)) {
                 Box(
-                    Modifier
-                        .layout { measurable, constraints ->
+                    Modifier.layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeWithLayer(offset, offset) {
@@ -782,14 +681,9 @@ class GraphicsLayerTest {
             val size = (sizePx / density)
             val squareSize = (squarePx / density)
             offset = (20f / density).roundToInt()
-            Box(
-                Modifier
-                    .size(size.dp)
-                    .background(Color.LightGray)
-                    .testTag(testTag)) {
+            Box(Modifier.size(size.dp).background(Color.LightGray).testTag(testTag)) {
                 Box(
-                    Modifier
-                        .layout { measurable, constraints ->
+                    Modifier.layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeWithLayer(offset, offset) {
@@ -864,14 +758,9 @@ class GraphicsLayerTest {
             val size = (sizePx / density)
             val squareSize = (squarePx / density)
             offset = (20f / density).roundToInt()
-            Box(
-                Modifier
-                    .size(size.dp)
-                    .background(Color.LightGray)
-                    .testTag(testTag)) {
+            Box(Modifier.size(size.dp).background(Color.LightGray).testTag(testTag)) {
                 Box(
-                    Modifier
-                        .layout { measurable, constraints ->
+                    Modifier.layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeWithLayer(offset, offset) {
@@ -929,8 +818,11 @@ class GraphicsLayerTest {
                 assertPixelColor(blended, scaledRight - 5, scaledTop + 1)
                 assertPixelColor(blended, scaledLeft + 1, scaledBottom - 5)
 
-                assertPixelColor(Color.LightGray,
-                    (scaledLeft + scaledRight) / 2 + 3, (scaledTop + scaledBottom) / 2 + 3)
+                assertPixelColor(
+                    Color.LightGray,
+                    (scaledLeft + scaledRight) / 2 + 3,
+                    (scaledTop + scaledBottom) / 2 + 3
+                )
             }
         }
     }
@@ -950,14 +842,9 @@ class GraphicsLayerTest {
             val size = (sizePx / density)
             val squareSize = (squarePx / density)
             offset = (20f / density).roundToInt()
-            Box(
-                Modifier
-                    .size(size.dp)
-                    .background(Color.LightGray)
-                    .testTag(testTag)) {
+            Box(Modifier.size(size.dp).background(Color.LightGray).testTag(testTag)) {
                 Box(
-                    Modifier
-                        .layout { measurable, constraints ->
+                    Modifier.layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeWithLayer(offset, offset) {
@@ -966,22 +853,23 @@ class GraphicsLayerTest {
                                     scaleY = scale
                                     transformOrigin = TransformOrigin(0f, 0f)
                                     clip = true
-                                    shape = object : Shape {
-                                        override fun createOutline(
-                                            size: Size,
-                                            layoutDirection: LayoutDirection,
-                                            density: Density
-                                        ): Outline {
-                                            return Outline.Rectangle(
-                                                Rect(
-                                                    left = -size.width / 2,
-                                                    top = -size.height / 2,
-                                                    right = size.width / 2,
-                                                    bottom = size.height / 2,
+                                    shape =
+                                        object : Shape {
+                                            override fun createOutline(
+                                                size: Size,
+                                                layoutDirection: LayoutDirection,
+                                                density: Density
+                                            ): Outline {
+                                                return Outline.Rectangle(
+                                                    Rect(
+                                                        left = -size.width / 2,
+                                                        top = -size.height / 2,
+                                                        right = size.width / 2,
+                                                        bottom = size.height / 2,
+                                                    )
                                                 )
-                                            )
+                                            }
                                         }
-                                    }
                                 }
                             }
                         }
@@ -1029,14 +917,9 @@ class GraphicsLayerTest {
             val size = (sizePx / density)
             val squareSize = (squarePx / density)
             offset = (20f / density).roundToInt()
-            Box(
-                Modifier
-                    .size(size.dp)
-                    .background(Color.LightGray)
-                    .testTag(testTag)) {
+            Box(Modifier.size(size.dp).background(Color.LightGray).testTag(testTag)) {
                 Box(
-                    Modifier
-                        .layout { measurable, constraints ->
+                    Modifier.layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeWithLayer(offset, offset) {
@@ -1044,26 +927,28 @@ class GraphicsLayerTest {
                                     scaleX = scale
                                     scaleY = scale
                                     clip = true
-                                    shape = object : Shape {
-                                        override fun createOutline(
-                                            size: Size,
-                                            layoutDirection: LayoutDirection,
-                                            density: Density
-                                        ): Outline {
-                                            return Outline.Rounded(
-                                                RoundRect(
-                                                    left = -size.width / 2,
-                                                    top = -size.height / 2,
-                                                    right = size.width / 2,
-                                                    bottom = size.height / 2,
-                                                    cornerRadius = CornerRadius(
-                                                        size.width / 2,
-                                                        size.height / 2
+                                    shape =
+                                        object : Shape {
+                                            override fun createOutline(
+                                                size: Size,
+                                                layoutDirection: LayoutDirection,
+                                                density: Density
+                                            ): Outline {
+                                                return Outline.Rounded(
+                                                    RoundRect(
+                                                        left = -size.width / 2,
+                                                        top = -size.height / 2,
+                                                        right = size.width / 2,
+                                                        bottom = size.height / 2,
+                                                        cornerRadius =
+                                                            CornerRadius(
+                                                                size.width / 2,
+                                                                size.height / 2
+                                                            )
                                                     )
                                                 )
-                                            )
+                                            }
                                         }
-                                    }
                                     transformOrigin = TransformOrigin(0f, 0f)
                                 }
                             }
@@ -1093,7 +978,8 @@ class GraphicsLayerTest {
                 assertPixelColor(blended, scaledRight - 3, scaledTop + 3)
                 assertPixelColor(blended, scaledLeft + 3, scaledBottom - 3)
 
-                // The bottom right corner should be clipped out and the background should be revealed
+                // The bottom right corner should be clipped out and the background should be
+                // revealed
                 assertPixelColor(Color.LightGray, scaledRight, scaledBottom)
             }
         }
@@ -1103,25 +989,11 @@ class GraphicsLayerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun invalidateWhenWeHaveSemanticModifierAfterLayer() {
         var color by mutableStateOf(Color.Red)
-        rule.setContent {
-            FixedSize(
-                5,
-                Modifier
-                    .graphicsLayer()
-                    .testTag("tag")
-                    .background(color)
-            )
-        }
+        rule.setContent { FixedSize(5, Modifier.graphicsLayer().testTag("tag").background(color)) }
 
-        rule.runOnIdle {
-            color = Color.Green
-        }
+        rule.runOnIdle { color = Color.Green }
 
-        rule.onNodeWithTag("tag")
-            .captureToImage()
-            .assertPixels {
-                color
-            }
+        rule.onNodeWithTag("tag").captureToImage().assertPixels { color }
     }
 
     @Test
@@ -1134,10 +1006,11 @@ class GraphicsLayerTest {
             // Verify that the current density is passed to the graphics layer
             // implementation and that density dependent methods are consuming it
             Box(
-                modifier = Modifier.graphicsLayer {
-                    testDpConversion = 2.dp.toPx()
-                    testFontScaleConversion = 3.dp.toSp().toPx()
-                }
+                modifier =
+                    Modifier.graphicsLayer {
+                        testDpConversion = 2.dp.toPx()
+                        testFontScaleConversion = 3.dp.toSp().toPx()
+                    }
             )
         }
 
@@ -1156,20 +1029,8 @@ class GraphicsLayerTest {
         rule.setContent {
             Layout(
                 content = {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                firstClicked = true
-                            }
-                    )
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .clickable {
-                                secondClicked = true
-                            }
-                    )
+                    Box(Modifier.fillMaxSize().clickable { firstClicked = true })
+                    Box(Modifier.fillMaxSize().clickable { secondClicked = true })
                 },
                 modifier = Modifier.testTag("layout")
             ) { measurables, _ ->
@@ -1187,10 +1048,7 @@ class GraphicsLayerTest {
             }
         }
 
-        rule.onNodeWithTag("layout")
-            .performTouchInput {
-                click(position = Offset(50f, 170f))
-            }
+        rule.onNodeWithTag("layout").performTouchInput { click(position = Offset(50f, 170f)) }
 
         rule.runOnIdle {
             assertFalse("First element is clicked", firstClicked)
@@ -1206,26 +1064,22 @@ class GraphicsLayerTest {
         var valueReadInGraphicsLayer = Float.MIN_VALUE
 
         rule.setContent {
-            Box(Modifier
-                .layout { measurable, constraints ->
-                    // update the state during the measure pass
-                    mutableState.value = 2f
+            Box(
+                Modifier.layout { measurable, constraints ->
+                        // update the state during the measure pass
+                        mutableState.value = 2f
 
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                     }
-                }
-                .graphicsLayer {
-                    // read during updateLayerParameters
-                    valueReadInGraphicsLayer = nestedDerivedState
-                }
+                    .graphicsLayer {
+                        // read during updateLayerParameters
+                        valueReadInGraphicsLayer = nestedDerivedState
+                    }
             )
         }
 
-        rule.runOnIdle {
-            assertEquals(2f, valueReadInGraphicsLayer)
-        }
+        rule.runOnIdle { assertEquals(2f, valueReadInGraphicsLayer) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1236,21 +1090,16 @@ class GraphicsLayerTest {
         rule.setContent {
             Canvas(
                 modifier =
-                Modifier
-                    .testTag(tag)
-                    .size((dimen / LocalDensity.current.density).dp)
-                    .background(Color.Black)
-                    .graphicsLayer(
-                        alpha = 0.5f,
-                        compositingStrategy = CompositingStrategy.ModulateAlpha
-                    )
+                    Modifier.testTag(tag)
+                        .size((dimen / LocalDensity.current.density).dp)
+                        .background(Color.Black)
+                        .graphicsLayer(
+                            alpha = 0.5f,
+                            compositingStrategy = CompositingStrategy.ModulateAlpha
+                        )
             ) {
-                inset(0f, 0f, size.width / 3, size.height / 3) {
-                    drawRect(color = Color.Red)
-                }
-                inset(size.width / 3, size.height / 3, 0f, 0f) {
-                    drawRect(color = Color.Blue)
-                }
+                inset(0f, 0f, size.width / 3, size.height / 3) { drawRect(color = Color.Red) }
+                inset(size.width / 3, size.height / 3, 0f, 0f) { drawRect(color = Color.Blue) }
             }
         }
 
@@ -1279,17 +1128,12 @@ class GraphicsLayerTest {
         rule.setContent {
             Canvas(
                 modifier =
-                Modifier
-                    .testTag(tag)
-                    .size((dimen / LocalDensity.current.density).dp)
-                    .background(Color.LightGray)
-                    .graphicsLayer(
-                        compositingStrategy = CompositingStrategy.Offscreen
-                    )
+                    Modifier.testTag(tag)
+                        .size((dimen / LocalDensity.current.density).dp)
+                        .background(Color.LightGray)
+                        .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
             ) {
-                inset(0f, 0f, size.width / 3, size.height / 3) {
-                    drawRect(color = Color.Red)
-                }
+                inset(0f, 0f, size.width / 3, size.height / 3) { drawRect(color = Color.Red) }
                 inset(size.width / 3, size.height / 3, 0f, 0f) {
                     drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
                 }
@@ -1315,21 +1159,13 @@ class GraphicsLayerTest {
         rule.setContent {
             Canvas(
                 modifier =
-                Modifier
-                    .testTag(tag)
-                    .size((dimen / LocalDensity.current.density).dp)
-                    .background(Color.Black)
-                    .graphicsLayer(
-                        alpha = 0.5f,
-                        compositingStrategy = CompositingStrategy.Auto
-                    )
+                    Modifier.testTag(tag)
+                        .size((dimen / LocalDensity.current.density).dp)
+                        .background(Color.Black)
+                        .graphicsLayer(alpha = 0.5f, compositingStrategy = CompositingStrategy.Auto)
             ) {
-                inset(0f, 0f, size.width / 3, size.height / 3) {
-                    drawRect(color = Color.Red)
-                }
-                inset(size.width / 3, size.height / 3, 0f, 0f) {
-                    drawRect(color = Color.Blue)
-                }
+                inset(0f, 0f, size.width / 3, size.height / 3) { drawRect(color = Color.Red) }
+                inset(size.width / 3, size.height / 3, 0f, 0f) { drawRect(color = Color.Blue) }
             }
         }
 
@@ -1361,16 +1197,16 @@ class GraphicsLayerTest {
         var drawScopeHeight = -1f
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .size(widthDp, heightDp)
-                    .graphicsLayer {
-                        graphicsLayerWidth = size.width
-                        graphicsLayerHeight = size.height
-                    }
-                    .drawBehind {
-                        drawScopeWidth = size.width
-                        drawScopeHeight = size.height
-                    }
+                modifier =
+                    Modifier.size(widthDp, heightDp)
+                        .graphicsLayer {
+                            graphicsLayerWidth = size.width
+                            graphicsLayerHeight = size.height
+                        }
+                        .drawBehind {
+                            drawScopeWidth = size.width
+                            drawScopeHeight = size.height
+                        }
             )
         }
         rule.runOnIdle {
@@ -1391,16 +1227,17 @@ class GraphicsLayerTest {
 
         rule.setContent {
             density = LocalDensity.current
-            Box(modifier = Modifier
-                .size(composableSize, composableSize)
-                .graphicsLayer {
-                    graphicsLayerWidth = size.width
-                    graphicsLayerHeight = size.height
-                }
-                .drawBehind {
-                    drawScopeWidth = size.width
-                    drawScopeHeight = size.height
-                }
+            Box(
+                modifier =
+                    Modifier.size(composableSize, composableSize)
+                        .graphicsLayer {
+                            graphicsLayerWidth = size.width
+                            graphicsLayerHeight = size.height
+                        }
+                        .drawBehind {
+                            drawScopeWidth = size.width
+                            drawScopeHeight = size.height
+                        }
             )
         }
 
@@ -1432,14 +1269,10 @@ class GraphicsLayerTest {
         val size = 100
         rule.setContent {
             val sizeDp = with(LocalDensity.current) { size.toDp() }
-            LazyColumn(
-                Modifier
-                    .testTag("lazy")
-                    .background(Color.Blue)) {
+            LazyColumn(Modifier.testTag("lazy").background(Color.Blue)) {
                 items(4) {
                     Box(
-                        Modifier
-                            .then(if (toggle) Modifier.graphicsLayer(alpha = 0f) else Modifier)
+                        Modifier.then(if (toggle) Modifier.graphicsLayer(alpha = 0f) else Modifier)
                             .background(Color.Red)
                             .size(sizeDp)
                     )
@@ -1452,9 +1285,7 @@ class GraphicsLayerTest {
             assertEquals(Color.Blue.toArgb(), getPixel(10, (size * 2.5f).roundToInt()))
         }
 
-        rule.runOnIdle {
-            toggle = !toggle
-        }
+        rule.runOnIdle { toggle = !toggle }
 
         rule.onNodeWithTag("lazy").captureToImage().asAndroidBitmap().apply {
             assertEquals(Color.Red.toArgb(), getPixel(10, (size * 1.5f).roundToInt()))
@@ -1473,31 +1304,21 @@ class GraphicsLayerTest {
         rule.setContent {
             val sizeDp = with(LocalDensity.current) { size.toDp() }
             Box(
-                Modifier
-                    .testTag("outer")
+                Modifier.testTag("outer")
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
-                        }
+                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                     }
                     .then(
-                        if (toggle) Modifier
-                            .graphicsLayer(scaleX = 1f)
-                            .layout { measurable, constraints ->
+                        if (toggle)
+                            Modifier.graphicsLayer(scaleX = 1f).layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                layout(placeable.width, placeable.height) {
-                                    placeable.place(0, 0)
-                                }
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                             }
                         else Modifier
                     )
             ) {
-                Box(
-                    Modifier
-                        .background(Color.Red)
-                        .size(sizeDp)
-                )
+                Box(Modifier.background(Color.Red).size(sizeDp))
             }
         }
 
@@ -1507,17 +1328,13 @@ class GraphicsLayerTest {
             assertEquals(Color.Red.toArgb(), getPixel(pt, pt))
         }
 
-        rule.runOnIdle {
-            toggle = !toggle
-        }
+        rule.runOnIdle { toggle = !toggle }
 
         rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap().apply {
             assertEquals(Color.Red.toArgb(), getPixel(pt, pt))
         }
 
-        rule.runOnIdle {
-            toggle = !toggle
-        }
+        rule.runOnIdle { toggle = !toggle }
 
         rule.onNodeWithTag("outer").captureToImage().asAndroidBitmap().apply {
             assertEquals(Color.Red.toArgb(), getPixel(pt, pt))
@@ -1547,9 +1364,7 @@ class GraphicsLayerTest {
             addGraphicsLayer = false
         }
 
-        rule.runOnIdle {
-            assertEquals(Rect(0f, 0f, 10f, 10f), coordinates.boundsInRoot())
-        }
+        rule.runOnIdle { assertEquals(Rect(0f, 0f, 10f, 10f), coordinates.boundsInRoot()) }
     }
 
     @Test
@@ -1558,39 +1373,25 @@ class GraphicsLayerTest {
         var counter by mutableStateOf(0)
         var counterReadInDrawing = -1
         val content = movableContentOf {
-            Box(
-                Modifier
-                    .size(5.dp)
-                    .graphicsLayer()
-                    .drawBehind {
-                        counterReadInDrawing = counter
-                    })
+            Box(Modifier.size(5.dp).graphicsLayer().drawBehind { counterReadInDrawing = counter })
         }
 
         rule.setContent {
             if (moveContent) {
-                Box(Modifier.size(5.dp)) {
-                    content()
-                }
+                Box(Modifier.size(5.dp)) { content() }
             } else {
-                Box(Modifier.size(10.dp)) {
-                    content()
-                }
+                Box(Modifier.size(10.dp)) { content() }
             }
         }
 
-        rule.runOnIdle {
-            moveContent = true
-        }
+        rule.runOnIdle { moveContent = true }
 
         rule.runOnIdle {
             assertThat(counterReadInDrawing).isEqualTo(counter)
             counter++
         }
 
-        rule.runOnIdle {
-            assertThat(counterReadInDrawing).isEqualTo(counter)
-        }
+        rule.runOnIdle { assertThat(counterReadInDrawing).isEqualTo(counter) }
     }
 
     @Test
@@ -1599,39 +1400,25 @@ class GraphicsLayerTest {
         var counter by mutableStateOf(0)
         var counterReadInLayerBlock = -1
         val content = movableContentOf {
-            Box(
-                Modifier
-                    .size(5.dp)
-                    .graphicsLayer {
-                        counterReadInLayerBlock = counter
-                    }
-            )
+            Box(Modifier.size(5.dp).graphicsLayer { counterReadInLayerBlock = counter })
         }
 
         rule.setContent {
             if (moveContent) {
-                Box(Modifier.size(5.dp)) {
-                    content()
-                }
+                Box(Modifier.size(5.dp)) { content() }
             } else {
-                Box(Modifier.size(10.dp)) {
-                    content()
-                }
+                Box(Modifier.size(10.dp)) { content() }
             }
         }
 
-        rule.runOnIdle {
-            moveContent = true
-        }
+        rule.runOnIdle { moveContent = true }
 
         rule.runOnIdle {
             assertThat(counterReadInLayerBlock).isEqualTo(counter)
             counter++
         }
 
-        rule.runOnIdle {
-            assertThat(counterReadInLayerBlock).isEqualTo(counter)
-        }
+        rule.runOnIdle { assertThat(counterReadInLayerBlock).isEqualTo(counter) }
     }
 
     @Test
@@ -1640,19 +1427,17 @@ class GraphicsLayerTest {
         lateinit var coordinates: LayoutCoordinates
         var remeasureCount = 0
         var relayoutCount = 0
-        val layoutModifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            remeasureCount++
-            layout(placeable.width, placeable.height) {
-                relayoutCount++
-                placeable.place(0, 0)
+        val layoutModifier =
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                remeasureCount++
+                layout(placeable.width, placeable.height) {
+                    relayoutCount++
+                    placeable.place(0, 0)
+                }
             }
-        }
         rule.setContent {
-            Box(
-                Modifier
-                    .graphicsLayer(translationX = translationX)
-                    .then(layoutModifier)) {
+            Box(Modifier.graphicsLayer(translationX = translationX).then(layoutModifier)) {
                 Layout(Modifier.onGloballyPositioned { coordinates = it }) { _, _ ->
                     layout(10, 10) {}
                 }
@@ -1681,19 +1466,17 @@ class GraphicsLayerTest {
         lateinit var coordinates: LayoutCoordinates
         var remeasureCount = 0
         var relayoutCount = 0
-        val layoutModifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            remeasureCount++
-            layout(placeable.width, placeable.height) {
-                relayoutCount++
-                placeable.place(0, 0)
+        val layoutModifier =
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                remeasureCount++
+                layout(placeable.width, placeable.height) {
+                    relayoutCount++
+                    placeable.place(0, 0)
+                }
             }
-        }
         rule.setContent {
-            Box(
-                Modifier
-                    .graphicsLayer(lambda)
-                    .then(layoutModifier)) {
+            Box(Modifier.graphicsLayer(lambda).then(layoutModifier)) {
                 Layout(Modifier.onGloballyPositioned { coordinates = it }) { _, _ ->
                     layout(10, 10) {}
                 }
@@ -1723,27 +1506,26 @@ class GraphicsLayerTest {
         var needLayer by mutableStateOf(false)
         var layerBlockCalled = false
         rule.setContent {
-            Layout(content = {
-                Layout(
-                    modifier = Modifier.layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            modifierRelayoutCount++
-                            placeable.place(0, 0)
-                        }
-                    }
-                ) { _, _ ->
-                    layout(10, 10) {
-                        relayoutCount++
+            Layout(
+                content = {
+                    Layout(
+                        modifier =
+                            Modifier.layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) {
+                                    modifierRelayoutCount++
+                                    placeable.place(0, 0)
+                                }
+                            }
+                    ) { _, _ ->
+                        layout(10, 10) { relayoutCount++ }
                     }
                 }
-            }) { measurables, constraints ->
+            ) { measurables, constraints ->
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height) {
                     if (needLayer) {
-                        placeable.placeWithLayer(0, 0) {
-                            layerBlockCalled = true
-                        }
+                        placeable.placeWithLayer(0, 0) { layerBlockCalled = true }
                     } else {
                         placeable.place(0, 0)
                     }
@@ -1770,25 +1552,24 @@ class GraphicsLayerTest {
         var modifierRelayoutCount = 0
         var position by mutableStateOf(0)
         rule.setContent {
-            Layout(content = {
-                Layout(
-                    modifier = Modifier.layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            modifierRelayoutCount++
-                            placeable.place(0, 0)
-                        }
-                    }
-                ) { _, _ ->
-                    layout(10, 10) {
-                        relayoutCount++
+            Layout(
+                content = {
+                    Layout(
+                        modifier =
+                            Modifier.layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) {
+                                    modifierRelayoutCount++
+                                    placeable.place(0, 0)
+                                }
+                            }
+                    ) { _, _ ->
+                        layout(10, 10) { relayoutCount++ }
                     }
                 }
-            }) { measurables, constraints ->
+            ) { measurables, constraints ->
                 val placeable = measurables[0].measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.placeWithLayer(position, 0)
-                }
+                layout(placeable.width, placeable.height) { placeable.placeWithLayer(position, 0) }
             }
         }
 
@@ -1810,9 +1591,8 @@ class GraphicsLayerTest {
         rule.setContent {
             val layer = rememberGraphicsLayer()
             Canvas(
-                modifier = Modifier
-                    .testTag("tag")
-                    .layout { measurable, _ ->
+                modifier =
+                    Modifier.testTag("tag").layout { measurable, _ ->
                         val placeable = measurable.measure(Constraints.fixed(10, 10))
                         layout(placeable.width, placeable.height) {
                             placeable.placeWithLayer(0, 0, layer)
@@ -1823,9 +1603,7 @@ class GraphicsLayerTest {
             }
         }
 
-        rule.onNodeWithTag("tag")
-            .captureToImage()
-            .assertPixels(IntSize(10, 10)) { Color.Blue }
+        rule.onNodeWithTag("tag").captureToImage().assertPixels(IntSize(10, 10)) { Color.Blue }
     }
 
     @Test
@@ -1834,12 +1612,13 @@ class GraphicsLayerTest {
         rule.setContent {
             layer = rememberGraphicsLayer()
             Canvas(
-                modifier = Modifier.layout { measurable, _ ->
-                    val placeable = measurable.measure(Constraints.fixed(20, 20))
-                    layout(placeable.width, placeable.height) {
-                        placeable.placeWithLayer(10, 10, layer)
+                modifier =
+                    Modifier.layout { measurable, _ ->
+                        val placeable = measurable.measure(Constraints.fixed(20, 20))
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeWithLayer(10, 10, layer)
+                        }
                     }
-                }
             ) {
                 drawRect(Color.Blue)
             }
@@ -1861,25 +1640,22 @@ class GraphicsLayerTest {
             layer = rememberGraphicsLayer()
             if (needChild) {
                 Canvas(
-                    modifier = Modifier.layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height) {
-                            placeable.placeWithLayer(1, 0, layer)
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeWithLayer(1, 0, layer)
+                            }
                         }
-                    }
                 ) {
                     drawRect(Color.Blue)
                 }
             }
         }
 
-        rule.runOnIdle {
-            needChild = false
-        }
+        rule.runOnIdle { needChild = false }
 
-        rule.runOnIdle {
-            assertThat(layer.isReleased).isFalse()
-        }
+        rule.runOnIdle { assertThat(layer.isReleased).isFalse() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1887,37 +1663,34 @@ class GraphicsLayerTest {
     fun switchingFromExplicitLayerToImplicit() {
         var useExplicitLayer by mutableStateOf(true)
         rule.setContent {
-            val layer = if (useExplicitLayer) {
-                rememberGraphicsLayer()
-            } else {
-                null
-            }
+            val layer =
+                if (useExplicitLayer) {
+                    rememberGraphicsLayer()
+                } else {
+                    null
+                }
             Canvas(
-                modifier = Modifier
-                    .testTag("tag")
-                    .layout { measurable, _ ->
-                        val placeable = measurable.measure(Constraints.fixed(10, 10))
-                        layout(placeable.width, placeable.height) {
-                            if (layer != null) {
-                                placeable.placeWithLayer(0, 0, layer)
-                            } else {
-                                placeable.place(0, 0)
+                modifier =
+                    Modifier.testTag("tag")
+                        .layout { measurable, _ ->
+                            val placeable = measurable.measure(Constraints.fixed(10, 10))
+                            layout(placeable.width, placeable.height) {
+                                if (layer != null) {
+                                    placeable.placeWithLayer(0, 0, layer)
+                                } else {
+                                    placeable.place(0, 0)
+                                }
                             }
                         }
-                    }
-                    .then(if (layer != null) Modifier else Modifier.graphicsLayer())
+                        .then(if (layer != null) Modifier else Modifier.graphicsLayer())
             ) {
                 drawRect(Color.Blue)
             }
         }
 
-        rule.runOnIdle {
-            useExplicitLayer = false
-        }
+        rule.runOnIdle { useExplicitLayer = false }
 
-        rule.onNodeWithTag("tag")
-            .captureToImage()
-            .assertPixels(IntSize(10, 10)) { Color.Blue }
+        rule.onNodeWithTag("tag").captureToImage().assertPixels(IntSize(10, 10)) { Color.Blue }
     }
 
     @Test
@@ -1926,19 +1699,13 @@ class GraphicsLayerTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .rotate(180f)
-                        .onPlaced {
-                            bounds = it.boundsInRoot()
-                        }
+                    modifier =
+                        Modifier.size(10.dp).rotate(180f).onPlaced { bounds = it.boundsInRoot() }
                 )
             }
         }
 
-        rule.runOnIdle {
-            assertThat(bounds).isEqualTo(Rect(0f, 0f, 10f, 10f))
-        }
+        rule.runOnIdle { assertThat(bounds).isEqualTo(Rect(0f, 0f, 10f, 10f)) }
     }
 
     @Test
@@ -1947,19 +1714,13 @@ class GraphicsLayerTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 Box(
-                    modifier = Modifier
-                        .size(9.dp)
-                        .rotate(180f)
-                        .onPlaced {
-                            bounds = it.boundsInRoot()
-                        }
+                    modifier =
+                        Modifier.size(9.dp).rotate(180f).onPlaced { bounds = it.boundsInRoot() }
                 )
             }
         }
 
-        rule.runOnIdle {
-            assertThat(bounds).isEqualTo(Rect(0f, 0f, 9f, 9f))
-        }
+        rule.runOnIdle { assertThat(bounds).isEqualTo(Rect(0f, 0f, 9f, 9f)) }
     }
 
     @Test
@@ -1968,21 +1729,17 @@ class GraphicsLayerTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .graphicsLayer(
-                            rotationZ = 180f,
-                            transformOrigin = TransformOrigin(1f, 1f)
-                        )
-                        .onPlaced {
-                            bounds = it.boundsInRoot()
-                        }
+                    modifier =
+                        Modifier.size(10.dp)
+                            .graphicsLayer(
+                                rotationZ = 180f,
+                                transformOrigin = TransformOrigin(1f, 1f)
+                            )
+                            .onPlaced { bounds = it.boundsInRoot() }
                 )
             }
         }
 
-        rule.runOnIdle {
-            assertThat(bounds).isEqualTo(Rect(10f, 10f, 20f, 20f))
-        }
+        rule.runOnIdle { assertThat(bounds).isEqualTo(Rect(10f, 10f, 20f, 20f)) }
     }
 }

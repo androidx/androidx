@@ -44,35 +44,32 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ThreePaneScaffoldTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun threePaneScaffold_allPanesHidden_noVisiblePanes() {
-         val testScaffoldValue = ThreePaneScaffoldValue(
-             PaneAdaptedValue.Hidden,
-             PaneAdaptedValue.Hidden,
-             PaneAdaptedValue.Hidden
-         )
-         rule.setContent {
-             SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-         }
+        val testScaffoldValue =
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Hidden
+            )
+        rule.setContent { SampleThreePaneScaffold(scaffoldValue = testScaffoldValue) }
 
-         rule.onNodeWithTag("PrimaryPane").assertDoesNotExist()
-         rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
-         rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
+        rule.onNodeWithTag("PrimaryPane").assertDoesNotExist()
+        rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
+        rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
     }
 
     @Test
     fun threePaneScaffold_oneExpandedPane_onlyExpandedPanesAreVisible() {
-        val testScaffoldValue = ThreePaneScaffoldValue(
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Hidden,
-            PaneAdaptedValue.Hidden
-        )
-        rule.setContent {
-            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-        }
+        val testScaffoldValue =
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Hidden
+            )
+        rule.setContent { SampleThreePaneScaffold(scaffoldValue = testScaffoldValue) }
 
         rule.onNodeWithTag("PrimaryPane").assertExists()
         rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
@@ -81,14 +78,13 @@ class ThreePaneScaffoldTest {
 
     @Test
     fun threePaneScaffold_twoExpandedPanes_onlyExpandedPanesAreVisible() {
-        val testScaffoldValue = ThreePaneScaffoldValue(
-            PaneAdaptedValue.Hidden,
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Expanded
-        )
-        rule.setContent {
-            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-        }
+        val testScaffoldValue =
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded
+            )
+        rule.setContent { SampleThreePaneScaffold(scaffoldValue = testScaffoldValue) }
 
         rule.onNodeWithTag("PrimaryPane").assertDoesNotExist()
         rule.onNodeWithTag("SecondaryPane").assertExists()
@@ -97,14 +93,13 @@ class ThreePaneScaffoldTest {
 
     @Test
     fun threePaneScaffold_threeExpandedPanes_onlyExpandedPanesAreVisible() {
-        val testScaffoldValue = ThreePaneScaffoldValue(
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Expanded
-        )
-        rule.setContent {
-            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-        }
+        val testScaffoldValue =
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded
+            )
+        rule.setContent { SampleThreePaneScaffold(scaffoldValue = testScaffoldValue) }
 
         rule.onNodeWithTag("PrimaryPane").assertExists()
         rule.onNodeWithTag("SecondaryPane").assertExists()
@@ -113,26 +108,26 @@ class ThreePaneScaffoldTest {
 
     @Test
     fun threePaneScaffold_scaffoldValueChangeWithSinglePane_expandedPanesAreChanged() {
-        var testScaffoldValue by mutableStateOf(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
+        var testScaffoldValue by
+            mutableStateOf(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                )
             )
-        )
-        rule.setContent {
-            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-        }
+        rule.setContent { SampleThreePaneScaffold(scaffoldValue = testScaffoldValue) }
 
         rule.onNodeWithTag("PrimaryPane").assertExists()
         rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
         rule.onNodeWithTag("TertiaryPane").assertDoesNotExist()
 
-        testScaffoldValue = ThreePaneScaffoldValue(
-            PaneAdaptedValue.Hidden,
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Hidden
-        )
+        testScaffoldValue =
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden
+            )
 
         rule.waitForIdle()
 
@@ -143,26 +138,26 @@ class ThreePaneScaffoldTest {
 
     @Test
     fun threePaneScaffold_scaffoldValueChangeWithDualPane_expandedPanesAreChanged() {
-        var testScaffoldValue by mutableStateOf(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
+        var testScaffoldValue by
+            mutableStateOf(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                )
             )
-        )
-        rule.setContent {
-            SampleThreePaneScaffold(scaffoldValue = testScaffoldValue)
-        }
+        rule.setContent { SampleThreePaneScaffold(scaffoldValue = testScaffoldValue) }
 
         rule.onNodeWithTag("PrimaryPane").assertExists()
         rule.onNodeWithTag("SecondaryPane").assertDoesNotExist()
         rule.onNodeWithTag("TertiaryPane").assertExists()
 
-        testScaffoldValue = ThreePaneScaffoldValue(
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Expanded,
-            PaneAdaptedValue.Hidden
-        )
+        testScaffoldValue =
+            ThreePaneScaffoldValue(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden
+            )
 
         rule.waitForIdle()
 
@@ -178,31 +173,22 @@ class ThreePaneScaffoldTest {
         var expectedSettledOffsetPx = 0
         lateinit var scope: CoroutineScope
 
-        rule.setContentWithSimulatedSize(
-            simulatedWidth = 1024.dp,
-            simulatedHeight = 800.dp
-        ) {
+        rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
             scope = rememberCoroutineScope()
             mockDraggingPx = with(LocalDensity.current) { 200.dp.toPx() }
-            expectedSettledOffsetPx = with(LocalDensity.current) {
-                MockPaneExpansionMiddleAnchor.toPx().toInt()
-            }
-            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
-                MockDragHandle(it)
-            }
+            expectedSettledOffsetPx =
+                with(LocalDensity.current) { MockPaneExpansionMiddleAnchor.toPx().toInt() }
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) { MockDragHandle(it) }
         }
 
         rule.runOnIdle {
             mockPaneExpansionState.dispatchRawDelta(mockDraggingPx)
-            scope.launch {
-                mockPaneExpansionState.settleToAnchorIfNeeded(0F)
-            }
+            scope.launch { mockPaneExpansionState.settleToAnchorIfNeeded(0F) }
         }
 
         rule.runOnIdle {
-            assertThat(mockPaneExpansionState.currentMeasuredDraggingOffset).isEqualTo(
-                expectedSettledOffsetPx
-            )
+            assertThat(mockPaneExpansionState.currentMeasuredDraggingOffset)
+                .isEqualTo(expectedSettledOffsetPx)
         }
     }
 
@@ -212,28 +198,20 @@ class ThreePaneScaffoldTest {
         var mockDraggingPx = 0f
         lateinit var scope: CoroutineScope
 
-        rule.setContentWithSimulatedSize(
-            simulatedWidth = 1024.dp,
-            simulatedHeight = 800.dp
-        ) {
+        rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
             scope = rememberCoroutineScope()
             mockDraggingPx = with(LocalDensity.current) { 200.dp.toPx() }
-            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
-                MockDragHandle(it)
-            }
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) { MockDragHandle(it) }
         }
 
         rule.runOnIdle {
             mockPaneExpansionState.dispatchRawDelta(mockDraggingPx)
-            scope.launch {
-                mockPaneExpansionState.settleToAnchorIfNeeded(400F)
-            }
+            scope.launch { mockPaneExpansionState.settleToAnchorIfNeeded(400F) }
         }
 
         rule.runOnIdle {
-            assertThat(mockPaneExpansionState.currentMeasuredDraggingOffset).isEqualTo(
-                mockPaneExpansionState.maxExpansionWidth
-            )
+            assertThat(mockPaneExpansionState.currentMeasuredDraggingOffset)
+                .isEqualTo(mockPaneExpansionState.maxExpansionWidth)
         }
     }
 
@@ -243,22 +221,15 @@ class ThreePaneScaffoldTest {
         var mockDraggingDp = 0f
         lateinit var scope: CoroutineScope
 
-        rule.setContentWithSimulatedSize(
-            simulatedWidth = 1024.dp,
-            simulatedHeight = 800.dp
-        ) {
+        rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
             scope = rememberCoroutineScope()
             mockDraggingDp = with(LocalDensity.current) { -360.dp.toPx() }
-            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
-                MockDragHandle(it)
-            }
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) { MockDragHandle(it) }
         }
 
         rule.runOnIdle {
             mockPaneExpansionState.dispatchRawDelta(mockDraggingDp)
-            scope.launch {
-                mockPaneExpansionState.settleToAnchorIfNeeded(-200F)
-            }
+            scope.launch { mockPaneExpansionState.settleToAnchorIfNeeded(-200F) }
         }
 
         rule.runOnIdle {
@@ -272,28 +243,20 @@ class ThreePaneScaffoldTest {
         var mockDraggingDp = 0f
         lateinit var scope: CoroutineScope
 
-        rule.setContentWithSimulatedSize(
-            simulatedWidth = 1024.dp,
-            simulatedHeight = 800.dp
-        ) {
+        rule.setContentWithSimulatedSize(simulatedWidth = 1024.dp, simulatedHeight = 800.dp) {
             scope = rememberCoroutineScope()
             mockDraggingDp = with(LocalDensity.current) { 640.dp.toPx() }
-            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) {
-                MockDragHandle(it)
-            }
+            SampleThreePaneScaffoldWithPaneExpansion(mockPaneExpansionState) { MockDragHandle(it) }
         }
 
         rule.runOnIdle {
             mockPaneExpansionState.dispatchRawDelta(mockDraggingDp)
-            scope.launch {
-                mockPaneExpansionState.settleToAnchorIfNeeded(200F)
-            }
+            scope.launch { mockPaneExpansionState.settleToAnchorIfNeeded(200F) }
         }
 
         rule.runOnIdle {
-            assertThat(mockPaneExpansionState.currentMeasuredDraggingOffset).isEqualTo(
-                mockPaneExpansionState.maxExpansionWidth
-            )
+            assertThat(mockPaneExpansionState.currentMeasuredDraggingOffset)
+                .isEqualTo(mockPaneExpansionState.maxExpansionWidth)
         }
     }
 }
@@ -305,11 +268,12 @@ internal const val ThreePaneScaffoldTestTag = "SampleThreePaneScaffold"
 private val MockPaneExpansionMiddleAnchor = 400.dp
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private val MockPaneExpansionAnchors = listOf(
-    PaneExpansionAnchor(percentage = 0),
-    PaneExpansionAnchor(startOffset = MockPaneExpansionMiddleAnchor),
-    PaneExpansionAnchor(percentage = 100),
-)
+private val MockPaneExpansionAnchors =
+    listOf(
+        PaneExpansionAnchor(percentage = 0),
+        PaneExpansionAnchor(startOffset = MockPaneExpansionMiddleAnchor),
+        PaneExpansionAnchor(percentage = 100),
+    )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -338,9 +302,7 @@ internal fun SampleThreePaneScaffold(
         paneExpansionState = paneExpansionState,
         paneExpansionDragHandle = paneExpansionDragHandle,
         secondaryPane = {
-            AnimatedPane(
-                modifier = Modifier.testTag(tag = "SecondaryPane")
-            ) {
+            AnimatedPane(modifier = Modifier.testTag(tag = "SecondaryPane")) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.secondary
@@ -348,9 +310,7 @@ internal fun SampleThreePaneScaffold(
             }
         },
         tertiaryPane = {
-            AnimatedPane(
-                modifier = Modifier.testTag(tag = "TertiaryPane")
-            ) {
+            AnimatedPane(modifier = Modifier.testTag(tag = "TertiaryPane")) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.tertiary
@@ -358,13 +318,8 @@ internal fun SampleThreePaneScaffold(
             }
         }
     ) {
-        AnimatedPane(
-            modifier = Modifier.testTag(tag = "PrimaryPane")
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.primary
-            ) {}
+        AnimatedPane(modifier = Modifier.testTag(tag = "PrimaryPane")) {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {}
         }
     }
 }

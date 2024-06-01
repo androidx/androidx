@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class AndroidAutoFillTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private var autofill: Autofill? = null
     private lateinit var autofillTree: AutofillTree
@@ -79,11 +78,12 @@ class AndroidAutoFillTest {
     fun onProvideAutofillVirtualStructure_populatesViewStructure() {
         // Arrange.
         val viewStructure: ViewStructure = FakeViewStructure()
-        val autofillNode = AutofillNode(
-            onFill = {},
-            autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
+        val autofillNode =
+            AutofillNode(
+                onFill = {},
+                autofillTypes = listOf(AutofillType.PersonFullName),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
         autofillTree += autofillNode
 
         // Act.
@@ -91,19 +91,20 @@ class AndroidAutoFillTest {
         val currentPackageName = ownerView.context.applicationInfo.packageName
 
         // Assert.
-        assertThat(viewStructure).isEqualTo(
-            FakeViewStructure().apply {
-                children.add(
-                    FakeViewStructure().apply {
-                        virtualId = autofillNode.id
-                        packageName = currentPackageName
-                        setAutofillType(View.AUTOFILL_TYPE_TEXT)
-                        setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
-                        setDimens(0, 0, 0, 0, 0, 0)
-                    }
-                )
-            }
-        )
+        assertThat(viewStructure)
+            .isEqualTo(
+                FakeViewStructure().apply {
+                    children.add(
+                        FakeViewStructure().apply {
+                            virtualId = autofillNode.id
+                            packageName = currentPackageName
+                            setAutofillType(View.AUTOFILL_TYPE_TEXT)
+                            setAutofillHints(arrayOf(AUTOFILL_HINT_PERSON_NAME))
+                            setDimens(0, 0, 0, 0, 0, 0)
+                        }
+                    )
+                }
+            )
     }
 
     @SdkSuppress(minSdkVersion = 26)
@@ -112,14 +113,16 @@ class AndroidAutoFillTest {
         // Arrange.
         val expectedValue = "PersonName"
         var autofilledValue = ""
-        val autofillNode = AutofillNode(
-            onFill = { autofilledValue = it },
-            autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
-        val autofillValues = SparseArray<AutofillValue>().apply {
-            append(autofillNode.id, AutofillValue.forText(expectedValue))
-        }
+        val autofillNode =
+            AutofillNode(
+                onFill = { autofilledValue = it },
+                autofillTypes = listOf(AutofillType.PersonFullName),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(autofillNode.id, AutofillValue.forText(expectedValue))
+            }
         autofillTree += autofillNode
 
         // Act.

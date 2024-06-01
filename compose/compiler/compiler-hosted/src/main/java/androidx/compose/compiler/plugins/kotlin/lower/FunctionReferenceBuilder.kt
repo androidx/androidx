@@ -65,70 +65,78 @@ class FunctionReferenceBuilder(
     private val superMethod =
         functionSuperClass.functions.single { it.owner.modality == Modality.ABSTRACT }
 
-    private val functionReferenceClass = generatorContext.irFactory.buildClass {
-        setSourceRange(irFunctionExpression)
-        visibility = DescriptorVisibilities.LOCAL
-        origin = JvmLoweredDeclarationOrigin.LAMBDA_IMPL
-        name = SpecialNames.NO_NAME_PROVIDED
-    }.apply {
-        parent = currentDeclarationParent
-        superTypes = listOfNotNull(superType)
-        createImplicitParameterDeclarationWithWrappedDescriptor()
-        copyAttributes(irFunctionExpression)
-        metadata = irFunctionExpression.function.metadata
-    }
+    private val functionReferenceClass =
+        generatorContext.irFactory
+            .buildClass {
+                setSourceRange(irFunctionExpression)
+                visibility = DescriptorVisibilities.LOCAL
+                origin = JvmLoweredDeclarationOrigin.LAMBDA_IMPL
+                name = SpecialNames.NO_NAME_PROVIDED
+            }
+            .apply {
+                parent = currentDeclarationParent
+                superTypes = listOfNotNull(superType)
+                createImplicitParameterDeclarationWithWrappedDescriptor()
+                copyAttributes(irFunctionExpression)
+                metadata = irFunctionExpression.function.metadata
+            }
 
-    fun build(): IrExpression = DeclarationIrBuilder(
-        generatorContext,
-        currentScopeOwnerSymbol
-    ).run {
-        irBlock(irFunctionExpression.startOffset, irFunctionExpression.endOffset) {
-            val constructor = createConstructor()
-            createInvokeMethod()
-            functionReferenceClass.addFakeOverrides(irTypeSystemContext)
-            +functionReferenceClass
-            +irCall(constructor.symbol)
-        }
-    }
-
-    private fun createConstructor(): IrConstructor =
-        functionReferenceClass.addConstructor {
-            origin = JvmLoweredDeclarationOrigin.GENERATED_MEMBER_IN_CALLABLE_REFERENCE
-            returnType = functionReferenceClass.defaultType
-            isPrimary = true
-        }.apply {
-            val constructor = irTypeSystemContext.irBuiltIns.anyClass.owner.constructors.single()
-            body = DeclarationIrBuilder(generatorContext, symbol).run {
-                irBlockBody(startOffset, endOffset) {
-                    +irDelegatingConstructorCall(constructor)
-                    +IrInstanceInitializerCallImpl(
-                        startOffset,
-                        endOffset,
-                        functionReferenceClass.symbol,
-                        context.irBuiltIns.unitType
-                    )
-                }
+    fun build(): IrExpression =
+        DeclarationIrBuilder(generatorContext, currentScopeOwnerSymbol).run {
+            irBlock(irFunctionExpression.startOffset, irFunctionExpression.endOffset) {
+                val constructor = createConstructor()
+                createInvokeMethod()
+                functionReferenceClass.addFakeOverrides(irTypeSystemContext)
+                +functionReferenceClass
+                +irCall(constructor.symbol)
             }
         }
 
+    private fun createConstructor(): IrConstructor =
+        functionReferenceClass
+            .addConstructor {
+                origin = JvmLoweredDeclarationOrigin.GENERATED_MEMBER_IN_CALLABLE_REFERENCE
+                returnType = functionReferenceClass.defaultType
+                isPrimary = true
+            }
+            .apply {
+                val constructor =
+                    irTypeSystemContext.irBuiltIns.anyClass.owner.constructors.single()
+                body =
+                    DeclarationIrBuilder(generatorContext, symbol).run {
+                        irBlockBody(startOffset, endOffset) {
+                            +irDelegatingConstructorCall(constructor)
+                            +IrInstanceInitializerCallImpl(
+                                startOffset,
+                                endOffset,
+                                functionReferenceClass.symbol,
+                                context.irBuiltIns.unitType
+                            )
+                        }
+                    }
+            }
+
     private fun createInvokeMethod(): IrSimpleFunction =
-        functionReferenceClass.addFunction {
-            setSourceRange(callee)
-            name = superMethod.owner.name
-            returnType = callee.returnType
-            isSuspend = callee.isSuspend
-        }.apply {
-            overriddenSymbols += superMethod
-            dispatchReceiverParameter = parentAsClass.thisReceiver!!.copyTo(this)
-            createLambdaInvokeMethod()
-        }
+        functionReferenceClass
+            .addFunction {
+                setSourceRange(callee)
+                name = superMethod.owner.name
+                returnType = callee.returnType
+                isSuspend = callee.isSuspend
+            }
+            .apply {
+                overriddenSymbols += superMethod
+                dispatchReceiverParameter = parentAsClass.thisReceiver!!.copyTo(this)
+                createLambdaInvokeMethod()
+            }
 
     // Inline the body of an anonymous function into the generated lambda subclass.
     private fun IrSimpleFunction.createLambdaInvokeMethod() {
         annotations += callee.annotations
-        val valueParameterMap = callee.explicitParameters.withIndex().associate { (index, param) ->
-            param to param.copyTo(this, index = index)
-        }
+        val valueParameterMap =
+            callee.explicitParameters.withIndex().associate { (index, param) ->
+                param to param.copyTo(this, index = index)
+            }
         valueParameters += valueParameterMap.values
         body = callee.moveBodyTo(this, valueParameterMap)
     }

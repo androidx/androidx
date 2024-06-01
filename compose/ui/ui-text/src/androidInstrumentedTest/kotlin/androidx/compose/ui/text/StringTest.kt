@@ -30,39 +30,33 @@ class StringTest {
 
     @Test
     fun English_uppercase() {
-        assertThat("aBcDe".toUpperCase(LocaleList("en-US")))
-            .isEqualTo("ABCDE")
+        assertThat("aBcDe".toUpperCase(LocaleList("en-US"))).isEqualTo("ABCDE")
     }
 
     @Test
     fun English_lowercase() {
-        assertThat("aBcDe".toLowerCase(LocaleList("en-US")))
-            .isEqualTo("abcde")
+        assertThat("aBcDe".toLowerCase(LocaleList("en-US"))).isEqualTo("abcde")
     }
 
     @Test
     fun English_capitalize() {
-        assertThat("abcde".capitalize(LocaleList("en-US")))
-            .isEqualTo("Abcde")
+        assertThat("abcde".capitalize(LocaleList("en-US"))).isEqualTo("Abcde")
     }
 
     @Test
     fun English_decapitalize() {
-        assertThat("Abcde".decapitalize(LocaleList("en-US")))
-            .isEqualTo("abcde")
+        assertThat("Abcde".decapitalize(LocaleList("en-US"))).isEqualTo("abcde")
     }
 
     @Test
     fun LocaleDependent_uppercase() {
         val upperI = "i".uppercase(Locale.forLanguageTag("tr"))
-        assertThat("hijkl".toUpperCase(LocaleList("tr")))
-            .isEqualTo("H${upperI}JKL")
+        assertThat("hijkl".toUpperCase(LocaleList("tr"))).isEqualTo("H${upperI}JKL")
     }
 
     @Test
     fun LocaleDependent_lowercase() {
         val upperI = "i".uppercase(Locale.forLanguageTag("tr"))
-        assertThat("h${upperI}jkl".toLowerCase(LocaleList("tr")))
-            .isEqualTo("hijkl")
+        assertThat("h${upperI}jkl".toLowerCase(LocaleList("tr"))).isEqualTo("hijkl")
     }
 }

@@ -118,9 +118,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(0, 4),
             dstSize = IntSize(4, 12),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.None
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.None }
         )
 
         screenshotRule.snap(surface)
@@ -129,7 +127,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
     @Test
     fun drawLine() {
         canvas.drawLine(
-            Offset(-4f, -4f), Offset(4f, 4f),
+            Offset(-4f, -4f),
+            Offset(4f, 4f),
             Paint().apply {
                 color = Color.Red
                 strokeWidth = 1f
@@ -137,7 +136,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
             }
         )
         canvas.drawLine(
-            Offset(8f, 4f), Offset(8f, 12f),
+            Offset(8f, 4f),
+            Offset(8f, 12f),
             Paint().apply {
                 color = Color.Blue
                 strokeWidth = 4f
@@ -145,7 +145,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
             }
         )
         canvas.drawLine(
-            Offset(12f, 4f), Offset(12f, 12f),
+            Offset(12f, 4f),
+            Offset(12f, 12f),
             Paint().apply {
                 color = Color.Green
                 strokeWidth = 4f
@@ -153,7 +154,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
             }
         )
         canvas.drawLine(
-            Offset(4f, 4f), Offset(4f, 12f),
+            Offset(4f, 4f),
+            Offset(4f, 12f),
             Paint().apply {
                 color = Color.Black.copy(alpha = 0.5f)
                 strokeWidth = 4f
@@ -163,7 +165,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         // should draw antialiased two-pixel line
         canvas.drawLine(
-            Offset(4f, 4f), Offset(4f, 12f),
+            Offset(4f, 4f),
+            Offset(4f, 12f),
             Paint().apply {
                 color = Color.Yellow
                 strokeWidth = 1f
@@ -173,7 +176,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         // should draw aliased one-pixel line
         canvas.drawLine(
-            Offset(4f, 4f), Offset(4f, 12f),
+            Offset(4f, 4f),
+            Offset(4f, 12f),
             Paint().apply {
                 color = Color.Yellow
                 strokeWidth = 1f
@@ -184,7 +188,8 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         // shouldn't draw any line
         canvas.drawLine(
-            Offset(4f, 4f), Offset(4f, 12f),
+            Offset(4f, 4f),
+            Offset(4f, 12f),
             Paint().apply {
                 color = Color.Yellow
                 strokeWidth = 0f
@@ -233,9 +238,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
         canvas.withSaveLayer(
             Rect(left = 4f, top = 8f, right = 12f, bottom = 16f),
-            redPaint.apply {
-                blendMode = BlendMode.Plus
-            }
+            redPaint.apply { blendMode = BlendMode.Plus }
         ) {
             canvas.drawLine(Offset(4f, 0f), Offset(4f, 16f), bluePaint)
         }
@@ -272,11 +275,7 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
         }
 
         canvas.withSave {
-            canvas.concat(
-                Matrix().apply {
-                    translate(12f, 2f)
-                }
-            )
+            canvas.concat(Matrix().apply { translate(12f, 2f) })
             canvas.drawRect(left = 0f, top = 0f, right = 4f, bottom = 4f, paint = cyanPaint)
         }
 
@@ -306,17 +305,17 @@ class DesktopCanvasTest : DesktopGraphicsTest() {
 
     @Test
     fun drawVertices() {
-        val positions = listOf(
-            Offset(0f, 0f),
-            Offset(16f, 0f),
-            Offset(8f, 8f),
-            Offset(16f, 8f),
-            Offset(0f, 16f),
-            Offset(16f, 16f),
-        )
-        val colors = listOf(
-            Color.Red, Color.Green, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow
-        )
+        val positions =
+            listOf(
+                Offset(0f, 0f),
+                Offset(16f, 0f),
+                Offset(8f, 8f),
+                Offset(16f, 8f),
+                Offset(0f, 16f),
+                Offset(16f, 16f),
+            )
+        val colors =
+            listOf(Color.Red, Color.Green, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow)
         val indices = listOf(0, 1, 2, 3, 4, 5)
 
         canvas.drawVertices(

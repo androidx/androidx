@@ -24,9 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipMetadata
 
-/**
- * System DragAndDrop is not yet supported on Desktop flavor of BTF2.
- */
+/** System DragAndDrop is not yet supported on Desktop flavor of BTF2. */
 @OptIn(ExperimentalFoundationApi::class)
 internal actual fun textFieldDragAndDropNode(
     hintMediaTypes: () -> Set<MediaType>,

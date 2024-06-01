@@ -50,16 +50,11 @@ class ConverterTest {
         val converter = (Color.VectorConverter)(ColorSpaces.Srgb)
 
         // Alpha channel above 1.0f clamps to 1.0f and result is red
-        assertEquals(
-            1f,
-            converter.convertFromVector(AnimationVector4D(1.1f, 1f, 0f, 0f)).alpha,
-            0f
-        )
+        assertEquals(1f, converter.convertFromVector(AnimationVector4D(1.1f, 1f, 0f, 0f)).alpha, 0f)
         // Alpha channel below 0.0f clamps to 0.0f and the result is transparent red
         assertEquals(
             0f,
-            converter.convertFromVector(AnimationVector4D(-0.1f, 1f, 0f, 0f))
-                .alpha,
+            converter.convertFromVector(AnimationVector4D(-0.1f, 1f, 0f, 0f)).alpha,
             0f
         )
 
@@ -87,20 +82,17 @@ class ConverterTest {
         val minOkLab = Color(0.0f, -0.5f, -0.5f, 1.0f, ColorSpaces.Oklab).convert(ColorSpaces.Srgb)
         assertEquals(
             minOkLab.red,
-            converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f))
-                .red,
+            converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f)).red,
             0f
         )
         assertEquals(
             minOkLab.green,
-            converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f))
-                .green,
+            converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f)).green,
             0f
         )
         assertEquals(
             minOkLab.blue,
-            converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f))
-                .blue,
+            converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f)).blue,
             0f
         )
     }
@@ -112,9 +104,7 @@ class ConverterTest {
             AnimationVector4D(1f, 2f, 3f, 4f)
         )
         assertEquals(
-            Rect.VectorConverter.convertFromVector(
-                AnimationVector4D(-400f, -300f, -200f, -100f)
-            ),
+            Rect.VectorConverter.convertFromVector(AnimationVector4D(-400f, -300f, -200f, -100f)),
             Rect(-400f, -300f, -200f, -100f)
         )
     }
@@ -136,9 +126,6 @@ class ConverterTest {
             Offset(x, y),
             Offset.VectorConverter.convertFromVector(AnimationVector2D(x, y))
         )
-        assertEquals(
-            AnimationVector2D(x, y),
-            Offset.VectorConverter.convertToVector(Offset(x, y))
-        )
+        assertEquals(AnimationVector2D(x, y), Offset.VectorConverter.convertToVector(Offset(x, y)))
     }
 }

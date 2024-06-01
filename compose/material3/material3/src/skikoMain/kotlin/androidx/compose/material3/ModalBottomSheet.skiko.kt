@@ -25,7 +25,8 @@ import androidx.compose.ui.window.DialogProperties
 
 @Immutable
 @ExperimentalMaterial3Api
-actual class ModalBottomSheetProperties actual constructor(
+actual class ModalBottomSheetProperties
+actual constructor(
     actual val shouldDismissOnBackPress: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -57,9 +58,7 @@ internal actual fun ModalBottomSheetDialog(
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
-        properties = DialogProperties(
-            dismissOnBackPress = properties.shouldDismissOnBackPress
-        ),
+        properties = DialogProperties(dismissOnBackPress = properties.shouldDismissOnBackPress),
         content = content
     )
 }

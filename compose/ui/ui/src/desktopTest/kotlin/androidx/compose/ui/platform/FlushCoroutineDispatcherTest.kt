@@ -86,14 +86,13 @@ class FlushCoroutineDispatcherTest {
         runBlocking(Dispatchers.Default) {
             dispatcher = FlushCoroutineDispatcher(this)
 
-            val addJob = launch(dispatcher) {
-                repeat(10000) {
-                    actualNumbers.add(it)
-                    repeat(random.nextInt(5)) {
-                        yield()
+            val addJob =
+                launch(dispatcher) {
+                    repeat(10000) {
+                        actualNumbers.add(it)
+                        repeat(random.nextInt(5)) { yield() }
                     }
                 }
-            }
 
             launch {
                 while (addJob.isActive) {

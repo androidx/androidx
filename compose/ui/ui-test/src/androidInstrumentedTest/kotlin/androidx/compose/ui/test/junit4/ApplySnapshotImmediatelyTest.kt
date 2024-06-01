@@ -31,8 +31,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class ApplySnapshotImmediatelyTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun test() {

@@ -85,24 +85,22 @@ class BoxWithConstraintsTest : LayoutTest() {
             BoxWithConstraints {
                 topConstraints.value = constraints
                 Padding(size = size) {
-                    val drawModifier = Modifier.drawBehind {
-                        countDownLatch.countDown()
-                    }
+                    val drawModifier = Modifier.drawBehind { countDownLatch.countDown() }
                     BoxWithConstraints(drawModifier) {
                         paddedConstraints.value = constraints
                         Layout(
                             measurePolicy = { _, childConstraints ->
                                 firstChildConstraints.value = childConstraints
-                                layout(size, size) { }
+                                layout(size, size) {}
                             },
-                            content = { }
+                            content = {}
                         )
                         Layout(
                             measurePolicy = { _, chilConstraints ->
                                 secondChildConstraints.value = chilConstraints
-                                layout(size, size) { }
+                                layout(size, size) {}
                             },
-                            content = { }
+                            content = {}
                         )
                     }
                 }
@@ -110,12 +108,13 @@ class BoxWithConstraintsTest : LayoutTest() {
         }
         assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
 
-        val expectedPaddedConstraints = Constraints(
-            0,
-            topConstraints.value!!.maxWidth - size * 2,
-            0,
-            topConstraints.value!!.maxHeight - size * 2
-        )
+        val expectedPaddedConstraints =
+            Constraints(
+                0,
+                topConstraints.value!!.maxWidth - size * 2,
+                0,
+                topConstraints.value!!.maxHeight - size * 2
+            )
         assertEquals(expectedPaddedConstraints, paddedConstraints.value)
         assertEquals(paddedConstraints.value, firstChildConstraints.value)
         assertEquals(paddedConstraints.value, secondChildConstraints.value)
@@ -131,30 +130,23 @@ class BoxWithConstraintsTest : LayoutTest() {
 
         show {
             BoxWithConstraints {
-                val outerModifier = Modifier.drawBehind {
-                    drawRect(model.outerColor)
-                }
+                val outerModifier = Modifier.drawBehind { drawRect(model.outerColor) }
                 Layout(
                     content = {
-                        val innerModifier = Modifier.drawBehind {
-                            drawLatch.countDown()
-                            drawRect(model.innerColor)
-                        }
-                        Layout(
-                            content = {},
-                            modifier = innerModifier
-                        ) { measurables, constraints2 ->
+                        val innerModifier =
+                            Modifier.drawBehind {
+                                drawLatch.countDown()
+                                drawRect(model.innerColor)
+                            }
+                        Layout(content = {}, modifier = innerModifier) { measurables, constraints2
+                            ->
                             layout(model.size, model.size) {}
                         }
                     },
                     modifier = outerModifier
                 ) { measurables, constraints3 ->
-                    val placeable = measurables[0].measure(
-                        Constraints.fixed(
-                            model.size,
-                            model.size
-                        )
-                    )
+                    val placeable =
+                        measurables[0].measure(Constraints.fixed(model.size, model.size))
                     layout(model.size * 3, model.size * 3) {
                         placeable.place(model.size, model.size)
                     }
@@ -167,9 +159,7 @@ class BoxWithConstraintsTest : LayoutTest() {
         }
 
         drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            model.size = 10
-        }
+        activityTestRule.runOnUiThread { model.size = 10 }
 
         takeScreenShot(30).apply {
             assertRect(color = white, size = 10)
@@ -178,8 +168,8 @@ class BoxWithConstraintsTest : LayoutTest() {
     }
 
     /**
-     * WithConstraints will cause a requestLayout during layout in some circumstances.
-     * The test here is the minimal example from a bug.
+     * WithConstraints will cause a requestLayout during layout in some circumstances. The test here
+     * is the minimal example from a bug.
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -188,9 +178,7 @@ class BoxWithConstraintsTest : LayoutTest() {
         show {
             Scroller(
                 modifier = Modifier.countdownLatchBackground(Color.Yellow),
-                onScrollPositionChanged = { position, _ ->
-                    offset.value = position
-                },
+                onScrollPositionChanged = { position, _ -> offset.value = position },
                 offset = offset
             ) {
                 // Need to pass some param here to a separate function or else it works fine
@@ -216,16 +204,17 @@ class BoxWithConstraintsTest : LayoutTest() {
                 // current frame and opens a new one. our model reads during measure()
                 // wasn't possible to survide Frames swicth previously so the model read
                 // within the child Layout wasn't recorded
-                val background = Modifier.paint(
-                    rememberVectorPainter(
-                        name = "testPainter",
-                        defaultWidth = 10.dp,
-                        defaultHeight = 10.dp,
-                        autoMirror = false
-                    ) { _, _ ->
-                        /* intentionally empty */
-                    }
-                )
+                val background =
+                    Modifier.paint(
+                        rememberVectorPainter(
+                            name = "testPainter",
+                            defaultWidth = 10.dp,
+                            defaultHeight = 10.dp,
+                            autoMirror = false
+                        ) { _, _ ->
+                            /* intentionally empty */
+                        }
+                    )
                 Layout(modifier = background, content = {}) { _, _ ->
                     // read the model
                     model.value
@@ -304,27 +293,29 @@ class BoxWithConstraintsTest : LayoutTest() {
         show {
             Container(width = 200, height = 200) {
                 BoxWithConstraints(
-                    modifier = Modifier.onGloballyPositioned {
-                        // OnPositioned can be fired multiple times with the same value
-                        // for example when requestLayout() was triggered on ComposeView.
-                        // if we called twice, let's make sure we got the correct values.
-                        assertTrue(withConstSize == null || withConstSize == it.size)
-                        withConstSize = it.size
-                        withConstLatch.countDown()
-                    }
-                ) {
-                    Container(
-                        width = size.value, height = size.value,
-                        modifier = Modifier.onGloballyPositioned {
+                    modifier =
+                        Modifier.onGloballyPositioned {
                             // OnPositioned can be fired multiple times with the same value
                             // for example when requestLayout() was triggered on ComposeView.
                             // if we called twice, let's make sure we got the correct values.
-                            assertTrue(childSize == null || childSize == it.size)
-                            childSize = it.size
-                            childLatch.countDown()
+                            assertTrue(withConstSize == null || withConstSize == it.size)
+                            withConstSize = it.size
+                            withConstLatch.countDown()
                         }
-                    ) {
-                    }
+                ) {
+                    Container(
+                        width = size.value,
+                        height = size.value,
+                        modifier =
+                            Modifier.onGloballyPositioned {
+                                // OnPositioned can be fired multiple times with the same value
+                                // for example when requestLayout() was triggered on ComposeView.
+                                // if we called twice, let's make sure we got the correct values.
+                                assertTrue(childSize == null || childSize == it.size)
+                                childSize = it.size
+                                childLatch.countDown()
+                            }
+                    ) {}
                 }
             }
         }
@@ -359,10 +350,8 @@ class BoxWithConstraintsTest : LayoutTest() {
                         val receivedConstraints = constraints
                         Container(100, 100, infiniteConstraints) {
                             Container(100, 100) {
-                                Layout(
-                                    {},
-                                    Modifier.countdownLatchBackground(Color.Yellow)
-                                ) { _, _ ->
+                                Layout({}, Modifier.countdownLatchBackground(Color.Yellow)) { _, _
+                                    ->
                                     // the same as the value inside ValueModel
                                     val size = receivedConstraints.maxWidth
                                     layout(size, size) {}
@@ -373,14 +362,10 @@ class BoxWithConstraintsTest : LayoutTest() {
                 }
             }
         }
-        takeScreenShot(100).apply {
-            assertRect(color = Color.Yellow)
-        }
+        takeScreenShot(100).apply { assertRect(color = Color.Yellow) }
 
         drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            model.value = 50
-        }
+        activityTestRule.runOnUiThread { model.value = 50 }
         takeScreenShot(100).apply {
             assertRect(color = Color.Red, holeSize = 50)
             assertRect(color = Color.Yellow, size = 50)
@@ -420,10 +405,7 @@ class BoxWithConstraintsTest : LayoutTest() {
         drawLatch = CountDownLatch(2)
 
         show {
-            Container(
-                100, 100,
-                modifier = Modifier.countdownLatchBackground(Color.Red)
-            ) {
+            Container(100, 100, modifier = Modifier.countdownLatchBackground(Color.Red)) {
                 // this component changes the constraints which triggers subcomposition
                 // within onMeasure block
                 ChangingConstraintsLayout(model) {
@@ -447,18 +429,12 @@ class BoxWithConstraintsTest : LayoutTest() {
                 }
             }
         }
-        takeScreenShot(100).apply {
-            assertRect(color = Color.Yellow)
-        }
+        takeScreenShot(100).apply { assertRect(color = Color.Yellow) }
 
         drawLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread {
-            model.value = 50
-        }
+        activityTestRule.runOnUiThread { model.value = 50 }
 
-        takeScreenShot(100).apply {
-            assertRect(color = Color.Red)
-        }
+        takeScreenShot(100).apply { assertRect(color = Color.Red) }
     }
 
     @Test
@@ -471,11 +447,12 @@ class BoxWithConstraintsTest : LayoutTest() {
         show {
             val state = remember { mutableStateOf(false) }
             var lastLayoutValue: Boolean = false
-            val drawModifier = Modifier.drawBehind {
-                // this verifies the layout was remeasured before being drawn
-                assertTrue(lastLayoutValue)
-                drawlatch.countDown()
-            }
+            val drawModifier =
+                Modifier.drawBehind {
+                    // this verifies the layout was remeasured before being drawn
+                    assertTrue(lastLayoutValue)
+                    drawlatch.countDown()
+                }
             Layout(content = {}, modifier = drawModifier) { _, _ ->
                 lastLayoutValue = state.value
                 // this registers the value read
@@ -502,32 +479,33 @@ class BoxWithConstraintsTest : LayoutTest() {
         show {
             assertEquals(1, outerComposeLatch.count)
             outerComposeLatch.countDown()
-            val content = @Composable {
-                Layout(
-                    content = {
-                        BoxWithConstraints {
-                            assertEquals(1, innerComposeLatch.count)
-                            innerComposeLatch.countDown()
-                            Layout(content = {}) { _, _ ->
-                                assertEquals(1, innerMeasureLatch.count)
-                                innerMeasureLatch.countDown()
-                                layout(100, 100) {
-                                    assertEquals(1, innerLayoutLatch.count)
-                                    innerLayoutLatch.countDown()
+            val content =
+                @Composable {
+                    Layout(
+                        content = {
+                            BoxWithConstraints {
+                                assertEquals(1, innerComposeLatch.count)
+                                innerComposeLatch.countDown()
+                                Layout(content = {}) { _, _ ->
+                                    assertEquals(1, innerMeasureLatch.count)
+                                    innerMeasureLatch.countDown()
+                                    layout(100, 100) {
+                                        assertEquals(1, innerLayoutLatch.count)
+                                        innerLayoutLatch.countDown()
+                                    }
                                 }
                             }
                         }
-                    }
-                ) { measurables, constraints ->
-                    assertEquals(1, outerMeasureLatch.count)
-                    outerMeasureLatch.countDown()
-                    layout(100, 100) {
-                        assertEquals(1, outerLayoutLatch.count)
-                        outerLayoutLatch.countDown()
-                        measurables.forEach { it.measure(constraints).place(0, 0) }
+                    ) { measurables, constraints ->
+                        assertEquals(1, outerMeasureLatch.count)
+                        outerMeasureLatch.countDown()
+                        layout(100, 100) {
+                            assertEquals(1, outerLayoutLatch.count)
+                            outerLayoutLatch.countDown()
+                            measurables.forEach { it.measure(constraints).place(0, 0) }
+                        }
                     }
                 }
-            }
 
             Layout(content) { measurables, _ ->
                 layout(100, 100) {
@@ -563,9 +541,7 @@ class BoxWithConstraintsTest : LayoutTest() {
                         layout(100, 100) {}
                     }
                 }
-                Container(100, 100) {
-                    BoxWithConstraints {}
-                }
+                Container(100, 100) { BoxWithConstraints {} }
             }
         }
 
@@ -616,20 +592,14 @@ class BoxWithConstraintsTest : LayoutTest() {
             if (emit) {
                 BoxWithConstraints {
                     composedLatch.countDown()
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            disposedLatch.countDown()
-                        }
-                    }
+                    DisposableEffect(Unit) { onDispose { disposedLatch.countDown() } }
                 }
             }
         }
 
         assertTrue(composedLatch.await(1, TimeUnit.SECONDS))
 
-        activityTestRule.runOnUiThread {
-            emit = false
-        }
+        activityTestRule.runOnUiThread { emit = false }
         assertTrue(disposedLatch.await(1, TimeUnit.SECONDS))
     }
 
@@ -642,27 +612,30 @@ class BoxWithConstraintsTest : LayoutTest() {
             val minHeightConstraint = 9.dp
             val maxHeightConstraint = 12.dp
             Layout(
-                content = @Composable {
-                    BoxWithConstraints {
-                        with(LocalDensity.current) {
-                            assertEquals(minWidthConstraint.roundToPx(), minWidth.roundToPx())
-                            assertEquals(maxWidthConstraint.roundToPx(), maxWidth.roundToPx())
-                            assertEquals(minHeightConstraint.roundToPx(), minHeight.roundToPx())
-                            assertEquals(maxHeightConstraint.roundToPx(), maxHeight.roundToPx())
+                content =
+                    @Composable {
+                        BoxWithConstraints {
+                            with(LocalDensity.current) {
+                                assertEquals(minWidthConstraint.roundToPx(), minWidth.roundToPx())
+                                assertEquals(maxWidthConstraint.roundToPx(), maxWidth.roundToPx())
+                                assertEquals(minHeightConstraint.roundToPx(), minHeight.roundToPx())
+                                assertEquals(maxHeightConstraint.roundToPx(), maxHeight.roundToPx())
+                            }
+                            latch.countDown()
                         }
-                        latch.countDown()
                     }
-                }
             ) { m, _ ->
                 layout(0, 0) {
-                    m.first().measure(
-                        Constraints(
-                            minWidth = minWidthConstraint.roundToPx(),
-                            maxWidth = maxWidthConstraint.roundToPx(),
-                            minHeight = minHeightConstraint.roundToPx(),
-                            maxHeight = maxHeightConstraint.roundToPx()
+                    m.first()
+                        .measure(
+                            Constraints(
+                                minWidth = minWidthConstraint.roundToPx(),
+                                maxWidth = maxWidthConstraint.roundToPx(),
+                                minHeight = minHeightConstraint.roundToPx(),
+                                maxHeight = maxHeightConstraint.roundToPx()
+                            )
                         )
-                    ).place(IntOffset.Zero)
+                        .place(IntOffset.Zero)
                 }
             }
         }
@@ -695,16 +668,12 @@ class BoxWithConstraintsTest : LayoutTest() {
 
     @Suppress("DEPRECATION")
     @RequiresApi(Build.VERSION_CODES.O)
-    fun ActivityTestRule<*>.waitAndScreenShot(
-        forceInvalidate: Boolean = true
-    ): Bitmap = waitAndScreenShot(findComposeView(), forceInvalidate)
+    fun ActivityTestRule<*>.waitAndScreenShot(forceInvalidate: Boolean = true): Bitmap =
+        waitAndScreenShot(findComposeView(), forceInvalidate)
 
     @Suppress("DEPRECATION")
     @RequiresApi(Build.VERSION_CODES.O)
-    fun ActivityTestRule<*>.waitAndScreenShot(
-        view: View,
-        forceInvalidate: Boolean = true
-    ): Bitmap {
+    fun ActivityTestRule<*>.waitAndScreenShot(view: View, forceInvalidate: Boolean = true): Bitmap {
         val flushListener = DrawCounterListener(view)
         val offset = intArrayOf(0, 0)
         var handler: Handler? = null
@@ -723,18 +692,18 @@ class BoxWithConstraintsTest : LayoutTest() {
         val width = view.width
         val height = view.height
 
-        val dest =
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val dest = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val srcRect = android.graphics.Rect(0, 0, width, height)
         srcRect.offset(offset[0], offset[1])
         val latch = CountDownLatch(1)
         var copyResult = 0
-        val onCopyFinished = object : PixelCopy.OnPixelCopyFinishedListener {
-            override fun onPixelCopyFinished(result: Int) {
-                copyResult = result
-                latch.countDown()
+        val onCopyFinished =
+            object : PixelCopy.OnPixelCopyFinishedListener {
+                override fun onPixelCopyFinished(result: Int) {
+                    copyResult = result
+                    latch.countDown()
+                }
             }
-        }
         PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler!!)
         assertTrue("Pixel copy latch timed out", latch.await(1, TimeUnit.SECONDS))
         assertEquals(PixelCopy.SUCCESS, copyResult)
@@ -749,29 +718,18 @@ class BoxWithConstraintsTest : LayoutTest() {
 
 @Composable
 private fun TestLayout(@Suppress("UNUSED_PARAMETER") someInput: Int) {
-    Layout(
-        content = {
-            BoxWithConstraints {
-                NeedsOtherMeasurementComposable(10)
-            }
-        }
-    ) { measurables, constraints ->
+    Layout(content = { BoxWithConstraints { NeedsOtherMeasurementComposable(10) } }) {
+        measurables,
+        constraints ->
         val withConstraintsPlaceable = measurables[0].measure(constraints)
 
-        layout(30, 30) {
-            withConstraintsPlaceable.place(10, 10)
-        }
+        layout(30, 30) { withConstraintsPlaceable.place(10, 10) }
     }
 }
 
 @Composable
 private fun NeedsOtherMeasurementComposable(foo: Int) {
-    Layout(
-        content = {},
-        modifier = Modifier.background(Color.Red)
-    ) { _, _ ->
-        layout(foo, foo) { }
-    }
+    Layout(content = {}, modifier = Modifier.background(Color.Red)) { _, _ -> layout(foo, foo) {} }
 }
 
 @Composable
@@ -779,48 +737,43 @@ fun Container(
     width: Int,
     height: Int,
     modifier: Modifier = Modifier,
-    content: @Composable () ->
-    Unit
-) {
-    Layout(
-        content = content,
-        modifier = modifier,
-        measurePolicy = remember(width, height) {
-            MeasurePolicy { measurables, _ ->
-                val constraint = Constraints(maxWidth = width, maxHeight = height)
-                layout(width, height) {
-                    measurables.forEach {
-                        val placeable = it.measure(constraint)
-                        placeable.place(
-                            (width - placeable.width) / 2,
-                            (height - placeable.height) / 2
-                        )
-                    }
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun ContainerChildrenAffectsParentSize(
-    width: Int,
-    height: Int,
     content: @Composable () -> Unit
 ) {
     Layout(
         content = content,
-        measurePolicy = remember(width, height) {
-            MeasurePolicy { measurables, _ ->
-                val constraint = Constraints(maxWidth = width, maxHeight = height)
-                val placeables = measurables.map { it.measure(constraint) }
-                layout(width, height) {
-                    placeables.forEach {
-                        it.place((width - width) / 2, (height - height) / 2)
+        modifier = modifier,
+        measurePolicy =
+            remember(width, height) {
+                MeasurePolicy { measurables, _ ->
+                    val constraint = Constraints(maxWidth = width, maxHeight = height)
+                    layout(width, height) {
+                        measurables.forEach {
+                            val placeable = it.measure(constraint)
+                            placeable.place(
+                                (width - placeable.width) / 2,
+                                (height - placeable.height) / 2
+                            )
+                        }
                     }
                 }
             }
-        }
+    )
+}
+
+@Composable
+fun ContainerChildrenAffectsParentSize(width: Int, height: Int, content: @Composable () -> Unit) {
+    Layout(
+        content = content,
+        measurePolicy =
+            remember(width, height) {
+                MeasurePolicy { measurables, _ ->
+                    val constraint = Constraints(maxWidth = width, maxHeight = height)
+                    val placeables = measurables.map { it.measure(constraint) }
+                    layout(width, height) {
+                        placeables.forEach { it.place((width - width) / 2, (height - height) / 2) }
+                    }
+                }
+            }
     )
 }
 
@@ -834,53 +787,47 @@ private fun ChangingConstraintsLayout(size: State<Int>, content: @Composable () 
     }
 }
 
-fun Modifier.background(color: Color): Modifier = drawBehind {
-    drawRect(color)
-}
+fun Modifier.background(color: Color): Modifier = drawBehind { drawRect(color) }
 
-val infiniteConstraints = object : LayoutModifier {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult {
-        val placeable = measurable.measure(Constraints())
-        return layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(0, 0)
+val infiniteConstraints =
+    object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints
+        ): MeasureResult {
+            val placeable = measurable.measure(Constraints())
+            return layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
         }
     }
-}
 
 @Composable
-internal fun Padding(
-    size: Int,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
+internal fun Padding(size: Int, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(
         modifier = modifier,
         measurePolicy = { measurables, constraints ->
             val totalDiff = size * 2
             val targetMinWidth = constraints.minWidth - totalDiff
-            val targetMaxWidth = if (constraints.hasBoundedWidth) {
-                constraints.maxWidth - totalDiff
-            } else {
-                Constraints.Infinity
-            }
+            val targetMaxWidth =
+                if (constraints.hasBoundedWidth) {
+                    constraints.maxWidth - totalDiff
+                } else {
+                    Constraints.Infinity
+                }
             val targetMinHeight = constraints.minHeight - totalDiff
-            val targetMaxHeight = if (constraints.hasBoundedHeight) {
-                constraints.maxHeight - totalDiff
-            } else {
-                Constraints.Infinity
-            }
-            val newConstraints = Constraints(
-                minWidth = targetMinWidth.coerceAtLeast(0),
-                maxWidth = targetMaxWidth.coerceAtLeast(0),
-                minHeight = targetMinHeight.coerceAtLeast(0),
-                maxHeight = targetMaxHeight.coerceAtLeast(0)
-            )
-            val placeables = measurables.map { m ->
-                m.measure(newConstraints)
-            }
+            val targetMaxHeight =
+                if (constraints.hasBoundedHeight) {
+                    constraints.maxHeight - totalDiff
+                } else {
+                    Constraints.Infinity
+                }
+            val newConstraints =
+                Constraints(
+                    minWidth = targetMinWidth.coerceAtLeast(0),
+                    maxWidth = targetMaxWidth.coerceAtLeast(0),
+                    minHeight = targetMinHeight.coerceAtLeast(0),
+                    maxHeight = targetMaxHeight.coerceAtLeast(0)
+                )
+            val placeables = measurables.map { m -> m.measure(newConstraints) }
             var maxWidth = size
             var maxHeight = size
             placeables.forEach { child ->
@@ -888,9 +835,7 @@ internal fun Padding(
                 maxWidth = max(child.width + totalDiff, maxWidth)
             }
             layout(maxWidth, maxHeight) {
-                placeables.forEach { child ->
-                    child.placeRelative(size, size)
-                }
+                placeables.forEach { child -> child.placeRelative(size, size) }
             }
         },
         content = content
@@ -911,9 +856,7 @@ fun Bitmap.assertRect(
     val halfHoleSize = holeSize / 2
     for (x in centerX - size / 2 until centerX + size / 2) {
         for (y in centerY - size / 2 until centerY + size / 2) {
-            if (abs(x - centerX) > halfHoleSize &&
-                abs(y - centerY) > halfHoleSize
-            ) {
+            if (abs(x - centerX) > halfHoleSize && abs(y - centerY) > halfHoleSize) {
                 val currentColor = Color(getPixel(x, y))
                 assertColorsEqual(color, currentColor)
             }
@@ -948,10 +891,8 @@ private fun ScrollerLayout(
     content: @Composable () -> Unit
 ) {
     Layout(modifier = modifier, content = content) { measurables, constraints ->
-        val childConstraints = constraints.copy(
-            maxHeight = constraints.maxHeight,
-            maxWidth = Constraints.Infinity
-        )
+        val childConstraints =
+            constraints.copy(maxHeight = constraints.maxHeight, maxWidth = Constraints.Infinity)
         val childMeasurable = measurables.first()
         val placeable = childMeasurable.measure(childConstraints)
         val width = min(placeable.width, constraints.maxWidth)
@@ -962,8 +903,7 @@ private fun ScrollerLayout(
     }
 }
 
-class DrawCounterListener(private val view: View) :
-    ViewTreeObserver.OnPreDrawListener {
+class DrawCounterListener(private val view: View) : ViewTreeObserver.OnPreDrawListener {
     val latch = CountDownLatch(5)
 
     override fun onPreDraw(): Boolean {

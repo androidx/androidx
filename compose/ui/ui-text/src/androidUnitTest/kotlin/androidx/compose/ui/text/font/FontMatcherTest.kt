@@ -52,82 +52,84 @@ class FontMatcherTest {
 
     @Test
     fun `family with single italic font matches`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(FONT_100_ITALIC),
-            FontWeight.W100,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher().matchFont(FontFamily(FONT_100_ITALIC), FontWeight.W100, FontStyle.Italic)
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC))
     }
 
     @Test
     fun `family with fallback italic font matches`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK),
-            FontWeight.W100,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK),
+                    FontWeight.W100,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK))
     }
 
     @Test
     fun `family with single normal font matches`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(FONT_100_REGULAR),
-            FontWeight.W100,
-            FontStyle.Normal
-        )
+        val font =
+            FontMatcher().matchFont(FontFamily(FONT_100_REGULAR), FontWeight.W100, FontStyle.Normal)
 
         assertThat(font).isEqualTo(listOf(FONT_100_REGULAR))
     }
 
     @Test
     fun `italic query against family with multiple fonts matches`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_100_ITALIC,
-                FONT_200_REGULAR,
-                FONT_200_ITALIC
-            ),
-            FontWeight.W200,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_100_ITALIC,
+                        FONT_200_REGULAR,
+                        FONT_200_ITALIC
+                    ),
+                    FontWeight.W200,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_200_ITALIC))
     }
 
     @Test
     fun `italic query against family with multiple fonts and fallback matches`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_100_ITALIC,
-                FONT_200_REGULAR,
-                FONT_200_ITALIC,
-                FONT_200_ITALIC_FALLBACK
-            ),
-            FontWeight.W200,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_100_ITALIC,
+                        FONT_200_REGULAR,
+                        FONT_200_ITALIC,
+                        FONT_200_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W200,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_200_ITALIC, FONT_200_ITALIC_FALLBACK))
     }
 
     @Test
     fun `normal style query against family with multiple fonts matches`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_200_ITALIC,
-                FONT_200_REGULAR,
-                FONT_300_REGULAR
-            ),
-            FontWeight.W200,
-            FontStyle.Normal
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_200_ITALIC,
+                        FONT_200_REGULAR,
+                        FONT_300_REGULAR
+                    ),
+                    FontWeight.W200,
+                    FontStyle.Normal
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_200_REGULAR))
     }
@@ -140,17 +142,19 @@ class FontMatcherTest {
         //     descending order
         // --> followed by weights above the desired weight in ascending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_100_ITALIC,
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_400_ITALIC
-            ),
-            FontWeight.W300,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_100_ITALIC,
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_400_ITALIC
+                    ),
+                    FontWeight.W300,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC))
     }
@@ -163,18 +167,20 @@ class FontMatcherTest {
         //     descending order
         // --> followed by weights above the desired weight in ascending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_100_ITALIC,
-                FONT_100_ITALIC_FALLBACK,
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_400_ITALIC
-            ),
-            FontWeight.W300,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_100_ITALIC,
+                        FONT_100_ITALIC_FALLBACK,
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_400_ITALIC
+                    ),
+                    FontWeight.W300,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK))
     }
@@ -187,17 +193,19 @@ class FontMatcherTest {
         //     descending order
         // --> (THIS TEST) followed by weights above the desired weight in ascending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_200_REGULAR,
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_400_ITALIC
-            ),
-            FontWeight.W200,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_200_REGULAR,
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_400_ITALIC
+                    ),
+                    FontWeight.W200,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC))
     }
@@ -210,18 +218,20 @@ class FontMatcherTest {
         //     descending order
         // --> (THIS TEST) followed by weights above the desired weight in ascending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_200_REGULAR,
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_400_ITALIC,
-                FONT_400_ITALIC_FALLBACK
-            ),
-            FontWeight.W200,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_200_REGULAR,
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_400_ITALIC,
+                        FONT_400_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W200,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC, FONT_400_ITALIC_FALLBACK))
     }
@@ -234,19 +244,21 @@ class FontMatcherTest {
         //     ascending order
         // --> followed by weights below the desired weight in descending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_ITALIC,
-                FONT_300_ITALIC,
-                FONT_400_ITALIC,
-                FONT_600_REGULAR,
-                FONT_700_REGULAR,
-                FONT_800_REGULAR,
-                FONT_800_ITALIC
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_ITALIC,
+                        FONT_300_ITALIC,
+                        FONT_400_ITALIC,
+                        FONT_600_REGULAR,
+                        FONT_700_REGULAR,
+                        FONT_800_REGULAR,
+                        FONT_800_ITALIC
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_800_ITALIC))
     }
@@ -259,20 +271,22 @@ class FontMatcherTest {
         //     ascending order
         // --> followed by weights below the desired weight in descending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_ITALIC,
-                FONT_300_ITALIC,
-                FONT_400_ITALIC,
-                FONT_600_REGULAR,
-                FONT_700_REGULAR,
-                FONT_800_REGULAR,
-                FONT_800_ITALIC,
-                FONT_800_ITALIC_FALLBACK
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_ITALIC,
+                        FONT_300_ITALIC,
+                        FONT_400_ITALIC,
+                        FONT_600_REGULAR,
+                        FONT_700_REGULAR,
+                        FONT_800_REGULAR,
+                        FONT_800_ITALIC,
+                        FONT_800_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_800_ITALIC, FONT_800_ITALIC_FALLBACK))
     }
@@ -285,18 +299,20 @@ class FontMatcherTest {
         //     ascending order
         // --> (THIS TEST) followed by weights below the desired weight in descending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_400_REGULAR,
-                FONT_400_ITALIC,
-                FONT_500_REGULAR,
-                FONT_600_REGULAR,
-                FONT_700_REGULAR
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_ITALIC,
+                        FONT_400_REGULAR,
+                        FONT_400_ITALIC,
+                        FONT_500_REGULAR,
+                        FONT_600_REGULAR,
+                        FONT_700_REGULAR
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC))
     }
@@ -309,20 +325,22 @@ class FontMatcherTest {
         //     ascending order
         // --> (THIS TEST) followed by weights below the desired weight in descending order
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_400_REGULAR,
-                FONT_400_REGULAR_FALLBACK,
-                FONT_400_ITALIC,
-                FONT_400_ITALIC_FALLBACK,
-                FONT_500_REGULAR,
-                FONT_600_REGULAR,
-                FONT_700_REGULAR
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_ITALIC,
+                        FONT_400_REGULAR,
+                        FONT_400_REGULAR_FALLBACK,
+                        FONT_400_ITALIC,
+                        FONT_400_ITALIC_FALLBACK,
+                        FONT_500_REGULAR,
+                        FONT_600_REGULAR,
+                        FONT_700_REGULAR
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC, FONT_400_ITALIC_FALLBACK))
     }
@@ -336,17 +354,19 @@ class FontMatcherTest {
         // --> followed by weights less than the target weight in descending order
         // --> followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_500_ITALIC,
-                FONT_600_ITALIC
-            ),
-            FontWeight.W400,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_ITALIC,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_500_ITALIC,
+                        FONT_600_ITALIC
+                    ),
+                    FontWeight.W400,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_500_ITALIC))
     }
@@ -360,18 +380,20 @@ class FontMatcherTest {
         // --> followed by weights less than the target weight in descending order
         // --> followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_500_ITALIC,
-                FONT_600_ITALIC,
-                FONT_500_ITALIC_FALLBACK
-            ),
-            FontWeight.W400,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_ITALIC,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_500_ITALIC,
+                        FONT_600_ITALIC,
+                        FONT_500_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W400,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_500_ITALIC, FONT_500_ITALIC_FALLBACK))
     }
@@ -385,15 +407,13 @@ class FontMatcherTest {
         // --> (THIS TEST) followed by weights less than the target weight in descending order
         // --> followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC
-            ),
-            FontWeight.W400,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(FONT_300_ITALIC, FONT_500_REGULAR, FONT_600_ITALIC),
+                    FontWeight.W400,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC))
     }
@@ -407,16 +427,18 @@ class FontMatcherTest {
         // --> (THIS TEST) followed by weights less than the target weight in descending order
         // --> followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC,
-                FONT_300_ITALIC_FALLBACK
-            ),
-            FontWeight.W400,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_ITALIC,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC,
+                        FONT_300_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W400,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC, FONT_300_ITALIC_FALLBACK))
     }
@@ -430,15 +452,13 @@ class FontMatcherTest {
         // --> (THIS TEST) followed by weights less than the target weight in descending order
         // --> followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC
-            ),
-            FontWeight.W500,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(FONT_300_ITALIC, FONT_500_REGULAR, FONT_600_ITALIC),
+                    FontWeight.W500,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC))
     }
@@ -452,16 +472,18 @@ class FontMatcherTest {
         // --> (THIS TEST) followed by weights less than the target weight in descending order
         // --> followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_ITALIC,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC,
-                FONT_300_ITALIC_FALLBACK
-            ),
-            FontWeight.W500,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_ITALIC,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC,
+                        FONT_300_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W500,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC, FONT_300_ITALIC_FALLBACK))
     }
@@ -475,16 +497,18 @@ class FontMatcherTest {
         // --> followed by weights less than the target weight in descending order
         // --> (THIS TEST) followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC
-            ),
-            FontWeight.W400,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC
+                    ),
+                    FontWeight.W400,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC))
     }
@@ -498,17 +522,19 @@ class FontMatcherTest {
         // --> followed by weights less than the target weight in descending order
         // --> (THIS TEST) followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC,
-                FONT_600_ITALIC_FALLBACK
-            ),
-            FontWeight.W400,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC,
+                        FONT_600_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W400,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC, FONT_600_ITALIC_FALLBACK))
     }
@@ -522,16 +548,18 @@ class FontMatcherTest {
         // --> followed by weights less than the target weight in descending order
         // --> (THIS TEST) followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC
-            ),
-            FontWeight.W500,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC
+                    ),
+                    FontWeight.W500,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC))
     }
@@ -545,151 +573,165 @@ class FontMatcherTest {
         // --> followed by weights less than the target weight in descending order
         // --> (THIS TEST) followed by weights greater than 500,
         // until a match is found.
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_300_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC,
-                FONT_600_ITALIC_FALLBACK
-            ),
-            FontWeight.W500,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_300_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC,
+                        FONT_600_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W500,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC, FONT_600_ITALIC_FALLBACK))
     }
 
     @Test
     fun `italic style returns another italic if exists`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_200_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC
-            ),
-            FontWeight.W100,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_200_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC
+                    ),
+                    FontWeight.W100,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC))
     }
 
     @Test
     fun `italic style returns another italic and fallback if exists`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_REGULAR,
-                FONT_200_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_ITALIC,
-                FONT_600_ITALIC_FALLBACK
-            ),
-            FontWeight.W100,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_REGULAR,
+                        FONT_200_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_ITALIC,
+                        FONT_600_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W100,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC, FONT_600_ITALIC_FALLBACK))
     }
 
     @Test
     fun `italic style returns another italic if exists even when smaller`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_ITALIC,
-                FONT_200_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_REGULAR
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_ITALIC,
+                        FONT_200_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_REGULAR
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC))
     }
 
     @Test
     fun `italic style returns another italic and fallback if exists even when smaller`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_100_ITALIC,
-                FONT_200_REGULAR,
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_REGULAR,
-                FONT_100_ITALIC_FALLBACK
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_100_ITALIC,
+                        FONT_200_REGULAR,
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_REGULAR,
+                        FONT_100_ITALIC_FALLBACK
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK))
     }
 
     @Test
     fun `italic style returns same weight regular if no other italic exists`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_200_REGULAR,
-                FONT_300_REGULAR,
-                FONT_400_REGULAR
-            ),
-            FontWeight.W300,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(FONT_200_REGULAR, FONT_300_REGULAR, FONT_400_REGULAR),
+                    FontWeight.W300,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_300_REGULAR))
     }
 
     @Test
     fun `italic style returns same weight regular and fallback if no other italic exists`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_200_REGULAR,
-                FONT_300_REGULAR,
-                FONT_300_REGULAR_FALLBACK,
-                FONT_400_REGULAR
-            ),
-            FontWeight.W300,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_200_REGULAR,
+                        FONT_300_REGULAR,
+                        FONT_300_REGULAR_FALLBACK,
+                        FONT_400_REGULAR
+                    ),
+                    FontWeight.W300,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_300_REGULAR, FONT_300_REGULAR_FALLBACK))
     }
 
     @Test
     fun `italic style at 600 returns larger weight regular if no other italic exists`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_REGULAR,
-                FONT_700_REGULAR
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_REGULAR,
+                        FONT_700_REGULAR
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_REGULAR))
     }
 
     @Test
     fun `italic style at 600 returns larger weight regular and fallback if no other italic`() {
-        val font = FontMatcher().matchFont(
-            FontFamily(
-                FONT_400_REGULAR,
-                FONT_500_REGULAR,
-                FONT_600_REGULAR,
-                FONT_700_REGULAR,
-                FONT_600_REGULAR_FALLBACK
-            ),
-            FontWeight.W600,
-            FontStyle.Italic
-        )
+        val font =
+            FontMatcher()
+                .matchFont(
+                    FontFamily(
+                        FONT_400_REGULAR,
+                        FONT_500_REGULAR,
+                        FONT_600_REGULAR,
+                        FONT_700_REGULAR,
+                        FONT_600_REGULAR_FALLBACK
+                    ),
+                    FontWeight.W600,
+                    FontStyle.Italic
+                )
 
         assertThat(font).isEqualTo(listOf(FONT_600_REGULAR, FONT_600_REGULAR_FALLBACK))
     }
@@ -701,14 +743,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = null,
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = null,
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 417 })
@@ -721,14 +764,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = false,
-                minSearchRange = null,
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = false,
+                    minSearchRange = null,
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 417 })
@@ -745,14 +789,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = false,
-                minSearchRange = null,
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = false,
+                    minSearchRange = null,
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 418 })
@@ -765,14 +810,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = false,
-                minSearchRange = null,
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = false,
+                    minSearchRange = null,
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 416 })
@@ -789,14 +835,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = null,
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = null,
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 416 })
@@ -809,14 +856,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = null,
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = null,
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 418 })
@@ -829,14 +877,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = FontWeight(450),
-                maxSearchRange = null
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = FontWeight(450),
+                    maxSearchRange = null
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 450 })
@@ -849,14 +898,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = null,
-                maxSearchRange = FontWeight(401),
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = null,
+                    maxSearchRange = FontWeight(401),
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 401 })
@@ -869,14 +919,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = FontWeight(500),
-                maxSearchRange = FontWeight(400),
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = FontWeight(500),
+                    maxSearchRange = FontWeight(400),
+                )
+            }
 
         assertThat(result).isEmpty()
     }
@@ -888,14 +939,15 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = FontWeight(900),
-                maxSearchRange = FontWeight(900),
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = FontWeight(900),
+                    maxSearchRange = FontWeight(900),
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 900 })
@@ -908,24 +960,26 @@ class FontMatcherTest {
             fonts.add(FontForWeight(weight))
             fonts.add(FontForWeight(weight))
         }
-        val result = with(FontMatcher()) {
-            fonts.filterByClosestWeight(
-                fontWeight = FontWeight(417),
-                preferBelow = true,
-                minSearchRange = FontWeight(100),
-                maxSearchRange = FontWeight(100),
-            )
-        }
+        val result =
+            with(FontMatcher()) {
+                fonts.filterByClosestWeight(
+                    fontWeight = FontWeight(417),
+                    preferBelow = true,
+                    minSearchRange = FontWeight(100),
+                    maxSearchRange = FontWeight(100),
+                )
+            }
 
         assertThat(result).hasSize(2)
         assertThat(result).containsExactlyElementsIn(fonts.filter { it.weight.weight == 100 })
     }
 
-    private fun FontForWeight(it: Int) = object : Font {
-        override val weight: FontWeight = FontWeight(it)
-        override val style: FontStyle = FontStyle.Normal
+    private fun FontForWeight(it: Int) =
+        object : Font {
+            override val weight: FontWeight = FontWeight(it)
+            override val style: FontStyle = FontStyle.Normal
 
-        @ExperimentalTextApi
-        override val loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking
-    }
+            @ExperimentalTextApi
+            override val loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking
+        }
 }

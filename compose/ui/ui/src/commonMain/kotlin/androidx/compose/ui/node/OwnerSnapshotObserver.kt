@@ -69,9 +69,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    /**
-     * Observe snapshot reads during layout of [node], executed in [block].
-     */
+    /** Observe snapshot reads during layout of [node], executed in [block]. */
     internal fun observeLayoutSnapshotReads(
         node: LayoutNode,
         affectsLookahead: Boolean = true,
@@ -84,9 +82,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    /**
-     * Observe snapshot reads during layout of [node]'s LayoutModifiers, executed in [block].
-     */
+    /** Observe snapshot reads during layout of [node]'s LayoutModifiers, executed in [block]. */
     internal fun observeLayoutModifierSnapshotReads(
         node: LayoutNode,
         affectsLookahead: Boolean = true,
@@ -99,9 +95,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    /**
-     * Observe snapshot reads during measure of [node], executed in [block].
-     */
+    /** Observe snapshot reads during measure of [node], executed in [block]. */
     internal fun observeMeasureSnapshotReads(
         node: LayoutNode,
         affectsLookahead: Boolean = true,
@@ -114,16 +108,13 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
         }
     }
 
-    internal fun observeSemanticsReads(
-        node: LayoutNode,
-        block: () -> Unit
-    ) {
+    internal fun observeSemanticsReads(node: LayoutNode, block: () -> Unit) {
         observeReads(node, onCommitAffectingSemantics, block)
     }
 
     /**
-     * Observe snapshot reads for any target, allowing consumers to determine how to respond
-     * to state changes.
+     * Observe snapshot reads for any target, allowing consumers to determine how to respond to
+     * state changes.
      */
     internal fun <T : OwnerScope> observeReads(
         target: T,

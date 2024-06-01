@@ -25,19 +25,13 @@ import android.view.MotionEvent
 actual value class MouseButton(val buttonId: Int) {
     @ExperimentalTestApi
     actual companion object {
-        /**
-         * The left mouse button
-         */
+        /** The left mouse button */
         actual val Primary = MouseButton(MotionEvent.BUTTON_PRIMARY)
 
-        /**
-         * The right mouse button
-         */
+        /** The right mouse button */
         actual val Secondary = MouseButton(MotionEvent.BUTTON_SECONDARY)
 
-        /**
-         * The middle mouse button
-         */
+        /** The middle mouse button */
         actual val Tertiary = MouseButton(MotionEvent.BUTTON_TERTIARY)
     }
 }

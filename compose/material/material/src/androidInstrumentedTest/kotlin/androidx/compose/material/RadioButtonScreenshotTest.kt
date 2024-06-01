@@ -56,17 +56,16 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalTestApi::class)
 class RadioButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
-    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
-        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-    }
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     private val wrap = Modifier.wrapContentSize(Alignment.TopStart)
 
@@ -77,9 +76,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_selected() {
         rule.setMaterialContent {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = true, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = true, onClick = {}) }
         }
         assertSelectableAgainstGolden("radioButton_selected")
     }
@@ -87,9 +84,7 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_notSelected() {
         rule.setMaterialContent {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = false, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
         }
         assertSelectableAgainstGolden("radioButton_notSelected")
     }
@@ -97,13 +92,9 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_pressed() {
         rule.setMaterialContent {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = false, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
         }
-        rule.onNodeWithTag(wrapperTestTag).performTouchInput {
-            down(center)
-        }
+        rule.onNodeWithTag(wrapperTestTag).performTouchInput { down(center) }
 
         // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
         // synchronization. Instead just wait until after the ripples are finished animating.
@@ -115,13 +106,9 @@ class RadioButtonScreenshotTest {
     @Test
     fun radioButtonTest_hovered() {
         rule.setMaterialContent {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = false, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
         }
-        rule.onNodeWithTag(wrapperTestTag).performMouseInput {
-            enter(center)
-        }
+        rule.onNodeWithTag(wrapperTestTag).performMouseInput { enter(center) }
 
         assertSelectableAgainstGolden("radioButton_hovered")
     }
@@ -137,8 +124,7 @@ class RadioButtonScreenshotTest {
                 RadioButton(
                     selected = false,
                     onClick = {},
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester)
                 )
             }
         }
@@ -188,10 +174,14 @@ class RadioButtonScreenshotTest {
 
         rule.mainClock.autoAdvance = false
 
-        rule.onNode(isSelectable())
+        rule
+            .onNode(isSelectable())
             // split click into (down) and (move, up) to enforce a composition in between
             .performTouchInput { down(center) }
-            .performTouchInput { move(); up() }
+            .performTouchInput {
+                move()
+                up()
+            }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
@@ -218,10 +208,14 @@ class RadioButtonScreenshotTest {
 
         rule.mainClock.autoAdvance = false
 
-        rule.onNode(isSelectable())
+        rule
+            .onNode(isSelectable())
             // split click into (down) and (move, up) to enforce a composition in between
             .performTouchInput { down(center) }
-            .performTouchInput { move(); up() }
+            .performTouchInput {
+                move()
+                up()
+            }
 
         rule.mainClock.advanceTimeByFrame()
         rule.waitForIdle() // Wait for measure
@@ -236,7 +230,8 @@ class RadioButtonScreenshotTest {
 
     private fun assertSelectableAgainstGolden(goldenName: String) {
         // TODO: replace with find(isInMutuallyExclusiveGroup()) after b/157687898 is fixed
-        rule.onNodeWithTag(wrapperTestTag)
+        rule
+            .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }

@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class DateInputTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun dateInput() {
@@ -57,10 +56,11 @@ class DateInputTest {
             defaultHeadline = getString(string = Strings.DateInputHeadline)
             dateInputLabel = getString(string = Strings.DateInputLabel)
             val monthInUtcMillis = dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 1)
-            state = rememberDatePickerState(
-                initialDisplayedMonthMillis = monthInUtcMillis,
-                initialDisplayMode = DisplayMode.Input
-            )
+            state =
+                rememberDatePickerState(
+                    initialDisplayedMonthMillis = monthInUtcMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
             DatePicker(state = state)
         }
 
@@ -70,13 +70,8 @@ class DateInputTest {
         rule.onNodeWithText(dateInputLabel).performClick().performTextInput("01272019")
 
         rule.runOnIdle {
-            assertThat(state.selectedDateMillis).isEqualTo(
-                dayInUtcMilliseconds(
-                    year = 2019,
-                    month = 1,
-                    dayOfMonth = 27
-                )
-            )
+            assertThat(state.selectedDateMillis)
+                .isEqualTo(dayInUtcMilliseconds(year = 2019, month = 1, dayOfMonth = 27))
         }
 
         rule.onNodeWithText(defaultHeadline).assertDoesNotExist()
@@ -88,10 +83,11 @@ class DateInputTest {
         lateinit var state: DatePickerState
         rule.setMaterialContent(lightColorScheme()) {
             val initialDateMillis = dayInUtcMilliseconds(year = 2010, month = 5, dayOfMonth = 11)
-            state = rememberDatePickerState(
-                initialSelectedDateMillis = initialDateMillis,
-                initialDisplayMode = DisplayMode.Input
-            )
+            state =
+                rememberDatePickerState(
+                    initialSelectedDateMillis = initialDateMillis,
+                    initialDisplayMode = DisplayMode.Input
+                )
             DatePicker(state = state)
         }
 
@@ -107,28 +103,25 @@ class DateInputTest {
         rule.setMaterialContent(lightColorScheme()) {
             dateInputLabel = getString(string = Strings.DateInputLabel)
             errorMessage = getString(string = Strings.DateInputInvalidNotAllowed)
-            state = rememberDatePickerState(
-                initialDisplayMode = DisplayMode.Input,
-                selectableDates = object : SelectableDates {
-                    // All dates are invalid for the sake of this test.
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
-                })
+            state =
+                rememberDatePickerState(
+                    initialDisplayMode = DisplayMode.Input,
+                    selectableDates =
+                        object : SelectableDates {
+                            // All dates are invalid for the sake of this test.
+                            override fun isSelectableDate(utcTimeMillis: Long): Boolean = false
+                        }
+                )
             DatePicker(state = state)
         }
 
         rule.onNodeWithText(dateInputLabel).performClick().performTextInput("02272020")
 
-        rule.runOnIdle {
-            assertThat(state.selectedDateMillis).isNull()
-        }
-        rule.onNodeWithText("02/27/2020")
+        rule.runOnIdle { assertThat(state.selectedDateMillis).isNull() }
+        rule
+            .onNodeWithText("02/27/2020")
             .assert(keyIsDefined(SemanticsProperties.Error))
-            .assert(
-                expectValue(
-                    SemanticsProperties.Error,
-                    errorMessage.format("Feb 27, 2020")
-                )
-            )
+            .assert(expectValue(SemanticsProperties.Error, errorMessage.format("Feb 27, 2020")))
     }
 
     @Test
@@ -139,28 +132,25 @@ class DateInputTest {
         rule.setMaterialContent(lightColorScheme()) {
             dateInputLabel = getString(string = Strings.DateInputLabel)
             errorMessage = getString(string = Strings.DateInputInvalidYearRange)
-            state = rememberDatePickerState(
-                // Limit the years selection to 2018-2023
-                yearRange = IntRange(2018, 2023),
-                initialDisplayMode = DisplayMode.Input
-            )
+            state =
+                rememberDatePickerState(
+                    // Limit the years selection to 2018-2023
+                    yearRange = IntRange(2018, 2023),
+                    initialDisplayMode = DisplayMode.Input
+                )
             DatePicker(state = state)
         }
 
         rule.onNodeWithText(dateInputLabel).performClick().performTextInput("02272030")
 
-        rule.runOnIdle {
-            assertThat(state.selectedDateMillis).isNull()
-        }
-        rule.onNodeWithText("02/27/2030")
+        rule.runOnIdle { assertThat(state.selectedDateMillis).isNull() }
+        rule
+            .onNodeWithText("02/27/2030")
             .assert(keyIsDefined(SemanticsProperties.Error))
             .assert(
                 expectValue(
                     SemanticsProperties.Error,
-                    errorMessage.format(
-                        state.yearRange.first,
-                        state.yearRange.last
-                    )
+                    errorMessage.format(state.yearRange.first, state.yearRange.last)
                 )
             )
     }
@@ -180,10 +170,9 @@ class DateInputTest {
 
         rule.onNodeWithText(dateInputLabel).performClick().performTextInput("99272030")
 
-        rule.runOnIdle {
-            assertThat(state.selectedDateMillis).isNull()
-        }
-        rule.onNodeWithText("99/27/2030")
+        rule.runOnIdle { assertThat(state.selectedDateMillis).isNull() }
+        rule
+            .onNodeWithText("99/27/2030")
             .assert(keyIsDefined(SemanticsProperties.Error))
             .assert(expectValue(SemanticsProperties.Error, errorMessage))
     }
@@ -202,9 +191,11 @@ class DateInputTest {
         rule.onNodeWithContentDescription(label = switchToPickerDescription).performClick()
 
         rule.waitForIdle()
-        rule.onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
+        rule
+            .onNodeWithContentDescription(label = "next", substring = true, ignoreCase = true)
             .assertIsDisplayed()
-        rule.onNodeWithContentDescription(label = "previous", substring = true, ignoreCase = true)
+        rule
+            .onNodeWithContentDescription(label = "previous", substring = true, ignoreCase = true)
             .assertIsDisplayed()
         rule.onNodeWithText(dateInputLabel).assertDoesNotExist()
     }
@@ -217,21 +208,24 @@ class DateInputTest {
             // e.g. "Entered date: %1$s"
             expectedHeadlineStringFormat = getString(Strings.DateInputHeadlineDescription)
             DatePicker(
-                state = rememberDatePickerState(
-                    initialSelectedDateMillis = selectedDateInUtcMillis,
-                    initialDisplayMode = DisplayMode.Input
-                )
+                state =
+                    rememberDatePickerState(
+                        initialSelectedDateMillis = selectedDateInUtcMillis,
+                        initialDisplayMode = DisplayMode.Input
+                    )
             )
         }
 
-        val fullDateDescription = formatWithSkeleton(
-            selectedDateInUtcMillis,
-            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US,
-            cache = mutableMapOf()
-        )
+        val fullDateDescription =
+            formatWithSkeleton(
+                selectedDateInUtcMillis,
+                DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+                Locale.US,
+                cache = mutableMapOf()
+            )
 
-        rule.onNodeWithText("May 11, 2010")
+        rule
+            .onNodeWithText("May 11, 2010")
             .assertContentDescriptionEquals(
                 expectedHeadlineStringFormat.format(fullDateDescription)
             )

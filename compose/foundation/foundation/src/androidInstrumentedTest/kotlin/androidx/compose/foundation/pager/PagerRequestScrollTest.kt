@@ -46,9 +46,7 @@ import org.junit.runners.Parameterized
 class PagerRequestScrollTest(private val orientation: Orientation) :
     BasePagerTest(ParamConfig(orientation)) {
 
-    private val proposedPageSize = with(rule.density) {
-        100.toDp()
-    }
+    private val proposedPageSize = with(rule.density) { 100.toDp() }
 
     @Test
     fun requestScrollToPage_withIndex0_pagesPrepended_scrollsToNewCurrentPage() {
@@ -63,27 +61,22 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { it }) {
+                key = { it }
+            ) {
                 Page(remember { "$it" })
 
-                Snapshot.withoutReadObservation {
-                    state.requestScrollToPage(page = 0)
-                }
+                Snapshot.withoutReadObservation { state.requestScrollToPage(page = 0) }
             }
         }
 
         // When the list is updated by prepending from 0 to 9, such that the new list contains
         // from 0 to 15.
-        rule.runOnIdle {
-            list = (0..15).toList()
-        }
+        rule.runOnIdle { list = (0..15).toList() }
 
         // Then we are scrolled to the start where the visible pages are 0, 1, and 2.
         rule.runOnIdle {
             Truth.assertThat(state.currentPage).isEqualTo(0)
-            Truth.assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(0, 1, 2))
+            Truth.assertThat(state.visibleKeys).isEqualTo(listOf(0, 1, 2))
         }
     }
 
@@ -109,10 +102,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
             fun TestContent(list: List<Int>) {
                 state = rememberPagerState { list.size }
                 HorizontalOrVerticalPager(
-                    modifier = Modifier
-                        .width(listSize)
-                        .height(listSize)
-                        .testTag(PagerTestTag),
+                    modifier = Modifier.width(listSize).height(listSize).testTag(PagerTestTag),
                     pageSize = PageSize.Fixed(proposedPageSize),
                     state = state,
                     reverseLayout = true,
@@ -127,9 +117,11 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                         // This scrolls to the start of the first page.
                         state.requestScrollToPage(
                             page = 1,
-                            pageOffsetFraction = with(rule.density) {
-                                -listSize.roundToPx() / state.pageSizeWithSpacing.toFloat()
-                            })
+                            pageOffsetFraction =
+                                with(rule.density) {
+                                    -listSize.roundToPx() / state.pageSizeWithSpacing.toFloat()
+                                }
+                        )
                     }
                 }
             }
@@ -139,9 +131,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
         onPager().performScrollToIndex(0)
 
         // When the list is updated, prepending pages 0 to 2 so the list contains from 0 to 30.
-        rule.runOnIdle {
-            list = (0..30).toList()
-        }
+        rule.runOnIdle { list = (0..30).toList() }
 
         // Then the current page has index 0, its key is 0, and it's scrolled to the start
         // of that page (since we're laying out from bottom-to-top/right-to-left, we want the offset
@@ -155,9 +145,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                             state.pageSizeWithSpacing
                     )
             }
-            Truth.assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(0))
+            Truth.assertThat(state.visibleKeys).isEqualTo(listOf(0))
         }
     }
 
@@ -184,9 +172,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                     Page(remember { "$it" })
                 }
 
-                SideEffect {
-                    state.requestScrollToPage(page = state.currentPage)
-                }
+                SideEffect { state.requestScrollToPage(page = state.currentPage) }
             }
 
             TestContent(list = list)
@@ -194,16 +180,13 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
         onPager().performScrollToIndex(5)
 
         // When we update list of ints to move page 5 to the end of the list.
-        rule.runOnIdle {
-            list = (0..4).toList() + (6..25).toList() + listOf(5)
-        }
+        rule.runOnIdle { list = (0..4).toList() + (6..25).toList() + listOf(5) }
 
-        // Then current page is index is still 5, visible pages now (6, 7, 8) instead of (24, 25, 5).
+        // Then current page is index is still 5, visible pages now (6, 7, 8) instead of (24, 25,
+        // 5).
         rule.runOnIdle {
             Truth.assertThat(state.currentPage).isEqualTo(5)
-            Truth.assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(6, 7, 8))
+            Truth.assertThat(state.visibleKeys).isEqualTo(listOf(6, 7, 8))
         }
     }
 
@@ -250,9 +233,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
         // Then current page is index is still 15, the pages have shifted back one to (16, 17, 18).
         rule.runOnIdle {
             Truth.assertThat(state.currentPage).isEqualTo(15)
-            Truth.assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(16, 17, 18))
+            Truth.assertThat(state.visibleKeys).isEqualTo(listOf(16, 17, 18))
         }
     }
 
@@ -269,7 +250,8 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { list[it] }) {
+                key = { list[it] }
+            ) {
                 Page(remember { "$it" })
             }
         }
@@ -298,7 +280,8 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { list[it] }) {
+                key = { list[it] }
+            ) {
                 Page(remember { "$it" })
             }
         }
@@ -311,8 +294,8 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 // trigger a remeasure.
                 state.requestScrollToPage(
                     page = 0,
-                    pageOffsetFraction = proposedPageSize.roundToPx() * 30f /
-                        state.pageSizeWithSpacing
+                    pageOffsetFraction =
+                        proposedPageSize.roundToPx() * 30f / state.pageSizeWithSpacing
                 )
             }
         }
@@ -320,9 +303,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
         // Then we are scrolled to the end where the visible pages are 28, 29, and 30.
         rule.runOnIdle {
             Truth.assertThat(state.currentPage).isEqualTo(28)
-            Truth.assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(28, 29, 30))
+            Truth.assertThat(state.visibleKeys).isEqualTo(listOf(28, 29, 30))
         }
     }
 
@@ -340,7 +321,8 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { it }) {
+                key = { it }
+            ) {
                 Page(remember { "$it" })
             }
         }
@@ -358,9 +340,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 }
             }
         }
-        rule.runOnIdle {
-            state.requestScrollToPage(page = 0)
-        }
+        rule.runOnIdle { state.requestScrollToPage(page = 0) }
 
         // Then the scroll was canceled.
         rule.waitUntil { canceled }
@@ -381,7 +361,8 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { list[it] }) {
+                key = { list[it] }
+            ) {
                 Page(remember { "$it" })
 
                 Snapshot.withoutReadObservation {
@@ -391,36 +372,27 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 }
             }
         }
-        rule.runOnIdle {
-            list = (0..20).toList()
-        }
+        rule.runOnIdle { list = (0..20).toList() }
         onPager().performScrollToIndex(1)
 
         // When page 1 moves to the end of the list.
-        rule.runOnIdle {
-            list = listOf(0) + (2..20).toList() + listOf(1)
-        }
+        rule.runOnIdle { list = listOf(0) + (2..20).toList() + listOf(1) }
 
         // Then we are scrolled to the end where the visible pages are 19, 20, and 1.
         rule.runOnIdle {
             Truth.assertThat(state.currentPage).isEqualTo(list.size - 3)
-            Truth.assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(19, 20, 1))
+            Truth.assertThat(state.visibleKeys).isEqualTo(listOf(19, 20, 1))
         }
     }
 
     private fun PagerState.firstVisiblePageKey() = layoutInfo.visiblePagesInfo.firstOrNull()?.key
+
     private val PagerState.visibleKeys
         get() = layoutInfo.visiblePagesInfo.map { it.key }
 
     @Composable
     private fun Page(tag: String) {
-        Spacer(
-            Modifier
-                .testTag(tag)
-                .size(proposedPageSize)
-        )
+        Spacer(Modifier.testTag(tag).size(proposedPageSize))
     }
 
     companion object {

@@ -27,7 +27,7 @@ import androidx.compose.ui.util.fastForEach
  * @param initialUndoStack Previous undo stack if this manager is being restored from a saved state.
  * @param initialRedoStack Previous redo stack if this manager is being restored from a saved state.
  * @param capacity Maximum number of elements that can be hosted by this UndoManager. Total element
- * count is the sum of undo and redo stack sizes.
+ *   count is the sum of undo and redo stack sizes.
  */
 internal class UndoManager<T>(
     initialUndoStack: List<T> = emptyList(),
@@ -35,12 +35,8 @@ internal class UndoManager<T>(
     private val capacity: Int = 100
 ) {
 
-    private var undoStack = SnapshotStateList<T>().apply {
-        addAll(initialUndoStack)
-    }
-    private var redoStack = SnapshotStateList<T>().apply {
-        addAll(initialRedoStack)
-    }
+    private var undoStack = SnapshotStateList<T>().apply { addAll(initialUndoStack) }
+    private var redoStack = SnapshotStateList<T>().apply { addAll(initialRedoStack) }
 
     internal val canUndo: Boolean
         get() = undoStack.isNotEmpty()
@@ -52,9 +48,7 @@ internal class UndoManager<T>(
         get() = undoStack.size + redoStack.size
 
     init {
-        require(capacity >= 0) {
-            "Capacity must be a positive integer"
-        }
+        require(capacity >= 0) { "Capacity must be a positive integer" }
         require(size <= capacity) {
             "Initial list of undo and redo operations have a size=($size) greater " +
                 "than the given capacity=($capacity)."
@@ -118,56 +112,47 @@ internal class UndoManager<T>(
          * Saver factory for a generic [UndoManager].
          *
          * @param itemSaver Since [UndoManager] is defined as a generic class, a specific item saver
-         * is required to _serialize_ each individual item in undo and redo stacks.
+         *   is required to _serialize_ each individual item in undo and redo stacks.
          */
-        inline fun <reified T> createSaver(
-            itemSaver: Saver<T, Any>
-        ) = object : Saver<UndoManager<T>, Any> {
-            /**
-             * Saves the contents of given [value] to a list.
-             *
-             * List's structure is
-             *   - Capacity
-             *   - n; Number of items in undo stack
-             *   - m; Number of items in redo stack
-             *   - n items in order from undo stack
-             *   - m items in order from redo stack
-             */
-            override fun SaverScope.save(value: UndoManager<T>): Any = buildList {
-                add(value.capacity)
-                add(value.undoStack.size)
-                add(value.redoStack.size)
-                value.undoStack.fastForEach {
-                    with(itemSaver) {
-                        add(save(it))
-                    }
+        inline fun <reified T> createSaver(itemSaver: Saver<T, Any>) =
+            object : Saver<UndoManager<T>, Any> {
+                /**
+                 * Saves the contents of given [value] to a list.
+                 *
+                 * List's structure is
+                 * - Capacity
+                 * - n; Number of items in undo stack
+                 * - m; Number of items in redo stack
+                 * - n items in order from undo stack
+                 * - m items in order from redo stack
+                 */
+                override fun SaverScope.save(value: UndoManager<T>): Any = buildList {
+                    add(value.capacity)
+                    add(value.undoStack.size)
+                    add(value.redoStack.size)
+                    value.undoStack.fastForEach { with(itemSaver) { add(save(it)) } }
+                    value.redoStack.fastForEach { with(itemSaver) { add(save(it)) } }
                 }
-                value.redoStack.fastForEach {
-                    with(itemSaver) {
-                        add(save(it))
-                    }
-                }
-            }
 
-            @Suppress("UNCHECKED_CAST")
-            override fun restore(value: Any): UndoManager<T> {
-                val list = value as List<Any>
-                val (capacity, undoSize, redoSize) = (list as List<Int>)
-                var i = 3
-                val undoStackItems = buildList {
-                    while (i < undoSize + 3) {
-                        add(itemSaver.restore(list[i])!!)
-                        i++
+                @Suppress("UNCHECKED_CAST")
+                override fun restore(value: Any): UndoManager<T> {
+                    val list = value as List<Any>
+                    val (capacity, undoSize, redoSize) = (list as List<Int>)
+                    var i = 3
+                    val undoStackItems = buildList {
+                        while (i < undoSize + 3) {
+                            add(itemSaver.restore(list[i])!!)
+                            i++
+                        }
                     }
-                }
-                val redoStackItems = buildList {
-                    while (i < undoSize + redoSize + 3) {
-                        add(itemSaver.restore(list[i])!!)
-                        i++
+                    val redoStackItems = buildList {
+                        while (i < undoSize + redoSize + 3) {
+                            add(itemSaver.restore(list[i])!!)
+                            i++
+                        }
                     }
+                    return UndoManager(undoStackItems, redoStackItems, capacity)
                 }
-                return UndoManager(undoStackItems, redoStackItems, capacity)
             }
-        }
     }
 }

@@ -40,8 +40,7 @@ class ZIndexNodeTest {
 
         assertThat(modifier.nameFallback).isEqualTo("zIndex")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("zIndex", 3.0f)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(ValueElement("zIndex", 3.0f))
     }
 }

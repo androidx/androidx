@@ -39,16 +39,17 @@ import androidx.compose.ui.text.style.TextMotion
 @Composable
 fun TextMotionSample() {
     val infiniteTransition = rememberInfiniteTransition()
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 8f,
-        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse)
-    )
+    val scale by
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 8f,
+            animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse)
+        )
 
     Text(
         text = "Hello",
-        modifier = Modifier
-            .graphicsLayer {
+        modifier =
+            Modifier.graphicsLayer {
                 scaleX = scale
                 scaleY = scale
                 transformOrigin = TransformOrigin.Center

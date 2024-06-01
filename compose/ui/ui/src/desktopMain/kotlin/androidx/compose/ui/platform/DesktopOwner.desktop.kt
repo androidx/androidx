@@ -32,8 +32,7 @@ internal actual fun sendKeyEvent(
     when {
         keyEvent.nativeKeyEvent.id == java.awt.event.KeyEvent.KEY_TYPED ->
             platformInputService.charKeyPressed = true
-        keyEvent.type == KeyEventType.KeyUp ->
-            platformInputService.charKeyPressed = false
+        keyEvent.type == KeyEventType.KeyUp -> platformInputService.charKeyPressed = false
     }
     return focusOwner.dispatchKeyEvent(keyEvent)
 }
@@ -46,8 +45,9 @@ internal actual fun setPointerIcon(
 ) {
     when (icon) {
         is AwtCursor -> containerCursor?.componentCursor = icon.cursor
-        else -> if (containerCursor?.componentCursor != defaultCursor) {
-            containerCursor?.componentCursor = defaultCursor
-        }
+        else ->
+            if (containerCursor?.componentCursor != defaultCursor) {
+                containerCursor?.componentCursor = defaultCursor
+            }
     }
 }

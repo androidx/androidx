@@ -30,7 +30,8 @@ import androidx.compose.ui.util.fastRoundToInt
  *
  * Results are cached with the assumption that there is typically N=1 style being coerced at once.
  */
-internal class MinLinesConstrainer private constructor(
+internal class MinLinesConstrainer
+private constructor(
     val layoutDirection: LayoutDirection,
     val inputTextStyle: TextStyle,
     val density: Density,
@@ -45,9 +46,7 @@ internal class MinLinesConstrainer private constructor(
         // ... it may be useful to increase this cache if requested by some dev use case
         private var last: MinLinesConstrainer? = null
 
-        /**
-         * Returns a coercer (possibly cached) with these parameters
-         */
+        /** Returns a coercer (possibly cached) with these parameters */
         fun from(
             minMaxUtil: MinLinesConstrainer?,
             layoutDirection: LayoutDirection,
@@ -56,29 +55,32 @@ internal class MinLinesConstrainer private constructor(
             fontFamilyResolver: FontFamily.Resolver
         ): MinLinesConstrainer {
             minMaxUtil?.let {
-                if (layoutDirection == it.layoutDirection &&
-                    paramStyle == it.inputTextStyle &&
-                    density.density == it.density.density &&
-                    fontFamilyResolver === it.fontFamilyResolver) {
+                if (
+                    layoutDirection == it.layoutDirection &&
+                        paramStyle == it.inputTextStyle &&
+                        density.density == it.density.density &&
+                        fontFamilyResolver === it.fontFamilyResolver
+                ) {
                     return it
                 }
             }
             last?.let {
-                if (layoutDirection == it.layoutDirection &&
-                    paramStyle == it.inputTextStyle &&
-                    density.density == it.density.density &&
-                    fontFamilyResolver === it.fontFamilyResolver) {
+                if (
+                    layoutDirection == it.layoutDirection &&
+                        paramStyle == it.inputTextStyle &&
+                        density.density == it.density.density &&
+                        fontFamilyResolver === it.fontFamilyResolver
+                ) {
                     return it
                 }
             }
             return MinLinesConstrainer(
-                layoutDirection,
-                resolveDefaults(paramStyle, layoutDirection),
-                density,
-                fontFamilyResolver
-            ).also {
-                last = it
-            }
+                    layoutDirection,
+                    resolveDefaults(paramStyle, layoutDirection),
+                    density,
+                    fontFamilyResolver
+                )
+                .also { last = it }
         }
     }
 
@@ -87,44 +89,47 @@ internal class MinLinesConstrainer private constructor(
      *
      * On first invocation this will cause (2) Paragraph measurements.
      */
-    internal fun coerceMinLines(
-        inConstraints: Constraints,
-        minLines: Int
-    ): Constraints {
+    internal fun coerceMinLines(inConstraints: Constraints, minLines: Int): Constraints {
         var oneLineHeight = oneLineHeightCache
         var lineHeight = lineHeightCache
         if (oneLineHeight.isNaN() || lineHeight.isNaN()) {
-            oneLineHeight = Paragraph(
-                text = EmptyTextReplacement,
-                style = resolvedStyle,
-                constraints = Constraints(),
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                maxLines = 1,
-                ellipsis = false
-            ).height
+            oneLineHeight =
+                Paragraph(
+                        text = EmptyTextReplacement,
+                        style = resolvedStyle,
+                        constraints = Constraints(),
+                        density = density,
+                        fontFamilyResolver = fontFamilyResolver,
+                        maxLines = 1,
+                        ellipsis = false
+                    )
+                    .height
 
-            val twoLineHeight = Paragraph(
-                text = TwoLineTextReplacement,
-                style = resolvedStyle,
-                constraints = Constraints(),
-                density = density,
-                fontFamilyResolver = fontFamilyResolver,
-                maxLines = 2,
-                ellipsis = false
-            ).height
+            val twoLineHeight =
+                Paragraph(
+                        text = TwoLineTextReplacement,
+                        style = resolvedStyle,
+                        constraints = Constraints(),
+                        density = density,
+                        fontFamilyResolver = fontFamilyResolver,
+                        maxLines = 2,
+                        ellipsis = false
+                    )
+                    .height
 
             lineHeight = twoLineHeight - oneLineHeight
             oneLineHeightCache = oneLineHeight
             lineHeightCache = lineHeight
         }
-        val minHeight = if (minLines != 1) {
-            (oneLineHeight + (lineHeight * (minLines - 1))).fastRoundToInt()
-                .coerceAtLeast(0)
-                .coerceAtMost(inConstraints.maxHeight)
-        } else {
-            inConstraints.minHeight
-        }
+        val minHeight =
+            if (minLines != 1) {
+                (oneLineHeight + (lineHeight * (minLines - 1)))
+                    .fastRoundToInt()
+                    .coerceAtLeast(0)
+                    .coerceAtMost(inConstraints.maxHeight)
+            } else {
+                inConstraints.minHeight
+            }
         return Constraints(
             minHeight = minHeight,
             maxHeight = inConstraints.maxHeight,

@@ -37,8 +37,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * Helper methods for hiding and showing the keyboard in tests.
- * Call [initialize] from your test rule's content before calling any other methods on this class.
+ * Helper methods for hiding and showing the keyboard in tests. Call [initialize] from your test
+ * rule's content before calling any other methods on this class.
  */
 class KeyboardHelper(
     private val composeRule: ComposeContentTestRule,
@@ -53,17 +53,13 @@ class KeyboardHelper(
         view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
-    /**
-     * Call this at the top of your test composition before using the helper.
-     */
+    /** Call this at the top of your test composition before using the helper. */
     @Composable
     fun initialize() {
         view = LocalView.current
     }
 
-    /**
-     * Requests the keyboard to be hidden without waiting for it.
-     */
+    /** Requests the keyboard to be hidden without waiting for it. */
     fun hideKeyboard() {
         composeRule.runOnIdle {
             // Use both techniques to hide it, at least one of them will hopefully work.
@@ -73,13 +69,11 @@ class KeyboardHelper(
     }
 
     /**
-     * Blocks until the [timeout] or the keyboard's visibility matches [visible].
-     * May be called from the test thread or the main thread.
+     * Blocks until the [timeout] or the keyboard's visibility matches [visible]. May be called from
+     * the test thread or the main thread.
      */
     fun waitForKeyboardVisibility(visible: Boolean, timeout: Long = this.timeout) {
-        waitUntil(timeout) {
-            isSoftwareKeyboardShown() == visible
-        }
+        waitUntil(timeout) { isSoftwareKeyboardShown() == visible }
     }
 
     fun hideKeyboardIfShown() {
@@ -111,13 +105,13 @@ class KeyboardHelper(
     }
 
     private fun hideKeyboardWithImm() {
-        view.post {
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
-        }
+        view.post { imm.hideSoftInputFromWindow(view.windowToken, 0) }
     }
 
     private fun hideKeyboardWithInsets() {
-        view.findWindow()?.let { WindowInsetsControllerCompat(it, view) }
+        view
+            .findWindow()
+            ?.let { WindowInsetsControllerCompat(it, view) }
             ?.hide(WindowInsetsCompat.Type.ime())
     }
 
@@ -131,8 +125,7 @@ class KeyboardHelper(
 
     // TODO(b/221889664) Replace with composition local when available.
     private fun View.findWindow(): Window? =
-        (parent as? DialogWindowProvider)?.window
-            ?: context.findWindow()
+        (parent as? DialogWindowProvider)?.window ?: context.findWindow()
 
     private tailrec fun Context.findWindow(): Window? =
         when (this) {
@@ -165,8 +158,10 @@ class KeyboardHelper(
         // else wait for condition to be met
         val conditionMet = latch.await(timeoutMillis, TimeUnit.MILLISECONDS)
         assertWithMessage(
-            "After waiting for $timeoutMillis ms, window insets condition is still false"
-        ).that(conditionMet).isTrue()
+                "After waiting for $timeoutMillis ms, window insets condition is still false"
+            )
+            .that(conditionMet)
+            .isTrue()
     }
 }
 

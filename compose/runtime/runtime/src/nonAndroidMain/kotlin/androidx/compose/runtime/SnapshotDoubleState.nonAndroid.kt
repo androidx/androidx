@@ -16,6 +16,5 @@
 
 package androidx.compose.runtime
 
-internal actual fun createSnapshotMutableDoubleState(
-    value: Double
-): MutableDoubleState = SnapshotMutableDoubleStateImpl(value)
+internal actual fun createSnapshotMutableDoubleState(value: Double): MutableDoubleState =
+    SnapshotMutableDoubleStateImpl(value)

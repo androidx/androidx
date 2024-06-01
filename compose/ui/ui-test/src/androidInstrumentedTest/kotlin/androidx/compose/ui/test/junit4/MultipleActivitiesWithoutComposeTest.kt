@@ -43,14 +43,14 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * This test shows how you can test an application where the Activity that is launched from the
- * test does not contain any Compose content, but an Activity to which the test eventually
- * navigates does contain Compose content.
+ * This test shows how you can test an application where the Activity that is launched from the test
+ * does not contain any Compose content, but an Activity to which the test eventually navigates does
+ * contain Compose content.
  *
- * In the test, Activity1 is launched, which contains an android.widget.Button.
- * When clicked, Activity2 is launched, which contains another android.widget.Button.
- * When that button is clicked, Activity3 is launched, which contains Compose content.
- * The Compose content is finally asserted to exist.
+ * In the test, Activity1 is launched, which contains an android.widget.Button. When clicked,
+ * Activity2 is launched, which contains another android.widget.Button. When that button is clicked,
+ * Activity3 is launched, which contains Compose content. The Compose content is finally asserted to
+ * exist.
  */
 @OptIn(ExperimentalTestApi::class)
 class MultipleActivitiesWithoutComposeTest {
@@ -58,8 +58,7 @@ class MultipleActivitiesWithoutComposeTest {
     // Because Activity1 does not use Compose, we do not have to guarantee that the
     // ComposeTestRule performs setup before the ActivityScenarioRule, so we can just define the
     // scenario rule as a sibling rule.
-    @get:Rule
-    val activityScenarioRule = ActivityScenarioRule(Activity1::class.java)
+    @get:Rule val activityScenarioRule = ActivityScenarioRule(Activity1::class.java)
 
     @Test
     fun test() = runEmptyComposeUiTest {
@@ -97,9 +96,7 @@ class MultipleActivitiesWithoutComposeTest {
     class Activity3 : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            setContent {
-                Box(Modifier.testTag("compose-box"))
-            }
+            setContent { Box(Modifier.testTag("compose-box")) }
         }
     }
 }

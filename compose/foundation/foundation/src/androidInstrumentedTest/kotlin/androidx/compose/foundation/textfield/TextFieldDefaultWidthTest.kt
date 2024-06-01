@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BaseTextFieldDefaultWidthTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val density = Density(density = 1f, fontScale = 1f)
 
@@ -77,16 +76,13 @@ class BaseTextFieldDefaultWidthTest {
             DefaultWidthTextField(
                 text = "",
                 fontSize = fontSize,
-                modifier = Modifier
-                    .defaultMinSize(minWidth)
-                    .onGloballyPositioned { size = it.size.width },
+                modifier =
+                    Modifier.defaultMinSize(minWidth).onGloballyPositioned { size = it.size.width },
                 density = density
             )
         }
 
-        with(density) {
-            assertThat(size).isEqualTo(minWidth.roundToPx())
-        }
+        with(density) { assertThat(size).isEqualTo(minWidth.roundToPx()) }
     }
 
     @Test
@@ -99,16 +95,13 @@ class BaseTextFieldDefaultWidthTest {
             DefaultWidthTextField(
                 text = "",
                 fontSize = fontSize,
-                modifier = Modifier
-                    .requiredWidth(width)
-                    .onGloballyPositioned { size = it.size.width },
+                modifier =
+                    Modifier.requiredWidth(width).onGloballyPositioned { size = it.size.width },
                 density = density
             )
         }
 
-        with(density) {
-            assertThat(size).isEqualTo(width.roundToPx())
-        }
+        with(density) { assertThat(size).isEqualTo(width.roundToPx()) }
     }
 
     @Test
@@ -156,24 +149,19 @@ class BaseTextFieldDefaultWidthTest {
             DefaultWidthTextField(
                 text = "abc",
                 fontSize = fontSize,
-                modifier = Modifier
-                    .width(textFieldWidth)
-                    .onGloballyPositioned { size = it.size.width },
+                modifier =
+                    Modifier.width(textFieldWidth).onGloballyPositioned { size = it.size.width },
                 density = density
             )
         }
 
-        with(density) {
-            assertThat(size).isEqualTo(textFieldWidth.roundToPx())
-        }
+        with(density) { assertThat(size).isEqualTo(textFieldWidth.roundToPx()) }
     }
 
     private fun defaultTextFieldSize(
         fontSize: TextUnit,
         charCount: Int = 10 // 10 is the configuration for default TextField width in glyphs
-    ): Int = with(density) {
-        ceil(charCount * fontSize.toPx()).roundToInt()
-    }
+    ): Int = with(density) { ceil(charCount * fontSize.toPx()).roundToInt() }
 }
 
 @Composable

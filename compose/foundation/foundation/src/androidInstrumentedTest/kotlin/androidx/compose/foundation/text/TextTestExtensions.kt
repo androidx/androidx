@@ -30,46 +30,33 @@ import kotlin.math.roundToInt
 
 fun Float.toIntPx(): Int = ceil(this).roundToInt()
 
-val TEST_FONT = Font(
-    resId = R.font.sample_font,
-    weight = FontWeight.Normal,
-    style = FontStyle.Normal
-)
+val TEST_FONT =
+    Font(resId = R.font.sample_font, weight = FontWeight.Normal, style = FontStyle.Normal)
 
 val TEST_FONT_FAMILY = TEST_FONT.toFontFamily()
 
-/**
- * Insert the given [string] at the given [index].
- */
+/** Insert the given [string] at the given [index]. */
 internal fun String.insert(index: Int, string: String): String {
     return substring(0, index) + string + substring(index)
 }
 
-/**
- * Helper function that returns the minimal [Rect] which contains the given [substring].
- */
+/** Helper function that returns the minimal [Rect] which contains the given [substring]. */
 internal fun TextLayoutResult.boundingBoxOf(substring: String): Rect {
     val index = layoutInput.text.indexOf(substring)
 
     return boundingBoxOf(*Array(substring.length) { getBoundingBox(index + it) })
 }
 
-/**
- * Convert an Offset to android PointF.
- */
+/** Convert an Offset to android PointF. */
 internal fun Offset.toPointF(): PointF = PointF(x, y)
 
-/**
- * Helper function that returns the [TextRange] of the given string.
- */
+/** Helper function that returns the [TextRange] of the given string. */
 internal fun CharSequence.rangeOf(string: String): TextRange {
     val index = indexOf(string)
     return TextRange(index, index + string.length)
 }
 
-/**
- * Helper function that returns the minimal [Rect] which contains all the given [rects].
- */
+/** Helper function that returns the minimal [Rect] which contains all the given [rects]. */
 private fun boundingBoxOf(vararg rects: Rect): Rect {
     return Rect(
         left = rects.minOf { it.left },

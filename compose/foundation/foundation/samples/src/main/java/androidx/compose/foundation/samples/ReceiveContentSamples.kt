@@ -48,25 +48,25 @@ fun ReceiveContentBasicSample() {
     val state = rememberTextFieldState()
     var images by remember { mutableStateOf<List<ImageBitmap>>(emptyList()) }
     Column {
-        Row {
-            images.forEach {
-                Image(bitmap = it, contentDescription = null)
-            }
-        }
+        Row { images.forEach { Image(bitmap = it, contentDescription = null) } }
         BasicTextField(
             state = state,
-            modifier = Modifier.contentReceiver { transferableContent ->
-                if (!transferableContent.hasMediaType(MediaType.Image)) {
-                    return@contentReceiver transferableContent
+            modifier =
+                Modifier.contentReceiver { transferableContent ->
+                    if (!transferableContent.hasMediaType(MediaType.Image)) {
+                        return@contentReceiver transferableContent
+                    }
+                    val newImages = mutableListOf<ImageBitmap>()
+                    transferableContent
+                        .consume { item ->
+                            // only consume this item if we can read an imageBitmap
+                            item.readImageBitmap()?.let {
+                                newImages += it
+                                true
+                            } ?: false
+                        }
+                        .also { images = newImages }
                 }
-                val newImages = mutableListOf<ImageBitmap>()
-                transferableContent.consume { item ->
-                    // only consume this item if we can read an imageBitmap
-                    item.readImageBitmap()?.let { newImages += it; true } ?: false
-                }.also {
-                    images = newImages
-                }
-            }
         )
     }
 }
@@ -80,60 +80,56 @@ fun ReceiveContentFullSample() {
     var dragging by remember { mutableStateOf(false) }
     var hovering by remember { mutableStateOf(false) }
     Column {
-        Row {
-            images.forEach {
-                Image(bitmap = it, contentDescription = null)
-            }
-        }
+        Row { images.forEach { Image(bitmap = it, contentDescription = null) } }
         BasicTextField(
             state = state,
-            modifier = Modifier
-                .background(
-                    when {
-                        dragging -> Color.Red
-                        hovering -> Color.Green
-                        else -> MaterialTheme.colors.background
-                    }
-                )
-                .contentReceiver(
-                    receiveContentListener = object : ReceiveContentListener {
-                        override fun onDragStart() {
-                            dragging = true
+            modifier =
+                Modifier.background(
+                        when {
+                            dragging -> Color.Red
+                            hovering -> Color.Green
+                            else -> MaterialTheme.colors.background
                         }
+                    )
+                    .contentReceiver(
+                        receiveContentListener =
+                            object : ReceiveContentListener {
+                                override fun onDragStart() {
+                                    dragging = true
+                                }
 
-                        override fun onDragEnd() {
-                            hovering = false
-                            dragging = false
-                        }
+                                override fun onDragEnd() {
+                                    hovering = false
+                                    dragging = false
+                                }
 
-                        override fun onDragEnter() {
-                            hovering = true
-                        }
+                                override fun onDragEnter() {
+                                    hovering = true
+                                }
 
-                        override fun onDragExit() {
-                            hovering = false
-                        }
+                                override fun onDragExit() {
+                                    hovering = false
+                                }
 
-                        override fun onReceive(
-                            transferableContent: TransferableContent
-                        ): TransferableContent? {
-                            if (!transferableContent.hasMediaType(MediaType.Image)) {
-                                return transferableContent
+                                override fun onReceive(
+                                    transferableContent: TransferableContent
+                                ): TransferableContent? {
+                                    if (!transferableContent.hasMediaType(MediaType.Image)) {
+                                        return transferableContent
+                                    }
+                                    val newImages = mutableListOf<ImageBitmap>()
+                                    return transferableContent
+                                        .consume { item ->
+                                            // only consume this item if we can read an imageBitmap
+                                            item.readImageBitmap()?.let {
+                                                newImages += it
+                                                true
+                                            } ?: false
+                                        }
+                                        .also { images = newImages }
+                                }
                             }
-                            val newImages = mutableListOf<ImageBitmap>()
-                            return transferableContent
-                                .consume { item ->
-                                    // only consume this item if we can read an imageBitmap
-                                    item
-                                        .readImageBitmap()
-                                        ?.let { newImages += it; true } ?: false
-                                }
-                                .also {
-                                    images = newImages
-                                }
-                        }
-                    }
-                )
+                    )
         )
     }
 }

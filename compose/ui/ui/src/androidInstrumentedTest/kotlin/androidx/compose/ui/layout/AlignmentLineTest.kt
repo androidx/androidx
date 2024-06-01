@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AlignmentLineTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun queryingLinesOfUnmeasuredChild() {
@@ -70,17 +69,21 @@ class AlignmentLineTest {
         val constrainedSize = 100
         val actualSize = 200
         rule.setContent {
-            val contentWithAlignmentLines = @Composable {
-                Box(Modifier.requiredSize(with(rule.density) { actualSize.toDp() })) {
-                    Layout({}, Modifier) { _, _ ->
-                        layout(0, 0, mapOf(hLine to hLinePosition, vLine to vLinePosition)) {}
+            val contentWithAlignmentLines =
+                @Composable {
+                    Box(Modifier.requiredSize(with(rule.density) { actualSize.toDp() })) {
+                        Layout({}, Modifier) { _, _ ->
+                            layout(0, 0, mapOf(hLine to hLinePosition, vLine to vLinePosition)) {}
+                        }
                     }
                 }
-            }
             Layout(contentWithAlignmentLines) { measurables, _ ->
-                val placeable = measurables.first().measure(
-                    Constraints(maxWidth = constrainedSize, maxHeight = constrainedSize)
-                )
+                val placeable =
+                    measurables
+                        .first()
+                        .measure(
+                            Constraints(maxWidth = constrainedSize, maxHeight = constrainedSize)
+                        )
                 val obtainedHLinePosition = placeable[hLine]
                 val obtainedVLinePosition = placeable[vLine]
                 assertEquals(
@@ -106,19 +109,23 @@ class AlignmentLineTest {
         val constrainedSize = 100
         val actualSize = 200
         rule.setContent {
-            val contentWithAlignmentLines = @Composable {
-                Layout({}, Modifier) { _, _ ->
-                    layout(
-                        actualSize,
-                        actualSize,
-                        mapOf(hLine to hLinePosition, vLine to vLinePosition)
-                    ) {}
+            val contentWithAlignmentLines =
+                @Composable {
+                    Layout({}, Modifier) { _, _ ->
+                        layout(
+                            actualSize,
+                            actualSize,
+                            mapOf(hLine to hLinePosition, vLine to vLinePosition)
+                        ) {}
+                    }
                 }
-            }
             Layout(contentWithAlignmentLines) { measurables, _ ->
-                val placeable = measurables.first().measure(
-                    Constraints(maxWidth = constrainedSize, maxHeight = constrainedSize)
-                )
+                val placeable =
+                    measurables
+                        .first()
+                        .measure(
+                            Constraints(maxWidth = constrainedSize, maxHeight = constrainedSize)
+                        )
                 val obtainedHLinePosition = placeable[hLine]
                 val obtainedVLinePosition = placeable[vLine]
                 assertEquals(
@@ -143,18 +150,17 @@ class AlignmentLineTest {
         val hLine = HorizontalAlignmentLine(::min)
         val vLine = VerticalAlignmentLine(::min)
         rule.setContent {
-            val content = @Composable {
-                Box(Modifier.size(sizeDp)) {
-                    Box(
-                        Modifier.supplyAlignmentLines {
-                            mapOf(
-                                hLine to linePosition,
-                                vLine to linePosition
-                            )
-                        }.size(sizeDp)
-                    )
+            val content =
+                @Composable {
+                    Box(Modifier.size(sizeDp)) {
+                        Box(
+                            Modifier.supplyAlignmentLines {
+                                    mapOf(hLine to linePosition, vLine to linePosition)
+                                }
+                                .size(sizeDp)
+                        )
+                    }
                 }
-            }
 
             Layout(content) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
@@ -175,20 +181,19 @@ class AlignmentLineTest {
         val hLine = HorizontalAlignmentLine(::min)
         val vLine = VerticalAlignmentLine(::min)
         rule.setContent {
-            val content = @Composable {
-                Box(Modifier.size(sizeDp)) {
-                    Box(
-                        Modifier.offset(offsetDp, offsetDp)
-                            .supplyAlignmentLines {
-                                mapOf(
-                                    hLine to linePosition,
-                                    vLine to linePosition
-                                )
-                            }.size(sizeDp)
-                            .offset(offsetDp, offsetDp)
-                    )
+            val content =
+                @Composable {
+                    Box(Modifier.size(sizeDp)) {
+                        Box(
+                            Modifier.offset(offsetDp, offsetDp)
+                                .supplyAlignmentLines {
+                                    mapOf(hLine to linePosition, vLine to linePosition)
+                                }
+                                .size(sizeDp)
+                                .offset(offsetDp, offsetDp)
+                        )
+                    }
                 }
-            }
 
             Layout(content) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
@@ -211,11 +216,12 @@ class AlignmentLineTest {
         var obtainedHLinePosition = -1
         var obtainedVLinePosition = -1
         rule.setContent {
-            val content = @Composable {
-                Box(Modifier.size(sizeDp)) {
-                    Box(Modifier.supplyAlignmentLines { alignmentLines.toMap() }.size(sizeDp))
+            val content =
+                @Composable {
+                    Box(Modifier.size(sizeDp)) {
+                        Box(Modifier.supplyAlignmentLines { alignmentLines.toMap() }.size(sizeDp))
+                    }
                 }
-            }
 
             Layout(content) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
@@ -250,19 +256,18 @@ class AlignmentLineTest {
         var obtainedHLinePosition = -1
         var obtainedVLinePosition = -1
         rule.setContent {
-            val content = @Composable {
-                val innerContent = @Composable {
-                    Layout({}) { _, _ ->
-                        layout(size, size, alignmentLines) {}
+            val content =
+                @Composable {
+                    val innerContent =
+                        @Composable { Layout({}) { _, _ -> layout(size, size, alignmentLines) {} } }
+                    Layout(content = innerContent, Modifier.size(sizeDp)) { measurables, constraints
+                        ->
+                        val placeable = measurables.first().measure(constraints)
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            placeable.place(0, 0)
+                        }
                     }
                 }
-                Layout(content = innerContent, Modifier.size(sizeDp)) { measurables, constraints ->
-                    val placeable = measurables.first().measure(constraints)
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeable.place(0, 0)
-                    }
-                }
-            }
 
             Layout(content) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
@@ -292,9 +297,7 @@ class AlignmentLineTest {
         rule.setContent {
             Parent(onMeasure = { ++parentMeasures }) {
                 Parent(onMeasure = { ++measures }, readDuringMeasure = true) {
-                    Parent {
-                        Provider()
-                    }
+                    Parent { Provider() }
                 }
             }
         }
@@ -322,9 +325,7 @@ class AlignmentLineTest {
                     onLayout = { ++layouts },
                     readDuringLayoutBeforePlacing = true
                 ) {
-                    Parent {
-                        Provider()
-                    }
+                    Parent { Provider() }
                 }
             }
         }
@@ -354,9 +355,7 @@ class AlignmentLineTest {
                     onLayout = { ++layouts },
                     readDuringLayoutAfterPlacing = true
                 ) {
-                    Parent {
-                        Provider()
-                    }
+                    Parent { Provider() }
                 }
             }
         }
@@ -391,9 +390,7 @@ class AlignmentLineTest {
                     onLayout = { ++layouts },
                     readDuringLayoutBeforePlacing = true
                 ) {
-                    Parent {
-                        Provider()
-                    }
+                    Parent { Provider() }
                 }
             }
         }
@@ -430,9 +427,7 @@ class AlignmentLineTest {
                     onLayout = { ++layouts },
                     readDuringLayoutAfterPlacing = true
                 ) {
-                    Parent {
-                        Provider()
-                    }
+                    Parent { Provider() }
                 }
             }
         }
@@ -469,9 +464,7 @@ class AlignmentLineTest {
                     onLayout = { ++layouts },
                     readDuringMeasure = true
                 ) {
-                    Parent {
-                        Provider()
-                    }
+                    Parent { Provider() }
                 }
             }
         }
@@ -682,9 +675,7 @@ class AlignmentLineTest {
             changeLinePosition()
         }
 
-        rule.runOnIdle {
-            assertEquals(2, childMeasures)
-        }
+        rule.runOnIdle { assertEquals(2, childMeasures) }
     }
 
     @Test
@@ -809,13 +800,8 @@ class AlignmentLineTest {
         var read by mutableStateOf(true)
         rule.setContent {
             Parent(onMeasure = { ++parentMeasures }, readDuringMeasure = true) {
-                ChangingParent(
-                    onMeasure = { ++measures },
-                    readDuringMeasure = { read }
-                ) {
-                    Parent(onMeasure = { ++childMeasures }) {
-                        Provider()
-                    }
+                ChangingParent(onMeasure = { ++measures }, readDuringMeasure = { read }) {
+                    Parent(onMeasure = { ++childMeasures }) { Provider() }
                 }
             }
         }
@@ -854,13 +840,8 @@ class AlignmentLineTest {
                 onLayout = { ++parentLayouts },
                 readDuringLayoutAfterPlacing = true
             ) {
-                ChangingParent(
-                    onMeasure = { ++measures },
-                    readDuringMeasure = { read }
-                ) {
-                    Parent(onMeasure = { ++childMeasures }) {
-                        Provider()
-                    }
+                ChangingParent(onMeasure = { ++measures }, readDuringMeasure = { read }) {
+                    Parent(onMeasure = { ++childMeasures }) { Provider() }
                 }
             }
         }
@@ -911,9 +892,7 @@ class AlignmentLineTest {
         var offset by mutableStateOf(IntOffset.Zero)
         rule.setContent {
             Parent(readDuringLayoutBeforePlacing = true, onLayout = { ++parentLayouts }) {
-                Parent {
-                    Provider(modifier = Modifier.offset { offset })
-                }
+                Parent { Provider(modifier = Modifier.offset { offset }) }
             }
         }
         rule.runOnIdle {
@@ -921,9 +900,7 @@ class AlignmentLineTest {
             linePosition += 10
         }
 
-        rule.runOnIdle {
-            assertEquals(2, parentLayouts)
-        }
+        rule.runOnIdle { assertEquals(2, parentLayouts) }
 
         rule.waitForIdle()
     }
@@ -933,22 +910,13 @@ class AlignmentLineTest {
         var parentMeasures = 0
         var read by mutableStateOf(false)
         rule.setContent {
-            ChangingParent(
-                readDuringMeasure = { read },
-                onMeasure = { ++parentMeasures }
-            ) {
-                Parent {
-                    Provider()
-                }
+            ChangingParent(readDuringMeasure = { read }, onMeasure = { ++parentMeasures }) {
+                Parent { Provider() }
             }
         }
-        rule.runOnIdle {
-            read = true
-        }
+        rule.runOnIdle { read = true }
 
-        rule.runOnIdle {
-            assertEquals(2, parentMeasures)
-        }
+        rule.runOnIdle { assertEquals(2, parentMeasures) }
     }
 
     @Test
@@ -960,18 +928,12 @@ class AlignmentLineTest {
                 readDuringLayoutBeforePlacing = { read },
                 onLayout = { ++parentLayouts }
             ) {
-                Parent {
-                    Provider()
-                }
+                Parent { Provider() }
             }
         }
-        rule.runOnIdle {
-            read = true
-        }
+        rule.runOnIdle { read = true }
 
-        rule.runOnIdle {
-            assertEquals(2, parentLayouts)
-        }
+        rule.runOnIdle { assertEquals(2, parentLayouts) }
     }
 
     @Test
@@ -979,13 +941,7 @@ class AlignmentLineTest {
         var obtainedPosition = 0
         var changingState by mutableStateOf(false)
         rule.setContent {
-            Layout(
-                content = {
-                    Parent {
-                        Provider()
-                    }
-                }
-            ) { measurables, constraints ->
+            Layout(content = { Parent { Provider() } }) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     if (changingState) require(true)
@@ -1000,9 +956,7 @@ class AlignmentLineTest {
             changingState = true
         }
 
-        rule.runOnIdle {
-            assertEquals(linePosition, obtainedPosition)
-        }
+        rule.runOnIdle { assertEquals(linePosition, obtainedPosition) }
     }
 
     @Test
@@ -1010,13 +964,7 @@ class AlignmentLineTest {
         var obtainedPosition = 0
         var changingState by mutableStateOf(false)
         rule.setContent {
-            Layout(
-                content = {
-                    Parent {
-                        Provider()
-                    }
-                }
-            ) { measurables, constraints ->
+            Layout(content = { Parent { Provider() } }) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     if (changingState) require(true)
@@ -1031,9 +979,7 @@ class AlignmentLineTest {
             changingState = true
         }
 
-        rule.runOnIdle {
-            assertEquals(linePosition, obtainedPosition)
-        }
+        rule.runOnIdle { assertEquals(linePosition, obtainedPosition) }
     }
 
     @Test
@@ -1041,9 +987,7 @@ class AlignmentLineTest {
         var obtainedPosition = 0
         rule.setContent {
             Parent(modifier = Modifier.onGloballyPositioned { obtainedPosition = it[TestLine] }) {
-                Parent {
-                    Provider()
-                }
+                Parent { Provider() }
             }
         }
         rule.runOnIdle {
@@ -1051,9 +995,7 @@ class AlignmentLineTest {
             changeLinePosition()
         }
 
-        rule.runOnIdle {
-            assertEquals(linePosition, obtainedPosition)
-        }
+        rule.runOnIdle { assertEquals(linePosition, obtainedPosition) }
     }
 
     @Test
@@ -1062,16 +1004,15 @@ class AlignmentLineTest {
         var layouts = 0
         rule.setContent {
             Parent(
-                modifier = Modifier.reader(
-                    readDuringMeasure = true,
-                    readDuringLayoutBeforePlacing = true,
-                    onMeasure = { ++measures },
-                    onLayout = { ++layouts }
-                )
+                modifier =
+                    Modifier.reader(
+                        readDuringMeasure = true,
+                        readDuringLayoutBeforePlacing = true,
+                        onMeasure = { ++measures },
+                        onLayout = { ++layouts }
+                    )
             ) {
-                Parent {
-                    Provider()
-                }
+                Parent { Provider() }
             }
         }
         rule.runOnIdle {
@@ -1092,15 +1033,14 @@ class AlignmentLineTest {
         var layouts = 0
         rule.setContent {
             Parent(
-                modifier = Modifier.reader(
-                    readDuringLayoutBeforePlacing = true,
-                    onMeasure = { ++measures },
-                    onLayout = { ++layouts }
-                )
+                modifier =
+                    Modifier.reader(
+                        readDuringLayoutBeforePlacing = true,
+                        onMeasure = { ++measures },
+                        onLayout = { ++layouts }
+                    )
             ) {
-                Parent {
-                    Provider()
-                }
+                Parent { Provider() }
             }
         }
         rule.runOnIdle {
@@ -1121,15 +1061,14 @@ class AlignmentLineTest {
         var layouts = 0
         rule.setContent {
             Parent(
-                modifier = Modifier.reader(
-                    readDuringLayoutAfterPlacing = true,
-                    onMeasure = { ++measures },
-                    onLayout = { ++layouts }
-                )
+                modifier =
+                    Modifier.reader(
+                        readDuringLayoutAfterPlacing = true,
+                        onMeasure = { ++measures },
+                        onLayout = { ++layouts }
+                    )
             ) {
-                Parent {
-                    Provider()
-                }
+                Parent { Provider() }
             }
         }
         rule.runOnIdle {
@@ -1164,25 +1103,23 @@ class AlignmentLineTest {
             ) { measurables, constraints ->
                 val placeable = measurables.first().measure(constraints)
                 placeable[FirstBaseline]
-                layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             }
         }
 
-        rule.runOnIdle {
-            emit = true
-        }
+        rule.runOnIdle { emit = true }
 
         rule.runOnIdle {}
     }
 
     private var linePosition = 10
     private var linePositionState by mutableStateOf(10)
+
     private fun changeLinePosition() {
         linePosition += 10
         linePositionState += 10
     }
+
     private val TestLine = HorizontalAlignmentLine(::min)
 
     @Composable
@@ -1218,11 +1155,12 @@ class AlignmentLineTest {
     ) {
         Layout(content, modifier) { measurables, constraints ->
             onMeasure()
-            val placeables = measurables.map {
-                it.measure(constraints).also {
-                    if (readDuringMeasure()) assertEquals(linePosition, it[TestLine])
+            val placeables =
+                measurables.map {
+                    it.measure(constraints).also {
+                        if (readDuringMeasure()) assertEquals(linePosition, it[TestLine])
+                    }
                 }
-            }
             layout(constraints.maxWidth, constraints.maxHeight) {
                 onLayout()
                 placeables.forEach { placeable ->
@@ -1265,15 +1203,17 @@ class AlignmentLineTest {
         readDuringMeasure: Boolean = false,
         readDuringLayoutBeforePlacing: Boolean = false,
         readDuringLayoutAfterPlacing: Boolean = false
-    ) = this.then(
-        ReaderModifier(
-            onMeasure,
-            onLayout,
-            readDuringMeasure,
-            readDuringLayoutBeforePlacing,
-            readDuringLayoutAfterPlacing
+    ) =
+        this.then(
+            ReaderModifier(
+                onMeasure,
+                onLayout,
+                readDuringMeasure,
+                readDuringLayoutBeforePlacing,
+                readDuringLayoutAfterPlacing
+            )
         )
-    )
+
     private inner class ReaderModifier(
         val onMeasure: () -> Unit,
         val onLayout: () -> Unit,
@@ -1298,6 +1238,7 @@ class AlignmentLineTest {
     }
 
     private fun Modifier.provider() = this.then(ProviderModifier())
+
     private inner class ProviderModifier : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
@@ -1325,8 +1266,6 @@ class AlignmentLineTest {
     private fun Modifier.supplyAlignmentLines(alignmentLines: () -> Map<AlignmentLine, Int>) =
         layout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
-            layout(placeable.width, placeable.height, alignmentLines()) {
-                placeable.place(0, 0)
-            }
+            layout(placeable.width, placeable.height, alignmentLines()) { placeable.place(0, 0) }
         }
 }

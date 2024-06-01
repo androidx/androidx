@@ -29,19 +29,17 @@ import kotlinx.coroutines.test.runTest
 @ExperimentalCoroutinesApi
 class BroadcastFrameClockTest {
     @Test
-    fun sendAndReceiveFrames() = runTest(UnconfinedTestDispatcher()) {
-        val clock = androidx.compose.runtime.BroadcastFrameClock()
+    fun sendAndReceiveFrames() =
+        runTest(UnconfinedTestDispatcher()) {
+            val clock = androidx.compose.runtime.BroadcastFrameClock()
 
-        val frameAwaiter = async { clock.withFrameNanos { it } }
+            val frameAwaiter = async { clock.withFrameNanos { it } }
 
-        clock.sendFrame(1)
-        assertEquals(1, frameAwaiter.await(), "awaiter frame time")
-    }
+            clock.sendFrame(1)
+            assertEquals(1, frameAwaiter.await(), "awaiter frame time")
+        }
 
-    private suspend fun assertAwaiterCancelled(
-        name: String,
-        awaiter: Deferred<*>
-    ) {
+    private suspend fun assertAwaiterCancelled(name: String, awaiter: Deferred<*>) {
         assertTrue(
             runCatching { awaiter.await() }.exceptionOrNull() is CancellationException,
             "$name threw CancellationException"
@@ -49,30 +47,34 @@ class BroadcastFrameClockTest {
     }
 
     @Test
-    fun cancelClock() = runTest(UnconfinedTestDispatcher()) {
-        val clock = androidx.compose.runtime.BroadcastFrameClock()
-        val frameAwaiter = async { clock.withFrameNanos { it } }
+    fun cancelClock() =
+        runTest(UnconfinedTestDispatcher()) {
+            val clock = androidx.compose.runtime.BroadcastFrameClock()
+            val frameAwaiter = async { clock.withFrameNanos { it } }
 
-        clock.cancel()
+            clock.cancel()
 
-        assertAwaiterCancelled("awaiter", frameAwaiter)
+            assertAwaiterCancelled("awaiter", frameAwaiter)
 
-        assertTrue(
-            runCatching { clock.withFrameNanos { it } }.exceptionOrNull() is CancellationException,
-            "late awaiter threw CancellationException"
-        )
-    }
-
-    @Test
-    fun failClockWhenNewAwaitersNotified() = runTest(UnconfinedTestDispatcher()) {
-        val clock = androidx.compose.runtime.BroadcastFrameClock {
-            throw CancellationException("failed frame clock")
+            assertTrue(
+                runCatching { clock.withFrameNanos { it } }.exceptionOrNull()
+                    is CancellationException,
+                "late awaiter threw CancellationException"
+            )
         }
 
-        val failingAwaiter = async { clock.withFrameNanos { it } }
-        assertAwaiterCancelled("failingAwaiter", failingAwaiter)
+    @Test
+    fun failClockWhenNewAwaitersNotified() =
+        runTest(UnconfinedTestDispatcher()) {
+            val clock =
+                androidx.compose.runtime.BroadcastFrameClock {
+                    throw CancellationException("failed frame clock")
+                }
 
-        val lateAwaiter = async { clock.withFrameNanos { it } }
-        assertAwaiterCancelled("lateAwaiter", lateAwaiter)
-    }
+            val failingAwaiter = async { clock.withFrameNanos { it } }
+            assertAwaiterCancelled("failingAwaiter", failingAwaiter)
+
+            val lateAwaiter = async { clock.withFrameNanos { it } }
+            assertAwaiterCancelled("lateAwaiter", lateAwaiter)
+        }
 }

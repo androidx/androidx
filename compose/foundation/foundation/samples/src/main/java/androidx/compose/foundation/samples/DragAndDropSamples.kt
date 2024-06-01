@@ -82,47 +82,26 @@ fun DragAndDropMultiAppSample() {
     var dragAndDropEventSummary by remember { mutableStateOf<String?>(null) }
 
     Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxSize(),
+        modifier = Modifier.padding(16.dp).fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        TextDragAndDropSourceSample(
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        TextDragAndDropSourceSample(modifier = Modifier.fillMaxWidth())
 
         Spacer(
             modifier = Modifier.height(24.dp),
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             TextDragAndDropTargetSample(
                 eventSummary = dragAndDropEventSummary,
-                onDragAndDropEventDropped = { event ->
-                    dragAndDropEventSummary = event.summary()
-                }
+                onDragAndDropEventDropped = { event -> dragAndDropEventSummary = event.summary() }
             )
             if (dragAndDropEventSummary != null) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                ) {
+                Box(modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)) {
                     IconButton(
-                        onClick = {
-                            dragAndDropEventSummary = null
-                        },
+                        onClick = { dragAndDropEventSummary = null },
                         content = {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear"
-                            )
+                            Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear")
                         }
                     )
                 }
@@ -134,37 +113,34 @@ fun DragAndDropMultiAppSample() {
 @OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
-fun TextDragAndDropSourceSample(
-    modifier: Modifier
-) {
+fun TextDragAndDropSourceSample(modifier: Modifier) {
     val label = remember { "Drag me" }
     Box(
-        modifier = modifier
-            .dragAndDropSource {
-                detectTapGestures(
-                    onLongPress = {
-                        startTransfer(
-                            DragAndDropTransferData(
-                                clipData = ClipData.newPlainText(label, label),
-                                flags = View.DRAG_FLAG_GLOBAL,
+        modifier =
+            modifier
+                .dragAndDropSource {
+                    detectTapGestures(
+                        onLongPress = {
+                            startTransfer(
+                                DragAndDropTransferData(
+                                    clipData = ClipData.newPlainText(label, label),
+                                    flags = View.DRAG_FLAG_GLOBAL,
+                                )
                             )
-                        )
-                    }
+                        }
+                    )
+                }
+                .border(
+                    border =
+                        BorderStroke(
+                            width = 4.dp,
+                            brush = Brush.linearGradient(listOf(Color.Magenta, Color.Magenta))
+                        ),
+                    shape = RoundedCornerShape(16.dp)
                 )
-            }
-            .border(
-                border = BorderStroke(
-                    width = 4.dp,
-                    brush = Brush.linearGradient(listOf(Color.Magenta, Color.Magenta))
-                ),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(24.dp),
+                .padding(24.dp),
     ) {
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = label
-        )
+        Text(modifier = Modifier.align(Alignment.Center), text = label)
     }
 }
 
@@ -186,55 +162,44 @@ fun TextDragAndDropTargetSample(
     }
     var backgroundColor by remember { mutableStateOf(Color.Transparent) }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .dragAndDropTarget(
-                shouldStartDragAndDrop = accept@{ startEvent ->
-                    val hasValidMimeType = startEvent
-                        .mimeTypes()
-                        .any { eventMimeType ->
-                            validMimeTypePrefixes.any(eventMimeType::startsWith)
-                        }
-                    hasValidMimeType
-                },
-                target = object : DragAndDropTarget {
-                    override fun onStarted(event: DragAndDropEvent) {
-                        backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
-                    }
+        modifier =
+            Modifier.fillMaxSize()
+                .dragAndDropTarget(
+                    shouldStartDragAndDrop = accept@{ startEvent ->
+                            val hasValidMimeType =
+                                startEvent.mimeTypes().any { eventMimeType ->
+                                    validMimeTypePrefixes.any(eventMimeType::startsWith)
+                                }
+                            hasValidMimeType
+                        },
+                    target =
+                        object : DragAndDropTarget {
+                            override fun onStarted(event: DragAndDropEvent) {
+                                backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
+                            }
 
-                    override fun onDrop(event: DragAndDropEvent): Boolean {
-                        onDragAndDropEventDropped(event)
-                        return true
-                    }
+                            override fun onDrop(event: DragAndDropEvent): Boolean {
+                                onDragAndDropEventDropped(event)
+                                return true
+                            }
 
-                    override fun onEnded(event: DragAndDropEvent) {
-                        backgroundColor = Color.Transparent
-                    }
-                },
-            )
-            .background(backgroundColor)
-            .border(
-                width = 4.dp,
-                color = Color.Magenta,
-                shape = RoundedCornerShape(16.dp)
-            ),
+                            override fun onEnded(event: DragAndDropEvent) {
+                                backgroundColor = Color.Transparent
+                            }
+                        },
+                )
+                .background(backgroundColor)
+                .border(width = 4.dp, color = Color.Magenta, shape = RoundedCornerShape(16.dp)),
     ) {
         when (eventSummary) {
-            null -> Text(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                text = "Drop anything here"
-            )
-
-            else -> Text(
-                modifier = Modifier
-                    .padding(
-                        horizontal = 16.dp,
-                        vertical = 24.dp
-                    )
-                    .verticalScroll(rememberScrollState()),
-                text = eventSummary
-            )
+            null -> Text(modifier = Modifier.align(Alignment.Center), text = "Drop anything here")
+            else ->
+                Text(
+                    modifier =
+                        Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
+                            .verticalScroll(rememberScrollState()),
+                    text = eventSummary
+                )
         }
     }
 }
@@ -244,74 +209,59 @@ private fun DragAndDropEvent.summary() =
         .map(toAndroidDragEvent().clipData::getItemAt)
         .withIndex()
         .joinToString(separator = "\n\n") { (index, clipItem) ->
-            val mimeTypes = (0 until toAndroidDragEvent().clipData.description.mimeTypeCount)
-                .joinToString(
+            val mimeTypes =
+                (0 until toAndroidDragEvent().clipData.description.mimeTypeCount).joinToString(
                     separator = ", ",
                     transform = toAndroidDragEvent().clipData.description::getMimeType
                 )
             listOfNotNull(
-                "index: $index",
-                "mimeTypes: $mimeTypes",
-                clipItem.text
-                    ?.takeIf(CharSequence::isNotEmpty)
-                    ?.let {
-                        "text: $it"
+                    "index: $index",
+                    "mimeTypes: $mimeTypes",
+                    clipItem.text?.takeIf(CharSequence::isNotEmpty)?.let { "text: $it" },
+                    clipItem.htmlText?.takeIf(CharSequence::isNotEmpty)?.let { "html text: $it" },
+                    clipItem.uri?.toString()?.let { "uri: $it" },
+                    clipItem.intent?.let {
+                        "intent: action - ${it.action}; extras size: ${it.extras?.size()}"
                     },
-                clipItem.htmlText
-                    ?.takeIf(CharSequence::isNotEmpty)
-                    ?.let {
-                        "html text: $it"
-                    },
-                clipItem.uri?.toString()?.let {
-                    "uri: $it"
-                },
-                clipItem.intent?.let {
-                    "intent: action - ${it.action}; extras size: ${it.extras?.size()}"
-                },
-            ).joinToString(separator = "\n")
+                )
+                .joinToString(separator = "\n")
         }
 
 @Composable
 fun DragAndDropNestedSample() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         TwoByTwoGrid(
-            modifier = Modifier
-                .padding(16.dp)
-                .weight(1f)
-                .fillMaxWidth()
-                .animatedDragAndDrop(
-                    prefix = "Main",
-                    level = 0,
-                    rowAndColumn = RowAndColumn(
-                        row = 0,
-                        column = 0
-                    )
-                ),
-        ) { outerRowAndColumn ->
-            TwoByTwoGrid(
-                modifier = Modifier
-                    .padding(16.dp)
+            modifier =
+                Modifier.padding(16.dp)
                     .weight(1f)
                     .fillMaxWidth()
                     .animatedDragAndDrop(
-                        prefix = "Outer",
-                        level = 1,
-                        rowAndColumn = outerRowAndColumn,
+                        prefix = "Main",
+                        level = 0,
+                        rowAndColumn = RowAndColumn(row = 0, column = 0)
                     ),
+        ) { outerRowAndColumn ->
+            TwoByTwoGrid(
+                modifier =
+                    Modifier.padding(16.dp)
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .animatedDragAndDrop(
+                            prefix = "Outer",
+                            level = 1,
+                            rowAndColumn = outerRowAndColumn,
+                        ),
             ) { innerRowAndColumn ->
                 Box(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .weight(1f)
-                        .fillMaxSize()
-                        .animatedDragAndDrop(
-                            prefix = "Inner ",
-                            level = 2,
-                            rowAndColumn = innerRowAndColumn,
-                        ),
+                    modifier =
+                        Modifier.padding(16.dp)
+                            .weight(1f)
+                            .fillMaxSize()
+                            .animatedDragAndDrop(
+                                prefix = "Inner ",
+                                level = 2,
+                                rowAndColumn = innerRowAndColumn,
+                            ),
                 )
             }
         }
@@ -322,37 +272,27 @@ fun DragAndDropNestedSample() {
 @Composable
 private fun ColorSwatch() {
     Row(
-        modifier = Modifier
-            .padding(16.dp)
-            .height(56.dp)
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+        modifier =
+            Modifier.padding(16.dp)
+                .height(56.dp)
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        Colors.forEach { color ->
-            DragAndDropSourceWithColoredDragShadowSample(color)
-        }
+        Colors.forEach { color -> DragAndDropSourceWithColoredDragShadowSample(color) }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
-fun DragAndDropSourceWithColoredDragShadowSample(
-    color: Color
-) {
+fun DragAndDropSourceWithColoredDragShadowSample(color: Color) {
     Box(
-        modifier = Modifier
-            .size(56.dp)
-            .background(color = color)
-            .dragAndDropSource(
-                drawDragDecoration = {
-                    drawRect(color)
-                },
+        modifier =
+            Modifier.size(56.dp).background(color = color).dragAndDropSource(
+                drawDragDecoration = { drawRect(color) },
             ) {
-                detectTapGestures(
-                    onLongPress = { startTransfer(color.toDragAndDropTransfer()) }
-                )
+                detectTapGestures(onLongPress = { startTransfer(color.toDragAndDropTransfer()) })
             }
     )
 }
@@ -362,18 +302,10 @@ private fun TwoByTwoGrid(
     modifier: Modifier = Modifier,
     child: @Composable (RowScope.(rowAndColumn: RowAndColumn) -> Unit)
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         repeat(2) { column ->
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize()
-            ) {
-                repeat(2) { row ->
-                    child(RowAndColumn(row, column))
-                }
+            Row(modifier = Modifier.weight(1f).fillMaxSize()) {
+                repeat(2) { row -> child(RowAndColumn(row, column)) }
             }
         }
     }
@@ -385,15 +317,8 @@ private fun Modifier.animatedDragAndDrop(
     level: Int,
     rowAndColumn: RowAndColumn
 ): Modifier {
-    val state = remember {
-        State(
-            prefix = prefix,
-            level = level,
-            rowAndColumn = rowAndColumn
-        )
-    }
-    return this
-        .stateDragSource(state)
+    val state = remember { State(prefix = prefix, level = level, rowAndColumn = rowAndColumn) }
+    return this.stateDragSource(state)
         .stateDropTarget(state)
         .background(state.animatedColor)
         .rotate(state.animatedRotation)
@@ -401,61 +326,58 @@ private fun Modifier.animatedDragAndDrop(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun Modifier.stateDragSource(
-    state: State
-) = dragAndDropSource(
-    drawDragDecoration = {
-        drawRoundRect(state.color)
-    },
-) {
-    detectTapGestures(
-        onLongPress = { startTransfer(state.color.toDragAndDropTransfer()) }
-    )
-}
+private fun Modifier.stateDragSource(state: State) =
+    dragAndDropSource(
+        drawDragDecoration = { drawRoundRect(state.color) },
+    ) {
+        detectTapGestures(onLongPress = { startTransfer(state.color.toDragAndDropTransfer()) })
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun Modifier.stateDropTarget(
-    state: State
-) = dragAndDropTarget(
-    shouldStartDragAndDrop = { startEvent ->
-        startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
-    },
-    target = object : DragAndDropTarget {
-        override fun onStarted(event: DragAndDropEvent) {
-            state.onStarted()
-        }
+private fun Modifier.stateDropTarget(state: State) =
+    dragAndDropTarget(
+        shouldStartDragAndDrop = { startEvent ->
+            startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
+        },
+        target =
+            object : DragAndDropTarget {
+                override fun onStarted(event: DragAndDropEvent) {
+                    state.onStarted()
+                }
 
-        override fun onEntered(event: DragAndDropEvent) {
-            state.onEntered()
-            println("Entered ${state.name}")
-        }
+                override fun onEntered(event: DragAndDropEvent) {
+                    state.onEntered()
+                    println("Entered ${state.name}")
+                }
 
-        override fun onMoved(event: DragAndDropEvent) {
-            println("Moved in ${state.name}")
-        }
+                override fun onMoved(event: DragAndDropEvent) {
+                    println("Moved in ${state.name}")
+                }
 
-        override fun onExited(event: DragAndDropEvent) {
-            println("Exited ${state.name}")
-            state.onExited()
-        }
+                override fun onExited(event: DragAndDropEvent) {
+                    println("Exited ${state.name}")
+                    state.onExited()
+                }
 
-        override fun onEnded(event: DragAndDropEvent) {
-            println("Ended in ${state.name}")
-            state.onEnded()
-        }
+                override fun onEnded(event: DragAndDropEvent) {
+                    println("Ended in ${state.name}")
+                    state.onEnded()
+                }
 
-        override fun onDrop(event: DragAndDropEvent): Boolean {
-            println("Dropped items in ${state.name}")
-            return when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
-                null -> false
-                else -> {
-                    state.onDropped(transferredColor)
-                    true
+                override fun onDrop(event: DragAndDropEvent): Boolean {
+                    println("Dropped items in ${state.name}")
+                    return when (
+                        val transferredColor = event.toAndroidDragEvent().clipData.color()
+                    ) {
+                        null -> false
+                        else -> {
+                            state.onDropped(transferredColor)
+                            true
+                        }
+                    }
                 }
             }
-        }
-    }
-)
+    )
 
 @Stable
 private class State(
@@ -495,106 +417,93 @@ private class State(
 }
 
 private val State.name
-    get() = with(rowAndColumn) {
-        "$prefix${Letters.circularGet(row)}, ${Numbers.circularGet(column)}"
-    }
+    get() =
+        with(rowAndColumn) { "$prefix${Letters.circularGet(row)}, ${Numbers.circularGet(column)}" }
 private val State.startColor
-    get() = when (level % 2) {
-        0 -> Colors.drop(Colors.size / 2)
-        else -> Colors.take(Colors.size / 2)
-    }.circularGet(colorIndex + level)
+    get() =
+        when (level % 2) {
+            0 -> Colors.drop(Colors.size / 2)
+            else -> Colors.take(Colors.size / 2)
+        }.circularGet(colorIndex + level)
 
 private val State.colorIndex
-    get() = with(rowAndColumn) {
-        (row * 2) + column
-    }
+    get() = with(rowAndColumn) { (row * 2) + column }
 
 private val State.animatedColor: Color
     @Composable
-    get() = rememberInfiniteTransition(
-        label = "color"
-    ).animateColor(
-        initialValue = color,
-        targetValue = if (isInside) Color.DarkGray else color,
-        animationSpec = infiniteRepeatable(
-            animation = tween(400),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "background color"
-    ).value
+    get() =
+        rememberInfiniteTransition(label = "color")
+            .animateColor(
+                initialValue = color,
+                targetValue = if (isInside) Color.DarkGray else color,
+                animationSpec =
+                    infiniteRepeatable(animation = tween(400), repeatMode = RepeatMode.Reverse),
+                label = "background color"
+            )
+            .value
 
 private val State.animatedRotation: Float
     @Composable
-    get() = rememberInfiniteTransition(
-        label = "rotation"
-    ).animateFloat(
-        initialValue = if (isInDnD) -0.2f else 0f,
-        targetValue = if (isInDnD) 0.2f else 0f,
-        animationSpec = infiniteRepeatable(
-            animation = jiggleSpec(),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "rotation"
-    ).value
+    get() =
+        rememberInfiniteTransition(label = "rotation")
+            .animateFloat(
+                initialValue = if (isInDnD) -0.2f else 0f,
+                targetValue = if (isInDnD) 0.2f else 0f,
+                animationSpec =
+                    infiniteRepeatable(animation = jiggleSpec(), repeatMode = RepeatMode.Reverse),
+                label = "rotation"
+            )
+            .value
 
 private val State.animatedTranslation: Dp
     @Composable
-    get() = rememberInfiniteTransition(
-        label = "translation"
-    ).animateFloat(
-        initialValue = if (isInDnD) -0.02f else 0f,
-        targetValue = if (isInDnD) 0.02f else 0f,
-        animationSpec = infiniteRepeatable(
-            animation = jiggleSpec(),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "translation"
-    ).value.dp
+    get() =
+        rememberInfiniteTransition(label = "translation")
+            .animateFloat(
+                initialValue = if (isInDnD) -0.02f else 0f,
+                targetValue = if (isInDnD) 0.02f else 0f,
+                animationSpec =
+                    infiniteRepeatable(animation = jiggleSpec(), repeatMode = RepeatMode.Reverse),
+                label = "translation"
+            )
+            .value
+            .dp
 
 private fun jiggleSpec(): DurationBasedAnimationSpec<Float> =
     tween(durationMillis = 70 + (Random.nextInt(30)))
 
-private data class RowAndColumn(
-    val row: Int,
-    val column: Int
-)
+private data class RowAndColumn(val row: Int, val column: Int)
 
-private fun Color.toDragAndDropTransfer() = DragAndDropTransferData(
-    clipData = ClipData.newIntent(
-        "color transfer",
-        colorDragAndDropTransferIntent(this)
+private fun Color.toDragAndDropTransfer() =
+    DragAndDropTransferData(
+        clipData = ClipData.newIntent("color transfer", colorDragAndDropTransferIntent(this))
     )
-)
 
 private fun ClipData.color() =
-    (0 until itemCount)
-        .map(::getItemAt)
-        .firstNotNullOfOrNull { item ->
-            item?.intent
-                ?.getIntExtra(ColorTransferData, -1)
-                ?.takeIf { it != -1 }
-                ?.let(::Color)
-        }
+    (0 until itemCount).map(::getItemAt).firstNotNullOfOrNull { item ->
+        item?.intent?.getIntExtra(ColorTransferData, -1)?.takeIf { it != -1 }?.let(::Color)
+    }
 
-private fun colorDragAndDropTransferIntent(color: Color) = Intent(ColorTransferAction).apply {
-    putExtra(ColorTransferData, color.toArgb())
-}
+private fun colorDragAndDropTransferIntent(color: Color) =
+    Intent(ColorTransferAction).apply { putExtra(ColorTransferData, color.toArgb()) }
 
 private const val ColorTransferAction = "action.color.transfer"
 private const val ColorTransferData = "data.color.transfer"
 
 private fun <T> List<T>.circularGet(index: Int) = get(index % size)
+
 private val Letters = ('A'..'Z').toList()
 private val Numbers = ('1'..'9').toList()
 
-private val Colors = listOf(
-    Color(0xFF2980b9), // Belize Hole
-    Color(0xFF2c3e50), // Midnight Blue
-    Color(0xFFc0392b), // Pomegranate
-    Color(0xFF16a085), // Green Sea
-    Color(0xFF7f8c8d), // Concrete
-    Color(0xFFC6973B), // Mustard
-    Color(0xFFF6CAB7), // Blush
-    Color(0xFF6D4336), // Brown
-    Color(0xFF814063), // Plum
-)
+private val Colors =
+    listOf(
+        Color(0xFF2980b9), // Belize Hole
+        Color(0xFF2c3e50), // Midnight Blue
+        Color(0xFFc0392b), // Pomegranate
+        Color(0xFF16a085), // Green Sea
+        Color(0xFF7f8c8d), // Concrete
+        Color(0xFFC6973B), // Mustard
+        Color(0xFFF6CAB7), // Blush
+        Color(0xFF6D4336), // Brown
+        Color(0xFF814063), // Plum
+    )

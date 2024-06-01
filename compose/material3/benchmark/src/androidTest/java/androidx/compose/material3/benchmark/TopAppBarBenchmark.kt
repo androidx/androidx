@@ -37,8 +37,7 @@ import org.junit.Test
 
 class TopAppBarBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val topAppBarTestCaseFactory = { TopAppBarTestCase() }
 
@@ -91,9 +90,7 @@ internal class TopAppBarTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
@@ -108,8 +105,6 @@ internal class LargeTopAppBarTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

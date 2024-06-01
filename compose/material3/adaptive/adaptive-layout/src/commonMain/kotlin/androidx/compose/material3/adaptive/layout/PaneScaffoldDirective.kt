@@ -31,16 +31,16 @@ import androidx.window.core.layout.WindowWidthSizeClass
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfo] to acquire Material-recommended adaptive layout
- * settings of the current activity window.
+ * method with [currentWindowAdaptiveInfo] to acquire Material-recommended adaptive layout settings
+ * of the current activity window.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
  *
- * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
- *        layout adaptation decisions like [WindowSizeClass].
+ * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making layout
+ *   adaptation decisions like [WindowSizeClass].
  * @param verticalHingePolicy [HingePolicy] that decides how layouts are supposed to address
- *        vertical hinges.
+ *   vertical hinges.
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 @ExperimentalMaterial3AdaptiveApi
@@ -95,16 +95,16 @@ fun calculatePaneScaffoldDirective(
  * layout settings of the current activity window. Note that this function results in a dual-pane
  * layout when the [WindowWidthSizeClass] is [WindowWidthSizeClass.MEDIUM], while
  * [calculatePaneScaffoldDirective] results in a single-pane layout instead. We recommend to use
- * [calculatePaneScaffoldDirective], unless you have a strong use case to show two panes on
- * a medium-width window, which can make your layout look too packed.
+ * [calculatePaneScaffoldDirective], unless you have a strong use case to show two panes on a
+ * medium-width window, which can make your layout look too packed.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
  *
- * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making
- *        layout adaptation decisions like [WindowSizeClass].
+ * @param windowAdaptiveInfo [WindowAdaptiveInfo] that collects useful information in making layout
+ *   adaptation decisions like [WindowSizeClass].
  * @param verticalHingePolicy [HingePolicy] that decides how layouts are supposed to address
- *        vertical hinges.
+ *   vertical hinges.
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 @ExperimentalMaterial3AdaptiveApi
@@ -117,11 +117,12 @@ fun calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
     return with(calculatePaneScaffoldDirective(windowAdaptiveInfo, verticalHingePolicy)) {
         copy(
             maxHorizontalPartitions = if (isMediumWidth) 2 else maxHorizontalPartitions,
-            horizontalPartitionSpacerSize = if (isMediumWidth) {
-                24.dp
-            } else {
-                horizontalPartitionSpacerSize
-            }
+            horizontalPartitionSpacerSize =
+                if (isMediumWidth) {
+                    24.dp
+                } else {
+                    horizontalPartitionSpacerSize
+                }
         )
     }
 }
@@ -139,20 +140,19 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
  * Top-level directives about how a pane scaffold should be arranged and spaced, like how many
  * partitions the layout can be split into and what should be the gutter size.
  *
- * @property maxHorizontalPartitions the max number of partitions along the horizontal axis
- *           the layout can be split into.
- * @property horizontalPartitionSpacerSize Size of the spacers between horizontal partitions.
- *           It's equivalent to the left/right margins the horizontal partitions.
+ * @property maxHorizontalPartitions the max number of partitions along the horizontal axis the
+ *   layout can be split into.
+ * @property horizontalPartitionSpacerSize Size of the spacers between horizontal partitions. It's
+ *   equivalent to the left/right margins the horizontal partitions.
  * @property maxVerticalPartitions the max number of partitions along the vertical axis the layout
- *           can be split into.
- * @property verticalPartitionSpacerSize Size of the spacers between vertical partitions.
- *           It's equivalent to the top/bottom margins of the vertical partitions.
- * @property defaultPanePreferredWidth Default preferred width of panes that will be used by
- *           the scaffold if there's no [Modifier.preferredWidth] provided with a pane. See
- *           [Modifier.preferredWidth] for more info about how and when preferred width will be
- *           used.
+ *   can be split into.
+ * @property verticalPartitionSpacerSize Size of the spacers between vertical partitions. It's
+ *   equivalent to the top/bottom margins of the vertical partitions.
+ * @property defaultPanePreferredWidth Default preferred width of panes that will be used by the
+ *   scaffold if there's no [Modifier.preferredWidth] provided with a pane. See
+ *   [Modifier.preferredWidth] for more info about how and when preferred width will be used.
  * @property excludedBounds the bounds of all areas in the window that the layout needs to avoid
- *           displaying anything upon it. Usually these bounds represent where physical hinges are.
+ *   displaying anything upon it. Usually these bounds represent where physical hinges are.
  */
 @Immutable
 class PaneScaffoldDirective(
@@ -164,22 +164,22 @@ class PaneScaffoldDirective(
     val excludedBounds: List<Rect>
 ) {
     /**
-     * Returns a new copy of [PaneScaffoldDirective] with specified fields overwritten. Use
-     * this method to create a custom [PaneScaffoldDirective] from the default instance or
-     * the result of [calculatePaneScaffoldDirective].
+     * Returns a new copy of [PaneScaffoldDirective] with specified fields overwritten. Use this
+     * method to create a custom [PaneScaffoldDirective] from the default instance or the result of
+     * [calculatePaneScaffoldDirective].
      *
-     * @param maxHorizontalPartitions the max number of partitions along the horizontal axis
-     *        the layout can be split into.
-     * @param horizontalPartitionSpacerSize Size of the spacers between horizontal partitions.
-     *        It's equivalent to the left/right margins the horizontal partitions.
+     * @param maxHorizontalPartitions the max number of partitions along the horizontal axis the
+     *   layout can be split into.
+     * @param horizontalPartitionSpacerSize Size of the spacers between horizontal partitions. It's
+     *   equivalent to the left/right margins the horizontal partitions.
      * @param maxVerticalPartitions the max number of partitions along the vertical axis the layout
-     *        can be split into.
-     * @param verticalPartitionSpacerSize Size of the spacers between vertical partitions.
-     *        It's equivalent to the top/bottom margins of the vertical partitions.
-     * @param defaultPanePreferredWidth Default preferred width of panes that will be used by
-     *        the scaffold if there's no [Modifier.preferredWidth] provided with a pane.
+     *   can be split into.
+     * @param verticalPartitionSpacerSize Size of the spacers between vertical partitions. It's
+     *   equivalent to the top/bottom margins of the vertical partitions.
+     * @param defaultPanePreferredWidth Default preferred width of panes that will be used by the
+     *   scaffold if there's no [Modifier.preferredWidth] provided with a pane.
      * @param excludedBounds the bounds of all areas in the window that the layout needs to avoid
-     *        displaying anything upon it. Usually these bounds represent where physical hinges are.
+     *   displaying anything upon it. Usually these bounds represent where physical hinges are.
      */
     fun copy(
         maxHorizontalPartitions: Int = this.maxHorizontalPartitions,
@@ -188,14 +188,15 @@ class PaneScaffoldDirective(
         verticalPartitionSpacerSize: Dp = this.verticalPartitionSpacerSize,
         defaultPanePreferredWidth: Dp = this.defaultPanePreferredWidth,
         excludedBounds: List<Rect> = this.excludedBounds
-    ): PaneScaffoldDirective = PaneScaffoldDirective(
-        maxHorizontalPartitions,
-        horizontalPartitionSpacerSize,
-        maxVerticalPartitions,
-        verticalPartitionSpacerSize,
-        defaultPanePreferredWidth,
-        excludedBounds
-    )
+    ): PaneScaffoldDirective =
+        PaneScaffoldDirective(
+            maxHorizontalPartitions,
+            horizontalPartitionSpacerSize,
+            maxVerticalPartitions,
+            verticalPartitionSpacerSize,
+            defaultPanePreferredWidth,
+            excludedBounds
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -232,14 +233,15 @@ class PaneScaffoldDirective(
          * occupies the full window. To create a customized [PaneScaffoldDirective], you can use
          * [PaneScaffoldDirective.copy] on the default instance to create a copy with custom values.
          */
-        val Default = PaneScaffoldDirective(
-            maxHorizontalPartitions = 1,
-            horizontalPartitionSpacerSize = 0.dp,
-            maxVerticalPartitions = 1,
-            verticalPartitionSpacerSize = 0.dp,
-            defaultPanePreferredWidth = 360.dp,
-            excludedBounds = emptyList()
-        )
+        val Default =
+            PaneScaffoldDirective(
+                maxHorizontalPartitions = 1,
+                horizontalPartitionSpacerSize = 0.dp,
+                maxVerticalPartitions = 1,
+                verticalPartitionSpacerSize = 0.dp,
+                defaultPanePreferredWidth = 360.dp,
+                excludedBounds = emptyList()
+            )
     }
 }
 
@@ -248,13 +250,14 @@ class PaneScaffoldDirective(
 @kotlin.jvm.JvmInline
 value class HingePolicy private constructor(private val value: Int) {
     override fun toString(): String {
-        return "HingePolicy." + when (this) {
-            AlwaysAvoid -> "AlwaysAvoid"
-            AvoidSeparating -> "AvoidOccludingAndSeparating"
-            AvoidOccluding -> "AvoidOccludingOnly"
-            NeverAvoid -> "NeverAvoid"
-            else -> ""
-        }
+        return "HingePolicy." +
+            when (this) {
+                AlwaysAvoid -> "AlwaysAvoid"
+                AvoidSeparating -> "AvoidOccludingAndSeparating"
+                AvoidOccluding -> "AvoidOccludingOnly"
+                NeverAvoid -> "NeverAvoid"
+                else -> ""
+            }
     }
 
     companion object {

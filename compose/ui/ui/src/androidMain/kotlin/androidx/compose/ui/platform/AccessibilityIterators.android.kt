@@ -26,8 +26,7 @@ import java.text.BreakIterator
 import java.util.Locale
 
 /**
- * This class contains the implementation of text segment iterators
- * for accessibility support.
+ * This class contains the implementation of text segment iterators for accessibility support.
  *
  * Note: We want to be able to iterator over [SemanticsProperties.ContentDescription] of any
  * component.
@@ -35,10 +34,9 @@ import java.util.Locale
 internal class AccessibilityIterators {
 
     interface TextSegmentIterator {
-        /**
-         * Given the current position, returning the start and end of next element in an array.
-         */
+        /** Given the current position, returning the start and end of next element in an array. */
         fun following(current: Int): IntArray?
+
         /**
          * Given the current position, returning the start and end of previous element in an array.
          */
@@ -69,6 +67,7 @@ internal class AccessibilityIterators {
         AbstractTextSegmentIterator() {
         companion object {
             private var instance: CharacterTextSegmentIterator? = null
+
             fun getInstance(locale: Locale): CharacterTextSegmentIterator {
                 if (instance == null) {
                     instance = CharacterTextSegmentIterator(locale)
@@ -241,8 +240,7 @@ internal class AccessibilityIterators {
         }
 
         private fun isStartBoundary(index: Int): Boolean {
-            return isLetterOrDigit(index) &&
-                (index == 0 || !isLetterOrDigit(index - 1))
+            return isLetterOrDigit(index) && (index == 0 || !isLetterOrDigit(index - 1))
         }
 
         private fun isEndBoundary(index: Int): Boolean {
@@ -283,9 +281,7 @@ internal class AccessibilityIterators {
             if (start < 0) {
                 start = 0
             }
-            while (start < textLength && text[start] == '\n' &&
-                !isStartBoundary(start)
-            ) {
+            while (start < textLength && text[start] == '\n' && !isStartBoundary(start)) {
                 start++
             }
             if (start >= textLength) {
@@ -324,17 +320,13 @@ internal class AccessibilityIterators {
         }
 
         private fun isStartBoundary(index: Int): Boolean {
-            return (
-                text[index] != '\n' &&
-                    (index == 0 || text[index - 1] == '\n')
-                )
+            return (text[index] != '\n' && (index == 0 || text[index - 1] == '\n'))
         }
 
         private fun isEndBoundary(index: Int): Boolean {
-            return (
-                index > 0 && text[index - 1] != '\n' &&
-                    (index == text.length || text[index] == '\n')
-                )
+            return (index > 0 &&
+                text[index - 1] != '\n' &&
+                (index == text.length || text[index] == '\n'))
         }
     }
 
@@ -367,16 +359,17 @@ internal class AccessibilityIterators {
             if (current >= text.length) {
                 return null
             }
-            val nextLine = if (current < 0) {
-                layoutResult.getLineForOffset(0)
-            } else {
-                val currentLine = layoutResult.getLineForOffset(current)
-                if (getLineEdgeIndex(currentLine, DirectionStart) == current) {
-                    currentLine
+            val nextLine =
+                if (current < 0) {
+                    layoutResult.getLineForOffset(0)
                 } else {
-                    currentLine + 1
+                    val currentLine = layoutResult.getLineForOffset(current)
+                    if (getLineEdgeIndex(currentLine, DirectionStart) == current) {
+                        currentLine
+                    } else {
+                        currentLine + 1
+                    }
                 }
-            }
             if (nextLine >= layoutResult.lineCount) {
                 return null
             }
@@ -393,16 +386,17 @@ internal class AccessibilityIterators {
             if (current <= 0) {
                 return null
             }
-            val previousLine = if (current > text.length) {
-                layoutResult.getLineForOffset(text.length)
-            } else {
-                val currentLine = layoutResult.getLineForOffset(current)
-                if (getLineEdgeIndex(currentLine, DirectionEnd) + 1 == current) {
-                    currentLine
+            val previousLine =
+                if (current > text.length) {
+                    layoutResult.getLineForOffset(text.length)
                 } else {
-                    currentLine - 1
+                    val currentLine = layoutResult.getLineForOffset(current)
+                    if (getLineEdgeIndex(currentLine, DirectionEnd) + 1 == current) {
+                        currentLine
+                    } else {
+                        currentLine - 1
+                    }
                 }
-            }
             if (previousLine < 0) {
                 return null
             }
@@ -428,6 +422,7 @@ internal class AccessibilityIterators {
             private var pageInstance: PageTextSegmentIterator? = null
             private val DirectionStart = ResolvedTextDirection.Rtl
             private val DirectionEnd = ResolvedTextDirection.Ltr
+
             fun getInstance(): PageTextSegmentIterator {
                 if (pageInstance == null) {
                     pageInstance = PageTextSegmentIterator()
@@ -472,9 +467,10 @@ internal class AccessibilityIterators {
             //                    - mView.getTotalPaddingBottom();
             val nextPageStartY = currentLineTop + pageHeight
             val lastLineTop = layoutResult.getLineTop(layoutResult.lineCount - 1)
-            val currentPageEndLine = if (nextPageStartY < lastLineTop)
-                layoutResult.getLineForVerticalPosition(nextPageStartY) - 1
-            else layoutResult.lineCount - 1
+            val currentPageEndLine =
+                if (nextPageStartY < lastLineTop)
+                    layoutResult.getLineForVerticalPosition(nextPageStartY) - 1
+                else layoutResult.lineCount - 1
 
             val end = getLineEdgeIndex(currentPageEndLine, DirectionEnd) + 1
 
@@ -506,8 +502,9 @@ internal class AccessibilityIterators {
             //  final int pageHeight = mTempRect.height() - mView.getTotalPaddingTop()
             //                    - mView.getTotalPaddingBottom();
             val previousPageEndY = currentLineTop - pageHeight
-            var currentPageStartLine = if (previousPageEndY > 0)
-                layoutResult.getLineForVerticalPosition(previousPageEndY) else 0
+            var currentPageStartLine =
+                if (previousPageEndY > 0) layoutResult.getLineForVerticalPosition(previousPageEndY)
+                else 0
             // If we're at the end of text, we're at the end of the current line rather than the
             // start of the next line, so we should move up one fewer lines than we would otherwise.
             if (end == text.length && (currentPageStartLine < currentLine)) {

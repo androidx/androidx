@@ -23,16 +23,16 @@ import org.jetbrains.skia.impl.Library
  * This function is called implicitly if you use [awaitApplication] / [application] /
  * [launchApplication] and Compose for Desktop Gradle plugin tasks "run" or "package"
  *
- * If you integrate Compose into existing Swing application (like IDEA), don't call this function
- * as it affects the entire application.
+ * If you integrate Compose into existing Swing application (like IDEA), don't call this function as
+ * it affects the entire application.
  *
  * This function:
  * - sets system property `apple.laf.useScreenMenuBar` to true
  * - sets system property `sun.java2d.uiScale`/`sun.java2d.uiScale.enabled` automatically on Linux
  * - sets UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
  *
- * Should be called before using any class from `java.swing.*`
- * (even before SwingUtilities.invokeLater or Dispatchers.Swing)
+ * Should be called before using any class from `java.swing.*` (even before
+ * SwingUtilities.invokeLater or Dispatchers.Swing)
  */
 @ExperimentalComposeUiApi
 fun configureSwingGlobalsForCompose(
@@ -40,8 +40,7 @@ fun configureSwingGlobalsForCompose(
         System.getProperty("skiko.rendering.laf.global", "true") == "true",
     useScreenMenuBarOnMacOs: Boolean =
         System.getProperty("skiko.rendering.useScreenMenuBar", "true") == "true",
-    useAutoDpiOnLinux: Boolean =
-        System.getProperty("skiko.linux.autodpi", "true") == "true",
+    useAutoDpiOnLinux: Boolean = System.getProperty("skiko.linux.autodpi", "true") == "true",
 ) {
     System.setProperty("skiko.rendering.laf.global", overrideLookAndFeel.toString())
     System.setProperty("skiko.rendering.useScreenMenuBar", useScreenMenuBarOnMacOs.toString())

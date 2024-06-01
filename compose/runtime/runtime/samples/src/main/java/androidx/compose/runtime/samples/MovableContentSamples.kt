@@ -23,8 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 
-@Composable
-fun ItemView(@Suppress("UNUSED_PARAMETER") userId: Int) { }
+@Composable fun ItemView(@Suppress("UNUSED_PARAMETER") userId: Int) {}
+
 typealias Item = Int
 
 @Suppress("unused")
@@ -34,13 +34,9 @@ fun MovableContentColumnRowSample(content: @Composable () -> Unit, vertical: Boo
     val movableContent = remember(content) { movableContentOf(content) }
 
     if (vertical) {
-        Column {
-            movableContent()
-        }
+        Column { movableContent() }
     } else {
-        Row {
-            movableContent()
-        }
+        Row { movableContent() }
     }
 }
 
@@ -48,9 +44,7 @@ fun MovableContentColumnRowSample(content: @Composable () -> Unit, vertical: Boo
 @Sampled
 @Composable
 fun MovableContentMultiColumnSample(items: List<Item>) {
-    val itemMap = remember {
-        mutableMapOf<Item, @Composable () -> Unit>()
-    }
+    val itemMap = remember { mutableMapOf<Item, @Composable () -> Unit>() }
     val movableItems =
         items.map { item -> itemMap.getOrPut(item) { movableContentOf { ItemView(item) } } }
 

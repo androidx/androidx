@@ -45,12 +45,9 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MeasureOnlyTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
-    /**
-     * onMeasure() shouldn't call placement or onPlace() or onGloballyPositioned()
-     */
+    /** onMeasure() shouldn't call placement or onPlace() or onGloballyPositioned() */
     @Test
     fun onMeasureDoesNotPlace() {
         var onPlacedCalled: Boolean
@@ -60,17 +57,16 @@ class MeasureOnlyTest {
 
         rule.setContent {
             view = LocalView.current
-            Layout(modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Blue)
-                .onPlaced { onPlacedCalled = true }
-                .onGloballyPositioned { onGloballyPositionedCalled = true }
+            Layout(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .background(Color.Blue)
+                        .onPlaced { onPlacedCalled = true }
+                        .onGloballyPositioned { onGloballyPositionedCalled = true }
             ) { _, constraints ->
                 val width = constraints.constrainWidth(10000)
                 val height = constraints.constrainHeight(10000)
-                layout(width, height) {
-                    placementCalled = true
-                }
+                layout(width, height) { placementCalled = true }
             }
         }
 
@@ -94,22 +90,18 @@ class MeasureOnlyTest {
 
         rule.setContent {
             view = LocalView.current
-            val child = @Composable {
-                Layout { _, _ ->
-                    childMeasured = true
-                    layout(10, 10) { }
+            val child =
+                @Composable {
+                    Layout { _, _ ->
+                        childMeasured = true
+                        layout(10, 10) {}
+                    }
                 }
-            }
-            Layout(
-                content = child,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Blue)
-            ) { measurables, constraints ->
+            Layout(content = child, modifier = Modifier.fillMaxSize().background(Color.Blue)) {
+                measurables,
+                constraints ->
                 val p = measurables[0].measure(constraints)
-                layout(p.width, p.height) {
-                    p.place(0, 0)
-                }
+                layout(p.width, p.height) { p.place(0, 0) }
             }
         }
 
@@ -129,18 +121,16 @@ class MeasureOnlyTest {
 
         rule.setContent {
             view = LocalView.current
-            val child = @Composable {
-                Layout { _, _ ->
-                    childMeasured = true
-                    layout(10, 10) { }
+            val child =
+                @Composable {
+                    Layout { _, _ ->
+                        childMeasured = true
+                        layout(10, 10) {}
+                    }
                 }
-            }
-            Layout(
-                content = child,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Blue)
-            ) { measurables, constraints ->
+            Layout(content = child, modifier = Modifier.fillMaxSize().background(Color.Blue)) {
+                measurables,
+                constraints ->
                 layout(100, 100) {
                     val p = measurables[0].measure(constraints)
                     p.place(0, 0)
@@ -165,22 +155,18 @@ class MeasureOnlyTest {
 
         rule.setContent {
             view = LocalView.current
-            val child = @Composable {
-                Layout { _, _ ->
-                    childMeasured = true
-                    layout(childSize.width, childSize.height) { }
+            val child =
+                @Composable {
+                    Layout { _, _ ->
+                        childMeasured = true
+                        layout(childSize.width, childSize.height) {}
+                    }
                 }
-            }
-            Layout(
-                content = child,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Blue)
-            ) { measurables, constraints ->
+            Layout(content = child, modifier = Modifier.fillMaxSize().background(Color.Blue)) {
+                measurables,
+                constraints ->
                 val p = measurables[0].measure(constraints)
-                layout(p.width, p.height) {
-                    p.place(0, 0)
-                }
+                layout(p.width, p.height) { p.place(0, 0) }
             }
         }
 
@@ -210,18 +196,16 @@ class MeasureOnlyTest {
 
         rule.setContent {
             view = LocalView.current
-            val child = @Composable {
-                Layout { _, _ ->
-                    childMeasured = true
-                    layout(childSize.width, childSize.height) { }
+            val child =
+                @Composable {
+                    Layout { _, _ ->
+                        childMeasured = true
+                        layout(childSize.width, childSize.height) {}
+                    }
                 }
-            }
-            Layout(
-                content = child,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Blue)
-            ) { measurables, constraints ->
+            Layout(content = child, modifier = Modifier.fillMaxSize().background(Color.Blue)) {
+                measurables,
+                constraints ->
                 layout(10, 10) {
                     val p = measurables[0].measure(constraints)
                     p.place(0, 0)
@@ -248,8 +232,8 @@ class MeasureOnlyTest {
     }
 
     /**
-     * When a descendant affects the root size, the root should resize when the
-     * descendant changes size.
+     * When a descendant affects the root size, the root should resize when the descendant changes
+     * size.
      */
     @Test
     fun remeasureRoot() {
@@ -257,40 +241,42 @@ class MeasureOnlyTest {
         var showContent by mutableStateOf(false)
         rule.setContent {
             view = LocalView.current
-            AndroidView(factory = { context ->
-                ComposeView(context).apply {
-                    setContent {
-                        Box {
-                            Layout { _, _ ->
-                                val size = if (showContent) 10 else 0
-                                layout(size, size) {}
+            AndroidView(
+                factory = { context ->
+                    ComposeView(context).apply {
+                        setContent {
+                            Box {
+                                Layout { _, _ ->
+                                    val size = if (showContent) 10 else 0
+                                    layout(size, size) {}
+                                }
                             }
                         }
                     }
                 }
-            })
+            )
         }
         rule.runOnIdle {
             assertThat(view.height).isEqualTo(0)
             showContent = true
         }
-        rule.runOnIdle {
-            assertThat(view.height).isEqualTo(10)
-        }
+        rule.runOnIdle { assertThat(view.height).isEqualTo(10) }
     }
 
     @Test
     fun measureWidthTooLarge() {
         var exception: IllegalStateException? = null
         rule.setContent {
-            Box(Modifier.layout { _, _ ->
-                try {
-                    layout(1 shl 24, 100) {}
-                } catch (e: IllegalStateException) {
-                    exception = e
-                    layout(0, 0) {}
+            Box(
+                Modifier.layout { _, _ ->
+                    try {
+                        layout(1 shl 24, 100) {}
+                    } catch (e: IllegalStateException) {
+                        exception = e
+                        layout(0, 0) {}
+                    }
                 }
-            })
+            )
         }
         rule.waitForIdle()
         assertThat(exception).isNotNull()
@@ -300,14 +286,16 @@ class MeasureOnlyTest {
     fun measureHeightTooLarge() {
         var exception: IllegalStateException? = null
         rule.setContent {
-            Box(Modifier.layout { _, _ ->
-                try {
-                    layout(100, 1 shl 24) {}
-                } catch (e: IllegalStateException) {
-                    exception = e
-                    layout(0, 0) {}
+            Box(
+                Modifier.layout { _, _ ->
+                    try {
+                        layout(100, 1 shl 24) {}
+                    } catch (e: IllegalStateException) {
+                        exception = e
+                        layout(0, 0) {}
+                    }
                 }
-            })
+            )
         }
         rule.waitForIdle()
         assertThat(exception).isNotNull()

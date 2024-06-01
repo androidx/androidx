@@ -43,136 +43,138 @@ import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.getContainingUClass
 
 /**
- * This detects uses of Set, List, and Map with primitive type arguments. Internally, these
- * should be replaced by the primitive-specific collections in androidx.
+ * This detects uses of Set, List, and Map with primitive type arguments. Internally, these should
+ * be replaced by the primitive-specific collections in androidx.
  */
 class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableUastTypes() = listOf<Class<out UElement>>(
-        UMethod::class.java,
-        UVariable::class.java
-    )
+    override fun getApplicableUastTypes() =
+        listOf<Class<out UElement>>(UMethod::class.java, UVariable::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitMethod(node: UMethod) {
-            if (context.evaluator.isOverride(node) ||
-                node.isDataClassGeneratedMethod(context)
-            ) {
-                return
-            }
-
-            val primitiveCollection = node.returnType?.primitiveCollectionReplacement(context)
-            if (primitiveCollection != null) {
-                // The location doesn't appear to work with property types with getters rather than
-                // full fields. Target the property name instead if we don't have a location.
-                val target = if (context.getLocation(node.returnTypeReference).start == null) {
-                    node
-                } else {
-                    node.returnTypeReference
-                }
-                report(
-                    context,
-                    node,
-                    target,
-                    "return type ${node.returnType?.presentableText} of ${node.name}:" +
-                        " replace with $primitiveCollection"
-                )
-            }
-        }
-
-        override fun visitVariable(node: UVariable) {
-            // Kotlin destructuring expression is desugared. E.g.,
-            //
-            //   val (x, y) = pair
-            //
-            // is mapped to
-            //
-            //   val varHash = pair // temp variable
-            //   val x = varHash.component1()
-            //   val y = varHash.component2()
-            //
-            // and thus we don't need to analyze the temporary variable.
-            // Their `sourcePsi`s are different:
-            //   KtDestructuringDeclaration (for overall expression) v.s.
-            //   KtDestructuringDeclarationEntry (for individual local variables)
-            if (node.sourcePsi is KtDestructuringDeclaration) return
-
-            val primitiveCollection = node.type.primitiveCollectionReplacement(context) ?: return
-            if (node.isLambdaParameter()) {
-                // Don't notify for lambda parameters. We'll be notifying for the method
-                // that accepts the lambda, so we already have it flagged there. The
-                // person using it doesn't really have a choice about the parameters that
-                // are passed.
-                return
-            }
-            val parent = node.uastParent
-            val messageContext = if (parent is UMethod) {
-                // Data class constructor parameters are caught 4 times:
-                // 1) constructor method parameter
-                // 2) the field of the backing 'val'
-                // 3) the getter for the field
-                // 4) the generated copy() method.
-                // We can eliminate the copy() at least, even if we get duplicates for the
-                // other 3. It would be ideal to eliminate 2 of the other 3, but it isn't
-                // easy to do and still catch all uses.
-                if (context.evaluator.isOverride(parent) ||
-                    (context.evaluator.isData(parent) && parent.name.startsWith("copy"))
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitMethod(node: UMethod) {
+                if (
+                    context.evaluator.isOverride(node) || node.isDataClassGeneratedMethod(context)
                 ) {
                     return
                 }
-                val methodName = if (parent.isConstructor) {
-                    "constructor ${parent.getContainingUClass()?.name}"
-                } else {
-                    "method ${parent.name}"
-                }
-                "$methodName has parameter ${node.name} " +
-                    "with type ${node.type.presentableText}: replace with $primitiveCollection"
-            } else {
-                val varOrField = if (node is UField) "field" else "variable"
 
-                "$varOrField ${node.name} with type ${node.type.presentableText}: replace" +
-                    " with $primitiveCollection"
+                val primitiveCollection = node.returnType?.primitiveCollectionReplacement(context)
+                if (primitiveCollection != null) {
+                    // The location doesn't appear to work with property types with getters rather
+                    // than
+                    // full fields. Target the property name instead if we don't have a location.
+                    val target =
+                        if (context.getLocation(node.returnTypeReference).start == null) {
+                            node
+                        } else {
+                            node.returnTypeReference
+                        }
+                    report(
+                        context,
+                        node,
+                        target,
+                        "return type ${node.returnType?.presentableText} of ${node.name}:" +
+                            " replace with $primitiveCollection"
+                    )
+                }
             }
-            report(
-                context,
-                node,
-                node.typeReference,
-                messageContext
-            )
+
+            override fun visitVariable(node: UVariable) {
+                // Kotlin destructuring expression is desugared. E.g.,
+                //
+                //   val (x, y) = pair
+                //
+                // is mapped to
+                //
+                //   val varHash = pair // temp variable
+                //   val x = varHash.component1()
+                //   val y = varHash.component2()
+                //
+                // and thus we don't need to analyze the temporary variable.
+                // Their `sourcePsi`s are different:
+                //   KtDestructuringDeclaration (for overall expression) v.s.
+                //   KtDestructuringDeclarationEntry (for individual local variables)
+                if (node.sourcePsi is KtDestructuringDeclaration) return
+
+                val primitiveCollection =
+                    node.type.primitiveCollectionReplacement(context) ?: return
+                if (node.isLambdaParameter()) {
+                    // Don't notify for lambda parameters. We'll be notifying for the method
+                    // that accepts the lambda, so we already have it flagged there. The
+                    // person using it doesn't really have a choice about the parameters that
+                    // are passed.
+                    return
+                }
+                val parent = node.uastParent
+                val messageContext =
+                    if (parent is UMethod) {
+                        // Data class constructor parameters are caught 4 times:
+                        // 1) constructor method parameter
+                        // 2) the field of the backing 'val'
+                        // 3) the getter for the field
+                        // 4) the generated copy() method.
+                        // We can eliminate the copy() at least, even if we get duplicates for the
+                        // other 3. It would be ideal to eliminate 2 of the other 3, but it isn't
+                        // easy to do and still catch all uses.
+                        if (
+                            context.evaluator.isOverride(parent) ||
+                                (context.evaluator.isData(parent) && parent.name.startsWith("copy"))
+                        ) {
+                            return
+                        }
+                        val methodName =
+                            if (parent.isConstructor) {
+                                "constructor ${parent.getContainingUClass()?.name}"
+                            } else {
+                                "method ${parent.name}"
+                            }
+                        "$methodName has parameter ${node.name} " +
+                            "with type ${node.type.presentableText}: replace with $primitiveCollection"
+                    } else {
+                        val varOrField = if (node is UField) "field" else "variable"
+
+                        "$varOrField ${node.name} with type ${node.type.presentableText}: replace" +
+                            " with $primitiveCollection"
+                    }
+                report(context, node, node.typeReference, messageContext)
+            }
         }
-    }
 
     private fun report(context: JavaContext, node: UElement, target: Any?, message: String) {
-        val location = if (target == null) {
-            context.getLocation(node)
-        } else {
-            context.getLocation(target)
-        }
-        context.report(
-            issue = ISSUE,
-            scope = node,
-            location = location,
-            message = message
-        )
+        val location =
+            if (target == null) {
+                context.getLocation(node)
+            } else {
+                context.getLocation(target)
+            }
+        context.report(issue = ISSUE, scope = node, location = location, message = message)
     }
 
     companion object {
         private const val PrimitiveInCollectionId = "PrimitiveInCollection"
 
-        val ISSUE = Issue.create(
-            id = PrimitiveInCollectionId,
-            briefDescription = "A primitive (Short, Int, Long, Char, Float, Double) or " +
-                "a value class wrapping a primitive was used as in a collection. Primitive " +
-                "versions of collections exist.",
-            explanation = "Using a primitive type in a collection will autobox the primitive " +
-                "value, causing an allocation. To avoid the allocation, use one of the androidx " +
-                "collections designed for use with primitives. For example instead of Set<Int>, " +
-                "use IntSet.",
-            category = Category.PERFORMANCE, priority = 3, severity = Severity.ERROR,
-            implementation = Implementation(
-                PrimitiveInCollectionDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE)
+        val ISSUE =
+            Issue.create(
+                id = PrimitiveInCollectionId,
+                briefDescription =
+                    "A primitive (Short, Int, Long, Char, Float, Double) or " +
+                        "a value class wrapping a primitive was used as in a collection. Primitive " +
+                        "versions of collections exist.",
+                explanation =
+                    "Using a primitive type in a collection will autobox the primitive " +
+                        "value, causing an allocation. To avoid the allocation, use one of the androidx " +
+                        "collections designed for use with primitives. For example instead of Set<Int>, " +
+                        "use IntSet.",
+                category = Category.PERFORMANCE,
+                priority = 3,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        PrimitiveInCollectionDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE)
+                    )
             )
-        )
     }
 }
 
@@ -182,19 +184,20 @@ private val MapType = java.util.Map::class.java.canonicalName
 
 // Map from the kotlin type to the primitive type used in the collection
 // e.g. Set<Byte> -> IntSet
-private val BoxedTypeToSuggestedPrimitive = mapOf(
-    "java.lang.Byte" to "Int",
-    "java.lang.Character" to "Int",
-    "java.lang.Short" to "Int",
-    "java.lang.Integer" to "Int",
-    "java.lang.Long" to "Long",
-    "java.lang.Float" to "Float",
-    "java.lang.Double" to "Float",
-    "kotlin.UByte" to "Int",
-    "kotlin.UShort" to "Int",
-    "kotlin.UInt" to "Int",
-    "kotlin.ULong" to "Long",
-)
+private val BoxedTypeToSuggestedPrimitive =
+    mapOf(
+        "java.lang.Byte" to "Int",
+        "java.lang.Character" to "Int",
+        "java.lang.Short" to "Int",
+        "java.lang.Integer" to "Int",
+        "java.lang.Long" to "Long",
+        "java.lang.Float" to "Float",
+        "java.lang.Double" to "Float",
+        "kotlin.UByte" to "Int",
+        "kotlin.UShort" to "Int",
+        "kotlin.UInt" to "Int",
+        "kotlin.ULong" to "Long",
+    )
 
 private fun JvmType.primitiveCollectionReplacement(context: JavaContext): String? {
     if (this !is PsiClassReferenceType) return null
@@ -230,32 +233,34 @@ private fun JvmType.primitiveCollectionReplacement(context: JavaContext): String
     return null
 }
 
-private fun JvmType.primitiveName(): String? = when (this) {
-    is PsiClassReferenceType -> toPrimitiveName()
-    is PsiWildcardType -> {
-        val bound = if (isBounded) {
-            bound!!
-        } else {
-            superBound
+private fun JvmType.primitiveName(): String? =
+    when (this) {
+        is PsiClassReferenceType -> toPrimitiveName()
+        is PsiWildcardType -> {
+            val bound =
+                if (isBounded) {
+                    bound!!
+                } else {
+                    superBound
+                }
+            when (bound) {
+                is PsiClassReferenceType -> bound.toPrimitiveName()
+                is PsiPrimitiveType -> BoxedTypeToSuggestedPrimitive[bound.boxedTypeName]
+                else -> null
+            }
         }
-        when (bound) {
-            is PsiClassReferenceType -> bound.toPrimitiveName()
-            is PsiPrimitiveType -> BoxedTypeToSuggestedPrimitive[bound.boxedTypeName]
-            else -> null
-        }
+        else -> null
     }
-
-    else -> null
-}
 
 private fun PsiClassReferenceType.toPrimitiveName(): String? {
     val resolvedType = resolve() ?: return null
     if (hasJvmInline(resolvedType)) {
         val constructorParam =
             resolvedType.constructors.firstOrNull { it.parameters.size == 1 }?.parameters?.first()
-                ?: resolvedType.methods.firstOrNull {
-                    it.parameters.size == 1 && it.name == "constructor-impl"
-                }?.parameters?.first()
+                ?: resolvedType.methods
+                    .firstOrNull { it.parameters.size == 1 && it.name == "constructor-impl" }
+                    ?.parameters
+                    ?.first()
         if (constructorParam != null) {
             val type = constructorParam.type
             if (type is PsiPrimitiveType) {
@@ -278,8 +283,7 @@ private fun UMethod.isDataClassGeneratedMethod(context: JavaContext): Boolean =
 private fun UVariable.isLambdaParameter(): Boolean {
     val sourcePsi = sourcePsi
     return ((sourcePsi == null && (javaPsi as? PsiParameter)?.name == "it") ||
-        (sourcePsi as? KtParameter)?.isLambdaParameter == true
-        )
+        (sourcePsi as? KtParameter)?.isLambdaParameter == true)
 }
 
 private fun hasJvmInline(type: PsiClass): Boolean {

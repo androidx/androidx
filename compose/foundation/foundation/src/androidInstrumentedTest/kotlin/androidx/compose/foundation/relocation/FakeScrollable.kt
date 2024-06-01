@@ -27,20 +27,21 @@ import androidx.compose.ui.geometry.Rect
  * Returns a [bringIntoViewResponder] modifier that implements [BringIntoViewResponder] by
  * offsetting the local rect by [parentOffset] and handling the request by calling
  * [onBringIntoView]. Note that [onBringIntoView] will not be called if [parentOffset] is zero,
- * since that means the scrollable doesn't actually need to scroll anything to satisfy the
- * request.
+ * since that means the scrollable doesn't actually need to scroll anything to satisfy the request.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.fakeScrollable(
     parentOffset: Offset = Offset.Zero,
     onBringIntoView: suspend (() -> Rect?) -> Unit
-): Modifier = bringIntoViewResponder(
-    object : BringIntoViewResponder {
-        override fun calculateRectForParent(localRect: Rect): Rect =
-            localRect.translate(parentOffset)
+): Modifier =
+    bringIntoViewResponder(
+            object : BringIntoViewResponder {
+                override fun calculateRectForParent(localRect: Rect): Rect =
+                    localRect.translate(parentOffset)
 
-        override suspend fun bringChildIntoView(localRect: () -> Rect?) {
-            onBringIntoView(localRect)
-        }
-    })
-    .wrapContentSize(align = Alignment.TopStart, unbounded = true)
+                override suspend fun bringChildIntoView(localRect: () -> Rect?) {
+                    onBringIntoView(localRect)
+                }
+            }
+        )
+        .wrapContentSize(align = Alignment.TopStart, unbounded = true)

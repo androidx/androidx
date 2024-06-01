@@ -24,25 +24,18 @@ import androidx.compose.ui.util.lerp
  * Define a geometric transformation on text.
  *
  * @param scaleX The scale of the text on the horizontal direction. The default value is 1.0f, i.e
- * no scaling.
- * @param skewX The shear of the text on the horizontal direction. A pixel at (x, y), where y is
- * the distance above baseline, will be transformed to (x + y * skewX, y). The default value is
- * 0.0f i.e. no skewing.
+ *   no scaling.
+ * @param skewX The shear of the text on the horizontal direction. A pixel at (x, y), where y is the
+ *   distance above baseline, will be transformed to (x + y * skewX, y). The default value is 0.0f
+ *   i.e. no skewing.
  */
 @Immutable
-class TextGeometricTransform(
-    val scaleX: Float = 1.0f,
-    val skewX: Float = 0f
-) {
+class TextGeometricTransform(val scaleX: Float = 1.0f, val skewX: Float = 0f) {
     companion object {
-        @Stable
-        internal val None = TextGeometricTransform(1.0f, 0.0f)
+        @Stable internal val None = TextGeometricTransform(1.0f, 0.0f)
     }
 
-    fun copy(
-        scaleX: Float = this.scaleX,
-        skewX: Float = this.skewX
-    ): TextGeometricTransform {
+    fun copy(scaleX: Float = this.scaleX, skewX: Float = this.skewX): TextGeometricTransform {
         return TextGeometricTransform(scaleX, skewX)
     }
 

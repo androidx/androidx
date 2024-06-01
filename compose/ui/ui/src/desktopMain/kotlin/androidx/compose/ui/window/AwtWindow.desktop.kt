@@ -34,28 +34,27 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.swing.Swing
 
 /**
- * Compose [Window] obtained from [create]. The [create] block will be called
- * exactly once to obtain the [Window] to be composed, and it is also guaranteed to be invoked on
- * the UI thread (Event Dispatch Thread).
+ * Compose [Window] obtained from [create]. The [create] block will be called exactly once to obtain
+ * the [Window] to be composed, and it is also guaranteed to be invoked on the UI thread (Event
+ * Dispatch Thread).
  *
- * Once [AwtWindow] leaves the composition, [dispose] will be called to free resources that
- * obtained by the [Window].
+ * Once [AwtWindow] leaves the composition, [dispose] will be called to free resources that obtained
+ * by the [Window].
  *
- * The [update] block can be run multiple times (on the UI thread as well) due to recomposition,
- * and it is the right place to set [Window] properties depending on state.
- * When state changes, the block will be reexecuted to set the new properties.
- * Note the block will also be ran once right after the [create] block completes.
+ * The [update] block can be run multiple times (on the UI thread as well) due to recomposition, and
+ * it is the right place to set [Window] properties depending on state. When state changes, the
+ * block will be reexecuted to set the new properties. Note the block will also be ran once right
+ * after the [create] block completes.
  *
- * [AwtWindow] is needed for creating window's / dialog's that still can't be created with
- * the default Compose functions [androidx.compose.ui.window.Window] or
+ * [AwtWindow] is needed for creating window's / dialog's that still can't be created with the
+ * default Compose functions [androidx.compose.ui.window.Window] or
  * [androidx.compose.ui.window.Dialog].
  *
- * @param visible Is [Window] visible to user.
- * Note that if we set `false` - native resources will not be released. They will be released
- * only when [Window] will leave the composition.
+ * @param visible Is [Window] visible to user. Note that if we set `false` - native resources will
+ *   not be released. They will be released only when [Window] will leave the composition.
  * @param create The block creating the [Window] to be composed.
  * @param dispose The block to dispose [Window] and free native resources. Usually it is simple
- * `Window::dispose`
+ *   `Window::dispose`
  * @param update The callback to be invoked after the layout is inflated.
  */
 @OptIn(DelicateCoroutinesApi::class)
@@ -74,9 +73,7 @@ fun <T : Window> AwtWindow(
 
     DisposableEffect(Unit) {
         windowRef.value = create()
-        onDispose {
-            dispose(window())
-        }
+        onDispose { dispose(window()) }
     }
 
     UpdateEffect {
@@ -117,9 +114,8 @@ fun <T : Window> AwtWindow(
         // So we will have a wrong active window (window1).
 
         showJob.value?.cancel()
-        showJob.value = GlobalScope.launch(Dispatchers.Swing) {
-            window().isVisible = currentVisible
-        }
+        showJob.value =
+            GlobalScope.launch(Dispatchers.Swing) { window().isVisible = currentVisible }
     }
 
     DisposableEffect(Unit) {

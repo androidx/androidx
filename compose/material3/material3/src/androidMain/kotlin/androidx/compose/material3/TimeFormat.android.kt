@@ -22,5 +22,4 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalContext
 
 internal actual val is24HourFormat: Boolean
-    @Composable
-    @ReadOnlyComposable get() = is24HourFormat(LocalContext.current)
+    @Composable @ReadOnlyComposable get() = is24HourFormat(LocalContext.current)

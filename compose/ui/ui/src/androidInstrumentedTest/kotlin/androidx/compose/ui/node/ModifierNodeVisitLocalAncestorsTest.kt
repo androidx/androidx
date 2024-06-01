@@ -30,24 +30,17 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeVisitLocalAncestorsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun noParents() {
         // Arrange.
         val node = object : Modifier.Node() {}
         val visitedAncestors = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitLocalAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitLocalAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors).isEmpty()
@@ -58,18 +51,10 @@ class ModifierNodeVisitLocalAncestorsTest {
         // Arrange.
         val (node, parent) = List(2) { object : Modifier.Node() {} }
         val visitedAncestors = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(Modifier.elementOf(parent)) {
-                Box(Modifier.elementOf(node))
-            }
-        }
+        rule.setContent { Box(Modifier.elementOf(parent)) { Box(Modifier.elementOf(node)) } }
 
         // Act.
-        rule.runOnIdle {
-            node.visitLocalAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitLocalAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors).isEmpty()
@@ -80,26 +65,13 @@ class ModifierNodeVisitLocalAncestorsTest {
         // Arrange.
         val (node, ancestor1, ancestor2) = List(3) { object : Modifier.Node() {} }
         val visitedAncestors = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(ancestor2)
-                    .elementOf(ancestor1)
-                    .elementOf(node)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(ancestor2).elementOf(ancestor1).elementOf(node)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitLocalAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitLocalAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
-        assertThat(visitedAncestors)
-            .containsExactly(ancestor1, ancestor2)
-            .inOrder()
+        assertThat(visitedAncestors).containsExactly(ancestor1, ancestor2).inOrder()
     }
 
     @Test
@@ -107,21 +79,10 @@ class ModifierNodeVisitLocalAncestorsTest {
         // Arrange.
         val (node, child, parent) = List(3) { object : Modifier.Node() {} }
         val visitedAncestors = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(parent)
-                    .elementOf(node)
-                    .elementOf(child)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(parent).elementOf(node).elementOf(child)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitLocalAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitLocalAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors).containsExactly(parent)
@@ -134,8 +95,7 @@ class ModifierNodeVisitLocalAncestorsTest {
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                Modifier
-                    .elementOf(ancestor2)
+                Modifier.elementOf(ancestor2)
                     .otherModifier()
                     .elementOf(ancestor1)
                     .otherModifier()
@@ -144,16 +104,10 @@ class ModifierNodeVisitLocalAncestorsTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitLocalAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitLocalAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
-        assertThat(visitedAncestors)
-            .containsExactly(ancestor1, ancestor2)
-            .inOrder()
+        assertThat(visitedAncestors).containsExactly(ancestor1, ancestor2).inOrder()
     }
 
     @Ignore("b/278765590")
@@ -164,8 +118,7 @@ class ModifierNodeVisitLocalAncestorsTest {
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                Modifier
-                    .elementOf(ancestor3)
+                Modifier.elementOf(ancestor3)
                     .elementOf(ancestor2)
                     .elementOf(ancestor1)
                     .elementOf(node)
@@ -177,11 +130,7 @@ class ModifierNodeVisitLocalAncestorsTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitLocalAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitLocalAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors).containsExactly(ancestor2)

@@ -25,9 +25,7 @@ import androidx.compose.ui.geometry.RoundRect
 
 actual fun Path(): Path = AndroidPath()
 
-/**
- * Convert the [android.graphics.Path] instance into a Compose-compatible Path
- */
+/** Convert the [android.graphics.Path] instance into a Compose-compatible Path */
 fun PlatformPath.asComposePath(): Path = AndroidPath(this)
 
 /**
@@ -42,9 +40,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
 @Suppress("OVERRIDE_DEPRECATION")
-/* actual */ class AndroidPath(
-    val internalPath: PlatformPath = PlatformPath()
-) : Path {
+/* actual */ class AndroidPath(val internalPath: PlatformPath = PlatformPath()) : Path {
 
     // Temporary value holders to reuse an object (not part of a state):
     private var rectF: PlatformRectF? = null
@@ -59,7 +55,6 @@ inline fun Path.asAndroidPath(): PlatformPath =
                 PathFillType.NonZero
             }
         }
-
         set(value) {
             internalPath.fillType =
                 if (value == PathFillType.EvenOdd) {
@@ -102,11 +97,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun cubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
-        internalPath.cubicTo(
-            x1, y1,
-            x2, y2,
-            x3, y3
-        )
+        internalPath.cubicTo(x1, y1, x2, y2, x3, y3)
     }
 
     override fun relativeCubicTo(
@@ -117,11 +108,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         dx3: Float,
         dy3: Float
     ) {
-        internalPath.rCubicTo(
-            dx1, dy1,
-            dx2, dy2,
-            dx3, dy3
-        )
+        internalPath.rCubicTo(dx1, dy1, dx2, dy2, dx3, dy3)
     }
 
     override fun arcTo(
@@ -136,12 +123,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         val bottom = rect.bottom
         if (rectF == null) rectF = PlatformRectF()
         rectF!!.set(left, top, right, bottom)
-        internalPath.arcTo(
-            rectF!!,
-            startAngleDegrees,
-            sweepAngleDegrees,
-            forceMoveTo
-        )
+        internalPath.arcTo(rectF!!, startAngleDegrees, sweepAngleDegrees, forceMoveTo)
     }
 
     override fun addRect(rect: Rect) {
@@ -218,8 +200,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     }
 
     override fun translate(offset: Offset) {
-        if (mMatrix == null) mMatrix = PlatformMatrix()
-        else mMatrix!!.reset()
+        if (mMatrix == null) mMatrix = PlatformMatrix() else mMatrix!!.reset()
         mMatrix!!.setTranslate(offset.x, offset.y)
         internalPath.transform(mMatrix!!)
     }
@@ -234,42 +215,31 @@ inline fun Path.asAndroidPath(): PlatformPath =
         if (rectF == null) rectF = PlatformRectF()
         with(rectF!!) {
             internalPath.computeBounds(this, true)
-            return Rect(
-                this.left,
-                this.top,
-                this.right,
-                this.bottom
-            )
+            return Rect(this.left, this.top, this.right, this.bottom)
         }
     }
 
-    override fun op(
-        path1: Path,
-        path2: Path,
-        operation: PathOperation
-    ): Boolean {
-        val op = when (operation) {
-            PathOperation.Difference -> PlatformPath.Op.DIFFERENCE
-            PathOperation.Intersect -> PlatformPath.Op.INTERSECT
-            PathOperation.ReverseDifference -> PlatformPath.Op.REVERSE_DIFFERENCE
-            PathOperation.Union -> PlatformPath.Op.UNION
-            else -> PlatformPath.Op.XOR
-        }
+    override fun op(path1: Path, path2: Path, operation: PathOperation): Boolean {
+        val op =
+            when (operation) {
+                PathOperation.Difference -> PlatformPath.Op.DIFFERENCE
+                PathOperation.Intersect -> PlatformPath.Op.INTERSECT
+                PathOperation.ReverseDifference -> PlatformPath.Op.REVERSE_DIFFERENCE
+                PathOperation.Union -> PlatformPath.Op.UNION
+                else -> PlatformPath.Op.XOR
+            }
         return internalPath.op(path1.asAndroidPath(), path2.asAndroidPath(), op)
     }
 
     @Suppress("DEPRECATION") // Path.isConvex
-    override val isConvex: Boolean get() = internalPath.isConvex
+    override val isConvex: Boolean
+        get() = internalPath.isConvex
 
-    override val isEmpty: Boolean get() = internalPath.isEmpty
+    override val isEmpty: Boolean
+        get() = internalPath.isEmpty
 
     private fun validateRectangle(rect: Rect) {
-        if (
-            rect.left.isNaN() ||
-            rect.top.isNaN() ||
-            rect.right.isNaN() ||
-            rect.bottom.isNaN()
-        ) {
+        if (rect.left.isNaN() || rect.top.isNaN() || rect.right.isNaN() || rect.bottom.isNaN()) {
             throwIllegalStateException("Invalid rectangle, make sure no value is NaN")
         }
     }
@@ -279,7 +249,8 @@ internal fun throwIllegalStateException(message: String) {
     throw IllegalStateException(message)
 }
 
-private fun Path.Direction.toPlatformPathDirection() = when (this) {
-    Path.Direction.CounterClockwise -> PlatformPath.Direction.CCW
-    Path.Direction.Clockwise -> PlatformPath.Direction.CW
-}
+private fun Path.Direction.toPlatformPathDirection() =
+    when (this) {
+        Path.Direction.CounterClockwise -> PlatformPath.Direction.CCW
+        Path.Direction.Clockwise -> PlatformPath.Direction.CW
+    }

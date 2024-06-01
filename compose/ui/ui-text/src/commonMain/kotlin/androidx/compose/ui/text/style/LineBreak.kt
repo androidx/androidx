@@ -23,17 +23,16 @@ import androidx.compose.ui.text.style.LineBreak.Companion.Paragraph
 import androidx.compose.ui.text.style.LineBreak.Companion.Simple
 
 /**
- * When soft wrap is enabled and the width of the text exceeds the width of its container,
- * line breaks are inserted in the text to split it over multiple lines.
+ * When soft wrap is enabled and the width of the text exceeds the width of its container, line
+ * breaks are inserted in the text to split it over multiple lines.
  *
- * There are a number of parameters that affect how the line breaks are inserted.
- * For example, the breaking algorithm can be changed to one with improved readability
- * at the cost of speed.
- * Another example is the strictness, which in some languages determines which symbols can appear
- * at the start of a line.
+ * There are a number of parameters that affect how the line breaks are inserted. For example, the
+ * breaking algorithm can be changed to one with improved readability at the cost of speed. Another
+ * example is the strictness, which in some languages determines which symbols can appear at the
+ * start of a line.
  *
- * `LineBreak` represents a configuration for line breaking, offering several presets
- * for different use cases: [Simple], [Heading], [Paragraph].
+ * `LineBreak` represents a configuration for line breaking, offering several presets for different
+ * use cases: [Simple], [Heading], [Paragraph].
  *
  * @sample androidx.compose.ui.text.samples.LineBreakSample
  *
@@ -42,36 +41,30 @@ import androidx.compose.ui.text.style.LineBreak.Companion.Simple
  * @sample androidx.compose.ui.text.samples.AndroidLineBreakSample
  */
 @Immutable
-expect value class LineBreak private constructor(
-    private val mask: Int
-) {
+expect value class LineBreak private constructor(private val mask: Int) {
     companion object {
         /**
-         * Basic, fast line breaking. Ideal for text input fields, as it will cause minimal
-         * text reflow when editing.
+         * Basic, fast line breaking. Ideal for text input fields, as it will cause minimal text
+         * reflow when editing.
          */
-        @Stable
-        val Simple: LineBreak
+        @Stable val Simple: LineBreak
 
         /**
          * Looser breaking rules, suitable for short text such as titles or narrow newspaper
          * columns. For longer lines of text, use [Paragraph] for improved readability.
          */
-        @Stable
-        val Heading: LineBreak
+        @Stable val Heading: LineBreak
 
         /**
-         * Slower, higher quality line breaking for improved readability.
-         * Suitable for larger amounts of text.
+         * Slower, higher quality line breaking for improved readability. Suitable for larger
+         * amounts of text.
          */
-        @Stable
-        val Paragraph: LineBreak
+        @Stable val Paragraph: LineBreak
 
         /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value
-         * is desired.
+         * This represents an unset value, a usual replacement for "null" when a primitive value is
+         * desired.
          */
-        @Stable
-        val Unspecified: LineBreak
+        @Stable val Unspecified: LineBreak
     }
 }

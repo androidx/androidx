@@ -20,61 +20,56 @@ package androidx.compose.compiler.plugins.kotlin.inference
 
 abstract class Node {
     abstract fun accept(visitor: Visitor)
+
     abstract fun visitChildren(visitor: Visitor)
+
     open fun storageNode(): Node = this
 }
 
 abstract class Leaf : Node() {
-    override fun visitChildren(visitor: Visitor) { }
+    override fun visitChildren(visitor: Visitor) {}
 }
 
-class Annotation(
-    val name: String,
-    val value: String = ""
-) : Leaf() {
+class Annotation(val name: String, val value: String = "") : Leaf() {
     override fun accept(visitor: Visitor) = visitor.visit(this)
 }
 
-class Lambda(
-    val type: FunctionType,
-    val body: List<Node>
-) : Node() {
+class Lambda(val type: FunctionType, val body: List<Node>) : Node() {
     override fun accept(visitor: Visitor) = visitor.visit(this)
+
     override fun visitChildren(visitor: Visitor) {
         walk(type.parameters, visitor)
         walk(body, visitor)
     }
+
     override fun toString(): String = "{ ${body.joinToString(";")} }: $type"
 }
 
-class Call(
-    val target: Node,
-    val arguments: List<Node> = emptyList()
-) : Node() {
+class Call(val target: Node, val arguments: List<Node> = emptyList()) : Node() {
     override fun accept(visitor: Visitor) = visitor.visit(this)
+
     override fun visitChildren(visitor: Visitor) {
         walk(target, visitor)
         walk(arguments, visitor)
     }
+
     override fun toString(): String =
         "$target(${
             arguments.joinToString { it.toString() }
         })"
 }
 
-class Ref(
-    val name: String
-) : Leaf() {
+class Ref(val name: String) : Leaf() {
     override fun accept(visitor: Visitor) = visitor.visit(this)
+
     override fun toString() = name
 }
 
-class Variable(
-    val name: String,
-    val initializer: Node
-) : Node() {
+class Variable(val name: String, val initializer: Node) : Node() {
     override fun accept(visitor: Visitor) = visitor.visit(this)
+
     override fun visitChildren(visitor: Visitor) = walk(initializer, visitor)
+
     override fun toString() = "val $name = $initializer"
 }
 
@@ -114,21 +109,17 @@ class Function(
     override fun toString(): String = "fun $name: $type { ${body.joinToString(";") } }"
 }
 
-class Parameter(
-    val name: String,
-    val type: Type
-) : Leaf() {
+class Parameter(val name: String, val type: Type) : Leaf() {
     override fun accept(visitor: Visitor) = visitor.visit(this)
 }
 
 // Types
 
-abstract class Type(
-    val name: String,
-    val annotations: List<Annotation>
-) {
+abstract class Type(val name: String, val annotations: List<Annotation>) {
     abstract fun bind(binding: Map<OpenType, Type>, context: MutableMap<Type, Type>): Type
+
     open fun toScheme(selfIndex: Int, index: Int = -1): Scheme? = inferredScheme()
+
     open fun toScheme(): Scheme? = toScheme(-1)
 
     fun bind(binding: Map<OpenType, Type>): Type {
@@ -141,9 +132,10 @@ abstract class Type(
         return if (boundType == this) null else boundType
     }
 
-    protected fun inferredScheme(): Scheme? = annotations.firstNotNullOfOrNull {
-        if (it.name == "ComposableInferredTarget") deserializeScheme(it.value) else null
-    }
+    protected fun inferredScheme(): Scheme? =
+        annotations.firstNotNullOfOrNull {
+            if (it.name == "ComposableInferredTarget") deserializeScheme(it.value) else null
+        }
 }
 
 class FunctionType(
@@ -154,39 +146,39 @@ class FunctionType(
     val result: Type = UnitType
 ) : Type(name, annotations) {
     private var boundFrom = this
-    val isOpen get() = typeParameters.isNotEmpty()
-    val isBound get() = boundFrom != this
+    val isOpen
+        get() = typeParameters.isNotEmpty()
+
+    val isBound
+        get() = boundFrom != this
 
     override fun toScheme(): Scheme = toScheme(-1, if (isBound) 0 else -1)
+
     override fun toScheme(selfIndex: Int, index: Int): Scheme =
-        inferredScheme() ?: Scheme(
-            target = annotations.item() ?: Open(selfIndex),
-            parameters = parameters.mapNotNull { it.type.toScheme(index, index) },
-            result = result.toScheme(index, index)
-        )
+        inferredScheme()
+            ?: Scheme(
+                target = annotations.item() ?: Open(selfIndex),
+                parameters = parameters.mapNotNull { it.type.toScheme(index, index) },
+                result = result.toScheme(index, index)
+            )
 
     override fun bind(binding: Map<OpenType, Type>, context: MutableMap<Type, Type>): Type =
-        context[this] ?: run {
-            val newParameters = parameters.map { parameter ->
-                parameter.type.bindOrNull(binding, context)?.let {
-                    Parameter(parameter.name, it)
-                } ?: parameter
+        context[this]
+            ?: run {
+                val newParameters =
+                    parameters.map { parameter ->
+                        parameter.type.bindOrNull(binding, context)?.let {
+                            Parameter(parameter.name, it)
+                        } ?: parameter
+                    }
+                val newResult = result.bind(binding, context)
+                (if (newResult != result || !newParameters.sameContentAs(parameters)) {
+                        val newTypeParameters = typeParameters.filter { it !in binding }
+                        FunctionType(name, annotations, newParameters, newTypeParameters, newResult)
+                            .also { it.boundFrom = this }
+                    } else this)
+                    .also { context[this] = it }
             }
-            val newResult = result.bind(binding, context)
-            (if (
-                newResult != result ||
-                !newParameters.sameContentAs(parameters)
-            ) {
-                val newTypeParameters = typeParameters.filter {
-                    it !in binding
-                }
-                FunctionType(name, annotations, newParameters, newTypeParameters, newResult).also {
-                    it.boundFrom = this
-                }
-            } else this).also {
-                context[this] = it
-            }
-        }
 
     override fun toString(): String = buildString {
         append('[')
@@ -232,37 +224,49 @@ class FunctionType(
 class OpenType(name: String) : Type(name, emptyList()) {
     override fun bind(binding: Map<OpenType, Type>, context: MutableMap<Type, Type>) =
         binding[this] ?: this
+
     override fun toString(): String = "\\$name"
 }
 
 object UnitType : Type("Unit", emptyList()) {
     override fun bind(binding: Map<OpenType, Type>, context: MutableMap<Type, Type>): Type = this
+
     override fun toString(): String = "Unit"
 }
 
 interface Visitor {
     fun visit(annotation: Annotation)
+
     fun visit(lambda: Lambda)
+
     fun visit(call: Call)
+
     fun visit(ref: Ref)
+
     fun visit(variable: Variable)
+
     fun visit(function: Function)
+
     fun visit(parameter: Parameter)
 }
 
 open class EmptyVisitor : Visitor {
-    override fun visit(annotation: Annotation) { }
-    override fun visit(lambda: Lambda) { }
-    override fun visit(call: Call) { }
-    override fun visit(ref: Ref) { }
-    override fun visit(variable: Variable) { }
-    override fun visit(function: Function) { }
-    override fun visit(parameter: Parameter) { }
+    override fun visit(annotation: Annotation) {}
+
+    override fun visit(lambda: Lambda) {}
+
+    override fun visit(call: Call) {}
+
+    override fun visit(ref: Ref) {}
+
+    override fun visit(variable: Variable) {}
+
+    override fun visit(function: Function) {}
+
+    override fun visit(parameter: Parameter) {}
 }
 
-open class DelegateVisitor(
-    private val delegate: Visitor
-) : Visitor by delegate
+open class DelegateVisitor(private val delegate: Visitor) : Visitor by delegate
 
 class RecursiveVisitor(delegate: Visitor) : DelegateVisitor(delegate) {
     override fun visit(call: Call) {
@@ -295,21 +299,25 @@ fun walkChildren(node: Node, visitor: Visitor) {
 }
 
 fun <N : Node> walk(nodes: List<N>, visitor: Visitor) {
-    for (node in nodes)
-        node.accept(visitor)
+    for (node in nodes) node.accept(visitor)
 }
 
 class Scope(val map: Map<String, ResolvedType>, private val parent: Scope? = null) {
     fun typeOf(ref: Ref): ResolvedType {
         val name = ref.name
-        map[name]?.let { return it }
-        parent?.let { return it.typeOf(ref) }
+        map[name]?.let {
+            return it
+        }
+        parent?.let {
+            return it.typeOf(ref)
+        }
         error("Could not locate $name")
     }
 }
 
 class ResolvedType(val node: Node, val type: Type) {
     operator fun component1() = node
+
     operator fun component2() = type
 }
 
@@ -318,6 +326,7 @@ class ResolvedCall(
     val arguments: List<ResolvedType>,
     val result: ResolvedType
 )
+
 class Resolutions(val calls: Map<Call, ResolvedCall>, val nodes: Map<Node, ResolvedType>)
 
 infix fun Node.resolvesTo(type: Type) = ResolvedType(this, type)
@@ -325,27 +334,27 @@ infix fun Node.resolvesTo(type: Type) = ResolvedType(this, type)
 fun resolve(data: Map<String, Function>): Resolutions {
     val resolvedNodes = mutableMapOf<Node, ResolvedType>()
 
-    val rootScope = Scope(
-        data.entries.associate { (name, function) ->
-            name to (function resolvesTo function.type)
-        }
-    )
+    val rootScope =
+        Scope(
+            data.entries.associate { (name, function) ->
+                name to (function resolvesTo function.type)
+            }
+        )
 
     fun parameterScope(type: FunctionType, parent: Scope): Scope =
         if (type.parameters.isEmpty()) parent
-        else Scope(type.parameters.associate {
-            it.name to (it resolvesTo it.type)
-        }, parent)
+        else Scope(type.parameters.associate { it.name to (it resolvesTo it.type) }, parent)
 
     lateinit var callTypeOfRef: (call: Call, scope: Scope) -> ResolvedType
 
     fun typeOf(node: Node, scope: Scope): ResolvedType {
-        return resolvedNodes[node] ?: when (node) {
-            is Ref -> scope.typeOf(node)
-            is Lambda -> node resolvesTo node.type
-            is Call -> node resolvesTo callTypeOfRef(node, scope).type
-            else -> error("Invalid call target $node")
-        }.also { resolvedNodes[node] = it }
+        return resolvedNodes[node]
+            ?: when (node) {
+                is Ref -> scope.typeOf(node)
+                is Lambda -> node resolvesTo node.type
+                is Call -> node resolvesTo callTypeOfRef(node, scope).type
+                else -> error("Invalid call target $node")
+            }.also { resolvedNodes[node] = it }
     }
 
     fun callTypeOf(call: Call, scope: Scope): ResolvedType {
@@ -387,29 +396,30 @@ fun resolve(data: Map<String, Function>): Resolutions {
                     val functionType = callType.type as FunctionType
                     val result = call resolvesTo functionType.result
                     resolvedNodes[call] = result
-                    resolvedCalls[call] = ResolvedCall(
-                        target = callType,
-                        arguments = call.arguments.map { typeOf(it, scope) },
-                        result = result
-                    )
+                    resolvedCalls[call] =
+                        ResolvedCall(
+                            target = callType,
+                            arguments = call.arguments.map { typeOf(it, scope) },
+                            result = result
+                        )
                 }
+
                 override fun visit(variable: Variable) {
                     walkChildren(variable, this)
                     resolvedNodes[variable] =
                         variable resolvesTo typeOf(variable.initializer, scope).type
-                    scope = Scope(
-                        mapOf(
-                            variable.name to (
-                                variable resolvesTo typeOf(variable.initializer, scope).type
-                            )
-                        ),
-                        scope
-                    )
+                    scope =
+                        Scope(
+                            mapOf(
+                                variable.name to
+                                    (variable resolvesTo typeOf(variable.initializer, scope).type)
+                            ),
+                            scope
+                        )
                 }
+
                 override fun visit(lambda: Lambda) {
-                    inScope(parameterScope(lambda.type, scope)) {
-                        walkChildren(lambda, this)
-                    }
+                    inScope(parameterScope(lambda.type, scope)) { walkChildren(lambda, this) }
                 }
 
                 override fun visit(function: Function) {
@@ -460,6 +470,7 @@ fun containersOf(data: Map<String, Function>): Map<Node, Node> {
                     result[variable] = currentContainer.last()
                     walkChildren(variable, this)
                 }
+
                 override fun visit(ref: Ref) {
                     result[ref] = currentContainer.last()
                 }
@@ -473,8 +484,7 @@ fun containersOf(data: Map<String, Function>): Map<Node, Node> {
 private fun <T> List<T>.sameContentAs(other: List<T>) =
     other == this || (size == other.size && zip(other).all { (a, b) -> a == b })
 
-private fun <K, V> Map<K, V>.toPairs() =
-    entries.map { entry -> entry.key to entry.value }
+private fun <K, V> Map<K, V>.toPairs() = entries.map { entry -> entry.key to entry.value }
 
 private fun List<Annotation>.item(): Item? =
     firstOrNull { it.name == "ComposableTarget" }?.let { Token(it.value) }
@@ -483,7 +493,11 @@ private fun List<Annotation>.item(): Item? =
 val composable = listOf(Annotation("Composable"))
 val uiTarget = listOf(Annotation("ComposableTarget", "UI"))
 val vectorTarget = listOf(Annotation("ComposableTarget", "Vector"))
+
 fun composableLambda() = FunctionType("lambda", annotations = composable)
+
 fun call(name: String, vararg args: Node) = Call(Ref(name), arguments = args.toList())
+
 fun lambda(vararg body: Node) = Lambda(type = composableLambda(), body = body.toList())
+
 fun openTarget(index: Int) = listOf(Annotation("ComposableOpenTarget", "$index"))

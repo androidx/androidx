@@ -15,6 +15,7 @@
  */
 
 package androidx.compose.ui.text.font
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -70,14 +71,18 @@ class AndroidVariableFontTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun fileFont_differentFontVariationSettings_differentResults() {
-        val font1 = Font(
-            file = tempFile!!,
-            variationSettings = FontVariation.Settings(FontVariation.weight(1))
-        ) as AndroidFont
-        val font1000 = Font(
-            file = tempFile!!,
-            variationSettings = FontVariation.Settings(FontVariation.weight(1000))
-        ) as AndroidFont
+        val font1 =
+            Font(
+                file = tempFile!!,
+                variationSettings = FontVariation.Settings(FontVariation.weight(1))
+            )
+                as AndroidFont
+        val font1000 =
+            Font(
+                file = tempFile!!,
+                variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+            )
+                as AndroidFont
 
         val bitmap1 = font1.typefaceLoader.loadBlocking(context, font1)!!.drawToBitmap("A")
         val bitmap2 = font1000.typefaceLoader.loadBlocking(context, font1000)!!.drawToBitmap("A")
@@ -87,14 +92,8 @@ class AndroidVariableFontTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun fontFile_defaultsWeight_whenWeightSet() {
-        val font1 = Font(
-            file = tempFile!!,
-            weight = FontWeight(1)
-        ) as AndroidFont
-        val font1000 = Font(
-            file = tempFile!!,
-            weight = FontWeight(1000)
-        ) as AndroidFont
+        val font1 = Font(file = tempFile!!, weight = FontWeight(1)) as AndroidFont
+        val font1000 = Font(file = tempFile!!, weight = FontWeight(1000)) as AndroidFont
 
         val bitmap1 = font1.typefaceLoader.loadBlocking(context, font1)!!.drawToBitmap("A")
         val bitmap2 = font1000.typefaceLoader.loadBlocking(context, font1000)!!.drawToBitmap("A")
@@ -104,16 +103,20 @@ class AndroidVariableFontTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun assetFont_differentFontVariationSettings_differentResults() {
-        val font1 = Font(
-            path = assetFontPath,
-            context.assets,
-            variationSettings = FontVariation.Settings(FontVariation.weight(1))
-        ) as AndroidFont
-        val font1000 = Font(
-            path = assetFontPath,
-            context.assets,
-            variationSettings = FontVariation.Settings(FontVariation.weight(1000))
-        ) as AndroidFont
+        val font1 =
+            Font(
+                path = assetFontPath,
+                context.assets,
+                variationSettings = FontVariation.Settings(FontVariation.weight(1))
+            )
+                as AndroidFont
+        val font1000 =
+            Font(
+                path = assetFontPath,
+                context.assets,
+                variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+            )
+                as AndroidFont
 
         val bitmap1 = font1.typefaceLoader.loadBlocking(context, font1)!!.drawToBitmap("A")
         val bitmap2 = font1000.typefaceLoader.loadBlocking(context, font1000)!!.drawToBitmap("A")
@@ -123,16 +126,10 @@ class AndroidVariableFontTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun assetFile_defaultsWeight_whenWeightSet() {
-        val font1 = Font(
-            path = assetFontPath,
-            context.assets,
-            weight = FontWeight(1)
-        ) as AndroidFont
-        val font1000 = Font(
-            path = assetFontPath,
-            context.assets,
-            weight = FontWeight(1000)
-        ) as AndroidFont
+        val font1 =
+            Font(path = assetFontPath, context.assets, weight = FontWeight(1)) as AndroidFont
+        val font1000 =
+            Font(path = assetFontPath, context.assets, weight = FontWeight(1000)) as AndroidFont
 
         val bitmap1 = font1.typefaceLoader.loadBlocking(context, font1)!!.drawToBitmap("A")
         val bitmap2 = font1000.typefaceLoader.loadBlocking(context, font1000)!!.drawToBitmap("A")
@@ -142,18 +139,22 @@ class AndroidVariableFontTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun parcelFont_differentFontVariationSettings_differentResults() {
-        val font1 = context.openFileInput(tempFile?.name).use { inputStream ->
-            Font(
-                ParcelFileDescriptor.dup(inputStream.fd),
-                variationSettings = FontVariation.Settings(FontVariation.weight(1))
-            ) as AndroidFont
-        }
-        val font1000 = context.openFileInput(tempFile?.name).use { inputStream ->
-            Font(
-                ParcelFileDescriptor.dup(inputStream.fd),
-                variationSettings = FontVariation.Settings(FontVariation.weight(1000))
-            ) as AndroidFont
-        }
+        val font1 =
+            context.openFileInput(tempFile?.name).use { inputStream ->
+                Font(
+                    ParcelFileDescriptor.dup(inputStream.fd),
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1))
+                )
+                    as AndroidFont
+            }
+        val font1000 =
+            context.openFileInput(tempFile?.name).use { inputStream ->
+                Font(
+                    ParcelFileDescriptor.dup(inputStream.fd),
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+                )
+                    as AndroidFont
+            }
 
         val bitmap1 = font1.typefaceLoader.loadBlocking(context, font1)!!.drawToBitmap("A")
         val bitmap2 = font1000.typefaceLoader.loadBlocking(context, font1000)!!.drawToBitmap("A")
@@ -163,18 +164,22 @@ class AndroidVariableFontTest {
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun parcelFile_defaultsWeight_whenWeightSet() {
-        val font1 = context.openFileInput(tempFile?.name).use { inputStream ->
-            Font(
-                ParcelFileDescriptor.dup(inputStream.fd),
-                variationSettings = FontVariation.Settings(FontVariation.weight(1))
-            ) as AndroidFont
-        }
-        val font1000 = context.openFileInput(tempFile?.name).use { inputStream ->
-            Font(
-                ParcelFileDescriptor.dup(inputStream.fd),
-                variationSettings = FontVariation.Settings(FontVariation.weight(1000))
-            ) as AndroidFont
-        }
+        val font1 =
+            context.openFileInput(tempFile?.name).use { inputStream ->
+                Font(
+                    ParcelFileDescriptor.dup(inputStream.fd),
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1))
+                )
+                    as AndroidFont
+            }
+        val font1000 =
+            context.openFileInput(tempFile?.name).use { inputStream ->
+                Font(
+                    ParcelFileDescriptor.dup(inputStream.fd),
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+                )
+                    as AndroidFont
+            }
 
         val bitmap1 = font1.typefaceLoader.loadBlocking(context, font1)!!.drawToBitmap("A")
         val bitmap2 = font1000.typefaceLoader.loadBlocking(context, font1000)!!.drawToBitmap("A")

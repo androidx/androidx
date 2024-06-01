@@ -31,18 +31,14 @@ class MutableVectorTest {
         val l = mutableVectorOf<String>()
         assertEquals(0, l.size)
         assertEquals(16, l.content.size)
-        repeat(16) {
-            assertNull(l.content[it])
-        }
+        repeat(16) { assertNull(l.content[it]) }
     }
 
     @Test
     fun sizeConstruction() {
         val l = MutableVector<String>(4)
         assertEquals(4, l.content.size)
-        repeat(4) {
-            assertNull(l.content[it])
-        }
+        repeat(4) { assertNull(l.content[it]) }
     }
 
     @Test
@@ -204,43 +200,29 @@ class MutableVectorTest {
     @Test
     fun map() {
         val mapped = list.map { it - 1 }
-        repeat(5) {
-            assertEquals(it, mapped[it])
-        }
+        repeat(5) { assertEquals(it, mapped[it]) }
         assertEquals(5, mapped.size)
     }
 
     @Test
     fun mapIndexed() {
-        val mapped = list.mapIndexed { index, item ->
-            index + item
-        }
+        val mapped = list.mapIndexed { index, item -> index + item }
         assertEquals(5, mapped.size)
-        repeat(5) {
-            assertEquals(it * 2 + 1, mapped[it])
-        }
+        repeat(5) { assertEquals(it * 2 + 1, mapped[it]) }
     }
 
     @Test
     fun mapIndexedNotNull() {
-        val mapped = list.mapIndexedNotNull { index, item ->
-            if (item == 5) null else index + item
-        }
+        val mapped = list.mapIndexedNotNull { index, item -> if (item == 5) null else index + item }
         assertEquals(4, mapped.size)
-        repeat(4) {
-            assertEquals(it * 2 + 1, mapped[it])
-        }
+        repeat(4) { assertEquals(it * 2 + 1, mapped[it]) }
     }
 
     @Test
     fun mapNotNull() {
-        val mapped = list.mapNotNull { item ->
-            if (item == 5) null else item - 1
-        }
+        val mapped = list.mapNotNull { item -> if (item == 5) null else item - 1 }
         assertEquals(4, mapped.size)
-        repeat(4) {
-            assertEquals(it, mapped[it])
-        }
+        repeat(4) { assertEquals(it, mapped[it]) }
     }
 
     @Test
@@ -250,9 +232,7 @@ class MutableVectorTest {
 
     @Test
     fun firstException() {
-        assertFailsWith(NoSuchElementException::class) {
-            mutableVectorOf<String>().first()
-        }
+        assertFailsWith(NoSuchElementException::class) { mutableVectorOf<String>().first() }
     }
 
     @Test
@@ -287,9 +267,7 @@ class MutableVectorTest {
 
     @Test
     fun lastException() {
-        assertFailsWith(NoSuchElementException::class) {
-            mutableVectorOf<String>().last()
-        }
+        assertFailsWith(NoSuchElementException::class) { mutableVectorOf<String>().last() }
     }
 
     @Test
@@ -329,12 +307,7 @@ class MutableVectorTest {
 
     @Test
     fun foldIndexed() {
-        assertEquals(
-            "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i ->
-                "$acc$index$i-"
-            }
-        )
+        assertEquals("01-12-23-34-45-", list.foldIndexed("") { index, acc, i -> "$acc$index$i-" })
     }
 
     @Test
@@ -346,9 +319,7 @@ class MutableVectorTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc ->
-                "$acc$index$i-"
-            }
+            list.foldRightIndexed("") { index, i, acc -> "$acc$index$i-" }
         )
     }
 
@@ -453,9 +424,7 @@ class MutableVectorTest {
         assertTrue(l.isNotEmpty())
         l.clear()
         assertTrue(l.isEmpty())
-        repeat(5) {
-            assertNull(l.content[it])
-        }
+        repeat(5) { assertNull(l.content[it]) }
     }
 
     @Test

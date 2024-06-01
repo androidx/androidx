@@ -19,11 +19,11 @@ package androidx.compose.runtime.snapshots
 import androidx.compose.runtime.Immutable
 
 /**
- * An implementation of a bit set that that is optimized around for the top 128 bits and
- * sparse access for bits below that. Is is O(1) to set, clear and get the bit value of the top 128
- * values of the set. Below lowerBound it is O(log N) to get a bit and O(N) to set or clear a bit
- * where N is the number of bits set below lowerBound. Clearing a cleared bit or setting a set bit
- * is the same complexity of get.
+ * An implementation of a bit set that that is optimized around for the top 128 bits and sparse
+ * access for bits below that. Is is O(1) to set, clear and get the bit value of the top 128 values
+ * of the set. Below lowerBound it is O(log N) to get a bit and O(N) to set or clear a bit where N
+ * is the number of bits set below lowerBound. Clearing a cleared bit or setting a set bit is the
+ * same complexity of get.
  *
  * The set is immutable and calling the set or clear methods produce the modified set, leaving the
  * previous set unmodified. If the operation does not modify the set, such as setting a set bit or
@@ -33,11 +33,12 @@ import androidx.compose.runtime.Immutable
  * than the that range to be mostly or completely clear.
  *
  * This class does not implement equals intentionally. Equals is hard and expensive as a normal form
- * for a particular set is not guaranteed (that is, two sets that compare equal might have
- * different field values). As snapshots does not need this, it is not implemented.
+ * for a particular set is not guaranteed (that is, two sets that compare equal might have different
+ * field values). As snapshots does not need this, it is not implemented.
  */
 @Immutable
-internal class SnapshotIdSet private constructor(
+internal class SnapshotIdSet
+private constructor(
     // Bit set from (lowerBound + 64)-(lowerBound+127) of the set
     private val upperSet: Long,
     // Bit set from (lowerBound)-(lowerBound+63) of the set
@@ -49,9 +50,7 @@ internal class SnapshotIdSet private constructor(
     private val belowBound: IntArray?
 ) : Iterable<Int> {
 
-    /**
-     * The value of the bit at index [bit]
-     */
+    /** The value of the bit at index [bit] */
     fun get(bit: Int): Boolean {
         val offset = bit - lowerBound
         if (offset >= 0 && offset < Long.SIZE_BITS) {
@@ -60,14 +59,10 @@ internal class SnapshotIdSet private constructor(
             return (1L shl (offset - Long.SIZE_BITS)) and upperSet != 0L
         } else if (offset > 0) {
             return false
-        } else return belowBound?.let {
-            it.binarySearch(bit) >= 0
-        } ?: false
+        } else return belowBound?.let { it.binarySearch(bit) >= 0 } ?: false
     }
 
-    /**
-     * Produce a copy of this set with the addition of the bit at index [bit] set.
-     */
+    /** Produce a copy of this set with the addition of the bit at index [bit] set. */
     fun set(bit: Int): SnapshotIdSet {
         val offset = bit - lowerBound
         if (offset >= 0 && offset < Long.SIZE_BITS) {
@@ -102,11 +97,10 @@ internal class SnapshotIdSet private constructor(
                     // Shift the lower set into the array
                     if (newLowerSet != 0L) {
                         if (newBelowBound == null)
-                            newBelowBound = mutableListOf<Int>().apply {
-                                belowBound?.let {
-                                    it.forEach { this.add(it) }
+                            newBelowBound =
+                                mutableListOf<Int>().apply {
+                                    belowBound?.let { it.forEach { this.add(it) } }
                                 }
-                            }
                         repeat(Long.SIZE_BITS) { bitOffset ->
                             if (newLowerSet and (1L shl bitOffset) != 0L) {
                                 newBelowBound.add(bitOffset + newLowerBound)
@@ -124,15 +118,16 @@ internal class SnapshotIdSet private constructor(
                 }
 
                 return SnapshotIdSet(
-                    newUpperSet,
-                    newLowerSet,
-                    newLowerBound,
-                    newBelowBound?.toIntArray() ?: belowBound
-                ).set(bit)
+                        newUpperSet,
+                        newLowerSet,
+                        newLowerBound,
+                        newBelowBound?.toIntArray() ?: belowBound
+                    )
+                    .set(bit)
             }
         } else {
-            val array = belowBound
-                ?: return SnapshotIdSet(upperSet, lowerSet, lowerBound, intArrayOf(bit))
+            val array =
+                belowBound ?: return SnapshotIdSet(upperSet, lowerSet, lowerBound, intArrayOf(bit))
 
             val location = array.binarySearch(bit)
             if (location < 0) {
@@ -160,9 +155,7 @@ internal class SnapshotIdSet private constructor(
         return this
     }
 
-    /**
-     * Produce a copy of this set with the addition of the bit at index [bit] cleared.
-     */
+    /** Produce a copy of this set with the addition of the bit at index [bit] cleared. */
     fun clear(bit: Int): SnapshotIdSet {
         val offset = bit - lowerBound
         if (offset >= 0 && offset < Long.SIZE_BITS) {
@@ -219,9 +212,7 @@ internal class SnapshotIdSet private constructor(
         return this
     }
 
-    /**
-     * Produce a copy of this with all the values in [bits] cleared (`a & ~b`)
-     */
+    /** Produce a copy of this with all the values in [bits] cleared (`a & ~b`) */
     fun andNot(bits: SnapshotIdSet): SnapshotIdSet {
         if (bits === EMPTY) return this
         if (this === EMPTY) return EMPTY
@@ -243,8 +234,7 @@ internal class SnapshotIdSet private constructor(
         return if (bits.lowerBound == this.lowerBound && bits.belowBound === this.belowBound) {
             val newUpper = this.upperSet and bits.upperSet
             val newLower = this.lowerSet and bits.lowerSet
-            if (newUpper == 0L && newLower == 0L && this.belowBound == null)
-                EMPTY
+            if (newUpper == 0L && newLower == 0L && this.belowBound == null) EMPTY
             else
                 SnapshotIdSet(
                     this.upperSet and bits.upperSet,
@@ -264,9 +254,7 @@ internal class SnapshotIdSet private constructor(
         }
     }
 
-    /**
-     * Produce a set that if the value is set in this set or [bits] (`a | b`)
-     */
+    /** Produce a set that if the value is set in this set or [bits] (`a | b`) */
     fun or(bits: SnapshotIdSet): SnapshotIdSet {
         if (bits === EMPTY) return this
         if (this === EMPTY) return bits
@@ -288,36 +276,36 @@ internal class SnapshotIdSet private constructor(
         }
     }
 
-    override fun iterator(): Iterator<Int> = sequence {
-        val belowBound = belowBound
-        if (belowBound != null)
-            for (element in belowBound) {
-                yield(element)
-            }
-        if (lowerSet != 0L) {
-            for (index in 0 until Long.SIZE_BITS) {
-                if (lowerSet and (1L shl index) != 0L) {
-                    yield(index + lowerBound)
+    override fun iterator(): Iterator<Int> =
+        sequence {
+                val belowBound = belowBound
+                if (belowBound != null)
+                    for (element in belowBound) {
+                        yield(element)
+                    }
+                if (lowerSet != 0L) {
+                    for (index in 0 until Long.SIZE_BITS) {
+                        if (lowerSet and (1L shl index) != 0L) {
+                            yield(index + lowerBound)
+                        }
+                    }
+                }
+                if (upperSet != 0L) {
+                    for (index in 0 until Long.SIZE_BITS) {
+                        if (upperSet and (1L shl index) != 0L) {
+                            yield(index + Long.SIZE_BITS + lowerBound)
+                        }
+                    }
                 }
             }
-        }
-        if (upperSet != 0L) {
-            for (index in 0 until Long.SIZE_BITS) {
-                if (upperSet and (1L shl index) != 0L) {
-                    yield(index + Long.SIZE_BITS + lowerBound)
-                }
-            }
-        }
-    }.iterator()
+            .iterator()
 
     inline fun fastFold(
         initial: SnapshotIdSet,
         operation: (acc: SnapshotIdSet, Int) -> SnapshotIdSet
     ): SnapshotIdSet {
         var accumulator = initial
-        fastForEach { element ->
-            accumulator = operation(accumulator, element)
-        }
+        fastForEach { element -> accumulator = operation(accumulator, element) }
         return accumulator
     }
 
@@ -351,14 +339,13 @@ internal class SnapshotIdSet private constructor(
         return default
     }
 
-    override fun toString(): String = "${super.toString()} [${this.map {
+    override fun toString(): String =
+        "${super.toString()} [${this.map {
         it.toString()
     }.fastJoinToString()}]"
 
     companion object {
-        /**
-         * An empty frame it set
-         */
+        /** An empty frame it set */
         val EMPTY = SnapshotIdSet(0, 0, 0, null)
     }
 }
@@ -370,12 +357,7 @@ internal fun IntArray.binarySearch(value: Int): Int {
     while (low <= high) {
         val mid = (low + high).ushr(1)
         val midVal = get(mid)
-        if (value > midVal)
-            low = mid + 1
-        else if (value < midVal)
-            high = mid - 1
-        else
-            return mid
+        if (value > midVal) low = mid + 1 else if (value < midVal) high = mid - 1 else return mid
     }
     return -(low + 1)
 }

@@ -22,9 +22,7 @@ import kotlin.Int.Companion.MIN_VALUE
 // actual typealias NativeContentDataType = String
 
 @JvmInline
-internal actual value class ContentDataType actual constructor(
-    val dataType: Int
-) {
+internal actual value class ContentDataType actual constructor(val dataType: Int) {
     internal actual companion object {
         private val UnsupportedContentType = ContentDataType(MIN_VALUE)
         actual val Text = UnsupportedContentType

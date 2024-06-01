@@ -68,11 +68,10 @@ fun LazyGridDragAndDropDemo() {
     var list by remember { mutableStateOf(List(50) { it }) }
 
     val gridState = rememberLazyGridState()
-    val dragDropState = rememberGridDragDropState(gridState) { fromIndex, toIndex ->
-        list = list.toMutableList().apply {
-            add(toIndex, removeAt(fromIndex))
+    val dragDropState =
+        rememberGridDragDropState(gridState) { fromIndex, toIndex ->
+            list = list.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
         }
-    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
@@ -89,9 +88,7 @@ fun LazyGridDragAndDropDemo() {
                     Text(
                         "Item $item",
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 40.dp)
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp)
                     )
                 }
             }
@@ -105,13 +102,8 @@ fun rememberGridDragDropState(
     onMove: (Int, Int) -> Unit
 ): GridDragDropState {
     val scope = rememberCoroutineScope()
-    val state = remember(gridState) {
-        GridDragDropState(
-            state = gridState,
-            onMove = onMove,
-            scope = scope
-        )
-    }
+    val state =
+        remember(gridState) { GridDragDropState(state = gridState, onMove = onMove, scope = scope) }
     LaunchedEffect(state) {
         while (true) {
             val diff = state.scrollChannel.receive()
@@ -121,7 +113,8 @@ fun rememberGridDragDropState(
     return state
 }
 
-class GridDragDropState internal constructor(
+class GridDragDropState
+internal constructor(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
     private val onMove: (Int, Int) -> Unit
@@ -134,16 +127,17 @@ class GridDragDropState internal constructor(
     private var draggingItemDraggedDelta by mutableStateOf(Offset.Zero)
     private var draggingItemInitialOffset by mutableStateOf(Offset.Zero)
     internal val draggingItemOffset: Offset
-        get() = draggingItemLayoutInfo?.let { item ->
-            draggingItemInitialOffset + draggingItemDraggedDelta - item.offset.toOffset()
-        } ?: Offset.Zero
+        get() =
+            draggingItemLayoutInfo?.let { item ->
+                draggingItemInitialOffset + draggingItemDraggedDelta - item.offset.toOffset()
+            } ?: Offset.Zero
 
     private val draggingItemLayoutInfo: LazyGridItemInfo?
-        get() = state.layoutInfo.visibleItemsInfo
-            .firstOrNull { it.index == draggingItemIndex }
+        get() = state.layoutInfo.visibleItemsInfo.firstOrNull { it.index == draggingItemIndex }
 
     internal var previousIndexOfDraggedItem by mutableStateOf<Int?>(null)
         private set
+
     internal var previousItemOffset = Animatable(Offset.Zero, Offset.VectorConverter)
         private set
 
@@ -152,7 +146,8 @@ class GridDragDropState internal constructor(
             .firstOrNull { item ->
                 offset.x.toInt() in item.offset.x..item.offsetEnd.x &&
                     offset.y.toInt() in item.offset.y..item.offsetEnd.y
-            }?.also {
+            }
+            ?.also {
                 draggingItemIndex = it.index
                 draggingItemInitialOffset = it.offset.toOffset()
             }
@@ -187,14 +182,16 @@ class GridDragDropState internal constructor(
         val endOffset = startOffset + draggingItem.size.toSize()
         val middleOffset = startOffset + (endOffset - startOffset) / 2f
 
-        val targetItem = state.layoutInfo.visibleItemsInfo.find { item ->
-            middleOffset.x.toInt() in item.offset.x..item.offsetEnd.x &&
-                middleOffset.y.toInt() in item.offset.y..item.offsetEnd.y &&
-                draggingItem.index != item.index
-        }
+        val targetItem =
+            state.layoutInfo.visibleItemsInfo.find { item ->
+                middleOffset.x.toInt() in item.offset.x..item.offsetEnd.x &&
+                    middleOffset.y.toInt() in item.offset.y..item.offsetEnd.y &&
+                    draggingItem.index != item.index
+            }
         if (targetItem != null) {
-            if (draggingItem.index == state.firstVisibleItemIndex ||
-                targetItem.index == state.firstVisibleItemIndex
+            if (
+                draggingItem.index == state.firstVisibleItemIndex ||
+                    targetItem.index == state.firstVisibleItemIndex
             ) {
                 state.requestScrollToItem(
                     state.firstVisibleItemIndex,
@@ -204,13 +201,14 @@ class GridDragDropState internal constructor(
             onMove.invoke(draggingItem.index, targetItem.index)
             draggingItemIndex = targetItem.index
         } else {
-            val overscroll = when {
-                draggingItemDraggedDelta.y > 0 ->
-                    (endOffset.y - state.layoutInfo.viewportEndOffset).coerceAtLeast(0f)
-                draggingItemDraggedDelta.y < 0 ->
-                    (startOffset.y - state.layoutInfo.viewportStartOffset).coerceAtMost(0f)
-                else -> 0f
-            }
+            val overscroll =
+                when {
+                    draggingItemDraggedDelta.y > 0 ->
+                        (endOffset.y - state.layoutInfo.viewportEndOffset).coerceAtLeast(0f)
+                    draggingItemDraggedDelta.y < 0 ->
+                        (startOffset.y - state.layoutInfo.viewportStartOffset).coerceAtMost(0f)
+                    else -> 0f
+                }
             if (overscroll != 0f) {
                 scrollChannel.trySend(overscroll)
             }
@@ -251,23 +249,20 @@ fun LazyGridItemScope.DraggableItem(
     content: @Composable (isDragging: Boolean) -> Unit
 ) {
     val dragging = index == dragDropState.draggingItemIndex
-    val draggingModifier = if (dragging) {
-        Modifier
-            .zIndex(1f)
-            .graphicsLayer {
+    val draggingModifier =
+        if (dragging) {
+            Modifier.zIndex(1f).graphicsLayer {
                 translationX = dragDropState.draggingItemOffset.x
                 translationY = dragDropState.draggingItemOffset.y
             }
-    } else if (index == dragDropState.previousIndexOfDraggedItem) {
-        Modifier
-            .zIndex(1f)
-            .graphicsLayer {
+        } else if (index == dragDropState.previousIndexOfDraggedItem) {
+            Modifier.zIndex(1f).graphicsLayer {
                 translationX = dragDropState.previousItemOffset.value.x
                 translationY = dragDropState.previousItemOffset.value.y
             }
-    } else {
-        Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
-    }
+        } else {
+            Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null)
+        }
     Box(modifier = modifier.then(draggingModifier), propagateMinConstraints = true) {
         content(dragging)
     }

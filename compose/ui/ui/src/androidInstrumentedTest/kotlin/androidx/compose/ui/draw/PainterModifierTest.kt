@@ -111,8 +111,7 @@ class PainterModifierTest {
     val containerWidth = 100.0f
     private val containerHeight = 100.0f
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun before() {
@@ -127,54 +126,43 @@ class PainterModifierTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierColorFilter() {
-        rule.setContent {
-            TestPainter(colorFilter = ColorFilter.tint(Color.Cyan, BlendMode.SrcIn))
-        }
+        rule.setContent { TestPainter(colorFilter = ColorFilter.tint(Color.Cyan, BlendMode.SrcIn)) }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            assertEquals(Color.Cyan.toArgb(), getPixel(50, 50))
-        }
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply { assertEquals(Color.Cyan.toArgb(), getPixel(50, 50)) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierAlpha() {
-        rule.setContent {
-            TestPainter(alpha = 0.5f)
-        }
+        rule.setContent { TestPainter(alpha = 0.5f) }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            val expected = Color(
-                alpha = 0.5f,
-                red = Color.Red.red,
-                green = Color.Red.green,
-                blue = Color.Red.blue
-            ).compositeOver(Color.White)
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply {
+                val expected =
+                    Color(
+                            alpha = 0.5f,
+                            red = Color.Red.red,
+                            green = Color.Red.green,
+                            blue = Color.Red.blue
+                        )
+                        .compositeOver(Color.White)
 
-            val result = Color(getPixel(50, 50))
-            assertColorsEqual(expected, result)
-        }
+                val result = Color(getPixel(50, 50))
+                assertColorsEqual(expected, result)
+            }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testPainterModifierRtl() {
-        rule.setContent {
-            TestPainter(rtl = true)
-        }
+        rule.setContent { TestPainter(rtl = true) }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            assertEquals(Color.Blue.toArgb(), getPixel(50, 50))
-        }
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply { assertEquals(Color.Blue.toArgb(), getPixel(50, 50)) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -189,51 +177,33 @@ class PainterModifierTest {
                 Padding(containerWidth.roundToInt()) {
                     AtLeastSize(
                         size = containerWidth.roundToInt(),
-                        modifier = Modifier.paint(
-                            TestPainter(
-                                containerWidth * 2,
-                                containerHeight * 2
-                            ),
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.Inside
-                        )
-                    ) {
-                    }
+                        modifier =
+                            Modifier.paint(
+                                TestPainter(containerWidth * 2, containerHeight * 2),
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.Inside
+                            )
+                    ) {}
                 }
             }
         }
 
-        rule.obtainScreenshotBitmap(
-            containerSizePx,
-            containerSizePx
-        ).apply {
+        rule.obtainScreenshotBitmap(containerSizePx, containerSizePx).apply {
             assertEquals(
                 Color.White.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() - 1,
-                    containerHeight.roundToInt() - 1
-                )
+                getPixel(containerWidth.roundToInt() - 1, containerHeight.roundToInt() - 1)
             )
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() + 1,
-                    containerWidth.roundToInt() + 1
-                )
+                getPixel(containerWidth.roundToInt() + 1, containerWidth.roundToInt() + 1)
             )
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() * 2 - 1,
-                    containerWidth.roundToInt() * 2 - 1
-                )
+                getPixel(containerWidth.roundToInt() * 2 - 1, containerWidth.roundToInt() * 2 - 1)
             )
             assertEquals(
                 Color.White.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() * 2 + 1,
-                    containerHeight.roundToInt() * 2 + 1
-                )
+                getPixel(containerWidth.roundToInt() * 2 + 1, containerHeight.roundToInt() * 2 + 1)
             )
         }
     }
@@ -245,13 +215,13 @@ class PainterModifierTest {
         rule.setContent {
             AtLeastSize(
                 size = containerWidth.roundToInt() * 2,
-                modifier = Modifier
-                    .background(Color.White)
-                    .paint(
-                        TestPainter(
-                            containerWidth, containerHeight
-                        ), alignment = Alignment.BottomEnd, contentScale = ContentScale.Inside
-                    )
+                modifier =
+                    Modifier.background(Color.White)
+                        .paint(
+                            TestPainter(containerWidth, containerHeight),
+                            alignment = Alignment.BottomEnd,
+                            contentScale = ContentScale.Inside
+                        )
             ) {
                 // Intentionally empty
             }
@@ -261,10 +231,7 @@ class PainterModifierTest {
         val right = containerSizePx - 1
         val innerBoxTop = containerSizePx - containerWidth.roundToInt()
         val innerBoxLeft = containerSizePx - containerWidth.roundToInt()
-        rule.obtainScreenshotBitmap(
-            containerSizePx,
-            containerSizePx
-        ).apply {
+        rule.obtainScreenshotBitmap(containerSizePx, containerSizePx).apply {
             assertEquals(Color.Red.toArgb(), getPixel(right, bottom))
             assertEquals(Color.Red.toArgb(), getPixel(innerBoxLeft, bottom))
             assertEquals(Color.Red.toArgb(), getPixel(innerBoxLeft, innerBoxTop + 1))
@@ -289,21 +256,17 @@ class PainterModifierTest {
             }
         }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            assertEquals(Color.Red.toArgb(), getPixel(0, 0))
-            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() - 1,
-                    containerHeight.roundToInt() - 1
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply {
+                assertEquals(Color.Red.toArgb(), getPixel(0, 0))
+                assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
+                assertEquals(
+                    Color.Red.toArgb(),
+                    getPixel(containerWidth.roundToInt() - 1, containerHeight.roundToInt() - 1)
                 )
-            )
-            assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
-        }
+                assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
+            }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -312,19 +275,16 @@ class PainterModifierTest {
         val containerSize = containerWidth.roundToInt() / 2
         rule.setContent {
             NoIntrinsicSizeContainer(
-                Modifier
-                    .background(Color.White)
+                Modifier.background(Color.White)
                     .then(FixedSizeModifier(containerWidth.roundToInt()))
             ) {
                 NoIntrinsicSizeContainer(
                     AlignTopLeft.then(
-                        FixedSizeModifier(containerSize).paint(
-                            TestPainter(
-                                containerWidth,
-                                containerHeight
-                            ),
-                            alignment = Alignment.TopStart
-                        )
+                        FixedSizeModifier(containerSize)
+                            .paint(
+                                TestPainter(containerWidth, containerHeight),
+                                alignment = Alignment.TopStart
+                            )
                     )
                 ) {
                     // Intentionally empty
@@ -332,30 +292,26 @@ class PainterModifierTest {
             }
         }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            assertEquals(Color.Red.toArgb(), getPixel(0, 0))
-            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() / 2 - 1, 0))
-            assertEquals(
-                Color.White.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() - 1,
-                    containerHeight.roundToInt() - 1
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply {
+                assertEquals(Color.Red.toArgb(), getPixel(0, 0))
+                assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() / 2 - 1, 0))
+                assertEquals(
+                    Color.White.toArgb(),
+                    getPixel(containerWidth.roundToInt() - 1, containerHeight.roundToInt() - 1)
                 )
-            )
-            assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() / 2 - 1))
+                assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() / 2 - 1))
 
-            assertEquals(Color.White.toArgb(), getPixel(containerWidth.roundToInt() / 2 + 1, 0))
-            assertEquals(
-                Color.White.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() / 2 + 1,
-                    containerHeight.roundToInt() / 2 + 1
+                assertEquals(Color.White.toArgb(), getPixel(containerWidth.roundToInt() / 2 + 1, 0))
+                assertEquals(
+                    Color.White.toArgb(),
+                    getPixel(
+                        containerWidth.roundToInt() / 2 + 1,
+                        containerHeight.roundToInt() / 2 + 1
+                    )
                 )
-            )
-        }
+            }
     }
 
     @Test
@@ -366,10 +322,7 @@ class PainterModifierTest {
                     // Lazy column has unbounded height so ensure that the constraints
                     // provided to Painters without an intrinsic size are with a finite
                     // range (i.e. don't crash)
-                    Image(
-                        painter = ColorPainter(Color.Black),
-                        contentDescription = ""
-                    )
+                    Image(painter = ColorPainter(Color.Black), contentDescription = "")
                 }
             }
         }
@@ -381,37 +334,25 @@ class PainterModifierTest {
         val containerSize = containerWidth.roundToInt() / 2
         rule.setContent {
             NoIntrinsicSizeContainer(
-                Modifier
-                    .background(Color.White)
-                    .then(FixedSizeModifier(containerSize))
+                Modifier.background(Color.White).then(FixedSizeModifier(containerSize))
             ) {
                 NoIntrinsicSizeContainer(
-                    FixedSizeModifier(containerSize).paint(
-                        TestPainter(
-                            containerWidth,
-                            containerHeight
-                        ),
-                        sizeToIntrinsics = false, alignment = Alignment.TopStart
-                    )
+                    FixedSizeModifier(containerSize)
+                        .paint(
+                            TestPainter(containerWidth, containerHeight),
+                            sizeToIntrinsics = false,
+                            alignment = Alignment.TopStart
+                        )
                 ) {
                     // Intentionally empty
                 }
             }
         }
 
-        rule.obtainScreenshotBitmap(
-            containerSize,
-            containerSize
-        ).apply {
+        rule.obtainScreenshotBitmap(containerSize, containerSize).apply {
             assertEquals(Color.Red.toArgb(), getPixel(0, 0))
             assertEquals(Color.Red.toArgb(), getPixel(containerSize - 1, 0))
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(
-                    containerSize - 1,
-                    containerSize - 1
-                )
-            )
+            assertEquals(Color.Red.toArgb(), getPixel(containerSize - 1, containerSize - 1))
             assertEquals(Color.Red.toArgb(), getPixel(0, containerSize - 1))
         }
     }
@@ -422,8 +363,7 @@ class PainterModifierTest {
         rule.setContent {
             NoMinSizeContainer {
                 NoIntrinsicSizeContainer(
-                    Modifier
-                        .width(IntrinsicSize.Min)
+                    Modifier.width(IntrinsicSize.Min)
                         .paint(TestPainter(containerWidth, containerHeight))
                 ) {
                     // Intentionally empty
@@ -431,21 +371,17 @@ class PainterModifierTest {
             }
         }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            assertEquals(Color.Red.toArgb(), getPixel(0, 0))
-            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() - 1,
-                    containerHeight.roundToInt() - 1
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply {
+                assertEquals(Color.Red.toArgb(), getPixel(0, 0))
+                assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
+                assertEquals(
+                    Color.Red.toArgb(),
+                    getPixel(containerWidth.roundToInt() - 1, containerHeight.roundToInt() - 1)
                 )
-            )
-            assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
-        }
+                assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
+            }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -454,8 +390,7 @@ class PainterModifierTest {
         rule.setContent {
             NoMinSizeContainer {
                 NoIntrinsicSizeContainer(
-                    Modifier
-                        .height(IntrinsicSize.Min)
+                    Modifier.height(IntrinsicSize.Min)
                         .paint(TestPainter(containerWidth, containerHeight))
                 ) {
                     // Intentionally empty
@@ -463,21 +398,17 @@ class PainterModifierTest {
             }
         }
 
-        rule.obtainScreenshotBitmap(
-            containerWidth.roundToInt(),
-            containerHeight.roundToInt()
-        ).apply {
-            assertEquals(Color.Red.toArgb(), getPixel(0, 0))
-            assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(
-                    containerWidth.roundToInt() - 1,
-                    containerHeight.roundToInt() - 1
+        rule
+            .obtainScreenshotBitmap(containerWidth.roundToInt(), containerHeight.roundToInt())
+            .apply {
+                assertEquals(Color.Red.toArgb(), getPixel(0, 0))
+                assertEquals(Color.Red.toArgb(), getPixel(containerWidth.roundToInt() - 1, 0))
+                assertEquals(
+                    Color.Red.toArgb(),
+                    getPixel(containerWidth.roundToInt() - 1, containerHeight.roundToInt() - 1)
                 )
-            )
-            assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
-        }
+                assertEquals(Color.Red.toArgb(), getPixel(0, containerHeight.roundToInt() - 1))
+            }
     }
 
     @Test
@@ -527,22 +458,23 @@ class PainterModifierTest {
     }
 
     @Test
-    fun testPainterFixedDimensionUnchanged(): Unit = with(rule.density) {
-        val painterWidth = 1000f
-        val painterHeight = 375f
-        val composableWidth = 250f
-        val composableHeight = 400f
-        // Because the constraints are tight here, do not attempt to resize the composable
-        // based on the intrinsic dimensions of the Painter
-        testPainterScaleMatchesSize(
-            Modifier.requiredWidth(composableWidth.toDp())
-                .requiredHeight(composableHeight.toDp()),
-            ContentScale.Fit,
-            Size(painterWidth, painterHeight),
-            composableWidth,
-            composableHeight
-        )
-    }
+    fun testPainterFixedDimensionUnchanged(): Unit =
+        with(rule.density) {
+            val painterWidth = 1000f
+            val painterHeight = 375f
+            val composableWidth = 250f
+            val composableHeight = 400f
+            // Because the constraints are tight here, do not attempt to resize the composable
+            // based on the intrinsic dimensions of the Painter
+            testPainterScaleMatchesSize(
+                Modifier.requiredWidth(composableWidth.toDp())
+                    .requiredHeight(composableHeight.toDp()),
+                ContentScale.Fit,
+                Size(painterWidth, painterHeight),
+                composableWidth,
+                composableHeight
+            )
+        }
 
     @Test
     fun testPainterComposableHeightScaledUpWithFixedWidth() {
@@ -589,79 +521,77 @@ class PainterModifierTest {
         painterSize: Size,
         composableWidthPx: Float,
         composableHeightPx: Float
-    ) = with(rule.density) {
-        val composableWidth = composableWidthPx.toDp()
-        val composableHeight = composableHeightPx.toDp()
-        rule.setContent {
-            // Because the painter is told to fit inside the constraints, the width should
-            // match that of the provided fixed width and the height should match that of the
-            // composable as no scaling is being done
-            val painter = object : Painter() {
-                override val intrinsicSize: Size
-                    get() = painterSize
+    ) =
+        with(rule.density) {
+            val composableWidth = composableWidthPx.toDp()
+            val composableHeight = composableHeightPx.toDp()
+            rule.setContent {
+                // Because the painter is told to fit inside the constraints, the width should
+                // match that of the provided fixed width and the height should match that of the
+                // composable as no scaling is being done
+                val painter =
+                    object : Painter() {
+                        override val intrinsicSize: Size
+                            get() = painterSize
 
-                override fun DrawScope.onDraw() { /* no-op */
-                }
+                        override fun DrawScope.onDraw() {
+                            /* no-op */
+                        }
+                    }
+                Box(modifier = Modifier.then(modifier).paint(painter, contentScale = contentScale))
             }
-            Box(
-                modifier = Modifier
-                    .then(modifier)
-                    .paint(painter, contentScale = contentScale)
-            )
-        }
 
-        rule.onRoot()
-            .assertWidthIsEqualTo(composableWidth)
-            .assertHeightIsEqualTo(composableHeight)
-    }
+            rule
+                .onRoot()
+                .assertWidthIsEqualTo(composableWidth)
+                .assertHeightIsEqualTo(composableHeight)
+        }
 
     @Ignore // b/265030745
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun testBitmapPainterScalesContent(): Unit = with(rule.density) {
-        // BitmapPainter should handle scaling its content image up to fill the
-        // corresponding content bounds. Because the composable is twice the
-        // height of the image and we are providing ContentScale.FillHeight
-        // the BitmapPainter should draw the image with twice its original
-        // height and width centered within the bounds of the composable
-        val boxWidth = 300
-        val boxHeight = 200
-        val srcImage = ImageBitmap(50, 100)
-        val canvas = Canvas(srcImage)
-        val paint = Paint().apply { this.color = Color.Red }
-        canvas.drawRect(0f, 0f, 200f, 100f, paint)
+    fun testBitmapPainterScalesContent(): Unit =
+        with(rule.density) {
+            // BitmapPainter should handle scaling its content image up to fill the
+            // corresponding content bounds. Because the composable is twice the
+            // height of the image and we are providing ContentScale.FillHeight
+            // the BitmapPainter should draw the image with twice its original
+            // height and width centered within the bounds of the composable
+            val boxWidth = 300
+            val boxHeight = 200
+            val srcImage = ImageBitmap(50, 100)
+            val canvas = Canvas(srcImage)
+            val paint = Paint().apply { this.color = Color.Red }
+            canvas.drawRect(0f, 0f, 200f, 100f, paint)
 
-        val testTag = "testTag"
+            val testTag = "testTag"
 
-        rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag(testTag)
-                    .background(color = Color.Gray)
-                    .requiredWidth(boxWidth.toDp())
-                    .requiredHeight(boxHeight.toDp())
-                    .paint(BitmapPainter(srcImage), contentScale = ContentScale.FillHeight)
-            )
+            rule.setContent {
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .background(color = Color.Gray)
+                            .requiredWidth(boxWidth.toDp())
+                            .requiredHeight(boxHeight.toDp())
+                            .paint(BitmapPainter(srcImage), contentScale = ContentScale.FillHeight)
+                )
+            }
+
+            rule.obtainScreenshotBitmap(boxWidth, boxHeight).apply {
+                assertEquals(width, boxWidth)
+                assertEquals(height, boxHeight)
+                assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - srcImage.width - 5, 0))
+                assertEquals(
+                    Color.Gray.toArgb(),
+                    getPixel(boxWidth / 2 + srcImage.width + 5, boxHeight - 1)
+                )
+                assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - srcImage.width + 5, 0))
+                assertEquals(
+                    Color.Red.toArgb(),
+                    getPixel(boxWidth / 2 + srcImage.width - 5, boxHeight - 1)
+                )
+            }
         }
-
-        rule.obtainScreenshotBitmap(
-            boxWidth,
-            boxHeight
-        ).apply {
-            assertEquals(width, boxWidth)
-            assertEquals(height, boxHeight)
-            assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - srcImage.width - 5, 0))
-            assertEquals(
-                Color.Gray.toArgb(),
-                getPixel(boxWidth / 2 + srcImage.width + 5, boxHeight - 1)
-            )
-            assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - srcImage.width + 5, 0))
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(boxWidth / 2 + srcImage.width - 5, boxHeight - 1)
-            )
-        }
-    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -680,12 +610,12 @@ class PainterModifierTest {
 
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .testTag(testTag)
-                    .background(color = Color.Gray)
-                    .requiredWidth((boxWidth / LocalDensity.current.density).dp)
-                    .requiredHeight((boxHeight / LocalDensity.current.density).dp)
-                    .paint(BitmapPainter(srcImage), contentScale = ContentScale.FillBounds)
+                modifier =
+                    Modifier.testTag(testTag)
+                        .background(color = Color.Gray)
+                        .requiredWidth((boxWidth / LocalDensity.current.density).dp)
+                        .requiredHeight((boxHeight / LocalDensity.current.density).dp)
+                        .paint(BitmapPainter(srcImage), contentScale = ContentScale.FillBounds)
             )
         }
 
@@ -694,64 +624,64 @@ class PainterModifierTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun testVectorPainterScalesContent(): Unit = with(rule.density) {
-        // VectorPainter should handle scaling its content vector up to fill the
-        // corresponding content bounds. Because the composable is twice the
-        // height of the vector and we are providing ContentScale.FillHeight
-        // the VectorPainter should draw the vector with twice its original
-        // height and width centered within the bounds of the composable
-        val boxWidth = 300
-        val boxHeight = 200
+    fun testVectorPainterScalesContent(): Unit =
+        with(rule.density) {
+            // VectorPainter should handle scaling its content vector up to fill the
+            // corresponding content bounds. Because the composable is twice the
+            // height of the vector and we are providing ContentScale.FillHeight
+            // the VectorPainter should draw the vector with twice its original
+            // height and width centered within the bounds of the composable
+            val boxWidth = 300
+            val boxHeight = 200
 
-        val vectorWidth = 50
-        val vectorHeight = 100
-        rule.setContent {
-            val vectorWidthDp = vectorWidth.toDp()
-            val vectorHeightDp = vectorHeight.toDp()
-            Box(
-                modifier = Modifier.background(color = Color.Gray)
-                    .requiredWidth(boxWidth.toDp())
-                    .requiredHeight(boxHeight.toDp())
-                    .paint(
-                        rememberVectorPainter(
-                            defaultWidth = vectorWidthDp,
-                            defaultHeight = vectorHeightDp,
-                            autoMirror = false,
-                            content = { viewportWidth, viewportHeight ->
-                                Path(
-                                    fill = SolidColor(Color.Red),
-                                    pathData = PathData {
-                                        horizontalLineToRelative(viewportWidth)
-                                        verticalLineToRelative(viewportHeight)
-                                        horizontalLineToRelative(-viewportWidth)
-                                        close()
+            val vectorWidth = 50
+            val vectorHeight = 100
+            rule.setContent {
+                val vectorWidthDp = vectorWidth.toDp()
+                val vectorHeightDp = vectorHeight.toDp()
+                Box(
+                    modifier =
+                        Modifier.background(color = Color.Gray)
+                            .requiredWidth(boxWidth.toDp())
+                            .requiredHeight(boxHeight.toDp())
+                            .paint(
+                                rememberVectorPainter(
+                                    defaultWidth = vectorWidthDp,
+                                    defaultHeight = vectorHeightDp,
+                                    autoMirror = false,
+                                    content = { viewportWidth, viewportHeight ->
+                                        Path(
+                                            fill = SolidColor(Color.Red),
+                                            pathData =
+                                                PathData {
+                                                    horizontalLineToRelative(viewportWidth)
+                                                    verticalLineToRelative(viewportHeight)
+                                                    horizontalLineToRelative(-viewportWidth)
+                                                    close()
+                                                }
+                                        )
                                     }
-                                )
-                            }
-                        ),
-                        contentScale = ContentScale.FillHeight
-                    )
-            )
-        }
+                                ),
+                                contentScale = ContentScale.FillHeight
+                            )
+                )
+            }
 
-        rule.obtainScreenshotBitmap(
-            boxWidth,
-            boxHeight
-        ).apply {
-            assertEquals(width, boxWidth)
-            assertEquals(height, boxHeight)
-            assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - vectorWidth - 5, 0))
-            assertEquals(
-                Color.Gray.toArgb(),
-                getPixel(boxWidth / 2 + vectorWidth + 5, boxHeight - 2)
-            )
-            assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - vectorWidth + 5, 0))
-            assertEquals(
-                Color.Red.toArgb(),
-                getPixel(boxWidth / 2 + vectorWidth - 5, boxHeight - 2)
-            )
+            rule.obtainScreenshotBitmap(boxWidth, boxHeight).apply {
+                assertEquals(width, boxWidth)
+                assertEquals(height, boxHeight)
+                assertEquals(Color.Gray.toArgb(), getPixel(boxWidth / 2 - vectorWidth - 5, 0))
+                assertEquals(
+                    Color.Gray.toArgb(),
+                    getPixel(boxWidth / 2 + vectorWidth + 5, boxHeight - 2)
+                )
+                assertEquals(Color.Red.toArgb(), getPixel(boxWidth / 2 - vectorWidth + 5, 0))
+                assertEquals(
+                    Color.Red.toArgb(),
+                    getPixel(boxWidth / 2 + vectorWidth - 5, boxHeight - 2)
+                )
+            }
         }
-    }
 
     @Test
     @SmallTest
@@ -760,39 +690,31 @@ class PainterModifierTest {
         val modifier = Modifier.paint(painter) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("paint")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("painter", painter),
-            ValueElement("sizeToIntrinsics", true),
-            ValueElement("alignment", Alignment.Center),
-            ValueElement("contentScale", ContentScale.Inside),
-            ValueElement("alpha", DefaultAlpha),
-            ValueElement("colorFilter", null)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(
+                ValueElement("painter", painter),
+                ValueElement("sizeToIntrinsics", true),
+                ValueElement("alignment", Alignment.Center),
+                ValueElement("contentScale", ContentScale.Inside),
+                ValueElement("alpha", DefaultAlpha),
+                ValueElement("colorFilter", null)
+            )
     }
 
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testBackgroundPainterChain() {
-        val painter = TestPainter(100f, 100f).apply {
-            color = Color.Red
-        }
+        val painter = TestPainter(100f, 100f).apply { color = Color.Red }
 
-        val painter2 = TestPainter(100f, 100f).apply {
-            color = Color.Blue.copy(alpha = 0.5f)
-        }
+        val painter2 = TestPainter(100f, 100f).apply { color = Color.Blue.copy(alpha = 0.5f) }
 
         val tag = "testTag"
         var sizePx = 0f
         val size = 2.dp
         rule.setContent {
             with(LocalDensity.current) { sizePx = size.toPx() }
-            Box(
-                modifier = Modifier.testTag(tag)
-                    .size(size)
-                    .paint(painter)
-                    .paint(painter2)
-            )
+            Box(modifier = Modifier.testTag(tag).size(size).paint(painter).paint(painter2))
         }
 
         rule.onNodeWithTag(tag).captureToImage().apply {
@@ -809,20 +731,12 @@ class PainterModifierTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testUpdatingPainterWithTheSameIntrinsicsSize() {
-        var painter by mutableStateOf(TestPainter(10f, 10f).apply {
-            color = Color.Red
-        })
+        var painter by mutableStateOf(TestPainter(10f, 10f).apply { color = Color.Red })
         val tag = "testTag"
 
-        rule.setContent {
-            Box(Modifier.testTag(tag).paint(painter))
-        }
+        rule.setContent { Box(Modifier.testTag(tag).paint(painter)) }
 
-        rule.runOnIdle {
-            painter = TestPainter(10f, 10f).apply {
-                color = Color.Blue
-            }
-        }
+        rule.runOnIdle { painter = TestPainter(10f, 10f).apply { color = Color.Blue } }
 
         rule.onNodeWithTag(tag).captureToImage().apply {
             assertEquals(10, width)
@@ -834,20 +748,12 @@ class PainterModifierTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testUpdatingPainterWithTheDifferentIntrinsicsSize() {
-        var painter by mutableStateOf(TestPainter(10f, 10f).apply {
-            color = Color.Red
-        })
+        var painter by mutableStateOf(TestPainter(10f, 10f).apply { color = Color.Red })
         val tag = "testTag"
 
-        rule.setContent {
-            Box(Modifier.testTag(tag).paint(painter))
-        }
+        rule.setContent { Box(Modifier.testTag(tag).paint(painter)) }
 
-        rule.runOnIdle {
-            painter = TestPainter(5f, 5f).apply {
-                color = Color.Blue
-            }
-        }
+        rule.runOnIdle { painter = TestPainter(5f, 5f).apply { color = Color.Blue } }
 
         rule.onNodeWithTag(tag).captureToImage().apply {
             assertEquals(5, width)
@@ -866,9 +772,9 @@ class PainterModifierTest {
         val layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             AtLeastSize(
-                modifier = Modifier
-                    .background(Color.White)
-                    .paint(p, alpha = alpha, colorFilter = colorFilter),
+                modifier =
+                    Modifier.background(Color.White)
+                        .paint(p, alpha = alpha, colorFilter = colorFilter),
                 size = containerWidth.roundToInt()
             ) {
                 // Intentionally empty
@@ -885,10 +791,7 @@ private fun ComposeTestRule.obtainScreenshotBitmap(width: Int, height: Int = wid
     return bitmap.asAndroidBitmap()
 }
 
-private class TestPainter(
-    val width: Float,
-    val height: Float
-) : Painter() {
+private class TestPainter(val width: Float, val height: Float) : Painter() {
 
     var color = Color.Red
 
@@ -906,8 +809,8 @@ private class TestPainter(
 }
 
 /**
- * Container composable that relaxes the minimum width and height constraints
- * before giving them to their child
+ * Container composable that relaxes the minimum width and height constraints before giving them to
+ * their child
  */
 @Composable
 fun NoMinSizeContainer(content: @Composable () -> Unit) {
@@ -918,35 +821,18 @@ fun NoMinSizeContainer(content: @Composable () -> Unit) {
         val maxPlaceableHeight = placeables.maxByOrNull { it.height }?.width ?: 0
         val width = max(maxPlaceableWidth, loosenedConstraints.minWidth)
         val height = max(maxPlaceableHeight, loosenedConstraints.minHeight)
-        layout(width, height) {
-            placeables.forEach { it.place(0, 0) }
-        }
+        layout(width, height) { placeables.forEach { it.place(0, 0) } }
     }
 }
 
-/**
- * Composable that is sized purely by the constraints given by its modifiers
- */
+/** Composable that is sized purely by the constraints given by its modifiers */
 @Composable
-fun NoIntrinsicSizeContainer(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
+fun NoIntrinsicSizeContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(content, modifier) { measurables, constraints ->
         val placeables = measurables.map { it.measure(constraints) }
-        val width = max(
-            placeables.maxByOrNull { it.width }?.width ?: 0,
-            constraints
-                .minWidth
-        )
-        val height = max(
-            placeables.maxByOrNull { it.height }?.height ?: 0,
-            constraints
-                .minHeight
-        )
-        layout(width, height) {
-            placeables.forEach { it.place(0, 0) }
-        }
+        val width = max(placeables.maxByOrNull { it.width }?.width ?: 0, constraints.minWidth)
+        val height = max(placeables.maxByOrNull { it.height }?.height ?: 0, constraints.minHeight)
+        layout(width, height) { placeables.forEach { it.place(0, 0) } }
     }
 }
 
@@ -955,16 +841,15 @@ class FixedSizeModifier(val width: Int, val height: Int = width) : LayoutModifie
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val placeable = measurable.measure(
-            Constraints(
-                minWidth = width,
-                minHeight = height,
-                maxWidth = width,
-                maxHeight = height
+        val placeable =
+            measurable.measure(
+                Constraints(
+                    minWidth = width,
+                    minHeight = height,
+                    maxWidth = width,
+                    maxHeight = height
+                )
             )
-        )
-        return layout(width, height) {
-            placeable.place(0, 0)
-        }
+        return layout(width, height) { placeable.place(0, 0) }
     }
 }

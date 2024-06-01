@@ -21,8 +21,8 @@ import androidx.compose.ui.semantics.SemanticsNode
 /**
  * Builds error message for case where expected amount of nodes does not match reality.
  *
- * Provide [errorMessage] to explain which operation you were about to perform. This makes it
- * easier for developer to find where the failure happened.
+ * Provide [errorMessage] to explain which operation you were about to perform. This makes it easier
+ * for developer to find where the failure happened.
  *
  * In case of only one node that went missing (was seen before) use
  * [buildErrorMessageForNodeMissingInTree] for better clarity.
@@ -95,8 +95,8 @@ internal fun buildErrorMessageForCountMismatch(
 /**
  * Builds error message for case where node is no longer in the tree but is expected to be.
  *
- * Provide [errorMessage] to explain which operation you were about to perform. This makes it
- * easier for developer to find where the failure happened.
+ * Provide [errorMessage] to explain which operation you were about to perform. This makes it easier
+ * for developer to find where the failure happened.
  *
  * Note that [lastSeenSemantics] is the last semantics we have seen before we couldn't find the node
  * anymore. This can provide more info to the developer on what could have happened.

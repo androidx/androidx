@@ -50,8 +50,6 @@ actual class MediaType internal constructor(val dataFlavor: DataFlavor) {
     }
 
     override fun toString(): String {
-        return "MediaType(" +
-            "dataFlavor=$dataFlavor, " +
-            "representation='$representation')"
+        return "MediaType(" + "dataFlavor=$dataFlavor, " + "representation='$representation')"
     }
 }

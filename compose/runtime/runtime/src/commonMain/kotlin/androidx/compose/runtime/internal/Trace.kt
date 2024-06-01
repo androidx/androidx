@@ -18,20 +18,19 @@ package androidx.compose.runtime.internal
 
 internal expect object Trace {
     /**
-     * Writes a trace message to indicate that a given section of code has begun.
-     * This call must be followed by a corresponding call to [endSection] on the same thread.
+     * Writes a trace message to indicate that a given section of code has begun. This call must be
+     * followed by a corresponding call to [endSection] on the same thread.
      *
-     * @return An arbitrary token which will be supplied to the corresponding call
-     * to [endSection]. May be null.
+     * @return An arbitrary token which will be supplied to the corresponding call to [endSection].
+     *   May be null.
      */
     fun beginSection(name: String): Any?
 
     /**
-     * Writes a trace message to indicate that a given section of code has ended.
-     * This call must be preceded by a corresponding call to [beginSection].
-     * Calling this method will mark the end of the most recently begun section of code, so care
-     * must be taken to ensure that `beginSection` / `endSection` pairs are properly nested and
-     * called from the same thread.
+     * Writes a trace message to indicate that a given section of code has ended. This call must be
+     * preceded by a corresponding call to [beginSection]. Calling this method will mark the end of
+     * the most recently begun section of code, so care must be taken to ensure that `beginSection`
+     * / `endSection` pairs are properly nested and called from the same thread.
      *
      * @param token The instance returned from the corresponding call to [beginSection].
      */
@@ -39,8 +38,8 @@ internal expect object Trace {
 }
 
 /**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName])
- * and [Trace.endSection].
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName]) and
+ * [Trace.endSection].
  */
 internal inline fun <T> trace(sectionName: String, block: () -> T): T {
     val token = Trace.beginSection(sectionName)

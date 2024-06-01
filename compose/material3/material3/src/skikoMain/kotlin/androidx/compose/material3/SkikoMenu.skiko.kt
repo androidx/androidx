@@ -54,9 +54,11 @@ import androidx.compose.ui.window.PopupProperties
 
 @Deprecated(
     "Replaced by DropdownMenu with properties parameter",
-    ReplaceWith("DropdownMenu(expanded, onDismissRequest, modifier, offset, " +
-        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
-        "content)"),
+    ReplaceWith(
+        "DropdownMenu(expanded, onDismissRequest, modifier, offset, " +
+            "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+            "content)"
+    ),
     level = DeprecationLevel.HIDDEN
 )
 @Suppress("ModifierParameter")
@@ -68,14 +70,15 @@ fun DropdownMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    properties = PopupProperties(focusable = focusable),
-    content = content
-)
+) =
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        properties = PopupProperties(focusable = focusable),
+        content = content
+    )
 
 // Workaround for `Overload resolution ambiguity` between old and new overload.
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -86,14 +89,15 @@ fun DropdownMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    properties = PopupProperties(focusable = true),
-    content = content
-)
+) =
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        properties = PopupProperties(focusable = true),
+        content = content
+    )
 
 @Composable
 actual fun DropdownMenu(
@@ -116,14 +120,12 @@ actual fun DropdownMenu(
     if (expandedState.currentState || expandedState.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
-        val popupPositionProvider = remember(offset, density) {
-            DropdownMenuPositionProvider(
-                offset,
-                density
-            ) { parentBounds, menuBounds ->
-                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+        val popupPositionProvider =
+            remember(offset, density) {
+                DropdownMenuPositionProvider(offset, density) { parentBounds, menuBounds ->
+                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+                }
             }
-        }
 
         var focusManager: FocusManager? by mutableStateOf(null)
         var inputModeManager: InputModeManager? by mutableStateOf(null)
@@ -131,9 +133,7 @@ actual fun DropdownMenu(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,
             properties = properties,
-            onKeyEvent = {
-                handlePopupOnKeyEvent(it, focusManager, inputModeManager)
-            },
+            onKeyEvent = { handlePopupOnKeyEvent(it, focusManager, inputModeManager) },
         ) {
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current
@@ -156,24 +156,27 @@ actual fun DropdownMenu(
 
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        expression = "DropdownMenu(\n" +
-            "    expanded = expanded,\n" +
-            "    onDismissRequest = onDismissRequest,\n" +
-            "    modifier = modifier,\n" +
-            "    offset = offset,\n" +
-            "    scrollState = scrollState,\n" +
-            "    properties = properties,\n" +
-            "    shape = MenuDefaults.shape,\n" +
-            "    containerColor = MenuDefaults.containerColor,\n" +
-            "    tonalElevation = MenuDefaults.TonalElevation,\n" +
-            "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
-            "    border = null,\n" +
-            "    content = content,\n" +
-            ")",
-    ),
-    message = "Maintained for binary compatibility. Use overload with parameters for shape, " +
-        "color, elevation, and border."
+    replaceWith =
+        ReplaceWith(
+            expression =
+                "DropdownMenu(\n" +
+                    "    expanded = expanded,\n" +
+                    "    onDismissRequest = onDismissRequest,\n" +
+                    "    modifier = modifier,\n" +
+                    "    offset = offset,\n" +
+                    "    scrollState = scrollState,\n" +
+                    "    properties = properties,\n" +
+                    "    shape = MenuDefaults.shape,\n" +
+                    "    containerColor = MenuDefaults.containerColor,\n" +
+                    "    tonalElevation = MenuDefaults.TonalElevation,\n" +
+                    "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
+                    "    border = null,\n" +
+                    "    content = content,\n" +
+                    ")",
+        ),
+    message =
+        "Maintained for binary compatibility. Use overload with parameters for shape, " +
+            "color, elevation, and border."
 )
 @Composable
 fun DropdownMenu(
@@ -184,30 +187,33 @@ fun DropdownMenu(
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    scrollState = scrollState,
-    properties = properties,
-    shape = MenuDefaults.shape,
-    containerColor = MenuDefaults.containerColor,
-    tonalElevation = MenuDefaults.TonalElevation,
-    shadowElevation = MenuDefaults.ShadowElevation,
-    border = null,
-    content = content,
-)
+) =
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        scrollState = scrollState,
+        properties = properties,
+        shape = MenuDefaults.shape,
+        containerColor = MenuDefaults.containerColor,
+        tonalElevation = MenuDefaults.TonalElevation,
+        shadowElevation = MenuDefaults.ShadowElevation,
+        border = null,
+        content = content,
+    )
 
 @Suppress("ModifierParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        expression = "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
-            "rememberScrollState(), properties, content)",
-        "androidx.compose.foundation.rememberScrollState"
-    ),
+    replaceWith =
+        ReplaceWith(
+            expression =
+                "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
+                    "rememberScrollState(), properties, content)",
+            "androidx.compose.foundation.rememberScrollState"
+        ),
     message = "Replaced by a DropdownMenu function with a ScrollState parameter"
 )
 @Composable
@@ -218,15 +224,16 @@ fun DropdownMenu(
     offset: DpOffset,
     properties: PopupProperties,
     content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    scrollState = rememberScrollState(),
-    properties = properties,
-    content = content
-)
+) =
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismissRequest,
+        modifier = modifier,
+        offset = offset,
+        scrollState = rememberScrollState(),
+        properties = properties,
+        content = content
+    )
 
 @Composable
 actual fun DropdownMenuItem(
@@ -264,20 +271,21 @@ private fun handlePopupOnKeyEvent(
     keyEvent: KeyEvent,
     focusManager: FocusManager?,
     inputModeManager: InputModeManager?
-): Boolean = if (keyEvent.type == KeyEventType.KeyDown) {
-    when (keyEvent.key) {
-        Key.DirectionDown -> {
-            inputModeManager?.requestInputMode(InputMode.Keyboard)
-            focusManager?.moveFocus(FocusDirection.Next)
-            true
+): Boolean =
+    if (keyEvent.type == KeyEventType.KeyDown) {
+        when (keyEvent.key) {
+            Key.DirectionDown -> {
+                inputModeManager?.requestInputMode(InputMode.Keyboard)
+                focusManager?.moveFocus(FocusDirection.Next)
+                true
+            }
+            Key.DirectionUp -> {
+                inputModeManager?.requestInputMode(InputMode.Keyboard)
+                focusManager?.moveFocus(FocusDirection.Previous)
+                true
+            }
+            else -> false
         }
-        Key.DirectionUp -> {
-            inputModeManager?.requestInputMode(InputMode.Keyboard)
-            focusManager?.moveFocus(FocusDirection.Previous)
-            true
-        }
-        else -> false
+    } else {
+        false
     }
-} else {
-    false
-}

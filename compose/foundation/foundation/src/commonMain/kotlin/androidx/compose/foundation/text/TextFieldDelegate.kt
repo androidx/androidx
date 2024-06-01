@@ -76,16 +76,17 @@ internal fun computeSizeForDefaultText(
     text: String = EmptyTextReplacement,
     maxLines: Int = 1
 ): IntSize {
-    val paragraph = Paragraph(
-        text = text,
-        style = style,
-        spanStyles = listOf(),
-        maxLines = maxLines,
-        ellipsis = false,
-        density = density,
-        fontFamilyResolver = fontFamilyResolver,
-        constraints = Constraints()
-    )
+    val paragraph =
+        Paragraph(
+            text = text,
+            style = style,
+            spanStyles = listOf(),
+            maxLines = maxLines,
+            ellipsis = false,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver,
+            constraints = Constraints()
+        )
     return IntSize(paragraph.minIntrinsicWidth.ceilToIntPx(), paragraph.height.ceilToIntPx())
 }
 
@@ -115,9 +116,9 @@ internal class TextFieldDelegate {
          * @param canvas The target canvas.
          * @param value The editor state
          * @param selectionPreviewHighlightRange Range to be highlighted to preview a handwriting
-         *     selection gesture
+         *   selection gesture
          * @param deletionPreviewHighlightRange Range to be highlighted to preview a handwriting
-         *     deletion gesture
+         *   deletion gesture
          * @param offsetMapping The offset map
          * @param textLayoutResult The text layout result
          * @param highlightPaint Paint used to draw highlight backgrounds
@@ -208,22 +209,24 @@ internal class TextFieldDelegate {
                 return
             }
             val focusOffsetInTransformed = offsetMapping.originalToTransformed(value.selection.max)
-            val bbox = when {
-                focusOffsetInTransformed < textLayoutResult.layoutInput.text.length -> {
-                    textLayoutResult.getBoundingBox(focusOffsetInTransformed)
+            val bbox =
+                when {
+                    focusOffsetInTransformed < textLayoutResult.layoutInput.text.length -> {
+                        textLayoutResult.getBoundingBox(focusOffsetInTransformed)
+                    }
+                    focusOffsetInTransformed != 0 -> {
+                        textLayoutResult.getBoundingBox(focusOffsetInTransformed - 1)
+                    }
+                    else -> { // empty text.
+                        val defaultSize =
+                            computeSizeForDefaultText(
+                                textDelegate.style,
+                                textDelegate.density,
+                                textDelegate.fontFamilyResolver
+                            )
+                        Rect(0f, 0f, 1.0f, defaultSize.height.toFloat())
+                    }
                 }
-                focusOffsetInTransformed != 0 -> {
-                    textLayoutResult.getBoundingBox(focusOffsetInTransformed - 1)
-                }
-                else -> { // empty text.
-                    val defaultSize = computeSizeForDefaultText(
-                        textDelegate.style,
-                        textDelegate.density,
-                        textDelegate.fontFamilyResolver
-                    )
-                    Rect(0f, 0f, 1.0f, defaultSize.height.toFloat())
-                }
-            }
             val globalLT = layoutCoordinates.localToRoot(Offset(bbox.left, bbox.top))
 
             textInputSession.notifyFocusedRect(
@@ -254,7 +257,8 @@ internal class TextFieldDelegate {
                         offsetMapping,
                         textLayoutResult.value,
                         { matrix ->
-                            innerTextFieldCoordinates.findRootCoordinates()
+                            innerTextFieldCoordinates
+                                .findRootCoordinates()
                                 .transformFrom(innerTextFieldCoordinates, matrix)
                         },
                         innerTextFieldCoordinates.visibleBounds(),
@@ -312,9 +316,8 @@ internal class TextFieldDelegate {
             offsetMapping: OffsetMapping,
             onValueChange: (TextFieldValue) -> Unit
         ) {
-            val offset = offsetMapping.transformedToOriginal(
-                textLayoutResult.getOffsetForPosition(position)
-            )
+            val offset =
+                offsetMapping.transformedToOriginal(textLayoutResult.getOffsetForPosition(position))
             onValueChange(editProcessor.toTextFieldValue().copy(selection = TextRange(offset)))
         }
 
@@ -338,12 +341,13 @@ internal class TextFieldDelegate {
             onImeActionPerformed: (ImeAction) -> Unit
         ): TextInputSession {
             var session: TextInputSession? = null
-            session = textInputService.startInput(
-                value = value,
-                imeOptions = imeOptions,
-                onEditCommand = { onEditCommand(it, editProcessor, onValueChange, session) },
-                onImeActionPerformed = onImeActionPerformed
-            )
+            session =
+                textInputService.startInput(
+                    value = value,
+                    imeOptions = imeOptions,
+                    onEditCommand = { onEditCommand(it, editProcessor, onValueChange, session) },
+                    onImeActionPerformed = onImeActionPerformed
+                )
             return session
         }
 
@@ -397,34 +401,34 @@ internal class TextFieldDelegate {
         }
 
         /**
-         *  Apply the composition text decoration (undeline) to the transformed text.
+         * Apply the composition text decoration (undeline) to the transformed text.
          *
-         *  @param compositionRange An input state
-         *  @param transformed A transformed text
-         *  @return The transformed text with composition decoration.
+         * @param compositionRange An input state
+         * @param transformed A transformed text
+         * @return The transformed text with composition decoration.
          */
         fun applyCompositionDecoration(
             compositionRange: TextRange,
             transformed: TransformedText
         ): TransformedText {
-            val startPositionTransformed = transformed.offsetMapping.originalToTransformed(
-                compositionRange.start
-            )
-            val endPositionTransformed = transformed.offsetMapping.originalToTransformed(
-                compositionRange.end
-            )
+            val startPositionTransformed =
+                transformed.offsetMapping.originalToTransformed(compositionRange.start)
+            val endPositionTransformed =
+                transformed.offsetMapping.originalToTransformed(compositionRange.end)
 
             // coerce into a valid range with start <= end
             val start = min(startPositionTransformed, endPositionTransformed)
             val coercedEnd = max(startPositionTransformed, endPositionTransformed)
             return TransformedText(
-                AnnotatedString.Builder(transformed.text).apply {
-                    addStyle(
-                        SpanStyle(textDecoration = TextDecoration.Underline),
-                        start,
-                        coercedEnd
-                    )
-                }.toAnnotatedString(),
+                AnnotatedString.Builder(transformed.text)
+                    .apply {
+                        addStyle(
+                            SpanStyle(textDecoration = TextDecoration.Underline),
+                            start,
+                            coercedEnd
+                        )
+                    }
+                    .toAnnotatedString(),
                 transformed.offsetMapping
             )
         }

@@ -41,11 +41,9 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class ListItemScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun listItem_customColor() {
@@ -53,18 +51,14 @@ class ListItemScreenshotTest {
             Column(Modifier.testTag(Tag)) {
                 ListItem(
                     headlineContent = { Text("One line list item with 24x24 icon") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    },
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                     colors = ListItemDefaults.colors(containerColor = Color.Red)
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_oneLine_customColor")
     }
@@ -77,17 +71,13 @@ class ListItemScreenshotTest {
                 HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("One line list item with 24x24 icon") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    }
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) }
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_oneLine_lightTheme")
     }
@@ -100,17 +90,13 @@ class ListItemScreenshotTest {
                 HorizontalDivider()
                 ListItem(
                     headlineContent = { Text("One line list item with 24x24 icon") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    }
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) }
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_oneLine_darkTheme")
     }
@@ -132,17 +118,13 @@ class ListItemScreenshotTest {
                 ListItem(
                     headlineContent = { Text("Two line list item with 24x24 icon") },
                     supportingContent = { Text("Secondary text") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    }
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) }
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_twoLine_lightTheme")
     }
@@ -164,17 +146,13 @@ class ListItemScreenshotTest {
                 ListItem(
                     headlineContent = { Text("Two line list item with 24x24 icon") },
                     supportingContent = { Text("Secondary text") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    }
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) }
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_twoLine_darkTheme")
     }
@@ -200,17 +178,13 @@ class ListItemScreenshotTest {
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
                     supportingContent = { Text("Secondary text") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    }
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) }
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_threeLine_lightTheme")
     }
@@ -236,17 +210,13 @@ class ListItemScreenshotTest {
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
                     supportingContent = { Text("Secondary text") },
-                    leadingContent = {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = null
-                        )
-                    }
+                    leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) }
                 )
                 HorizontalDivider()
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "list_threeLine_darkTheme")
     }

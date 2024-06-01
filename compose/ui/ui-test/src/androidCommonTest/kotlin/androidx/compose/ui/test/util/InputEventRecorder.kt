@@ -23,21 +23,26 @@ import android.view.MotionEvent
 internal class InputEventRecorder {
 
     private val _events = mutableListOf<InputEvent>()
-    val events get() = _events as List<InputEvent>
+    val events
+        get() = _events as List<InputEvent>
 
     fun disposeEvents() {
-        _events.removeAll { if (it is MotionEvent) it.recycle(); true }
+        _events.removeAll {
+            if (it is MotionEvent) it.recycle()
+            true
+        }
     }
 
-    /**
-     * [InputEvent] recorder which can record events of type [MotionEvent] and [KeyEvent].
-     */
+    /** [InputEvent] recorder which can record events of type [MotionEvent] and [KeyEvent]. */
     fun recordEvent(event: InputEvent) {
         when (event) {
             is KeyEvent -> _events.add(KeyEvent(event))
             is MotionEvent -> _events.add(MotionEvent.obtain(event))
-            else -> IllegalArgumentException("Given InputEvent must be a MotionEvent or KeyEvent" +
-                " not ${event::class.simpleName}")
+            else ->
+                IllegalArgumentException(
+                    "Given InputEvent must be a MotionEvent or KeyEvent" +
+                        " not ${event::class.simpleName}"
+                )
         }
     }
 }

@@ -34,11 +34,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NodesRemeasuredOnceTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     @Test
     fun remeasuringDirectChild() {
@@ -46,10 +44,12 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            WrapChild(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(height.value)
-                remeasurements++
-            }) {
+            WrapChild(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(height.value)
+                    remeasurements++
+                }
+            ) {
                 Child(height)
             }
         }
@@ -59,9 +59,7 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 
     @Test
@@ -70,13 +68,13 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            WrapChild(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(height.value)
-                remeasurements++
-            }) {
-                WrapChild {
-                    Child(height)
+            WrapChild(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(height.value)
+                    remeasurements++
                 }
+            ) {
+                WrapChild { Child(height) }
             }
         }
 
@@ -85,9 +83,7 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 
     @Test
@@ -96,17 +92,13 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            WrapChild(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(height.value)
-                remeasurements++
-            }) {
-                WrapChild {
-                    WrapChild {
-                        WrapChild {
-                            Child(height)
-                        }
-                    }
+            WrapChild(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(height.value)
+                    remeasurements++
                 }
+            ) {
+                WrapChild { WrapChild { WrapChild { Child(height) } } }
             }
         }
 
@@ -115,9 +107,7 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 
     @Test
@@ -126,15 +116,13 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            WrapChild(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(height.value)
-                remeasurements++
-            }) {
-                NotPlaceChild(height) {
-                    WrapChild {
-                        Child(height)
-                    }
+            WrapChild(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(height.value)
+                    remeasurements++
                 }
+            ) {
+                NotPlaceChild(height) { WrapChild { Child(height) } }
             }
         }
 
@@ -143,9 +131,7 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 
     @Test
@@ -154,13 +140,13 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            WrapChildMeasureDuringLayout(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(height.value)
-                remeasurements++
-            }) {
-                WrapChild {
-                    Child(height)
+            WrapChildMeasureDuringLayout(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(height.value)
+                    remeasurements++
                 }
+            ) {
+                WrapChild { Child(height) }
             }
         }
 
@@ -169,9 +155,7 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 
     @Test
@@ -181,10 +165,12 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            WrapChildMeasureDuringLayout(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(expectedHeight)
-                remeasurements++
-            }) {
+            WrapChildMeasureDuringLayout(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(expectedHeight)
+                    remeasurements++
+                }
+            ) {
                 Child(height)
             }
         }
@@ -195,9 +181,7 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 
     @Test
@@ -206,13 +190,13 @@ class NodesRemeasuredOnceTest {
         var remeasurements = 0
 
         rule.setContent {
-            IntrinsicSizeAndMeasureDuringLayout(onMeasured = { actualHeight ->
-                assertThat(actualHeight).isEqualTo(height.value)
-                remeasurements++
-            }) {
-                WrapChild {
-                    Child(height)
+            IntrinsicSizeAndMeasureDuringLayout(
+                onMeasured = { actualHeight ->
+                    assertThat(actualHeight).isEqualTo(height.value)
+                    remeasurements++
                 }
+            ) {
+                WrapChild { Child(height) }
             }
         }
 
@@ -221,21 +205,19 @@ class NodesRemeasuredOnceTest {
             height.value = 20
         }
 
-        rule.runOnIdle {
-            assertThat(remeasurements).isEqualTo(2)
-        }
+        rule.runOnIdle { assertThat(remeasurements).isEqualTo(2) }
     }
 }
 
 @Composable
 private fun WrapChild(onMeasured: (Int) -> Unit = {}, content: @Composable () -> Unit) {
     Layout(content = content) { measurables, constraints ->
-        val placeable = measurables.first()
-            .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+        val placeable =
+            measurables
+                .first()
+                .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
         onMeasured(placeable.height)
-        layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
-        }
+        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
 }
 
@@ -249,8 +231,10 @@ private fun WrapChildMeasureDuringLayout(
         val height =
             if (constraints.hasBoundedHeight) constraints.maxHeight else constraints.minHeight
         layout(width, height) {
-            val placeable = measurables.first()
-                .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+            val placeable =
+                measurables
+                    .first()
+                    .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
             onMeasured(placeable.height)
             placeable.place(0, 0)
         }
@@ -266,8 +250,10 @@ private fun IntrinsicSizeAndMeasureDuringLayout(
         val width = measurables.first().maxIntrinsicWidth(constraints.maxWidth)
         val height = measurables.first().maxIntrinsicHeight(constraints.maxHeight)
         layout(width, height) {
-            val placeable = measurables.first()
-                .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+            val placeable =
+                measurables
+                    .first()
+                    .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
             onMeasured(placeable.height)
             placeable.place(0, 0)
         }
@@ -281,7 +267,8 @@ private fun NotPlaceChild(height: State<Int>, content: @Composable () -> Unit) {
             if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth,
             height.value
         ) {
-            measurables.first()
+            measurables
+                .first()
                 .measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
         }
     }

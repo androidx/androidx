@@ -31,11 +31,12 @@ import org.junit.runner.RunWith
 class PathEasingTest {
     @Test
     fun pathEasing_Emphasized_BoundsCheck() {
-        val path = Path().apply {
-            moveTo(0f, 0f)
-            cubicTo(0.05f, 0f, 0.133333f, 0.06f, 0.166666f, 0.4f)
-            cubicTo(0.208333f, 0.82f, 0.25f, 1f, 1f, 1f)
-        }
+        val path =
+            Path().apply {
+                moveTo(0f, 0f)
+                cubicTo(0.05f, 0f, 0.133333f, 0.06f, 0.166666f, 0.4f)
+                cubicTo(0.208333f, 0.82f, 0.25f, 1f, 1f, 1f)
+            }
 
         val easing = PathEasing(path)
         assertThat(easing.transform(0f)).isZero()
@@ -54,27 +55,24 @@ class PathEasingTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun pathEasing_DoesNotStartAtZero() {
-        val path = Path().apply {
-            moveTo(0.1f, 0.0f)
-            lineTo(1.0f, 1.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(0.1f, 0.0f)
+                lineTo(1.0f, 1.0f)
+            }
         PathEasing(path).transform(0.5f)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun pathEasing_DoesNotEndAtOne() {
-        val path = Path().apply {
-            lineTo(0.9f, 1.0f)
-        }
+        val path = Path().apply { lineTo(0.9f, 1.0f) }
         PathEasing(path).transform(0.5f)
     }
 
     @Test
     fun pathEasing_CompareToCubicEasing() {
         val cubicEasing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
-        val path = Path().apply {
-            cubicTo(0.4f, 0.0f, 0.2f, 1.0f, 1.0f, 1.0f)
-        }
+        val path = Path().apply { cubicTo(0.4f, 0.0f, 0.2f, 1.0f, 1.0f, 1.0f) }
 
         val easing = PathEasing(path)
         for (i in 0..256) {
@@ -85,15 +83,16 @@ class PathEasingTest {
 
     @Test(expected = IllegalStateException::class)
     fun pathEasing_NonContinuousPath() {
-        val path = Path().apply {
-            moveTo(0.00f, 0.10f)
-            lineTo(0.25f, 0.10f)
-            // Gap from 0.25 to 0.50
-            moveTo(0.50f, 0.40f)
-            lineTo(0.75f, 0.40f)
-            moveTo(0.75f, 1.00f)
-            lineTo(1.00f, 1.00f)
-        }
+        val path =
+            Path().apply {
+                moveTo(0.00f, 0.10f)
+                lineTo(0.25f, 0.10f)
+                // Gap from 0.25 to 0.50
+                moveTo(0.50f, 0.40f)
+                lineTo(0.75f, 0.40f)
+                moveTo(0.75f, 1.00f)
+                lineTo(1.00f, 1.00f)
+            }
 
         val easing = PathEasing(path)
         assertEquals(0.1f, easing.transform(0.2f))
@@ -103,25 +102,24 @@ class PathEasingTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun pathEasing_ClosedPath() {
-        val path = Path().apply {
-            addOval(Rect(0f, 0f, 1f, 1f))
-        }
+        val path = Path().apply { addOval(Rect(0f, 0f, 1f, 1f)) }
 
         PathEasing(path).transform(0.5f)
     }
 
     @Test
     fun pathEasing_Overlapping_Curves() {
-        val path = Path().apply {
-            moveTo(0.00f, 0.10f)
-            lineTo(0.25f, 0.10f)
-            moveTo(0.10f, 0.30f) // Overlaps with the previous line
-            lineTo(0.60f, 0.30f) // and the next line
-            moveTo(0.50f, 0.40f)
-            lineTo(0.75f, 0.40f)
-            moveTo(0.75f, 1.00f)
-            lineTo(1.00f, 1.00f)
-        }
+        val path =
+            Path().apply {
+                moveTo(0.00f, 0.10f)
+                lineTo(0.25f, 0.10f)
+                moveTo(0.10f, 0.30f) // Overlaps with the previous line
+                lineTo(0.60f, 0.30f) // and the next line
+                moveTo(0.50f, 0.40f)
+                lineTo(0.75f, 0.40f)
+                moveTo(0.75f, 1.00f)
+                lineTo(1.00f, 1.00f)
+            }
 
         val easing = PathEasing(path)
 
@@ -131,9 +129,7 @@ class PathEasingTest {
 
     @Test
     fun pathEasing_QuadTo() {
-        val path = Path().apply {
-            quadraticTo(1.0f, 0.0f, 1.0f, 1.0f)
-        }
+        val path = Path().apply { quadraticTo(1.0f, 0.0f, 1.0f, 1.0f) }
 
         val easing = PathEasing(path)
         var previousFraction = -Float.MAX_VALUE
@@ -150,10 +146,11 @@ class PathEasingTest {
 
     @Test
     fun pathEasing_QuadTo_OneToZero() {
-        val path = Path().apply {
-            moveTo(1.0f, 1.0f)
-            quadraticTo(1.0f, 0.0f, 0.0f, 0.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(1.0f, 1.0f)
+                quadraticTo(1.0f, 0.0f, 0.0f, 0.0f)
+            }
 
         val easing = PathEasing(path)
         var previousFraction = -Float.MAX_VALUE
@@ -170,17 +167,13 @@ class PathEasingTest {
 
     @Test
     fun pathEasing_Overshoots() {
-        val path = Path().apply {
-            cubicTo(0.34f, 1.56f, 0.64f, 1.0f, 1.0f, 1.0f)
-        }
+        val path = Path().apply { cubicTo(0.34f, 1.56f, 0.64f, 1.0f, 1.0f, 1.0f) }
         assertThat(PathEasing(path).transform(0.6f)).isGreaterThan(1.0f)
     }
 
     @Test
     fun pathEasing_Undershoots() {
-        val path = Path().apply {
-            cubicTo(0.68f, -0.6f, 0.32f, 1.6f, 1.0f, 1.0f)
-        }
+        val path = Path().apply { cubicTo(0.68f, -0.6f, 0.32f, 1.6f, 1.0f, 1.0f) }
         assertThat(PathEasing(path).transform(0.1f)).isLessThan(0.0f)
     }
 }

@@ -43,15 +43,16 @@ internal fun <T> FocusTargetNode.searchBeyondBounds(
     }
 
     return beyondBoundsLayoutParent?.layout(
-        direction = when (direction) {
-            FocusDirection.Up -> Above
-            FocusDirection.Down -> Below
-            FocusDirection.Left -> Left
-            FocusDirection.Right -> Right
-            FocusDirection.Next -> After
-            FocusDirection.Previous -> Before
-            else -> error("Unsupported direction for beyond bounds layout")
-        },
+        direction =
+            when (direction) {
+                FocusDirection.Up -> Above
+                FocusDirection.Down -> Below
+                FocusDirection.Left -> Left
+                FocusDirection.Right -> Right
+                FocusDirection.Next -> After
+                FocusDirection.Previous -> Before
+                else -> error("Unsupported direction for beyond bounds layout")
+            },
         block = block
     )
 }

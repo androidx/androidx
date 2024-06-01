@@ -45,17 +45,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tests for the internal [PopupLayout] view used by [Popup].
- * When adding new tests, consider writing the tests against the [Popup] composable directly first,
- * since that's the public API, and only adding tests here if the tests need to interact in ways
- * that aren't easily supported by the compose test APIs.
+ * Tests for the internal [PopupLayout] view used by [Popup]. When adding new tests, consider
+ * writing the tests against the [Popup] composable directly first, since that's the public API, and
+ * only adding tests here if the tests need to interact in ways that aren't easily supported by the
+ * compose test APIs.
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PopupLayoutTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun canCalculatePosition_onlyWhenSizeAndCoordinatesAreAvailable() {
@@ -79,16 +78,18 @@ class PopupLayoutTest {
     @Test
     fun positionUpdated_whenCoordinatesUpdated() {
         val coordinates = MutableLayoutCoordinates()
-        val layout = createPopupLayout(
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = anchorBounds.topLeft
-            },
-        )
+        val layout =
+            createPopupLayout(
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = anchorBounds.topLeft
+                    },
+            )
         layout.popupContentSize = IntSize.Zero
 
         assertThat(layout.params.x).isEqualTo(0)
@@ -104,25 +105,28 @@ class PopupLayoutTest {
     @Test
     fun positionNotUpdated_whenCoordinatesUpdated_withSameParentBounds() {
         var paramUpdateCount = 0
-        val layout = createPopupLayout(
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = anchorBounds.topLeft
-            },
-            popupLayoutHelper = object : NoopPopupLayoutHelper() {
-                override fun updateViewLayout(
-                    windowManager: WindowManager,
-                    popupView: View,
-                    params: ViewGroup.LayoutParams
-                ) {
-                    paramUpdateCount++
-                }
-            }
-        )
+        val layout =
+            createPopupLayout(
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = anchorBounds.topLeft
+                    },
+                popupLayoutHelper =
+                    object : NoopPopupLayoutHelper() {
+                        override fun updateViewLayout(
+                            windowManager: WindowManager,
+                            popupView: View,
+                            params: ViewGroup.LayoutParams
+                        ) {
+                            paramUpdateCount++
+                        }
+                    }
+            )
 
         // Set size before coordinates to match the order that the compose runtime uses.
         layout.popupContentSize = IntSize.Zero
@@ -140,25 +144,28 @@ class PopupLayoutTest {
     @Test
     fun positionNotUpdated_onParentBoundsUpdateRequested_withSameParentBounds() {
         var paramUpdateCount = 0
-        val layout = createPopupLayout(
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = anchorBounds.topLeft
-            },
-            popupLayoutHelper = object : NoopPopupLayoutHelper() {
-                override fun updateViewLayout(
-                    windowManager: WindowManager,
-                    popupView: View,
-                    params: ViewGroup.LayoutParams
-                ) {
-                    paramUpdateCount++
-                }
-            }
-        )
+        val layout =
+            createPopupLayout(
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = anchorBounds.topLeft
+                    },
+                popupLayoutHelper =
+                    object : NoopPopupLayoutHelper() {
+                        override fun updateViewLayout(
+                            windowManager: WindowManager,
+                            popupView: View,
+                            params: ViewGroup.LayoutParams
+                        ) {
+                            paramUpdateCount++
+                        }
+                    }
+            )
 
         // Set size before coordinates to match the order that the compose runtime uses.
         layout.popupContentSize = IntSize.Zero
@@ -175,25 +182,28 @@ class PopupLayoutTest {
     fun positionUpdated_onParentBoundsUpdateRequested_withDifferentParentBounds() {
         var paramUpdateCount = 0
         val coordinates = MutableLayoutCoordinates()
-        val layout = createPopupLayout(
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = anchorBounds.topLeft
-            },
-            popupLayoutHelper = object : NoopPopupLayoutHelper() {
-                override fun updateViewLayout(
-                    windowManager: WindowManager,
-                    popupView: View,
-                    params: ViewGroup.LayoutParams
-                ) {
-                    paramUpdateCount++
-                }
-            }
-        )
+        val layout =
+            createPopupLayout(
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = anchorBounds.topLeft
+                    },
+                popupLayoutHelper =
+                    object : NoopPopupLayoutHelper() {
+                        override fun updateViewLayout(
+                            windowManager: WindowManager,
+                            popupView: View,
+                            params: ViewGroup.LayoutParams
+                        ) {
+                            paramUpdateCount++
+                        }
+                    }
+            )
 
         // Set size before coordinates to match the order that the compose runtime uses.
         layout.popupContentSize = IntSize.Zero
@@ -212,18 +222,20 @@ class PopupLayoutTest {
     @Test
     fun positionUpdated_whenStateReadInPositionProviderChanged() {
         var offset by mutableStateOf(IntOffset.Zero)
-        val layout = createPopupLayout(
-            // The state observer is only active while attached.
-            attachToWindow = { true },
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = offset
-            },
-        )
+        val layout =
+            createPopupLayout(
+                // The state observer is only active while attached.
+                attachToWindow = { true },
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = offset
+                    },
+            )
         layout.popupContentSize = IntSize.Zero
         // Need to calculate position at least once to do initial observation.
         layout.updateParentLayoutCoordinates(MutableLayoutCoordinates())
@@ -245,18 +257,20 @@ class PopupLayoutTest {
     fun positionNotUpdated_whenStateReadInPositionProviderChanged_whileDetached() {
         var offset by mutableStateOf(IntOffset.Zero)
         var attachToWindow by mutableStateOf(true)
-        val layout = createPopupLayout(
-            // The state observer is only active while attached.
-            attachToWindow = { attachToWindow },
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = offset
-            },
-        )
+        val layout =
+            createPopupLayout(
+                // The state observer is only active while attached.
+                attachToWindow = { attachToWindow },
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = offset
+                    },
+            )
         layout.popupContentSize = IntSize.Zero
         // Need to calculate position at least once to do initial observation.
         layout.updateParentLayoutCoordinates(MutableLayoutCoordinates())
@@ -278,16 +292,18 @@ class PopupLayoutTest {
     @Test
     fun positionNotUpdated_whenDetached() {
         val coordinates = MutableLayoutCoordinates(isAttached = false)
-        val layout = createPopupLayout(
-            positionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset = anchorBounds.topLeft
-            },
-        )
+        val layout =
+            createPopupLayout(
+                positionProvider =
+                    object : PopupPositionProvider {
+                        override fun calculatePosition(
+                            anchorBounds: IntRect,
+                            windowSize: IntSize,
+                            layoutDirection: LayoutDirection,
+                            popupContentSize: IntSize
+                        ): IntOffset = anchorBounds.topLeft
+                    },
+            )
         layout.popupContentSize = IntSize.Zero
 
         assertThat(layout.params.x).isEqualTo(0)
@@ -313,15 +329,16 @@ class PopupLayoutTest {
             val view = LocalView.current
             remember {
                 PopupLayout(
-                    onDismissRequest = onDismissRequest,
-                    properties = properties,
-                    testTag = "test popup",
-                    composeView = view,
-                    density = density,
-                    initialPositionProvider = positionProvider,
-                    popupId = UUID.randomUUID(),
-                    popupLayoutHelper = popupLayoutHelper
-                ).also { layout = it }
+                        onDismissRequest = onDismissRequest,
+                        properties = properties,
+                        testTag = "test popup",
+                        composeView = view,
+                        density = density,
+                        initialPositionProvider = positionProvider,
+                        popupId = UUID.randomUUID(),
+                        popupLayoutHelper = popupLayoutHelper
+                    )
+                    .also { layout = it }
             }
 
             if (attachToWindow()) {
@@ -329,9 +346,7 @@ class PopupLayoutTest {
                     val windowManager =
                         view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
                     windowManager.addView(layout, WindowManager.LayoutParams())
-                    onDispose {
-                        windowManager.removeView(layout)
-                    }
+                    onDispose { windowManager.removeView(layout) }
                 }
             }
         }
@@ -339,14 +354,15 @@ class PopupLayoutTest {
     }
 
     private companion object {
-        val ZeroPositionProvider = object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
-            ): IntOffset = IntOffset.Zero
-        }
+        val ZeroPositionProvider =
+            object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset = IntOffset.Zero
+            }
 
         val NoopLayoutCoordinates: LayoutCoordinates = MutableLayoutCoordinates()
 
@@ -354,9 +370,8 @@ class PopupLayoutTest {
          * An implementation of [LayoutCoordinates] that allows explicitly setting values but only
          * supports the minimum required subset of operations that [PopupLayout] uses.
          */
-        private class MutableLayoutCoordinates(
-            override var isAttached: Boolean = true
-        ) : LayoutCoordinates {
+        private class MutableLayoutCoordinates(override var isAttached: Boolean = true) :
+            LayoutCoordinates {
             override var size: IntSize = IntSize.Zero
             override val providedAlignmentLines: Set<AlignmentLine> = emptySet()
             override var parentLayoutCoordinates: LayoutCoordinates? = null

@@ -45,19 +45,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RequireLayoutCoordinatesTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun requireLayoutCoordinates_throws_whenNotAttached() {
         lateinit var modifier: TestModifierNode
-        rule.setContent {
-            Box(
-                Modifier
-                    .then(TestModifier { modifier = it })
-                    .size(1.dp)
-            )
-        }
+        rule.setContent { Box(Modifier.then(TestModifier { modifier = it }).size(1.dp)) }
 
         rule.runOnIdle {
             assertIs<IllegalStateException>(modifier.coordinatesFromInit.exceptionOrNull())
@@ -69,8 +62,7 @@ class RequireLayoutCoordinatesTest {
         lateinit var modifier: TestModifierNode
         rule.setContent {
             Box(
-                Modifier
-                    .offset(10.dp, 20.dp)
+                Modifier.offset(10.dp, 20.dp)
                     .requiredSize(30.dp, 40.dp)
                     .then(TestModifier { modifier = it })
             )
@@ -94,10 +86,7 @@ class RequireLayoutCoordinatesTest {
         lateinit var modifier: TestModifierNode
         rule.setContent {
             Layout(
-                Modifier
-                    .requiredSize(10.dp)
-                    .then(TestModifier { modifier = it })
-                    .requiredSize(5.dp)
+                Modifier.requiredSize(10.dp).then(TestModifier { modifier = it }).requiredSize(5.dp)
             ) { _, _ ->
                 layout(2.dp.roundToPx(), 2.dp.roundToPx()) {}
             }
@@ -107,8 +96,7 @@ class RequireLayoutCoordinatesTest {
             val coordinates = assertNotNull(modifier.requireLayoutCoordinates())
 
             with(rule.density) {
-                assertThat(coordinates.size)
-                    .isEqualTo(IntSize(5.dp.roundToPx(), 5.dp.roundToPx()))
+                assertThat(coordinates.size).isEqualTo(IntSize(5.dp.roundToPx(), 5.dp.roundToPx()))
             }
         }
     }
@@ -119,8 +107,7 @@ class RequireLayoutCoordinatesTest {
         lateinit var modifier: TestModifierNode
         rule.setContent {
             Box(
-                Modifier
-                    .then(if (attachModifier) TestModifier { modifier = it } else Modifier)
+                Modifier.then(if (attachModifier) TestModifier { modifier = it } else Modifier)
                     .size(1.dp)
             )
         }
@@ -131,15 +118,12 @@ class RequireLayoutCoordinatesTest {
         attachModifier = false
 
         rule.runOnIdle {
-            assertFailsWith<IllegalStateException> {
-                modifier.requireLayoutCoordinates()
-            }
+            assertFailsWith<IllegalStateException> { modifier.requireLayoutCoordinates() }
         }
     }
 
-    private data class TestModifier(
-        val onModifier: (TestModifierNode) -> Unit
-    ) : ModifierNodeElement<TestModifierNode>() {
+    private data class TestModifier(val onModifier: (TestModifierNode) -> Unit) :
+        ModifierNodeElement<TestModifierNode>() {
         override fun create(): TestModifierNode = TestModifierNode().also(onModifier)
 
         override fun update(node: TestModifierNode) {}

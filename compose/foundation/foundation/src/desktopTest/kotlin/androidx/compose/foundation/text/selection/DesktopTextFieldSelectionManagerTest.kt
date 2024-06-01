@@ -85,42 +85,41 @@ class DesktopTextFieldSelectionManagerTest {
         manager.hapticFeedBack = hapticFeedback
         manager.focusRequester = focusRequester
 
-        whenever(layoutResult.layoutInput).thenReturn(
-            TextLayoutInput(
-                text = AnnotatedString(text),
-                style = TextStyle.Default,
-                placeholders = mock(),
-                maxLines = 2,
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                density = density,
-                layoutDirection = LayoutDirection.Ltr,
-                fontFamilyResolver = mock(),
-                constraints = Constraints()
+        whenever(layoutResult.layoutInput)
+            .thenReturn(
+                TextLayoutInput(
+                    text = AnnotatedString(text),
+                    style = TextStyle.Default,
+                    placeholders = mock(),
+                    maxLines = 2,
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    density = density,
+                    layoutDirection = LayoutDirection.Ltr,
+                    fontFamilyResolver = mock(),
+                    constraints = Constraints()
+                )
             )
-        )
 
         whenever(layoutResult.getBoundingBox(any())).thenReturn(Rect.Zero)
         whenever(layoutResult.getOffsetForPosition(dragBeginPosition)).thenReturn(beginOffset)
         whenever(layoutResult.getOffsetForPosition(dragBeginPosition + dragDistance))
             .thenReturn(dragOffset)
-        whenever(
-            layoutResultProxy.getOffsetForPosition(dragBeginPosition, false)
-        ).thenReturn(beginOffset)
-        whenever(
-            layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, false)
-        ).thenReturn(dragOffset)
-        whenever(
-            layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance)
-        ).thenReturn(dragOffset)
+        whenever(layoutResultProxy.getOffsetForPosition(dragBeginPosition, false))
+            .thenReturn(beginOffset)
+        whenever(layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, false))
+            .thenReturn(dragOffset)
+        whenever(layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance))
+            .thenReturn(dragOffset)
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
-        state = LegacyTextFieldState(
-            textDelegate = mock(),
-            recomposeScope = mock(),
-            keyboardController = null
-        )
+        state =
+            LegacyTextFieldState(
+                textDelegate = mock(),
+                recomposeScope = mock(),
+                keyboardController = null
+            )
         state.layoutResult = layoutResultProxy
         state.processor.reset(value, null)
         manager.state = state

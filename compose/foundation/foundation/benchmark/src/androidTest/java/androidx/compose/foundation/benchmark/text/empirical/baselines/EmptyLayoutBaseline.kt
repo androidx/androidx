@@ -48,9 +48,7 @@ import org.junit.runners.Parameterized
  * Text will never be able to be _this_ fast (as we don't _yet_ have time-travel chips), but it is
  * useful to use this number as a floor when evaluating potential optimizations.
  */
-class EmptyLayoutBaseline(
-    private val text: String
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class EmptyLayoutBaseline(private val text: String) : LayeredComposeTestCase(), ToggleableTestCase {
     private var toggleText = mutableStateOf("")
 
     private val measurePolicy = MeasurePolicy { _, _ ->
@@ -81,8 +79,7 @@ private val modifier = Modifier.fillMaxSize()
 @RunWith(Parameterized::class)
 open class EmptyLayoutBaselineParent(private val size: Int) {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val caseFactory = {
         val text = generateCacheableStringOf(size)

@@ -32,33 +32,30 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Managing “lists” of components that are siblings in Compose and other declarative reactive frameworks ends up
- * being an important performance characteristic to monitor. The algorithm we use here can depend greatly on how
- * we update lists of items and we might choose to bias towards what happens more commonly in the real world,
- * but understanding our performance characteristics for various types of list updates will be useful.
+ * Managing “lists” of components that are siblings in Compose and other declarative reactive
+ * frameworks ends up being an important performance characteristic to monitor. The algorithm we use
+ * here can depend greatly on how we update lists of items and we might choose to bias towards what
+ * happens more commonly in the real world, but understanding our performance characteristics for
+ * various types of list updates will be useful.
  *
- * @param count - number of items in the list. Really long lists probably should use a Recycler or something
- * similar in the real world, but testing this will at least let us understand our asymptotic complexity
- * characteristics.
- *
- * @param reorder - This determines what kinds of changes we will be making to the list each frame. Different list
- * management algorithms that Compose uses will yield different trade offs depending on where items in the list
- * are moved/added/removed/etc. For instance, we might be optimized for "append" but not "prepend", so we
- * should benchmark these types of changes individually. Note that some like "AddMiddle" insert at a random
- * index, so benchmarks should run this many times in order to average the randomness into something reasonable
- * to compare with a different run of the same benchmark.
- *
- * @param identity - this will toggle how Compose identifies a row. These three options are slightly different and
- * we might want to test all three.
+ * @param count - number of items in the list. Really long lists probably should use a Recycler or
+ *   something similar in the real world, but testing this will at least let us understand our
+ *   asymptotic complexity characteristics.
+ * @param reorder - This determines what kinds of changes we will be making to the list each frame.
+ *   Different list management algorithms that Compose uses will yield different trade offs
+ *   depending on where items in the list are moved/added/removed/etc. For instance, we might be
+ *   optimized for "append" but not "prepend", so we should benchmark these types of changes
+ *   individually. Note that some like "AddMiddle" insert at a random index, so benchmarks should
+ *   run this many times in order to average the randomness into something reasonable to compare
+ *   with a different run of the same benchmark.
+ * @param identity - this will toggle how Compose identifies a row. These three options are slightly
+ *   different and we might want to test all three.
  */
 @LargeTest
 @RunWith(Parameterized::class)
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
-class SiblingBenchmark(
-    val count: Int,
-    val reorder: ReorderType,
-    val identity: IdentityType
-) : ComposeBenchmarkBase() {
+class SiblingBenchmark(val count: Int, val reorder: ReorderType, val identity: IdentityType) :
+    ComposeBenchmarkBase() {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}_{1}_{2}")
@@ -92,15 +89,9 @@ class SiblingBenchmark(
 
             runBlockingTestWithFrameClock {
                 measureRecomposeSuspending {
-                    compose {
-                        SiblingManagement(identity = identity, items = items.value)
-                    }
-                    update {
-                        items.value = listB
-                    }
-                    reset {
-                        items.value = listA
-                    }
+                    compose { SiblingManagement(identity = identity, items = items.value) }
+                    update { items.value = listB }
+                    reset { items.value = listA }
                 }
             }
         }
@@ -110,9 +101,11 @@ class SiblingBenchmark(
 // NOTE: remove when SAM conversion works in IR
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<ComposeActivity>.runUiRunnable(block: () -> Unit) {
-    runOnUiThread(object : Runnable {
-        override fun run() {
-            block()
+    runOnUiThread(
+        object : Runnable {
+            override fun run() {
+                block()
+            }
         }
-    })
+    )
 }

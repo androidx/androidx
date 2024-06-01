@@ -53,8 +53,8 @@ fun BufferedImage.asPainter(): Painter = BufferedImagePainter(this)
 
 /**
  * Convert AWT [BufferedImage] to Compose [Painter], so it would be possible to pass it to Compose
- * functions. Don't mutate [BufferedImage] after converting it to [Painter], because
- * [BufferedImage] can be reused to avoid unnecessary conversions.
+ * functions. Don't mutate [BufferedImage] after converting it to [Painter], because [BufferedImage]
+ * can be reused to avoid unnecessary conversions.
  */
 fun BufferedImage.toPainter(): Painter = BufferedImagePainter(this)
 
@@ -70,18 +70,17 @@ private class BufferedImagePainter(val image: BufferedImage) : Painter() {
 }
 
 /**
- * Convert Compose [Painter] to AWT [Image]. The result will not be rasterized right now, it
- * will be rasterized when AWT will request the image with needed width and height, by calling
+ * Convert Compose [Painter] to AWT [Image]. The result will not be rasterized right now, it will be
+ * rasterized when AWT will request the image with needed width and height, by calling
  * [AbstractMultiResolutionImage.getResolutionVariant] on Windows/Linux, or
  * [AbstractMultiResolutionImage.getResolutionVariants] on macOs.
  *
  * At the rasterization moment, [density] and [layoutDirection] will be passed to the painter.
- * Usually most painters don't use them. Like the painters for svg/xml/raster resources:
- * they don't use absolute '.dp' values to draw, they use values which are relative
- * to their viewport.
+ * Usually most painters don't use them. Like the painters for svg/xml/raster resources: they don't
+ * use absolute '.dp' values to draw, they use values which are relative to their viewport.
  *
- * [density] also will be used to rasterize the default image, which can be used by some implementations
- * (Tray icon on macOs, disabled icon for menu items)
+ * [density] also will be used to rasterize the default image, which can be used by some
+ * implementations (Tray icon on macOs, disabled icon for menu items)
  *
  * @param density density will be used to convert [dp] units
  * @param layoutDirection direction for layout when drawing
@@ -98,15 +97,14 @@ fun Painter.asAwtImage(
 ): Image = toAwtImage(density, layoutDirection, size)
 
 /**
- * Convert Compose [Painter] to AWT [Image]. The result will not be rasterized right now, it
- * will be rasterized when AWT will request the image with needed width and height, by calling
+ * Convert Compose [Painter] to AWT [Image]. The result will not be rasterized right now, it will be
+ * rasterized when AWT will request the image with needed width and height, by calling
  * [AbstractMultiResolutionImage.getResolutionVariant] on Windows/Linux, or
  * [AbstractMultiResolutionImage.getResolutionVariants] on macOs.
  *
  * At the rasterization moment, [density] and [layoutDirection] will be passed to the painter.
- * Usually most painters don't use them. Like the painters for svg/xml/raster resources:
- * they don't use absolute '.dp' values to draw, they use values which are relative
- * to their viewport.
+ * Usually most painters don't use them. Like the painters for svg/xml/raster resources: they don't
+ * use absolute '.dp' values to draw, they use values which are relative to their viewport.
  *
  * @param density density will be used to convert [dp] units when drawing
  * @param layoutDirection direction for layout when drawing
@@ -136,19 +134,18 @@ private class PainterImage(
 ) : Image(), MultiResolutionImage {
     private val width = size.width.toInt()
     private val height = size.height.toInt()
+
     override fun getWidth(observer: ImageObserver?) = width
+
     override fun getHeight(observer: ImageObserver?) = height
 
-    override fun getResolutionVariant(
-        destImageWidth: Double,
-        destImageHeight: Double
-    ): Image {
+    override fun getResolutionVariant(destImageWidth: Double, destImageHeight: Double): Image {
         val width = destImageWidth.toInt()
         val height = destImageHeight.toInt()
         return if (
             painter is BufferedImagePainter &&
-            painter.image.width == width &&
-            painter.image.height == height
+                painter.image.width == width &&
+                painter.image.height == height
         ) {
             painter.image
         } else {
@@ -161,19 +158,17 @@ private class PainterImage(
         val canvas = Canvas(bitmap)
         val floatSize = Size(width.toFloat(), height.toFloat())
 
-        CanvasDrawScope().draw(
-            density, layoutDirection, canvas, floatSize
-        ) {
-            with(painter) {
-                draw(floatSize)
-            }
+        CanvasDrawScope().draw(density, layoutDirection, canvas, floatSize) {
+            with(painter) { draw(floatSize) }
         }
 
         return bitmap
     }
 
     override fun getProperty(name: String, observer: ImageObserver?): Any = UndefinedProperty
+
     override fun getSource(): ImageProducer = defaultImage.source
+
     override fun getGraphics(): Graphics = defaultImage.graphics
 
     private val defaultImage by lazy {
@@ -181,10 +176,12 @@ private class PainterImage(
         when (painter) {
             is BufferedImagePainter -> painter.image
             is BitmapPainter -> asBitmap(width, height).toAwtImage()
-            else -> asBitmap(
-                (width * density.density).roundToInt(),
-                (height * density.density).roundToInt()
-            ).toAwtImage()
+            else ->
+                asBitmap(
+                        (width * density.density).roundToInt(),
+                        (height * density.density).roundToInt()
+                    )
+                    .toAwtImage()
         }
     }
 
@@ -194,16 +191,11 @@ private class PainterImage(
 // TODO(demin): should we optimize toAwtImage/toBitmap? Currently we convert colors according to the
 //  current colorModel. But we can get raw BufferedImage.getRaster() and set a different colorModel.
 
-/**
- * Convert Compose [ImageBitmap] to AWT [BufferedImage]
- */
-
+/** Convert Compose [ImageBitmap] to AWT [BufferedImage] */
 @Deprecated("use toAwtImage", replaceWith = ReplaceWith("toAwtImage"))
 fun ImageBitmap.asAwtImage(): BufferedImage = toAwtImage()
 
-/**
- * Convert Compose [ImageBitmap] to AWT [BufferedImage]
- */
+/** Convert Compose [ImageBitmap] to AWT [BufferedImage] */
 fun ImageBitmap.toAwtImage(): BufferedImage {
     // TODO(demin): use asDesktopBitmap().toBufferedImage() from skiko, when we fix it. Currently
     //  some images convert with graphical artifacts
@@ -222,15 +214,11 @@ fun ImageBitmap.toAwtImage(): BufferedImage {
     return BufferedImage(ColorModel.getRGBdefault(), wr, false, null)
 }
 
-/**
- * Convert AWT [BufferedImage] to Compose [ImageBitmap]
- */
+/** Convert AWT [BufferedImage] to Compose [ImageBitmap] */
 @Deprecated("use toComposeImageBitmap()", replaceWith = ReplaceWith("toComposeImageBitmap()"))
 fun BufferedImage.toComposeBitmap(): ImageBitmap = toComposeImageBitmap()
 
-/**
- * Convert AWT [BufferedImage] to Compose [ImageBitmap]
- */
+/** Convert AWT [BufferedImage] to Compose [ImageBitmap] */
 fun BufferedImage.toComposeImageBitmap(): ImageBitmap {
     // TODO(demin): use toBitmap().asImageBitmap() from skiko, when we fix its performance
     //  (it is 40x slower)

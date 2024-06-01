@@ -45,9 +45,7 @@ private fun Spannable.setPlaceholder(
     end: Int,
     density: Density
 ) {
-    getSpans(start, end, EmojiSpan::class.java).forEach {
-        removeSpan(it)
-    }
+    getSpans(start, end, EmojiSpan::class.java).forEach { removeSpan(it) }
     setSpan(
         with(placeholder) {
             PlaceholderSpan(
@@ -68,11 +66,12 @@ private fun Spannable.setPlaceholder(
 @OptIn(InternalPlatformTextApi::class)
 @Suppress("DEPRECATION")
 private val TextUnit.spanUnit: Int
-    get() = when (type) {
-        TextUnitType.Sp -> PlaceholderSpan.UNIT_SP
-        TextUnitType.Em -> PlaceholderSpan.UNIT_EM
-        else -> PlaceholderSpan.UNIT_UNSPECIFIED
-    }
+    get() =
+        when (type) {
+            TextUnitType.Sp -> PlaceholderSpan.UNIT_SP
+            TextUnitType.Em -> PlaceholderSpan.UNIT_EM
+            else -> PlaceholderSpan.UNIT_UNSPECIFIED
+        }
 
 /**
  * Helper function that converts [PlaceholderVerticalAlign] to the verticalAlign in
@@ -80,13 +79,14 @@ private val TextUnit.spanUnit: Int
  */
 @OptIn(InternalPlatformTextApi::class)
 private val PlaceholderVerticalAlign.spanVerticalAlign: Int
-    get() = when (this) {
-        PlaceholderVerticalAlign.AboveBaseline -> PlaceholderSpan.ALIGN_ABOVE_BASELINE
-        PlaceholderVerticalAlign.Top -> PlaceholderSpan.ALIGN_TOP
-        PlaceholderVerticalAlign.Bottom -> PlaceholderSpan.ALIGN_BOTTOM
-        PlaceholderVerticalAlign.Center -> PlaceholderSpan.ALIGN_CENTER
-        PlaceholderVerticalAlign.TextTop -> PlaceholderSpan.ALIGN_TEXT_TOP
-        PlaceholderVerticalAlign.TextBottom -> PlaceholderSpan.ALIGN_TEXT_BOTTOM
-        PlaceholderVerticalAlign.TextCenter -> PlaceholderSpan.ALIGN_TEXT_CENTER
-        else -> error("Invalid PlaceholderVerticalAlign")
-    }
+    get() =
+        when (this) {
+            PlaceholderVerticalAlign.AboveBaseline -> PlaceholderSpan.ALIGN_ABOVE_BASELINE
+            PlaceholderVerticalAlign.Top -> PlaceholderSpan.ALIGN_TOP
+            PlaceholderVerticalAlign.Bottom -> PlaceholderSpan.ALIGN_BOTTOM
+            PlaceholderVerticalAlign.Center -> PlaceholderSpan.ALIGN_CENTER
+            PlaceholderVerticalAlign.TextTop -> PlaceholderSpan.ALIGN_TEXT_TOP
+            PlaceholderVerticalAlign.TextBottom -> PlaceholderSpan.ALIGN_TEXT_BOTTOM
+            PlaceholderVerticalAlign.TextCenter -> PlaceholderSpan.ALIGN_TEXT_CENTER
+            else -> error("Invalid PlaceholderVerticalAlign")
+        }

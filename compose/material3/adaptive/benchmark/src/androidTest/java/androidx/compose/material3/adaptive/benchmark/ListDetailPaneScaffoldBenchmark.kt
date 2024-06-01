@@ -36,8 +36,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 class ListDetailPaneScaffoldBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun singlePane_firstPixel() {
@@ -51,9 +50,7 @@ class ListDetailPaneScaffoldBenchmark {
     @Test
     fun dualPane_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel {
-            ListDetailPaneScaffoldTestCase().apply {
-                currentScaffoldDirective = dualPaneDirective
-            }
+            ListDetailPaneScaffoldTestCase().apply { currentScaffoldDirective = dualPaneDirective }
         }
     }
 
@@ -69,9 +66,7 @@ class ListDetailPaneScaffoldBenchmark {
     @Test
     fun dualPane_firstCompose() {
         benchmarkRule.benchmarkFirstCompose {
-            ListDetailPaneScaffoldTestCase().apply {
-                currentScaffoldDirective = dualPaneDirective
-            }
+            ListDetailPaneScaffoldTestCase().apply { currentScaffoldDirective = dualPaneDirective }
         }
     }
 
@@ -80,18 +75,17 @@ class ListDetailPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : ListDetailPaneScaffoldTestCase() {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
-                                ListDetailPaneScaffoldRole.Detail
-                            } else {
-                                ListDetailPaneScaffoldRole.List
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
+                                    ListDetailPaneScaffoldRole.Detail
+                                } else {
+                                    ListDetailPaneScaffoldRole.List
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = singlePaneDirective
-                }
+                    .apply { currentScaffoldDirective = singlePaneDirective }
             },
             // For skipping state transitions
             assertOneRecomposition = false
@@ -103,18 +97,17 @@ class ListDetailPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : ListDetailPaneScaffoldTestCase() {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
-                                ListDetailPaneScaffoldRole.Extra
-                            } else {
-                                ListDetailPaneScaffoldRole.List
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
+                                    ListDetailPaneScaffoldRole.Extra
+                                } else {
+                                    ListDetailPaneScaffoldRole.List
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = dualPaneDirective
-                }
+                    .apply { currentScaffoldDirective = dualPaneDirective }
             },
             // For skipping state transitions
             assertOneRecomposition = false
@@ -126,18 +119,17 @@ class ListDetailPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : ListDetailPaneScaffoldTestCase(animated = true) {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
-                                ListDetailPaneScaffoldRole.Detail
-                            } else {
-                                ListDetailPaneScaffoldRole.List
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
+                                    ListDetailPaneScaffoldRole.Detail
+                                } else {
+                                    ListDetailPaneScaffoldRole.List
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = singlePaneDirective
-                }
+                    .apply { currentScaffoldDirective = singlePaneDirective }
             },
             // For skipping animations
             assertOneRecomposition = false
@@ -149,18 +141,17 @@ class ListDetailPaneScaffoldBenchmark {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             {
                 object : ListDetailPaneScaffoldTestCase(animated = true) {
-                    override fun toggleState() {
-                        val newPane =
-                            if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
-                                ListDetailPaneScaffoldRole.Extra
-                            } else {
-                                ListDetailPaneScaffoldRole.List
-                            }
-                        currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        override fun toggleState() {
+                            val newPane =
+                                if (currentDestination.pane == ListDetailPaneScaffoldRole.List) {
+                                    ListDetailPaneScaffoldRole.Extra
+                                } else {
+                                    ListDetailPaneScaffoldRole.List
+                                }
+                            currentDestination = ThreePaneScaffoldDestinationItem(newPane, 0)
+                        }
                     }
-                }.apply {
-                    currentScaffoldDirective = dualPaneDirective
-                }
+                    .apply { currentScaffoldDirective = dualPaneDirective }
             },
             // For skipping animations
             assertOneRecomposition = false
@@ -169,22 +160,21 @@ class ListDetailPaneScaffoldBenchmark {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal open class ListDetailPaneScaffoldTestCase(
-    animated: Boolean = false
-) : ThreePaneScaffoldTestCase(animated) {
-    override var currentDestination by mutableStateOf(
-        ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, 0)
-    )
+internal open class ListDetailPaneScaffoldTestCase(animated: Boolean = false) :
+    ThreePaneScaffoldTestCase(animated) {
+    override var currentDestination by
+        mutableStateOf(ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, 0))
 
     @Composable
     override fun MeasuredContent() {
         ListDetailPaneScaffold(
             directive = currentScaffoldDirective,
-            value = calculateThreePaneScaffoldValue(
-                maxHorizontalPartitions = currentScaffoldDirective.maxHorizontalPartitions,
-                adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
-                currentDestination = currentDestination
-            ),
+            value =
+                calculateThreePaneScaffoldValue(
+                    maxHorizontalPartitions = currentScaffoldDirective.maxHorizontalPartitions,
+                    adaptStrategies = ListDetailPaneScaffoldDefaults.adaptStrategies(),
+                    currentDestination = currentDestination
+                ),
             listPane = { TestPane(Color.Red) },
             detailPane = { TestPane(Color.Yellow) },
             extraPane = { TestPane(Color.Blue) }

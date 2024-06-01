@@ -18,6 +18,4 @@ package androidx.compose.desktop.examples.popupexample
 
 import androidx.compose.runtime.staticCompositionLocalOf
 
-val LocalTest = staticCompositionLocalOf<Int> {
-    error("LocalTest not provided")
-}
+val LocalTest = staticCompositionLocalOf<Int> { error("LocalTest not provided") }

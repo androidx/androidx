@@ -65,8 +65,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SearchBarTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val SearchBarTestTag = "SearchBar"
     private val IconTestTag = "Icon"
@@ -80,10 +79,7 @@ class SearchBarTest {
                 var expanded by remember { mutableStateOf(false) }
 
                 // Extra item for initial focus.
-                Box(
-                    Modifier
-                        .size(10.dp)
-                        .focusable())
+                Box(Modifier.size(10.dp).focusable())
 
                 SearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
@@ -144,16 +140,12 @@ class SearchBarTest {
                 TextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier
-                        .testTag("SIBLING")
-                        .focusRequester(focusRequester)
+                    modifier = Modifier.testTag("SIBLING").focusRequester(focusRequester)
                 )
             }
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.onNodeWithTag("SIBLING").assertIsFocused()
 
@@ -192,23 +184,24 @@ class SearchBarTest {
 
     @Test
     fun searchBar_notExpandedSize() {
-        rule.setMaterialContentForSizeAssertions {
-            SearchBar(
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        query = "",
-                        onQueryChange = {},
-                        onSearch = {},
-                        expanded = false,
-                        onExpandedChange = {},
-                        placeholder = { Text("Hint") },
-                    )
-                },
-                expanded = false,
-                onExpandedChange = {},
-                content = {},
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions {
+                SearchBar(
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = false,
+                            onExpandedChange = {},
+                            placeholder = { Text("Hint") },
+                        )
+                    },
+                    expanded = false,
+                    onExpandedChange = {},
+                    content = {},
+                )
+            }
             .assertWidthIsEqualTo(SearchBarMinWidth)
             .assertHeightIsEqualTo(SearchBarDefaults.InputFieldHeight + SearchBarVerticalPadding)
     }
@@ -222,9 +215,7 @@ class SearchBarTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.size(width = totalWidth, height = totalHeight)) {
                 SearchBar(
-                    modifier = Modifier.onGloballyPositioned {
-                        searchBarSize.value = it.size
-                    },
+                    modifier = Modifier.onGloballyPositioned { searchBarSize.value = it.size },
                     inputField = {
                         SearchBarDefaults.InputField(
                             query = "",
@@ -261,9 +252,8 @@ class SearchBarTest {
             density = LocalDensity.current
             Box(Modifier.windowInsetsPadding(WindowInsets(top = parentTopInset))) {
                 SearchBar(
-                    modifier = Modifier.onGloballyPositioned {
-                        position.value = it.positionInRoot()
-                    },
+                    modifier =
+                        Modifier.onGloballyPositioned { position.value = it.positionInRoot() },
                     windowInsets = WindowInsets(top = searchBarTopInset),
                     inputField = {
                         SearchBarDefaults.InputField(
@@ -342,10 +332,7 @@ class SearchBarTest {
                 var expanded by remember { mutableStateOf(false) }
 
                 // Extra item for initial focus.
-                Box(
-                    Modifier
-                        .size(10.dp)
-                        .focusable())
+                Box(Modifier.size(10.dp).focusable())
 
                 DockedSearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
@@ -406,16 +393,12 @@ class SearchBarTest {
                 TextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier
-                        .testTag("SIBLING")
-                        .focusRequester(focusRequester)
+                    modifier = Modifier.testTag("SIBLING").focusRequester(focusRequester)
                 )
             }
         }
 
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         rule.onNodeWithTag("SIBLING").assertIsFocused()
 
@@ -454,49 +437,52 @@ class SearchBarTest {
 
     @Test
     fun dockedSearchBar_notExpandedSize() {
-        rule.setMaterialContentForSizeAssertions {
-            DockedSearchBar(
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        query = "",
-                        onQueryChange = {},
-                        onSearch = {},
-                        expanded = false,
-                        onExpandedChange = {},
-                        placeholder = { Text("Hint") },
-                    )
-                },
-                expanded = false,
-                onExpandedChange = {},
-                content = {},
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions {
+                DockedSearchBar(
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = false,
+                            onExpandedChange = {},
+                            placeholder = { Text("Hint") },
+                        )
+                    },
+                    expanded = false,
+                    onExpandedChange = {},
+                    content = {},
+                )
+            }
             .assertWidthIsEqualTo(SearchBarMinWidth)
             .assertHeightIsEqualTo(SearchBarDefaults.InputFieldHeight)
     }
 
     @Test
     fun dockedSearchBar_expandedSize() {
-        rule.setMaterialContentForSizeAssertions {
-            DockedSearchBar(
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        query = "",
-                        onQueryChange = {},
-                        onSearch = {},
-                        expanded = true,
-                        onExpandedChange = {},
-                        placeholder = { Text("Hint") },
-                    )
-                },
-                expanded = true,
-                onExpandedChange = {},
-                content = { Text("Content") },
-            )
-        }
+        rule
+            .setMaterialContentForSizeAssertions {
+                DockedSearchBar(
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = true,
+                            onExpandedChange = {},
+                            placeholder = { Text("Hint") },
+                        )
+                    },
+                    expanded = true,
+                    onExpandedChange = {},
+                    content = { Text("Content") },
+                )
+            }
             .assertWidthIsEqualTo(SearchBarMinWidth)
             .assertHeightIsEqualTo(
-                SearchBarDefaults.InputFieldHeight + DockedExpandedTableMinHeight)
+                SearchBarDefaults.InputFieldHeight + DockedExpandedTableMinHeight
+            )
     }
 
     @Test

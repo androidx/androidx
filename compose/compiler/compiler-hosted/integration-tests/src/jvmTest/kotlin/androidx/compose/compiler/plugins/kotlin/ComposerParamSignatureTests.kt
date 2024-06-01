@@ -23,43 +23,53 @@ import org.junit.Test
 /* ktlint-disable max-line-length */
 class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTest(useFir) {
     @Test
-    fun testParameterlessChildrenLambdasReused() = checkApi(
-        """
+    fun testParameterlessChildrenLambdasReused() =
+        checkApi(
+            """
             @Composable fun Foo(content: @Composable () -> Unit) {
             }
             @Composable fun Bar() {
                 Foo {}
             }
         """
-    )
+        )
 
     @Test
-    fun testNoComposerNullCheck() = validateBytecode(
-        """
+    fun testNoComposerNullCheck() =
+        validateBytecode(
+            """
         @Composable fun Foo() {}
         """
-    ) {
-        assert(!it.contains("INVOKESTATIC kotlin/jvm/internal/Intrinsics.checkParameterIsNotNull"))
-    }
+        ) {
+            assert(
+                !it.contains("INVOKESTATIC kotlin/jvm/internal/Intrinsics.checkParameterIsNotNull")
+            )
+        }
 
     @Test
-    fun testComposableLambdaCall() = validateBytecode(
-        """
+    fun testComposableLambdaCall() =
+        validateBytecode(
+            """
             @Composable
             fun Foo(f: @Composable () -> Unit) {
               f()
             }
         """
-    ) {
-        // Calls to a composable lambda needs to invoke the `Function2.invoke` interface method
-        // taking two objects and *not* directly the `invoke` method that takes a Composer and
-        // an unboxed int.
-        assertTrue(it.contains("INVOKEINTERFACE kotlin/jvm/functions/Function2.invoke (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; (itf)"))
-    }
+        ) {
+            // Calls to a composable lambda needs to invoke the `Function2.invoke` interface method
+            // taking two objects and *not* directly the `invoke` method that takes a Composer and
+            // an unboxed int.
+            assertTrue(
+                it.contains(
+                    "INVOKEINTERFACE kotlin/jvm/functions/Function2.invoke (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object; (itf)"
+                )
+            )
+        }
 
     @Test
-    fun testStrangeReceiverIssue() = codegen(
-        """
+    fun testStrangeReceiverIssue() =
+        codegen(
+            """
         import androidx.compose.runtime.ExplicitGroupsComposable
         import androidx.compose.runtime.NonRestartableComposable
         class Foo
@@ -82,24 +92,26 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             used(label)
         }
         """
-    )
+        )
 
     @Test
-    fun testArrayListSizeOverride() = validateBytecode(
-        """
+    fun testArrayListSizeOverride() =
+        validateBytecode(
+            """
         class CustomList : ArrayList<Any>() {
             override val size: Int
                 get() = super.size
         }
         """
-    ) {
-        assertTrue(it.contains("INVOKESPECIAL java/util/ArrayList.size ()I"))
-        assertFalse(it.contains("INVOKESPECIAL java/util/ArrayList.getSize ()I"))
-    }
+        ) {
+            assertTrue(it.contains("INVOKESPECIAL java/util/ArrayList.size ()I"))
+            assertFalse(it.contains("INVOKESPECIAL java/util/ArrayList.getSize ()I"))
+        }
 
     @Test
-    fun testForLoopIssue1() = codegen(
-        """
+    fun testForLoopIssue1() =
+        codegen(
+            """
             @Composable
             fun Test(text: String, callback: @Composable () -> Unit) {
                 for (char in text) {
@@ -110,28 +122,30 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testConstantReturn() = validateBytecode(
-        """
+    fun testConstantReturn() =
+        validateBytecode(
+            """
             @Composable
             fun Test(): Int {
                 return 123 // line 12
             }
         """
-    ) {
-        val lines = it.split("\n").map { it.trim() }
-        val lineNumberIndex = lines.indexOfFirst { it.startsWith("LINENUMBER 12") }
-        // Line 12, which has the return statement, needs to be present in the bytecode
-        assert(lineNumberIndex >= 0)
-        // The return statement should be right after this
-        assert(lines[lineNumberIndex + 1] == "IRETURN")
-    }
+        ) {
+            val lines = it.split("\n").map { it.trim() }
+            val lineNumberIndex = lines.indexOfFirst { it.startsWith("LINENUMBER 12") }
+            // Line 12, which has the return statement, needs to be present in the bytecode
+            assert(lineNumberIndex >= 0)
+            // The return statement should be right after this
+            assert(lines[lineNumberIndex + 1] == "IRETURN")
+        }
 
     @Test
-    fun testForLoopIssue2() = codegen(
-        """
+    fun testForLoopIssue2() =
+        codegen(
+            """
             @Composable
             fun Test(text: List<String>, callback: @Composable () -> Unit) {
                 for ((i, value) in text.withIndex()) {
@@ -142,11 +156,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testCaptureIssue23() = codegen(
-        """
+    fun testCaptureIssue23() =
+        codegen(
+            """
             import androidx.compose.animation.AnimatedContent
             import androidx.compose.animation.ExperimentalAnimationApi
             import androidx.compose.runtime.Composable
@@ -161,11 +176,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun test32Params() = codegen(
-        """
+    fun test32Params() =
+        codegen(
+            """
         @Composable
         fun <T> TooVerbose(
             v00: T, v01: T, v02: T, v03: T, v04: T, v05: T, v06: T, v07: T, v08: T, v09: T,
@@ -186,11 +202,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
         }
 
         """
-    )
+        )
 
     @Test
-    fun testInterfaceMethodWithComposableParameter() = validateBytecode(
-        """
+    fun testInterfaceMethodWithComposableParameter() =
+        validateBytecode(
+            """
             @Composable
             fun test1(cc: ControlledComposition) {
                 cc.setContent {}
@@ -199,13 +216,18 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 cc.setContent {}
             }
         """
-    ) {
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/ControlledComposition.setContent (Lkotlin/jvm/functions/Function0;)V"))
-    }
+        ) {
+            assert(
+                !it.contains(
+                    "INVOKEINTERFACE androidx/compose/runtime/ControlledComposition.setContent (Lkotlin/jvm/functions/Function0;)V"
+                )
+            )
+        }
 
     @Test
-    fun testFakeOverrideFromSameModuleButLaterTraversal() = validateBytecode(
-        """
+    fun testFakeOverrideFromSameModuleButLaterTraversal() =
+        validateBytecode(
+            """
             class B : A() {
                 fun test() {
                     show {}
@@ -215,13 +237,18 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 fun show(content: @Composable () -> Unit) {}
             }
         """
-    ) {
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/ControlledComposition.setContent (Lkotlin/jvm/functions/Function0;)V"))
-    }
+        ) {
+            assert(
+                !it.contains(
+                    "INVOKEINTERFACE androidx/compose/runtime/ControlledComposition.setContent (Lkotlin/jvm/functions/Function0;)V"
+                )
+            )
+        }
 
     @Test
-    fun testPrimitiveChangedCalls() = validateBytecode(
-        """
+    fun testPrimitiveChangedCalls() =
+        validateBytecode(
+            """
         @Composable fun Foo(
             a: Boolean,
             b: Char,
@@ -242,21 +269,26 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             used(h)
         }
         """
-    ) {
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Z)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (C)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (B)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (S)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (I)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (F)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (J)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (D)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"))
-    }
+        ) {
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Z)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (C)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (B)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (S)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (I)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (F)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (J)Z"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (D)Z"))
+            assert(
+                !it.contains(
+                    "INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"
+                )
+            )
+        }
 
     @Test
-    fun testNonPrimitiveChangedCalls() = validateBytecode(
-        """
+    fun testNonPrimitiveChangedCalls() =
+        validateBytecode(
+            """
         import androidx.compose.runtime.Stable
 
         @Stable class Bar
@@ -264,87 +296,98 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             used(a)
         }
         """
-    ) {
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Z)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (C)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (B)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (S)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (I)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (F)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (J)Z"))
-        assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (D)Z"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"))
-    }
+        ) {
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Z)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (C)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (B)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (S)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (I)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (F)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (J)Z"))
+            assert(!it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (D)Z"))
+            assert(
+                it.contains(
+                    "INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"
+                )
+            )
+        }
 
     @Test
-    fun testInlineClassChangedCalls() = validateBytecode(
-        """
+    fun testInlineClassChangedCalls() =
+        validateBytecode(
+            """
         inline class Bar(val value: Int)
         @Composable fun Foo(a: Bar) {
             used(a)
         }
         """
-    ) {
-        assert(!it.contains("INVOKESTATIC Bar.box-impl (I)LBar;"))
-        assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (I)Z"))
-        assert(
-            !it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z")
-        )
-    }
+        ) {
+            assert(!it.contains("INVOKESTATIC Bar.box-impl (I)LBar;"))
+            assert(it.contains("INVOKEINTERFACE androidx/compose/runtime/Composer.changed (I)Z"))
+            assert(
+                !it.contains(
+                    "INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"
+                )
+            )
+        }
 
     @Test
-    fun testNullableInlineClassChangedCalls() = validateBytecode(
-        """
+    fun testNullableInlineClassChangedCalls() =
+        validateBytecode(
+            """
         inline class Bar(val value: Int)
         @Composable fun Foo(a: Bar?) {
             used(a)
         }
         """
-    ) {
-        val testClass = it.split("public final class ").single { it.startsWith("test/TestKt") }
-        assert(
-            !testClass.contains(
-                "INVOKEVIRTUAL Bar.unbox-impl ()I"
+        ) {
+            val testClass = it.split("public final class ").single { it.startsWith("test/TestKt") }
+            assert(!testClass.contains("INVOKEVIRTUAL Bar.unbox-impl ()I"))
+            assert(
+                !testClass.contains("INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;")
             )
-        )
-        assert(
-            !testClass.contains(
-                "INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;"
+            assert(
+                testClass.contains(
+                    "INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"
+                )
             )
-        )
-        assert(
-            testClass.contains(
-                "INVOKEINTERFACE androidx/compose/runtime/Composer.changed (Ljava/lang/Object;)Z"
-            )
-        )
-    }
+        }
 
     @Test
-    fun testNoNullCheckForPassedParameters() = validateBytecode(
-        """
+    fun testNoNullCheckForPassedParameters() =
+        validateBytecode(
+            """
         inline class Bar(val value: Int)
         fun nonNull(bar: Bar) {}
         @NonRestartableComposable @Composable fun Foo(bar: Bar = Bar(123)) {
             nonNull(bar)
         }
         """
-    ) {
-        assert(it.contains("public final static Foo-9N9I_pQ(ILandroidx/compose/runtime/Composer;II)V"))
-    }
+        ) {
+            assert(
+                it.contains(
+                    "public final static Foo-9N9I_pQ(ILandroidx/compose/runtime/Composer;II)V"
+                )
+            )
+        }
 
     @Test
-    fun testNoComposerNullCheck2() = validateBytecode(
-        """
+    fun testNoComposerNullCheck2() =
+        validateBytecode(
+            """
         val foo = @Composable {}
         val bar = @Composable { x: Int -> }
         """
-    ) {
-        assert(!it.contains("INVOKESTATIC kotlin/jvm/internal/Intrinsics.checkParameterIsNotNull"))
-    }
+        ) {
+            assert(
+                !it.contains("INVOKESTATIC kotlin/jvm/internal/Intrinsics.checkParameterIsNotNull")
+            )
+        }
 
     @Test
-    fun testComposableLambdaInvoke() = validateBytecode(
-        """
+    fun testComposableLambdaInvoke() =
+        validateBytecode(
+            """
         @Composable fun NonNull(content: @Composable() () -> Unit) {
             content.invoke()
         }
@@ -352,17 +395,18 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             content?.invoke()
         }
         """
-    ) {
-        assert(
-            !it.contains(
-                "INVOKEINTERFACE kotlin/jvm/functions/Function0.invoke ()Ljava/lang/Object; (itf)"
+        ) {
+            assert(
+                !it.contains(
+                    "INVOKEINTERFACE kotlin/jvm/functions/Function0.invoke ()Ljava/lang/Object; (itf)"
+                )
             )
-        )
-    }
+        }
 
     @Test
-    fun testAnonymousParamNaming() = validateBytecode(
-        """
+    fun testAnonymousParamNaming() =
+        validateBytecode(
+            """
         @Composable
         fun Foo(content: @Composable (a: Int, b: Int) -> Unit) {}
         @Composable
@@ -370,41 +414,45 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             Foo { _, _ -> }
         }
         """
-    ) {
-        assert(!it.contains("%anonymous parameter 0%"))
-    }
+        ) {
+            assert(!it.contains("%anonymous parameter 0%"))
+        }
 
     @Test
-    fun testBasicClassStaticTransform() = checkApi(
-        """
+    fun testBasicClassStaticTransform() =
+        checkApi(
+            """
             class Foo
         """,
-    )
+        )
 
     @Test
-    fun testLambdaReorderedParameter() = checkApi(
-        """
+    fun testLambdaReorderedParameter() =
+        checkApi(
+            """
             @Composable fun Foo(a: String, b: () -> Unit) { }
             @Composable fun Example() {
                 Foo(b={}, a="Hello, world!")
             }
         """,
-    )
+        )
 
     @Test
-    fun testCompositionLocalCurrent() = checkApi(
-        """
+    fun testCompositionLocalCurrent() =
+        checkApi(
+            """
             val a = compositionLocalOf { 123 }
             @Composable fun Foo() {
                 val b = a.current
                 print(b)
             }
         """,
-    )
+        )
 
     @Test
-    fun testRemappedTypes() = checkApi(
-        """
+    fun testRemappedTypes() =
+        checkApi(
+            """
             class A {
                 fun makeA(): A { return A() }
                 fun makeB(): B { return B() }
@@ -420,31 +468,34 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testDataClassHashCode() = validateBytecode(
-        """
+    fun testDataClassHashCode() =
+        validateBytecode(
+            """
         data class Foo(
             val bar: @Composable () -> Unit
         )
         """
-    ) {
-        assert(!it.contains("CHECKCAST kotlin/jvm/functions/Function0"))
-    }
+        ) {
+            assert(!it.contains("CHECKCAST kotlin/jvm/functions/Function0"))
+        }
 
     @Test
-    fun testDefaultParameters() = checkApi(
-        """
+    fun testDefaultParameters() =
+        checkApi(
+            """
             @Composable fun Foo(x: Int = 0) {
 
             }
         """,
-    )
+        )
 
     @Test
-    fun testDefaultExpressionsWithComposableCall() = checkApi(
-        """
+    fun testDefaultExpressionsWithComposableCall() =
+        checkApi(
+            """
             @Composable fun <T> identity(value: T): T = value
             @Composable fun Foo(x: Int = identity(20)) {
 
@@ -454,11 +505,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Foo(10)
             }
         """,
-    )
+        )
 
     @Test
-    fun testBasicCallAndParameterUsage() = checkApi(
-        """
+    fun testBasicCallAndParameterUsage() =
+        checkApi(
+            """
             @Composable fun Foo(a: Int, b: String) {
                 print(a)
                 print(b)
@@ -470,43 +522,47 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 print(b)
             }
         """,
-    )
+        )
 
     @Test
-    fun testCallFromInlinedLambda() = checkApi(
-        """
+    fun testCallFromInlinedLambda() =
+        checkApi(
+            """
             @Composable fun Foo() {
                 listOf(1, 2, 3).forEach { Bar(it) }
             }
 
             @Composable fun Bar(a: Int) {}
         """,
-    )
+        )
 
     @Test
-    fun testBasicLambda() = checkApi(
-        """
+    fun testBasicLambda() =
+        checkApi(
+            """
             val foo = @Composable { x: Int -> print(x)  }
             @Composable fun Bar() {
               foo(123)
             }
         """,
-    )
+        )
 
     @Test
-    fun testLocalLambda() = checkApi(
-        """
+    fun testLocalLambda() =
+        checkApi(
+            """
             @Composable fun Bar(content: @Composable () -> Unit) {
                 val foo = @Composable { x: Int -> print(x)  }
                 foo(123)
                 content()
             }
         """,
-    )
+        )
 
     @Test
-    fun testNesting() = checkApi(
-        """
+    fun testNesting() =
+        checkApi(
+            """
             @Composable fun Wrap(content: @Composable (x: Int) -> Unit) {
                 content(123)
             }
@@ -523,11 +579,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testComposableInterface() = checkApi(
-        """
+    fun testComposableInterface() =
+        checkApi(
+            """
             interface Foo {
                 @Composable fun bar()
             }
@@ -536,11 +593,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 @Composable override fun bar() {}
             }
         """,
-    )
+        )
 
     @Test
-    fun testSealedClassEtc() = checkApi(
-        """
+    fun testSealedClassEtc() =
+        checkApi(
+            """
             sealed class CompositionLocal2<T> {
                 inline val current: T
                     @Composable
@@ -552,27 +610,30 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             class DynamicProvidableCompositionLocal2<T> : ProvidableCompositionLocal2<T>() {}
             class StaticProvidableCompositionLocal2<T> : ProvidableCompositionLocal2<T>() {}
         """,
-    )
+        )
 
     @Test
-    fun testComposableTopLevelProperty() = checkApi(
-        """
+    fun testComposableTopLevelProperty() =
+        checkApi(
+            """
             val foo: Int @Composable get() { return 123 }
         """,
-    )
+        )
 
     @Test
-    fun testComposableProperty() = checkApi(
-        """
+    fun testComposableProperty() =
+        checkApi(
+            """
             class Foo {
                 val foo: Int @Composable get() { return 123 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testTableLambdaThing() = validateBytecode(
-        """
+    fun testTableLambdaThing() =
+        validateBytecode(
+            """
         @Composable
         fun Foo() {
             val c: @Composable () -> Unit = with(123) {
@@ -581,36 +642,39 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             }
         }
         """
-    ) {
-        // TODO(lmr): test
-    }
+        ) {
+            // TODO(lmr): test
+        }
 
     @Test
-    fun testDefaultArgs() = validateBytecode(
-        """
+    fun testDefaultArgs() =
+        validateBytecode(
+            """
         @Composable
         fun Scaffold(
             topAppBar: @Composable (() -> Unit)? = null
         ) {}
         """
-    ) {
-        // TODO(lmr): test
-    }
+        ) {
+            // TODO(lmr): test
+        }
 
     @Test
-    fun testSyntheticAccessFunctions() = validateBytecode(
-        """
+    fun testSyntheticAccessFunctions() =
+        validateBytecode(
+            """
         class Foo {
             @Composable private fun Bar() {}
         }
         """
-    ) {
-        // TODO(lmr): test
-    }
+        ) {
+            // TODO(lmr): test
+        }
 
     @Test
-    fun testLambdaMemoization() = validateBytecode(
-        """
+    fun testLambdaMemoization() =
+        validateBytecode(
+            """
         fun subcompose(block: @Composable () -> Unit) {}
         private class Foo {
             var content: @Composable (Double) -> Unit = {}
@@ -622,24 +686,26 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             }
         }
         """
-    ) {
-        // TODO(lmr): test
-    }
+        ) {
+            // TODO(lmr): test
+        }
 
     @Test
-    fun testCallingProperties() = checkApi(
-        """
+    fun testCallingProperties() =
+        checkApi(
+            """
             val bar: Int @Composable get() { return 123 }
 
             @Composable fun Example() {
                 bar
             }
         """,
-    )
+        )
 
     @Test
-    fun testAbstractComposable() = checkApi(
-        """
+    fun testAbstractComposable() =
+        checkApi(
+            """
             abstract class BaseFoo {
                 @Composable abstract fun bar()
             }
@@ -648,11 +714,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 @Composable override fun bar() {}
             }
         """,
-    )
+        )
 
     @Test
-    fun testLocalClassAndObjectLiterals() = checkApi(
-        """
+    fun testLocalClassAndObjectLiterals() =
+        checkApi(
+            """
             @Composable
             fun Wat() {}
 
@@ -667,11 +734,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Bar().baz()
             }
         """,
-    )
+        )
 
     @Test
-    fun testNonComposableCode() = checkApi(
-        """
+    fun testNonComposableCode() =
+        checkApi(
+            """
             fun A() {}
             val b: Int get() = 123
             fun C(x: Int) {
@@ -693,20 +761,22 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testCircularCall() = checkApi(
-        """
+    fun testCircularCall() =
+        checkApi(
+            """
             @Composable fun Example() {
                 Example()
             }
         """,
-    )
+        )
 
     @Test
-    fun testInlineCall() = checkApi(
-        """
+    fun testInlineCall() =
+        checkApi(
+            """
             @Composable inline fun Example(content: @Composable () -> Unit) {
                 content()
             }
@@ -715,20 +785,22 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Example {}
             }
         """,
-    )
+        )
 
     @Test
-    fun testDexNaming() = checkApi(
-        """
+    fun testDexNaming() =
+        checkApi(
+            """
             val myProperty: () -> Unit @Composable get() {
                 return {  }
             }
         """,
-    )
+        )
 
     @Test
-    fun testInnerClass() = checkApi(
-        """
+    fun testInnerClass() =
+        checkApi(
+            """
             interface A {
                 fun b() {}
             }
@@ -741,11 +813,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testFunInterfaces() = checkApi(
-        """
+    fun testFunInterfaces() =
+        checkApi(
+            """
             fun interface A {
                 fun compute(value: Int): Unit
             }
@@ -756,11 +829,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Example { it -> it + 1 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testComposableFunInterfaces() = checkApi(
-        """
+    fun testComposableFunInterfaces() =
+        checkApi(
+            """
             fun interface A {
                 @Composable fun compute(value: Int): Unit
             }
@@ -768,11 +842,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Example { it -> a.compute(it) }
             }
         """,
-    )
+        )
 
     @Test
-    fun testFunInterfacesInComposableCall() = checkApi(
-        """
+    fun testFunInterfacesInComposableCall() =
+        checkApi(
+            """
             fun interface MeasurePolicy {
                 fun compute(value: Int): Unit
             }
@@ -788,11 +863,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 policy.compute(0)
             }
         """,
-    )
+        )
 
     @Test
-    fun testComposableFunInterfacesInVariance() = checkApi(
-        """
+    fun testComposableFunInterfacesInVariance() =
+        checkApi(
+            """
            import androidx.compose.runtime.*
 
             fun interface Consumer<T> {
@@ -809,11 +885,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """,
-    )
+        )
 
     @Test
-    fun testFunInterfaceWithInlineReturnType() = checkApi(
-        """
+    fun testFunInterfaceWithInlineReturnType() =
+        checkApi(
+            """
             inline class Color(val value: Int)
             fun interface A {
                 fun compute(value: Int): Color
@@ -822,11 +899,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Example { it -> Color(it) }
             }
         """,
-    )
+        )
 
     @Test
-    fun testComposableFunInterfaceWithInlineReturnType() = checkApi(
-        """
+    fun testComposableFunInterfaceWithInlineReturnType() =
+        checkApi(
+            """
             inline class Color(val value: Int)
             fun interface A {
                 @Composable fun compute(value: Int): Color
@@ -835,11 +913,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 Example { it -> Color(it) }
             }
         """,
-    )
+        )
 
     @Test
-    fun testComposableMap() = codegen(
-        """
+    fun testComposableMap() =
+        codegen(
+            """
             class Repro {
                 private val composables = linkedMapOf<String, @Composable () -> Unit>()
 
@@ -848,11 +927,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableColorFunInterfaceExample() = checkApi(
-        """
+    fun testComposableColorFunInterfaceExample() =
+        checkApi(
+            """
             import androidx.compose.ui.graphics.Color
             import java.lang.UnsupportedOperationException
 
@@ -887,11 +967,12 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableInlineFieldDelegate_noPropertyRefInit() = validateBytecode(
-        """
+    fun testComposableInlineFieldDelegate_noPropertyRefInit() =
+        validateBytecode(
+            """
             import kotlin.reflect.KProperty
 
             class FooInline
@@ -904,13 +985,18 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 return value
             }
         """,
-    ) {
-        assertFalse(it.contains("INVOKESTATIC kotlin/jvm/internal/Reflection.property0 (Lkotlin/jvm/internal/PropertyReference0;)Lkotlin/reflect/KProperty0;"))
-    }
+        ) {
+            assertFalse(
+                it.contains(
+                    "INVOKESTATIC kotlin/jvm/internal/Reflection.property0 (Lkotlin/jvm/internal/PropertyReference0;)Lkotlin/reflect/KProperty0;"
+                )
+            )
+        }
 
     @Test
-    fun testComposableAdaptedFunctionReference() = validateBytecode(
-        """
+    fun testComposableAdaptedFunctionReference() =
+        validateBytecode(
+            """
             class ScrollState {
                 fun test(index: Int, default: Int = 0): Int = 0
                 fun testExact(index: Int): Int = 0
@@ -928,20 +1014,25 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
             @Composable
             fun foo(block: (Int) -> Int) = block(0)
         """,
-        validate = {
-            // Validate that function references in inline calls are actually getting inlined
-            assertFalse(
-                it.contains("""INVOKESPECIAL Test_0Kt${'$'}rememberFooInline$1$1.<init> (Ljava/lang/Object;)V""")
-            )
-            assertFalse(
-                it.contains("""INVOKESPECIAL Test_0Kt${'$'}rememberFooExactInline$1$1.<init> (Ljava/lang/Object;)V""")
-            )
-        }
-    )
+            validate = {
+                // Validate that function references in inline calls are actually getting inlined
+                assertFalse(
+                    it.contains(
+                        """INVOKESPECIAL Test_0Kt${'$'}rememberFooInline$1$1.<init> (Ljava/lang/Object;)V"""
+                    )
+                )
+                assertFalse(
+                    it.contains(
+                        """INVOKESPECIAL Test_0Kt${'$'}rememberFooExactInline$1$1.<init> (Ljava/lang/Object;)V"""
+                    )
+                )
+            }
+        )
 
     @Test
-    fun testDefaultParamInlineClassRefType() = checkApi(
-        """
+    fun testDefaultParamInlineClassRefType() =
+        checkApi(
+            """
             @JvmInline
             value class Data(val string: String)
             @JvmInline
@@ -960,5 +1051,5 @@ class ComposerParamSignatureTests(useFir: Boolean) : AbstractCodegenSignatureTes
                 @Composable protected fun ProtectedExample(data: Data = Data("")) {}
             }
         """
-    )
+        )
 }

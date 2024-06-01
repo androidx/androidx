@@ -24,11 +24,11 @@ import org.junit.Rule
 
 @OptIn(InternalTestApi::class)
 abstract class DesktopGraphicsTest {
-    @get:Rule
-    val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/graphics")
+    @get:Rule val screenshotRule = DesktopScreenshotTestRule("compose/ui/ui-desktop/graphics")
 
     private var _surface: Surface? = null
-    protected val surface get() = _surface!!
+    protected val surface
+        get() = _surface!!
 
     protected val redPaint = Paint().apply { color = Color.Red }
     protected val bluePaint = Paint().apply { color = Color.Blue }

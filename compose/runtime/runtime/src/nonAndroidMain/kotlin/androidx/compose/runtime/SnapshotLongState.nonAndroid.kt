@@ -16,6 +16,5 @@
 
 package androidx.compose.runtime
 
-internal actual fun createSnapshotMutableLongState(
-    value: Long
-): MutableLongState = SnapshotMutableLongStateImpl(value)
+internal actual fun createSnapshotMutableLongState(value: Long): MutableLongState =
+    SnapshotMutableLongStateImpl(value)

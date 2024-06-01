@@ -57,51 +57,37 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun LookaheadWithFlowRowDemo() {
-    Column(
-        modifier = Modifier.padding(10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         var isHorizontal by remember { mutableStateOf(true) }
 
-        Button(modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-            onClick = { isHorizontal = !isHorizontal }) {
+        Button(
+            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+            onClick = { isHorizontal = !isHorizontal }
+        ) {
             Text("Toggle")
         }
-        Column(
-            Modifier
-                .background(Color(0xfffdedac), RoundedCornerShape(10))
-                .padding(10.dp)
-        ) {
+        Column(Modifier.background(Color(0xfffdedac), RoundedCornerShape(10)).padding(10.dp)) {
             Text("LookaheadScope + Modifier.animateBounds")
             LookaheadScope {
                 FlowRow(
-                    modifier = Modifier
-                        .height(200.dp)
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.CenterStart)
+                    modifier =
+                        Modifier.height(200.dp)
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.CenterStart)
                 ) {
                     Box(
-                        Modifier
-                            .height(50.dp)
-                            .animateBounds(
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f)
-                            )
+                        Modifier.height(50.dp)
+                            .animateBounds(Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f))
                             .background(colors[0], RoundedCornerShape(10))
                     )
                     Box(
-                        Modifier
-                            .height(50.dp)
-                            .animateBounds(
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
-                            )
+                        Modifier.height(50.dp)
+                            .animateBounds(Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f))
                             .background(colors[1], RoundedCornerShape(10))
                     )
                     Box(
-                        Modifier
-                            .height(50.dp)
-                            .animateBounds(
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
-                            )
+                        Modifier.height(50.dp)
+                            .animateBounds(Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f))
                             .background(colors[2], RoundedCornerShape(10))
                     )
                 }
@@ -111,33 +97,24 @@ fun LookaheadWithFlowRowDemo() {
 
         Spacer(Modifier.size(50.dp))
 
-        Column(
-            Modifier
-                .background(Color(0xfffdedac), RoundedCornerShape(10))
-                .padding(10.dp)
-        ) {
+        Column(Modifier.background(Color(0xfffdedac), RoundedCornerShape(10)).padding(10.dp)) {
             Text("Animating Width")
             FlowRow(
-                modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.CenterStart)
+                modifier =
+                    Modifier.height(200.dp).fillMaxWidth().wrapContentSize(Alignment.CenterStart)
             ) {
                 Box(
-                    Modifier
-                        .height(50.dp)
+                    Modifier.height(50.dp)
                         .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.4f else 1f).value)
                         .background(colors[0], RoundedCornerShape(10))
                 )
                 Box(
-                    Modifier
-                        .height(50.dp)
+                    Modifier.height(50.dp)
                         .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.2f else 0.4f).value)
                         .background(colors[1], RoundedCornerShape(10))
                 )
                 Box(
-                    Modifier
-                        .height(50.dp)
+                    Modifier.height(50.dp)
                         .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.2f else 0.4f).value)
                         .background(colors[2], RoundedCornerShape(10))
                 )
@@ -157,58 +134,43 @@ fun NestedFlowRowDemo() {
             verticalArrangement = Arrangement.Center,
             maxItemsInEachRow = 3
         ) {
-            var expanded by remember {
-                mutableStateOf(false)
-            }
+            var expanded by remember { mutableStateOf(false) }
             Box(
-                modifier = Modifier
-                    .animateBounds(Modifier.widthIn(max = 600.dp))
-                    .background(Color.Red)
+                modifier =
+                    Modifier.animateBounds(Modifier.widthIn(max = 600.dp)).background(Color.Red)
             ) {
                 val height = animateDpAsState(targetValue = if (expanded) 500.dp else 300.dp)
                 Box(
-                    modifier = Modifier
-                        .animateBounds(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(height.value)
-                        )
-                        .clickable {
-                            expanded = !expanded
-                        })
+                    modifier =
+                        Modifier.animateBounds(Modifier.fillMaxWidth().height(height.value))
+                            .clickable { expanded = !expanded }
+                )
             }
 
-            FlowColumn(Modifier.layout { measurable, constraints ->
-                measurable.measure(constraints).run {
-                    layout(width, height) {
-                        place(0, 0)
-                    }
+            FlowColumn(
+                Modifier.layout { measurable, constraints ->
+                    measurable.measure(constraints).run { layout(width, height) { place(0, 0) } }
                 }
-            }) {
+            ) {
                 Box(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .animateBounds(
-                            Modifier
-                                .wrapContentWidth()
-                                .heightIn(min = 156.dp),
-                            debug = true
-
-                        )
-                        .background(Color.Blue)
+                    modifier =
+                        Modifier.size(200.dp)
+                            .animateBounds(
+                                Modifier.wrapContentWidth().heightIn(min = 156.dp),
+                                debug = true
+                            )
+                            .background(Color.Blue)
                 ) {
                     Box(modifier = Modifier.size(200.dp))
                 }
                 Box(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .animateBounds(
-                            Modifier
-                                .wrapContentWidth()
-                                .heightIn(min = 156.dp),
-                            debug = true
-                        )
-                        .background(Color.Yellow)
+                    modifier =
+                        Modifier.size(200.dp)
+                            .animateBounds(
+                                Modifier.wrapContentWidth().heightIn(min = 156.dp),
+                                debug = true
+                            )
+                            .background(Color.Yellow)
                 ) {
                     Box(modifier = Modifier.size(200.dp))
                 }
@@ -217,9 +179,5 @@ fun NestedFlowRowDemo() {
     }
 }
 
-private val colors = listOf(
-    Color(0xffff6f69),
-    Color(0xffffcc5c),
-    Color(0xff2a9d84),
-    Color(0xff264653)
-)
+private val colors =
+    listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff2a9d84), Color(0xff264653))

@@ -16,21 +16,13 @@
 
 package androidx.compose.ui.text.caches
 
-/**
- * Copied from ContainerHelpers.binarySearch until collection2 can be linked
- */
-@kotlin.jvm.JvmField
-internal val EMPTY_INTS = IntArray(0)
+/** Copied from ContainerHelpers.binarySearch until collection2 can be linked */
+@kotlin.jvm.JvmField internal val EMPTY_INTS = IntArray(0)
 
-/**
- * Copied from ContainerHelpers.binarySearch until collection2 can be linked
- */
-@kotlin.jvm.JvmField
-internal val EMPTY_OBJECTS = arrayOfNulls<Any>(0)
+/** Copied from ContainerHelpers.binarySearch until collection2 can be linked */
+@kotlin.jvm.JvmField internal val EMPTY_OBJECTS = arrayOfNulls<Any>(0)
 
-/**
- * Copied from ContainerHelpers.binarySearch until collection2 can be linked
- */
+/** Copied from ContainerHelpers.binarySearch until collection2 can be linked */
 internal fun IntArray.binarySearchInternal(size: Int, value: Int): Int {
     var lo = 0
     var hi = size - 1

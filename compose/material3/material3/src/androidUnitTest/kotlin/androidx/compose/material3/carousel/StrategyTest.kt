@@ -34,32 +34,30 @@ class StrategyTest {
         val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
         val defaultKeylineList = createStartAlignedKeylineList()
 
-        val strategy = Strategy(
-            defaultKeylines = defaultKeylineList,
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylineList,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy.getKeylineListForScrollOffset(0f, maxScrollOffset))
             .isEqualTo(defaultKeylineList)
 
         val lastEndStepOffsets = arrayOf(-2.5f, 10f, 50f, 130f, 182.5f)
-        val lastEndStepUnadjustedOffsets = arrayOf(
-            130f - 300f,
-            130f - 200f,
-            130f - 100f,
-            130f,
-            130f + 100f
-        )
-        strategy.getKeylineListForScrollOffset(
-            maxScrollOffset,
-            maxScrollOffset,
-        ).forEachIndexed { i, k ->
-            assertThat(k.offset).isEqualTo(lastEndStepOffsets[i])
-            assertThat(k.unadjustedOffset).isEqualTo(lastEndStepUnadjustedOffsets[i])
-        }
+        val lastEndStepUnadjustedOffsets =
+            arrayOf(130f - 300f, 130f - 200f, 130f - 100f, 130f, 130f + 100f)
+        strategy
+            .getKeylineListForScrollOffset(
+                maxScrollOffset,
+                maxScrollOffset,
+            )
+            .forEachIndexed { i, k ->
+                assertThat(k.offset).isEqualTo(lastEndStepOffsets[i])
+                assertThat(k.unadjustedOffset).isEqualTo(lastEndStepUnadjustedOffsets[i])
+            }
     }
 
     @Test
@@ -68,23 +66,27 @@ class StrategyTest {
         val cutoff = 50f
         val defaultKeylineList = createStartAlignedCutoffKeylineList(cutoff = cutoff)
 
-        val strategy = Strategy(
-            defaultKeylines = defaultKeylineList,
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylineList,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
         val endKeylineList = strategy.endKeylineSteps.last()
 
         assertThat(defaultKeylineList.lastNonAnchor.cutoff).isEqualTo(cutoff)
-        assertThat(defaultKeylineList.firstNonAnchor.offset -
-            defaultKeylineList.firstNonAnchor.size / 2f).isEqualTo(0f)
+        assertThat(
+                defaultKeylineList.firstNonAnchor.offset -
+                    defaultKeylineList.firstNonAnchor.size / 2f
+            )
+            .isEqualTo(0f)
         assertThat(endKeylineList.firstNonAnchor.cutoff).isEqualTo(cutoff)
-        assertThat(endKeylineList.firstNonAnchor.offset -
-            endKeylineList.firstNonAnchor.size / 2f).isEqualTo(-cutoff)
-        assertThat(endKeylineList.lastNonAnchor.offset +
-            endKeylineList.lastNonAnchor.size / 2f).isEqualTo(carouselMainAxisSize)
+        assertThat(endKeylineList.firstNonAnchor.offset - endKeylineList.firstNonAnchor.size / 2f)
+            .isEqualTo(-cutoff)
+        assertThat(endKeylineList.lastNonAnchor.offset + endKeylineList.lastNonAnchor.size / 2f)
+            .isEqualTo(carouselMainAxisSize)
     }
 
     @Test
@@ -93,23 +95,28 @@ class StrategyTest {
         val cutoff = 50f
         val defaultKeylineList = createEndAlignedCutoffKeylineList(cutoff = cutoff)
 
-        val strategy = Strategy(
-            defaultKeylines = defaultKeylineList,
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylineList,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
         val startKeylineList = strategy.startKeylineSteps.last()
 
         assertThat(defaultKeylineList.firstNonAnchor.cutoff).isEqualTo(cutoff)
-        assertThat(defaultKeylineList.lastNonAnchor.offset +
-            defaultKeylineList.lastNonAnchor.size / 2f).isEqualTo(carouselMainAxisSize)
+        assertThat(
+                defaultKeylineList.lastNonAnchor.offset + defaultKeylineList.lastNonAnchor.size / 2f
+            )
+            .isEqualTo(carouselMainAxisSize)
         assertThat(startKeylineList.lastNonAnchor.cutoff).isEqualTo(cutoff)
-        assertThat(startKeylineList.firstNonAnchor.offset -
-            startKeylineList.firstNonAnchor.size / 2f).isEqualTo(0f)
-        assertThat(startKeylineList.lastNonAnchor.offset +
-            startKeylineList.lastNonAnchor.size / 2f).isEqualTo(carouselMainAxisSize + cutoff)
+        assertThat(
+                startKeylineList.firstNonAnchor.offset - startKeylineList.firstNonAnchor.size / 2f
+            )
+            .isEqualTo(0f)
+        assertThat(startKeylineList.lastNonAnchor.offset + startKeylineList.lastNonAnchor.size / 2f)
+            .isEqualTo(carouselMainAxisSize + cutoff)
     }
 
     @Test
@@ -119,96 +126,102 @@ class StrategyTest {
         val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
         val defaultKeylines = createCenterAlignedKeylineList()
 
-        val strategy = Strategy(
-            defaultKeylines = defaultKeylines,
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylines,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
-        val startSteps = listOf(
-            // default step - [xs | s s m l l m s s | xs]
-            createCenterAlignedKeylineList(),
-            // step 1 - [xs | s m l l m s s s | xs]
-            keylineListOf(
-                carouselMainAxisSize = carouselMainAxisSize,
-                itemSpacing = 0f,
-                pivotIndex = 3,
-                pivotOffset = (small * 1 + medium + (large / 2))
-            ) {
-                add(xSmall, isAnchor = true)
-                add(small)
-                add(medium)
-                add(large)
-                add(large)
-                add(medium)
-                add(small)
-                add(small)
-                add(small)
-                add(xSmall, isAnchor = true)
-            },
-            // step 2 - [xs | m l l m s s s s | xs]
-            keylineListOf(
-                carouselMainAxisSize = carouselMainAxisSize,
-                itemSpacing = 0f,
-                pivotIndex = 2,
-                pivotOffset = medium + (large / 2)
-            ) {
-                add(xSmall, isAnchor = true)
-                add(medium)
-                add(large)
-                add(large)
-                add(medium)
-                add(small)
-                add(small)
-                add(small)
-                add(small)
-                add(xSmall, isAnchor = true)
-            },
-            // step 3 - [xs | l l m m s s s s | xs]
-            keylineListOf(
-                carouselMainAxisSize = carouselMainAxisSize,
-                itemSpacing = 0f,
-                pivotIndex = 1,
-                pivotOffset = large / 2
-            ) {
-                add(xSmall, isAnchor = true)
-                add(large)
-                add(large)
-                add(medium)
-                add(medium)
-                add(small)
-                add(small)
-                add(small)
-                add(small)
-                add(xSmall, isAnchor = true)
-            }
-        )
+        val startSteps =
+            listOf(
+                // default step - [xs | s s m l l m s s | xs]
+                createCenterAlignedKeylineList(),
+                // step 1 - [xs | s m l l m s s s | xs]
+                keylineListOf(
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = 0f,
+                    pivotIndex = 3,
+                    pivotOffset = (small * 1 + medium + (large / 2))
+                ) {
+                    add(xSmall, isAnchor = true)
+                    add(small)
+                    add(medium)
+                    add(large)
+                    add(large)
+                    add(medium)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(xSmall, isAnchor = true)
+                },
+                // step 2 - [xs | m l l m s s s s | xs]
+                keylineListOf(
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = 0f,
+                    pivotIndex = 2,
+                    pivotOffset = medium + (large / 2)
+                ) {
+                    add(xSmall, isAnchor = true)
+                    add(medium)
+                    add(large)
+                    add(large)
+                    add(medium)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(xSmall, isAnchor = true)
+                },
+                // step 3 - [xs | l l m m s s s s | xs]
+                keylineListOf(
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = 0f,
+                    pivotIndex = 1,
+                    pivotOffset = large / 2
+                ) {
+                    add(xSmall, isAnchor = true)
+                    add(large)
+                    add(large)
+                    add(medium)
+                    add(medium)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(xSmall, isAnchor = true)
+                }
+            )
 
-        val shiftedStart = strategy.getKeylineListForScrollOffset(
-            0f,
-            maxScrollOffset,
-        )
+        val shiftedStart =
+            strategy.getKeylineListForScrollOffset(
+                0f,
+                maxScrollOffset,
+            )
         assertThat(shiftedStart).isEqualTo(startSteps.last())
         // Make sure the last shift towards start places the first focal item against the start of
         // the carousel container.
-        assertThat(shiftedStart.firstFocal.offset - (shiftedStart.firstFocal.size / 2))
-            .isEqualTo(0)
+        assertThat(shiftedStart.firstFocal.offset - (shiftedStart.firstFocal.size / 2)).isEqualTo(0)
 
         // Test all shift steps start by manually calculating the scroll offset at each step and
         // making sure getKeylineForScrollOffset returns the correct keyline list
         val totalShiftStart =
             startSteps.last().first().unadjustedOffset - startSteps.first().first().unadjustedOffset
-        val startStepsScrollOffsets = listOf(
-            totalShiftStart, // default step
-            totalShiftStart - (startSteps[1].first().unadjustedOffset -
-                startSteps[0].first().unadjustedOffset),
-            totalShiftStart - (startSteps[2].first().unadjustedOffset -
-                startSteps[0].first().unadjustedOffset),
-            totalShiftStart - (startSteps[3].first().unadjustedOffset -
-                startSteps[0].first().unadjustedOffset), // all the way start
-        )
+        val startStepsScrollOffsets =
+            listOf(
+                totalShiftStart, // default step
+                totalShiftStart -
+                    (startSteps[1].first().unadjustedOffset -
+                        startSteps[0].first().unadjustedOffset),
+                totalShiftStart -
+                    (startSteps[2].first().unadjustedOffset -
+                        startSteps[0].first().unadjustedOffset),
+                totalShiftStart -
+                    (startSteps[3].first().unadjustedOffset -
+                        startSteps[0].first().unadjustedOffset), // all the way start
+            )
 
         startStepsScrollOffsets.forEachIndexed { i, scroll ->
             val keylineList =
@@ -229,78 +242,81 @@ class StrategyTest {
         val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
         val defaultKeylines = createCenterAlignedKeylineList()
 
-        val strategy = Strategy(
-            defaultKeylines = defaultKeylines,
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
-
-        val endSteps = listOf(
-            // default step
-            createCenterAlignedKeylineList(),
-            // step 1: Move a small item from after focal to beginning of focal
-            keylineListOf(
-                carouselMainAxisSize = carouselMainAxisSize,
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylines,
+                availableSpace = carouselMainAxisSize,
                 itemSpacing = 0f,
-                pivotIndex = 5,
-                pivotOffset = (small * 3) + medium + (large / 2)
-            ) {
-                add(xSmall, isAnchor = true)
-                add(small)
-                add(small)
-                add(small)
-                add(medium)
-                add(large)
-                add(large)
-                add(medium)
-                add(small)
-                add(xSmall, isAnchor = true)
-            },
-            // step 2: Move another small from after focal to beginning of focal
-            keylineListOf(
-                carouselMainAxisSize = carouselMainAxisSize,
-                itemSpacing = 0f,
-                pivotIndex = 6,
-                pivotOffset = (small * 4) + medium + (large / 2)
-            ) {
-                add(xSmall, isAnchor = true)
-                add(small)
-                add(small)
-                add(small)
-                add(small)
-                add(medium)
-                add(large)
-                add(large)
-                add(medium)
-                add(xSmall, isAnchor = true)
-            },
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
-            // step 3: Move medium from after focal to beginning of focal
-            keylineListOf(
-                carouselMainAxisSize = carouselMainAxisSize,
-                itemSpacing = 0f,
-                pivotIndex = 7,
-                pivotOffset = (small * 4) + (medium * 2) + (large / 2)
-            ) {
-                add(xSmall, isAnchor = true)
-                add(small)
-                add(small)
-                add(small)
-                add(small)
-                add(medium)
-                add(medium)
-                add(large)
-                add(large)
-                add(xSmall, isAnchor = true)
-            }
-        )
+        val endSteps =
+            listOf(
+                // default step
+                createCenterAlignedKeylineList(),
+                // step 1: Move a small item from after focal to beginning of focal
+                keylineListOf(
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = 0f,
+                    pivotIndex = 5,
+                    pivotOffset = (small * 3) + medium + (large / 2)
+                ) {
+                    add(xSmall, isAnchor = true)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(medium)
+                    add(large)
+                    add(large)
+                    add(medium)
+                    add(small)
+                    add(xSmall, isAnchor = true)
+                },
+                // step 2: Move another small from after focal to beginning of focal
+                keylineListOf(
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = 0f,
+                    pivotIndex = 6,
+                    pivotOffset = (small * 4) + medium + (large / 2)
+                ) {
+                    add(xSmall, isAnchor = true)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(medium)
+                    add(large)
+                    add(large)
+                    add(medium)
+                    add(xSmall, isAnchor = true)
+                },
 
-        val shiftedEnd = strategy.getKeylineListForScrollOffset(
-            maxScrollOffset,
-            maxScrollOffset,
-        )
+                // step 3: Move medium from after focal to beginning of focal
+                keylineListOf(
+                    carouselMainAxisSize = carouselMainAxisSize,
+                    itemSpacing = 0f,
+                    pivotIndex = 7,
+                    pivotOffset = (small * 4) + (medium * 2) + (large / 2)
+                ) {
+                    add(xSmall, isAnchor = true)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(small)
+                    add(medium)
+                    add(medium)
+                    add(large)
+                    add(large)
+                    add(xSmall, isAnchor = true)
+                }
+            )
+
+        val shiftedEnd =
+            strategy.getKeylineListForScrollOffset(
+                maxScrollOffset,
+                maxScrollOffset,
+            )
         assertThat(shiftedEnd).isEqualTo(endSteps.last())
         // Make sure the last shift towards end places the last focal item against the end of the
         // carousel container.
@@ -309,15 +325,20 @@ class StrategyTest {
 
         val totalShiftEnd =
             endSteps.first().last().unadjustedOffset - endSteps.last().last().unadjustedOffset
-        val endStepsScrollOffsets = listOf(
-            maxScrollOffset - totalShiftEnd, // default step
-            maxScrollOffset - totalShiftEnd - (endSteps[1].last().unadjustedOffset -
-                endSteps[0].last().unadjustedOffset),
-            maxScrollOffset - totalShiftEnd - (endSteps[2].last().unadjustedOffset -
-                endSteps[0].last().unadjustedOffset),
-            maxScrollOffset - totalShiftEnd - (endSteps[3].last().unadjustedOffset -
-                endSteps[0].last().unadjustedOffset), // all the way end
-        )
+        val endStepsScrollOffsets =
+            listOf(
+                maxScrollOffset - totalShiftEnd, // default step
+                maxScrollOffset -
+                    totalShiftEnd -
+                    (endSteps[1].last().unadjustedOffset - endSteps[0].last().unadjustedOffset),
+                maxScrollOffset -
+                    totalShiftEnd -
+                    (endSteps[2].last().unadjustedOffset - endSteps[0].last().unadjustedOffset),
+                maxScrollOffset -
+                    totalShiftEnd -
+                    (endSteps[3].last().unadjustedOffset -
+                        endSteps[0].last().unadjustedOffset), // all the way end
+            )
 
         // Test exact scroll offset returns the correct step
         endStepsScrollOffsets.forEachIndexed { i, scroll ->
@@ -328,33 +349,36 @@ class StrategyTest {
         }
 
         // Test non-exact scroll offset rounds to the correct step
-        val almostToStepOneOffset = endStepsScrollOffsets[0] +
-            ((endStepsScrollOffsets[1] - endStepsScrollOffsets[0]) * .75f)
+        val almostToStepOneOffset =
+            endStepsScrollOffsets[0] +
+                ((endStepsScrollOffsets[1] - endStepsScrollOffsets[0]) * .75f)
         assertThat(
-            strategy.getKeylineListForScrollOffset(
-                almostToStepOneOffset,
-                maxScrollOffset,
-                roundToNearestStep = true
+                strategy.getKeylineListForScrollOffset(
+                    almostToStepOneOffset,
+                    maxScrollOffset,
+                    roundToNearestStep = true
+                )
             )
-        )
             .isEqualTo(endSteps[1])
         val halfWayToStepTwo =
             endStepsScrollOffsets[1] + ((endStepsScrollOffsets[2] - endStepsScrollOffsets[1]) * .5f)
         assertThat(
-            strategy.getKeylineListForScrollOffset(
-                halfWayToStepTwo,
-                maxScrollOffset,
-                roundToNearestStep = true
+                strategy.getKeylineListForScrollOffset(
+                    halfWayToStepTwo,
+                    maxScrollOffset,
+                    roundToNearestStep = true
+                )
             )
-        )
             .isEqualTo(endSteps[2])
         val justPastStepTwo =
             endStepsScrollOffsets[2] + ((endStepsScrollOffsets[3] - endStepsScrollOffsets[2]) * .1f)
-        assertThat(strategy.getKeylineListForScrollOffset(
-            justPastStepTwo,
-            maxScrollOffset,
-            roundToNearestStep = true
-        ))
+        assertThat(
+                strategy.getKeylineListForScrollOffset(
+                    justPastStepTwo,
+                    maxScrollOffset,
+                    roundToNearestStep = true
+                )
+            )
             .isEqualTo(endSteps[2])
     }
 
@@ -364,22 +388,36 @@ class StrategyTest {
         val itemCount = 10
         val availableSpace = 500f
         val itemSpacing = 0f
-        val strategy1 = Strategy(
-            defaultKeylines =
-                multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount),
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
-        val strategy2 = Strategy(
-            defaultKeylines =
-                multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount),
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy1 =
+            Strategy(
+                defaultKeylines =
+                    multiBrowseKeylineList(
+                        Density,
+                        availableSpace,
+                        itemSize,
+                        itemSpacing,
+                        itemCount
+                    ),
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
+        val strategy2 =
+            Strategy(
+                defaultKeylines =
+                    multiBrowseKeylineList(
+                        Density,
+                        availableSpace,
+                        itemSize,
+                        itemSpacing,
+                        itemCount
+                    ),
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy1 == strategy2).isTrue()
         assertThat(strategy1.hashCode()).isEqualTo(strategy2.hashCode())
@@ -390,22 +428,24 @@ class StrategyTest {
         val itemSize = large
         val itemSpacing = 0f
         val itemCount = 10
-        val strategy1 = Strategy(
-            defaultKeylines =
-                multiBrowseKeylineList(Density, 500f, itemSize, itemSpacing, itemCount),
-            availableSpace = 500f,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
-        val strategy2 = Strategy(
-            defaultKeylines =
-                multiBrowseKeylineList(Density, 501f, itemSize, itemSpacing, itemCount),
-            availableSpace = 501f,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy1 =
+            Strategy(
+                defaultKeylines =
+                    multiBrowseKeylineList(Density, 500f, itemSize, itemSpacing, itemCount),
+                availableSpace = 500f,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
+        val strategy2 =
+            Strategy(
+                defaultKeylines =
+                    multiBrowseKeylineList(Density, 501f, itemSize, itemSpacing, itemCount),
+                availableSpace = 501f,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy1 == strategy2).isFalse()
         assertThat(strategy1.hashCode()).isNotEqualTo(strategy2.hashCode())
@@ -417,21 +457,29 @@ class StrategyTest {
         val availableSpace = 500f
         val itemSpacing = 0f
         val itemCount = 10
-        val strategy1 = Strategy(
-            defaultKeylines =
-                multiBrowseKeylineList(Density, availableSpace, itemSize, itemSpacing, itemCount),
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
-        val strategy2 = Strategy(
-            defaultKeylines = emptyKeylineList(),
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy1 =
+            Strategy(
+                defaultKeylines =
+                    multiBrowseKeylineList(
+                        Density,
+                        availableSpace,
+                        itemSize,
+                        itemSpacing,
+                        itemCount
+                    ),
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
+        val strategy2 =
+            Strategy(
+                defaultKeylines = emptyKeylineList(),
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy1 == strategy2).isFalse()
         assertThat(strategy1.hashCode()).isNotEqualTo(strategy2.hashCode())
@@ -444,13 +492,14 @@ class StrategyTest {
         val maxScrollOffset = (itemCount * large) - carouselMainAxisSize
         val defaultKeylineList = createStartAlignedKeylineList()
 
-        val strategy = Strategy(
-            defaultKeylines = defaultKeylineList,
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = defaultKeylineList,
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy.getKeylineListForScrollOffset(0f, maxScrollOffset))
             .isEqualTo(defaultKeylineList)
@@ -460,20 +509,21 @@ class StrategyTest {
     fun testStartKeylineStrategy_endStepsShouldAccountForItemSpacing() {
         val availableSpace = 380f
         val itemSpacing = 8f
-        val strategy = Strategy(
-            defaultKeylines =
-                keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
-                    add(10f, isAnchor = true)
-                    add(186f)
-                    add(122f)
-                    add(56f)
-                    add(10f, isAnchor = true)
-                },
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines =
+                    keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
+                        add(10f, isAnchor = true)
+                        add(186f)
+                        add(122f)
+                        add(56f)
+                        add(10f, isAnchor = true)
+                    },
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         val middleStep = strategy.endKeylineSteps[1]
         val actualMiddleOffsets = middleStep.map { it.offset }.toFloatArray()
@@ -498,22 +548,24 @@ class StrategyTest {
     fun testCenterKeylineStrategy_startAndEndStepsShouldAccountForItemSpacing() {
         val availableSpace = 768f
         val itemSpacing = 8f
-        val strategy = Strategy(
-            defaultKeylines = keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Center) {
-                add(10f, isAnchor = true)
-                add(56f)
-                add(122f)
-                add(186f)
-                add(186f)
-                add(122f)
-                add(56f)
-                add(10f, isAnchor = true)
-            },
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines =
+                    keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Center) {
+                        add(10f, isAnchor = true)
+                        add(56f)
+                        add(122f)
+                        add(186f)
+                        add(186f)
+                        add(122f)
+                        add(56f)
+                        add(10f, isAnchor = true)
+                    },
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy.startKeylineSteps).hasSize(3)
         assertThat(strategy.endKeylineSteps).hasSize(3)
@@ -525,9 +577,8 @@ class StrategyTest {
         assertThat(s1ActualOffsets).isEqualTo(s1ExpectedOffsets)
 
         val s1ActualUnadjustedOffsets = s1.map { it.unadjustedOffset }.toFloatArray()
-        val s1ExpectedUnadjustedOffsets = floatArrayOf(
-            -165f, 29f, 223f, 417f, 611f, 805f, 999f, 1193f
-        )
+        val s1ExpectedUnadjustedOffsets =
+            floatArrayOf(-165f, 29f, 223f, 417f, 611f, 805f, 999f, 1193f)
         assertThat(s1ActualUnadjustedOffsets).isEqualTo(s1ExpectedUnadjustedOffsets)
 
         val s2 = strategy.startKeylineSteps[2]
@@ -537,9 +588,8 @@ class StrategyTest {
         assertThat(s2ActualOffsets).isEqualTo(s2ExpectedOffsets)
 
         val s2ActualUnadjustedOffsets = s2.map { it.unadjustedOffset }.toFloatArray()
-        val s2ExpectedUnadjustedOffsets = floatArrayOf(
-            -101f, 93f, 287f, 481f, 675f, 869f, 1063f, 1257f
-        )
+        val s2ExpectedUnadjustedOffsets =
+            floatArrayOf(-101f, 93f, 287f, 481f, 675f, 869f, 1063f, 1257f)
         assertThat(s2ActualUnadjustedOffsets).isEqualTo(s2ExpectedUnadjustedOffsets)
 
         val e1 = strategy.endKeylineSteps[1]
@@ -549,9 +599,8 @@ class StrategyTest {
         assertThat(e1ActualOffsets).isEqualTo(e1ExpectedOffsets)
 
         val e1ActualUnadjustedOffsets = e1.map { it.unadjustedOffset }.toFloatArray()
-        val e1ExpectedUnadjustedOffsets = floatArrayOf(
-            -425f, -231f, -37f, 157f, 351f, 545f, 739f, 933f
-        )
+        val e1ExpectedUnadjustedOffsets =
+            floatArrayOf(-425f, -231f, -37f, 157f, 351f, 545f, 739f, 933f)
         assertThat(e1ActualUnadjustedOffsets).isEqualTo(e1ExpectedUnadjustedOffsets)
 
         val e2 = strategy.endKeylineSteps[2]
@@ -561,9 +610,8 @@ class StrategyTest {
         assertThat(e2ActualOffsets).isEqualTo(e2ExpectedOffsets)
 
         val e2ActualUnadjustedOffsets = e2.map { it.unadjustedOffset }.toFloatArray()
-        val e2ExpectedUnadjustedOffsets = floatArrayOf(
-            -489f, -295f, -101f, 93f, 287f, 481f, 675f, 869f
-        )
+        val e2ExpectedUnadjustedOffsets =
+            floatArrayOf(-489f, -295f, -101f, 93f, 287f, 481f, 675f, 869f)
         assertThat(e2ActualUnadjustedOffsets).isEqualTo(e2ExpectedUnadjustedOffsets)
     }
 
@@ -571,34 +619,33 @@ class StrategyTest {
     fun testCenterStrategy_stepsShouldAccountForContentPadding() {
         val availableSpace = 500f
         val itemSpacing = 0f
-        val strategy = Strategy(
-            defaultKeylines =
-                keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Center) {
-                    add(10f, isAnchor = true)
-                    add(50f)
-                    add(100f)
-                    add(200f)
-                    add(100f)
-                    add(50f)
-                    add(10f, isAnchor = true)
-                },
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 16f,
-            afterContentPadding = 24f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines =
+                    keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Center) {
+                        add(10f, isAnchor = true)
+                        add(50f)
+                        add(100f)
+                        add(200f)
+                        add(100f)
+                        add(50f)
+                        add(10f, isAnchor = true)
+                    },
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 16f,
+                afterContentPadding = 24f
+            )
 
         val lastStartStep = strategy.startKeylineSteps.last()
 
-        val firstFocalLeft = lastStartStep.firstFocal.offset -
-            (lastStartStep.firstFocal.size / 2f)
-        val lastNonAnchorRight = lastStartStep.lastNonAnchor.offset +
-            (lastStartStep.lastNonAnchor.size / 2f)
+        val firstFocalLeft = lastStartStep.firstFocal.offset - (lastStartStep.firstFocal.size / 2f)
+        val lastNonAnchorRight =
+            lastStartStep.lastNonAnchor.offset + (lastStartStep.lastNonAnchor.size / 2f)
         val lastEndStep = strategy.endKeylineSteps.last()
-        val lastFocalRight = lastEndStep.lastFocal.offset +
-            (lastEndStep.lastFocal.size / 2f)
-        val firstNonAnchorLeft = lastEndStep.firstNonAnchor.offset -
-            (lastEndStep.firstNonAnchor.size / 2f)
+        val lastFocalRight = lastEndStep.lastFocal.offset + (lastEndStep.lastFocal.size / 2f)
+        val firstNonAnchorLeft =
+            lastEndStep.firstNonAnchor.offset - (lastEndStep.firstNonAnchor.size / 2f)
 
         assertThat(firstFocalLeft).isEqualTo(16f)
         assertThat(lastNonAnchorRight).isEqualTo(500f)
@@ -610,20 +657,21 @@ class StrategyTest {
     fun testStartStrategy_twoLargeOneSmall_shouldAccountForPadding() {
         val availableSpace = 444f
         val itemSpacing = 8f
-        val strategy = Strategy(
-            defaultKeylines =
-                keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
-                    add(10f, isAnchor = true)
-                    add(186f)
-                    add(186f)
-                    add(56f)
-                    add(10f, isAnchor = true)
-                },
-            availableSpace = availableSpace,
-            itemSpacing = itemSpacing,
-            beforeContentPadding = 16f,
-            afterContentPadding = 16f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines =
+                    keylineListOf(availableSpace, itemSpacing, CarouselAlignment.Start) {
+                        add(10f, isAnchor = true)
+                        add(186f)
+                        add(186f)
+                        add(56f)
+                        add(10f, isAnchor = true)
+                    },
+                availableSpace = availableSpace,
+                itemSpacing = itemSpacing,
+                beforeContentPadding = 16f,
+                afterContentPadding = 16f
+            )
 
         assertThat(strategy.itemMainAxisSize).isEqualTo(186f)
 
@@ -647,17 +695,13 @@ class StrategyTest {
         actual: Keyline,
         expected: Keyline
     ) {
-        assertThat(actual.size)
-            .isWithin(tolerance).of(expected.size)
-        assertThat(actual.offset)
-            .isWithin(tolerance).of(expected.offset)
-        assertThat(actual.unadjustedOffset)
-            .isWithin(0.01f).of(expected.unadjustedOffset)
+        assertThat(actual.size).isWithin(tolerance).of(expected.size)
+        assertThat(actual.offset).isWithin(tolerance).of(expected.offset)
+        assertThat(actual.unadjustedOffset).isWithin(0.01f).of(expected.unadjustedOffset)
         assertThat(actual.isFocal).isEqualTo(expected.isFocal)
         assertThat(actual.isAnchor).isEqualTo(expected.isAnchor)
         assertThat(actual.isPivot).isEqualTo(expected.isPivot)
-        assertThat(actual.cutoff)
-            .isWithin(tolerance).of(expected.cutoff)
+        assertThat(actual.cutoff).isWithin(tolerance).of(expected.cutoff)
     }
 
     companion object {

@@ -27,15 +27,12 @@ import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 
 /**
- * Create an [ImageBitmap] from the given [Bitmap]. Note this does
- * not create a copy of the original [Bitmap] and changes to it
- * will modify the returned [ImageBitmap]
+ * Create an [ImageBitmap] from the given [Bitmap]. Note this does not create a copy of the original
+ * [Bitmap] and changes to it will modify the returned [ImageBitmap]
  */
 fun Bitmap.asComposeImageBitmap(): ImageBitmap = SkiaBackedImageBitmap(this)
 
-/**
- * Create an [ImageBitmap] from the given [Image].
- */
+/** Create an [ImageBitmap] from the given [Image]. */
 fun Image.toComposeImageBitmap(): ImageBitmap = SkiaBackedImageBitmap(toBitmap())
 
 private fun Image.toBitmap(): Bitmap {
@@ -68,7 +65,7 @@ internal actual fun ActualImageBitmap(
  * Obtain a reference to the [org.jetbrains.skia.Bitmap]
  *
  * @Throws UnsupportedOperationException if this [ImageBitmap] is not backed by an
- * org.jetbrains.skia.Image
+ *   org.jetbrains.skia.Image
  */
 fun ImageBitmap.asSkiaBitmap(): Bitmap =
     when (this) {
@@ -80,8 +77,12 @@ private class SkiaBackedImageBitmap(val bitmap: Bitmap) : ImageBitmap {
     override val colorSpace = bitmap.colorSpace.toComposeColorSpace()
     override val config = bitmap.colorType.toComposeConfig()
     override val hasAlpha = !bitmap.isOpaque
-    override val height get() = bitmap.height
-    override val width get() = bitmap.width
+    override val height
+        get() = bitmap.height
+
+    override val width
+        get() = bitmap.width
+
     override fun prepareToDraw() = Unit
 
     override fun readPixels(
@@ -93,7 +94,8 @@ private class SkiaBackedImageBitmap(val bitmap: Bitmap) : ImageBitmap {
         bufferOffset: Int,
         stride: Int
     ) {
-        // similar to https://cs.android.com/android/platform/superproject/+/42c50042d1f05d92ecc57baebe3326a57aeecf77:frameworks/base/graphics/java/android/graphics/Bitmap.java;l=2007
+        // similar to
+        // https://cs.android.com/android/platform/superproject/+/42c50042d1f05d92ecc57baebe3326a57aeecf77:frameworks/base/graphics/java/android/graphics/Bitmap.java;l=2007
         val lastScanline: Int = bufferOffset + (height - 1) * stride
         require(startX >= 0 && startY >= 0)
         require(width > 0 && startX + width <= this.width)
@@ -102,12 +104,14 @@ private class SkiaBackedImageBitmap(val bitmap: Bitmap) : ImageBitmap {
         require(bufferOffset >= 0 && bufferOffset + width <= buffer.size)
         require(lastScanline >= 0 && lastScanline + width <= buffer.size)
 
-        // similar to https://cs.android.com/android/platform/superproject/+/9054ca2b342b2ea902839f629e820546d8a2458b:frameworks/base/libs/hwui/jni/Bitmap.cpp;l=898;bpv=1
-        val colorInfo = ColorInfo(
-            ColorType.BGRA_8888,
-            ColorAlphaType.UNPREMUL,
-            org.jetbrains.skia.ColorSpace.sRGB
-        )
+        // similar to
+        // https://cs.android.com/android/platform/superproject/+/9054ca2b342b2ea902839f629e820546d8a2458b:frameworks/base/libs/hwui/jni/Bitmap.cpp;l=898;bpv=1
+        val colorInfo =
+            ColorInfo(
+                ColorType.BGRA_8888,
+                ColorAlphaType.UNPREMUL,
+                org.jetbrains.skia.ColorSpace.sRGB
+            )
         val imageInfo = ImageInfo(colorInfo, width, height)
         val bytesPerPixel = 4
         val bytes = bitmap.readPixels(imageInfo, stride * bytesPerPixel, startX, startY)!!
@@ -120,23 +124,26 @@ internal expect fun ByteArray.putBytesInto(array: IntArray, offset: Int, length:
 // TODO(demin): [API] maybe we should use:
 //  `else -> throw UnsupportedOperationException()`
 //  in toSkiaColorType/toComposeConfig/toComposeColorSpace/toSkiaColorSpace
-//  see [https://android-review.googlesource.com/c/platform/frameworks/support/+/1429835/comment/c219501b_63c3d1fe/]
+//  see
+// [https://android-review.googlesource.com/c/platform/frameworks/support/+/1429835/comment/c219501b_63c3d1fe/]
 
-private fun ImageBitmapConfig.toSkiaColorType() = when (this) {
-    ImageBitmapConfig.Argb8888 -> ColorType.N32
-    ImageBitmapConfig.Alpha8 -> ColorType.ALPHA_8
-    ImageBitmapConfig.Rgb565 -> ColorType.RGB_565
-    ImageBitmapConfig.F16 -> ColorType.RGBA_F16
-    else -> ColorType.N32
-}
+private fun ImageBitmapConfig.toSkiaColorType() =
+    when (this) {
+        ImageBitmapConfig.Argb8888 -> ColorType.N32
+        ImageBitmapConfig.Alpha8 -> ColorType.ALPHA_8
+        ImageBitmapConfig.Rgb565 -> ColorType.RGB_565
+        ImageBitmapConfig.F16 -> ColorType.RGBA_F16
+        else -> ColorType.N32
+    }
 
-private fun ColorType.toComposeConfig() = when (this) {
-    ColorType.N32 -> ImageBitmapConfig.Argb8888
-    ColorType.ALPHA_8 -> ImageBitmapConfig.Alpha8
-    ColorType.RGB_565 -> ImageBitmapConfig.Rgb565
-    ColorType.RGBA_F16 -> ImageBitmapConfig.F16
-    else -> ImageBitmapConfig.Argb8888
-}
+private fun ColorType.toComposeConfig() =
+    when (this) {
+        ColorType.N32 -> ImageBitmapConfig.Argb8888
+        ColorType.ALPHA_8 -> ImageBitmapConfig.Alpha8
+        ColorType.RGB_565 -> ImageBitmapConfig.Rgb565
+        ColorType.RGBA_F16 -> ImageBitmapConfig.F16
+        else -> ImageBitmapConfig.Argb8888
+    }
 
 private fun org.jetbrains.skia.ColorSpace?.toComposeColorSpace(): ColorSpace {
     return when (this) {

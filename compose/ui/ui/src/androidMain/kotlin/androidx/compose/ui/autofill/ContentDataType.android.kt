@@ -26,15 +26,13 @@ import android.view.View.AUTOFILL_TYPE_TOGGLE
 // actual typealias NativeContentDataType = Int
 
 @JvmInline
-internal actual value class ContentDataType actual constructor(
-    val dataType: Int
-) {
-        internal actual companion object {
-            actual val Text = ContentDataType(AUTOFILL_TYPE_TEXT)
-            actual val List = ContentDataType(AUTOFILL_TYPE_LIST)
-            actual val Date = ContentDataType(AUTOFILL_TYPE_DATE)
-            actual val Toggle = ContentDataType(AUTOFILL_TYPE_TOGGLE)
-            actual val None = ContentDataType(AUTOFILL_TYPE_NONE)
+internal actual value class ContentDataType actual constructor(val dataType: Int) {
+    internal actual companion object {
+        actual val Text = ContentDataType(AUTOFILL_TYPE_TEXT)
+        actual val List = ContentDataType(AUTOFILL_TYPE_LIST)
+        actual val Date = ContentDataType(AUTOFILL_TYPE_DATE)
+        actual val Toggle = ContentDataType(AUTOFILL_TYPE_TOGGLE)
+        actual val None = ContentDataType(AUTOFILL_TYPE_NONE)
 
         internal fun from(value: Int): ContentDataType {
             return when (value) {

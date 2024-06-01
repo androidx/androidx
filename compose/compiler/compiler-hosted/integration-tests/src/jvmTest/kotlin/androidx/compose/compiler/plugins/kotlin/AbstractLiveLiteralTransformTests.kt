@@ -27,20 +27,17 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.junit.Assert.assertEquals
 
-abstract class AbstractLiveLiteralTransformTests(
-    useFir: Boolean
-) : AbstractIrTransformTest(useFir) {
+abstract class AbstractLiveLiteralTransformTests(useFir: Boolean) :
+    AbstractIrTransformTest(useFir) {
     private fun computeKeys(files: List<SourceFile>): List<String> {
         var builtKeys = mutableSetOf<String>()
         compileToIr(
             files,
             registerExtensions = { configuration ->
-                val liveLiteralsEnabled = configuration.getBoolean(
-                    ComposeConfiguration.LIVE_LITERALS_ENABLED_KEY
-                )
-                val liveLiteralsV2Enabled = configuration.getBoolean(
-                    ComposeConfiguration.LIVE_LITERALS_V2_ENABLED_KEY
-                )
+                val liveLiteralsEnabled =
+                    configuration.getBoolean(ComposeConfiguration.LIVE_LITERALS_ENABLED_KEY)
+                val liveLiteralsV2Enabled =
+                    configuration.getBoolean(ComposeConfiguration.LIVE_LITERALS_V2_ENABLED_KEY)
 
                 ComposePluginRegistrar.registerCommonExtensions(this)
                 IrGenerationExtension.registerExtension(
@@ -52,24 +49,26 @@ abstract class AbstractLiveLiteralTransformTests(
                         ) {
                             val symbolRemapper = DeepCopySymbolRemapper()
                             val keyVisitor = DurableKeyVisitor(builtKeys)
-                            val stabilityInferencer = StabilityInferencer(
-                                pluginContext.moduleDescriptor,
-                                emptySet()
-                            )
-                            val transformer = object : LiveLiteralTransformer(
-                                liveLiteralsEnabled || liveLiteralsV2Enabled,
-                                liveLiteralsV2Enabled,
-                                keyVisitor,
-                                pluginContext,
-                                symbolRemapper,
-                                ModuleMetricsImpl("temp") { stabilityInferencer.stabilityOf(it) },
-                                stabilityInferencer,
-                                FeatureFlags()
-                            ) {
-                                override fun makeKeySet(): MutableSet<String> {
-                                    return super.makeKeySet().also { builtKeys = it }
+                            val stabilityInferencer =
+                                StabilityInferencer(pluginContext.moduleDescriptor, emptySet())
+                            val transformer =
+                                object :
+                                    LiveLiteralTransformer(
+                                        liveLiteralsEnabled || liveLiteralsV2Enabled,
+                                        liveLiteralsV2Enabled,
+                                        keyVisitor,
+                                        pluginContext,
+                                        symbolRemapper,
+                                        ModuleMetricsImpl("temp") {
+                                            stabilityInferencer.stabilityOf(it)
+                                        },
+                                        stabilityInferencer,
+                                        FeatureFlags()
+                                    ) {
+                                    override fun makeKeySet(): MutableSet<String> {
+                                        return super.makeKeySet().also { builtKeys = it }
+                                    }
                                 }
-                            }
                             transformer.lower(moduleFragment)
                         }
                     }
@@ -98,7 +97,8 @@ abstract class AbstractLiveLiteralTransformTests(
         )
     }
 
-    // test: have two src strings (before/after) and assert that the keys of the params didn't change
+    // test: have two src strings (before/after) and assert that the keys of the params didn't
+    // change
     protected fun assertDurableChange(before: String, after: String) {
         val beforeKeys = computeKeys(listOf(SourceFile("Test.kt", before)))
         val afterKeys = computeKeys(listOf(SourceFile("Test.kt", after)))
@@ -109,19 +109,18 @@ abstract class AbstractLiveLiteralTransformTests(
         )
     }
 
-    protected fun assertTransform(
-        unchecked: String,
-        checked: String,
-        dumpTree: Boolean = false
-    ) = verifyGoldenComposeIrTransform(
-        """
+    protected fun assertTransform(unchecked: String, checked: String, dumpTree: Boolean = false) =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
             $checked
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             import androidx.compose.runtime.Composable
             $unchecked
-        """.trimIndent(),
-        dumpTree = dumpTree
-    )
+        """
+                .trimIndent(),
+            dumpTree = dumpTree
+        )
 }

@@ -64,43 +64,33 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class MenuScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     private val testTag = "dropdown_menu"
 
     @Test
     fun dropdownMenu_lightTheme() {
-        composeTestRule.setMaterialContent(lightColorScheme()) {
-            TestMenu(enabledItems = true)
-        }
+        composeTestRule.setMaterialContent(lightColorScheme()) { TestMenu(enabledItems = true) }
         assertAgainstGolden(goldenIdentifier = "dropdownMenu_lightTheme")
     }
 
     @Test
     fun dropdownMenu_darkTheme() {
-        composeTestRule.setMaterialContent(darkColorScheme()) {
-            TestMenu(enabledItems = true)
-        }
+        composeTestRule.setMaterialContent(darkColorScheme()) { TestMenu(enabledItems = true) }
         assertAgainstGolden(goldenIdentifier = "dropdownMenu_darkTheme")
     }
 
     @Test
     fun dropdownMenu_disabled_lightTheme() {
-        composeTestRule.setMaterialContent(lightColorScheme()) {
-            TestMenu(enabledItems = false)
-        }
+        composeTestRule.setMaterialContent(lightColorScheme()) { TestMenu(enabledItems = false) }
         assertAgainstGolden(goldenIdentifier = "dropdownMenu_disabled_lightTheme")
     }
 
     @Test
     fun dropdownMenu_disabled_darkTheme() {
-        composeTestRule.setMaterialContent(darkColorScheme()) {
-            TestMenu(enabledItems = false)
-        }
+        composeTestRule.setMaterialContent(darkColorScheme()) { TestMenu(enabledItems = false) }
         assertAgainstGolden(goldenIdentifier = "dropdownMenu_disabled_darkTheme")
     }
 
@@ -128,10 +118,7 @@ class MenuScreenshotTest {
         shadowElevation: Dp = MenuDefaults.ShadowElevation,
         border: BorderStroke? = null,
     ) {
-        Box(
-            Modifier
-                .testTag(testTag)
-                .padding(20.dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.testTag(testTag).padding(20.dp), contentAlignment = Alignment.Center) {
             DropdownMenuContent(
                 modifier = Modifier,
                 expandedState = MutableTransitionState(initialState = true),
@@ -145,48 +132,32 @@ class MenuScreenshotTest {
             ) {
                 DropdownMenuItem(
                     text = { Text("Edit") },
-                    onClick = { },
+                    onClick = {},
                     enabled = enabledItems,
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Edit,
-                            contentDescription = null
-                        )
-                    })
+                    leadingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) }
+                )
                 DropdownMenuItem(
                     text = { Text("Settings") },
-                    onClick = { },
+                    onClick = {},
                     enabled = enabledItems,
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Settings,
-                            contentDescription = null
-                        )
-                    },
-                    trailingIcon = { Text("F11", textAlign = TextAlign.Center) })
+                    leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                    trailingIcon = { Text("F11", textAlign = TextAlign.Center) }
+                )
                 HorizontalDivider()
                 DropdownMenuItem(
                     text = { Text("Send Feedback") },
-                    onClick = { },
+                    onClick = {},
                     enabled = enabledItems,
-                    leadingIcon = {
-                        Icon(
-                            Icons.Outlined.Email,
-                            contentDescription = null
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            Icons.Outlined.Lock,
-                            contentDescription = null
-                        )
-                    })
+                    leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
+                    trailingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) }
+                )
             }
         }
     }
 
     private fun assertAgainstGolden(goldenIdentifier: String) {
-        composeTestRule.onNodeWithTag(testTag)
+        composeTestRule
+            .onNodeWithTag(testTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

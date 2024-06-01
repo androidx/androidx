@@ -41,13 +41,15 @@ abstract class AbstractDecoysLowering(
     stabilityInferencer: StabilityInferencer,
     override val signatureBuilder: IdSignatureSerializer,
     featureFlags: FeatureFlags,
-) : AbstractComposeLowering(
-    context = pluginContext,
-    symbolRemapper = symbolRemapper,
-    metrics = metrics,
-    stabilityInferencer = stabilityInferencer,
-    featureFlags = featureFlags
-), DecoyTransformBase {
+) :
+    AbstractComposeLowering(
+        context = pluginContext,
+        symbolRemapper = symbolRemapper,
+        metrics = metrics,
+        stabilityInferencer = stabilityInferencer,
+        featureFlags = featureFlags
+    ),
+    DecoyTransformBase {
 
     override fun visitFile(declaration: IrFile): IrFile {
         includeFileNameInExceptionTrace(declaration) {
@@ -72,14 +74,11 @@ abstract class AbstractDecoysLowering(
             (isLocal && (this is IrSimpleFunction && !overridesComposable()))
 
     private fun IrSimpleFunction.overridesComposable() =
-        overriddenSymbols.any {
-            it.owner.isDecoy() || it.owner.shouldBeRemapped()
-        }
+        overriddenSymbols.any { it.owner.isDecoy() || it.owner.shouldBeRemapped() }
 
     private fun IrFunction.hasComposableParameter() =
         valueParameters.any { it.type.containsComposableAnnotation() } ||
             extensionReceiverParameter?.type.containsComposableAnnotation()
 
-    private fun IrFunction.isEnumConstructor() =
-        this is IrConstructor && parentAsClass.isEnumClass
+    private fun IrFunction.isEnumConstructor() = this is IrConstructor && parentAsClass.isEnumClass
 }

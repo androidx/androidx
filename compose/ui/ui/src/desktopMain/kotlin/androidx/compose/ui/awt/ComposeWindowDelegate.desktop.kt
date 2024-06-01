@@ -45,49 +45,51 @@ internal class ComposeWindowDelegate(
     // so we nullify layer on dispose, to prevent keeping
     // big objects in memory (like the whole LayoutNode tree of the window)
     private var _layer: ComposeLayer? = ComposeLayer()
-    private val layer get() = requireNotNull(_layer) {
-        "ComposeLayer is disposed"
-    }
+    private val layer
+        get() = requireNotNull(_layer) { "ComposeLayer is disposed" }
+
     val undecoratedWindowResizer = UndecoratedWindowResizer(window)
 
-    private val _pane = object : JLayeredPane() {
-        override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-            layer.component.setSize(width, height)
-            super.setBounds(x, y, width, height)
+    private val _pane =
+        object : JLayeredPane() {
+            override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
+                layer.component.setSize(width, height)
+                super.setBounds(x, y, width, height)
+            }
+
+            override fun add(component: Component): Component {
+                val clipComponent = ClipComponent(component)
+                clipMap[component] = clipComponent
+                layer.component.clipComponents.add(clipComponent)
+                return add(component, Integer.valueOf(0))
+            }
+
+            override fun remove(component: Component) {
+                layer.component.clipComponents.remove(clipMap[component]!!)
+                clipMap.remove(component)
+                super.remove(component)
+            }
+
+            override fun addNotify() {
+                super.addNotify()
+                layer.component.requestFocus()
+            }
+
+            override fun getPreferredSize() =
+                if (isPreferredSizeSet) super.getPreferredSize() else layer.component.preferredSize
+
+            init {
+                layout = null
+                super.add(layer.component, 1)
+            }
+
+            fun dispose() {
+                super.remove(layer.component)
+            }
         }
 
-        override fun add(component: Component): Component {
-            val clipComponent = ClipComponent(component)
-            clipMap[component] = clipComponent
-            layer.component.clipComponents.add(clipComponent)
-            return add(component, Integer.valueOf(0))
-        }
-
-        override fun remove(component: Component) {
-            layer.component.clipComponents.remove(clipMap[component]!!)
-            clipMap.remove(component)
-            super.remove(component)
-        }
-
-        override fun addNotify() {
-            super.addNotify()
-            layer.component.requestFocus()
-        }
-
-        override fun getPreferredSize() =
-            if (isPreferredSizeSet) super.getPreferredSize() else layer.component.preferredSize
-
-        init {
-            layout = null
-            super.add(layer.component, 1)
-        }
-
-        fun dispose() {
-            super.remove(layer.component)
-        }
-    }
-
-    val pane get() = _pane
+    val pane
+        get() = _pane
 
     private val clipMap = mutableMapOf<Component, ClipComponent>()
 
@@ -138,9 +140,7 @@ internal class ComposeWindowDelegate(
     }
 
     fun onRenderApiChanged(action: () -> Unit) {
-        layer.component.onStateChanged(SkiaLayer.PropertyKind.Renderer) {
-            action()
-        }
+        layer.component.onStateChanged(SkiaLayer.PropertyKind.Renderer) { action() }
     }
 
     val windowHandle: Long

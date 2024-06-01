@@ -31,29 +31,30 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AndroidCompositionObserverTests : BaseComposeTest() {
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
     @Test
     fun testObservingUiComposition() {
         var handle: CompositionObserverHandle? = null
         compose {
-            val view = LocalView.current
-            val composition = view.getTag(R.id.wrapped_composition_tag) as Composition
-            handle = composition.observe(object : CompositionObserver {
-                override fun onBeginComposition(
-                    composition: Composition,
-                    invalidationMap: Map<RecomposeScope, Set<Any>?>
-                ) {
-                }
+                val view = LocalView.current
+                val composition = view.getTag(R.id.wrapped_composition_tag) as Composition
+                handle =
+                    composition.observe(
+                        object : CompositionObserver {
+                            override fun onBeginComposition(
+                                composition: Composition,
+                                invalidationMap: Map<RecomposeScope, Set<Any>?>
+                            ) {}
 
-                override fun onEndComposition(composition: Composition) {
-                }
-            })
-        }.then {
-            assertNotNull(handle)
-            handle?.dispose()
-        }
+                            override fun onEndComposition(composition: Composition) {}
+                        }
+                    )
+            }
+            .then {
+                assertNotNull(handle)
+                handle?.dispose()
+            }
     }
 }

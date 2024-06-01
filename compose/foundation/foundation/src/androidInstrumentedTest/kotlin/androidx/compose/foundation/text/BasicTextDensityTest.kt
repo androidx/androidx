@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicTextDensityTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun simpleParagraph_densityChange() {
@@ -53,13 +52,11 @@ class BasicTextDensityTest {
         var textSize: IntSize? = null
         var ruleDensity by mutableStateOf(density1)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides ruleDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides ruleDensity) {
                 BasicText(
                     "Hello World!",
-                    modifier = Modifier
-                        .onGloballyPositioned {
+                    modifier =
+                        Modifier.onGloballyPositioned {
                             // do not read the size from onTextLayout, it takes a different path
                             textSize = it.size
                         }
@@ -87,21 +84,16 @@ class BasicTextDensityTest {
         var textSize: IntSize? = null
         var ruleDensity by mutableStateOf(density1)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides ruleDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides ruleDensity) {
                 BasicText(
                     // forces BasicText to generate a MultiParagraph
-                    text = buildAnnotatedString {
-                        withStyle(ParagraphStyle(lineHeight = 20.sp)) {
-                            append("Hello")
-                        }
-                        withStyle(ParagraphStyle(lineHeight = 15.sp)) {
-                            append("World")
-                        }
-                    },
-                    modifier = Modifier
-                        .onGloballyPositioned {
+                    text =
+                        buildAnnotatedString {
+                            withStyle(ParagraphStyle(lineHeight = 20.sp)) { append("Hello") }
+                            withStyle(ParagraphStyle(lineHeight = 15.sp)) { append("World") }
+                        },
+                    modifier =
+                        Modifier.onGloballyPositioned {
                             // do not read the size from onTextLayout, it takes a different path
                             textSize = it.size
                         }
@@ -129,16 +121,14 @@ class BasicTextDensityTest {
         var textSize: IntSize? = null
         var ruleDensity by mutableStateOf(density1)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides ruleDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides ruleDensity) {
                 SelectionContainer {
                     // this should internally use the same cache but selectable text takes
                     // a slightly different path. Include a test to make sure everything goes right.
                     BasicText(
                         "Hello World!",
-                        modifier = Modifier
-                            .onGloballyPositioned {
+                        modifier =
+                            Modifier.onGloballyPositioned {
                                 // do not read the size from onTextLayout, it takes a different path
                                 textSize = it.size
                             }

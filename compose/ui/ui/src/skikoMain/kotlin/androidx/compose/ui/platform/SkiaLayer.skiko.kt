@@ -145,6 +145,7 @@ internal class SkiaLayer(
             matrix
         }
     }
+
     private var mutatedFields: Int = 0
 
     override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
@@ -182,19 +183,16 @@ internal class SkiaLayer(
         val pivotY = transformOrigin.pivotFractionY * size.height
 
         matrix.reset()
-        matrix *= Matrix().apply {
-            translate(x = -pivotX, y = -pivotY)
-        }
-        matrix *= Matrix().apply {
-            translate(translationX, translationY)
-            rotateX(rotationX)
-            rotateY(rotationY)
-            rotateZ(rotationZ)
-            scale(scaleX, scaleY)
-        }
-        matrix *= Matrix().apply {
-            translate(x = pivotX, y = pivotY)
-        }
+        matrix *= Matrix().apply { translate(x = -pivotX, y = -pivotY) }
+        matrix *=
+            Matrix().apply {
+                translate(translationX, translationY)
+                rotateX(rotationX)
+                rotateY(rotationY)
+                rotateZ(rotationZ)
+                scale(scaleX, scaleY)
+            }
+        matrix *= Matrix().apply { translate(x = pivotX, y = pivotY) }
     }
 
     override fun invalidate() {
@@ -235,23 +233,24 @@ internal class SkiaLayer(
             }
 
             val outline = outline
-            val isClipping = if (clip && outline != null) {
-                canvas.save()
-                when (outline) {
-                    is Outline.Rectangle -> canvas.clipRect(outline.rect)
-                    is Outline.Rounded -> canvas.clipRoundRect(outline.roundRect)
-                    is Outline.Generic -> canvas.clipPath(outline.path)
+            val isClipping =
+                if (clip && outline != null) {
+                    canvas.save()
+                    when (outline) {
+                        is Outline.Rectangle -> canvas.clipRect(outline.rect)
+                        is Outline.Rounded -> canvas.clipRoundRect(outline.roundRect)
+                        is Outline.Generic -> canvas.clipPath(outline.path)
+                    }
+                    true
+                } else {
+                    false
                 }
-                true
-            } else {
-                false
-            }
 
             val currentRenderEffect = renderEffect
             val requiresLayer =
                 (alpha < 1 && compositingStrategy != CompositingStrategy.ModulateAlpha) ||
-                currentRenderEffect != null ||
-                compositingStrategy == CompositingStrategy.Offscreen
+                    currentRenderEffect != null ||
+                    compositingStrategy == CompositingStrategy.Offscreen
             if (requiresLayer) {
                 canvas.saveLayer(
                     bounds,
@@ -283,39 +282,47 @@ internal class SkiaLayer(
         nativeCanvas.clipRRect(rect.toSkiaRRect(), clipOp.toSkia(), antiAlias)
     }
 
-    private fun ClipOp.toSkia() = when (this) {
-        ClipOp.Difference -> ClipMode.DIFFERENCE
-        ClipOp.Intersect -> ClipMode.INTERSECT
-        else -> ClipMode.INTERSECT
-    }
+    private fun ClipOp.toSkia() =
+        when (this) {
+            ClipOp.Difference -> ClipMode.DIFFERENCE
+            ClipOp.Intersect -> ClipMode.INTERSECT
+            else -> ClipMode.INTERSECT
+        }
 
     override fun updateDisplayList() = Unit
 
-    fun drawShadow(canvas: Canvas) = with(density) {
-        val path = when (val outline = outline) {
-            is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
-            is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
-            is Outline.Generic -> outline.path
-            else -> return
+    fun drawShadow(canvas: Canvas) =
+        with(density) {
+            val path =
+                when (val outline = outline) {
+                    is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
+                    is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
+                    is Outline.Generic -> outline.path
+                    else -> return
+                }
+
+            // TODO: perspective?
+            val zParams = Point3(0f, 0f, shadowElevation)
+
+            // TODO: configurable?
+            val lightPos = Point3(0f, -300.dp.toPx(), 600.dp.toPx())
+            val lightRad = 800.dp.toPx()
+
+            val ambientAlpha = 0.039f * alpha
+            val spotAlpha = 0.19f * alpha
+            val ambientColor = ambientShadowColor.copy(alpha = ambientAlpha)
+            val spotColor = spotShadowColor.copy(alpha = spotAlpha)
+
+            ShadowUtils.drawShadow(
+                canvas.nativeCanvas,
+                path.asSkiaPath(),
+                zParams,
+                lightPos,
+                lightRad,
+                ambientColor.toArgb(),
+                spotColor.toArgb(),
+                alpha < 1f,
+                false
+            )
         }
-
-        // TODO: perspective?
-        val zParams = Point3(0f, 0f, shadowElevation)
-
-        // TODO: configurable?
-        val lightPos = Point3(0f, -300.dp.toPx(), 600.dp.toPx())
-        val lightRad = 800.dp.toPx()
-
-        val ambientAlpha = 0.039f * alpha
-        val spotAlpha = 0.19f * alpha
-        val ambientColor = ambientShadowColor.copy(alpha = ambientAlpha)
-        val spotColor = spotShadowColor.copy(alpha = spotAlpha)
-
-        ShadowUtils.drawShadow(
-            canvas.nativeCanvas, path.asSkiaPath(), zParams, lightPos,
-            lightRad,
-            ambientColor.toArgb(),
-            spotColor.toArgb(), alpha < 1f, false
-        )
-    }
 }

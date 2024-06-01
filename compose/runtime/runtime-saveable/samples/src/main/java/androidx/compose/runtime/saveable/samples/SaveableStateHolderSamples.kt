@@ -52,21 +52,15 @@ fun SimpleNavigationWithSaveableStateSample() {
             // Wrap the content representing the `currentScreen` inside `SaveableStateProvider`.
             // Here you can also add a screen switch animation like Crossfade where during the
             // animation multiple screens will be displayed at the same time.
-            saveableStateHolder.SaveableStateProvider(currentScreen) {
-                content(currentScreen)
-            }
+            saveableStateHolder.SaveableStateProvider(currentScreen) { content(currentScreen) }
         }
     }
 
     Column {
         var screen by rememberSaveable { mutableStateOf("screen1") }
         Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = { screen = "screen1" }) {
-                Text("Go to screen1")
-            }
-            Button(onClick = { screen = "screen2" }) {
-                Text("Go to screen2")
-            }
+            Button(onClick = { screen = "screen1" }) { Text("Go to screen1") }
+            Button(onClick = { screen = "screen2" }) { Text("Go to screen2") }
         }
         Navigation(screen, Modifier.fillMaxSize()) { currentScreen ->
             if (currentScreen == "screen1") {
@@ -81,9 +75,7 @@ fun SimpleNavigationWithSaveableStateSample() {
 @Composable
 fun Screen1() {
     var counter by rememberSaveable { mutableStateOf(0) }
-    Button(onClick = { counter++ }) {
-        Text("Counter=$counter on Screen1")
-    }
+    Button(onClick = { counter++ }) { Text("Counter=$counter on Screen1") }
 }
 
 @Composable

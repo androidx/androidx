@@ -51,15 +51,18 @@ class AndroidPerformAutofillTest {
         // Arrange.
         val expectedValue = "Name"
         var autofilledValue = ""
-        val autofillNode = AutofillNode(
-            onFill = { autofilledValue = it },
-            autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
+        val autofillNode =
+            AutofillNode(
+                onFill = { autofilledValue = it },
+                autofillTypes = listOf(AutofillType.PersonFullName),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
         autofillTree += autofillNode
 
-        val autofillValues = SparseArray<AutofillValue>()
-            .apply { append(autofillNode.id, AutofillValue.forText(expectedValue)) }
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(autofillNode.id, AutofillValue.forText(expectedValue))
+            }
 
         // Act.
         androidAutofill.performAutofill(autofillValues)
@@ -73,15 +76,18 @@ class AndroidPerformAutofillTest {
         // Arrange.
         val expectedValue = "email@google.com"
         var autofilledValue = ""
-        val autofillNode = AutofillNode(
-            onFill = { autofilledValue = it },
-            autofillTypes = listOf(AutofillType.EmailAddress),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
+        val autofillNode =
+            AutofillNode(
+                onFill = { autofilledValue = it },
+                autofillTypes = listOf(AutofillType.EmailAddress),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
         autofillTree += autofillNode
 
-        val autofillValues = SparseArray<AutofillValue>()
-            .apply { append(autofillNode.id, AutofillValue.forText(expectedValue)) }
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(autofillNode.id, AutofillValue.forText(expectedValue))
+            }
 
         // Act.
         androidAutofill.performAutofill(autofillValues)

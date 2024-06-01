@@ -53,18 +53,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BlurTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     @SmallTest
     fun testNoopBlur() {
         // If we are blurring with a 0 pixel radius and we are not clipping
         // the blurred result, this should return the default Modifier
-        assertEquals(
-            Modifier.blur(0.dp, BlurredEdgeTreatment.Unbounded),
-            Modifier
-        )
+        assertEquals(Modifier.blur(0.dp, BlurredEdgeTreatment.Unbounded), Modifier)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
@@ -83,9 +79,7 @@ class BlurTest {
             val padding = (2 / density).dp
             val drawBlock: DrawScope.() -> Unit = {
                 val blurRadiusPx = blurRadius.toPx()
-                inset(blurRadiusPx, blurRadiusPx) {
-                    drawRect(Color.Blue)
-                }
+                inset(blurRadiusPx, blurRadiusPx) { drawRect(Color.Blue) }
             }
             val boxModifierChain = Modifier.size(size).background(Color.Black).padding(padding)
             Row {
@@ -116,24 +110,27 @@ class BlurTest {
         var blurBuffer: IntArray
         var graphicsLayerBuffer: IntArray
 
-        val blurPixelMap = rule.onNodeWithTag(blurTag).captureToImage().apply {
-            blurBuffer = IntArray(width * height)
-            toPixelMap(buffer = blurBuffer)
-        }
-        val graphicsLayerMap = rule.onNodeWithTag(graphicsLayerTag).captureToImage().apply {
-            graphicsLayerBuffer = IntArray(width * height)
-            toPixelMap(buffer = graphicsLayerBuffer)
-        }
+        val blurPixelMap =
+            rule.onNodeWithTag(blurTag).captureToImage().apply {
+                blurBuffer = IntArray(width * height)
+                toPixelMap(buffer = blurBuffer)
+            }
+        val graphicsLayerMap =
+            rule.onNodeWithTag(graphicsLayerTag).captureToImage().apply {
+                graphicsLayerBuffer = IntArray(width * height)
+                toPixelMap(buffer = graphicsLayerBuffer)
+            }
 
         assertEquals(blurPixelMap.width, graphicsLayerMap.width)
         assertEquals(blurPixelMap.height, graphicsLayerMap.height)
 
-        MSSIMMatcher(threshold = 0.99).compareBitmaps(
-            blurBuffer,
-            graphicsLayerBuffer,
-            blurPixelMap.width,
-            blurPixelMap.height
-        )
+        MSSIMMatcher(threshold = 0.99)
+            .compareBitmaps(
+                blurBuffer,
+                graphicsLayerBuffer,
+                blurPixelMap.width,
+                blurPixelMap.height
+            )
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
@@ -142,12 +139,7 @@ class BlurTest {
     fun testRectBoundedBlur() {
         // Any bounded edge treatment should clip the underlying graphicsLayer and use
         // TileMode.Clamp in the corresponding BlurEffect
-        testBlurEdgeTreatment(
-            BlurredEdgeTreatment.Rectangle,
-            RectangleShape,
-            true,
-            TileMode.Clamp
-        )
+        testBlurEdgeTreatment(BlurredEdgeTreatment.Rectangle, RectangleShape, true, TileMode.Clamp)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
@@ -156,24 +148,14 @@ class BlurTest {
     fun testUnboundedBlur() {
         // Any unbounded edge treatment should not clip the underlying graphicsLayer and use
         // TileMode.Decal in the corresponding BlurEffect
-        testBlurEdgeTreatment(
-            BlurredEdgeTreatment.Unbounded,
-            RectangleShape,
-            false,
-            TileMode.Decal
-        )
+        testBlurEdgeTreatment(BlurredEdgeTreatment.Unbounded, RectangleShape, false, TileMode.Decal)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     @Test
     @MediumTest
     fun testCircleBoundedBlur() {
-        testBlurEdgeTreatment(
-            BlurredEdgeTreatment(CircleShape),
-            CircleShape,
-            true,
-            TileMode.Clamp
-        )
+        testBlurEdgeTreatment(BlurredEdgeTreatment(CircleShape), CircleShape, true, TileMode.Clamp)
     }
 
     @Test

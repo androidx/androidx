@@ -98,8 +98,7 @@ import org.junit.Test
 @LargeTest
 class TextFieldTextToolbarTest : FocusedWindowTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val fontSize = 10.sp
 
@@ -118,13 +117,9 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         setupContent(state, textToolbar)
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
     }
 
     @Test
@@ -135,13 +130,9 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @Test
@@ -166,18 +157,14 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         state.edit {
             append(" World!")
             placeCursorAtEnd()
         }
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @Test
@@ -203,11 +190,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
 
         with(rule.onNodeWithTag(TAG)) {
-            performKeyInput {
-                withKeyDown(Key.CtrlLeft) {
-                    pressKey(Key.A)
-                }
-            }
+            performKeyInput { withKeyDown(Key.CtrlLeft) { pressKey(Key.A) } }
         }
 
         rule.runOnIdle {
@@ -222,13 +205,9 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar)
 
-        with(rule.onNodeWithTag(TAG)) {
-            requestFocus()
-        }
+        with(rule.onNodeWithTag(TAG)) { requestFocus() }
 
-        rule.runOnIdle {
-            state.edit { selectAll() }
-        }
+        rule.runOnIdle { state.edit { selectAll() } }
 
         rule.runOnIdle {
             assertThat(state.selection).isEqualTo(TextRange(0, 5))
@@ -261,9 +240,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         with(rule.onNodeWithTag(TAG)) {
             requestFocus()
-            performSemanticsAction(SemanticsActions.SetSelection) {
-                it(0, 5, false)
-            }
+            performSemanticsAction(SemanticsActions.SetSelection) { it(0, 5, false) }
         }
 
         rule.runOnIdle {
@@ -280,15 +257,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         rule.onNodeWithTag(TAG).performTextInput(" World!")
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @Test
@@ -299,21 +272,15 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         enabled = false
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
 
         enabled = true
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @Test
@@ -324,21 +291,15 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).requestFocus()
         rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(2, 4))
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         enabled = false
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
 
         enabled = true
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -351,17 +312,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
-        rule.onNodeWithTag(TAG).performKeyInput {
-            pressKey(Key.W)
-        }
+        rule.onNodeWithTag(TAG).performKeyInput { pressKey(Key.W) }
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -371,9 +326,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar)
 
-        rule.onNodeWithTag(TAG).performTouchInput {
-            longClick(Offset(fontSizePx, fontSizePx / 2))
-        }
+        rule.onNodeWithTag(TAG).performTouchInput { longClick(Offset(fontSizePx, fontSizePx / 2)) }
 
         rule.runOnIdle {
             assertThat(state.selection).isEqualTo(TextRange(0, 5))
@@ -404,9 +357,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         // test the touch interaction again so we know that hardware keyboard changes are not
         // permanent
-        rule.onNodeWithTag(TAG).performTouchInput {
-            longClick(Offset(fontSizePx, fontSizePx / 2))
-        }
+        rule.onNodeWithTag(TAG).performTouchInput { longClick(Offset(fontSizePx, fontSizePx / 2)) }
 
         rule.runOnIdle {
             assertThat(state.selection).isEqualTo(TextRange(0, 5))
@@ -424,24 +375,16 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         with(rule.onNode(isSelectionHandle(Handle.Cursor))) {
             performClick()
-            rule.runOnIdle {
-                assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-            }
+            rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
             performTouchInput {
                 down(center)
                 moveBy(Offset(viewConfiguration.touchSlop, 0f))
                 moveBy(Offset(fontSizePx, 0f))
             }
         }
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
-        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
-            up()
-        }
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput { up() }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
     }
 
     @Test
@@ -453,9 +396,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         rule.onNodeWithTag(TAG).performTouchInput {
             advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
@@ -473,12 +414,8 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     @Test
     fun toolbarFollowsTheCursor_whenTextFieldIsScrolled() {
         var shownRect: Rect? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { rect, _, _, _, _ ->
-                shownRect = rect
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(onShowMenu = { rect, _, _, _, _ -> shownRect = rect }, onHideMenu = {})
         val state = TextFieldState("Hello ".repeat(20)) // make sure the field is scrollable
         setupContent(state, textToolbar, true)
 
@@ -503,10 +440,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             Truth.assertAbout(RectSubject.SUBJECT_FACTORY)
                 .that(secondRectAnchor)!!
                 .isEqualToWithTolerance(
-                    firstRectAnchor.translate(
-                        translateX = -fontSizePx,
-                        translateY = 0f
-                    )
+                    firstRectAnchor.translate(translateX = -fontSizePx, translateY = 0f)
                 )
         }
     }
@@ -514,79 +448,75 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     @Test
     fun toolbarShowsSelectAll() {
         var selectAllOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, _, _, onSelectAllRequested ->
-                selectAllOptionAvailable = onSelectAllRequested != null
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, _, _, onSelectAllRequested ->
+                    selectAllOptionAvailable = onSelectAllRequested != null
+                },
+                onHideMenu = {}
+            )
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true)
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(selectAllOptionAvailable).isTrue()
-        }
+        rule.runOnIdle { assertThat(selectAllOptionAvailable).isTrue() }
     }
 
     @Test
     fun toolbarDoesNotShowSelectAll_whenAllTextIsAlreadySelected() {
         var selectAllOption: (() -> Unit)? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, _, _, onSelectAllRequested ->
-                selectAllOption = onSelectAllRequested
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, _, _, onSelectAllRequested ->
+                    selectAllOption = onSelectAllRequested
+                },
+                onHideMenu = {}
+            )
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true)
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(selectAllOption).isNotNull()
-        }
+        rule.runOnIdle { assertThat(selectAllOption).isNotNull() }
 
         selectAllOption?.invoke()
 
         assertThat(state.selection).isEqualTo(TextRange(0, 5))
-        rule.runOnIdle {
-            assertThat(selectAllOption).isNull()
-        }
+        rule.runOnIdle { assertThat(selectAllOption).isNull() }
     }
 
     @Test
     fun toolbarDoesNotShowPaste_whenClipboardHasNoContent() {
         var pasteOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, onPasteRequested, _, _ ->
-                pasteOptionAvailable = onPasteRequested != null
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, onPasteRequested, _, _ ->
+                    pasteOptionAvailable = onPasteRequested != null
+                },
+                onHideMenu = {}
+            )
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true)
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(pasteOptionAvailable).isFalse()
-        }
+        rule.runOnIdle { assertThat(pasteOptionAvailable).isFalse() }
     }
 
     @Test
     fun toolbarShowsPaste_whenClipboardHasText() {
         var pasteOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, onPasteRequested, _, _ ->
-                pasteOptionAvailable = onPasteRequested != null
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, onPasteRequested, _, _ ->
+                    pasteOptionAvailable = onPasteRequested != null
+                },
+                onHideMenu = {}
+            )
         val clipboardManager = FakeClipboardManager("world")
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true, clipboardManager)
@@ -594,46 +524,46 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(pasteOptionAvailable).isTrue()
-        }
+        rule.runOnIdle { assertThat(pasteOptionAvailable).isTrue() }
     }
 
     @Test
     fun toolbarDoesNotShowPaste_whenClipboardHasContent_butNoReceiveContentConfigured() {
         var pasteOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, onPasteRequested, _, _ ->
-                pasteOptionAvailable = onPasteRequested != null
-            },
-            onHideMenu = {}
-        )
-        val clipboardManager = FakeClipboardManager(supportsClipEntry = true).apply {
-            setClip(createClipData().toClipEntry())
-        }
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, onPasteRequested, _, _ ->
+                    pasteOptionAvailable = onPasteRequested != null
+                },
+                onHideMenu = {}
+            )
+        val clipboardManager =
+            FakeClipboardManager(supportsClipEntry = true).apply {
+                setClip(createClipData().toClipEntry())
+            }
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true, clipboardManager)
 
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(pasteOptionAvailable).isFalse()
-        }
+        rule.runOnIdle { assertThat(pasteOptionAvailable).isFalse() }
     }
 
     @Test
     fun toolbarShowsPaste_whenClipboardHasContent_andReceiveContentConfigured() {
         var pasteOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, onPasteRequested, _, _ ->
-                pasteOptionAvailable = onPasteRequested != null
-            },
-            onHideMenu = {}
-        )
-        val clipboardManager = FakeClipboardManager(supportsClipEntry = true).apply {
-            setClip(createClipData().toClipEntry())
-        }
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, onPasteRequested, _, _ ->
+                    pasteOptionAvailable = onPasteRequested != null
+                },
+                onHideMenu = {}
+            )
+        val clipboardManager =
+            FakeClipboardManager(supportsClipEntry = true).apply {
+                setClip(createClipData().toClipEntry())
+            }
         val state = TextFieldState("Hello")
         setupContent(
             state = state,
@@ -646,20 +576,17 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click() }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(pasteOptionAvailable).isTrue()
-        }
+        rule.runOnIdle { assertThat(pasteOptionAvailable).isTrue() }
     }
 
     @Test
     fun pasteInsertsContentAtCursor_placesCursorAfterInsertedContent() {
         var pasteOption: (() -> Unit)? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, onPasteRequested, _, _ ->
-                pasteOption = onPasteRequested
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, onPasteRequested, _, _ -> pasteOption = onPasteRequested },
+                onHideMenu = {}
+            )
         val clipboardManager = FakeClipboardManager("world")
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true, clipboardManager)
@@ -667,9 +594,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, 0f)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            pasteOption!!.invoke()
-        }
+        rule.runOnIdle { pasteOption!!.invoke() }
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Heworldllo")
@@ -682,13 +607,14 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     fun toolbarDoesNotShowCopyOrCut_whenSelectionIsCollapsed() {
         var cutOptionAvailable = false
         var copyOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
-                copyOptionAvailable = onCopyRequested != null
-                cutOptionAvailable = onCutRequested != null
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
+                    copyOptionAvailable = onCopyRequested != null
+                    cutOptionAvailable = onCutRequested != null
+                },
+                onHideMenu = {}
+            )
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true)
 
@@ -705,13 +631,14 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     fun toolbarShowsCopyAndCut_whenSelectionIsExpanded() {
         var cutOptionAvailable = false
         var copyOptionAvailable = false
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
-                copyOptionAvailable = onCopyRequested != null
-                cutOptionAvailable = onCutRequested != null
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, onCopyRequested, _, onCutRequested, _ ->
+                    copyOptionAvailable = onCopyRequested != null
+                    cutOptionAvailable = onCutRequested != null
+                },
+                onHideMenu = {}
+            )
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true)
 
@@ -727,12 +654,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     @Test
     fun copyUpdatesClipboardManager_placesCursorAtTheEndOfSelectedRegion() {
         var copyOption: (() -> Unit)? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, onCopyRequested, _, _, _ ->
-                copyOption = onCopyRequested
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, onCopyRequested, _, _, _ -> copyOption = onCopyRequested },
+                onHideMenu = {}
+            )
         val clipboardManager = FakeClipboardManager()
         val state = TextFieldState("Hello")
         setupContent(state, textToolbar, true, clipboardManager)
@@ -740,9 +666,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).requestFocus()
         rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(0, 5))
 
-        rule.runOnIdle {
-            copyOption!!.invoke()
-        }
+        rule.runOnIdle { copyOption!!.invoke() }
 
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("Hello")
@@ -753,12 +677,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     @Test
     fun cutUpdatesClipboardManager_placesCursorAtTheEndOfSelectedRegion_removesTheCutContent() {
         var cutOption: (() -> Unit)? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, _, onCutRequested, _ ->
-                cutOption = onCutRequested
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, _, onCutRequested, _ -> cutOption = onCutRequested },
+                onHideMenu = {}
+            )
         val clipboardManager = FakeClipboardManager()
         val state = TextFieldState("Hello World!")
         setupContent(state, textToolbar, true, clipboardManager)
@@ -766,9 +689,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).requestFocus()
         rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(1, 5))
 
-        rule.runOnIdle {
-            cutOption!!.invoke()
-        }
+        rule.runOnIdle { cutOption!!.invoke() }
 
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
@@ -780,12 +701,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
     @Test
     fun cutAppliesFilter() {
         var cutOption: (() -> Unit)? = null
-        val textToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, _, onCutRequested, _ ->
-                cutOption = onCutRequested
-            },
-            onHideMenu = {}
-        )
+        val textToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, _, onCutRequested, _ -> cutOption = onCutRequested },
+                onHideMenu = {}
+            )
         val clipboardManager = FakeClipboardManager()
         val state = TextFieldState("Hello World!")
         setupContent(state, textToolbar, true, clipboardManager) {
@@ -798,9 +718,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).requestFocus()
         rule.onNodeWithTag(TAG).performTextInputSelectionShowingToolbar(TextRange(1, 5))
 
-        rule.runOnIdle {
-            cutOption!!.invoke()
-        }
+        rule.runOnIdle { cutOption!!.invoke() }
 
         rule.runOnIdle {
             assertThat(clipboardManager.getText()?.toString()).isEqualTo("ello")
@@ -817,15 +735,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         rule.mainClock.advanceTimeBy(1000) // to not cause double click
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -836,9 +750,7 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         setupContent(state, textToolbar)
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
-        rule.onNode(isSelectionHandle(Handle.Cursor)).performMouseInput {
-            click()
-        }
+        rule.onNode(isSelectionHandle(Handle.Cursor)).performMouseInput { click() }
         assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
     }
 
@@ -850,21 +762,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalTextToolbar provides textToolbar) {
                 Column {
-                    Box(
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .focusable()
-                            .size(100.dp)
-                    )
+                    Box(modifier = Modifier.focusRequester(focusRequester).focusable().size(100.dp))
                     BasicTextField(
                         state = state,
-                        modifier = Modifier
-                            .width(100.dp)
-                            .testTag(TAG),
-                        textStyle = TextStyle(
-                            fontFamily = TEST_FONT_FAMILY,
-                            fontSize = fontSize
-                        )
+                        modifier = Modifier.width(100.dp).testTag(TAG),
+                        textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize)
                     )
                 }
             }
@@ -873,15 +775,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         focusRequester.requestFocus()
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @Test
@@ -895,13 +793,9 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
                     if (toggleState.value) {
                         BasicTextField(
                             state = state,
-                            modifier = Modifier
-                                .width(100.dp)
-                                .testTag(TAG),
-                            textStyle = TextStyle(
-                                fontFamily = TEST_FONT_FAMILY,
-                                fontSize = fontSize
-                            )
+                            modifier = Modifier.width(100.dp).testTag(TAG),
+                            textStyle =
+                                TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize)
                         )
                     }
                 }
@@ -911,15 +805,11 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         toggleState.value = false
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     @Test
@@ -930,17 +820,13 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
 
         rule.onNodeWithTag(TAG).performTouchInput { click(Offset(fontSizePx * 2, fontSizePx / 2)) }
         rule.onNode(isSelectionHandle(Handle.Cursor)).performClick()
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Shown) }
 
         rule.onNodeWithTag(TAG).performTouchInput {
             longPress(Offset(3 * fontSizePx * 2, fontSizePx / 2))
         }
 
-        rule.runOnIdle {
-            assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden)
-        }
+        rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
     private fun setupContent(
@@ -959,41 +845,34 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
             ) {
                 BasicTextField(
                     state = state,
-                    modifier = modifier
-                        .width(100.dp)
-                        .testTag(TAG),
-                    textStyle = TextStyle(
-                        fontFamily = TEST_FONT_FAMILY,
-                        fontSize = fontSize
-                    ),
+                    modifier = modifier.width(100.dp).testTag(TAG),
+                    textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize),
                     enabled = enabled,
-                    lineLimits = if (singleLine) {
-                        TextFieldLineLimits.SingleLine
-                    } else {
-                        TextFieldLineLimits.Default
-                    },
+                    lineLimits =
+                        if (singleLine) {
+                            TextFieldLineLimits.SingleLine
+                        } else {
+                            TextFieldLineLimits.Default
+                        },
                     inputTransformation = filter
                 )
             }
         }
     }
 
-    private fun FakeTextToolbar() = FakeTextToolbar(
-        onShowMenu = { _, _, _, _, _ -> },
-        onHideMenu = {
-            println("hide")
-        }
-    )
+    private fun FakeTextToolbar() =
+        FakeTextToolbar(onShowMenu = { _, _, _, _, _ -> }, onHideMenu = { println("hide") })
 }
 
-internal class RectSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: Rect?
-) : Subject(failureMetadata, subject) {
+internal class RectSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: Rect?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<RectSubject?, Rect?> =
-            Factory { failureMetadata, subject -> RectSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                RectSubject(failureMetadata, subject)
+            }
     }
 
     fun isEqualToWithTolerance(expected: Rect, tolerance: Float = 1f) {
@@ -1009,39 +888,40 @@ internal class RectSubject private constructor(
 internal fun FakeClipboardManager(
     initialText: String? = null,
     supportsClipEntry: Boolean = false,
-) = object : ClipboardManager {
-    private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
-    private var currentClipEntry: ClipEntry? = null
+) =
+    object : ClipboardManager {
+        private var currentText: AnnotatedString? = initialText?.let { AnnotatedString(it) }
+        private var currentClipEntry: ClipEntry? = null
 
-    override fun setText(annotatedString: AnnotatedString) {
-        currentText = annotatedString
-    }
+        override fun setText(annotatedString: AnnotatedString) {
+            currentText = annotatedString
+        }
 
-    override fun getText(): AnnotatedString? {
-        return currentText
-    }
+        override fun getText(): AnnotatedString? {
+            return currentText
+        }
 
-    override fun getClip(): ClipEntry? {
-        if (supportsClipEntry) {
-            return currentClipEntry
-        } else {
-            throw NotImplementedError("This clipboard does not support clip entries")
+        override fun getClip(): ClipEntry? {
+            if (supportsClipEntry) {
+                return currentClipEntry
+            } else {
+                throw NotImplementedError("This clipboard does not support clip entries")
+            }
+        }
+
+        override fun setClip(clipEntry: ClipEntry?) {
+            if (supportsClipEntry) {
+                currentClipEntry = clipEntry
+            } else {
+                throw NotImplementedError("This clipboard does not support clip entries")
+            }
         }
     }
-
-    override fun setClip(clipEntry: ClipEntry?) {
-        if (supportsClipEntry) {
-            currentClipEntry = clipEntry
-        } else {
-            throw NotImplementedError("This clipboard does not support clip entries")
-        }
-    }
-}
 
 /**
  * Toolbar does not show up when text is selected with traversal mode off (relative to original
- * text). This is an override of [SemanticsNodeInteraction.performTextInputSelection] that
- * makes sure the toolbar shows up after selection is initiated.
+ * text). This is an override of [SemanticsNodeInteraction.performTextInputSelection] that makes
+ * sure the toolbar shows up after selection is initiated.
  */
 fun SemanticsNodeInteraction.performTextInputSelectionShowingToolbar(selection: TextRange) {
     requestFocus()

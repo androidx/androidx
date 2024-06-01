@@ -30,10 +30,6 @@ internal object LazyGridItemScopeImpl : LazyGridItemScope {
         if (fadeInSpec == null && placementSpec == null && fadeOutSpec == null) {
             this
         } else {
-            this then LazyLayoutAnimateItemElement(
-                fadeInSpec,
-                placementSpec,
-                fadeOutSpec
-            )
+            this then LazyLayoutAnimateItemElement(fadeInSpec, placementSpec, fadeOutSpec)
         }
 }

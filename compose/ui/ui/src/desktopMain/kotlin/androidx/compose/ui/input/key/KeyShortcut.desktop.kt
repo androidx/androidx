@@ -20,34 +20,21 @@ import java.awt.event.InputEvent
 import javax.swing.KeyStroke
 
 // TODO(https://github.com/JetBrains/compose-jb/issues/914): support arbitrary shortcuts
-/**
- * Represents a key combination which should be pressed on a keyboard to trigger some action.
- */
+/** Represents a key combination which should be pressed on a keyboard to trigger some action. */
 class KeyShortcut(
-    /**
-     * Key that should be pressed to trigger an action
-     */
+    /** Key that should be pressed to trigger an action */
     internal val key: Key,
 
-    /**
-     * true if Ctrl modifier key should be pressed to trigger an action
-     */
+    /** true if Ctrl modifier key should be pressed to trigger an action */
     internal val ctrl: Boolean = false,
 
-    /**
-     * true if Meta modifier key should be pressed to trigger an action
-     * (it is Command on macOs)
-     */
+    /** true if Meta modifier key should be pressed to trigger an action (it is Command on macOs) */
     internal val meta: Boolean = false,
 
-    /**
-     * true if Alt modifier key should be pressed to trigger an action
-     */
+    /** true if Alt modifier key should be pressed to trigger an action */
     internal val alt: Boolean = false,
 
-    /**
-     * true if Shift modifier key should be pressed to trigger an action
-     */
+    /** true if Shift modifier key should be pressed to trigger an action */
     internal val shift: Boolean = false,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -83,14 +70,15 @@ class KeyShortcut(
     }
 }
 
-internal fun KeyShortcut.toSwingKeyStroke(): KeyStroke = KeyStroke.getKeyStroke(
-    key.nativeKeyCode,
-    run {
-        var value = 0
-        if (ctrl) value = value or InputEvent.CTRL_DOWN_MASK
-        if (meta) value = value or InputEvent.META_DOWN_MASK
-        if (alt) value = value or InputEvent.ALT_DOWN_MASK
-        if (shift) value = value or InputEvent.SHIFT_DOWN_MASK
-        value
-    }
-)
+internal fun KeyShortcut.toSwingKeyStroke(): KeyStroke =
+    KeyStroke.getKeyStroke(
+        key.nativeKeyCode,
+        run {
+            var value = 0
+            if (ctrl) value = value or InputEvent.CTRL_DOWN_MASK
+            if (meta) value = value or InputEvent.META_DOWN_MASK
+            if (alt) value = value or InputEvent.ALT_DOWN_MASK
+            if (shift) value = value or InputEvent.SHIFT_DOWN_MASK
+            value
+        }
+    )

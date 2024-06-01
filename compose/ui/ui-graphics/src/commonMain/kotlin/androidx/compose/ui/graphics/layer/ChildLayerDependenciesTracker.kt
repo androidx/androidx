@@ -35,18 +35,18 @@ internal class ChildLayerDependenciesTracker {
     private var trackingInProgress = false
 
     /**
-     * Rerun the tracking. it will remember what dependencies we had during the previous run,
-     * then will track what dependencies are added via [onDependencyAdded] during this run,
-     * compare them and invoke [onDependencyRemoved] on dependencies which were removed.
+     * Rerun the tracking. it will remember what dependencies we had during the previous run, then
+     * will track what dependencies are added via [onDependencyAdded] during this run, compare them
+     * and invoke [onDependencyRemoved] on dependencies which were removed.
      */
     inline fun withTracking(onDependencyRemoved: (GraphicsLayer) -> Unit, block: () -> Unit) {
         // move current dependencies to old dependencies
         oldDependency = dependency
         dependenciesSet?.let { currentSet ->
             if (currentSet.isNotEmpty()) {
-                val oldSet = oldDependenciesSet ?: mutableScatterSetOf<GraphicsLayer>().also {
-                    oldDependenciesSet = it
-                }
+                val oldSet =
+                    oldDependenciesSet
+                        ?: mutableScatterSetOf<GraphicsLayer>().also { oldDependenciesSet = it }
                 oldSet.addAll(currentSet)
                 currentSet.clear()
             }
@@ -66,9 +66,7 @@ internal class ChildLayerDependenciesTracker {
         }
     }
 
-    /**
-     * @return true if this dependency is new (wasn't added during the last tracking)
-     */
+    /** @return true if this dependency is new (wasn't added during the last tracking) */
     fun onDependencyAdded(graphicsLayer: GraphicsLayer): Boolean {
         requirePrecondition(trackingInProgress) { "Only add dependencies during a tracking" }
 
@@ -76,10 +74,11 @@ internal class ChildLayerDependenciesTracker {
         if (dependenciesSet != null) {
             dependenciesSet!!.add(graphicsLayer)
         } else if (dependency != null) {
-            dependenciesSet = mutableScatterSetOf<GraphicsLayer>().also {
-                it.add(dependency!!)
-                it.add(graphicsLayer)
-            }
+            dependenciesSet =
+                mutableScatterSetOf<GraphicsLayer>().also {
+                    it.add(dependency!!)
+                    it.add(graphicsLayer)
+                }
             dependency = null
         } else {
             dependency = graphicsLayer
@@ -100,9 +99,7 @@ internal class ChildLayerDependenciesTracker {
         }
     }
 
-    /**
-     * [block] will be executed for each dependency before removing it.
-     */
+    /** [block] will be executed for each dependency before removing it. */
     inline fun removeDependencies(block: (GraphicsLayer) -> Unit) {
         dependency?.let {
             block(it)

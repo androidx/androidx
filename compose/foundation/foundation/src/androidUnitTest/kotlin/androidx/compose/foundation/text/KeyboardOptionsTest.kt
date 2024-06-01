@@ -34,39 +34,42 @@ class KeyboardOptionsTest {
     fun toImeOptions_copiesRelevantProperties() {
         val platformImeOptions = PlatformImeOptions("privateImeOptions")
 
-        val keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Go,
-            capitalization = KeyboardCapitalization.Sentences,
-            autoCorrectEnabled = false,
-            platformImeOptions = platformImeOptions
-        )
-
-        assertThat(keyboardOptions.toImeOptions(singleLine = true)).isEqualTo(
-            ImeOptions(
+        val keyboardOptions =
+            KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Go,
                 capitalization = KeyboardCapitalization.Sentences,
-                autoCorrect = false,
-                singleLine = true,
+                autoCorrectEnabled = false,
                 platformImeOptions = platformImeOptions
             )
-        )
+
+        assertThat(keyboardOptions.toImeOptions(singleLine = true))
+            .isEqualTo(
+                ImeOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Go,
+                    capitalization = KeyboardCapitalization.Sentences,
+                    autoCorrect = false,
+                    singleLine = true,
+                    platformImeOptions = platformImeOptions
+                )
+            )
     }
 
     @Test
     fun toImeOptions_replacesUnspecifiedValues() {
-        assertThat(KeyboardOptions().toImeOptions()).isEqualTo(
-            ImeOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Default,
-                capitalization = KeyboardCapitalization.None,
-                autoCorrect = true,
-                singleLine = false,
-                platformImeOptions = null,
-                hintLocales = LocaleList.Empty
+        assertThat(KeyboardOptions().toImeOptions())
+            .isEqualTo(
+                ImeOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Default,
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrect = true,
+                    singleLine = false,
+                    platformImeOptions = null,
+                    hintLocales = LocaleList.Empty
+                )
             )
-        )
     }
 
     @Test
@@ -100,25 +103,27 @@ class KeyboardOptionsTest {
 
     @Test
     fun fillUnspecifiedValuesWith_prefersReceiv3er() {
-        val receiver = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
-            autoCorrectEnabled = false,
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Search,
-            platformImeOptions = PlatformImeOptions("receiver"),
-            showKeyboardOnFocus = false,
-            hintLocales = LocaleList("fr")
-        )
+        val receiver =
+            KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Search,
+                platformImeOptions = PlatformImeOptions("receiver"),
+                showKeyboardOnFocus = false,
+                hintLocales = LocaleList("fr")
+            )
         // All properties must be different.
-        val other = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Words,
-            autoCorrectEnabled = true,
-            keyboardType = KeyboardType.Phone,
-            imeAction = ImeAction.Search,
-            platformImeOptions = PlatformImeOptions("other"),
-            showKeyboardOnFocus = true,
-            hintLocales = LocaleList("fr")
-        )
+        val other =
+            KeyboardOptions(
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrectEnabled = true,
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Search,
+                platformImeOptions = PlatformImeOptions("other"),
+                showKeyboardOnFocus = true,
+                hintLocales = LocaleList("fr")
+            )
 
         assertThat(receiver.fillUnspecifiedValuesWith(other)).isEqualTo(receiver)
     }

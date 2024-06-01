@@ -45,21 +45,23 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val Carrousel = listOf(
-    ComposableDemo("Horizontal") { HorizontalCarrouselDemo() },
-    ComposableDemo("Vertical") { VerticalCarrouselDemo() },
-    ComposableDemo("3 pages per viewport") { HorizontalCustomPageSizeDemo() },
-    ComposableDemo("Max Scroll = 3 pages") {
-        HorizontalCustomPageSizeWithCustomMaxScrollDemo()
-    }
-)
+val Carrousel =
+    listOf(
+        ComposableDemo("Horizontal") { HorizontalCarrouselDemo() },
+        ComposableDemo("Vertical") { VerticalCarrouselDemo() },
+        ComposableDemo("3 pages per viewport") { HorizontalCustomPageSizeDemo() },
+        ComposableDemo("Max Scroll = 3 pages") { HorizontalCustomPageSizeWithCustomMaxScrollDemo() }
+    )
 
-val SnapPositionDemos = listOf(
-    ComposableDemo("Snap Position - Start") { HorizontalCarrouselDemo(SnapPosition.Start) },
-    ComposableDemo("Snap Position - Center") { HorizontalCarrouselDemo(SnapPosition.Center) },
-    ComposableDemo("Snap Position - End") { HorizontalCarrouselDemo(SnapPosition.End) },
-    ComposableDemo("Snap Position - Custom") { HorizontalCarrouselDemoWithCustomSnapPosition() },
-)
+val SnapPositionDemos =
+    listOf(
+        ComposableDemo("Snap Position - Start") { HorizontalCarrouselDemo(SnapPosition.Start) },
+        ComposableDemo("Snap Position - Center") { HorizontalCarrouselDemo(SnapPosition.Center) },
+        ComposableDemo("Snap Position - End") { HorizontalCarrouselDemo(SnapPosition.End) },
+        ComposableDemo("Snap Position - Custom") {
+            HorizontalCarrouselDemoWithCustomSnapPosition()
+        },
+    )
 
 @Composable
 private fun HorizontalCarrouselDemoWithCustomSnapPosition() {
@@ -169,10 +171,11 @@ private fun HorizontalCustomPageSizeWithCustomMaxScrollDemo() {
             state = pagerState,
             pageSize = ThreePagesPerViewport,
             pageSpacing = 8.dp,
-            flingBehavior = PagerDefaults.flingBehavior(
-                state = pagerState,
-                pagerSnapDistance = PagerSnapDistance.atMost(3)
-            )
+            flingBehavior =
+                PagerDefaults.flingBehavior(
+                    state = pagerState,
+                    pagerSnapDistance = PagerSnapDistance.atMost(3)
+                )
         ) {
             CarrouselItem(index = it, fillOrientation = Orientation.Vertical)
         }
@@ -182,28 +185,21 @@ private fun HorizontalCustomPageSizeWithCustomMaxScrollDemo() {
 
 @Composable
 private fun CarrouselItem(index: Int, fillOrientation: Orientation) {
-    val fillAxisModifier = if (fillOrientation == Orientation.Vertical) Modifier
-        .focusable()
-        .fillMaxWidth()
-        .height(256.dp) else Modifier
-        .fillMaxHeight()
-        .width(256.dp)
+    val fillAxisModifier =
+        if (fillOrientation == Orientation.Vertical)
+            Modifier.focusable().fillMaxWidth().height(256.dp)
+        else Modifier.fillMaxHeight().width(256.dp)
     Box(
-        modifier = Modifier
-            .then(fillAxisModifier)
-            .padding(10.dp)
-            .background(Color.Magenta),
+        modifier = Modifier.then(fillAxisModifier).padding(10.dp).background(Color.Magenta),
         contentAlignment = Alignment.Center
     ) {
         Text(text = index.toString(), fontSize = 32.sp)
     }
 }
 
-private val ThreePagesPerViewport = object : PageSize {
-    override fun Density.calculateMainAxisPageSize(
-        availableSpace: Int,
-        pageSpacing: Int
-    ): Int {
-        return (availableSpace - 2 * pageSpacing) / 3
+private val ThreePagesPerViewport =
+    object : PageSize {
+        override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
+            return (availableSpace - 2 * pageSpacing) / 3
+        }
     }
-}

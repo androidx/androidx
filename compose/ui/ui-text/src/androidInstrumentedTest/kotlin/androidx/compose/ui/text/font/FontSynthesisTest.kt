@@ -35,24 +35,24 @@ class FontSynthesisTest {
     private val resolver = UncachedFontFamilyResolver(context)
 
     private fun loadFont(font: Font): Pair<Font, Typeface> {
-        return font to resolver.resolve(
-            font.toFontFamily(),
-            font.weight,
-            font.style,
-            fontSynthesis = FontSynthesis.None
-        ).value as Typeface
+        return font to
+            resolver
+                .resolve(
+                    font.toFontFamily(),
+                    font.weight,
+                    font.style,
+                    fontSynthesis = FontSynthesis.None
+                )
+                .value as Typeface
     }
 
     @Test
     fun fontSynthesisDefault_synthesizeTheFontToItalicBold() {
         val (font, typeface) = loadFont(FontTestData.FONT_100_REGULAR)
 
-        val synthesized = FontSynthesis.All.synthesizeTypeface(
-            typeface,
-            font,
-            FontWeight.Bold,
-            FontStyle.Italic
-        ) as Typeface
+        val synthesized =
+            FontSynthesis.All.synthesizeTypeface(typeface, font, FontWeight.Bold, FontStyle.Italic)
+                as Typeface
 
         // since 100 regular is not bold and not italic, passing FontWeight.bold and
         // FontStyle.Italic should create a Typeface that is fake bold and fake Italic
@@ -64,12 +64,13 @@ class FontSynthesisTest {
     fun fontSynthesisStyle_synthesizeTheFontToItalic() {
         val (font, typeface) = loadFont(FontTestData.FONT_100_REGULAR)
 
-        val synthesized = FontSynthesis.Style.synthesizeTypeface(
-            typeface,
-            font,
-            FontWeight.Bold,
-            FontStyle.Italic
-        ) as Typeface
+        val synthesized =
+            FontSynthesis.Style.synthesizeTypeface(
+                typeface,
+                font,
+                FontWeight.Bold,
+                FontStyle.Italic
+            ) as Typeface
 
         // since 100 regular is not bold and not italic, passing FontWeight.bold and
         // FontStyle.Italic should create a Typeface that is only fake Italic
@@ -81,12 +82,13 @@ class FontSynthesisTest {
     fun fontSynthesisWeight_synthesizeTheFontToBold() {
         val (font, typeface) = loadFont(FontTestData.FONT_100_REGULAR)
 
-        val synthesized = FontSynthesis.Weight.synthesizeTypeface(
-            typeface,
-            font,
-            FontWeight.Bold,
-            FontStyle.Italic
-        ) as Typeface
+        val synthesized =
+            FontSynthesis.Weight.synthesizeTypeface(
+                typeface,
+                font,
+                FontWeight.Bold,
+                FontStyle.Italic
+            ) as Typeface
 
         // since 100 regular is not bold and not italic, passing FontWeight.bold and
         // FontStyle.Italic should create a Typeface that is only fake bold
@@ -98,12 +100,13 @@ class FontSynthesisTest {
     fun fontSynthesisStyle_forMatchingItalicDoesNotSynthesize() {
         val (font, typeface) = loadFont(FontTestData.FONT_100_ITALIC)
 
-        val synthesized = FontSynthesis.Style.synthesizeTypeface(
-            typeface,
-            font,
-            FontWeight.W700,
-            FontStyle.Italic
-        ) as Typeface
+        val synthesized =
+            FontSynthesis.Style.synthesizeTypeface(
+                typeface,
+                font,
+                FontWeight.W700,
+                FontStyle.Italic
+            ) as Typeface
 
         Truth.assertThat(synthesized.isBold).isFalse()
         Truth.assertThat(synthesized.isItalic).isFalse()
@@ -113,12 +116,9 @@ class FontSynthesisTest {
     fun fontSynthesisAll_doesNotSynthesizeIfFontIsTheSame_beforeApi28() {
         val (font, loaded) = loadFont(FontTestData.FONT_700_ITALIC)
 
-        val typeface = FontSynthesis.All.synthesizeTypeface(
-            loaded,
-            font,
-            FontWeight.W700,
-            FontStyle.Italic
-        ) as Typeface
+        val typeface =
+            FontSynthesis.All.synthesizeTypeface(loaded, font, FontWeight.W700, FontStyle.Italic)
+                as Typeface
         Truth.assertThat(typeface.isItalic).isFalse()
 
         if (Build.VERSION.SDK_INT < 23) {
@@ -135,12 +135,9 @@ class FontSynthesisTest {
     fun fontSynthesisNone_doesNotSynthesize() {
         val (font, loaded) = loadFont(FontTestData.FONT_100_REGULAR)
 
-        val typeface = FontSynthesis.None.synthesizeTypeface(
-            loaded,
-            font,
-            FontWeight.Bold,
-            FontStyle.Italic
-        ) as Typeface
+        val typeface =
+            FontSynthesis.None.synthesizeTypeface(loaded, font, FontWeight.Bold, FontStyle.Italic)
+                as Typeface
 
         Truth.assertThat(typeface.isBold).isFalse()
         Truth.assertThat(typeface.isItalic).isFalse()
@@ -151,20 +148,14 @@ class FontSynthesisTest {
         val (font, loaded) = loadFont(FontTestData.FONT_100_REGULAR)
 
         // Less than 600 is not synthesized
-        val typeface500 = FontSynthesis.Weight.synthesizeTypeface(
-            loaded,
-            font,
-            FontWeight.W500,
-            FontStyle.Normal
-        ) as Typeface
+        val typeface500 =
+            FontSynthesis.Weight.synthesizeTypeface(loaded, font, FontWeight.W500, FontStyle.Normal)
+                as Typeface
 
         // 600 or more is synthesized
-        val typeface600 = FontSynthesis.Weight.synthesizeTypeface(
-            loaded,
-            font,
-            FontWeight.W600,
-            FontStyle.Normal
-        ) as Typeface
+        val typeface600 =
+            FontSynthesis.Weight.synthesizeTypeface(loaded, font, FontWeight.W600, FontStyle.Normal)
+                as Typeface
 
         Truth.assertThat(typeface500.isBold).isFalse()
         Truth.assertThat(typeface600.isBold).isTrue()

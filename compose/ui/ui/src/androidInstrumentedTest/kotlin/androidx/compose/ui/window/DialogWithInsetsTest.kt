@@ -52,12 +52,9 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DialogWithInsetsTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<ActivityWithInsets>()
+    @get:Rule val rule = createAndroidComposeRule<ActivityWithInsets>()
 
-    /**
-     * Make sure that insets are available in the Dialog.
-     */
+    /** Make sure that insets are available in the Dialog. */
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun dialogSupportsWindowInsets() {
@@ -78,30 +75,20 @@ class DialogWithInsetsTest {
                     }
                 }
                 val density = LocalDensity.current
-                imeInsets = Insets.of(
-                    WindowInsets.ime.getLeft(density, LayoutDirection.Ltr),
-                    WindowInsets.ime.getTop(density),
-                    WindowInsets.ime.getRight(density, LayoutDirection.Ltr),
-                    WindowInsets.ime.getBottom(density),
-                )
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color.White)
-                        .imePadding()
-                ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .onSizeChanged {
-                                dialogSize = it
-                            }) {
+                imeInsets =
+                    Insets.of(
+                        WindowInsets.ime.getLeft(density, LayoutDirection.Ltr),
+                        WindowInsets.ime.getTop(density),
+                        WindowInsets.ime.getRight(density, LayoutDirection.Ltr),
+                        WindowInsets.ime.getBottom(density),
+                    )
+                Box(Modifier.fillMaxSize().background(Color.White).imePadding()) {
+                    Box(Modifier.fillMaxSize().onSizeChanged { dialogSize = it }) {
                         TextField(
                             value = "Hello World",
-                            onValueChange = { },
-                            modifier = Modifier
-                                .focusRequester(focusRequester)
-                                .align(Alignment.Center)
+                            onValueChange = {},
+                            modifier =
+                                Modifier.focusRequester(focusRequester).align(Alignment.Center)
                         )
                     }
                 }
@@ -125,14 +112,10 @@ class DialogWithInsetsTest {
         }
 
         // show the IME
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         rule.waitForIdle()
-        rule.runOnUiThread {
-            controller.show(WindowInsetsCompat.Type.ime())
-        }
+        rule.runOnUiThread { controller.show(WindowInsetsCompat.Type.ime()) }
 
         val applied = insetsAppliedLatch.await(1, TimeUnit.SECONDS)
 
@@ -143,9 +126,7 @@ class DialogWithInsetsTest {
             return
         }
 
-        rule.waitUntil {
-            dialogSize != originalSize
-        }
+        rule.waitUntil { dialogSize != originalSize }
         rule.waitForIdle()
         assertNotEquals(Insets.NONE, imeInsets)
     }

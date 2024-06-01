@@ -46,19 +46,14 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ShapesScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun shapes() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(
-                Modifier
-                    .semantics(mergeDescendants = true) {}
-                    .testTag(Tag)) {
+            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
                 val shapes = MaterialTheme.shapes
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,9 +79,7 @@ class ShapesScreenshotTest {
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(Tag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, goldenName)
+        rule.onNodeWithTag(Tag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
     }
 
     private val Tag = "Shapes"

@@ -46,11 +46,7 @@ class PagerOfLazyGridActivity : ComponentActivity() {
         val pageCount = intent.getIntExtra(PageCount, 100)
         val gridItemCount = intent.getIntExtra(GridItemCount, 100)
 
-        setContent {
-            MaterialTheme {
-                HorizontalPagerOfLazyGrid(pageCount, gridItemCount)
-            }
-        }
+        setContent { MaterialTheme { HorizontalPagerOfLazyGrid(pageCount, gridItemCount) } }
 
         launchIdlenessTracking()
     }
@@ -67,16 +63,12 @@ private fun HorizontalPagerOfLazyGrid(pages: Int = 100, gridItems: Int = 100) {
     val pagerState: PagerState = rememberPagerState(initialPage = 1) { pages }
     val coroutineScope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.background)
-    ) {
-        Button(onClick = {
-            coroutineScope.launch {
-                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
+        Button(
+            onClick = {
+                coroutineScope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
             }
-        }) {
+        ) {
             Text("Next")
         }
 
@@ -97,9 +89,7 @@ private fun Grid(itemCount: Int, pageNum: Int) {
         columns = GridCells.Fixed(3),
     ) {
         items(itemCount, contentType = { "cell" }) { _ ->
-            Button(onClick = {}) {
-                Text(text = text)
-            }
+            Button(onClick = {}) { Text(text = text) }
         }
     }
 }

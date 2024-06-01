@@ -23,8 +23,11 @@ import kotlin.math.min
 
 internal interface DiffCallback {
     fun areItemsTheSame(oldIndex: Int, newIndex: Int): Boolean
+
     fun insert(newIndex: Int)
+
     fun remove(atIndex: Int, oldIndex: Int)
+
     fun same(oldIndex: Int, newIndex: Int)
 }
 
@@ -33,13 +36,11 @@ internal interface DiffCallback {
 /**
  * Calculates the list of update operations that can covert one list into the other one.
  *
- *
  * If your old and new lists are sorted by the same constraint and items never move (swap
- * positions), you can disable move detection which takes `O(N^2)` time where
- * N is the number of added, moved, removed items.
+ * positions), you can disable move detection which takes `O(N^2)` time where N is the number of
+ * added, moved, removed items.
  *
  * @param cb The callback that acts as a gateway to the backing list data
- *
  * @return A LongStack that contains the diagonals which are used by [applyDiff] to update the list
  */
 private fun calculateDiff(
@@ -66,12 +67,7 @@ private fun calculateDiff(
         val oldEnd = stack.pop()
         val oldStart = stack.pop()
 
-        val found = midPoint(
-            oldStart,
-            oldEnd,
-            newStart,
-            newEnd,
-            cb, forward, backward, snake.data)
+        val found = midPoint(oldStart, oldEnd, newStart, newEnd, cb, forward, backward, snake.data)
 
         if (found) {
             // if it has a diagonal, save it
@@ -138,9 +134,7 @@ internal fun executeDiff(oldSize: Int, newSize: Int, callback: DiffCallback) {
     applyDiff(diagonals, callback)
 }
 
-/**
- * Finds a middle snake in the given range.
- */
+/** Finds a middle snake in the given range. */
 private fun midPoint(
     oldStart: Int,
     oldEnd: Int,
@@ -160,19 +154,11 @@ private fun midPoint(
     forward[1] = oldStart
     backward[1] = oldEnd
     for (d in 0 until max) {
-        val found = forward(
-            oldStart,
-            oldEnd,
-            newStart,
-            newEnd, cb, forward, backward, d, snake)
+        val found = forward(oldStart, oldEnd, newStart, newEnd, cb, forward, backward, d, snake)
         if (found) {
             return true
         }
-        val found2 = backward(
-            oldStart,
-            oldEnd,
-            newStart,
-            newEnd, cb, forward, backward, d, snake)
+        val found2 = backward(oldStart, oldEnd, newStart, newEnd, cb, forward, backward, d, snake)
         if (found2) {
             return true
         }
@@ -313,35 +299,31 @@ private fun backward(
 }
 
 /**
- * Snakes represent a match between two lists. It is optionally prefixed or postfixed with an
- * add androidx.compose.ui.node.or remove operation. See the Myers' paper for details.
+ * Snakes represent a match between two lists. It is optionally prefixed or postfixed with an add
+ * androidx.compose.ui.node.or remove operation. See the Myers' paper for details.
  */
 @JvmInline
 private value class Snake(val data: IntArray) {
-    /**
-     * Position in the old list
-     */
-    val startX: Int get() = data[0]
+    /** Position in the old list */
+    val startX: Int
+        get() = data[0]
 
-    /**
-     * Position in the new list
-     */
-    val startY: Int get() = data[1]
+    /** Position in the new list */
+    val startY: Int
+        get() = data[1]
 
-    /**
-     * End position in the old list, exclusive
-     */
-    val endX: Int get() = data[2]
+    /** End position in the old list, exclusive */
+    val endX: Int
+        get() = data[2]
 
-    /**
-     * End position in the new list, exclusive
-     */
-    val endY: Int get() = data[3]
+    /** End position in the new list, exclusive */
+    val endY: Int
+        get() = data[3]
 
-    /**
-     * True if this snake was created in the reverse search, false otherwise.
-     */
-    val reverse: Boolean get() = data[4] != 0
+    /** True if this snake was created in the reverse search, false otherwise. */
+    val reverse: Boolean
+        get() = data[4] != 0
+
     val diagonalSize: Int
         get() = min(endX - startX, endY - startY)
 
@@ -352,8 +334,8 @@ private value class Snake(val data: IntArray) {
         get() = endY - startY > endX - startX
 
     /**
-     * Extract the diagonal of the snake to make reasoning easier for the rest of the
-     * algorithm where we try to produce a path and also find moves.
+     * Extract the diagonal of the snake to make reasoning easier for the rest of the algorithm
+     * where we try to produce a path and also find moves.
      */
     fun addDiagonalToStack(diagonals: IntStack) {
         if (hasAdditionOrRemoval) {
@@ -394,14 +376,15 @@ internal fun fillSnake(
 }
 
 /**
- * Array wrapper w/ negative index support.
- * We use this array instead of a regular array so that algorithm is easier to read without
- * too many offsets when accessing the "k" array in the algorithm.
+ * Array wrapper w/ negative index support. We use this array instead of a regular array so that
+ * algorithm is easier to read without too many offsets when accessing the "k" array in the
+ * algorithm.
  */
 @JvmInline
 private value class CenteredArray(private val data: IntArray) {
 
-    private val mid: Int get() = data.size / 2
+    private val mid: Int
+        get() = data.size / 2
 
     operator fun get(index: Int): Int = data[index + mid]
 
@@ -415,7 +398,9 @@ private class IntStack(initialCapacity: Int) {
     private var lastIndex = 0
 
     operator fun get(index: Int): Int = stack[index]
-    val size: Int get() = lastIndex
+
+    val size: Int
+        get() = lastIndex
 
     fun pushRange(
         oldStart: Int,

@@ -36,18 +36,16 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class SimpleLinearLayoutBenchmark(private val numberOfBoxes: Int) {
     private val subLayouts = 5
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "numberOfBoxes={0}")
         fun initParameters(): Array<Int> = arrayOf(10, 100)
     }
 
-    @get:Rule
-    val benchmarkRule = AndroidBenchmarkRule()
+    @get:Rule val benchmarkRule = AndroidBenchmarkRule()
 
-    private val linearLayoutCaseFactory = {
-        SimpleLinearLayoutTestCase(subLayouts, numberOfBoxes)
-    }
+    private val linearLayoutCaseFactory = { SimpleLinearLayoutTestCase(subLayouts, numberOfBoxes) }
 
     @Test
     fun first_setContent() {

@@ -53,10 +53,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
-val MagnifierDemos = listOf(
-    ComposableDemo("Simple Magnifier") { MagnifierSample() },
-    ComposableDemo("Multitouch Custom Magnifier") { MultitouchCustomMagnifierDemo() },
-)
+val MagnifierDemos =
+    listOf(
+        ComposableDemo("Simple Magnifier") { MagnifierSample() },
+        ComposableDemo("Multitouch Custom Magnifier") { MultitouchCustomMagnifierDemo() },
+    )
 
 @Preview
 @Composable
@@ -66,11 +67,9 @@ fun MultitouchCustomMagnifierDemo() {
 
     // Animate the background to demonstrate the magnifier updating its content when the
     // layer is redrawn.
-    val colorAnimationSpec = remember {
-        infiniteRepeatable(tween<Color>(1000))
-    }
-    val color by rememberInfiniteTransition()
-        .animateColor(Color.Red, Color.Green, colorAnimationSpec)
+    val colorAnimationSpec = remember { infiniteRepeatable(tween<Color>(1000)) }
+    val color by
+        rememberInfiniteTransition().animateColor(Color.Red, Color.Green, colorAnimationSpec)
 
     Column {
         Text(
@@ -89,8 +88,7 @@ fun MultitouchCustomMagnifierDemo() {
         Divider()
         // Include some padding to ensure the magnifier is using the right offset.
         Box(
-            Modifier
-                .padding(48.dp)
+            Modifier.padding(48.dp)
                 .fillMaxSize()
                 .clipToBounds()
                 .drawBehind {
@@ -101,30 +99,26 @@ fun MultitouchCustomMagnifierDemo() {
                     // Draw something interesting to zoom in on.
                     @Suppress("SteppedForLoop")
                     for (diameter in 2 until size.maxDimension.toInt() step 10) {
-                        drawCircle(
-                            color = Color.Black,
-                            radius = diameter / 2f,
-                            style = Stroke()
-                        )
+                        drawCircle(color = Color.Black, radius = diameter / 2f, style = Stroke())
                     }
                 }
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        // Track a magnifier for each finger on the screen.
-                        awaitPointerEvent().changes.forEach {
-                            if (it.pressed) {
-                                magnifierOffsets.getOrPut(it.id) {
-                                    mutableStateOf(it.position)
-                                }.value = it.position
-                            } else {
-                                magnifierOffsets -= it.id
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            // Track a magnifier for each finger on the screen.
+                            awaitPointerEvent().changes.forEach {
+                                if (it.pressed) {
+                                    magnifierOffsets
+                                        .getOrPut(it.id) { mutableStateOf(it.position) }
+                                        .value = it.position
+                                } else {
+                                    magnifierOffsets -= it.id
+                                }
+                                it.consume()
                             }
-                            it.consume()
                         }
                     }
                 }
-            }
         ) {
             magnifierOffsets.keys.forEach { id ->
                 key(id) {

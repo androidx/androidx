@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SiblingSelectorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun oneSibling() {
@@ -45,9 +44,7 @@ class SiblingSelectorTest {
             }
         }
 
-        rule.onNodeWithTag("Child1")
-            .onSibling()
-            .assert(hasTestTag("Child2"))
+        rule.onNodeWithTag("Child1").onSibling().assert(hasTestTag("Child2"))
     }
 
     @Test
@@ -66,37 +63,22 @@ class SiblingSelectorTest {
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
                 "((TestTag = 'Child1').sibling)\n" +
                 "Nodes found:"
-
         ) {
-            rule.onNodeWithTag("Child1")
-                .onSibling()
-                .assert(hasTestTag("Child2"))
+            rule.onNodeWithTag("Child1").onSibling().assert(hasTestTag("Child2"))
         }
     }
 
     @Test
     fun noSibling() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") } }
 
-        rule.onNodeWithTag("Child")
-            .onSibling()
-            .assertDoesNotExist()
+        rule.onNodeWithTag("Child").onSibling().assertDoesNotExist()
     }
 
     @Test(expected = AssertionError::class)
     fun noSibling_fail() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") } }
 
-        rule.onNodeWithTag("Child")
-            .onSibling()
-            .assertExists()
+        rule.onNodeWithTag("Child").onSibling().assertExists()
     }
 }

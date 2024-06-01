@@ -82,7 +82,10 @@ internal fun schemeOf(text: String): Scheme {
     fun skipWhiteSpace() {
         while (current < text.length) {
             when (text[current]) {
-                ' ', '\t', '\n', '\r' -> {
+                ' ',
+                '\t',
+                '\n',
+                '\r' -> {
                     current++
                     continue
                 }
@@ -151,20 +154,34 @@ internal fun schemeOf(text: String): Scheme {
         } else null
     }
 
-    fun isVariableStart() = current < text.length && when (text[current]) {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '\\' -> true
-        else -> false
-    }
+    fun isVariableStart() =
+        current < text.length &&
+            when (text[current]) {
+                '0',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9',
+                '_',
+                '\\' -> true
+                else -> false
+            }
 
-    fun item(): Item = if (isVariableStart()) {
-        if (text[current] == '\\') expect('\\')
-        if (text[current] == '_') {
-            expect('_')
-            Open(-1)
-        } else {
-            Open(expectNumber())
-        }
-    } else Token(expectToken())
+    fun item(): Item =
+        if (isVariableStart()) {
+            if (text[current] == '\\') expect('\\')
+            if (text[current] == '_') {
+                expect('_')
+                Open(-1)
+            } else {
+                Open(expectNumber())
+            }
+        } else Token(expectToken())
 
     fun <T> list(continueBlock: (first: Boolean) -> Boolean, block: () -> T): List<T> =
         if (continueBlock(true)) {
@@ -178,15 +195,16 @@ internal fun schemeOf(text: String): Scheme {
             result
         } else emptyList()
 
-    fun scheme(): Scheme = delimited('[', ']') {
-        val target = item()
-        val anyParameters = isChar('*')
-        val parameters = if (anyParameters) emptyList() else list({
-            (text[current] == ',').also { if (it) expect(',') }
-        }) { scheme() }
-        val result = optional(':') { scheme() }
-        Scheme(target, parameters, result, anyParameters)
-    }
+    fun scheme(): Scheme =
+        delimited('[', ']') {
+            val target = item()
+            val anyParameters = isChar('*')
+            val parameters =
+                if (anyParameters) emptyList()
+                else list({ (text[current] == ',').also { if (it) expect(',') } }) { scheme() }
+            val result = optional(':') { scheme() }
+            Scheme(target, parameters, result, anyParameters)
+        }
 
     return scheme()
 }

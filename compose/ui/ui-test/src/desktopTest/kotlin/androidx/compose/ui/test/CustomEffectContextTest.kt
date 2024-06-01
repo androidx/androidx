@@ -38,9 +38,7 @@ class CustomEffectContextTest {
         val testElement = TestCoroutineContextElement()
         runComposeUiTest(effectContext = testElement) {
             lateinit var compositionScope: CoroutineScope
-            setContent {
-                compositionScope = rememberCoroutineScope()
-            }
+            setContent { compositionScope = rememberCoroutineScope() }
 
             runOnIdle {
                 val elementFromComposition =
@@ -58,16 +56,16 @@ class CustomEffectContextTest {
             lastRecordedMotionDurationScale = context[MotionDurationScale]?.scaleFactor
         }
 
-        runOnIdle {
-            assertThat(lastRecordedMotionDurationScale).isNull()
-        }
+        runOnIdle { assertThat(lastRecordedMotionDurationScale).isNull() }
     }
 
     @Test
     fun motionDurationScale_propagatedToCoroutines() {
-        val motionDurationScale = object : MotionDurationScale {
-            override val scaleFactor: Float get() = 0f
-        }
+        val motionDurationScale =
+            object : MotionDurationScale {
+                override val scaleFactor: Float
+                    get() = 0f
+            }
         runComposeUiTest(effectContext = motionDurationScale) {
             var lastRecordedMotionDurationScale: Float? = null
             setContent {
@@ -75,14 +73,13 @@ class CustomEffectContextTest {
                 lastRecordedMotionDurationScale = context[MotionDurationScale]?.scaleFactor
             }
 
-            runOnIdle {
-                assertThat(lastRecordedMotionDurationScale).isEqualTo(0f)
-            }
+            runOnIdle { assertThat(lastRecordedMotionDurationScale).isEqualTo(0f) }
         }
     }
 
     private class TestCoroutineContextElement : CoroutineContext.Element {
-        override val key: CoroutineContext.Key<*> get() = Key
+        override val key: CoroutineContext.Key<*>
+            get() = Key
 
         companion object Key : CoroutineContext.Key<TestCoroutineContextElement>
     }

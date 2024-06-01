@@ -34,154 +34,91 @@ import org.junit.runners.JUnit4
 class PointerIconTest {
     private val window = TestComposeWindow(width = 100, height = 100, density = Density(1f))
 
-    private val iconService = object : PointerIconService {
-        private var currentIcon: PointerIcon = PointerIcon.Default
-        override fun getIcon(): PointerIcon {
-            return currentIcon
-        }
+    private val iconService =
+        object : PointerIconService {
+            private var currentIcon: PointerIcon = PointerIcon.Default
 
-        override fun setIcon(value: PointerIcon?) {
-            currentIcon = value ?: PointerIcon.Default
+            override fun getIcon(): PointerIcon {
+                return currentIcon
+            }
+
+            override fun setIcon(value: PointerIcon?) {
+                currentIcon = value ?: PointerIcon.Default
+            }
         }
-    }
 
     @Test
     fun basicTest() {
         window.setContent {
-            CompositionLocalProvider(
-                LocalPointerIconService provides iconService
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp, 30.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .pointerHoverIcon(PointerIcon.Text)
-                            .size(10.dp, 10.dp)
-                    )
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(modifier = Modifier.size(30.dp, 30.dp)) {
+                    Box(modifier = Modifier.pointerHoverIcon(PointerIcon.Text).size(10.dp, 10.dp))
                 }
             }
         }
 
-        window.onMouseMoved(
-            x = 5,
-            y = 5
-        )
+        window.onMouseMoved(x = 5, y = 5)
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
     }
 
     @Test
     fun commitsToComponent() {
         window.setContent {
-            Box(
-                modifier = Modifier
-                    .size(30.dp, 30.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Text)
-                        .size(10.dp, 10.dp)
-                )
+            Box(modifier = Modifier.size(30.dp, 30.dp)) {
+                Box(modifier = Modifier.pointerHoverIcon(PointerIcon.Text).size(10.dp, 10.dp))
             }
         }
 
-        window.onMouseMoved(
-            x = 5,
-            y = 5
-        )
+        window.onMouseMoved(x = 5, y = 5)
         assertThat(window.currentCursor.type).isEqualTo(Cursor.TEXT_CURSOR)
     }
 
     @Test
     fun preservedIfSameEventDispatchedTwice() {
         window.setContent {
-            Box(
-                modifier = Modifier
-                    .size(30.dp, 30.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Text)
-                        .size(10.dp, 10.dp)
-                )
+            Box(modifier = Modifier.size(30.dp, 30.dp)) {
+                Box(modifier = Modifier.pointerHoverIcon(PointerIcon.Text).size(10.dp, 10.dp))
             }
         }
 
-        window.onMouseMoved(
-            x = 5,
-            y = 5
-        )
-        window.onMouseMoved(
-            x = 5,
-            y = 5
-        )
+        window.onMouseMoved(x = 5, y = 5)
+        window.onMouseMoved(x = 5, y = 5)
         assertThat(window.currentCursor.type).isEqualTo(Cursor.TEXT_CURSOR)
     }
 
     @Test
     fun parentWins() {
         window.setContent {
-            CompositionLocalProvider(
-                LocalPointerIconService provides iconService
-            ) {
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
                 Box(
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Hand, true)
-                        .size(30.dp, 30.dp)
+                    modifier = Modifier.pointerHoverIcon(PointerIcon.Hand, true).size(30.dp, 30.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .pointerHoverIcon(PointerIcon.Text)
-                            .size(10.dp, 10.dp)
-                    )
+                    Box(modifier = Modifier.pointerHoverIcon(PointerIcon.Text).size(10.dp, 10.dp))
                 }
             }
         }
 
-        window.onMouseMoved(
-            x = 5,
-            y = 5
-        )
+        window.onMouseMoved(x = 5, y = 5)
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
 
-        window.onMouseMoved(
-            x = 15,
-            y = 15
-        )
+        window.onMouseMoved(x = 15, y = 15)
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 
     @Test
     fun childWins() {
         window.setContent {
-            CompositionLocalProvider(
-                LocalPointerIconService provides iconService
-            ) {
-                Box(
-                    modifier = Modifier
-                        .pointerHoverIcon(PointerIcon.Hand)
-                        .size(30.dp, 30.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .pointerHoverIcon(PointerIcon.Text)
-                            .size(10.dp, 10.dp)
-                    )
+            CompositionLocalProvider(LocalPointerIconService provides iconService) {
+                Box(modifier = Modifier.pointerHoverIcon(PointerIcon.Hand).size(30.dp, 30.dp)) {
+                    Box(modifier = Modifier.pointerHoverIcon(PointerIcon.Text).size(10.dp, 10.dp))
                 }
             }
         }
 
-        window.onMouseMoved(
-            x = 5,
-            y = 5
-        )
+        window.onMouseMoved(x = 5, y = 5)
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Text)
 
-        window.onMouseMoved(
-            x = 15,
-            y = 15
-        )
+        window.onMouseMoved(x = 15, y = 15)
         assertThat(iconService.getIcon()).isEqualTo(PointerIcon.Hand)
     }
 }

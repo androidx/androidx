@@ -36,9 +36,11 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
 
     @Test
     fun kotlin_manifestDependencyInBlockedConfigs_shouldRaiseIssue() {
-            lint().files(
-                gradle("build.gradle",
-                    """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         implementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         api("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
@@ -48,11 +50,13 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         lintChecks("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         lintPublish("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """).indented()
+                """
+                    )
+                    .indented()
             )
-                .run()
-                .expect(
-                    """
+            .run()
+            .expect(
+                """
                 build.gradle:2: Warning: Please use debugImplementation. [TestManifestGradleConfiguration]
                     implementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,15 +79,18 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                     lintPublish("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 7 warnings
-                """.trimIndent()
-                )
+                """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun groovy_manifestDependencyInBlockedConfigs_shouldRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         implementation 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         api 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
@@ -93,8 +100,10 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         lintChecks 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         lintPublish 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expect(
                 """
@@ -120,83 +129,104 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                     lintPublish 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 7 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun kotlin_manifestDependencyInCustomConfig_shouldNotRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         customImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         anotherConfig("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         customApi("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun groovy_manifestDependencyInCustomConfig_shouldNotRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         customImplementation 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         anotherConfig 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         customApi 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun kotlin_manifestDependencyInDebugImplementation_shouldNotRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         debugImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         debugFlavorImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun groovy_manifestDependencyInDebugImplementation_shouldNotRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         debugImplementation 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         debugFlavorImplementation 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun manifestDependencyInAndroidTestImplementation_shouldRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         androidFlavorTestImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expect(
                 """
@@ -207,21 +237,26 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                     androidFlavorTestImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 2 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun manifestDependencyInTestImplementation_shouldRaiseIssue() {
-        lint().files(
-            gradle("build.gradle",
-                """
+        lint()
+            .files(
+                gradle(
+                        "build.gradle",
+                        """
                     dependencies {
                         testImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         testFlavorImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """).indented()
-        )
+                """
+                    )
+                    .indented()
+            )
             .run()
             .expect(
                 """
@@ -232,7 +267,8 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                     testFlavorImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 0 errors, 2 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 }

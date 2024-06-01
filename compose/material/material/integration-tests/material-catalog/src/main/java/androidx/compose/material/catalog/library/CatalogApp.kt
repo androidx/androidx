@@ -28,10 +28,5 @@ import androidx.compose.runtime.setValue
 @Composable
 fun MaterialCatalogApp() {
     var theme by rememberSaveable(stateSaver = ThemeSaver) { mutableStateOf(Theme()) }
-    CatalogTheme(theme = theme) {
-        NavGraph(
-            theme = theme,
-            onThemeChange = { theme = it }
-        )
-    }
+    CatalogTheme(theme = theme) { NavGraph(theme = theme, onThemeChange = { theme = it }) }
 }

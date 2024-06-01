@@ -20,9 +20,8 @@ import android.view.View
 import kotlin.jvm.JvmDefaultWithCompatibility
 
 /**
- * The marker interface to be implemented by [View]s that are initialized from Compose.
- * Examples are: DialogWrapper, PopupLayout, ViewFactoryHolder.
- * To be used by the inspector.
+ * The marker interface to be implemented by [View]s that are initialized from Compose. Examples
+ * are: DialogWrapper, PopupLayout, ViewFactoryHolder. To be used by the inspector.
  */
 @JvmDefaultWithCompatibility
 interface ViewRootForInspector {

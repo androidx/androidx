@@ -100,7 +100,8 @@ class ComposeMultiPlatformTests : AbstractMultiPlatformIntegrationTest() {
                   final static INNERCLASS JvmKt%One%1 null null
                   public final static One(ILandroidx/compose/runtime/Composer;II)V
                 }
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 }

@@ -19,11 +19,10 @@ package androidx.compose.ui.input.pointer
 import java.awt.event.MouseEvent
 
 internal actual typealias NativePointerButtons = Int
+
 internal actual typealias NativePointerKeyboardModifiers = Int
 
-/**
- * Creates [PointerButtons] with the specified state of the pressed buttons.
- */
+/** Creates [PointerButtons] with the specified state of the pressed buttons. */
 fun PointerButtons(
     isPrimaryPressed: Boolean = false,
     isSecondaryPressed: Boolean = false,
@@ -71,31 +70,24 @@ fun PointerKeyboardModifiers(
 
 internal actual fun EmptyPointerKeyboardModifiers() = PointerKeyboardModifiers()
 
-/**
- * Describes a pointer input change event that has occurred at a particular point in time.
- */
-actual data class PointerEvent internal constructor(
-    /**
-     * The changes.
-     */
+/** Describes a pointer input change event that has occurred at a particular point in time. */
+actual data class PointerEvent
+internal constructor(
+    /** The changes. */
     actual val changes: List<PointerInputChange>,
 
-    /**
-     * The state of buttons (e.g. mouse or stylus buttons) during this event.
-     */
+    /** The state of buttons (e.g. mouse or stylus buttons) during this event. */
     actual val buttons: PointerButtons,
 
-    /**
-     * The state of modifier keys during this event.
-     */
+    /** The state of modifier keys during this event. */
     actual val keyboardModifiers: PointerKeyboardModifiers,
 
     /**
      * Original raw native event from AWT.
      *
-     * Note, that its type can be different from [type], which is sent by Compose.
-     * For example, Compose can send synthetic Move event on relayout,
-     * but [mouseEvent] will tell that it is Up event
+     * Note, that its type can be different from [type], which is sent by Compose. For example,
+     * Compose can send synthetic Move event on relayout, but [mouseEvent] will tell that it is Up
+     * event
      */
     val mouseEvent: MouseEvent?
 ) {
@@ -111,10 +103,10 @@ actual data class PointerEvent internal constructor(
         this.type = internalPointerEvent?.type ?: PointerEventType.Unknown
     }
 
-    /**
-     * @param changes The changes.
-     */
-    actual constructor(changes: List<PointerInputChange>) : this(
+    /** @param changes The changes. */
+    actual constructor(
+        changes: List<PointerInputChange>
+    ) : this(
         changes,
         buttons = PointerButtons(0),
         keyboardModifiers = PointerKeyboardModifiers(0),
@@ -145,6 +137,7 @@ private object KeyboardModifierMasks {
     const val ScrollLockOn = 1 shl 8
     const val NumLockOn = 1 shl 9
 }
+
 actual val PointerButtons.isPrimaryPressed
     get() = (packedValue and ButtonMasks.Primary) != 0
 
@@ -171,26 +164,32 @@ actual fun PointerButtons.isPressed(buttonIndex: Int): Boolean =
     }
 
 actual val PointerButtons.areAnyPressed: Boolean
-    get() = isPrimaryPressed || isSecondaryPressed || isTertiaryPressed ||
-        isBackPressed || isForwardPressed
+    get() =
+        isPrimaryPressed ||
+            isSecondaryPressed ||
+            isTertiaryPressed ||
+            isBackPressed ||
+            isForwardPressed
 
-actual fun PointerButtons.indexOfFirstPressed(): Int = when {
-    isPrimaryPressed -> 0
-    isSecondaryPressed -> 1
-    isTertiaryPressed -> 2
-    isBackPressed -> 3
-    isForwardPressed -> 4
-    else -> -1
-}
+actual fun PointerButtons.indexOfFirstPressed(): Int =
+    when {
+        isPrimaryPressed -> 0
+        isSecondaryPressed -> 1
+        isTertiaryPressed -> 2
+        isBackPressed -> 3
+        isForwardPressed -> 4
+        else -> -1
+    }
 
-actual fun PointerButtons.indexOfLastPressed(): Int = when {
-    isForwardPressed -> 4
-    isBackPressed -> 3
-    isTertiaryPressed -> 2
-    isSecondaryPressed -> 1
-    isPrimaryPressed -> 0
-    else -> -1
-}
+actual fun PointerButtons.indexOfLastPressed(): Int =
+    when {
+        isForwardPressed -> 4
+        isBackPressed -> 3
+        isTertiaryPressed -> 2
+        isSecondaryPressed -> 1
+        isPrimaryPressed -> 0
+        else -> -1
+    }
 
 actual val PointerKeyboardModifiers.isCtrlPressed: Boolean
     get() = (packedValue and KeyboardModifierMasks.CtrlPressed) != 0

@@ -98,30 +98,21 @@ internal object AndroidFlingSpline {
             velocityCoef = (dSup - dInf) / (tSup - tInf)
             distanceCoef = dInf + (time - tInf) * velocityCoef
         }
-        return FlingResult(
-            distanceCoefficient = distanceCoef,
-            velocityCoefficient = velocityCoef
-        )
+        return FlingResult(distanceCoefficient = distanceCoef, velocityCoefficient = velocityCoef)
     }
 
-    /**
-     * The rate of deceleration along the spline motion given [velocity] and [friction].
-     */
+    /** The rate of deceleration along the spline motion given [velocity] and [friction]. */
     fun deceleration(velocity: Float, friction: Float): Double =
         ln(Inflection * abs(velocity) / friction.toDouble())
 
-    /**
-     * Result coefficients of a scroll computation
-     */
+    /** Result coefficients of a scroll computation */
     // TODO: pack this into an inline class
     data class FlingResult(
-        /**
-         * Linear distance traveled from 0-1, from source (0) to destination (1)
-         */
+        /** Linear distance traveled from 0-1, from source (0) to destination (1) */
         val distanceCoefficient: Float,
         /**
-         * Instantaneous velocity coefficient at this point in the fling expressed in
-         * total distance per unit time
+         * Instantaneous velocity coefficient at this point in the fling expressed in total distance
+         * per unit time
          */
         val velocityCoefficient: Float
     )

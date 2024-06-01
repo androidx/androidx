@@ -59,8 +59,7 @@ object ComposablePropertyAccessExpressionChecker : FirPropertyAccessExpressionCh
         context: CheckerContext,
         reporter: DiagnosticReporter
     ) {
-        val calleeFunction = expression.calleeReference.toResolvedCallableSymbol()
-            ?: return
+        val calleeFunction = expression.calleeReference.toResolvedCallableSymbol() ?: return
         if (calleeFunction.isComposable(context.session)) {
             checkComposableCall(expression, calleeFunction, context, reporter)
         }
@@ -73,8 +72,7 @@ object ComposableFunctionCallChecker : FirFunctionCallChecker() {
         context: CheckerContext,
         reporter: DiagnosticReporter
     ) {
-        val calleeFunction = expression.calleeReference.toResolvedCallableSymbol()
-            ?: return
+        val calleeFunction = expression.calleeReference.toResolvedCallableSymbol() ?: return
 
         // K2 propagates annotation from the fun interface method to the constructor.
         // https://youtrack.jetbrains.com/issue/KT-47708.
@@ -89,14 +87,13 @@ object ComposableFunctionCallChecker : FirFunctionCallChecker() {
 }
 
 /**
- * Check if `expression` - a call to a composable function or access to a composable property -
- * is allowed in the current context. It is allowed if:
- *
+ * Check if `expression` - a call to a composable function or access to a composable property - is
+ * allowed in the current context. It is allowed if:
  * - It is executed as part of the body of a composable function.
  * - It is not executed as part of the body of a lambda annotated with `@DisallowComposableCalls`.
  * - It is not inside of a `try` block.
- * - It is a call to a readonly composable function if it is executed in the body of a function
- *   that is annotated with `@ReadOnlyComposable`.
+ * - It is a call to a readonly composable function if it is executed in the body of a function that
+ *   is annotated with `@ReadOnlyComposable`.
  *
  * A function is composable if:
  * - It is annotated with `@Composable`.
@@ -125,8 +122,10 @@ private fun checkComposableCall(
             if (function.typeRef.coneType.functionTypeKind(context.session) === ComposableFunction)
                 return
             val functionPsi = function.psi
-            if (functionPsi is KtFunctionLiteral || functionPsi is KtLambdaExpression ||
-                functionPsi !is KtFunction
+            if (
+                functionPsi is KtFunctionLiteral ||
+                    functionPsi is KtLambdaExpression ||
+                    functionPsi !is KtFunction
             ) {
                 return@visitCurrentScope
             }
@@ -136,7 +135,8 @@ private fun checkComposableCall(
                 } else {
                     null
                 }
-            if (checkComposableFunction(
+            if (
+                checkComposableFunction(
                     function,
                     nonReadOnlyCalleeReference,
                     context,
@@ -153,7 +153,8 @@ private fun checkComposableCall(
                 } else {
                     null
                 }
-            if (checkComposableFunction(
+            if (
+                checkComposableFunction(
                     function,
                     nonReadOnlyCalleeReference,
                     context,
@@ -188,9 +189,9 @@ private enum class ComposableCheckForScopeStatus {
 }
 
 /**
- * This function will be called by [visitCurrentScope], and this function determines
- * whether it will continue the composable element check for the scope or not
- * by returning [ComposableCheckForScopeStatus].
+ * This function will be called by [visitCurrentScope], and this function determines whether it will
+ * continue the composable element check for the scope or not by returning
+ * [ComposableCheckForScopeStatus].
  */
 private fun checkComposableFunction(
     function: FirFunction,
@@ -204,7 +205,7 @@ private fun checkComposableFunction(
     if (function.hasComposableAnnotation(context.session)) {
         if (
             function.hasReadOnlyComposableAnnotation(context.session) &&
-            nonReadOnlyCallInsideFunction != null
+                nonReadOnlyCallInsideFunction != null
         ) {
             reporter.reportOn(
                 nonReadOnlyCallInsideFunction,
@@ -218,11 +219,7 @@ private fun checkComposableFunction(
     // The only call this could be is a getValue/setValue in the synthesized getter/setter.
     if (function is FirPropertyAccessor && function.propertySymbol.hasDelegate) {
         if (function.propertySymbol.isVar) {
-            reporter.reportOn(
-                function.source,
-                ComposeErrors.COMPOSE_INVALID_DELEGATE,
-                context
-            )
+            reporter.reportOn(function.source, ComposeErrors.COMPOSE_INVALID_DELEGATE, context)
         }
         // Only local variables can be implicitly composable, for top-level or class-level
         // declarations we require an explicit annotation.
@@ -236,19 +233,20 @@ private fun checkComposableFunction(
         return ComposableCheckForScopeStatus.STOP
     }
     // We've found a non-composable function which contains a composable call.
-    val source = if (function is FirPropertyAccessor) {
-        function.propertySymbol.source
-    } else {
-        function.source
-    }
+    val source =
+        if (function is FirPropertyAccessor) {
+            function.propertySymbol.source
+        } else {
+            function.source
+        }
     reporter.reportOn(source, ComposeErrors.COMPOSABLE_EXPECTED, context)
     return ComposableCheckForScopeStatus.CONTINUE
 }
 
 /**
- * Reports an error if we are invoking a lambda parameter of an inline function in a context
- * where composable calls are not allowed, unless the lambda parameter is itself annotated
- * with `@DisallowComposableCalls`.
+ * Reports an error if we are invoking a lambda parameter of an inline function in a context where
+ * composable calls are not allowed, unless the lambda parameter is itself annotated with
+ * `@DisallowComposableCalls`.
  */
 private fun checkInvoke(
     expression: FirQualifiedAccessExpression,
@@ -256,12 +254,14 @@ private fun checkInvoke(
     reporter: DiagnosticReporter
 ) {
     // Check that we're invoking a value parameter of an inline function
-    val param = (expression.dispatchReceiver as? FirPropertyAccessExpression)
-        ?.calleeReference
-        ?.toResolvedValueParameterSymbol()
-        ?: return
-    if (param.resolvedReturnTypeRef.hasDisallowComposableCallsAnnotation(context.session) ||
-        !param.containingFunctionSymbol.isInline) {
+    val param =
+        (expression.dispatchReceiver as? FirPropertyAccessExpression)
+            ?.calleeReference
+            ?.toResolvedValueParameterSymbol() ?: return
+    if (
+        param.resolvedReturnTypeRef.hasDisallowComposableCallsAnnotation(context.session) ||
+            !param.containingFunctionSymbol.isInline
+    ) {
         return
     }
 
@@ -282,8 +282,8 @@ private fun checkInvoke(
 }
 
 /**
- * Visits all (Anonymous)Functions and `try` expressions in the current scope until it finds
- * a declaration that introduces a new scope. Elements are visited from innermost to outermost.
+ * Visits all (Anonymous)Functions and `try` expressions in the current scope until it finds a
+ * declaration that introduces a new scope. Elements are visited from innermost to outermost.
  */
 private inline fun CheckerContext.visitCurrentScope(
     visitInlineLambdaParameter: (FirValueParameter) -> Unit,
@@ -309,8 +309,7 @@ private inline fun CheckerContext.visitCurrentScope(
                 return
             }
             is FirTryExpression -> {
-                val container = containingElements.getOrNull(elementIndex + 1)
-                    ?: continue
+                val container = containingElements.getOrNull(elementIndex + 1) ?: continue
                 visitTryExpression(element, container)
             }
             is FirProperty -> {
@@ -321,7 +320,8 @@ private inline fun CheckerContext.visitCurrentScope(
                 // We're coming from a default value in a function declaration, we need to
                 // look at the enclosing function.
             }
-            is FirAnonymousObject, is FirAnonymousInitializer -> {
+            is FirAnonymousObject,
+            is FirAnonymousInitializer -> {
                 // Anonymous objects don't change the current scope, continue.
             }
             is FirField -> {
@@ -342,9 +342,10 @@ private inline fun CheckerContext.visitCurrentScope(
 private fun CheckerContext.findValueParameterForLambdaAtIndex(
     elementIndex: Int
 ): FirValueParameter? {
-    val argument = containingElements.getOrNull(elementIndex - 1) as? FirLambdaArgumentExpression
-        ?: return null
-    val argumentList = containingElements.getOrNull(elementIndex - 2) as? FirResolvedArgumentList
-        ?: return null
+    val argument =
+        containingElements.getOrNull(elementIndex - 1) as? FirLambdaArgumentExpression
+            ?: return null
+    val argumentList =
+        containingElements.getOrNull(elementIndex - 2) as? FirResolvedArgumentList ?: return null
     return argumentList.mapping[argument]
 }

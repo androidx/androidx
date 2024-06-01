@@ -60,8 +60,7 @@ import org.junit.Test
 @OptIn(InternalAnimationApi::class)
 class PreviewAnimationClockTest {
 
-    @get:Rule
-    val composeRule = createComposeRule()
+    @get:Rule val composeRule = createComposeRule()
 
     private lateinit var testClock: TestPreviewAnimationClock
 
@@ -185,9 +184,7 @@ class PreviewAnimationClockTest {
     fun getAnimatedPropertiesReturnsAllDescendantAnimations() {
         var transitionAnimation: ComposeAnimation? = null
 
-        composeRule.setContent {
-            transitionAnimation = setUpOffsetScenario()
-        }
+        composeRule.setContent { transitionAnimation = setUpOffsetScenario() }
         composeRule.waitForIdle()
 
         val animatedProperties = testClock.getAnimatedProperties(transitionAnimation!!)
@@ -203,9 +200,7 @@ class PreviewAnimationClockTest {
     fun getAnimatedPropertiesReturnsChildAnimations() {
         var animatedVisibility: ComposeAnimation? = null
 
-        composeRule.setContent {
-            testClock.trackTransition(createAnimationVisibility(1000))
-        }
+        composeRule.setContent { testClock.trackTransition(createAnimationVisibility(1000)) }
         composeRule.waitForIdle()
         composeRule.runOnIdle {
             animatedVisibility = testClock.transitionClocks.keys.single()
@@ -230,9 +225,7 @@ class PreviewAnimationClockTest {
     fun onSeekCallbackCalledWhenTrackingAnimatedVisibility() {
         var animatedVisibility: Transition<Any>? = null
         var onSeekCalls = 0
-        composeRule.setContent {
-            animatedVisibility = createAnimationVisibility(1000)
-        }
+        composeRule.setContent { animatedVisibility = createAnimationVisibility(1000) }
 
         composeRule.waitForIdle()
         assertEquals(0, onSeekCalls)
@@ -314,10 +307,7 @@ class PreviewAnimationClockTest {
         assertEquals(0, scale.startTimeMillis)
         assertEquals(1000, scale.endTimeMillis)
         assertEquals("androidx.compose.animation.core.TweenSpec", scale.specType)
-        assertArrayEquals(
-            arrayOf(0L, 450L, 900L, 1000L),
-            scale.values.keys.sorted().toTypedArray()
-        )
+        assertArrayEquals(arrayOf(0L, 450L, 900L, 1000L), scale.values.keys.sorted().toTypedArray())
 
         val alpha = transitions.single { it.label == "Built-in alpha" }
         // We're animating from invisible (Built-in alpha 0f) to visible (Built-in alpha 1f).
@@ -326,10 +316,7 @@ class PreviewAnimationClockTest {
         assertEquals(0, alpha.startTimeMillis)
         assertEquals(1000, alpha.endTimeMillis)
         assertEquals("androidx.compose.animation.core.TweenSpec", alpha.specType)
-        assertArrayEquals(
-            arrayOf(0L, 450L, 900L, 1000L),
-            alpha.values.keys.sorted().toTypedArray()
-        )
+        assertArrayEquals(arrayOf(0L, 450L, 900L, 1000L), alpha.values.keys.sorted().toTypedArray())
     }
 
     @Test
@@ -427,9 +414,7 @@ class PreviewAnimationClockTest {
     @Test
     fun updateFromAndToStatesModifiesCachedTransitionStates() {
         var animation: ComposeAnimation? = null
-        composeRule.setContent {
-            animation = setUpRotationColorScenario()
-        }
+        composeRule.setContent { animation = setUpRotationColorScenario() }
         composeRule.waitForIdle()
 
         val stateBeforeUpdate = testClock.transitionClocks.values.single().state
@@ -474,30 +459,30 @@ class PreviewAnimationClockTest {
                 createAnimationVisibility(isEnter = true, label = "My AnimatedVisibility label")
         }
         composeRule.waitForIdle()
-        val animationWithLabel = testClock.transitionClocks.keys.single {
-            it.states.contains(someState)
-        }
+        val animationWithLabel =
+            testClock.transitionClocks.keys.single { it.states.contains(someState) }
         // Label explicitly set
         assertEquals("My animation label", animationWithLabel.label)
 
-        val animationWithoutLabel = testClock.transitionClocks.keys.single {
-            it.states.contains(Offset.O1)
-        }
+        val animationWithoutLabel =
+            testClock.transitionClocks.keys.single { it.states.contains(Offset.O1) }
         // Label is not explicitly set, but inferred from the state type
         assertEquals("Offset", animationWithoutLabel.label)
 
         testClock.trackAnimatedVisibility(animatedVisibilityTransition!!)
         testClock.trackAnimatedVisibility(animatedVisibilityTransitionExplicitLabel!!)
 
-        val animatedVisibilityExplicitLabel = testClock.animatedVisibilityClocks.keys.single {
-            testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Enter
-        }
+        val animatedVisibilityExplicitLabel =
+            testClock.animatedVisibilityClocks.keys.single {
+                testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Enter
+            }
         // Label explicitly set
         assertEquals("My AnimatedVisibility label", animatedVisibilityExplicitLabel.label)
 
-        val animatedVisibilityImplicitLabel = testClock.animatedVisibilityClocks.keys.single {
-            testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Exit
-        }
+        val animatedVisibilityImplicitLabel =
+            testClock.animatedVisibilityClocks.keys.single {
+                testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Exit
+            }
         // Label is not explicitly set, so we fall back to the default AnimatedVisibility label
         assertEquals("AnimatedVisibility", animatedVisibilityImplicitLabel.label)
     }
@@ -518,10 +503,7 @@ class PreviewAnimationClockTest {
             infiniteTransition.animateFloat(
                 initialValue = 0f,
                 targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    tween(300),
-                    RepeatMode.Restart
-                )
+                animationSpec = infiniteRepeatable(tween(300), RepeatMode.Restart)
             )
         }
         // Default states.
@@ -552,9 +534,7 @@ class PreviewAnimationClockTest {
         val transition = updateTransition(RotationColor.RC1)
         transition.animateFloat(
             label = "myRotation",
-            transitionSpec = {
-                tween(durationMillis = 1000, easing = LinearEasing)
-            }
+            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
         ) {
             when (it) {
                 RotationColor.RC1 -> 0f
@@ -564,9 +544,7 @@ class PreviewAnimationClockTest {
         }
         transition.animateColor(
             label = "borderColor",
-            transitionSpec = {
-                tween(durationMillis = 1000, easing = LinearEasing)
-            }
+            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
         ) {
             when (it) {
                 RotationColor.RC1 -> Color.Red
@@ -576,9 +554,8 @@ class PreviewAnimationClockTest {
         }
 
         testClock.trackTransition(transition as Transition<Any>)
-        val animation = testClock.transitionClocks.keys.single {
-            it.states.contains(RotationColor.RC1)
-        }
+        val animation =
+            testClock.transitionClocks.keys.single { it.states.contains(RotationColor.RC1) }
         testClock.updateFromAndToStates(animation, RotationColor.RC1, RotationColor.RC3)
         return animation
     }
@@ -593,9 +570,7 @@ class PreviewAnimationClockTest {
         val transition = updateTransition(Offset.O1)
         transition.animateFloat(
             label = "myOffset",
-            transitionSpec = {
-                tween(durationMillis = 800, easing = LinearEasing)
-            }
+            transitionSpec = { tween(durationMillis = 800, easing = LinearEasing) }
         ) {
             when (it) {
                 Offset.O1 -> 0f
@@ -604,18 +579,19 @@ class PreviewAnimationClockTest {
         }
 
         val child1 = transition.createChildTransition { it == Offset.O1 }
-        child1.animateFloat(label = "child1 scale") { pressed ->
-            if (pressed) 1f else 3f
-        }
+        child1.animateFloat(label = "child1 scale") { pressed -> if (pressed) 1f else 3f }
 
-        child1.createChildTransition { it }
-            .animateDp(label = "grandchild", transitionSpec = {
-                tween(durationMillis = 900, easing = LinearEasing)
-            }) { parentState ->
+        child1
+            .createChildTransition { it }
+            .animateDp(
+                label = "grandchild",
+                transitionSpec = { tween(durationMillis = 900, easing = LinearEasing) }
+            ) { parentState ->
                 if (parentState) 1.dp else 9.dp
             }
 
-        transition.createChildTransition { it }
+        transition
+            .createChildTransition { it }
             .animateColor(label = "child2 color") { state ->
                 if (state == Offset.O1) Color.Red else Color.Blue
             }
@@ -645,16 +621,15 @@ class PreviewAnimationClockTest {
             enter = fadeIn(animationSpec = linearTween()),
             exit = fadeOut(animationSpec = linearTween()),
         ) {
-            val scale by transition.animateFloat(
-                transitionSpec = { linearTween() },
-                label = "box scale"
-            ) { enterExitState ->
-                when (enterExitState) {
-                    EnterExitState.PreEnter -> 0.5f
-                    EnterExitState.Visible -> 1.0f
-                    EnterExitState.PostExit -> 0.5f
+            val scale by
+                transition.animateFloat(transitionSpec = { linearTween() }, label = "box scale") {
+                    enterExitState ->
+                    when (enterExitState) {
+                        EnterExitState.PreEnter -> 0.5f
+                        EnterExitState.Visible -> 1.0f
+                        EnterExitState.PostExit -> 0.5f
+                    }
                 }
-            }
             Box(Modifier.size((100 * scale).dp))
         }
         return parentAnimatedVisibility as Transition<Any>
@@ -677,8 +652,15 @@ class PreviewAnimationClockTest {
     }
 }
 
-private enum class Offset { O1, O2 }
+private enum class Offset {
+    O1,
+    O2
+}
 
-private enum class RotationColor { RC1, RC2, RC3 }
+private enum class RotationColor {
+    RC1,
+    RC2,
+    RC3
+}
 
 private const val eps = 0.00001f

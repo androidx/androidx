@@ -29,9 +29,7 @@ import kotlin.random.Random.Default.nextFloat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Unit tests for FontScaleConverterFactory.
- */
+/** Unit tests for FontScaleConverterFactory. */
 @RunWith(AndroidJUnit4::class)
 class FontScaleConverterFactoryTest {
 
@@ -50,10 +48,9 @@ class FontScaleConverterFactoryTest {
     @Test
     fun missingLookupTablePastEnd_returnsLinear() {
         val table = FontScaleConverterFactory.forScale(3F)!!
-        generateSequenceOfFractions(-10000f..10000f, step = 0.01f)
-            .map {
-                assertThat(table.convertSpToDp(it)).isWithin(CONVERSION_TOLERANCE).of(it * 3f)
-            }
+        generateSequenceOfFractions(-10000f..10000f, step = 0.01f).map {
+            assertThat(table.convertSpToDp(it)).isWithin(CONVERSION_TOLERANCE).of(it * 3f)
+        }
         assertThat(table.convertSpToDp(1F)).isWithin(CONVERSION_TOLERANCE).of(3f)
         assertThat(table.convertSpToDp(8F)).isWithin(CONVERSION_TOLERANCE).of(24f)
         assertThat(table.convertSpToDp(10F)).isWithin(CONVERSION_TOLERANCE).of(30f)
@@ -172,8 +169,7 @@ class FontScaleConverterFactoryTest {
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1.06f)).isTrue()
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1.10f)).isTrue()
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1.15f)).isTrue()
-        assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1.1499999f))
-                .isTrue()
+        assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1.1499999f)).isTrue()
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1.5f)).isTrue()
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(2f)).isTrue()
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(3f)).isTrue()
@@ -189,7 +185,8 @@ class FontScaleConverterFactoryTest {
                 val converter = FontScaleConverterFactory.forScale(fontScale)
                 val currentDp = converter?.convertSpToDp(fontSize) ?: (fontSize * fontScale)
 
-                assertWithMessage("Font Scale $fontScale and Size $fontSize").that(currentDp)
+                assertWithMessage("Font Scale $fontScale and Size $fontSize")
+                    .that(currentDp)
                     .isAtLeast(lastDp)
 
                 lastDp = currentDp
@@ -207,7 +204,8 @@ class FontScaleConverterFactoryTest {
             wearFontSizes.forEach { fontSize ->
                 val currentDp = converter?.convertSpToDp(fontSize) ?: (fontSize * fontScale)
 
-                assertWithMessage("Font Scale $fontScale and Size $fontSize").that(currentDp)
+                assertWithMessage("Font Scale $fontScale and Size $fontSize")
+                    .that(currentDp)
                     .isAtLeast(lastDp)
 
                 lastDp = currentDp
@@ -222,9 +220,9 @@ class FontScaleConverterFactoryTest {
             .fuzzFractions()
             .mapNotNull { FontScaleConverterFactory.forScale(it) }
             .flatMap { table ->
-                generateSequenceOfFractions(-2000f..2000f, step = 0.1f)
-                    .fuzzFractions()
-                    .map { Pair(table, it) }
+                generateSequenceOfFractions(-2000f..2000f, step = 0.1f).fuzzFractions().map {
+                    Pair(table, it)
+                }
             }
             .forEach { (table, sp) ->
                 try {
@@ -244,8 +242,7 @@ class FontScaleConverterFactoryTest {
     @LargeTest
     @Test
     fun testGenerateSequenceOfFractions() {
-        val fractions = generateSequenceOfFractions(-1000f..1000f, step = 0.1f)
-            .toList()
+        val fractions = generateSequenceOfFractions(-1000f..1000f, step = 0.1f).toList()
         fractions.forEach {
             assertThat(it).isAtLeast(-1000f)
             assertThat(it).isAtMost(1000f)
@@ -273,9 +270,8 @@ class FontScaleConverterFactoryTest {
     @Test
     fun testFuzzFractions() {
         val numFuzzedFractions = 6
-        val fractions = generateSequenceOfFractions(-1000f..1000f, step = 0.1f)
-            .fuzzFractions()
-            .toList()
+        val fractions =
+            generateSequenceOfFractions(-1000f..1000f, step = 0.1f).fuzzFractions().toList()
         fractions.forEach {
             assertThat(it).isAtLeast(-1000f)
             assertThat(it).isLessThan(1001f)

@@ -31,19 +31,22 @@ import java.awt.GraphicsEnvironment
 // TODO(demin) support RTL. see https://github.com/JetBrains/compose-jb/issues/872.
 //  also, don't forget to search all LayoutDirection.Ltr in desktopMain
 
-internal val GlobalDensity get() = GraphicsEnvironment.getLocalGraphicsEnvironment()
-    .defaultScreenDevice
-    .defaultConfiguration
-    .density
+internal val GlobalDensity
+    get() =
+        GraphicsEnvironment.getLocalGraphicsEnvironment()
+            .defaultScreenDevice
+            .defaultConfiguration
+            .density
 
-internal val Component.density: Density get() = graphicsConfiguration.density
+internal val Component.density: Density
+    get() = graphicsConfiguration.density
 
-private val GraphicsConfiguration.density: Density get() = Density(
-    defaultTransform.scaleX.toFloat(),
-    fontScale = 1f
-)
+private val GraphicsConfiguration.density: Density
+    get() = Density(defaultTransform.scaleX.toFloat(), fontScale = 1f)
 
-internal val GlobalLayoutDirection get() = LayoutDirection.Ltr
+internal val GlobalLayoutDirection
+    get() = LayoutDirection.Ltr
 
 @Suppress("unused")
-internal val Component.layoutDirection: LayoutDirection get() = LayoutDirection.Ltr
+internal val Component.layoutDirection: LayoutDirection
+    get() = LayoutDirection.Ltr

@@ -67,11 +67,9 @@ import org.junit.runner.RunWith
 @RequiresApi(34)
 @SdkSuppress(minSdkVersion = 34)
 internal class BasicTextFieldHandwritingGestureTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val immRule = ComposeInputMethodManagerTestRule()
+    @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
@@ -109,8 +107,10 @@ internal class BasicTextFieldHandwritingGestureTest {
             gestureFactory = { textLayoutResult ->
                 val localBoundingBox = textLayoutResult.boundingBoxOf("b")
                 val screenBoundingBox = localToScreen(localBoundingBox).toAndroidRectF()
-                SelectGesture.Builder().setSelectionArea(screenBoundingBox)
-                    .setGranularity(HandwritingGesture.GRANULARITY_WORD).build()
+                SelectGesture.Builder()
+                    .setSelectionArea(screenBoundingBox)
+                    .setGranularity(HandwritingGesture.GRANULARITY_WORD)
+                    .build()
             },
             preview = true
         ) { textFieldState, _ ->
@@ -633,13 +633,11 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("c").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("c").let { localToScreen(it).toAndroidRectF() }
 
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
 
                 SelectRangeGesture.Builder()
                     .setSelectionStartArea(startArea)
@@ -659,13 +657,11 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("c").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("c").let { localToScreen(it).toAndroidRectF() }
 
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
 
                 SelectRangeGesture.Builder()
                     .setSelectionStartArea(startArea)
@@ -689,13 +685,11 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("b").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("b").let { localToScreen(it).toAndroidRectF() }
 
-                val endArea = textLayoutResult.boundingBoxOf("e").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("e").let { localToScreen(it).toAndroidRectF() }
 
                 SelectRangeGesture.Builder()
                     .setSelectionStartArea(startArea)
@@ -716,13 +710,11 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("b").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("b").let { localToScreen(it).toAndroidRectF() }
 
-                val endArea = textLayoutResult.boundingBoxOf("e").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("e").let { localToScreen(it).toAndroidRectF() }
 
                 SelectRangeGesture.Builder()
                     .setSelectionStartArea(startArea)
@@ -749,9 +741,8 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
                 // The startArea selects nothing, but the endArea contains one character, it
                 // should still fallback.
                 SelectRangeGesture.Builder()
@@ -779,9 +770,8 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("c").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("c").let { localToScreen(it).toAndroidRectF() }
                 // The endArea selects nothing, but the start contains one character, it
                 // should still fallback.
                 SelectRangeGesture.Builder()
@@ -809,9 +799,8 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
                 // The startArea selects nothing, but the endArea contains one character, it
                 // should still fallback.
                 SelectRangeGesture.Builder()
@@ -854,12 +843,10 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("c").let {
-                    localToScreen(it).toAndroidRectF()
-                }
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("c").let { localToScreen(it).toAndroidRectF() }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
 
                 DeleteRangeGesture.Builder()
                     .setDeletionStartArea(startArea)
@@ -882,12 +869,10 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("c").let {
-                    localToScreen(it).toAndroidRectF()
-                }
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("c").let { localToScreen(it).toAndroidRectF() }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
 
                 DeleteRangeGesture.Builder()
                     .setDeletionStartArea(startArea)
@@ -911,12 +896,10 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("e").let {
-                    localToScreen(it).toAndroidRectF()
-                }
-                val endArea = textLayoutResult.boundingBoxOf("h").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("e").let { localToScreen(it).toAndroidRectF() }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("h").let { localToScreen(it).toAndroidRectF() }
 
                 DeleteRangeGesture.Builder()
                     .setDeletionStartArea(startArea)
@@ -938,12 +921,10 @@ internal class BasicTextFieldHandwritingGestureTest {
         testTextFieldHandwritingGesture(
             text = text,
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("e").let {
-                    localToScreen(it).toAndroidRectF()
-                }
-                val endArea = textLayoutResult.boundingBoxOf("h").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("e").let { localToScreen(it).toAndroidRectF() }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("h").let { localToScreen(it).toAndroidRectF() }
 
                 DeleteRangeGesture.Builder()
                     .setDeletionStartArea(startArea)
@@ -970,9 +951,8 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
                 // The startArea selects nothing, but the endArea contains one character, it
                 // should still fallback.
                 DeleteRangeGesture.Builder()
@@ -1000,9 +980,8 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
-                val startArea = textLayoutResult.boundingBoxOf("c").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val startArea =
+                    textLayoutResult.boundingBoxOf("c").let { localToScreen(it).toAndroidRectF() }
                 // The endArea selects nothing, but the start contains one character, it
                 // should still fallback.
                 DeleteRangeGesture.Builder()
@@ -1029,9 +1008,8 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
-                val endArea = textLayoutResult.boundingBoxOf("d").let {
-                    localToScreen(it).toAndroidRectF()
-                }
+                val endArea =
+                    textLayoutResult.boundingBoxOf("d").let { localToScreen(it).toAndroidRectF() }
                 // The startArea selects nothing, but the endArea contains one character, it
                 // should still fallback.
                 DeleteRangeGesture.Builder()
@@ -1076,9 +1054,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture before 'd'.
                 val point = textLayoutResult.boundingBoxOf("d").centerLeft
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1125,9 +1101,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture after 'c'.
                 val point = textLayoutResult.boundingBoxOf("c").centerRight
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
@@ -1145,9 +1119,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture before 'd'.
                 val point = textLayoutResult.boundingBoxOf("d").centerLeft
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1166,9 +1138,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture after 'd'.
                 val point = textLayoutResult.boundingBoxOf("c").centerRight
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1187,9 +1157,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture before 'd'.
                 val point = textLayoutResult.boundingBoxOf("d").centerLeft
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1208,9 +1176,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture before 'd'.
                 val point = textLayoutResult.boundingBoxOf("c").centerRight
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1229,9 +1195,7 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // Perform the gesture in the middle of the spaces.
                 val point = textLayoutResult.boundingBoxOf("   ").center
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1251,9 +1215,10 @@ internal class BasicTextFieldHandwritingGestureTest {
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
                 // Perform the gesture 20 pixels above the line.
-                val point = textLayoutResult.boundingBoxOf("d").topLeft.let {
-                    Offset(it.x, it.y - lineMargin - 1)
-                }
+                val point =
+                    textLayoutResult.boundingBoxOf("d").topLeft.let {
+                        Offset(it.x, it.y - lineMargin - 1)
+                    }
                 val screenPoint = localToScreen(point).toPointF()
                 JoinOrSplitGesture.Builder()
                     .setJoinOrSplitPoint(screenPoint)
@@ -1277,13 +1242,12 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             gestureFactory = { textLayoutResult ->
                 // Perform the gesture 20 pixels above the line.
-                val point = textLayoutResult.boundingBoxOf("d").topLeft.let {
-                    Offset(it.x, it.y - lineMargin - 1)
-                }
+                val point =
+                    textLayoutResult.boundingBoxOf("d").topLeft.let {
+                        Offset(it.x, it.y - lineMargin - 1)
+                    }
                 val screenPoint = localToScreen(point).toPointF()
-                JoinOrSplitGesture.Builder()
-                    .setJoinOrSplitPoint(screenPoint)
-                    .build()
+                JoinOrSplitGesture.Builder().setJoinOrSplitPoint(screenPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
@@ -1326,9 +1290,10 @@ internal class BasicTextFieldHandwritingGestureTest {
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
                 // Perform the gesture 20 pixels above the line.
-                val point = textLayoutResult.boundingBoxOf("d").topLeft.let {
-                    Offset(it.x, it.y - lineMargin - 1)
-                }
+                val point =
+                    textLayoutResult.boundingBoxOf("d").topLeft.let {
+                        Offset(it.x, it.y - lineMargin - 1)
+                    }
                 val screenPoint = localToScreen(point).toPointF()
                 InsertGesture.Builder()
                     .setInsertionPoint(screenPoint)
@@ -1353,14 +1318,12 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             gestureFactory = { textLayoutResult ->
                 // Perform the gesture 20 pixels above the line.
-                val point = textLayoutResult.boundingBoxOf("d").topLeft.let {
-                    Offset(it.x, it.y - lineMargin - 1)
-                }
+                val point =
+                    textLayoutResult.boundingBoxOf("d").topLeft.let {
+                        Offset(it.x, it.y - lineMargin - 1)
+                    }
                 val screenPoint = localToScreen(point).toPointF()
-                InsertGesture.Builder()
-                    .setInsertionPoint(screenPoint)
-                    .setTextToInsert("")
-                    .build()
+                InsertGesture.Builder().setInsertionPoint(screenPoint).setTextToInsert("").build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
@@ -1376,16 +1339,16 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             gestureFactory = { textLayoutResult ->
                 // The given gestures should remove spaces within the range of "cd ef".
-                val startPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
-                    localToScreen(it).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("f").centerRight.let {
-                    localToScreen(it).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                        localToScreen(it).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("f").centerRight.let {
+                        localToScreen(it).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1406,16 +1369,16 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // This gestures only works for single line. When the given points touches multiple
                 // lines, it should only remove spaces at the first line. In this case, it'll be
                 // remove spaces within the range of "b cd e" ('e' is at the top of 'k').
-                val startPoint = textLayoutResult.boundingBoxOf("b").centerLeft.let {
-                    localToScreen(it).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("k").centerRight.let {
-                    localToScreen(it).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("b").centerLeft.let {
+                        localToScreen(it).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("k").centerRight.let {
+                        localToScreen(it).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1434,16 +1397,16 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             gestureFactory = { textLayoutResult ->
                 // The gesture covers spaces only, between 'b' and 'c'.
-                val startPoint = textLayoutResult.boundingBoxOf("b").centerRight.let {
-                    localToScreen(it).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
-                    localToScreen(it).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("b").centerRight.let {
+                        localToScreen(it).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                        localToScreen(it).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1465,12 +1428,14 @@ internal class BasicTextFieldHandwritingGestureTest {
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
                 // The gesture covers "cdef" which contains no spaces.
-                val startPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
-                    localToScreen(it).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("f").centerRight.let {
-                    localToScreen(it).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                        localToScreen(it).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("f").centerRight.let {
+                        localToScreen(it).toPointF()
+                    }
 
                 RemoveSpaceGesture.Builder()
                     .setPoints(startPoint, endPoint)
@@ -1494,16 +1459,16 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             gestureFactory = { textLayoutResult ->
                 // The gesture covers "cdef" which contains no spaces.
-                val startPoint = textLayoutResult.boundingBoxOf("c").centerLeft.let {
-                    localToScreen(it).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("f").centerRight.let {
-                    localToScreen(it).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("c").centerLeft.let {
+                        localToScreen(it).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("f").centerRight.let {
+                        localToScreen(it).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
@@ -1522,17 +1487,17 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // The start point is out of line margin. and endPoint is now used to select
                 // the target line (the 2nd line).
                 // It'll remove the spaces between "h ij k".('h' is under 'b')
-                val startPoint = textLayoutResult.boundingBoxOf("b").topLeft.let {
-                    val offset = it.copy(y = it.y - lineMargin - 1)
-                    localToScreen(offset).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("k").centerRight.let {
-                    localToScreen(it).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("b").topLeft.let {
+                        val offset = it.copy(y = it.y - lineMargin - 1)
+                        localToScreen(offset).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("k").centerRight.let {
+                        localToScreen(it).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1553,17 +1518,17 @@ internal class BasicTextFieldHandwritingGestureTest {
                 // The end point is out of line margin. and startPoint is now used to select
                 // the target line (the 2nd line).
                 // It'll remove the spaces between "h ij k". ('k' is under 'e')
-                val startPoint = textLayoutResult.boundingBoxOf("h").centerLeft.let {
-                    localToScreen(it).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("e").topRight.let {
-                    val offset = it.copy(y = it.y - lineMargin - 1)
-                    localToScreen(offset).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("h").centerLeft.let {
+                        localToScreen(it).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("e").topRight.let {
+                        val offset = it.copy(y = it.y - lineMargin - 1)
+                        localToScreen(offset).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS)
@@ -1585,14 +1550,16 @@ internal class BasicTextFieldHandwritingGestureTest {
             initialSelection = TextRange(initialCursor),
             gestureFactory = { textLayoutResult ->
                 // The gesture covers "cdef" which contains no spaces.
-                val startPoint = textLayoutResult.boundingBoxOf("c").topLeft.let {
-                    val offset = it.copy(y = it.y - lineMargin - 1f)
-                    localToScreen(offset).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("f").bottomRight.let {
-                    val offset = it.copy(y = it.y + lineMargin + 1f)
-                    localToScreen(offset).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("c").topLeft.let {
+                        val offset = it.copy(y = it.y - lineMargin - 1f)
+                        localToScreen(offset).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("f").bottomRight.let {
+                        val offset = it.copy(y = it.y + lineMargin + 1f)
+                        localToScreen(offset).toPointF()
+                    }
 
                 RemoveSpaceGesture.Builder()
                     .setPoints(startPoint, endPoint)
@@ -1616,18 +1583,18 @@ internal class BasicTextFieldHandwritingGestureTest {
             text = text,
             gestureFactory = { textLayoutResult ->
                 // The gesture covers "cdef" which contains no spaces.
-                val startPoint = textLayoutResult.boundingBoxOf("c").topLeft.let {
-                    val offset = it.copy(y = it.y - lineMargin - 1f)
-                    localToScreen(offset).toPointF()
-                }
-                val endPoint = textLayoutResult.boundingBoxOf("f").bottomRight.let {
-                    val offset = it.copy(y = it.y + lineMargin + 1f)
-                    localToScreen(offset).toPointF()
-                }
+                val startPoint =
+                    textLayoutResult.boundingBoxOf("c").topLeft.let {
+                        val offset = it.copy(y = it.y - lineMargin - 1f)
+                        localToScreen(offset).toPointF()
+                    }
+                val endPoint =
+                    textLayoutResult.boundingBoxOf("f").bottomRight.let {
+                        val offset = it.copy(y = it.y + lineMargin + 1f)
+                        localToScreen(offset).toPointF()
+                    }
 
-                RemoveSpaceGesture.Builder()
-                    .setPoints(startPoint, endPoint)
-                    .build()
+                RemoveSpaceGesture.Builder().setPoints(startPoint, endPoint).build()
             }
         ) { textFieldState, resultCode ->
             assertThat(resultCode).isEqualTo(InputConnection.HANDWRITING_GESTURE_RESULT_FAILED)
@@ -1649,24 +1616,20 @@ internal class BasicTextFieldHandwritingGestureTest {
         var layoutCoordinates: LayoutCoordinates? = null
 
         inputMethodInterceptor.setTextFieldTestContent {
-            val viewConfiguration = object : ViewConfiguration by LocalViewConfiguration.current {
-                override val handwritingGestureLineMargin: Float = lineMargin
-            }
+            val viewConfiguration =
+                object : ViewConfiguration by LocalViewConfiguration.current {
+                    override val handwritingGestureLineMargin: Float = lineMargin
+                }
             CompositionLocalProvider(value = LocalViewConfiguration provides viewConfiguration) {
                 BasicTextField(
                     state = textFieldState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag(Tag)
-                        .onGloballyPositioned { layoutCoordinates = it },
-                    textStyle = TextStyle(
-                        fontSize = 10.sp,
-                        fontFamily = TEST_FONT_FAMILY
-                    ),
+                    modifier =
+                        Modifier.fillMaxSize().testTag(Tag).onGloballyPositioned {
+                            layoutCoordinates = it
+                        },
+                    textStyle = TextStyle(fontSize = 10.sp, fontFamily = TEST_FONT_FAMILY),
                     outputTransformation = outputTransformation,
-                    onTextLayout = {
-                        getTextLayoutResult = it
-                    }
+                    onTextLayout = { getTextLayoutResult = it }
                 )
             }
         }
@@ -1680,16 +1643,15 @@ internal class BasicTextFieldHandwritingGestureTest {
         inputMethodInterceptor.withInputConnection {
             if (preview) {
                 previewHandwritingGesture(
-                    gesture as PreviewableHandwritingGesture, cancellationSignal
+                    gesture as PreviewableHandwritingGesture,
+                    cancellationSignal
                 )
             } else {
                 performHandwritingGesture(gesture, /* executor= */ null) { resultCode = it }
             }
         }
 
-        rule.runOnIdle {
-            assertion.invoke(textFieldState, resultCode)
-        }
+        rule.runOnIdle { assertion.invoke(textFieldState, resultCode) }
     }
 
     private fun LayoutCoordinates.localToScreen(rect: Rect): Rect {

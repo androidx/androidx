@@ -35,12 +35,13 @@ class TextDelegateTest {
 
     @Test
     fun `constructor with default values`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            style = TextStyle.Default,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = ""),
+                style = TextStyle.Default,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         assertThat(textDelegate.maxLines).isEqualTo(Int.MAX_VALUE)
         assertThat(textDelegate.minLines).isEqualTo(DefaultMinLines)
@@ -50,12 +51,13 @@ class TextDelegateTest {
     @Test
     fun `constructor with customized text(TextSpan)`() {
         val text = AnnotatedString("Hello")
-        val textDelegate = TextDelegate(
-            text = text,
-            style = TextStyle.Default,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = text,
+                style = TextStyle.Default,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         assertThat(textDelegate.text).isEqualTo(text)
     }
@@ -64,13 +66,14 @@ class TextDelegateTest {
     fun `constructor with customized maxLines`() {
         val maxLines = 8
 
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            style = TextStyle.Default,
-            maxLines = maxLines,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = ""),
+                style = TextStyle.Default,
+                maxLines = maxLines,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         assertThat(textDelegate.maxLines).isEqualTo(maxLines)
     }
@@ -79,13 +82,14 @@ class TextDelegateTest {
     fun `constructor with customized minLines`() {
         val minLines = 8
 
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            style = TextStyle.Default,
-            minLines = minLines,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = ""),
+                style = TextStyle.Default,
+                minLines = minLines,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         assertThat(textDelegate.minLines).isEqualTo(minLines)
     }
@@ -94,37 +98,40 @@ class TextDelegateTest {
     fun `constructor with customized overflow`() {
         val overflow = TextOverflow.Ellipsis
 
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            style = TextStyle.Default,
-            overflow = overflow,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = ""),
+                style = TextStyle.Default,
+                overflow = overflow,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         assertThat(textDelegate.overflow).isEqualTo(overflow)
     }
 
     @Test(expected = IllegalStateException::class)
     fun `minIntrinsicWidth without layout assertion should fail`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            style = TextStyle.Default,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = ""),
+                style = TextStyle.Default,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         textDelegate.minIntrinsicWidth
     }
 
     @Test(expected = IllegalStateException::class)
     fun `maxIntrinsicWidth without layout assertion should fail`() {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = ""),
-            style = TextStyle.Default,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = ""),
+                style = TextStyle.Default,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
 
         textDelegate.maxIntrinsicWidth
     }

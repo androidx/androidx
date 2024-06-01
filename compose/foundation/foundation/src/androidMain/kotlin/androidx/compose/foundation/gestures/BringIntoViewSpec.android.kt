@@ -45,35 +45,35 @@ actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
     }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal val PivotBringIntoViewSpec = object : BringIntoViewSpec {
-    val parentFraction = 0.3f
-    val childFraction = 0f
+internal val PivotBringIntoViewSpec =
+    object : BringIntoViewSpec {
+        val parentFraction = 0.3f
+        val childFraction = 0f
 
-    override fun calculateScrollDistance(
-        offset: Float,
-        size: Float,
-        containerSize: Float
-    ): Float {
-        val leadingEdgeOfItemRequestingFocus = offset
-        val trailingEdgeOfItemRequestingFocus = offset + size
+        override fun calculateScrollDistance(
+            offset: Float,
+            size: Float,
+            containerSize: Float
+        ): Float {
+            val leadingEdgeOfItemRequestingFocus = offset
+            val trailingEdgeOfItemRequestingFocus = offset + size
 
-        val sizeOfItemRequestingFocus =
-            abs(trailingEdgeOfItemRequestingFocus - leadingEdgeOfItemRequestingFocus)
-        val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
-        val initialTargetForLeadingEdge =
-            parentFraction * containerSize -
-                (childFraction * sizeOfItemRequestingFocus)
-        val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
+            val sizeOfItemRequestingFocus =
+                abs(trailingEdgeOfItemRequestingFocus - leadingEdgeOfItemRequestingFocus)
+            val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
+            val initialTargetForLeadingEdge =
+                parentFraction * containerSize - (childFraction * sizeOfItemRequestingFocus)
+            val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
 
-        val targetForLeadingEdge =
-            if (childSmallerThanParent &&
-                spaceAvailableToShowItem < sizeOfItemRequestingFocus
-            ) {
-                containerSize - sizeOfItemRequestingFocus
-            } else {
-                initialTargetForLeadingEdge
-            }
+            val targetForLeadingEdge =
+                if (
+                    childSmallerThanParent && spaceAvailableToShowItem < sizeOfItemRequestingFocus
+                ) {
+                    containerSize - sizeOfItemRequestingFocus
+                } else {
+                    initialTargetForLeadingEdge
+                }
 
-        return leadingEdgeOfItemRequestingFocus - targetForLeadingEdge
+            return leadingEdgeOfItemRequestingFocus - targetForLeadingEdge
+        }
     }
-}

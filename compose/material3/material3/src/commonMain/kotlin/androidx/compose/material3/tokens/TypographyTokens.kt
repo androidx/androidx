@@ -145,12 +145,11 @@ internal object TypographyTokens {
         )
 }
 
-internal val DefaultLineHeightStyle = LineHeightStyle(
-    alignment = LineHeightStyle.Alignment.Center,
-    trim = LineHeightStyle.Trim.None
-)
+internal val DefaultLineHeightStyle =
+    LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 
-internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = defaultPlatformTextStyle(),
-    lineHeightStyle = DefaultLineHeightStyle,
-)
+internal val DefaultTextStyle =
+    TextStyle.Default.copy(
+        platformStyle = defaultPlatformTextStyle(),
+        lineHeightStyle = DefaultLineHeightStyle,
+    )

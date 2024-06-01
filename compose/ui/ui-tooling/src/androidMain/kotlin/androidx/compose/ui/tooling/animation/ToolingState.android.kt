@@ -23,8 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 /**
- * Tooling can override [mutableStateOf] in [Composable] with [ToolingState].
- * [Composable] should declare a state, which could be private:
+ * Tooling can override [mutableStateOf] in [Composable] with [ToolingState]. [Composable] should
+ * declare a state, which could be private:
  *
  *      val toolingOverride = remember { mutableStateOf<State<T>?>(null) }
  *

@@ -27,17 +27,14 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AndroidMovableContentTests : BaseComposeTest() {
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @Test
     fun testMovableContentParameterInBoxWithConstraints() {
         var state by mutableStateOf(false)
         var lastSeen: Boolean? = null
         val content = movableContentOf { parameter: Boolean ->
-            val content = @Composable {
-                lastSeen = parameter
-            }
+            val content = @Composable { lastSeen = parameter }
             Container(content)
         }
 
@@ -62,22 +59,22 @@ class AndroidMovableContentTests : BaseComposeTest() {
         }
 
         compose {
-            if (state) {
-                content(true)
-            } else {
-                BoxWithConstraints {
-                    content(false)
+                if (state) {
+                    content(true)
+                } else {
+                    BoxWithConstraints { content(false) }
                 }
             }
-        }.then {
-            phase("In initial composition").expect(lastSeen).toEqual(state)
-            state = true
-        }.then {
-            phase("When setting state to true").expect(lastSeen).toEqual(state)
-            state = false
-        }.then {
-            phase("When setting state to false").expect(lastSeen).toEqual(state)
-        }.done()
+            .then {
+                phase("In initial composition").expect(lastSeen).toEqual(state)
+                state = true
+            }
+            .then {
+                phase("When setting state to true").expect(lastSeen).toEqual(state)
+                state = false
+            }
+            .then { phase("When setting state to false").expect(lastSeen).toEqual(state) }
+            .done()
 
         assertEquals("", failureReasons.joinToString())
     }

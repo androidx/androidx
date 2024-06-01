@@ -20,31 +20,26 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastJoinToString
 
-/**
- * Defines a horizontal line to be drawn on the text.
- */
+/** Defines a horizontal line to be drawn on the text. */
 @Immutable
 class TextDecoration internal constructor(val mask: Int) {
 
     companion object {
-        @Stable
-        val None: TextDecoration = TextDecoration(0x0)
+        @Stable val None: TextDecoration = TextDecoration(0x0)
 
         /**
          * Draws a horizontal line below the text.
          *
          * @sample androidx.compose.ui.text.samples.TextDecorationUnderlineSample
          */
-        @Stable
-        val Underline: TextDecoration = TextDecoration(0x1)
+        @Stable val Underline: TextDecoration = TextDecoration(0x1)
 
         /**
          * Draws a horizontal line over the text.
          *
          * @sample androidx.compose.ui.text.samples.TextDecorationLineThroughSample
          */
-        @Stable
-        val LineThrough: TextDecoration = TextDecoration(0x2)
+        @Stable val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /**
          * Creates a decoration that includes all the given decorations.
@@ -54,9 +49,7 @@ class TextDecoration internal constructor(val mask: Int) {
          * @param decorations The decorations to be added
          */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
-            val mask = decorations.fastFold(0) { acc, decoration ->
-                acc or decoration.mask
-            }
+            val mask = decorations.fastFold(0) { acc, decoration -> acc or decoration.mask }
             return TextDecoration(mask)
         }
     }

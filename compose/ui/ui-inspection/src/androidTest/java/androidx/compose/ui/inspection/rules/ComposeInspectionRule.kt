@@ -48,9 +48,9 @@ import org.junit.rules.ExternalResource
  * - starts a compose inspector itself if [useInspector] is `true`
  *
  * @param clazz an activity to start for a test
- * @param useInspector parameter to enable / disable creation of inspector itself. By default,
- * it is true. However a test may not need an inspector because it works with underlying infra,
- * in such cases `false` can be passed to speed up test a bit.
+ * @param useInspector parameter to enable / disable creation of inspector itself. By default, it is
+ *   true. However a test may not need an inspector because it works with underlying infra, in such
+ *   cases `false` can be passed to speed up test a bit.
  */
 class ComposeInspectionRule(
     val clazz: KClass<out ComponentActivity>,
@@ -60,13 +60,15 @@ class ComposeInspectionRule(
     val roots = mutableListOf<View>()
     val rootId: Long
         get() = roots.single().uniqueDrawingId
+
     lateinit var inspectorTester: InspectorTester
         private set
 
     @Suppress("UNCHECKED_CAST")
     private val compositionDataSet: Collection<CompositionData>
-        get() = rootsForTest.single().view.getTag(R.id.inspection_slot_table_set)
-            as Collection<CompositionData>
+        get() =
+            rootsForTest.single().view.getTag(R.id.inspection_slot_table_set)
+                as Collection<CompositionData>
 
     val compositionData: CompositionData
         get() = compositionDataSet.first()
@@ -85,13 +87,9 @@ class ComposeInspectionRule(
         }
 
         activityScenario = ActivityScenario.launch(clazz.java)
-        activityScenario.onActivity {
-            roots.addAll(WindowInspector.getGlobalWindowViews())
-        }
+        activityScenario.onActivity { roots.addAll(WindowInspector.getGlobalWindowViews()) }
         if (!useInspector) return
-        runBlocking {
-            inspectorTester = InspectorTester("layoutinspector.compose.inspection")
-        }
+        runBlocking { inspectorTester = InspectorTester("layoutinspector.compose.inspection") }
     }
 
     fun show(composable: @Composable () -> Unit) = activityScenario.show(composable)
@@ -106,11 +104,7 @@ fun ActivityScenario<out ComponentActivity>.show(composable: @Composable () -> U
     val positionedLatch = CountDownLatch(1)
     onActivity {
         it.setContent {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned { positionedLatch.countDown() }
-            ) {
+            Box(Modifier.fillMaxSize().onGloballyPositioned { positionedLatch.countDown() }) {
                 composable()
             }
         }
@@ -119,7 +113,7 @@ fun ActivityScenario<out ComponentActivity>.show(composable: @Composable () -> U
     positionedLatch.await(1, TimeUnit.SECONDS)
 
     // Wait for the UI thread to complete its current work so we know that layout is done.
-    onActivity { }
+    onActivity {}
 }
 
 suspend fun InspectorTester.sendCommand(command: Command): Response {

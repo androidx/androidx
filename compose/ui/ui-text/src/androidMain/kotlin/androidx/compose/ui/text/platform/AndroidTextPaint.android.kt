@@ -62,16 +62,13 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
 
     private var backingBlendMode: BlendMode = DrawScope.DefaultBlendMode
 
-    @VisibleForTesting
-    internal var shadow: Shadow = Shadow.None
+    @VisibleForTesting internal var shadow: Shadow = Shadow.None
 
-    @VisibleForTesting
-    internal var brush: Brush? = null
+    @VisibleForTesting internal var brush: Brush? = null
 
     internal var shaderState: State<Shader?>? = null
 
-    @VisibleForTesting
-    internal var brushSize: Size? = null
+    @VisibleForTesting internal var brushSize: Size? = null
 
     private var drawStyle: DrawStyle? = null
 
@@ -131,9 +128,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
                     if (size.isSpecified) {
                         this.brush = brush
                         this.brushSize = size
-                        this.shaderState = derivedStateOf {
-                            brush.createShader(size)
-                        }
+                        this.shaderState = derivedStateOf { brush.createShader(size) }
                     }
                 }
                 composePaint.shader = this.shaderState?.value
@@ -179,9 +174,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
             backingBlendMode = value
         }
 
-    /**
-     * Clears all shader related cache parameters and native shader property.
-     */
+    /** Clears all shader related cache parameters and native shader property. */
     private fun clearShader() {
         this.shaderState = null
         this.brush = null
@@ -190,10 +183,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
     }
 }
 
-/**
- * Accepts an alpha value in the range [0f, 1f] then maps to an integer value
- * in [0, 255] range.
- */
+/** Accepts an alpha value in the range [0f, 1f] then maps to an integer value in [0, 255] range. */
 internal fun TextPaint.setAlpha(alpha: Float) {
     if (!alpha.isNaN()) {
         val alphaInt = alpha.fastCoerceIn(0f, 1f).times(255).fastRoundToInt()

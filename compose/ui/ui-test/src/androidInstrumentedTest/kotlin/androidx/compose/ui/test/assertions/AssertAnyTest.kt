@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AssertAnyTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun twoNodes_oneOrTwoSatisfied() {
@@ -45,11 +44,10 @@ class AssertAnyTest {
             }
         }
 
-        rule.onNodeWithTag("Parent")
-            .onChildren()
-            .assertAny(hasTestTag("Child1"))
+        rule.onNodeWithTag("Parent").onChildren().assertAny(hasTestTag("Child1"))
 
-        rule.onNodeWithTag("Parent")
+        rule
+            .onNodeWithTag("Parent")
             .onChildren()
             .assertAny(hasTestTag("Child1") or hasTestTag("Child2"))
     }
@@ -69,17 +67,13 @@ class AssertAnyTest {
                 "None of the following nodes match:\n" +
                 "1) "
         ) {
-            rule.onNodeWithTag("Parent")
-                .onChildren()
-                .assertAny(hasTestTag("Child3"))
+            rule.onNodeWithTag("Parent").onChildren().assertAny(hasTestTag("Child3"))
         }
     }
 
     @Test
     fun zeroNodes_noneSatisfied() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
         expectErrorMessageStartsWith(
             "" +
@@ -87,9 +81,7 @@ class AssertAnyTest {
                 "Assert needs to receive at least 1 node but 0 nodes were found for selector: " +
                 "'(TestTag = 'Parent').children'"
         ) {
-            rule.onNodeWithTag("Parent")
-                .onChildren()
-                .assertAny(hasTestTag("Child"))
+            rule.onNodeWithTag("Parent").onChildren().assertAny(hasTestTag("Child"))
         }
     }
 }

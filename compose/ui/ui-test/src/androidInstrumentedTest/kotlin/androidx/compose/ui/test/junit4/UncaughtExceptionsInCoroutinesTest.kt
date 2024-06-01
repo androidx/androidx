@@ -40,19 +40,9 @@ class UncaughtExceptionsInCoroutinesTest {
     // - Results have 2 failed tests:
     //   exception handler is installed correctly, but verifying thrown error is wrong
 
-    @Test
-    fun test1() = runComposeUiTest {
-        expectError<TestException> {
-            throwInLaunchedEffect()
-        }
-    }
+    @Test fun test1() = runComposeUiTest { expectError<TestException> { throwInLaunchedEffect() } }
 
-    @Test
-    fun test2() = runComposeUiTest {
-        expectError<TestException> {
-            throwInLaunchedEffect()
-        }
-    }
+    @Test fun test2() = runComposeUiTest { expectError<TestException> { throwInLaunchedEffect() } }
 
     private fun ComposeUiTest.throwInLaunchedEffect() {
         setContent {

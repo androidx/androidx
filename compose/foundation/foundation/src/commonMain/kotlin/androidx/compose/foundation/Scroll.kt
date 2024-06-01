@@ -59,19 +59,18 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
- * Create and [remember] the [ScrollState] based on the currently appropriate scroll
- * configuration to allow changing scroll position or observing scroll behavior.
+ * Create and [remember] the [ScrollState] based on the currently appropriate scroll configuration
+ * to allow changing scroll position or observing scroll behavior.
  *
  * Learn how to control the state of [Modifier.verticalScroll] or [Modifier.horizontalScroll]:
+ *
  * @sample androidx.compose.foundation.samples.ControlledScrollableRowSample
  *
  * @param initial initial scroller position to start with
  */
 @Composable
 fun rememberScrollState(initial: Int = 0): ScrollState {
-    return rememberSaveable(saver = ScrollState.Saver) {
-        ScrollState(initial = initial)
-    }
+    return rememberSaveable(saver = ScrollState.Saver) { ScrollState(initial = initial) }
 }
 
 /**
@@ -83,6 +82,7 @@ fun rememberScrollState(initial: Int = 0): ScrollState {
  * [rememberScrollState].
  *
  * Learn how to control the state of [Modifier.verticalScroll] or [Modifier.horizontalScroll]:
+ *
  * @sample androidx.compose.foundation.samples.ControlledScrollableRowSample
  *
  * @param initial value of the scroll
@@ -90,15 +90,11 @@ fun rememberScrollState(initial: Int = 0): ScrollState {
 @Stable
 class ScrollState(initial: Int) : ScrollableState {
 
-    /**
-     * current scroll position value in pixels
-     */
+    /** current scroll position value in pixels */
     var value: Int by mutableIntStateOf(initial)
         private set
 
-    /**
-     * maximum bound for [value], or [Int.MAX_VALUE] if still unknown
-     */
+    /** maximum bound for [value], or [Int.MAX_VALUE] if still unknown */
     var maxValue: Int
         get() = _maxValueState.intValue
         internal set(newMax) {
@@ -111,18 +107,19 @@ class ScrollState(initial: Int) : ScrollableState {
         }
 
     /**
-     * Size of the viewport on the scrollable axis, or 0 if still unknown. Note that this value
-     * is only populated after the first measure pass.
+     * Size of the viewport on the scrollable axis, or 0 if still unknown. Note that this value is
+     * only populated after the first measure pass.
      */
     var viewportSize: Int by mutableIntStateOf(0)
         internal set
 
     /**
-     * [InteractionSource] that will be used to dispatch drag events when this
-     * list is being dragged. If you want to know whether the fling (or smooth scroll) is in
-     * progress, use [isScrollInProgress].
+     * [InteractionSource] that will be used to dispatch drag events when this list is being
+     * dragged. If you want to know whether the fling (or smooth scroll) is in progress, use
+     * [isScrollInProgress].
      */
-    val interactionSource: InteractionSource get() = internalInteractionSource
+    val interactionSource: InteractionSource
+        get() = internalInteractionSource
 
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
 
@@ -152,8 +149,7 @@ class ScrollState(initial: Int) : ScrollableState {
         block: suspend ScrollScope.() -> Unit
     ): Unit = scrollableState.scroll(scrollPriority, block)
 
-    override fun dispatchRawDelta(delta: Float): Float =
-        scrollableState.dispatchRawDelta(delta)
+    override fun dispatchRawDelta(delta: Float): Float = scrollableState.dispatchRawDelta(delta)
 
     override val isScrollInProgress: Boolean
         get() = scrollableState.isScrollInProgress
@@ -174,13 +170,10 @@ class ScrollState(initial: Int) : ScrollableState {
      * Scroll to position in pixels with animation.
      *
      * @param value target value in pixels to smooth scroll to, value will be coerced to
-     * 0..maxPosition
+     *   0..maxPosition
      * @param animationSpec animation curve for smooth scroll animation
      */
-    suspend fun animateScrollTo(
-        value: Int,
-        animationSpec: AnimationSpec<Float> = SpringSpec()
-    ) {
+    suspend fun animateScrollTo(value: Int, animationSpec: AnimationSpec<Float> = SpringSpec()) {
         this.animateScrollBy((value - this.value).toFloat(), animationSpec)
     }
 
@@ -190,21 +183,15 @@ class ScrollState(initial: Int) : ScrollableState {
      * Cancels the currently running scroll, if any, and suspends until the cancellation is
      * complete.
      *
-     * @see animateScrollTo for an animated version
-     *
      * @param value number of pixels to scroll by
      * @return the amount of scroll consumed
+     * @see animateScrollTo for an animated version
      */
     suspend fun scrollTo(value: Int): Float = this.scrollBy((value - this.value).toFloat())
 
     companion object {
-        /**
-         * The default [Saver] implementation for [ScrollState].
-         */
-        val Saver: Saver<ScrollState, *> = Saver(
-            save = { it.value },
-            restore = { ScrollState(it) }
-        )
+        /** The default [Saver] implementation for [ScrollState]. */
+        val Saver: Saver<ScrollState, *> = Saver(save = { it.value }, restore = { ScrollState(it) })
     }
 }
 
@@ -215,27 +202,28 @@ class ScrollState(initial: Int) : ScrollableState {
  * @sample androidx.compose.foundation.samples.VerticalScrollExample
  *
  * In order to use this modifier, you need to create and own [ScrollState]
- * @see [rememberScrollState]
  *
  * @param state state of the scroll
  * @param enabled whether or not scrolling via touch input is enabled
  * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
- * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
+ *   `null`, default from [ScrollableDefaults.flingBehavior] will be used.
  * @param reverseScrolling reverse the direction of scrolling, when `true`, 0 [ScrollState.value]
- * will mean bottom, when `false`, 0 [ScrollState.value] will mean top
+ *   will mean bottom, when `false`, 0 [ScrollState.value] will mean top
+ * @see [rememberScrollState]
  */
 fun Modifier.verticalScroll(
     state: ScrollState,
     enabled: Boolean = true,
     flingBehavior: FlingBehavior? = null,
     reverseScrolling: Boolean = false
-) = scroll(
-    state = state,
-    isScrollable = enabled,
-    reverseScrolling = reverseScrolling,
-    flingBehavior = flingBehavior,
-    isVertical = true
-)
+) =
+    scroll(
+        state = state,
+        isScrollable = enabled,
+        reverseScrolling = reverseScrolling,
+        flingBehavior = flingBehavior,
+        isVertical = true
+    )
 
 /**
  * Modify element to allow to scroll horizontally when width of the content is bigger than max
@@ -244,27 +232,28 @@ fun Modifier.verticalScroll(
  * @sample androidx.compose.foundation.samples.HorizontalScrollSample
  *
  * In order to use this modifier, you need to create and own [ScrollState]
- * @see [rememberScrollState]
  *
  * @param state state of the scroll
  * @param enabled whether or not scrolling via touch input is enabled
  * @param flingBehavior logic describing fling behavior when drag has finished with velocity. If
- * `null`, default from [ScrollableDefaults.flingBehavior] will be used.
+ *   `null`, default from [ScrollableDefaults.flingBehavior] will be used.
  * @param reverseScrolling reverse the direction of scrolling, when `true`, 0 [ScrollState.value]
- * will mean right, when `false`, 0 [ScrollState.value] will mean left
+ *   will mean right, when `false`, 0 [ScrollState.value] will mean left
+ * @see [rememberScrollState]
  */
 fun Modifier.horizontalScroll(
     state: ScrollState,
     enabled: Boolean = true,
     flingBehavior: FlingBehavior? = null,
     reverseScrolling: Boolean = false
-) = scroll(
-    state = state,
-    isScrollable = enabled,
-    reverseScrolling = reverseScrolling,
-    flingBehavior = flingBehavior,
-    isVertical = false
-)
+) =
+    scroll(
+        state = state,
+        isScrollable = enabled,
+        reverseScrolling = reverseScrolling,
+        flingBehavior = flingBehavior,
+        isVertical = false
+    )
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.scroll(
@@ -273,35 +262,37 @@ private fun Modifier.scroll(
     flingBehavior: FlingBehavior?,
     isScrollable: Boolean,
     isVertical: Boolean
-) = composed(
-    factory = {
-        val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
-        val reverseDirection = ScrollableDefaults.reverseDirection(
-            LocalLayoutDirection.current,
-            orientation,
-            reverseScrolling
-        )
-        Modifier
-            .scrollingContainer(
-                state = state,
-                orientation = orientation,
-                enabled = isScrollable,
-                reverseDirection = reverseDirection,
-                flingBehavior = flingBehavior,
-                interactionSource = state.internalInteractionSource,
-                overscrollEffect = ScrollableDefaults.overscrollEffect()
-            )
-            .then(ScrollingLayoutElement(state, reverseScrolling, isVertical))
-    },
-    inspectorInfo = debugInspectorInfo {
-        name = "scroll"
-        properties["state"] = state
-        properties["reverseScrolling"] = reverseScrolling
-        properties["flingBehavior"] = flingBehavior
-        properties["isScrollable"] = isScrollable
-        properties["isVertical"] = isVertical
-    }
-)
+) =
+    composed(
+        factory = {
+            val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
+            val reverseDirection =
+                ScrollableDefaults.reverseDirection(
+                    LocalLayoutDirection.current,
+                    orientation,
+                    reverseScrolling
+                )
+            Modifier.scrollingContainer(
+                    state = state,
+                    orientation = orientation,
+                    enabled = isScrollable,
+                    reverseDirection = reverseDirection,
+                    flingBehavior = flingBehavior,
+                    interactionSource = state.internalInteractionSource,
+                    overscrollEffect = ScrollableDefaults.overscrollEffect()
+                )
+                .then(ScrollingLayoutElement(state, reverseScrolling, isVertical))
+        },
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "scroll"
+                properties["state"] = state
+                properties["reverseScrolling"] = reverseScrolling
+                properties["flingBehavior"] = flingBehavior
+                properties["isScrollable"] = isScrollable
+                properties["isVertical"] = isVertical
+            }
+    )
 
 internal class ScrollingLayoutElement(
     val scrollState: ScrollState,
@@ -358,10 +349,11 @@ internal class ScrollNode(
             if (isVertical) Orientation.Vertical else Orientation.Horizontal
         )
 
-        val childConstraints = constraints.copy(
-            maxHeight = if (isVertical) Constraints.Infinity else constraints.maxHeight,
-            maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity
-        )
+        val childConstraints =
+            constraints.copy(
+                maxHeight = if (isVertical) Constraints.Infinity else constraints.maxHeight,
+                maxWidth = if (isVertical) constraints.maxWidth else Constraints.Infinity
+            )
         val placeable = measurable.measure(childConstraints)
         val width = placeable.width.coerceAtMost(constraints.maxWidth)
         val height = placeable.height.coerceAtMost(constraints.maxHeight)
@@ -435,11 +427,12 @@ internal class ScrollNode(
 
     override fun SemanticsPropertyReceiver.applySemantics() {
         isTraversalGroup = true
-        val accessibilityScrollState = ScrollAxisRange(
-            value = { state.value.toFloat() },
-            maxValue = { state.maxValue.toFloat() },
-            reverseScrolling = reverseScrolling
-        )
+        val accessibilityScrollState =
+            ScrollAxisRange(
+                value = { state.value.toFloat() },
+                maxValue = { state.maxValue.toFloat() },
+                reverseScrolling = reverseScrolling
+            )
         if (isVertical) {
             this.verticalScrollAxisRange = accessibilityScrollState
         } else {

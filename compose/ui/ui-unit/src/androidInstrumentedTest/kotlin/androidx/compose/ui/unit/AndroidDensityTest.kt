@@ -26,49 +26,31 @@ import org.junit.Test
 class AndroidDensityTest {
     private val density = Density(2f, 3f)
 
-    @Test
-    fun testDpToSp() = with(density) {
-        assertEquals(2.sp, 6.dp.toSp())
-    }
+    @Test fun testDpToSp() = with(density) { assertEquals(2.sp, 6.dp.toSp()) }
 
-    @Test
-    fun testTextUnitToPx() = with(density) {
-        assertEquals(6f, 1.sp.toPx(), 0.001f)
-    }
+    @Test fun testTextUnitToPx() = with(density) { assertEquals(6f, 1.sp.toPx(), 0.001f) }
 
     @Test(expected = IllegalStateException::class)
     fun testTextUnitToPxFail() {
-        with(density) {
-            1.em.toPx()
-        }
+        with(density) { 1.em.toPx() }
     }
 
     @Test
-    fun testTextRoundUnitToPx() = with(density) {
-        assertEquals(6, 1.sp.roundToPx())
-        assertEquals(6, 1.05.sp.roundToPx())
-        assertEquals(6, .95.sp.roundToPx())
-    }
+    fun testTextRoundUnitToPx() =
+        with(density) {
+            assertEquals(6, 1.sp.roundToPx())
+            assertEquals(6, 1.05.sp.roundToPx())
+            assertEquals(6, .95.sp.roundToPx())
+        }
 
     @Test(expected = IllegalStateException::class)
     fun testTextUnitRoundToPxFail() {
-        with(density) {
-            1.em.roundToPx()
-        }
+        with(density) { 1.em.roundToPx() }
     }
 
-    @Test
-    fun testTextUnitToDp() = with(density) {
-        assertEquals(3.dp, 1.sp.toDp())
-    }
+    @Test fun testTextUnitToDp() = with(density) { assertEquals(3.dp, 1.sp.toDp()) }
 
-    @Test
-    fun testIntToSp() = with(density) {
-        assertEquals(1.sp, 6.toSp())
-    }
+    @Test fun testIntToSp() = with(density) { assertEquals(1.sp, 6.toSp()) }
 
-    @Test
-    fun testFloatToSp() = with(density) {
-        assertEquals(1.sp, 6f.toSp())
-    }
+    @Test fun testFloatToSp() = with(density) { assertEquals(1.sp, 6f.toSp()) }
 }

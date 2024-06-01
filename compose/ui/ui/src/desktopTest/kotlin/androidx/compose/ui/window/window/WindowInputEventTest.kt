@@ -136,13 +136,10 @@ class WindowInputEventTest {
                 window = this.window
 
                 val focusRequester = remember(::FocusRequester)
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
                 Box(
-                    Modifier
-                        .focusRequester(focusRequester)
+                    Modifier.focusRequester(focusRequester)
                         .focusTarget()
                         .onPreviewKeyEvent {
                             onNodePreviewKeyEventKeys.add(it.key)
@@ -216,9 +213,7 @@ class WindowInputEventTest {
                 Box(
                     Modifier.fillMaxSize().pointerInput(events) {
                         while (true) {
-                            awaitPointerEventScope {
-                                events += awaitPointerEvent()
-                            }
+                            awaitPointerEventScope { events += awaitPointerEvent() }
                         }
                     }
                 )
@@ -266,8 +261,7 @@ class WindowInputEventTest {
                 window = this.window
 
                 Box(
-                    Modifier
-                        .fillMaxSize()
+                    Modifier.fillMaxSize()
                         .onPointerEvent(PointerEventType.Move) {
                             onMoves.add(it.changes.first().position)
                         }
@@ -306,11 +300,11 @@ class WindowInputEventTest {
         assertThat(onExits).isEqualTo(0)
 
         // TODO(https://github.com/JetBrains/compose-jb/issues/1176) fix catching exit event
-//        window.sendMouseEvent(MouseEvent.MOUSE_EXITED, x = 900, y = 500)
-//        awaitIdle()
-//        assertThat(onMoves.size).isEqualTo(2)
-//        assertThat(onEnters).isEqualTo(1)
-//        assertThat(onExits).isEqualTo(1)
+        //        window.sendMouseEvent(MouseEvent.MOUSE_EXITED, x = 900, y = 500)
+        //        awaitIdle()
+        //        assertThat(onMoves.size).isEqualTo(2)
+        //        assertThat(onEnters).isEqualTo(1)
+        //        assertThat(onExits).isEqualTo(1)
 
         exitApplication()
     }
@@ -329,11 +323,9 @@ class WindowInputEventTest {
                 window = this.window
 
                 Box(
-                    Modifier
-                        .fillMaxSize()
-                        .onPointerEvent(PointerEventType.Scroll) {
-                            deltas.add(it.changes.first().scrollDelta)
-                        }
+                    Modifier.fillMaxSize().onPointerEvent(PointerEventType.Scroll) {
+                        deltas.add(it.changes.first().scrollDelta)
+                    }
                 )
             }
         }
@@ -380,11 +372,9 @@ class WindowInputEventTest {
                 window = this.window
 
                 Box(
-                    Modifier
-                        .fillMaxSize()
-                        .onPointerEvent(PointerEventType.Scroll) {
-                            deltas.add(it.changes.first().scrollDelta)
-                        }
+                    Modifier.fillMaxSize().onPointerEvent(PointerEventType.Scroll) {
+                        deltas.add(it.changes.first().scrollDelta)
+                    }
                 )
             }
         }
@@ -424,11 +414,9 @@ class WindowInputEventTest {
                 window = this.window
 
                 Box(
-                    Modifier
-                        .fillMaxSize()
-                        .onFirstPointerEvent(PointerEventType.Scroll) {
-                            deltas.add(it.changes.first().scrollDelta)
-                        }
+                    Modifier.fillMaxSize().onFirstPointerEvent(PointerEventType.Scroll) {
+                        deltas.add(it.changes.first().scrollDelta)
+                    }
                 )
             }
         }
@@ -469,8 +457,7 @@ class WindowInputEventTest {
                 window = this.window
 
                 Box(
-                    Modifier
-                        .fillMaxSize()
+                    Modifier.fillMaxSize()
                         .onPointerEvent(PointerEventType.Press) {
                             receivedButtons.add(it.buttons)
                             receivedKeyboardModifiers.add(it.keyboardModifiers)
@@ -489,28 +476,33 @@ class WindowInputEventTest {
             MouseEvent.MOUSE_PRESSED,
             x = 100,
             y = 50,
-            modifiers = MouseEvent.SHIFT_DOWN_MASK or MouseEvent.CTRL_DOWN_MASK or
-                MouseEvent.BUTTON1_DOWN_MASK or MouseEvent.BUTTON3_DOWN_MASK
+            modifiers =
+                MouseEvent.SHIFT_DOWN_MASK or
+                    MouseEvent.CTRL_DOWN_MASK or
+                    MouseEvent.BUTTON1_DOWN_MASK or
+                    MouseEvent.BUTTON3_DOWN_MASK
         )
 
         awaitIdle()
         assertThat(receivedButtons.size).isEqualTo(1)
-        assertThat(receivedButtons.last()).isEqualTo(
-            PointerButtons(
-                isPrimaryPressed = true,
-                isSecondaryPressed = true,
+        assertThat(receivedButtons.last())
+            .isEqualTo(
+                PointerButtons(
+                    isPrimaryPressed = true,
+                    isSecondaryPressed = true,
+                )
             )
-        )
         assertThat(receivedKeyboardModifiers.size).isEqualTo(1)
-        assertThat(receivedKeyboardModifiers.last()).isEqualTo(
-            PointerKeyboardModifiers(
-                isCtrlPressed = true,
-                isShiftPressed = true,
-                isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
-                isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
-                isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
+        assertThat(receivedKeyboardModifiers.last())
+            .isEqualTo(
+                PointerKeyboardModifiers(
+                    isCtrlPressed = true,
+                    isShiftPressed = true,
+                    isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
+                    isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
+                    isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
+                )
             )
-        )
 
         window.sendMouseWheelEvent(
             MouseEvent.MOUSE_WHEEL,
@@ -518,69 +510,75 @@ class WindowInputEventTest {
             y = 50,
             scrollType = MouseWheelEvent.WHEEL_UNIT_SCROLL,
             wheelRotation = 1,
-            modifiers = MouseEvent.SHIFT_DOWN_MASK or MouseEvent.CTRL_DOWN_MASK or
-                MouseEvent.BUTTON1_DOWN_MASK or MouseEvent.BUTTON3_DOWN_MASK
+            modifiers =
+                MouseEvent.SHIFT_DOWN_MASK or
+                    MouseEvent.CTRL_DOWN_MASK or
+                    MouseEvent.BUTTON1_DOWN_MASK or
+                    MouseEvent.BUTTON3_DOWN_MASK
         )
 
         awaitIdle()
         assertThat(receivedButtons.size).isEqualTo(2)
-        assertThat(receivedButtons.last()).isEqualTo(
-            PointerButtons(
-                isPrimaryPressed = true,
-                isSecondaryPressed = true,
+        assertThat(receivedButtons.last())
+            .isEqualTo(
+                PointerButtons(
+                    isPrimaryPressed = true,
+                    isSecondaryPressed = true,
+                )
             )
-        )
         assertThat(receivedKeyboardModifiers.size).isEqualTo(2)
-        assertThat(receivedKeyboardModifiers.last()).isEqualTo(
-            PointerKeyboardModifiers(
-                isCtrlPressed = true,
-                isShiftPressed = true,
-                isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
-                isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
-                isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
+        assertThat(receivedKeyboardModifiers.last())
+            .isEqualTo(
+                PointerKeyboardModifiers(
+                    isCtrlPressed = true,
+                    isShiftPressed = true,
+                    isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
+                    isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
+                    isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
+                )
             )
-        )
 
         exitApplication()
     }
 
-    private fun getLockingKeyStateSafe(
-        mask: Int
-    ): Boolean = try {
-        Toolkit.getDefaultToolkit().getLockingKeyState(mask)
-    } catch (_: Exception) {
-        false
-    }
+    private fun getLockingKeyStateSafe(mask: Int): Boolean =
+        try {
+            Toolkit.getDefaultToolkit().getLockingKeyState(mask)
+        } catch (_: Exception) {
+            false
+        }
 
     private fun Modifier.onPointerEvent(
         eventType: PointerEventType,
         onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
-    ) = pointerInput(eventType, onEvent) {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent()
-                if (event.type == eventType) {
-                    onEvent(event)
+    ) =
+        pointerInput(eventType, onEvent) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    if (event.type == eventType) {
+                        onEvent(event)
+                    }
                 }
             }
         }
-    }
 
     /**
-     * Handle only the first received event and drop all the others that are received
-     * in a single frame
+     * Handle only the first received event and drop all the others that are received in a single
+     * frame
      */
     private fun Modifier.onFirstPointerEvent(
         eventType: PointerEventType,
         onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
-    ) = pointerInput(eventType, onEvent) {
-        while (true) {
-            awaitPointerEventScope {
-                val event = awaitEvent(eventType)
-                onEvent(event)
+    ) =
+        pointerInput(eventType, onEvent) {
+            while (true) {
+                awaitPointerEventScope {
+                    val event = awaitEvent(eventType)
+                    onEvent(event)
+                }
             }
         }
-    }
 
     private suspend fun AwaitPointerEventScope.awaitEvent(
         eventType: PointerEventType
@@ -588,12 +586,13 @@ class WindowInputEventTest {
         var event: PointerEvent
         do {
             event = awaitPointerEvent()
-        } while (
-            event.type != eventType
-        )
+        } while (event.type != eventType)
         return event
     }
 
-    private val PointerEvent.pressed get() = changes.first().pressed
-    private val PointerEvent.position get() = changes.first().position
+    private val PointerEvent.pressed
+        get() = changes.first().pressed
+
+    private val PointerEvent.position
+        get() = changes.first().position
 }

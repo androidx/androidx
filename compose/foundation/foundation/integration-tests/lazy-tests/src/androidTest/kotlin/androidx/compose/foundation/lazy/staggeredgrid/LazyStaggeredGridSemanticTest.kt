@@ -39,22 +39,23 @@ import org.junit.runners.Parameterized
 @OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
-class LazyStaggeredGridSemanticTest(
-    private val orientation: Orientation
-) : BaseLazyStaggeredGridWithOrientation(orientation) {
+class LazyStaggeredGridSemanticTest(private val orientation: Orientation) :
+    BaseLazyStaggeredGridWithOrientation(orientation) {
     companion object {
         private const val LazyStaggeredGridTag = "LazyStaggeredGridTag"
         private const val ItemCount = 60
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(
-            Orientation.Vertical,
-            Orientation.Horizontal,
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                Orientation.Vertical,
+                Orientation.Horizontal,
+            )
     }
 
     private fun key(index: Int): String = "key_$index"
+
     private fun tag(index: Int): String = "tag_$index"
 
     private var itemSizeDp: Dp = Dp.Unspecified
@@ -62,9 +63,7 @@ class LazyStaggeredGridSemanticTest(
 
     @Before
     fun setUp() {
-        with(rule.density) {
-            itemSizeDp = itemSizePx.toDp()
-        }
+        with(rule.density) { itemSizeDp = itemSizePx.toDp() }
     }
 
     @Test
@@ -72,10 +71,10 @@ class LazyStaggeredGridSemanticTest(
         rule.setContent {
             LazyStaggeredGrid(
                 lanes = 2,
-                modifier = Modifier
-                    .testTag(LazyStaggeredGridTag)
-                    .mainAxisSize(itemSizeDp * 3 - 1.dp) // -1 to prevent laying out more items
-                    .crossAxisSize(itemSizeDp * 2)
+                modifier =
+                    Modifier.testTag(LazyStaggeredGridTag)
+                        .mainAxisSize(itemSizeDp * 3 - 1.dp) // -1 to prevent laying out more items
+                        .crossAxisSize(itemSizeDp * 2)
             ) {
                 repeat(ItemCount) {
                     item(key = key(it)) {
@@ -92,10 +91,10 @@ class LazyStaggeredGridSemanticTest(
         rule.setContent {
             LazyStaggeredGrid(
                 lanes = 2,
-                modifier = Modifier
-                    .testTag(LazyStaggeredGridTag)
-                    .mainAxisSize(itemSizeDp * 3 - 1.dp) // -1 to prevent laying out more items
-                    .crossAxisSize(itemSizeDp * 2)
+                modifier =
+                    Modifier.testTag(LazyStaggeredGridTag)
+                        .mainAxisSize(itemSizeDp * 3 - 1.dp) // -1 to prevent laying out more items
+                        .crossAxisSize(itemSizeDp * 2)
             ) {
                 items(items = List(ItemCount) { it }, key = { key(it) }) {
                     BasicText("$it", Modifier.testTag(tag(it)).mainAxisSize(itemSizeDp))
@@ -109,19 +108,24 @@ class LazyStaggeredGridSemanticTest(
         checkViewport(firstExpectedItem = 0, lastExpectedItem = 5)
 
         // Verify IndexForKey
-        rule.onNodeWithTag(LazyStaggeredGridTag).assert(
-            SemanticsMatcher.keyIsDefined(SemanticsProperties.IndexForKey).and(
-                SemanticsMatcher("keys match") { node ->
-                    val actualIndex = node.config.getOrNull(SemanticsProperties.IndexForKey)!!
-                    (0 until ItemCount).all { expectedIndex ->
-                        expectedIndex == actualIndex.invoke(key(expectedIndex))
-                    }
-                }
+        rule
+            .onNodeWithTag(LazyStaggeredGridTag)
+            .assert(
+                SemanticsMatcher.keyIsDefined(SemanticsProperties.IndexForKey)
+                    .and(
+                        SemanticsMatcher("keys match") { node ->
+                            val actualIndex =
+                                node.config.getOrNull(SemanticsProperties.IndexForKey)!!
+                            (0 until ItemCount).all { expectedIndex ->
+                                expectedIndex == actualIndex.invoke(key(expectedIndex))
+                            }
+                        }
+                    )
             )
-        )
 
         // Verify ScrollToIndex
-        rule.onNodeWithTag(LazyStaggeredGridTag)
+        rule
+            .onNodeWithTag(LazyStaggeredGridTag)
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex))
 
         invokeScrollToIndex(targetIndex = 30)
@@ -132,8 +136,10 @@ class LazyStaggeredGridSemanticTest(
     }
 
     private fun invokeScrollToIndex(targetIndex: Int) {
-        val node = rule.onNodeWithTag(LazyStaggeredGridTag)
-            .fetchSemanticsNode("Failed: invoke ScrollToIndex")
+        val node =
+            rule
+                .onNodeWithTag(LazyStaggeredGridTag)
+                .fetchSemanticsNode("Failed: invoke ScrollToIndex")
         rule.runOnUiThread {
             node.config[SemanticsActions.ScrollToIndex].action!!.invoke(targetIndex)
         }
@@ -143,9 +149,7 @@ class LazyStaggeredGridSemanticTest(
         if (firstExpectedItem > 0) {
             rule.onNodeWithTag(tag(firstExpectedItem - 1)).assertDoesNotExist()
         }
-        (firstExpectedItem..lastExpectedItem).forEach {
-            rule.onNodeWithTag(tag(it)).assertExists()
-        }
+        (firstExpectedItem..lastExpectedItem).forEach { rule.onNodeWithTag(tag(it)).assertExists() }
         if (firstExpectedItem < ItemCount - 1) {
             rule.onNodeWithTag(tag(lastExpectedItem + 1)).assertDoesNotExist()
         }

@@ -46,14 +46,13 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     /**
      * This should be only read only in the post-lookahead placement pass. It returns null when
-     * there's no shared element/bounds becoming visible (i.e. when only exiting shared elements
-     * are defined, which is an incorrect state).
+     * there's no shared element/bounds becoming visible (i.e. when only exiting shared elements are
+     * defined, which is an incorrect state).
      */
     val targetBounds: Rect?
         get() {
-            _targetBounds = targetBoundsProvider?.run {
-                Rect(calculateLookaheadOffset(), nonNullLookaheadSize)
-            }
+            _targetBounds =
+                targetBoundsProvider?.run { Rect(calculateLookaheadOffset(), nonNullLookaheadSize) }
             return _targetBounds
         }
 
@@ -94,9 +93,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
             if (_targetBounds?.topLeft != topLeft || _targetBounds?.size != lookaheadSize) {
                 val target = Rect(topLeft, lookaheadSize)
                 _targetBounds = target
-                states.fastForEach {
-                    it.boundsAnimation.animate(currentBounds!!, target)
-                }
+                states.fastForEach { it.boundsAnimation.animate(currentBounds!!, target) }
             }
         }
     }
@@ -104,10 +101,10 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
     /**
      * Each state comes from a call site of sharedElement/sharedBounds of the same key. In most
      * cases there will be 1 (i.e. no match) or 2 (i.e. match found) states. In the interrupted
-     * cases, there may be multiple scenes showing simultaneously, resulting in more than 2
-     * shared element states for the same key to be present. In those cases, we expect there to be
-     * only 1 state that is becoming visible, which we will use to derive target bounds. If none
-     * is becoming visible, then we consider this an error case for the lack of target, and
+     * cases, there may be multiple scenes showing simultaneously, resulting in more than 2 shared
+     * element states for the same key to be present. In those cases, we expect there to be only 1
+     * state that is becoming visible, which we will use to derive target bounds. If none is
+     * becoming visible, then we consider this an error case for the lack of target, and
      * consequently animate none of them.
      */
     val states = mutableStateListOf<SharedElementInternalState>()
@@ -116,8 +113,8 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     /**
      * This gets called to update the target bounds. The 3 scenarios where
-     * [updateTargetBoundsProvider] is needed
-     * are: when a shared element is 1) added,  2) removed, or 3) getting a target state change.
+     * [updateTargetBoundsProvider] is needed are: when a shared element is 1) added, 2) removed,
+     * or 3) getting a target state change.
      *
      * This is always called from an effect. Assume all compositional changes have been made in this
      * call.
@@ -142,13 +139,9 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         _targetBounds = null
     }
 
-    private val updateMatch: (SharedElement) -> Unit = {
-        updateMatch()
-    }
+    private val updateMatch: (SharedElement) -> Unit = { updateMatch() }
 
-    private val observingVisibilityChange: () -> Unit = {
-        hasVisibleContent()
-    }
+    private val observingVisibilityChange: () -> Unit = { hasVisibleContent() }
 
     fun addState(sharedElementState: SharedElementInternalState) {
         states.add(sharedElementState)
@@ -193,37 +186,33 @@ internal class SharedElementInternalState(
         val layer = layer ?: return
         if (shouldRenderInOverlay) {
             with(drawScope) {
-                requireNotNull(sharedElement.currentBounds) {
-                    "Error: current bounds not set yet."
-                }
+                requireNotNull(sharedElement.currentBounds) { "Error: current bounds not set yet." }
                 val (x, y) = sharedElement.currentBounds?.topLeft!!
-                clipPathInOverlay?.let {
-                    clipPath(it) {
-                        translate(x, y) {
-                            drawLayer(layer)
-                        }
-                    }
-                } ?: translate(x, y) { drawLayer(layer) }
+                clipPathInOverlay?.let { clipPath(it) { translate(x, y) { drawLayer(layer) } } }
+                    ?: translate(x, y) { drawLayer(layer) }
             }
         }
     }
 
     val nonNullLookaheadSize: Size
-        get() = requireNotNull(lookaheadCoords()) {
-            "Error: lookahead coordinates is null for ${sharedElement.key}."
-        }.size.toSize()
+        get() =
+            requireNotNull(lookaheadCoords()) {
+                    "Error: lookahead coordinates is null for ${sharedElement.key}."
+                }
+                .size
+                .toSize()
+
     var lookaheadCoords: () -> LayoutCoordinates? = { null }
     override var parentState: SharedElementInternalState? = null
 
     // This can only be accessed during placement
     fun calculateLookaheadOffset(): Offset {
-        val c = requireNotNull(lookaheadCoords()) {
-            "Error: lookahead coordinates is null."
-        }
+        val c = requireNotNull(lookaheadCoords()) { "Error: lookahead coordinates is null." }
         return sharedElement.scope.lookaheadRoot.localPositionOf(c, Offset.Zero)
     }
 
-    val target: Boolean get() = boundsAnimation.target
+    val target: Boolean
+        get() = boundsAnimation.target
 
     // Delegate the property to a mutable state, so that when layer is updated, the rendering
     // gets invalidated.
@@ -233,8 +222,8 @@ internal class SharedElementInternalState(
         get() = sharedElement.targetBoundsProvider == this || !renderOnlyWhenVisible
 
     internal val shouldRenderInOverlay: Boolean
-        get() = shouldRenderBasedOnTarget && sharedElement.foundMatch &&
-            renderInOverlayDuringTransition
+        get() =
+            shouldRenderBasedOnTarget && sharedElement.foundMatch && renderInOverlayDuringTransition
 
     val shouldRenderInPlace: Boolean
         get() = !sharedElement.foundMatch || (!shouldRenderInOverlay && shouldRenderBasedOnTarget)

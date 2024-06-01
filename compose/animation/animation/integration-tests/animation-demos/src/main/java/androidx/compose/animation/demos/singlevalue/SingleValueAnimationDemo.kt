@@ -38,22 +38,17 @@ import androidx.compose.ui.tooling.preview.Preview
 fun SingleValueAnimationDemo() {
     val enabled = remember { mutableStateOf(true) }
     val alpha: Float by animateFloatAsState(if (enabled.value) 1f else 0.5f)
-    val color by animateColorAsState(
-        if (enabled.value) Color.Green else Color.Magenta,
-        spring()
-    ) {
-        println("Finished at color $it")
-    }
+    val color by
+        animateColorAsState(if (enabled.value) Color.Green else Color.Magenta, spring()) {
+            println("Finished at color $it")
+        }
     Box(
-        Modifier
-            .fillMaxSize()
+        Modifier.fillMaxSize()
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ) {
-                enabled
-                    .value = !enabled
-                    .value
+                enabled.value = !enabled.value
             }
             .graphicsLayer { this.alpha = alpha }
             .background(color)

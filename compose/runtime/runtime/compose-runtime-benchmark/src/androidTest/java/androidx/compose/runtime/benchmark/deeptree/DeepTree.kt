@@ -33,11 +33,12 @@ val blackBackground = Modifier.background(color = Color.Black)
 
 @Composable
 fun Terminal(style: Int) {
-    val background = when (style) {
-        0 -> blueBackground
-        1 -> blackBackground
-        else -> magentaBackground
-    }
+    val background =
+        when (style) {
+            0 -> blueBackground
+            1 -> blackBackground
+            else -> magentaBackground
+        }
     Box(modifier = Modifier.fillMaxSize().then(background))
 }
 
@@ -51,38 +52,31 @@ fun Stack(vertical: Boolean, content: @Composable () -> Unit) {
 }
 
 /**
- *
  * This Component will emit `breadth ^ depth` Terminal components.
  *
- *
- * @param depth - increasing this will determine how many nested <Stack> elements will result in the tree. Higher
- * numbers would be a proxy for very complicated layouts
- *
- * @param breadth - increasing this will increase the number of nodes at each level. Correlates to exponential
- * growth in the number of nodes in the tree, so be careful making it too large.
- *
- * @param wrap - to make the depth of the composition tree greater, we can increase this and it will just wrap
- * the component this many times at each level. It will not increase the number of layout nodes in the tree, but
- * will make composition more expensive.
- *
+ * @param depth - increasing this will determine how many nested <Stack> elements will result in the
+ *   tree. Higher numbers would be a proxy for very complicated layouts
+ * @param breadth - increasing this will increase the number of nodes at each level. Correlates to
+ *   exponential growth in the number of nodes in the tree, so be careful making it too large.
+ * @param wrap - to make the depth of the composition tree greater, we can increase this and it will
+ *   just wrap the component this many times at each level. It will not increase the number of
+ *   layout nodes in the tree, but will make composition more expensive.
  * @param id - an int that determines the style of the next terminal
  */
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun DeepTree(depth: Int, breadth: Int, wrap: Int, id: Int = 0) {
-//    if (wrap > 0) {
-//        Container {
-//            DeepTree(depth=depth, breadth=breadth, wrap=wrap - 1, id=id)
-//        }
-//    } else {
+    //    if (wrap > 0) {
+    //        Container {
+    //            DeepTree(depth=depth, breadth=breadth, wrap=wrap - 1, id=id)
+    //        }
+    //    } else {
     Stack(vertical = depth % 2 == 0) {
         if (depth == 0) {
             Terminal(style = id % 3)
         } else {
-            repeat(breadth) {
-                Box(Modifier.fillMaxSize().then(blueBackground))
-            }
+            repeat(breadth) { Box(Modifier.fillMaxSize().then(blueBackground)) }
         }
     }
-//    }
+    //    }
 }

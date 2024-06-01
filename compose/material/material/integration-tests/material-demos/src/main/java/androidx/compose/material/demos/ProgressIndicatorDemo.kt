@@ -49,36 +49,25 @@ fun ProgressIndicatorDemo() {
 
     DisposableEffect(Unit) {
         state.start()
-        onDispose {
-            state.stop()
-        }
+        onDispose { state.stop() }
     }
 
     Column {
-        val modifier = Modifier.weight(1f, true)
-            .align(Alignment.CenterHorizontally)
-            .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colors.primary)
+        val modifier =
+            Modifier.weight(1f, true)
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .border(1.dp, MaterialTheme.colors.primary)
         // Determinate indicators
-        Box(modifier, contentAlignment = Alignment.Center) {
-            LinearProgressIndicatorSample()
-        }
+        Box(modifier, contentAlignment = Alignment.Center) { LinearProgressIndicatorSample() }
         Box(modifier, contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 LinearProgressIndicator(progress = state.progress)
                 Spacer(Modifier.requiredHeight(30.dp))
-                OutlinedButton(
-                    onClick = {
-                        state.progress = 0f
-                    }
-                ) {
-                    Text("Reset")
-                }
+                OutlinedButton(onClick = { state.progress = 0f }) { Text("Reset") }
             }
         }
-        Box(modifier, contentAlignment = Alignment.Center) {
-            CircularProgressIndicatorSample()
-        }
+        Box(modifier, contentAlignment = Alignment.Center) { CircularProgressIndicatorSample() }
         Row(
             modifier,
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -103,12 +92,13 @@ private class ProgressState {
     }
 
     val handler = Handler(Looper.getMainLooper())
-    val updateProgress: Runnable = object : Runnable {
-        override fun run() {
-            if (progress < 1f) {
-                progress += 0.05f
+    val updateProgress: Runnable =
+        object : Runnable {
+            override fun run() {
+                if (progress < 1f) {
+                    progress += 0.05f
+                }
+                handler.postDelayed(this, 500)
             }
-            handler.postDelayed(this, 500)
         }
-    }
 }

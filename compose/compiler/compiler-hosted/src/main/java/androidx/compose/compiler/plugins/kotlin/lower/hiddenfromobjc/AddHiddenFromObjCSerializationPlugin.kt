@@ -30,8 +30,8 @@ import org.jetbrains.kotlin.serialization.DescriptorSerializerPlugin
 import org.jetbrains.kotlin.serialization.SerializerExtension
 
 /**
- * Adds the kotlin.native.HiddenFromObjC annotation to the descriptors of declarations
- * in [hideFromObjCDeclarationsSet].
+ * Adds the kotlin.native.HiddenFromObjC annotation to the descriptors of declarations in
+ * [hideFromObjCDeclarationsSet].
  *
  * @see [HideFromObjCDeclarationsSet]
  */
@@ -44,9 +44,9 @@ class AddHiddenFromObjCSerializationPlugin(
     private val annotationToAdd = ClassId.fromString("kotlin/native/HiddenFromObjC")
 
     private fun createAnnotationProto(extension: SerializerExtension) =
-        ProtoBuf.Annotation.newBuilder().apply {
-            id = extension.stringTable.getQualifiedClassNameIndex(annotationToAdd)
-        }.build()
+        ProtoBuf.Annotation.newBuilder()
+            .apply { id = extension.stringTable.getQualifiedClassNameIndex(annotationToAdd) }
+            .build()
 
     override fun afterClass(
         descriptor: ClassDescriptor,

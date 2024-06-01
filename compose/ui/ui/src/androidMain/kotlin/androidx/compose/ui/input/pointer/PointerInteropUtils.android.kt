@@ -28,10 +28,7 @@ import androidx.compose.ui.geometry.Offset
  * @param offset The offset to be applied to the resulting [MotionEvent].
  * @param block The block to be executed with the resulting [MotionEvent].
  */
-internal fun PointerEvent.toMotionEventScope(
-    offset: Offset,
-    block: (MotionEvent) -> Unit
-) {
+internal fun PointerEvent.toMotionEventScope(offset: Offset, block: (MotionEvent) -> Unit) {
     toMotionEventScope(offset, block, false)
 }
 
@@ -41,10 +38,7 @@ internal fun PointerEvent.toMotionEventScope(
  * @param offset The offset to be applied to the resulting [MotionEvent].
  * @param block The block to be executed with the resulting [MotionEvent].
  */
-internal fun PointerEvent.toCancelMotionEventScope(
-    offset: Offset,
-    block: (MotionEvent) -> Unit
-) {
+internal fun PointerEvent.toCancelMotionEventScope(offset: Offset, block: (MotionEvent) -> Unit) {
     toMotionEventScope(offset, block, true)
 }
 
@@ -53,8 +47,7 @@ internal fun emptyCancelMotionEventScope(
     block: (MotionEvent) -> Unit
 ) {
     // Does what ViewGroup does when it needs to send a minimal ACTION_CANCEL event.
-    val motionEvent =
-        MotionEvent.obtain(nowMillis, nowMillis, ACTION_CANCEL, 0.0f, 0.0f, 0)
+    val motionEvent = MotionEvent.obtain(nowMillis, nowMillis, ACTION_CANCEL, 0.0f, 0.0f, 0)
     motionEvent.source = InputDevice.SOURCE_UNKNOWN
     block(motionEvent)
     motionEvent.recycle()
@@ -66,9 +59,7 @@ private fun PointerEvent.toMotionEventScope(
     cancel: Boolean
 ) {
     val motionEvent = motionEvent
-    requireNotNull(motionEvent) {
-        "The PointerEvent receiver cannot have a null MotionEvent."
-    }
+    requireNotNull(motionEvent) { "The PointerEvent receiver cannot have a null MotionEvent." }
 
     motionEvent.apply {
         val oldAction = action

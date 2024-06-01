@@ -34,8 +34,8 @@ internal expect fun createLegacyPlatformTextInputServiceAdapter():
  * An implementation of the legacy [PlatformTextInputService] interface that delegates to a
  * [LegacyAdaptingPlatformTextInputModifierNode].
  *
- * For this class to work, exactly one [LegacyAdaptingPlatformTextInputModifier] must be attached
- * to a layout node and passed an instance of this class. This class will only function when such a
+ * For this class to work, exactly one [LegacyAdaptingPlatformTextInputModifier] must be attached to
+ * a layout node and passed an instance of this class. This class will only function when such a
  * modifier is attached to the modifier system, otherwise many of its operations will no-op.
  *
  * Note that, contrary to the original design intent of a [PlatformTextInputService], every text
@@ -74,6 +74,7 @@ internal abstract class LegacyPlatformTextInputServiceAdapter : PlatformTextInpu
         val legacyTextFieldState: LegacyTextFieldState?
         val textFieldSelectionManager: TextFieldSelectionManager?
         val viewConfiguration: ViewConfiguration
+
         fun launchTextInputSession(block: suspend PlatformTextInputSession.() -> Nothing): Job?
     }
 }

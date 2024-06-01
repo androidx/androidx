@@ -34,16 +34,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple [detectTapGestures] demo for double tap.
- */
+/** Simple [detectTapGestures] demo for double tap. */
 @Composable
 fun DoubleTapGestureFilterDemo() {
     val color = remember { mutableStateOf(Colors.random()) }
 
-    val onDoubleTap: (Offset) -> Unit = {
-        color.value = color.value.anotherRandomColor()
-    }
+    val onDoubleTap: (Offset) -> Unit = { color.value = color.value.anotherRandomColor() }
 
     Column {
         Text("The box changes color when you double tap it.")

@@ -29,8 +29,11 @@ import androidx.compose.ui.unit.Density
 @Suppress("DEPRECATION")
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
-    replaceWith = ReplaceWith("ActualParagraph(text, style, spanStyles, placeholders, " +
-        "maxLines, ellipsis, width, density, fontFamilyResolver)"),
+    replaceWith =
+        ReplaceWith(
+            "ActualParagraph(text, style, spanStyles, placeholders, " +
+                "maxLines, ellipsis, width, density, fontFamilyResolver)"
+        ),
 )
 // TODO(b/157854677): remove after fixing.
 internal expect fun ActualParagraph(

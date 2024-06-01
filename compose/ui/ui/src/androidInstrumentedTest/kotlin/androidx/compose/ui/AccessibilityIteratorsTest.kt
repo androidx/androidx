@@ -51,8 +51,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AccessibilityIteratorsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val InputText = List(500) { "Line: $it" }.joinToString("\n")
     private val TextFieldTag = "textFieldTag"
@@ -60,8 +59,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun characterIterator_following() {
         val text = "abc"
-        val characterIterator = AccessibilityIterators.CharacterTextSegmentIterator
-            .getInstance(Locale.ENGLISH)
+        val characterIterator =
+            AccessibilityIterators.CharacterTextSegmentIterator.getInstance(Locale.ENGLISH)
         characterIterator.initialize(text)
         // Start from the beginning.
         var currentOffset = 0
@@ -90,8 +89,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun characterIterator_preceding() {
         val text = "abc"
-        val characterIterator = AccessibilityIterators.CharacterTextSegmentIterator
-            .getInstance(Locale.ENGLISH)
+        val characterIterator =
+            AccessibilityIterators.CharacterTextSegmentIterator.getInstance(Locale.ENGLISH)
         characterIterator.initialize(text)
         // Start from the end.
         var currentOffset = text.length
@@ -120,8 +119,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun characterIterator_following_rtl() { // Hebrew -- אבג"
         val text = "\u05d0\u05d1\u05d2"
-        val characterIterator = AccessibilityIterators.CharacterTextSegmentIterator
-            .getInstance(Locale("he", "IL"))
+        val characterIterator =
+            AccessibilityIterators.CharacterTextSegmentIterator.getInstance(Locale("he", "IL"))
         characterIterator.initialize(text)
         // Start from the beginning.
         var currentOffset = 0
@@ -138,8 +137,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun characterIterator_preceding_rtl() { // Hebrew -- אבג"
         val text = "\u05d0\u05d1\u05d2"
-        val characterIterator = AccessibilityIterators.CharacterTextSegmentIterator
-            .getInstance(Locale("he", "IL"))
+        val characterIterator =
+            AccessibilityIterators.CharacterTextSegmentIterator.getInstance(Locale("he", "IL"))
         characterIterator.initialize(text)
         // Start from the end.
         var currentOffset = text.length
@@ -156,8 +155,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun wordIterator_following() {
         val text = "abc def-ghi. jkl"
-        val wordIterator = AccessibilityIterators.WordTextSegmentIterator
-            .getInstance(Locale.ENGLISH)
+        val wordIterator =
+            AccessibilityIterators.WordTextSegmentIterator.getInstance(Locale.ENGLISH)
         wordIterator.initialize(text)
         // Start from the beginning.
         var currentOffset = 0
@@ -194,8 +193,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun wordIterator_preceding() {
         val text = "abc def-ghi. jkl"
-        val wordIterator = AccessibilityIterators.WordTextSegmentIterator
-            .getInstance(Locale.ENGLISH)
+        val wordIterator =
+            AccessibilityIterators.WordTextSegmentIterator.getInstance(Locale.ENGLISH)
         wordIterator.initialize(text)
         // Start from the end.
         var currentOffset = text.length
@@ -225,8 +224,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun wordIterator_following_rtl() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = AccessibilityIterators.WordTextSegmentIterator
-            .getInstance(Locale("he", "IL"))
+        val wordIterator =
+            AccessibilityIterators.WordTextSegmentIterator.getInstance(Locale("he", "IL"))
         wordIterator.initialize(text)
         // Start from the beginning.
         var currentOffset = 0
@@ -249,8 +248,8 @@ class AccessibilityIteratorsTest {
     @Test
     fun wordIterator_preceding_rtl() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = AccessibilityIterators.WordTextSegmentIterator
-            .getInstance(Locale("he", "IL"))
+        val wordIterator =
+            AccessibilityIterators.WordTextSegmentIterator.getInstance(Locale("he", "IL"))
         wordIterator.initialize(text)
         // Start from the end.
         var currentOffset = text.length
@@ -386,8 +385,8 @@ class AccessibilityIteratorsTest {
         val endLine = textLayoutResult.getLineForOffset(range[1])
         val startLineTop = textLayoutResult.getLineTop(startLine)
         val endLineTop = textLayoutResult.getLineTop(endLine)
-        val lineHeight = textLayoutResult.getLineBottom(endLine) -
-            textLayoutResult.getLineTop(endLine)
+        val lineHeight =
+            textLayoutResult.getLineBottom(endLine) - textLayoutResult.getLineTop(endLine)
         val iteratorStep = endLineTop - startLineTop
         val nodeHeight = textFieldNode.boundsInWindow.bottom - textFieldNode.boundsInWindow.top
         Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight)
@@ -409,8 +408,8 @@ class AccessibilityIteratorsTest {
         val endLine = textLayoutResult.getLineForOffset(range[1])
         val startLineTop = textLayoutResult.getLineTop(startLine)
         val endLineTop = textLayoutResult.getLineTop(endLine)
-        val lineHeight = textLayoutResult.getLineBottom(endLine) -
-            textLayoutResult.getLineTop(endLine)
+        val lineHeight =
+            textLayoutResult.getLineBottom(endLine) - textLayoutResult.getLineTop(endLine)
         val iteratorStep = endLineTop - startLineTop
         val nodeHeight = textFieldNode.boundsInWindow.bottom - textFieldNode.boundsInWindow.top
         Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight)
@@ -429,14 +428,17 @@ class AccessibilityIteratorsTest {
             // TODO(yingleiw): use predefined LocalDensity.current when b/163142237 is fixed.
             with(LocalDensity.current) {
                 BasicText(
-                    style = TextStyle(
-                        fontSize = fontSize,
-                        fontFamily = Font(
-                            resId = androidx.testutils.fonts.R.font.sample_font,
-                            weight = FontWeight.Normal,
-                            style = FontStyle.Normal
-                        ).toFontFamily()
-                    ),
+                    style =
+                        TextStyle(
+                            fontSize = fontSize,
+                            fontFamily =
+                                Font(
+                                        resId = androidx.testutils.fonts.R.font.sample_font,
+                                        weight = FontWeight.Normal,
+                                        style = FontStyle.Normal
+                                    )
+                                    .toFontFamily()
+                        ),
                     text = AnnotatedString(text),
                     modifier = Modifier.requiredWidth(width.toDp()),
                     onTextLayout = { textLayoutResult = it }

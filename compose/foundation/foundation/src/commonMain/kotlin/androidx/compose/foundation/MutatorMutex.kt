@@ -26,22 +26,21 @@ import kotlinx.coroutines.sync.withLock
 /**
  * Priorities for performing mutation on state.
  *
- * [MutatePriority] values follow the natural ordering of `enum class` values; a value that
- * compares as `>` to another has a higher priority. A mutation of equal or greater priority will
- * interrupt the current mutation in progress.
+ * [MutatePriority] values follow the natural ordering of `enum class` values; a value that compares
+ * as `>` to another has a higher priority. A mutation of equal or greater priority will interrupt
+ * the current mutation in progress.
  */
 enum class MutatePriority {
     /**
      * The default priority for mutations. Can be interrupted by other [Default], [UserInput] or
-     * [PreventUserInput] priority operations.
-     * [Default] priority should be used for programmatic animations or changes that should not
-     * interrupt user input.
+     * [PreventUserInput] priority operations. [Default] priority should be used for programmatic
+     * animations or changes that should not interrupt user input.
      */
     Default,
 
     /**
-     * An elevated priority for mutations meant for implementing direct user interactions.
-     * Can be interrupted by other [UserInput] or [PreventUserInput] priority operations.
+     * An elevated priority for mutations meant for implementing direct user interactions. Can be
+     * interrupted by other [UserInput] or [PreventUserInput] priority operations.
      */
     UserInput,
 
@@ -54,9 +53,9 @@ enum class MutatePriority {
 }
 
 /**
- * Used in place of the standard Job cancellation pathway to avoid reflective
- * javaClass.simpleName lookups to build the exception message and stack trace collection.
- * Remove if these are changed in kotlinx.coroutines.
+ * Used in place of the standard Job cancellation pathway to avoid reflective javaClass.simpleName
+ * lookups to build the exception message and stack trace collection. Remove if these are changed in
+ * kotlinx.coroutines.
  */
 private class MutationInterruptedException : CancellationException("Mutation interrupted") {
     override fun fillInStackTrace(): Throwable {
@@ -69,14 +68,14 @@ private class MutationInterruptedException : CancellationException("Mutation int
 /**
  * Mutual exclusion for UI state mutation over time.
  *
- * [mutate] permits interruptible state mutation over time using a standard [MutatePriority].
- * A [MutatorMutex] enforces that only a single writer can be active at a time for a particular
- * state resource. Instead of queueing callers that would acquire the lock like a traditional
- * [Mutex], new attempts to [mutate] the guarded state will either cancel the current mutator or
- * if the current mutator has a higher priority, the new caller will throw [CancellationException].
+ * [mutate] permits interruptible state mutation over time using a standard [MutatePriority]. A
+ * [MutatorMutex] enforces that only a single writer can be active at a time for a particular state
+ * resource. Instead of queueing callers that would acquire the lock like a traditional [Mutex], new
+ * attempts to [mutate] the guarded state will either cancel the current mutator or if the current
+ * mutator has a higher priority, the new caller will throw [CancellationException].
  *
- * [MutatorMutex] should be used for implementing hoisted state objects that many mutators may
- * want to manipulate over time such that those mutators can coordinate with one another. The
+ * [MutatorMutex] should be used for implementing hoisted state objects that many mutators may want
+ * to manipulate over time such that those mutators can coordinate with one another. The
  * [MutatorMutex] instance should be hidden as an implementation detail. For example:
  *
  * @sample androidx.compose.foundation.samples.mutatorMutexStateObject
@@ -110,14 +109,14 @@ class MutatorMutex {
      * If [mutate] is called while another call to [mutate] or [mutateWith] is in progress, their
      * [priority] values are compared. If the new caller has a [priority] equal to or higher than
      * the call in progress, the call in progress will be cancelled, throwing
-     * [CancellationException] and the new caller's [block] will be invoked. If the call in
-     * progress had a higher [priority] than the new caller, the new caller will throw
+     * [CancellationException] and the new caller's [block] will be invoked. If the call in progress
+     * had a higher [priority] than the new caller, the new caller will throw
      * [CancellationException] without invoking [block].
      *
      * @param priority the priority of this mutation; [MutatePriority.Default] by default. Higher
-     * priority mutations will interrupt lower priority mutations.
+     *   priority mutations will interrupt lower priority mutations.
      * @param block mutation code to run mutually exclusive with any other call to [mutate] or
-     * [mutateWith].
+     *   [mutateWith].
      */
     suspend fun <R> mutate(
         priority: MutatePriority = MutatePriority.Default,
@@ -140,24 +139,24 @@ class MutatorMutex {
      * Enforce that only a single caller may be active at a time.
      *
      * If [mutateWith] is called while another call to [mutate] or [mutateWith] is in progress,
-     * their [priority] values are compared. If the new caller has a [priority] equal to or
-     * higher than the call in progress, the call in progress will be cancelled, throwing
-     * [CancellationException] and the new caller's [block] will be invoked. If the call in
-     * progress had a higher [priority] than the new caller, the new caller will throw
+     * their [priority] values are compared. If the new caller has a [priority] equal to or higher
+     * than the call in progress, the call in progress will be cancelled, throwing
+     * [CancellationException] and the new caller's [block] will be invoked. If the call in progress
+     * had a higher [priority] than the new caller, the new caller will throw
      * [CancellationException] without invoking [block].
      *
-     * This variant of [mutate] calls its [block] with a [receiver], removing the need to create
-     * an additional capturing lambda to invoke it with a receiver object. This can be used to
-     * expose a mutable scope to the provided [block] while leaving the rest of the state object
-     * read-only. For example:
+     * This variant of [mutate] calls its [block] with a [receiver], removing the need to create an
+     * additional capturing lambda to invoke it with a receiver object. This can be used to expose a
+     * mutable scope to the provided [block] while leaving the rest of the state object read-only.
+     * For example:
      *
      * @sample androidx.compose.foundation.samples.mutatorMutexStateObjectWithReceiver
      *
      * @param receiver the receiver `this` that [block] will be called with
      * @param priority the priority of this mutation; [MutatePriority.Default] by default. Higher
-     * priority mutations will interrupt lower priority mutations.
+     *   priority mutations will interrupt lower priority mutations.
      * @param block mutation code to run mutually exclusive with any other call to [mutate] or
-     * [mutateWith].
+     *   [mutateWith].
      */
     suspend fun <T, R> mutateWith(
         receiver: T,
@@ -178,18 +177,17 @@ class MutatorMutex {
     }
 
     /**
-     * Attempt to mutate synchronously if there is no other active caller.
-     * If there is no other active caller, the [block] will be executed in a lock. If there is
-     * another active caller, this method will return false, indicating that the active caller
-     * needs to be cancelled through a [mutate] or [mutateWith] call with an equal or higher
-     * mutation priority.
+     * Attempt to mutate synchronously if there is no other active caller. If there is no other
+     * active caller, the [block] will be executed in a lock. If there is another active caller,
+     * this method will return false, indicating that the active caller needs to be cancelled
+     * through a [mutate] or [mutateWith] call with an equal or higher mutation priority.
      *
      * Calls to [mutate] and [mutateWith] will suspend until execution of the [block] has finished.
      *
      * @param block mutation code to run mutually exclusive with any other call to [mutate],
-     * [mutateWith] or [tryMutate].
+     *   [mutateWith] or [tryMutate].
      * @return true if the [block] was executed, false if there was another active caller and the
-     * [block] was not executed.
+     *   [block] was not executed.
      */
     inline fun tryMutate(block: () -> Unit): Boolean {
         val didLock = tryLock()
@@ -203,8 +201,7 @@ class MutatorMutex {
         return didLock
     }
 
-    @PublishedApi
-    internal fun tryLock(): Boolean = mutex.tryLock()
+    @PublishedApi internal fun tryLock(): Boolean = mutex.tryLock()
 
     @PublishedApi
     internal fun unlock() {

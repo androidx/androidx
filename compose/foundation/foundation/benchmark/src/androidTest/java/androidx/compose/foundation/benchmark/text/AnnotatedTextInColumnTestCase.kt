@@ -33,9 +33,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 
-/**
- * The benchmark test case for [Text], where the input is a plain annotated string.
- */
+/** The benchmark test case for [Text], where the input is a plain annotated string. */
 class AnnotatedTextInColumnTestCase(
     private val texts: List<AnnotatedString>,
     private val width: Dp,
@@ -54,8 +52,10 @@ class AnnotatedTextInColumnTestCase(
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
         Column(
-            modifier = Modifier.wrapContentSize(Alignment.Center).width(width)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier.wrapContentSize(Alignment.Center)
+                    .width(width)
+                    .verticalScroll(rememberScrollState())
         ) {
             content()
         }

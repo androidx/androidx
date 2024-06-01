@@ -22,24 +22,25 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 
 /**
- * A [LazyLayoutAnimateScrollScope] that allows customization of animated scroll in [Pager].
- * The scope contains information about the layout where animated scroll can be performed as well as
- * the necessary tools to do that respecting the scroll mutation priority.
- *
+ * A [LazyLayoutAnimateScrollScope] that allows customization of animated scroll in [Pager]. The
+ * scope contains information about the layout where animated scroll can be performed as well as the
+ * necessary tools to do that respecting the scroll mutation priority.
  */
 @ExperimentalFoundationApi
 internal fun PagerLazyAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {
 
-        override val firstVisibleItemIndex: Int get() = state.firstVisiblePage
+        override val firstVisibleItemIndex: Int
+            get() = state.firstVisiblePage
 
-        override val firstVisibleItemScrollOffset: Int get() = state.firstVisiblePageOffset
+        override val firstVisibleItemScrollOffset: Int
+            get() = state.firstVisiblePageOffset
 
         override val lastVisibleItemIndex: Int
-            get() =
-                state.layoutInfo.visiblePagesInfo.last().index
+            get() = state.layoutInfo.visiblePagesInfo.last().index
 
-        override val itemCount: Int get() = state.pageCount
+        override val itemCount: Int
+            get() = state.pageCount
 
         override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
             val offsetFraction = scrollOffset / state.pageSizeWithSpacing.toFloat()

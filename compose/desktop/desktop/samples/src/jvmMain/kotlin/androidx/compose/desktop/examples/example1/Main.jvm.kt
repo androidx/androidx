@@ -120,21 +120,18 @@ import kotlinx.coroutines.GlobalScope
 
 private const val title = "Desktop Compose Elements"
 
-val italicFont = FontFamily(
-    Font("NotoSans-Italic.ttf")
-)
+val italicFont = FontFamily(Font("NotoSans-Italic.ttf"))
 
-val dispatchedFonts = FontFamily(
-    Font("NotoSans-Italic.ttf", style = FontStyle.Italic),
-    Font("NotoSans-Regular.ttf", style = FontStyle.Normal)
-)
+val dispatchedFonts =
+    FontFamily(
+        Font("NotoSans-Italic.ttf", style = FontStyle.Italic),
+        Font("NotoSans-Regular.ttf", style = FontStyle.Normal)
+    )
 
-fun main() = singleWindowApplication(
-    title = title,
-    state = WindowState(width = 1024.dp, height = 850.dp)
-) {
-    App()
-}
+fun main() =
+    singleWindowApplication(title = title, state = WindowState(width = 1024.dp, height = 850.dp)) {
+        App()
+    }
 
 @Composable
 private fun FrameWindowScope.App() {
@@ -159,17 +156,13 @@ private fun FrameWindowScope.App() {
             floatingActionButton = {
                 ExtendedFloatingActionButton(
                     text = { Text("Open URL") },
-                    onClick = {
-                        uriHandler.openUri("https://google.com")
-                    }
+                    onClick = { uriHandler.openUri("https://google.com") }
                 )
             },
             isFloatingActionButtonDocked = true,
             bottomBar = {
                 BottomAppBar(cutoutShape = CircleShape) {
-                    IconButton(
-                        onClick = {}
-                    ) {
+                    IconButton(onClick = {}) {
                         Icon(Icons.Filled.Menu, "Menu", Modifier.size(ButtonDefaults.IconSize))
                     }
                 }
@@ -185,15 +178,16 @@ private fun FrameWindowScope.App() {
 }
 
 @Composable
-private fun FrameWindowScope.LeftColumn(modifier: Modifier) = Box(modifier.fillMaxSize()) {
-    val state = rememberScrollState()
-    ScrollableContent(state)
+private fun FrameWindowScope.LeftColumn(modifier: Modifier) =
+    Box(modifier.fillMaxSize()) {
+        val state = rememberScrollState()
+        ScrollableContent(state)
 
-    VerticalScrollbar(
-        rememberScrollbarAdapter(state),
-        Modifier.align(Alignment.CenterEnd).fillMaxHeight()
-    )
-}
+        VerticalScrollbar(
+            rememberScrollbarAdapter(state),
+            Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+        )
+    }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -205,126 +199,102 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
         Text(
             text = "Привет! 你好! Desktop Compose use $info: ${amount.value}",
             color = Color.Black,
-            modifier = Modifier
-                .background(Color.Blue)
-                .height(56.dp)
-                .wrapContentSize(Alignment.Center)
+            modifier =
+                Modifier.background(Color.Blue).height(56.dp).wrapContentSize(Alignment.Center)
         )
 
         val inlineIndicatorId = "indicator"
 
         Text(
-            text = buildAnnotatedString {
-                append("The quick ")
-                if (animation.value) {
-                    appendInlineContent(inlineIndicatorId)
-                }
-                pushStyle(
-                    SpanStyle(
-                        color = Color(0xff964B00),
-                        shadow = Shadow(Color.Green, offset = Offset(1f, 1f))
+            text =
+                buildAnnotatedString {
+                    append("The quick ")
+                    if (animation.value) {
+                        appendInlineContent(inlineIndicatorId)
+                    }
+                    pushStyle(
+                        SpanStyle(
+                            color = Color(0xff964B00),
+                            shadow = Shadow(Color.Green, offset = Offset(1f, 1f))
+                        )
                     )
-                )
-                append("brown fox")
-                pop()
-                pushStyle(SpanStyle(background = Color.Yellow))
-                append(" 🦊 ate a ")
-                pop()
-                pushStyle(SpanStyle(fontSize = 30.sp, textDecoration = Underline))
-                append("zesty hamburgerfons")
-                pop()
-                append(" 🍔.\nThe 👩‍👩‍👧‍👧 laughed.")
-                addStyle(SpanStyle(color = Color.Green), 25, 35)
-            },
+                    append("brown fox")
+                    pop()
+                    pushStyle(SpanStyle(background = Color.Yellow))
+                    append(" 🦊 ate a ")
+                    pop()
+                    pushStyle(SpanStyle(fontSize = 30.sp, textDecoration = Underline))
+                    append("zesty hamburgerfons")
+                    pop()
+                    append(" 🍔.\nThe 👩‍👩‍👧‍👧 laughed.")
+                    addStyle(SpanStyle(color = Color.Green), 25, 35)
+                },
             color = Color.Black,
-            inlineContent = mapOf(
-                inlineIndicatorId to InlineTextContent(
-                    Placeholder(
-                        width = 1.em,
-                        height = 1.em,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
-                    )
-                ) {
-                    CircularProgressIndicator(Modifier.padding(end = 3.dp))
-                }
-            )
+            inlineContent =
+                mapOf(
+                    inlineIndicatorId to
+                        InlineTextContent(
+                            Placeholder(
+                                width = 1.em,
+                                height = 1.em,
+                                placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                            )
+                        ) {
+                            CircularProgressIndicator(Modifier.padding(end = 3.dp))
+                        }
+                )
         )
 
-        val loremColors = listOf(
-            Color.Black,
-            Color.Yellow,
-            Color.Green,
-            Color.Blue
-        )
+        val loremColors = listOf(Color.Black, Color.Yellow, Color.Green, Color.Blue)
         var loremColor by remember { mutableStateOf(0) }
 
-        val loremDecorations = listOf(
-            TextDecoration.None,
-            TextDecoration.Underline,
-            TextDecoration.LineThrough
-        )
-        val lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do" +
-            " eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad" +
-            " minim veniam, quis nostrud exercitation ullamco laboris nisi ut" +
-            " aliquipex ea commodo consequat. Duis aute irure dolor in reprehenderit" +
-            " in voluptate velit esse cillum dolore eu fugiat nulla pariatur." +
-            " Excepteur" +
-            " sint occaecat cupidatat non proident, sunt in culpa qui officia" +
-            " deserunt mollit anim id est laborum."
+        val loremDecorations =
+            listOf(TextDecoration.None, TextDecoration.Underline, TextDecoration.LineThrough)
+        val lorem =
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do" +
+                " eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad" +
+                " minim veniam, quis nostrud exercitation ullamco laboris nisi ut" +
+                " aliquipex ea commodo consequat. Duis aute irure dolor in reprehenderit" +
+                " in voluptate velit esse cillum dolore eu fugiat nulla pariatur." +
+                " Excepteur" +
+                " sint occaecat cupidatat non proident, sunt in culpa qui officia" +
+                " deserunt mollit anim id est laborum."
         var loremDecoration by remember { mutableStateOf(0) }
         Text(
             text = lorem,
             color = loremColors[loremColor],
             textAlign = TextAlign.Center,
             textDecoration = loremDecorations[loremDecoration],
-            modifier = Modifier.clickable {
-                if (loremColor < loremColors.size - 1) {
-                    loremColor += 1
-                } else {
-                    loremColor = 0
-                }
+            modifier =
+                Modifier.clickable {
+                    if (loremColor < loremColors.size - 1) {
+                        loremColor += 1
+                    } else {
+                        loremColor = 0
+                    }
 
-                if (loremDecoration < loremDecorations.size - 1) {
-                    loremDecoration += 1
-                } else {
-                    loremDecoration = 0
+                    if (loremDecoration < loremDecorations.size - 1) {
+                        loremDecoration += 1
+                    } else {
+                        loremDecoration = 0
+                    }
                 }
-            }
         )
 
-        Text(
-            text = lorem,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Text(text = lorem, maxLines = 1, overflow = TextOverflow.Ellipsis)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Text(
                 "Default",
             )
 
-            Text(
-                "SansSerif",
-                fontFamily = FontFamily.SansSerif
-            )
+            Text("SansSerif", fontFamily = FontFamily.SansSerif)
 
-            Text(
-                "Serif",
-                fontFamily = FontFamily.Serif
-            )
+            Text("Serif", fontFamily = FontFamily.Serif)
 
-            Text(
-                "Monospace",
-                fontFamily = FontFamily.Monospace
-            )
+            Text("Monospace", fontFamily = FontFamily.Monospace)
 
-            Text(
-                "Cursive",
-                fontFamily = FontFamily.Cursive
-            )
+            Text("Cursive", fontFamily = FontFamily.Cursive)
         }
 
         var overText by remember { mutableStateOf("Move mouse over text:") }
@@ -332,55 +302,52 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
 
         SelectionContainer {
             Text(
-                text = "fun <T : Comparable<T>> List<T>.quickSort(): List<T> = when {\n" +
-                    "  size < 2 -> this\n" +
-                    "  else -> {\n" +
-                    "    val pivot = first()\n" +
-                    "    val (smaller, greater) = drop(1).partition { it <= pivot }\n" +
-                    "    smaller.quickSort() + pivot + greater.quickSort()\n" +
-                    "   }\n" +
-                    "}",
+                text =
+                    "fun <T : Comparable<T>> List<T>.quickSort(): List<T> = when {\n" +
+                        "  size < 2 -> this\n" +
+                        "  else -> {\n" +
+                        "    val pivot = first()\n" +
+                        "    val (smaller, greater) = drop(1).partition { it <= pivot }\n" +
+                        "    smaller.quickSort() + pivot + greater.quickSort()\n" +
+                        "   }\n" +
+                        "}",
                 fontFamily = italicFont,
-                modifier = Modifier.padding(10.dp).pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val position = event.changes.first().position
-                            when (event.type) {
-                                PointerEventType.Move -> {
-                                    overText = "Move position: $position"
-                                }
-                                PointerEventType.Enter -> {
-                                    overText = "Over enter"
-                                }
-                                PointerEventType.Exit -> {
-                                    overText = "Over exit"
+                modifier =
+                    Modifier.padding(10.dp).pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val position = event.changes.first().position
+                                when (event.type) {
+                                    PointerEventType.Move -> {
+                                        overText = "Move position: $position"
+                                    }
+                                    PointerEventType.Enter -> {
+                                        overText = "Over enter"
+                                    }
+                                    PointerEventType.Exit -> {
+                                        overText = "Over exit"
+                                    }
                                 }
                             }
                         }
                     }
-                }
             )
         }
         Text(
-            text = buildAnnotatedString {
-                append("resolved: NotoSans-Regular.ttf ")
-                pushStyle(
-                    SpanStyle(
-                        fontStyle = FontStyle.Italic
-                    )
-                )
-                append("NotoSans-italic.ttf.")
-            },
+            text =
+                buildAnnotatedString {
+                    append("resolved: NotoSans-Regular.ttf ")
+                    pushStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                    append("NotoSans-italic.ttf.")
+                },
             fontFamily = dispatchedFonts,
         )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Button(
                 modifier = Modifier.padding(4.dp).pointerHoverIcon(PointerIcon.Hand),
-                onClick = {
-                    amount.value++
-                }
+                onClick = { amount.value++ }
             ) {
                 Text("Base")
             }
@@ -392,22 +359,12 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
         ) {
             Row {
                 Column {
-                    Switch(
-                        animation.value,
-                        onCheckedChange = {
-                            animation.value = it
-                        }
-                    )
+                    Switch(animation.value, onCheckedChange = { animation.value = it })
                     Row(
                         modifier = Modifier.padding(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Checkbox(
-                            animation.value,
-                            onCheckedChange = {
-                                animation.value = it
-                            }
-                        )
+                        Checkbox(animation.value, onCheckedChange = { animation.value = it })
                         Text("Animation")
                     }
                 }
@@ -441,10 +398,7 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
             Animations(isCircularEnabled = animation.value)
         }
 
-        Slider(
-            value = amount.value / 100f,
-            onValueChange = { amount.value = (it * 100) }
-        )
+        Slider(value = amount.value / 100f, onValueChange = { amount.value = (it * 100) })
         TextField(
             value = amount.value.toString(),
             onValueChange = { amount.value = it.toFloatOrNull() ?: 42f },
@@ -452,55 +406,50 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
         )
 
         val (focusItem1, focusItem2) = FocusRequester.createRefs()
-        val text = remember {
-            mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0")
-        }
+        val text = remember { mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0") }
         ContextMenuDataProvider(
             items = {
-                listOf(ContextMenuItem("Clear") { text.value = ""; focusItem1.requestFocus() })
+                listOf(
+                    ContextMenuItem("Clear") {
+                        text.value = ""
+                        focusItem1.requestFocus()
+                    }
+                )
             }
         ) {
             TextField(
                 value = text.value,
                 onValueChange = { text.value = it },
                 label = { Text(text = "Input2") },
-                placeholder = {
-                    Text(text = "Important input")
-                },
+                placeholder = { Text(text = "Important input") },
                 maxLines = 1,
-                modifier = Modifier.onPreviewKeyEvent {
-                    when {
-                        (it.isMetaPressed && it.key == Key.Enter) -> {
-                            if (it.isShiftPressed) {
-                                text.value = "Cleared with shift!"
-                            } else {
-                                text.value = "Cleared!"
+                modifier =
+                    Modifier.onPreviewKeyEvent {
+                            when {
+                                (it.isMetaPressed && it.key == Key.Enter) -> {
+                                    if (it.isShiftPressed) {
+                                        text.value = "Cleared with shift!"
+                                    } else {
+                                        text.value = "Cleared!"
+                                    }
+                                    true
+                                }
+                                else -> false
                             }
-                            true
                         }
-                        else -> false
-                    }
-                }.focusRequester(focusItem1)
-                .focusProperties {
-                    next = focusItem2
-                }
+                        .focusRequester(focusItem1)
+                        .focusProperties { next = focusItem2 }
             )
         }
 
         var text2 by remember {
-            val initText = buildString {
-                (1..1000).forEach {
-                    append("$it\n")
-                }
-            }
+            val initText = buildString { (1..1000).forEach { append("$it\n") } }
             mutableStateOf(initText)
         }
         TextField(
             text2,
-            modifier = Modifier
-                .height(200.dp)
-                .focusRequester(focusItem2)
-                .focusProperties {
+            modifier =
+                Modifier.height(200.dp).focusRequester(focusItem2).focusProperties {
                     previous = focusItem1
                 },
             onValueChange = { text2 = it }
@@ -530,18 +479,14 @@ fun Animations(isCircularEnabled: Boolean) = Row {
     }
 
     val enabled = remember { mutableStateOf(true) }
-    val color by animateColorAsState(
-        if (enabled.value) Color.Green else Color.Red,
-        animationSpec = TweenSpec(durationMillis = 2000)
-    )
+    val color by
+        animateColorAsState(
+            if (enabled.value) Color.Green else Color.Red,
+            animationSpec = TweenSpec(durationMillis = 2000)
+        )
 
     MaterialTheme {
-        Box(
-            Modifier
-                .size(70.dp)
-                .clickable { enabled.value = !enabled.value }
-                .background(color)
-        )
+        Box(Modifier.size(70.dp).clickable { enabled.value = !enabled.value }.background(color))
     }
 }
 
@@ -562,8 +507,5 @@ private fun RightColumn(modifier: Modifier) = Box {
         }
     }
 
-    VerticalScrollbar(
-        rememberScrollbarAdapter(state),
-        Modifier.align(Alignment.CenterEnd)
-    )
+    VerticalScrollbar(rememberScrollbarAdapter(state), Modifier.align(Alignment.CenterEnd))
 }

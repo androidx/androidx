@@ -43,25 +43,19 @@ class LocaleListTest {
 
     @Test
     fun equals_order_matters() {
-        assertThat(LocaleList("ja-JP,en-US"))
-            .isNotEqualTo(LocaleList("en-US,ja-JP"))
+        assertThat(LocaleList("ja-JP,en-US")).isNotEqualTo(LocaleList("en-US,ja-JP"))
     }
 
     @Test
     fun equals() {
-        assertThat(LocaleList("en-US,ja-JP"))
-            .isEqualTo(LocaleList("en-US,ja-JP"))
-        assertThat(LocaleList("en-US,ja-JP"))
-            .isNotEqualTo(LocaleList("en-US,es-ES"))
+        assertThat(LocaleList("en-US,ja-JP")).isEqualTo(LocaleList("en-US,ja-JP"))
+        assertThat(LocaleList("en-US,ja-JP")).isNotEqualTo(LocaleList("en-US,es-ES"))
     }
 
     @Test
     fun getCurrent_afterJavaLocaleSetDefault() {
-        val javaLocales = listOf(
-            java.util.Locale("ar"),
-            java.util.Locale("ja"),
-            java.util.Locale("en")
-        )
+        val javaLocales =
+            listOf(java.util.Locale("ar"), java.util.Locale("ja"), java.util.Locale("en"))
         for (javaLocale in javaLocales) {
             java.util.Locale.setDefault(javaLocale)
 

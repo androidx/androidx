@@ -52,10 +52,13 @@ class ComposeWindowTest {
         window.isUndecorated = true
         window.size = Dimension(200, 200)
         window.setContent {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Blue).clickable {
-                isClickHappened = true
-                window.dispose()
-            })
+            Box(
+                modifier =
+                    Modifier.fillMaxSize().background(Color.Blue).clickable {
+                        isClickHappened = true
+                        window.dispose()
+                    }
+            )
         }
 
         window.isVisible = true
@@ -93,9 +96,7 @@ class ComposeWindowTest {
         runBlocking(Dispatchers.Swing) {
             val window = ComposeWindow()
             try {
-                window.setContent {
-                    Box(Modifier.requiredSize(300.dp, 400.dp))
-                }
+                window.setContent { Box(Modifier.requiredSize(300.dp, 400.dp)) }
                 window.isUndecorated = true
 
                 window.pack()
@@ -122,23 +123,26 @@ class ComposeWindowTest {
             try {
                 window.size = Dimension(300, 400)
                 window.setContent {
-                    Box(Modifier.fillMaxSize().layout { _, constraints ->
-                        layoutPassConstraints.add(constraints)
-                        layout(0, 0) {}
-                    })
+                    Box(
+                        Modifier.fillMaxSize().layout { _, constraints ->
+                            layoutPassConstraints.add(constraints)
+                            layout(0, 0) {}
+                        }
+                    )
                 }
 
                 window.isUndecorated = true
                 window.isVisible = true
                 window.paint(window.graphics)
-                assertThat(layoutPassConstraints).isEqualTo(
-                    listOf(
-                        Constraints.fixed(
-                            width = (300 * window.density.density).toInt(),
-                            height = (400 * window.density.density).toInt(),
+                assertThat(layoutPassConstraints)
+                    .isEqualTo(
+                        listOf(
+                            Constraints.fixed(
+                                width = (300 * window.density.density).toInt(),
+                                height = (400 * window.density.density).toInt(),
+                            )
                         )
                     )
-                )
             } finally {
                 window.dispose()
             }
@@ -151,9 +155,10 @@ class ComposeWindowTest {
         try {
             window.size = Dimension(300, 400)
             window.setContent {
-                Box(modifier = Modifier.fillMaxSize().background(Color.Blue).clickable {
-                    window.dispose()
-                })
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().background(Color.Blue).clickable { window.dispose() }
+                )
             }
             window.isVisible = true
             window.sendMouseEvent(MOUSE_ENTERED, x = 100, y = 50)

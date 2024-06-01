@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-/**
- * Set the matrix values the native [android.graphics.Matrix].
- */
+/** Set the matrix values the native [android.graphics.Matrix]. */
 fun Matrix.setFrom(matrix: android.graphics.Matrix) {
     val v = values
     matrix.getValues(v)
@@ -50,9 +48,7 @@ fun Matrix.setFrom(matrix: android.graphics.Matrix) {
     v[Matrix.Perspective2] = persp2 // 15
 }
 
-/**
- * Set the native [android.graphics.Matrix] from [matrix].
- */
+/** Set the native [android.graphics.Matrix] from [matrix]. */
 fun android.graphics.Matrix.setFrom(matrix: Matrix) {
     // We'll reuse the array used in Matrix to avoid allocation by temporarily
     // setting it to the 3x3 matrix used by android.graphics.Matrix

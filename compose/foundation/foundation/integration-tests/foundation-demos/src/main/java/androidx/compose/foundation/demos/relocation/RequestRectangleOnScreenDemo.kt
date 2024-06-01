@@ -47,8 +47,7 @@ fun RequestRectangleOnScreenDemo() {
         }
         Spacer(Modifier.weight(weight = 1f, fill = true))
         Box(
-            Modifier
-                .size(50.dp)
+            Modifier.size(50.dp)
                 .background(Color.Blue)
                 .bringIntoViewRequester(bringIntoViewRequester)
         )

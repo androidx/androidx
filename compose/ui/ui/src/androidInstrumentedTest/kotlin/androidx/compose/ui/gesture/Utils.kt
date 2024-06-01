@@ -24,11 +24,12 @@ import android.view.View
 // We only need this because IR compiler doesn't like converting lambdas to Runnables
 @Suppress("DEPRECATION")
 internal fun androidx.test.rule.ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
-    val runnable: Runnable = object : Runnable {
-        override fun run() {
-            block()
+    val runnable: Runnable =
+        object : Runnable {
+            override fun run() {
+                block()
+            }
         }
-    }
     runOnUiThread(runnable)
 }
 
@@ -36,8 +37,8 @@ internal fun androidx.test.rule.ActivityTestRule<*>.runOnUiThreadIR(block: () ->
  * Creates a simple [MotionEvent].
  *
  * @param dispatchTarget The [View] that the [MotionEvent] is going to be dispatched to. This
- * guarantees that the MotionEvent is created correctly for both Compose (which relies on raw
- * coordinates being correct) and Android (which requires that local coordinates are correct).
+ *   guarantees that the MotionEvent is created correctly for both Compose (which relies on raw
+ *   coordinates being correct) and Android (which requires that local coordinates are correct).
  */
 internal fun MotionEvent(
     eventTime: Int,
@@ -57,24 +58,26 @@ internal fun MotionEvent(
         it.y += locationOnScreen[1]
     }
 
-    val motionEvent = MotionEvent.obtain(
-        0,
-        eventTime.toLong(),
-        action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
-        numPointers,
-        pointerProperties,
-        pointerCoords,
-        0,
-        0,
-        0f,
-        0f,
-        0,
-        0,
-        0,
-        0
-    ).apply {
-        offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())
-    }
+    val motionEvent =
+        MotionEvent.obtain(
+                0,
+                eventTime.toLong(),
+                action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+                numPointers,
+                pointerProperties,
+                pointerCoords,
+                0,
+                0,
+                0f,
+                0f,
+                0,
+                0,
+                0,
+                0
+            )
+            .apply {
+                offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())
+            }
 
     pointerCoords.forEach {
         it.x -= locationOnScreen[0]
@@ -85,8 +88,7 @@ internal fun MotionEvent(
 }
 
 @Suppress("RemoveRedundantQualifierName")
-internal fun PointerProperties(id: Int) =
-    MotionEvent.PointerProperties().apply { this.id = id }
+internal fun PointerProperties(id: Int) = MotionEvent.PointerProperties().apply { this.id = id }
 
 @Suppress("RemoveRedundantQualifierName")
 internal fun PointerCoords(x: Float, y: Float, scrollX: Float = 0f, scrollY: Float = 0f) =

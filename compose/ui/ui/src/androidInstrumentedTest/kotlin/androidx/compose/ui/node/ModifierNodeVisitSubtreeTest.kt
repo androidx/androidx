@@ -30,24 +30,17 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeVisitSubtreeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun noChildren() {
         // Arrange.
         val node = object : Modifier.Node() {}
         val visitedChildren = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSubtree(Nodes.Any) {
-                visitedChildren.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSubtree(Nodes.Any) { visitedChildren.add(it) } }
 
         // Assert.
         assertThat(visitedChildren).isEmpty()
@@ -60,8 +53,7 @@ class ModifierNodeVisitSubtreeTest {
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                Modifier
-                    .elementOf(parent)
+                Modifier.elementOf(parent)
                     .elementOf(node)
                     .elementOf(localChild1)
                     .elementOf(localChild2)
@@ -69,11 +61,7 @@ class ModifierNodeVisitSubtreeTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSubtree(Nodes.Any) {
-                visitedChildren.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSubtree(Nodes.Any) { visitedChildren.add(it) } }
 
         // Assert.
         assertThat(visitedChildren).containsExactly(localChild1, localChild2).inOrder()
@@ -90,39 +78,16 @@ class ModifierNodeVisitSubtreeTest {
 
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(node)
-                    .elementOf(child1)
-                    .elementOf(child2)
-            ) {
-                Box(
-                    Modifier
-                        .elementOf(child5)
-                        .elementOf(child6)
-                ) {
-                    Box(
-                        Modifier
-                            .elementOf(child7)
-                            .elementOf(child8)
-                    )
+            Box(Modifier.elementOf(node).elementOf(child1).elementOf(child2)) {
+                Box(Modifier.elementOf(child5).elementOf(child6)) {
+                    Box(Modifier.elementOf(child7).elementOf(child8))
                 }
-                Box {
-                    Box(
-                        Modifier
-                            .elementOf(child3)
-                            .elementOf(child4)
-                    )
-                }
+                Box { Box(Modifier.elementOf(child3).elementOf(child4)) }
             }
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSubtree(Nodes.Any) {
-                visitedChildren.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSubtree(Nodes.Any) { visitedChildren.add(it) } }
 
         // Assert.
         assertThat(visitedChildren)
@@ -137,23 +102,12 @@ class ModifierNodeVisitSubtreeTest {
         val (node, localChild1, localChild2) = List(3) { object : Modifier.Node() {} }
         val visitedChildren = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(node)
-                    .elementOf(localChild1)
-                    .elementOf(localChild2)
-            )
+            Box(Modifier.elementOf(node).elementOf(localChild1).elementOf(localChild2))
         }
-        rule.runOnIdle {
-            localChild1.markAsDetached()
-        }
+        rule.runOnIdle { localChild1.markAsDetached() }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSubtree(Nodes.Any) {
-                visitedChildren.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSubtree(Nodes.Any) { visitedChildren.add(it) } }
 
         // Assert.
         assertThat(visitedChildren).containsExactly(localChild2)

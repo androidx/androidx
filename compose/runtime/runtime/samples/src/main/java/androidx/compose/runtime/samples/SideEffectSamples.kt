@@ -34,6 +34,7 @@ private interface Disposable {
 }
 
 private interface UserDataRequest
+
 private interface UserDataResponse
 
 private interface UserRepository {
@@ -46,9 +47,11 @@ private interface UserRepository {
 
 private sealed class UserDataState {
     object Loading : UserDataState()
+
     class UserData(val name: String, val avatar: String) : UserDataState() {
         constructor(response: UserDataResponse) : this("", "")
     }
+
     class Error(val message: String?) : UserDataState()
 }
 
@@ -62,19 +65,16 @@ fun disposableEffectSample() {
         // and begin a new data fetch. We will cancel the current data fetch if UserProfile
         // leaves the composition.
         DisposableEffect(userRepository, userRequest) {
-            val requestDisposable = userRepository.fetchUserData(
-                userRequest,
-                onSuccess = { response ->
-                    userDataState = UserDataState.UserData(response)
-                },
-                onError = { throwable ->
-                    userDataState = UserDataState.Error(throwable.message)
-                }
-            )
+            val requestDisposable =
+                userRepository.fetchUserData(
+                    userRequest,
+                    onSuccess = { response -> userDataState = UserDataState.UserData(response) },
+                    onError = { throwable ->
+                        userDataState = UserDataState.Error(throwable.message)
+                    }
+                )
 
-            onDispose {
-                requestDisposable.dispose()
-            }
+            onDispose { requestDisposable.dispose() }
         }
 
         // ...
@@ -95,14 +95,13 @@ fun rememberUpdatedStateSampleWithDisposableEffect() {
         // Event handlers are ordered and a new onEvent should not cause us to re-register,
         // losing our position in the dispatcher.
         DisposableEffect(dispatcher) {
-            val disposable = dispatcher.addListener {
-                // currentOnEvent will always refer to the latest onEvent function that
-                // the EventHandler was recomposed with
-                currentOnEvent()
-            }
-            onDispose {
-                disposable.dispose()
-            }
+            val disposable =
+                dispatcher.addListener {
+                    // currentOnEvent will always refer to the latest onEvent function that
+                    // the EventHandler was recomposed with
+                    currentOnEvent()
+                }
+            onDispose { disposable.dispose() }
         }
     }
 }

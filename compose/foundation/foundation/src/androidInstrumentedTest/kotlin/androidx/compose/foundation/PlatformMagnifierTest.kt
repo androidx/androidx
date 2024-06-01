@@ -46,8 +46,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PlatformMagnifierTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @SdkSuppress(minSdkVersion = 29)
     @Test
@@ -61,9 +60,7 @@ class PlatformMagnifierTest {
             )
         }
 
-        rule.runOnIdle {
-            assertThat(magnifier.magnifier.position).isEqualTo(Point(0, 0))
-        }
+        rule.runOnIdle { assertThat(magnifier.magnifier.position).isEqualTo(Point(0, 0)) }
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -175,9 +172,10 @@ class PlatformMagnifierTest {
     @Test
     fun androidPlatformMagnifier_usesRequestedSize() {
         val magnifierSize = IntSize(10, 11)
-        val magnifier = with(rule.density) {
-            createAndroidPlatformMagnifier(size = magnifierSize.toSize().toDpSize())
-        }
+        val magnifier =
+            with(rule.density) {
+                createAndroidPlatformMagnifier(size = magnifierSize.toSize().toDpSize())
+            }
         assertThat(magnifier.size).isEqualTo(magnifierSize)
     }
 
@@ -194,16 +192,18 @@ class PlatformMagnifierTest {
                 val density = LocalDensity.current
 
                 DisposableEffect(Unit) {
-                    magnifier = PlatformMagnifierFactory.getForCurrentPlatform().create(
-                        view = currentView,
-                        density = density,
-                        initialZoom = Float.NaN,
-                        useTextDefault = false,
-                        size = size,
-                        cornerRadius = Dp.Unspecified,
-                        elevation = Dp.Unspecified,
-                        clippingEnabled = true,
-                    ) as PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl
+                    magnifier =
+                        PlatformMagnifierFactory.getForCurrentPlatform()
+                            .create(
+                                view = currentView,
+                                density = density,
+                                initialZoom = Float.NaN,
+                                useTextDefault = false,
+                                size = size,
+                                cornerRadius = Dp.Unspecified,
+                                elevation = Dp.Unspecified,
+                                clippingEnabled = true,
+                            ) as PlatformMagnifierFactoryApi28Impl.PlatformMagnifierImpl
                     onDispose {}
                 }
             }

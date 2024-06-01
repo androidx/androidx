@@ -50,47 +50,48 @@ class GraphicsLayerModifierTest {
         val modifier = Modifier.graphicsLayer(rotationX = 2.0f) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("graphicsLayer")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("renderEffect", null),
-            ValueElement("scaleX", 1.0f),
-            ValueElement("scaleY", 1.0f),
-            ValueElement("alpha", 1.0f),
-            ValueElement("translationX", 0.0f),
-            ValueElement("translationY", 0.0f),
-            ValueElement("shadowElevation", 0.0f),
-            ValueElement("ambientShadowColor", DefaultShadowColor),
-            ValueElement("spotShadowColor", DefaultShadowColor),
-            ValueElement("rotationX", 2.0f),
-            ValueElement("rotationY", 0.0f),
-            ValueElement("rotationZ", 0.0f),
-            ValueElement("cameraDistance", DefaultCameraDistance),
-            ValueElement("transformOrigin", TransformOrigin.Center),
-            ValueElement("shape", RectangleShape),
-            ValueElement("clip", false),
-            ValueElement("compositingStrategy", CompositingStrategy.Auto)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(
+                ValueElement("renderEffect", null),
+                ValueElement("scaleX", 1.0f),
+                ValueElement("scaleY", 1.0f),
+                ValueElement("alpha", 1.0f),
+                ValueElement("translationX", 0.0f),
+                ValueElement("translationY", 0.0f),
+                ValueElement("shadowElevation", 0.0f),
+                ValueElement("ambientShadowColor", DefaultShadowColor),
+                ValueElement("spotShadowColor", DefaultShadowColor),
+                ValueElement("rotationX", 2.0f),
+                ValueElement("rotationY", 0.0f),
+                ValueElement("rotationZ", 0.0f),
+                ValueElement("cameraDistance", DefaultCameraDistance),
+                ValueElement("transformOrigin", TransformOrigin.Center),
+                ValueElement("shape", RectangleShape),
+                ValueElement("clip", false),
+                ValueElement("compositingStrategy", CompositingStrategy.Auto)
+            )
     }
 
     @Test
     fun testEquals() {
         assertThat(
-            Modifier.graphicsLayer(
-                scaleX = 1.0f,
-                scaleY = 2.0f,
-                alpha = 0.75f,
-                translationX = 3.0f,
-                translationY = 4.0f,
-                shadowElevation = 5.0f,
-                ambientShadowColor = Color(0xFF00FF42),
-                spotShadowColor = Color(0xFF00FF64),
-                rotationX = 6.0f,
-                rotationY = 7.0f,
-                rotationZ = 8.0f,
-                transformOrigin = TransformOrigin.Center,
-                shape = RectangleShape,
-                clip = true
+                Modifier.graphicsLayer(
+                    scaleX = 1.0f,
+                    scaleY = 2.0f,
+                    alpha = 0.75f,
+                    translationX = 3.0f,
+                    translationY = 4.0f,
+                    shadowElevation = 5.0f,
+                    ambientShadowColor = Color(0xFF00FF42),
+                    spotShadowColor = Color(0xFF00FF64),
+                    rotationX = 6.0f,
+                    rotationY = 7.0f,
+                    rotationZ = 8.0f,
+                    transformOrigin = TransformOrigin.Center,
+                    shape = RectangleShape,
+                    clip = true
+                )
             )
-        )
             .isEqualTo(
                 Modifier.graphicsLayer(
                     scaleX = 1.0f,
@@ -118,20 +119,21 @@ class GraphicsLayerModifierTest {
         var shape = RectangleShape
         var clip = true
 
-        fun createGraphicsLayer() = Modifier.graphicsLayer(
-            scaleX = floatValues[0],
-            scaleY = floatValues[1],
-            alpha = floatValues[2],
-            translationX = floatValues[3],
-            translationY = floatValues[4],
-            shadowElevation = floatValues[5],
-            rotationX = floatValues[6],
-            rotationY = floatValues[7],
-            rotationZ = floatValues[8],
-            transformOrigin = transformOrigin,
-            shape = shape,
-            clip = clip
-        )
+        fun createGraphicsLayer() =
+            Modifier.graphicsLayer(
+                scaleX = floatValues[0],
+                scaleY = floatValues[1],
+                alpha = floatValues[2],
+                translationX = floatValues[3],
+                translationY = floatValues[4],
+                shadowElevation = floatValues[5],
+                rotationX = floatValues[6],
+                rotationY = floatValues[7],
+                rotationZ = floatValues[8],
+                transformOrigin = transformOrigin,
+                shape = shape,
+                clip = clip
+            )
 
         val regularValue = createGraphicsLayer()
 

@@ -28,46 +28,45 @@ import kotlinx.coroutines.CancellationException
  * Ongoing requests from [ContentInViewNode.bringChildIntoView], with the invariant that it is
  * always sorted by overlapping order: each item's bounds completely overlaps the next item.
  *
- * Requests are enqueued by calling [enqueue], which inserts the request at the correct position
- * and cancels and removes any requests that it interrupts. When a request is enqueued, its
- * continuation has a completion handler set that will remove the request from the queue when
- * it's cancelled.
+ * Requests are enqueued by calling [enqueue], which inserts the request at the correct position and
+ * cancels and removes any requests that it interrupts. When a request is enqueued, its continuation
+ * has a completion handler set that will remove the request from the queue when it's cancelled.
  *
- * One a request has been enqueued, it cannot be removed without completing the continuation.
- * This helps prevent leaking requests. Requests are removed in two ways:
- *  1. By an [enqueue] call for a request that doesn't overlap them, or
- *  2. By calling [cancelAndRemoveAll], which does exactly what it says.
+ * One a request has been enqueued, it cannot be removed without completing the continuation. This
+ * helps prevent leaking requests. Requests are removed in two ways:
+ * 1. By an [enqueue] call for a request that doesn't overlap them, or
+ * 2. By calling [cancelAndRemoveAll], which does exactly what it says.
  */
 @OptIn(ExperimentalContracts::class)
 internal class BringIntoViewRequestPriorityQueue {
     private val requests = mutableVectorOf<Request>()
 
-    val size: Int get() = requests.size
+    val size: Int
+        get() = requests.size
 
     fun isEmpty(): Boolean = requests.isEmpty()
 
     /**
      * Adds [request] to the queue, enforcing the invariants of that list:
-     *  - It will be inserted in the correct position to preserve sorted order.
-     *  - Any requests not contains by or containing this request will be evicted.
+     * - It will be inserted in the correct position to preserve sorted order.
+     * - Any requests not contains by or containing this request will be evicted.
      *
-     * After this function is called, [request] will always be either resumed or cancelled
-     * before it's removed from the queue, so the caller no longer needs to worry about
-     * completing it.
+     * After this function is called, [request] will always be either resumed or cancelled before
+     * it's removed from the queue, so the caller no longer needs to worry about completing it.
      *
-     *  @return True if the request was enqueued, false if it was not, e.g. because the rect
-     *  function returned null.
+     * @return True if the request was enqueued, false if it was not, e.g. because the rect function
+     *   returned null.
      */
     fun enqueue(request: Request): Boolean {
-        val requestBounds = request.currentBounds() ?: run {
-            request.continuation.resume(Unit)
-            return false
-        }
+        val requestBounds =
+            request.currentBounds()
+                ?: run {
+                    request.continuation.resume(Unit)
+                    return false
+                }
 
         // If the request is cancelled for any reason, remove it from the queue.
-        request.continuation.invokeOnCancellation {
-            requests.remove(request)
-        }
+        request.continuation.invokeOnCancellation { requests.remove(request) }
 
         for (i in requests.indices.reversed()) {
             val r = requests[i]
@@ -81,9 +80,10 @@ internal class BringIntoViewRequestPriorityQueue {
                 // The new request and the current item do not fully overlap, so cancel the
                 // current item and all requests after it, remove them, then continue the
                 // search to the next-largest request.
-                val cause = CancellationException(
-                    "bringIntoView call interrupted by a newer, non-overlapping call"
-                )
+                val cause =
+                    CancellationException(
+                        "bringIntoView call interrupted by a newer, non-overlapping call"
+                    )
                 for (j in requests.size - 1..i) {
                     // This mutates the list while iterating, but since we're iterating
                     // backwards in both cases, it's fine.
@@ -129,9 +129,7 @@ internal class BringIntoViewRequestPriorityQueue {
         // The continuation completion handler will remove the request from the queue when it's
         // cancelled, so we need to make a copy of the list before iterating to avoid concurrent
         // mutation.
-        requests.map { it.continuation }.forEach {
-            it.cancel(cause)
-        }
+        requests.map { it.continuation }.forEach { it.cancel(cause) }
         check(requests.isEmpty()) { "uncancelled requests present" }
     }
 }

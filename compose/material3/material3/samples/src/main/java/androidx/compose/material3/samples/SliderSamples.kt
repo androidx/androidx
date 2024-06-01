@@ -67,7 +67,8 @@ fun SliderSample() {
         Slider(
             modifier = Modifier.semantics { contentDescription = "Localized Description" },
             value = sliderPosition,
-            onValueChange = { sliderPosition = it })
+            onValueChange = { sliderPosition = it }
+        )
     }
 }
 
@@ -83,33 +84,23 @@ fun LegacySliderSample() {
         Text(text = "%.2f".format(sliderPosition))
         Slider(
             interactionSource = interactionSource,
-            modifier = Modifier
-                .semantics { contentDescription = "Localized Description" }
-                .requiredSizeIn(
-                    minWidth = thumbSize.width,
-                    minHeight = trackHeight
-                ),
+            modifier =
+                Modifier.semantics { contentDescription = "Localized Description" }
+                    .requiredSizeIn(minWidth = thumbSize.width, minHeight = trackHeight),
             value = sliderPosition,
             onValueChange = { sliderPosition = it },
             thumb = {
-                val modifier = Modifier
-                    .size(thumbSize)
-                    .shadow(1.dp, CircleShape, clip = false)
-                    .indication(
-                        interactionSource = interactionSource,
-                        indication = ripple(
-                            bounded = false,
-                            radius = 20.dp
+                val modifier =
+                    Modifier.size(thumbSize)
+                        .shadow(1.dp, CircleShape, clip = false)
+                        .indication(
+                            interactionSource = interactionSource,
+                            indication = ripple(bounded = false, radius = 20.dp)
                         )
-                    )
-                SliderDefaults.Thumb(
-                    interactionSource = interactionSource,
-                    modifier = modifier
-                )
+                SliderDefaults.Thumb(interactionSource = interactionSource, modifier = modifier)
             },
             track = {
-                val modifier = Modifier
-                    .height(trackHeight)
+                val modifier = Modifier.height(trackHeight)
                 SliderDefaults.Track(
                     sliderState = it,
                     modifier = modifier,
@@ -166,11 +157,7 @@ fun SliderWithCustomThumbSample() {
             thumb = {
                 Label(
                     label = {
-                        PlainTooltip(
-                            modifier = Modifier
-                                .sizeIn(45.dp, 25.dp)
-                                .wrapContentWidth()
-                        ) {
+                        PlainTooltip(modifier = Modifier.sizeIn(45.dp, 25.dp).wrapContentWidth()) {
                             Text("%.2f".format(sliderPosition))
                         }
                     },
@@ -211,17 +198,9 @@ fun SliderWithCustomTrackAndThumb() {
             modifier = Modifier.semantics { contentDescription = "Localized Description" },
             interactionSource = interactionSource,
             thumb = {
-                SliderDefaults.Thumb(
-                    interactionSource = interactionSource,
-                    colors = colors
-                )
+                SliderDefaults.Thumb(interactionSource = interactionSource, colors = colors)
             },
-            track = {
-                SliderDefaults.Track(
-                    colors = colors,
-                    sliderState = sliderState
-                )
-            }
+            track = { SliderDefaults.Track(colors = colors, sliderState = sliderState) }
         )
     }
 }
@@ -280,47 +259,34 @@ fun LegacyRangeSliderSample() {
             state = rangeSliderState,
             startInteractionSource = startInteractionSource,
             endInteractionSource = endInteractionSource,
-            modifier = Modifier
-                .semantics { contentDescription = "Localized Description" }
-                .requiredSizeIn(
-                    minWidth = thumbSize.width,
-                    minHeight = trackHeight
-                ),
+            modifier =
+                Modifier.semantics { contentDescription = "Localized Description" }
+                    .requiredSizeIn(minWidth = thumbSize.width, minHeight = trackHeight),
             startThumb = {
-                val modifier = Modifier
-                    .size(thumbSize)
-                    .shadow(1.dp, CircleShape, clip = false)
-                    .indication(
-                        interactionSource = startInteractionSource,
-                        indication = ripple(
-                            bounded = false,
-                            radius = 20.dp
+                val modifier =
+                    Modifier.size(thumbSize)
+                        .shadow(1.dp, CircleShape, clip = false)
+                        .indication(
+                            interactionSource = startInteractionSource,
+                            indication = ripple(bounded = false, radius = 20.dp)
                         )
-                    )
                 SliderDefaults.Thumb(
                     interactionSource = startInteractionSource,
                     modifier = modifier
                 )
             },
             endThumb = {
-                val modifier = Modifier
-                    .size(thumbSize)
-                    .shadow(1.dp, CircleShape, clip = false)
-                    .indication(
-                        interactionSource = endInteractionSource,
-                        indication = ripple(
-                            bounded = false,
-                            radius = 20.dp
+                val modifier =
+                    Modifier.size(thumbSize)
+                        .shadow(1.dp, CircleShape, clip = false)
+                        .indication(
+                            interactionSource = endInteractionSource,
+                            indication = ripple(bounded = false, radius = 20.dp)
                         )
-                    )
-                SliderDefaults.Thumb(
-                    interactionSource = endInteractionSource,
-                    modifier = modifier
-                )
+                SliderDefaults.Thumb(interactionSource = endInteractionSource, modifier = modifier)
             },
             track = {
-                val modifier = Modifier
-                    .height(trackHeight)
+                val modifier = Modifier.height(trackHeight)
                 SliderDefaults.Track(
                     rangeSliderState = it,
                     modifier = modifier,
@@ -381,10 +347,8 @@ fun RangeSliderWithCustomComponents() {
     }
     val startInteractionSource = remember { MutableInteractionSource() }
     val endInteractionSource = remember { MutableInteractionSource() }
-    val startThumbAndTrackColors = SliderDefaults.colors(
-        thumbColor = Color.Blue,
-        activeTrackColor = Color.Red
-    )
+    val startThumbAndTrackColors =
+        SliderDefaults.colors(thumbColor = Color.Blue, activeTrackColor = Color.Red)
     val endThumbColors = SliderDefaults.colors(thumbColor = Color.Green)
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         RangeSlider(
@@ -395,11 +359,7 @@ fun RangeSliderWithCustomComponents() {
             startThumb = {
                 Label(
                     label = {
-                        PlainTooltip(
-                            modifier = Modifier
-                                .sizeIn(45.dp, 25.dp)
-                                .wrapContentWidth()
-                        ) {
+                        PlainTooltip(modifier = Modifier.sizeIn(45.dp, 25.dp).wrapContentWidth()) {
                             Text("%.2f".format(rangeSliderState.activeRangeStart))
                         }
                     },
@@ -415,9 +375,7 @@ fun RangeSliderWithCustomComponents() {
                 Label(
                     label = {
                         PlainTooltip(
-                            modifier = Modifier
-                                .requiredSize(45.dp, 25.dp)
-                                .wrapContentWidth()
+                            modifier = Modifier.requiredSize(45.dp, 25.dp).wrapContentWidth()
                         ) {
                             Text("%.2f".format(rangeSliderState.activeRangeEnd))
                         }

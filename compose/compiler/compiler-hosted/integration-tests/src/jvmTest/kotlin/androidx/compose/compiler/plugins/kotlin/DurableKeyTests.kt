@@ -34,11 +34,7 @@ class DurableKeyTests : TestCase() {
         assert(!success) { "Expected duplicate, but wasn't: $key" }
     }
 
-    fun testBasic() = visit {
-        enter("a") {
-            assertKey("b", "b/a")
-        }
-    }
+    fun testBasic() = visit { enter("a") { assertKey("b", "b/a") } }
 
     fun testBasicNonSiblings() = visit {
         enter("a") {
@@ -58,9 +54,7 @@ class DurableKeyTests : TestCase() {
 
     fun testNestedSiblings() = visit {
         siblings("a") {
-            siblings {
-                enter("b") { assertKey("i", "i/b/a") }
-            }
+            siblings { enter("b") { assertKey("i", "i/b/a") } }
             enter("b") { assertKey("i", "i/b:1/a") }
         }
     }

@@ -86,10 +86,11 @@ private fun FocusableBox(
 ) {
     var borderColor by remember { mutableStateOf(Black) }
     Box(
-        modifier = modifier
-            .onFocusChanged { borderColor = if (it.isFocused) Red else Black }
-            .border(2.dp, borderColor)
-            .focusable(),
+        modifier =
+            modifier
+                .onFocusChanged { borderColor = if (it.isFocused) Red else Black }
+                .border(2.dp, borderColor)
+                .focusable(),
         content = content
     )
 }

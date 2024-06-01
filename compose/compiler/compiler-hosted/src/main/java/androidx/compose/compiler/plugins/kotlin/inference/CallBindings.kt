@@ -31,7 +31,10 @@ class CallBindings(
     val anyParameters: Boolean
 ) {
     override fun toString(): String {
-        val paramsString = if (parameters.isEmpty()) "" else ", ${
+        val paramsString =
+            if (parameters.isEmpty()) ""
+            else
+                ", ${
             parameters.joinToString(", ") { it.toString() }
         }"
         val anyParametersStr = if (anyParameters) "*" else ""

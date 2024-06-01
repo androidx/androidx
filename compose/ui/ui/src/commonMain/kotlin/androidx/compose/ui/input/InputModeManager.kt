@@ -23,12 +23,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * The [InputModeManager] is accessible as a CompositionLocal, that provides the current
- *  [InputMode].
+ * [InputMode].
  */
 interface InputModeManager {
-    /**
-     * The current [InputMode].
-     */
+    /** The current [InputMode]. */
     val inputMode: InputMode
 
     /**
@@ -37,30 +35,24 @@ interface InputModeManager {
      * @param inputMode The requested [InputMode].
      * @return true if the system is in the requested mode, after processing this request.
      */
-    @ExperimentalComposeUiApi
-    fun requestInputMode(inputMode: InputMode): Boolean
+    @ExperimentalComposeUiApi fun requestInputMode(inputMode: InputMode): Boolean
 }
 
-/**
- * This value is used to represent the InputMode that the system is currently in.
- */
+/** This value is used to represent the InputMode that the system is currently in. */
 @kotlin.jvm.JvmInline
 value class InputMode internal constructor(@Suppress("unused") private val value: Int) {
-    override fun toString() = when (this) {
-        Touch -> "Touch"
-        Keyboard -> "Keyboard"
-        else -> "Error"
-    }
+    override fun toString() =
+        when (this) {
+            Touch -> "Touch"
+            Keyboard -> "Keyboard"
+            else -> "Error"
+        }
 
     companion object {
-        /**
-         * The system is put into [Touch] mode when a user touches the screen.
-         */
+        /** The system is put into [Touch] mode when a user touches the screen. */
         val Touch = InputMode(1)
 
-        /**
-         * The system is put into [Keyboard] mode when a user presses a hardware key.
-         */
+        /** The system is put into [Keyboard] mode when a user presses a hardware key. */
         val Keyboard = InputMode(2)
     }
 }

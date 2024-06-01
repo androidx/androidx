@@ -36,26 +36,25 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 
 /**
- * NOTICE:
- * Fork from androidx.compose.foundation.BasicTooltip box since those are experimental
+ * NOTICE: Fork from androidx.compose.foundation.BasicTooltip box since those are experimental
  *
  * BasicTooltipBox that wraps a composable with a tooltip.
  *
- * Tooltip that provides a descriptive message for an anchor.
- * It can be used to call the users attention to the anchor.
+ * Tooltip that provides a descriptive message for an anchor. It can be used to call the users
+ * attention to the anchor.
  *
- * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip
- * relative to the anchor content.
+ * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip relative
+ *   to the anchor content.
  * @param tooltip the composable that will be used to populate the tooltip's content.
  * @param state handles the state of the tooltip's visibility.
  * @param modifier the [Modifier] to be applied to this BasicTooltipBox.
- * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
- * the tooltip will consume touch events while it's shown and will have accessibility
- * focus move to the first element of the component. When false, the tooltip
- * won't consume touch events while it's shown but assistive-tech users will need
- * to swipe or drag to get to the first element of the component.
- * @param enableUserInput [Boolean] which determines if this BasicTooltipBox will handle
- * long press and mouse hover to trigger the tooltip through the state provided.
+ * @param focusable [Boolean] that determines if the tooltip is focusable. When true, the tooltip
+ *   will consume touch events while it's shown and will have accessibility focus move to the first
+ *   element of the component. When false, the tooltip won't consume touch events while it's shown
+ *   but assistive-tech users will need to swipe or drag to get to the first element of the
+ *   component.
+ * @param enableUserInput [Boolean] which determines if this BasicTooltipBox will handle long press
+ *   and mouse hover to trigger the tooltip through the state provided.
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
@@ -73,14 +72,13 @@ internal expect fun BasicTooltipBox(
  * Create and remember the default [BasicTooltipState].
  *
  * @param initialIsVisible the initial value for the tooltip's visibility when drawn.
- * @param isPersistent [Boolean] that determines if the tooltip associated with this
- * will be persistent or not. If isPersistent is true, then the tooltip will
- * only be dismissed when the user clicks outside the bounds of the tooltip or if
- * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
- * a short duration. Ideally, this should be set to true when there is actionable content
- * being displayed within a tooltip.
- * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
- * with the mutator mutex, only one will be shown on the screen at any time.
+ * @param isPersistent [Boolean] that determines if the tooltip associated with this will be
+ *   persistent or not. If isPersistent is true, then the tooltip will only be dismissed when the
+ *   user clicks outside the bounds of the tooltip or if [TooltipState.dismiss] is called. When
+ *   isPersistent is false, the tooltip will dismiss after a short duration. Ideally, this should be
+ *   set to true when there is actionable content being displayed within a tooltip.
+ * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated with
+ *   the mutator mutex, only one will be shown on the screen at any time.
  */
 @Composable
 internal fun rememberBasicTooltipState(
@@ -88,10 +86,7 @@ internal fun rememberBasicTooltipState(
     isPersistent: Boolean = true,
     mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
 ): TooltipState =
-    remember(
-        isPersistent,
-        mutatorMutex
-    ) {
+    remember(isPersistent, mutatorMutex) {
         BasicTooltipStateImpl(
             initialIsVisible = initialIsVisible,
             isPersistent = isPersistent,
@@ -103,14 +98,13 @@ internal fun rememberBasicTooltipState(
  * Constructor extension function for [BasicTooltipState]
  *
  * @param initialIsVisible the initial value for the tooltip's visibility when drawn.
- * @param isPersistent [Boolean] that determines if the tooltip associated with this
- * will be persistent or not. If isPersistent is true, then the tooltip will
- * only be dismissed when the user clicks outside the bounds of the tooltip or if
- * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
- * a short duration. Ideally, this should be set to true when there is actionable content
- * being displayed within a tooltip.
- * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
- * with the mutator mutex, only one will be shown on the screen at any time.
+ * @param isPersistent [Boolean] that determines if the tooltip associated with this will be
+ *   persistent or not. If isPersistent is true, then the tooltip will only be dismissed when the
+ *   user clicks outside the bounds of the tooltip or if [TooltipState.dismiss] is called. When
+ *   isPersistent is false, the tooltip will dismiss after a short duration. Ideally, this should be
+ *   set to true when there is actionable content being displayed within a tooltip.
+ * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated with
+ *   the mutator mutex, only one will be shown on the screen at any time.
  */
 @Stable
 internal fun BasicTooltipState(
@@ -131,24 +125,18 @@ private class BasicTooltipStateImpl(
     private val mutatorMutex: MutatorMutex
 ) : TooltipState {
     override var isVisible by mutableStateOf(initialIsVisible)
-    override val transition: MutableTransitionState<Boolean> =
-        MutableTransitionState(false)
+    override val transition: MutableTransitionState<Boolean> = MutableTransitionState(false)
 
-    /**
-     * continuation used to clean up
-     */
+    /** continuation used to clean up */
     private var job: (CancellableContinuation<Unit>)? = null
 
     /**
-     * Show the tooltip associated with the current [BasicTooltipState].
-     * When this method is called, all of the other tooltips associated
-     * with [mutatorMutex] will be dismissed.
+     * Show the tooltip associated with the current [BasicTooltipState]. When this method is called,
+     * all of the other tooltips associated with [mutatorMutex] will be dismissed.
      *
      * @param mutatePriority [MutatePriority] to be used with [mutatorMutex].
      */
-    override suspend fun show(
-        mutatePriority: MutatePriority
-    ) {
+    override suspend fun show(mutatePriority: MutatePriority) {
         val cancellableShow: suspend () -> Unit = {
             suspendCancellableCoroutine { continuation ->
                 isVisible = true
@@ -163,9 +151,7 @@ private class BasicTooltipStateImpl(
                 if (isPersistent) {
                     cancellableShow()
                 } else {
-                    withTimeout(BasicTooltipDefaults.TooltipDuration) {
-                        cancellableShow()
-                    }
+                    withTimeout(BasicTooltipDefaults.TooltipDuration) { cancellableShow() }
                 }
             } finally {
                 // timeout or cancellation has occurred
@@ -176,34 +162,26 @@ private class BasicTooltipStateImpl(
     }
 
     /**
-     * Dismiss the tooltip associated with
-     * this [BasicTooltipState] if it's currently being shown.
+     * Dismiss the tooltip associated with this [BasicTooltipState] if it's currently being shown.
      */
     override fun dismiss() {
         isVisible = false
     }
 
-    /**
-     * Cleans up [mutatorMutex] when the tooltip associated
-     * with this state leaves Composition.
-     */
+    /** Cleans up [mutatorMutex] when the tooltip associated with this state leaves Composition. */
     override fun onDispose() {
         job?.cancel()
     }
 }
 
-/**
- * BasicTooltip defaults that contain default values for tooltips created.
- */
+/** BasicTooltip defaults that contain default values for tooltips created. */
 internal object BasicTooltipDefaults {
-    /**
-     * The global/default [MutatorMutex] used to sync Tooltips.
-     */
+    /** The global/default [MutatorMutex] used to sync Tooltips. */
     val GlobalMutatorMutex: MutatorMutex = MutatorMutex()
 
     /**
-     * The default duration, in milliseconds, that non-persistent tooltips
-     * will show on the screen before dismissing.
+     * The default duration, in milliseconds, that non-persistent tooltips will show on the screen
+     * before dismissing.
      */
     const val TooltipDuration = 1500L
 }

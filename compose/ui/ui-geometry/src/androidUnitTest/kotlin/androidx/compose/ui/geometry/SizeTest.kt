@@ -30,22 +30,13 @@ class SizeTest {
 
     @Test
     fun sizeTimesInt() {
-        assertEquals(
-            Size(10f, 10f),
-            Size(2.5f, 2.5f) * 4f
-        )
-        assertEquals(
-            Size(10f, 10f),
-            4f * Size(2.5f, 2.5f)
-        )
+        assertEquals(Size(10f, 10f), Size(2.5f, 2.5f) * 4f)
+        assertEquals(Size(10f, 10f), 4f * Size(2.5f, 2.5f))
     }
 
     @Test
     fun sizeDivInt() {
-        assertEquals(
-            Size(10f, 10f),
-            Size(40f, 40f) / 4f
-        )
+        assertEquals(Size(10f, 10f), Size(40f, 40f) / 4f)
     }
 
     @Test
@@ -67,10 +58,7 @@ class SizeTest {
 
     @Test
     fun sizeDivDouble() {
-        assertEquals(
-            Size(10f, 10f),
-            Size(40f, 40f) / 4.0f
-        )
+        assertEquals(Size(10f, 10f), Size(40f, 40f) / 4.0f)
     }
 
     @Test
@@ -193,8 +181,6 @@ class SizeTest {
         assertTrue(Size(Float.NEGATIVE_INFINITY, 20.0f).isEmpty())
         assertTrue(Size(10.0f, Float.NEGATIVE_INFINITY).isEmpty())
 
-        assertFails {
-            Size.Unspecified.isEmpty()
-        }
+        assertFails { Size.Unspecified.isEmpty() }
     }
 }

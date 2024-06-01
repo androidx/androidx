@@ -57,8 +57,7 @@ import androidx.core.view.inputmethod.InputContentInfoCompat
 import java.util.concurrent.Executor
 import java.util.function.IntConsumer
 
-@VisibleForTesting
-internal const val SIC_DEBUG = false
+@VisibleForTesting internal const val SIC_DEBUG = false
 private const val STATELESS_TAG = "StatelessIC"
 private const val DEBUG_CLASS = "StatelessInputConnection"
 
@@ -69,8 +68,8 @@ private const val EXTRA_INPUT_CONTENT_INFO = "EXTRA_INPUT_CONTENT_INFO"
  * InputConnections are requested and used by framework to create bridge from IME to an active
  * editor.
  *
- * @param editorInfo Required to create an InputConnection wrapper to support [commitContent] on
- * all API levels.
+ * @param editorInfo Required to create an InputConnection wrapper to support [commitContent] on all
+ *   API levels.
  */
 @OptIn(ExperimentalFoundationApi::class)
 internal class StatelessInputConnection(
@@ -82,21 +81,19 @@ internal class StatelessInputConnection(
      *
      * Sometimes InputConnection does not call begin/endBatchEdit functions before calling other
      * edit functions like commitText or setComposingText. StatelessInputConnection starts and
-     * finishes a new artificial batch for every EditCommand to make sure that there is always
-     * an ongoing batch. EditCommands are only applied when batchDepth reaches 0.
+     * finishes a new artificial batch for every EditCommand to make sure that there is always an
+     * ongoing batch. EditCommands are only applied when batchDepth reaches 0.
      */
     private var batchDepth: Int = 0
 
     /**
-     * The input state from the currently active [TextInputSession].
-     * Returns empty TextFieldValue if there is no active session.
+     * The input state from the currently active [TextInputSession]. Returns empty TextFieldValue if
+     * there is no active session.
      */
     private val text: TextFieldCharSequence
         get() = session.text
 
-    /**
-     * Recording of editing operations for batch editing
-     */
+    /** Recording of editing operations for batch editing */
     private val editCommands = mutableVectorOf<EditingBuffer.() -> Unit>()
 
     /**
@@ -139,8 +136,8 @@ internal class StatelessInputConnection(
     /**
      * Compose supports below API 25 where [commitContent] is not defined. Support libraries add
      * this functionality for IMEs and Editors via [InputConnectionCompat] and [EditorInfoCompat].
-     * To create an InputConnection that supports [commitContent] on all API levels, we need to
-     * wrap [StatelessInputConnection] using [InputConnectionCompat.createWrapper].
+     * To create an InputConnection that supports [commitContent] on all API levels, we need to wrap
+     * [StatelessInputConnection] using [InputConnectionCompat.createWrapper].
      *
      * We would like to send [commitContent] calls to the current listener
      * [TextInputSession.onCommitContent] we have in active input session. It is not possible to
@@ -153,46 +150,51 @@ internal class StatelessInputConnection(
      * @see commitContent
      */
     @Suppress("DEPRECATION")
-    private val commitContentDelegateInputConnection = InputConnectionCompat.createWrapper(
-        terminalInputConnection,
-        editorInfo,
-        object : OnCommitContentListener {
-            override fun onCommitContent(
-                inputContentInfo: InputContentInfoCompat,
-                flags: Int,
-                opts: Bundle?
-            ): Boolean {
-                // The below code is mostly copied from `InputConnectionCompat.java`
-                var extras: Bundle? = opts
-                if (Build.VERSION.SDK_INT >= 25 &&
-                    (flags and INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
-                ) {
-                    try {
-                        inputContentInfo.requestPermission()
-                    } catch (e: Exception) {
-                        logDebug("Can't insert content from IME; requestPermission() failed, $e")
-                        return false
+    private val commitContentDelegateInputConnection =
+        InputConnectionCompat.createWrapper(
+            terminalInputConnection,
+            editorInfo,
+            object : OnCommitContentListener {
+                override fun onCommitContent(
+                    inputContentInfo: InputContentInfoCompat,
+                    flags: Int,
+                    opts: Bundle?
+                ): Boolean {
+                    // The below code is mostly copied from `InputConnectionCompat.java`
+                    var extras: Bundle? = opts
+                    if (
+                        Build.VERSION.SDK_INT >= 25 &&
+                            (flags and INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
+                    ) {
+                        try {
+                            inputContentInfo.requestPermission()
+                        } catch (e: Exception) {
+                            logDebug(
+                                "Can't insert content from IME; requestPermission() failed, $e"
+                            )
+                            return false
+                        }
+                        // Permissions granted above are revoked automatically by the platform when
+                        // the
+                        // corresponding InputContentInfo object is garbage collected. To prevent
+                        // this from happening prematurely (before the receiving app has had a
+                        // chance
+                        // to process the content), we set the InputContentInfo object into the
+                        // extras of the payload passed to onReceiveContent.
+                        val inputContentInfoFmk = inputContentInfo.unwrap() as Parcelable
+                        extras = if (opts == null) Bundle() else Bundle(opts)
+                        extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk)
                     }
-                    // Permissions granted above are revoked automatically by the platform when the
-                    // corresponding InputContentInfo object is garbage collected. To prevent
-                    // this from happening prematurely (before the receiving app has had a chance
-                    // to process the content), we set the InputContentInfo object into the
-                    // extras of the payload passed to onReceiveContent.
-                    val inputContentInfoFmk = inputContentInfo.unwrap() as Parcelable
-                    extras = if (opts == null) Bundle() else Bundle(opts)
-                    extras.putParcelable(EXTRA_INPUT_CONTENT_INFO, inputContentInfoFmk)
+                    return session.onCommitContent(inputContentInfo.toTransferableContent(extras))
                 }
-                return session.onCommitContent(inputContentInfo.toTransferableContent(extras))
             }
-        }
-    )
+        )
 
     /**
-     * Add edit op to internal list with wrapping batch edit. It's not guaranteed by IME that
-     * batch editing will be used for every operation. Instead, [StatelessInputConnection] creates
-     * its own mini batches for every edit op. These batches are only applied when batch depth
-     * reaches 0, meaning that artificial batches won't be applied until the real batches are
-     * completed.
+     * Add edit op to internal list with wrapping batch edit. It's not guaranteed by IME that batch
+     * editing will be used for every operation. Instead, [StatelessInputConnection] creates its own
+     * mini batches for every edit op. These batches are only applied when batch depth reaches 0,
+     * meaning that artificial batches won't be applied until the real batches are completed.
      */
     private fun addEditCommandWithBatch(editCommand: EditingBuffer.() -> Unit) {
         beginBatchEditInternal()
@@ -223,9 +225,7 @@ internal class StatelessInputConnection(
         batchDepth--
         if (batchDepth == 0 && editCommands.isNotEmpty()) {
             // apply the changes to active input session in order.
-            session.requestEdit {
-                editCommands.forEach { it.invoke(this) }
-            }
+            session.requestEdit { editCommands.forEach { it.invoke(this) } }
             editCommands.clear()
         }
         return batchDepth > 0
@@ -237,63 +237,49 @@ internal class StatelessInputConnection(
         batchDepth = 0
     }
 
-    //endregion
+    // endregion
 
     // region Callbacks for text editing
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("commitText(\"$text\", $newCursorPosition)")
-        addEditCommandWithBatch {
-            commitText(text.toString(), newCursorPosition)
-        }
+        addEditCommandWithBatch { commitText(text.toString(), newCursorPosition) }
         return true
     }
 
     override fun setComposingRegion(start: Int, end: Int): Boolean {
         logDebug("setComposingRegion($start, $end)")
-        addEditCommandWithBatch {
-            setComposingRegion(start, end)
-        }
+        addEditCommandWithBatch { setComposingRegion(start, end) }
         return true
     }
 
     override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("setComposingText(\"$text\", $newCursorPosition)")
-        addEditCommandWithBatch {
-            setComposingText(text.toString(), newCursorPosition)
-        }
+        addEditCommandWithBatch { setComposingText(text.toString(), newCursorPosition) }
         return true
     }
 
     override fun deleteSurroundingTextInCodePoints(beforeLength: Int, afterLength: Int): Boolean {
         logDebug("deleteSurroundingTextInCodePoints($beforeLength, $afterLength)")
-        addEditCommandWithBatch {
-            deleteSurroundingTextInCodePoints(beforeLength, afterLength)
-        }
+        addEditCommandWithBatch { deleteSurroundingTextInCodePoints(beforeLength, afterLength) }
         return true
     }
 
     override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
         logDebug("deleteSurroundingText($beforeLength, $afterLength)")
-        addEditCommandWithBatch {
-            deleteSurroundingText(beforeLength, afterLength)
-        }
+        addEditCommandWithBatch { deleteSurroundingText(beforeLength, afterLength) }
         return true
     }
 
     override fun setSelection(start: Int, end: Int): Boolean {
         logDebug("setSelection($start, $end)")
-        addEditCommandWithBatch {
-            setSelection(start, end)
-        }
+        addEditCommandWithBatch { setSelection(start, end) }
         return true
     }
 
     override fun finishComposingText(): Boolean {
         logDebug("finishComposingText()")
-        addEditCommandWithBatch {
-            finishComposingText()
-        }
+        addEditCommandWithBatch { finishComposingText() }
         return true
     }
 
@@ -323,12 +309,13 @@ internal class StatelessInputConnection(
 
     override fun getSelectedText(flags: Int): CharSequence? {
         // https://source.chromium.org/chromium/chromium/src/+/master:content/public/android/java/src/org/chromium/content/browser/input/TextInputState.java;l=56;drc=0e20d1eb38227949805a4c0e9d5cdeddc8d23637
-        val result: CharSequence? = if (text.selection.collapsed) {
-            null
-        } else {
-            // TODO(b/135556699) should return styled text
-            text.getSelectedText().toString()
-        }
+        val result: CharSequence? =
+            if (text.selection.collapsed) {
+                null
+            } else {
+                // TODO(b/135556699) should return styled text
+                text.getSelectedText().toString()
+            }
         logDebug("getSelectedText($flags): $result")
         return result
     }
@@ -350,8 +337,12 @@ internal class StatelessInputConnection(
         // an object class for it.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
 
-        Api34PerformHandwritingGestureImpl
-            .performHandwritingGesture(session, gesture, executor, consumer)
+        Api34PerformHandwritingGestureImpl.performHandwritingGesture(
+            session,
+            gesture,
+            executor,
+            consumer
+        )
     }
 
     override fun previewHandwritingGesture(
@@ -361,16 +352,20 @@ internal class StatelessInputConnection(
         logDebug("previewHandwritingGesture($gesture, $cancellationSignal)")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return false
 
-        return Api34PerformHandwritingGestureImpl
-            .previewHandwritingGesture(session, gesture, cancellationSignal)
+        return Api34PerformHandwritingGestureImpl.previewHandwritingGesture(
+            session,
+            gesture,
+            cancellationSignal
+        )
     }
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
         logDebug("getExtractedText($request, $flags)")
-//        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0
-//        if (extractedTextMonitorMode) {
-//            currentExtractedTextRequestToken = request?.token ?: 0
-//        }
+        //        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR)
+        // != 0
+        //        if (extractedTextMonitorMode) {
+        //            currentExtractedTextRequestToken = request?.token ?: 0
+        //        }
         // TODO(halilibo): Implement extracted text monitor
         // TODO(b/135556699) should return styled text
         return text.toExtractedText()
@@ -389,9 +384,7 @@ internal class StatelessInputConnection(
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch {
-                    setSelection(0, text.length)
-                }
+                addEditCommandWithBatch { setSelection(0, text.length) }
             }
             // TODO(siyamed): Need proper connection to cut/copy/paste
             android.R.id.cut -> sendSynthesizedKeyEvent(KeyEvent.KEYCODE_CUT)
@@ -416,19 +409,20 @@ internal class StatelessInputConnection(
     override fun performEditorAction(editorAction: Int): Boolean {
         logDebug("performEditorAction($editorAction)")
 
-        val imeAction = when (editorAction) {
-            EditorInfo.IME_ACTION_UNSPECIFIED -> ImeAction.Default
-            EditorInfo.IME_ACTION_DONE -> ImeAction.Done
-            EditorInfo.IME_ACTION_SEND -> ImeAction.Send
-            EditorInfo.IME_ACTION_SEARCH -> ImeAction.Search
-            EditorInfo.IME_ACTION_PREVIOUS -> ImeAction.Previous
-            EditorInfo.IME_ACTION_NEXT -> ImeAction.Next
-            EditorInfo.IME_ACTION_GO -> ImeAction.Go
-            else -> {
-                logDebug("IME sent an unrecognized editor action: $editorAction")
-                ImeAction.Default
+        val imeAction =
+            when (editorAction) {
+                EditorInfo.IME_ACTION_UNSPECIFIED -> ImeAction.Default
+                EditorInfo.IME_ACTION_DONE -> ImeAction.Done
+                EditorInfo.IME_ACTION_SEND -> ImeAction.Send
+                EditorInfo.IME_ACTION_SEARCH -> ImeAction.Search
+                EditorInfo.IME_ACTION_PREVIOUS -> ImeAction.Previous
+                EditorInfo.IME_ACTION_NEXT -> ImeAction.Next
+                EditorInfo.IME_ACTION_GO -> ImeAction.Go
+                else -> {
+                    logDebug("IME sent an unrecognized editor action: $editorAction")
+                    ImeAction.Default
+                }
             }
-        }
 
         session.onImeAction(imeAction)
         return true
@@ -444,7 +438,8 @@ internal class StatelessInputConnection(
         // The API documents says this should return if the input connection is no longer valid, but
         // The Chromium implementation already returning false, so assuming it is safe to return
         // false if not supported.
-        // see https://cs.chromium.org/chromium/src/content/public/android/java/src/org/chromium/content/browser/input/ThreadedInputConnection.java
+        // see
+        // https://cs.chromium.org/chromium/src/content/public/android/java/src/org/chromium/content/browser/input/ThreadedInputConnection.java
         return false
     }
 
@@ -467,7 +462,8 @@ internal class StatelessInputConnection(
         // The API documents says this should return if the input connection is no longer valid, but
         // The Chromium implementation already returning false, so assuming it is safe to return
         // false if not supported.
-        // see https://cs.chromium.org/chromium/src/content/public/android/java/src/org/chromium/content/browser/input/ThreadedInputConnection.java
+        // see
+        // https://cs.chromium.org/chromium/src/content/public/android/java/src/org/chromium/content/browser/input/ThreadedInputConnection.java
         return false
     }
 
@@ -537,9 +533,7 @@ private object Api34PerformHandwritingGestureImpl {
         if (intConsumer == null) return
 
         if (executor != null) {
-            executor.execute {
-                intConsumer.accept(result)
-            }
+            executor.execute { intConsumer.accept(result) }
         } else {
             intConsumer.accept(result)
         }
@@ -574,9 +568,7 @@ internal fun InputContentInfoCompat.toTransferableContent(extras: Bundle?): Tran
         clipEntry = clipData.toClipEntry(),
         source = TransferableContent.Source.Keyboard,
         clipMetadata = description.toClipMetadata(),
-        platformTransferableContent = PlatformTransferableContent(
-            linkUri = linkUri,
-            extras = extras ?: Bundle.EMPTY
-        )
+        platformTransferableContent =
+            PlatformTransferableContent(linkUri = linkUri, extras = extras ?: Bundle.EMPTY)
     )
 }

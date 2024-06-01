@@ -81,19 +81,18 @@ class PlatformTypefacesTest {
         fontFamily: GenericFontFamily,
         forRange: IntRange
     ) {
-        val boldTypeface = android.graphics.Typeface.create(
-            fontFamily.name, android.graphics.Typeface.BOLD
-        )
-        val normalTypeface = android.graphics.Typeface.create(
-            fontFamily.name, android.graphics.Typeface.NORMAL
-        )
+        val boldTypeface =
+            android.graphics.Typeface.create(fontFamily.name, android.graphics.Typeface.BOLD)
+        val normalTypeface =
+            android.graphics.Typeface.create(fontFamily.name, android.graphics.Typeface.NORMAL)
 
         for (weight in forRange) {
-            val actualTypefaceUpright = createNamed(
-                name = fontFamily,
-                fontWeight = FontWeight(weight),
-                fontStyle = FontStyle.Normal
-            )
+            val actualTypefaceUpright =
+                createNamed(
+                    name = fontFamily,
+                    fontWeight = FontWeight(weight),
+                    fontStyle = FontStyle.Normal
+                )
             assertThat(actualTypefaceUpright).isNotEqualTo(boldTypeface)
             assertThat(actualTypefaceUpright).isNotEqualTo(normalTypeface)
         }
@@ -114,16 +113,21 @@ class PlatformTypefacesTest {
         forRange: IntRange
     ) {
         for (weight in forRange) {
-            val normalTypeface = android.graphics.Typeface.create(
-                android.graphics.Typeface.create(fontFamily.name, android.graphics.Typeface.NORMAL),
-                weight,
-                false
-            )
-            val actualTypefaceUpright = createNamed(
-                name = fontFamily,
-                fontWeight = FontWeight(weight),
-                fontStyle = FontStyle.Normal
-            )
+            val normalTypeface =
+                android.graphics.Typeface.create(
+                    android.graphics.Typeface.create(
+                        fontFamily.name,
+                        android.graphics.Typeface.NORMAL
+                    ),
+                    weight,
+                    false
+                )
+            val actualTypefaceUpright =
+                createNamed(
+                    name = fontFamily,
+                    fontWeight = FontWeight(weight),
+                    fontStyle = FontStyle.Normal
+                )
             assertThat(actualTypefaceUpright).isEqualTo(normalTypeface)
         }
     }
@@ -132,18 +136,16 @@ class PlatformTypefacesTest {
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_SansSerif_allWeights() {
         val subject = PlatformTypefaces()
         for (weight in 1..1000) {
-            val genericFontFamilyTypeface = subject.createNamed(
-                FontFamily.SansSerif,
-                FontWeight(weight),
-                FontStyle.Normal
-            )
-            val optionalOnDeviceFontFamilyTypeface = subject.optionalOnDeviceFontFamilyByName(
-                FontFamily.SansSerif.name,
-                FontWeight(weight),
-                FontStyle.Normal,
-                FontVariation.Settings(),
-                context
-            )
+            val genericFontFamilyTypeface =
+                subject.createNamed(FontFamily.SansSerif, FontWeight(weight), FontStyle.Normal)
+            val optionalOnDeviceFontFamilyTypeface =
+                subject.optionalOnDeviceFontFamilyByName(
+                    FontFamily.SansSerif.name,
+                    FontWeight(weight),
+                    FontStyle.Normal,
+                    FontVariation.Settings(),
+                    context
+                )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
     }
@@ -152,18 +154,16 @@ class PlatformTypefacesTest {
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_Serif_allWeights() {
         val subject = PlatformTypefaces()
         for (weight in 1..1000) {
-            val genericFontFamilyTypeface = subject.createNamed(
-                FontFamily.Serif,
-                FontWeight(weight),
-                FontStyle.Normal
-            )
-            val optionalOnDeviceFontFamilyTypeface = subject.optionalOnDeviceFontFamilyByName(
-                FontFamily.Serif.name,
-                FontWeight(weight),
-                FontStyle.Normal,
-                FontVariation.Settings(),
-                context
-            )
+            val genericFontFamilyTypeface =
+                subject.createNamed(FontFamily.Serif, FontWeight(weight), FontStyle.Normal)
+            val optionalOnDeviceFontFamilyTypeface =
+                subject.optionalOnDeviceFontFamilyByName(
+                    FontFamily.Serif.name,
+                    FontWeight(weight),
+                    FontStyle.Normal,
+                    FontVariation.Settings(),
+                    context
+                )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
     }
@@ -172,18 +172,16 @@ class PlatformTypefacesTest {
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_Monospace_allWeights() {
         val subject = PlatformTypefaces()
         for (weight in 1..1000) {
-            val genericFontFamilyTypeface = subject.createNamed(
-                FontFamily.Monospace,
-                FontWeight(weight),
-                FontStyle.Normal
-            )
-            val optionalOnDeviceFontFamilyTypeface = subject.optionalOnDeviceFontFamilyByName(
-                FontFamily.Monospace.name,
-                FontWeight(weight),
-                FontStyle.Normal,
-                FontVariation.Settings(),
-                context
-            )
+            val genericFontFamilyTypeface =
+                subject.createNamed(FontFamily.Monospace, FontWeight(weight), FontStyle.Normal)
+            val optionalOnDeviceFontFamilyTypeface =
+                subject.optionalOnDeviceFontFamilyByName(
+                    FontFamily.Monospace.name,
+                    FontWeight(weight),
+                    FontStyle.Normal,
+                    FontVariation.Settings(),
+                    context
+                )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
     }
@@ -192,18 +190,16 @@ class PlatformTypefacesTest {
     fun assertOptionalOnDeviceFontFamilyByName_returnsPlatformFallback_Cursive_allWeights() {
         val subject = PlatformTypefaces()
         for (weight in 1..1000) {
-            val genericFontFamilyTypeface = subject.createNamed(
-                FontFamily.Cursive,
-                FontWeight(weight),
-                FontStyle.Normal
-            )
-            val optionalOnDeviceFontFamilyTypeface = subject.optionalOnDeviceFontFamilyByName(
-                FontFamily.Cursive.name,
-                FontWeight(weight),
-                FontStyle.Normal,
-                FontVariation.Settings(),
-                context
-            )
+            val genericFontFamilyTypeface =
+                subject.createNamed(FontFamily.Cursive, FontWeight(weight), FontStyle.Normal)
+            val optionalOnDeviceFontFamilyTypeface =
+                subject.optionalOnDeviceFontFamilyByName(
+                    FontFamily.Cursive.name,
+                    FontWeight(weight),
+                    FontStyle.Normal,
+                    FontVariation.Settings(),
+                    context
+                )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
     }

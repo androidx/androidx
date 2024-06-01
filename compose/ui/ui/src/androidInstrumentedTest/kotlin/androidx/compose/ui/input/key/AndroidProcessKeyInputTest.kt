@@ -46,16 +46,12 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 class AndroidProcessKeyInputTest(private val keyEventActions: List<Int>) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "keyEventAction = {0}")
-        fun initParameters() = listOf(
-            listOf(ActionDown),
-            listOf(ActionDown, ActionUp)
-        )
+        fun initParameters() = listOf(listOf(ActionDown), listOf(ActionDown, ActionUp))
     }
 
     @Test
@@ -67,18 +63,14 @@ class AndroidProcessKeyInputTest(private val keyEventActions: List<Int>) {
         rule.setFocusableContent {
             ownerView = LocalView.current
             Box(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .focusTarget()
-                    .onKeyEvent {
+                modifier =
+                    Modifier.focusRequester(focusRequester).focusTarget().onKeyEvent {
                         receivedKeyEvent = it
                         true
                     }
             )
         }
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Act.
         var lastKeyConsumed = false
@@ -95,13 +87,14 @@ class AndroidProcessKeyInputTest(private val keyEventActions: List<Int>) {
         // Assert.
         rule.runOnIdle {
             val keyEvent = checkNotNull(receivedKeyEvent)
-            assertThat(keyEvent.type).isEqualTo(
-                when (keyEventActions.last()) {
-                    ActionUp -> KeyUp
-                    ActionDown -> KeyDown
-                    else -> error("No tests for this key action.")
-                }
-            )
+            assertThat(keyEvent.type)
+                .isEqualTo(
+                    when (keyEventActions.last()) {
+                        ActionUp -> KeyUp
+                        ActionDown -> KeyDown
+                        else -> error("No tests for this key action.")
+                    }
+                )
             assertThat(keyEvent.key).isEqualTo(A)
             assertThat(lastKeyConsumed).isTrue()
         }

@@ -33,21 +33,19 @@ import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.traverseDescendants
 
 /**
- * A [Modifier.Node] providing low level access to platform drag and drop operations.
- * In most cases, you will want to delegate to the [DragAndDropModifierNode] returned by
- * the eponymous factory method.
+ * A [Modifier.Node] providing low level access to platform drag and drop operations. In most cases,
+ * you will want to delegate to the [DragAndDropModifierNode] returned by the eponymous factory
+ * method.
  */
 interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
     /**
      * Begins a drag and drop session for transferring data.
      *
-     * @param transferData the data to be transferred after successful completion of the
-     * drag and drop gesture.
-     *
+     * @param transferData the data to be transferred after successful completion of the drag and
+     *   drop gesture.
      * @param decorationSize the size of the drag decoration to be drawn.
-     *
      * @param drawDragDecoration provides the visual representation of the item dragged during the
-     * drag and drop gesture.
+     *   drag and drop gesture.
      */
     fun drag(
         transferData: DragAndDropTransferData,
@@ -58,16 +56,14 @@ interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
     /**
      * The entry point to register interest in a drag and drop session for receiving data.
      *
-     * @return true to indicate interest in the contents of a drag and drop session, false
-     * indicates no interest. If false is returned, this [Modifier] will not receive any
-     * [DragAndDropTarget] events.
+     * @return true to indicate interest in the contents of a drag and drop session, false indicates
+     *   no interest. If false is returned, this [Modifier] will not receive any [DragAndDropTarget]
+     *   events.
      *
-     * All [DragAndDropModifierNode] instances in the hierarchy will be given an opportunity
-     * to participate in a drag and drop session via this method.
+     * All [DragAndDropModifierNode] instances in the hierarchy will be given an opportunity to
+     * participate in a drag and drop session via this method.
      */
-    fun acceptDragAndDropTransfer(
-        startEvent: DragAndDropEvent
-    ): Boolean
+    fun acceptDragAndDropTransfer(startEvent: DragAndDropEvent): Boolean
 }
 
 /**
@@ -82,48 +78,44 @@ fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode { null 
  * sessions by calling [DragAndDropModifierNode.drag].
  *
  * @param shouldStartDragAndDrop allows for inspecting the start [DragAndDropEvent] for a given
- * session to decide whether or not the provided [DragAndDropTarget] would like to receive from it.
- *
+ *   session to decide whether or not the provided [DragAndDropTarget] would like to receive from
+ *   it.
  * @param target allows for receiving events and transfer data from a given drag and drop session.
- *
  */
 fun DragAndDropModifierNode(
     shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
     target: DragAndDropTarget
 ): DragAndDropModifierNode = DragAndDropNode { startEvent ->
-    if (shouldStartDragAndDrop(startEvent)) target
-    else null
+    if (shouldStartDragAndDrop(startEvent)) target else null
 }
 
 /**
- * Core implementation of drag and drop. This [Modifier.Node] implements tree traversal for
- * drag and drop, as well as hit testing and propagation of events for drag or drop gestures.
+ * Core implementation of drag and drop. This [Modifier.Node] implements tree traversal for drag and
+ * drop, as well as hit testing and propagation of events for drag or drop gestures.
  *
  * It uses the [DragAndDropEvent] as a representation of a single mutable drag and drop session.
  *
- * The implementation implicitly maintains a sorted tree of nodes where the order of traversal
- * is determined by the proximity to the last event. That is, after finding a receiving node,
- * the next event will follow the same path the previous event did unless a fork is found and
- * another node should receive the event.
+ * The implementation implicitly maintains a sorted tree of nodes where the order of traversal is
+ * determined by the proximity to the last event. That is, after finding a receiving node, the next
+ * event will follow the same path the previous event did unless a fork is found and another node
+ * should receive the event.
  *
- * This optimizes traversal for the common case of move events where the event remains within
- * a single node, or moves to a sibling of the node.
+ * This optimizes traversal for the common case of move events where the event remains within a
+ * single node, or moves to a sibling of the node.
  */
 internal class DragAndDropNode(
     private val onDragAndDropStart: (event: DragAndDropEvent) -> DragAndDropTarget?
-) : Modifier.Node(),
-    TraversableNode,
-    DragAndDropModifierNode {
+) : Modifier.Node(), TraversableNode, DragAndDropModifierNode {
     companion object {
         private object DragAndDropTraversableKey
     }
 
     override val traverseKey: Any = DragAndDropTraversableKey
 
-    /** Child currently receiving drag gestures for dropping into **/
+    /** Child currently receiving drag gestures for dropping into * */
     private var lastChildDragAndDropModifierNode: DragAndDropModifierNode? = null
 
-    /** This as a drop target if eligible for processing **/
+    /** This as a drop target if eligible for processing * */
     private var thisDragAndDropTarget: DragAndDropTarget? = null
 
     // start Node
@@ -142,11 +134,13 @@ internal class DragAndDropNode(
         decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit,
     ) {
-        requireOwner().dragAndDropManager.drag(
-            transferData = transferData,
-            decorationSize = decorationSize,
-            drawDragDecoration = drawDragDecoration
-        )
+        requireOwner()
+            .dragAndDropManager
+            .drag(
+                transferData = transferData,
+                decorationSize = decorationSize,
+                drawDragDecoration = drawDragDecoration
+            )
     }
 
     override fun acceptDragAndDropTransfer(startEvent: DragAndDropEvent): Boolean {
@@ -196,16 +190,18 @@ internal class DragAndDropNode(
 
     override fun onMoved(event: DragAndDropEvent) {
         val currentChildNode: DragAndDropModifierNode? = lastChildDragAndDropModifierNode
-        val newChildNode: DragAndDropModifierNode? = when {
-            // Moved within child.
-            currentChildNode?.contains(event.positionInRoot) == true -> currentChildNode
-            // Position is now outside active child, maybe it entered a different one.
-            else -> firstDescendantOrNull { child ->
-                // Only dispatch to children who previously accepted the onStart gesture
-                requireOwner().dragAndDropManager.isInterestedNode(child) &&
-                    child.contains(event.positionInRoot)
+        val newChildNode: DragAndDropModifierNode? =
+            when {
+                // Moved within child.
+                currentChildNode?.contains(event.positionInRoot) == true -> currentChildNode
+                // Position is now outside active child, maybe it entered a different one.
+                else ->
+                    firstDescendantOrNull { child ->
+                        // Only dispatch to children who previously accepted the onStart gesture
+                        requireOwner().dragAndDropManager.isInterestedNode(child) &&
+                            child.contains(event.positionInRoot)
+                    }
             }
-        }
 
         when {
             // Left us and went to a child.
@@ -235,7 +231,6 @@ internal class DragAndDropNode(
     override fun onChanged(event: DragAndDropEvent) {
         when (val self = thisDragAndDropTarget) {
             null -> lastChildDragAndDropModifierNode?.onChanged(event = event)
-
             else -> self.onChanged(event = event)
         }
     }
@@ -249,7 +244,6 @@ internal class DragAndDropNode(
     override fun onDrop(event: DragAndDropEvent): Boolean {
         return when (val currentChildDropTarget = lastChildDragAndDropModifierNode) {
             null -> thisDragAndDropTarget?.onDrop(event = event) ?: false
-
             else -> currentChildDropTarget.onDrop(event = event)
         }
     }
@@ -275,9 +269,7 @@ private fun DragAndDropTarget.dispatchEntered(event: DragAndDropEvent) = run {
     onMoved(event = event)
 }
 
-/**
- * Hit test for a [DragAndDropNode].
- */
+/** Hit test for a [DragAndDropNode]. */
 private fun DragAndDropModifierNode.contains(position: Offset): Boolean {
     if (!node.isAttached) return false
     val currentCoordinates = requireLayoutNode().coordinates

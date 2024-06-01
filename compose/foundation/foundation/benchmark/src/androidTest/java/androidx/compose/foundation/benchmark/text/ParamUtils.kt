@@ -16,24 +16,22 @@
 
 package androidx.compose.foundation.benchmark.text
 
-/**
- * On CI we only track a subset of metrics, to run a full suite for analysis set this to true.
- */
+/** On CI we only track a subset of metrics, to run a full suite for analysis set this to true. */
 internal const val DoFullBenchmark = false
 
 fun <T> List<Array<T>>.filterForCi(
     selector: List<Array<T>>.() -> Array<T> = { first() }
-): List<Array<T>> = if (DoFullBenchmark) {
-    this
-} else {
-    listOf(selector())
-}
+): List<Array<T>> =
+    if (DoFullBenchmark) {
+        this
+    } else {
+        listOf(selector())
+    }
 
 @Suppress("UNCHECKED_CAST")
-fun Array<Int>.filterForCi(
-    selector: Array<Int>.() -> Int = { min() }
-): Array<Any> = if (DoFullBenchmark) {
-    this as Array<Any>
-} else {
-    arrayOf(selector())
-}
+fun Array<Int>.filterForCi(selector: Array<Int>.() -> Int = { min() }): Array<Any> =
+    if (DoFullBenchmark) {
+        this as Array<Any>
+    } else {
+        arrayOf(selector())
+    }

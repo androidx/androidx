@@ -19,8 +19,8 @@ package androidx.compose.ui.util
 import android.os.Trace
 
 /**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName])
- * and [Trace.endSection].
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName]) and
+ * [Trace.endSection].
  */
 actual inline fun <T> trace(sectionName: String, block: () -> T): T {
     Trace.beginSection(sectionName)

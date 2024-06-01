@@ -52,8 +52,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SwipeToDismissTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val backgroundTag = "background"
     private val dismissContentTag = "dismissContent"
@@ -68,17 +67,13 @@ class SwipeToDismissTest {
         rule.setContent {
             SwipeToDismissBox(
                 state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled),
-                backgroundContent = { }
+                backgroundContent = {}
             ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(dismissContentTag)
-                    ) }
+                Box(Modifier.fillMaxSize().testTag(dismissContentTag))
+            }
         }
 
-        rule.onNodeWithTag(dismissContentTag)
-            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag(dismissContentTag).assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     @Test
@@ -86,19 +81,14 @@ class SwipeToDismissTest {
         rule.setContent {
             SwipeToDismissBox(
                 state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd),
-                backgroundContent = { }
+                backgroundContent = {}
             ) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(dismissContentTag)
-                )
+                Box(Modifier.fillMaxSize().testTag(dismissContentTag))
             }
         }
 
         val width = rule.rootWidth()
-        rule.onNodeWithTag(dismissContentTag)
-            .assertLeftPositionInRootIsEqualTo(width)
+        rule.onNodeWithTag(dismissContentTag).assertLeftPositionInRootIsEqualTo(width)
     }
 
     @Test
@@ -107,20 +97,15 @@ class SwipeToDismissTest {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 SwipeToDismissBox(
                     state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.StartToEnd),
-                    backgroundContent = { }
+                    backgroundContent = {}
                 ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(dismissContentTag)
-                    )
+                    Box(Modifier.fillMaxSize().testTag(dismissContentTag))
                 }
             }
         }
 
         val width = rule.rootWidth()
-        rule.onNodeWithTag(dismissContentTag)
-            .assertLeftPositionInRootIsEqualTo(-width)
+        rule.onNodeWithTag(dismissContentTag).assertLeftPositionInRootIsEqualTo(-width)
     }
 
     @Test
@@ -128,19 +113,14 @@ class SwipeToDismissTest {
         rule.setContent {
             SwipeToDismissBox(
                 state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.EndToStart),
-                backgroundContent = { },
+                backgroundContent = {},
             ) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .testTag(dismissContentTag)
-                )
+                Box(Modifier.fillMaxSize().testTag(dismissContentTag))
             }
         }
 
         val width = rule.rootWidth()
-        rule.onNodeWithTag(dismissContentTag)
-            .assertLeftPositionInRootIsEqualTo(-width)
+        rule.onNodeWithTag(dismissContentTag).assertLeftPositionInRootIsEqualTo(-width)
     }
 
     @Test
@@ -149,20 +129,15 @@ class SwipeToDismissTest {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 SwipeToDismissBox(
                     state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.EndToStart),
-                    backgroundContent = { },
+                    backgroundContent = {},
                 ) {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(dismissContentTag)
-                    )
+                    Box(Modifier.fillMaxSize().testTag(dismissContentTag))
                 }
             }
         }
 
         val width = rule.rootWidth()
-        rule.onNodeWithTag(dismissContentTag)
-            .assertLeftPositionInRootIsEqualTo(width)
+        rule.onNodeWithTag(dismissContentTag).assertLeftPositionInRootIsEqualTo(width)
     }
 
     @Test
@@ -170,18 +145,13 @@ class SwipeToDismissTest {
         rule.setContent {
             SwipeToDismissBox(
                 state = rememberSwipeToDismissBoxState(SwipeToDismissBoxValue.Settled),
-                backgroundContent = {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag(backgroundTag)
-                    )
-                }
-            ) { Box(Modifier.size(100.dp)) }
+                backgroundContent = { Box(Modifier.fillMaxSize().testTag(backgroundTag)) }
+            ) {
+                Box(Modifier.size(100.dp))
+            }
         }
 
-        rule.onNodeWithTag(backgroundTag)
-            .assertIsSquareWithSize(100.dp)
+        rule.onNodeWithTag(backgroundTag).assertIsSquareWithSize(100.dp)
     }
 
     @Test
@@ -194,8 +164,10 @@ class SwipeToDismissTest {
                 modifier = Modifier.testTag(swipeDismissTag),
                 enableDismissFromStartToEnd = true,
                 enableDismissFromEndToStart = false,
-                backgroundContent = { }
-            ) { Box(Modifier.fillMaxSize()) }
+                backgroundContent = {}
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
         }
 
         rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeRight() }
@@ -218,8 +190,10 @@ class SwipeToDismissTest {
                 modifier = Modifier.testTag(swipeDismissTag),
                 enableDismissFromStartToEnd = false,
                 enableDismissFromEndToStart = true,
-                backgroundContent = { },
-            ) { Box(Modifier.fillMaxSize()) }
+                backgroundContent = {},
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
         }
 
         rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeLeft() }
@@ -243,8 +217,10 @@ class SwipeToDismissTest {
                     modifier = Modifier.testTag(swipeDismissTag),
                     enableDismissFromStartToEnd = true,
                     enableDismissFromEndToStart = false,
-                    backgroundContent = { },
-                ) { Box(Modifier.fillMaxSize()) }
+                    backgroundContent = {},
+                ) {
+                    Box(Modifier.fillMaxSize())
+                }
             }
         }
 
@@ -269,8 +245,10 @@ class SwipeToDismissTest {
                     modifier = Modifier.testTag(swipeDismissTag),
                     enableDismissFromStartToEnd = false,
                     enableDismissFromEndToStart = true,
-                    backgroundContent = { },
-                ) { Box(Modifier.fillMaxSize()) }
+                    backgroundContent = {},
+                ) {
+                    Box(Modifier.fillMaxSize())
+                }
             }
         }
 
@@ -294,8 +272,10 @@ class SwipeToDismissTest {
                 modifier = Modifier.testTag(swipeDismissTag),
                 enableDismissFromStartToEnd = false,
                 enableDismissFromEndToStart = false,
-                backgroundContent = { },
-            ) { Box(Modifier.fillMaxSize()) }
+                backgroundContent = {},
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
         }
 
         rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeRight() }
@@ -341,12 +321,10 @@ class SwipeToDismissTest {
                             composedItems[index]!!.currentValue == SwipeToDismissBoxValue.EndToStart
                         AnimatedVisibility(visible = !isDismissed) {
                             SwipeToDismissBox(
-                                modifier = Modifier
-                                    .height(48.dp)
-                                    .fillMaxWidth(),
+                                modifier = Modifier.height(48.dp).fillMaxWidth(),
                                 state = composedItems[index]!!,
-                                backgroundContent = { },
-                                content = { }
+                                backgroundContent = {},
+                                content = {}
                             )
                         }
                     }
@@ -358,18 +336,17 @@ class SwipeToDismissTest {
         // be composed and measured/placed
         val initiallyVisibleItems = lazyState.layoutInfo.visibleItemsInfo.size
         assertWithMessage(
-            "Expected visible items to be less than total items so that there are " +
-                "items left to compose later."
-        )
+                "Expected visible items to be less than total items so that there are " +
+                    "items left to compose later."
+            )
             .that(initiallyVisibleItems)
             .isLessThan(amountOfItems)
         assertWithMessage("Expected composed items to match amount of visible items")
             .that(composedItems)
             .hasSize(initiallyVisibleItems)
         assertWithMessage(
-            "Expected that item at index $initiallyVisibleItems was not " +
-                "composed yet"
-        )
+                "Expected that item at index $initiallyVisibleItems was not " + "composed yet"
+            )
             .that(composedItems)
             .doesNotContainKey(initiallyVisibleItems)
 
@@ -381,9 +358,9 @@ class SwipeToDismissTest {
 
         // Assert a new item has been
         assertWithMessage(
-            "Expected a new item to have been composed at index " +
-                "${initiallyVisibleItems + 1}"
-        )
+                "Expected a new item to have been composed at index " +
+                    "${initiallyVisibleItems + 1}"
+            )
             .that(lazyState.layoutInfo.visibleItemsInfo)
             .hasSize(initiallyVisibleItems + 1)
         val newItemIndex = lazyState.layoutInfo.visibleItemsInfo.size - 1
@@ -403,8 +380,10 @@ class SwipeToDismissTest {
                 state = swipeToDismissBoxState,
                 modifier = Modifier.testTag(swipeDismissTag),
                 gesturesEnabled = false,
-                backgroundContent = { }
-            ) { Box(Modifier.fillMaxSize()) }
+                backgroundContent = {}
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
         }
 
         rule.onNodeWithTag(swipeDismissTag).performTouchInput { swipeRight() }

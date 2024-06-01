@@ -45,16 +45,15 @@ class DesktopTextInputSessionTest {
     fun startInputMethod_setsAndClearsRequestsAndListeners() = runTest {
         val inputComponent = TestInputComponent()
         val component = Frame()
-        val session = DesktopTextInputSession(
-            coroutineScope = this,
-            inputComponent = inputComponent,
-            component = component
-        )
+        val session =
+            DesktopTextInputSession(
+                coroutineScope = this,
+                inputComponent = inputComponent,
+                component = component
+            )
         val request = TestInputMethodRequest()
 
-        val sessionJob = launch {
-            session.startInputMethod(request)
-        }
+        val sessionJob = launch { session.startInputMethod(request) }
         advanceUntilIdle()
 
         assertThat(inputComponent.inputMethodRequests).isSameInstanceAs(request)
@@ -85,15 +84,17 @@ class DesktopTextInputSessionTest {
 
         override val locationOnScreen: Point
             get() = throw AssertionError("not supported")
+
         override val density: Density
             get() = throw AssertionError("not supported")
     }
 
-    private class TestInputMethodRequest : PlatformTextInputMethodRequest, InputMethodListener,
-        InputMethodRequests {
+    private class TestInputMethodRequest :
+        PlatformTextInputMethodRequest, InputMethodListener, InputMethodRequests {
 
         override val inputMethodListener: InputMethodListener
             get() = this
+
         override val inputMethodRequests: InputMethodRequests
             get() = this
 

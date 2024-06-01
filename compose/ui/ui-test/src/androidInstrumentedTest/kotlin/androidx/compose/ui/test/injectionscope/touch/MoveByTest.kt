@@ -35,9 +35,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [TouchInjectionScope.moveBy] and [TouchInjectionScope.updatePointerBy] work
- */
+/** Tests if [TouchInjectionScope.moveBy] and [TouchInjectionScope.updatePointerBy] work */
 @MediumTest
 class MoveByTest {
     companion object {
@@ -47,17 +45,14 @@ class MoveByTest {
         private val delta2 = Offset(21f, 21f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Test
@@ -78,7 +73,8 @@ class MoveByTest {
 
                 t += eventPeriodMillis
                 assertThat(events[1].pointerCount).isEqualTo(1)
-                events[1].getPointer(0)
+                events[1]
+                    .getPointer(0)
                     .verify(t, pointerId, true, downPosition1 + delta1, Touch, Move)
             }
         }
@@ -104,16 +100,18 @@ class MoveByTest {
 
                 t += eventPeriodMillis
                 assertThat(events[2].pointerCount).isEqualTo(2)
-                events[2].getPointer(0)
+                events[2]
+                    .getPointer(0)
                     .verify(t, pointerId1, true, downPosition1 + delta1, Touch, Move)
-                events[2].getPointer(1)
-                    .verify(t, pointerId2, true, downPosition2, Touch, Move)
+                events[2].getPointer(1).verify(t, pointerId2, true, downPosition2, Touch, Move)
 
                 t += eventPeriodMillis
                 assertThat(events[3].pointerCount).isEqualTo(2)
-                events[3].getPointer(0)
+                events[3]
+                    .getPointer(0)
                     .verify(t, pointerId1, true, downPosition1 + delta1, Touch, Move)
-                events[3].getPointer(1)
+                events[3]
+                    .getPointer(1)
                     .verify(t, pointerId2, true, downPosition2 + delta2, Touch, Move)
             }
         }
@@ -141,9 +139,11 @@ class MoveByTest {
 
                 t += eventPeriodMillis
                 assertThat(events[2].pointerCount).isEqualTo(2)
-                events[2].getPointer(0)
+                events[2]
+                    .getPointer(0)
                     .verify(t, pointerId1, true, downPosition1 + delta1, Touch, Move)
-                events[2].getPointer(1)
+                events[2]
+                    .getPointer(1)
                     .verify(t, pointerId2, true, downPosition2 + delta2, Touch, Move)
             }
         }
@@ -151,42 +151,32 @@ class MoveByTest {
 
     @Test
     fun moveBy_withoutDown() {
-        expectError<IllegalStateException> {
-            rule.performTouchInput { moveBy(delta1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { moveBy(delta1) } }
     }
 
     @Test
     fun moveBy_wrongPointerId() {
         rule.performTouchInput { down(1, downPosition1) }
-        expectError<IllegalArgumentException> {
-            rule.performTouchInput { moveBy(2, delta1) }
-        }
+        expectError<IllegalArgumentException> { rule.performTouchInput { moveBy(2, delta1) } }
     }
 
     @Test
     fun moveBy_afterUp() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { up() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { moveBy(delta1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { moveBy(delta1) } }
     }
 
     @Test
     fun moveBy_afterCancel() {
         rule.performTouchInput { down(downPosition1) }
         rule.performTouchInput { cancel() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { moveBy(delta1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { moveBy(delta1) } }
     }
 
     @Test
     fun updatePointerBy_withoutDown() {
-        expectError<IllegalStateException> {
-            rule.performTouchInput { updatePointerBy(1, delta1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { updatePointerBy(1, delta1) } }
     }
 
     @Test
@@ -201,17 +191,13 @@ class MoveByTest {
     fun updatePointerBy_afterUp() {
         rule.performTouchInput { down(1, downPosition1) }
         rule.performTouchInput { up(1) }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { updatePointerBy(1, delta1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { updatePointerBy(1, delta1) } }
     }
 
     @Test
     fun updatePointerBy_afterCancel() {
         rule.performTouchInput { down(1, downPosition1) }
         rule.performTouchInput { cancel() }
-        expectError<IllegalStateException> {
-            rule.performTouchInput { updatePointerBy(1, delta1) }
-        }
+        expectError<IllegalStateException> { rule.performTouchInput { updatePointerBy(1, delta1) } }
     }
 }

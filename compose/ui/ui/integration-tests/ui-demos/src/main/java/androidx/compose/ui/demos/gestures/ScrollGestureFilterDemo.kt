@@ -41,9 +41,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple demo that shows off ScrollGestureFilter.
- */
+/** Simple demo that shows off ScrollGestureFilter. */
 @Composable
 fun ScrollGestureFilterDemo() {
     Column {
@@ -74,13 +72,12 @@ fun ScrollableBox(
     val color = if (interactionSource.collectIsDraggedAsState().value) activeColor else idleColor
     var offsetPx by remember { mutableFloatStateOf(0f) }
 
-    val offsetDp = with(LocalDensity.current) {
-        offsetPx.toDp()
-    }
-    val (offsetX, offsetY) = when (orientation) {
-        Orientation.Horizontal -> offsetDp to Dp.Hairline
-        Orientation.Vertical -> Dp.Hairline to offsetDp
-    }
+    val offsetDp = with(LocalDensity.current) { offsetPx.toDp() }
+    val (offsetX, offsetY) =
+        when (orientation) {
+            Orientation.Horizontal -> offsetDp to Dp.Hairline
+            Orientation.Vertical -> Dp.Hairline to offsetDp
+        }
 
     Box(
         Modifier.offset(offsetX, offsetY)
@@ -89,10 +86,11 @@ fun ScrollableBox(
             .scrollable(
                 interactionSource = interactionSource,
                 orientation = orientation,
-                state = rememberScrollableState { scrollDistance ->
-                    offsetPx += scrollDistance
-                    scrollDistance
-                }
+                state =
+                    rememberScrollableState { scrollDistance ->
+                        offsetPx += scrollDistance
+                        scrollDistance
+                    }
             )
             .size(size)
             .background(color)

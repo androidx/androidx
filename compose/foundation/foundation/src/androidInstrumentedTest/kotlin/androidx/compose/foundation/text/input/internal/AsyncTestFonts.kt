@@ -30,8 +30,7 @@ import kotlinx.coroutines.CompletableDeferred
 @Suppress("MemberVisibilityCanBePrivate") // visible for testing
 class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     private val callbackLock = Object()
-    @Volatile
-    private var asyncLoadCallback: ((AndroidFont) -> Unit)? = null
+    @Volatile private var asyncLoadCallback: ((AndroidFont) -> Unit)? = null
     private val requests =
         mutableMapOf<AsyncFauxFont, MutableList<CompletableDeferred<Typeface?>>>()
     internal val completedAsyncRequests = mutableListOf<AsyncFauxFont>()
@@ -41,18 +40,17 @@ class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
     }
 
     override suspend fun awaitLoad(context: Context, font: AndroidFont): Typeface? {
-        val result = when (font) {
-            is AsyncFauxFont -> {
-                val deferred = CompletableDeferred<Typeface?>()
-                val list = requests.getOrPut(font) { mutableListOf() }
-                list.add(deferred)
-                synchronized(callbackLock) {
-                    asyncLoadCallback?.invoke(font)
+        val result =
+            when (font) {
+                is AsyncFauxFont -> {
+                    val deferred = CompletableDeferred<Typeface?>()
+                    val list = requests.getOrPut(font) { mutableListOf() }
+                    list.add(deferred)
+                    synchronized(callbackLock) { asyncLoadCallback?.invoke(font) }
+                    deferred.await()
                 }
-                deferred.await()
+                else -> null
             }
-            else -> null
-        }
         return result
     }
 

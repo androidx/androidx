@@ -33,17 +33,9 @@ fun MockViewValidator.ReportsTo(report: Report) {
 
 @Composable
 fun ReportsReport(reports: Iterable<Report>) {
-    Linear {
-        Repeated(of = reports) { report ->
-            ReportsTo(report)
-        }
-    }
+    Linear { Repeated(of = reports) { report -> ReportsTo(report) } }
 }
 
 fun MockViewValidator.ReportsReport(reports: Iterable<Report>) {
-    Linear {
-        Repeated(of = reports) { report ->
-            ReportsTo(report)
-        }
-    }
+    Linear { Repeated(of = reports) { report -> ReportsTo(report) } }
 }

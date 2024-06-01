@@ -66,12 +66,5 @@ fun main() = application {
 }
 
 @Composable
-private fun Button(
-    text: String = "",
-    onClick: () -> Unit = {}
-) = Button(
-    onClick = onClick,
-    modifier = Modifier.padding(2.dp)
-) {
-    Text(text)
-}
+private fun Button(text: String = "", onClick: () -> Unit = {}) =
+    Button(onClick = onClick, modifier = Modifier.padding(2.dp)) { Text(text) }

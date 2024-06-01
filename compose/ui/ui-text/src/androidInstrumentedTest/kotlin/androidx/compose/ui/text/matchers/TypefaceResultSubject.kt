@@ -24,34 +24,31 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 
-internal class TypefaceResultSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: TypefaceResult?
-) : Subject(failureMetadata, subject) {
+internal class TypefaceResultSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: TypefaceResult?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<TypefaceResultSubject?, TypefaceResult?> =
-            Factory { failureMetadata, subject -> TypefaceResultSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                TypefaceResultSubject(failureMetadata, subject)
+            }
     }
 
     fun isImmutableTypefaceOf(expectedInstance: Typeface) {
         check("isNotNull())").that(subject).isNotNull()
-        check("is TypefaceResult.Immutable").that(subject)
-            .isInstanceOf(Immutable::class.java)
-        check(".value == $expectedInstance").that(subject?.value)
-            .isSameInstanceAs(expectedInstance)
+        check("is TypefaceResult.Immutable").that(subject).isInstanceOf(Immutable::class.java)
+        check(".value == $expectedInstance").that(subject?.value).isSameInstanceAs(expectedInstance)
     }
 
     fun isImmutableTypeface() {
         check("isNotNull())").that(subject).isNotNull()
-        check("is TypefaceResult.Immutable").that(subject)
-            .isInstanceOf(Immutable::class.java)
+        check("is TypefaceResult.Immutable").that(subject).isInstanceOf(Immutable::class.java)
     }
 
     fun currentAsyncTypefaceValue(expectedInstance: Typeface) {
         check("isNotNull())").that(subject).isNotNull()
-        check("is TypefaceResult.Async").that(subject)
-            .isInstanceOf(Async::class.java)
+        check("is TypefaceResult.Async").that(subject).isInstanceOf(Async::class.java)
         check("$subject === $expectedInstance")
             .that(subject?.value)
             .isSameInstanceAs(expectedInstance)
@@ -59,15 +56,13 @@ internal class TypefaceResultSubject private constructor(
 
     fun isAsyncTypeface() {
         check("isNotNull())").that(subject).isNotNull()
-        check("is TypefaceResult.Async").that(subject)
-            .isInstanceOf(Async::class.java)
+        check("is TypefaceResult.Async").that(subject).isInstanceOf(Async::class.java)
     }
 
-    override fun actualCustomStringRepresentation(): String = when (subject) {
-        null -> "null TypefaceResult"
-        is Immutable ->
-            "TypefaceResult.Immutable(value=${subject.value})"
-        is Async ->
-            "TypefaceResult.Immutable(currentState=${subject.current.value})"
-    }
+    override fun actualCustomStringRepresentation(): String =
+        when (subject) {
+            null -> "null TypefaceResult"
+            is Immutable -> "TypefaceResult.Immutable(value=${subject.value})"
+            is Async -> "TypefaceResult.Immutable(currentState=${subject.current.value})"
+        }
 }

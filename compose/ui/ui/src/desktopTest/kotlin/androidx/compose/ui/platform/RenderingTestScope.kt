@@ -38,14 +38,15 @@ internal fun renderingTest(
     height: Int,
     context: CoroutineContext = Dispatchers.Swing,
     block: suspend RenderingTestScope.() -> Unit
-) = runBlocking(Dispatchers.Swing) {
-    val scope = RenderingTestScope(width, height, context)
-    try {
-        scope.block()
-    } finally {
-        scope.dispose()
+) =
+    runBlocking(Dispatchers.Swing) {
+        val scope = RenderingTestScope(width, height, context)
+        try {
+            scope.block()
+        } finally {
+            scope.dispose()
+        }
     }
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal class RenderingTestScope(
@@ -55,18 +56,17 @@ internal class RenderingTestScope(
 ) {
     var currentTimeMillis = 0L
 
-    private val frameDispatcher = FrameDispatcher(coroutineContext) {
-        onRender(currentTimeMillis * 1_000_000)
-    }
+    private val frameDispatcher =
+        FrameDispatcher(coroutineContext) { onRender(currentTimeMillis * 1_000_000) }
 
     val surface: Surface = Surface.makeRasterN32Premul(width, height)
     val canvas: Canvas = surface.canvas
-    val scene = ComposeScene(
-        coroutineContext = coroutineContext,
-        invalidate = frameDispatcher::scheduleFrame
-    ).apply {
-        constraints = Constraints(maxWidth = width, maxHeight = height)
-    }
+    val scene =
+        ComposeScene(
+                coroutineContext = coroutineContext,
+                invalidate = frameDispatcher::scheduleFrame
+            )
+            .apply { constraints = Constraints(maxWidth = width, maxHeight = height) }
 
     var density: Float
         get() = scene.density.density
@@ -82,9 +82,7 @@ internal class RenderingTestScope(
     private var onRender = CompletableDeferred<Unit>()
 
     fun setContent(content: @Composable () -> Unit) {
-        scene.setContent {
-            content()
-        }
+        scene.setContent { content() }
     }
 
     private fun onRender(timeNanos: Long) {
@@ -101,9 +99,7 @@ internal class RenderingTestScope(
     suspend fun hasRenders(): Boolean {
         onRender = CompletableDeferred()
         // repeat multiple times because rendering can be dispatched on the next frames
-        repeat(10) {
-            yield()
-        }
+        repeat(10) { yield() }
         return onRender.isCompleted
     }
 }

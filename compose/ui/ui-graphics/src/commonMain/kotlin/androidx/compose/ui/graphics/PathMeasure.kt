@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.internal.JvmDefaultWithCompatibility
 /**
  * Create an empty [PathMeasure] object. To uses this to measure the length of a path, and/or to
  * find the position and tangent along it, call [PathMeasure.setPath]. Note that once a path is
- * associated with the measure object, it is undefined if the path is subsequently modified and
- * the measure object is used. If the path is modified, you must call [PathMeasure.setPath] with
- * the path.
+ * associated with the measure object, it is undefined if the path is subsequently modified and the
+ * measure object is used. If the path is modified, you must call [PathMeasure.setPath] with the
+ * path.
  */
 expect fun PathMeasure(): PathMeasure
 
@@ -38,10 +38,10 @@ interface PathMeasure {
     val length: Float
 
     /**
-     * Given a start and stop distance, return in dst the intervening segment(s). If the segment
-     * is zero-length, return false, else return true. startD and stopD are pinned to legal
-     * values (0..getLength()). If startD >= stopD then return false (and leave dst untouched).
-     * Begin the segment with a moveTo if startWithMoveTo is true.
+     * Given a start and stop distance, return in dst the intervening segment(s). If the segment is
+     * zero-length, return false, else return true. startD and stopD are pinned to legal values
+     * (0..getLength()). If startD >= stopD then return false (and leave dst untouched). Begin the
+     * segment with a moveTo if startWithMoveTo is true.
      */
     fun getSegment(
         startDistance: Float,
@@ -50,16 +50,13 @@ interface PathMeasure {
         startWithMoveTo: Boolean = true
     ): Boolean
 
-    /**
-     * Assign a new path, or null to have none.
-     */
+    /** Assign a new path, or null to have none. */
     fun setPath(path: Path?, forceClosed: Boolean)
 
     /**
      * Pins distance to 0 <= distance <= getLength(), and then computes the corresponding position
      *
      * @param distance The distance along the current contour to sample
-     *
      * @return [Offset.Unspecified] if there is no path set
      */
     fun getPosition(distance: Float): Offset
@@ -68,7 +65,6 @@ interface PathMeasure {
      * Pins distance to 0 <= distance <= getLength(), and then computes the corresponding tangent
      *
      * @param distance The distance along the current contour to sample
-     *
      * @return [Offset.Unspecified] if there is no path set
      */
     fun getTangent(distance: Float): Offset

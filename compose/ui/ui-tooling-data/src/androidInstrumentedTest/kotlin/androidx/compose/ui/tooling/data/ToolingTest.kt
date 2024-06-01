@@ -37,9 +37,8 @@ import org.junit.Rule
 open class ToolingTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     lateinit var activity: TestActivity
     lateinit var handler: Handler
     lateinit var positionedLatch: CountDownLatch
@@ -56,11 +55,7 @@ open class ToolingTest {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .onGloballyPositioned { positionedLatch.countDown() }
-                ) {
+                Box(Modifier.fillMaxSize().onGloballyPositioned { positionedLatch.countDown() }) {
                     composable()
                 }
             }
@@ -70,26 +65,21 @@ open class ToolingTest {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         // Wait for the UI thread to complete its current work so we know that layout is done.
-        activityTestRule.onUiThread { }
+        activityTestRule.onUiThread {}
     }
 
     internal fun showAndRecord(content: @Composable () -> Unit): MutableSet<CompositionData> {
 
         positionedLatch = CountDownLatch(1)
-        val map: MutableSet<CompositionData> = Collections.newSetFromMap(
-            WeakHashMap<CompositionData, Boolean>()
-        )
+        val map: MutableSet<CompositionData> =
+            Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
         activityTestRule.onUiThread {
             ViewRootForTest.onViewCreatedCallback = {
                 it.view.setTag(R.id.inspection_slot_table_set, map)
                 ViewRootForTest.onViewCreatedCallback = null
             }
             activity.setContent {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .onGloballyPositioned { positionedLatch.countDown() }
-                ) {
+                Box(Modifier.fillMaxSize().onGloballyPositioned { positionedLatch.countDown() }) {
                     content()
                 }
             }
@@ -98,7 +88,7 @@ open class ToolingTest {
             positionedLatch.await(1, TimeUnit.SECONDS)
 
             // Wait for the UI thread to complete its current work so we know that layout is done.
-            activityTestRule.onUiThread { }
+            activityTestRule.onUiThread {}
         }
         return map
     }
@@ -108,10 +98,11 @@ open class ToolingTest {
 // lambda to Runnable, so separate it here
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<TestActivity>.onUiThread(block: () -> Unit) {
-    val runnable: Runnable = object : Runnable {
-        override fun run() {
-            block()
+    val runnable: Runnable =
+        object : Runnable {
+            override fun run() {
+                block()
+            }
         }
-    }
     runOnUiThread(runnable)
 }

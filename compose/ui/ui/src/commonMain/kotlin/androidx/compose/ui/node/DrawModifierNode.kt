@@ -29,12 +29,12 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
  */
 interface DrawModifierNode : DelegatableNode {
     fun ContentDrawScope.draw()
+
     fun onMeasureResultChanged() {}
 }
 
 /**
- * Invalidates this modifier's draw layer, ensuring that a draw pass will
- * be run on the next frame.
+ * Invalidates this modifier's draw layer, ensuring that a draw pass will be run on the next frame.
  */
 fun DrawModifierNode.invalidateDraw() {
     if (node.isAttached) {

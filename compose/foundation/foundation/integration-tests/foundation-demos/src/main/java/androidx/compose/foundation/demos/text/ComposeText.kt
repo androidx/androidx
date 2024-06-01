@@ -107,8 +107,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 
-private const val longText = "This is a very-very long string that wraps into a few lines " +
-    "given the width restrictions."
+private const val longText =
+    "This is a very-very long string that wraps into a few lines " + "given the width restrictions."
 const val displayText = "Text Demo"
 const val displayTextChinese = "文本演示"
 const val displayTextArabic = "\u0639\u0631\u0636\u0020\u0627\u0644\u0646\u0635"
@@ -133,8 +133,9 @@ fun TextDemo() {
         }
         item {
             TagLine(
-                tag = "color, fontSize, fontWeight, fontFamily, fontStyle, letterSpacing, " +
-                    "background, decoration"
+                tag =
+                    "color, fontSize, fontWeight, fontFamily, fontStyle, letterSpacing, " +
+                        "background, decoration"
             )
             TextDemoComplexStyling()
         }
@@ -210,33 +211,25 @@ fun TextDemo() {
 fun TagLine(tag: String) {
     Text(
         style = TextStyle(fontSize = fontSize8),
-        text = buildAnnotatedString {
-            append("\n")
-            withStyle(
-                style = SpanStyle(
-                    color = Color(0xFFAAAAAA),
-                    fontSize = fontSize6
-                )
-            ) {
-                append(tag)
+        text =
+            buildAnnotatedString {
+                append("\n")
+                withStyle(style = SpanStyle(color = Color(0xFFAAAAAA), fontSize = fontSize6)) {
+                    append(tag)
+                }
             }
-        }
     )
 }
 
 @Composable
 fun SecondTagLine(tag: String) {
     Text(
-        text = buildAnnotatedString {
-            withStyle(
-                style = SpanStyle(
-                    color = Color(0xFFAAAAAA),
-                    fontSize = fontSize4
-                )
-            ) {
-                append(tag)
+        text =
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(color = Color(0xFFAAAAAA), fontSize = fontSize4)) {
+                    append(tag)
+                }
             }
-        }
     )
 }
 
@@ -245,40 +238,41 @@ fun TextDemoBasic() {
     // This group of text composables show different color, fontSize, fontWeight and fontStyle in
     // English.
     Text(
-        text = buildAnnotatedString {
-            withStyle(
-                SpanStyle(
-                    color = Color(0xFFFF0000),
-                    fontSize = fontSize6,
-                    fontWeight = FontWeight.W200,
-                    fontStyle = FontStyle.Italic
-                )
-            ) {
-                append("$displayText   ")
-            }
+        text =
+            buildAnnotatedString {
+                withStyle(
+                    SpanStyle(
+                        color = Color(0xFFFF0000),
+                        fontSize = fontSize6,
+                        fontWeight = FontWeight.W200,
+                        fontStyle = FontStyle.Italic
+                    )
+                ) {
+                    append("$displayText   ")
+                }
 
-            withStyle(
-                SpanStyle(
-                    color = Color(0xFF00FF00),
-                    fontSize = fontSize8,
-                    fontWeight = FontWeight.W500,
-                    fontStyle = FontStyle.Normal
-                )
-            ) {
-                append("$displayText   ")
-            }
+                withStyle(
+                    SpanStyle(
+                        color = Color(0xFF00FF00),
+                        fontSize = fontSize8,
+                        fontWeight = FontWeight.W500,
+                        fontStyle = FontStyle.Normal
+                    )
+                ) {
+                    append("$displayText   ")
+                }
 
-            withStyle(
-                SpanStyle(
-                    color = Color(0xFF0000FF),
-                    fontSize = fontSize10,
-                    fontWeight = FontWeight.W800,
-                    fontStyle = FontStyle.Normal
-                )
-            ) {
-                append(displayText)
+                withStyle(
+                    SpanStyle(
+                        color = Color(0xFF0000FF),
+                        fontSize = fontSize10,
+                        fontWeight = FontWeight.W800,
+                        fontStyle = FontStyle.Normal
+                    )
+                ) {
+                    append(displayText)
+                }
             }
-        }
     )
 }
 
@@ -292,40 +286,44 @@ fun TextDemoLanguage() {
     // This group of text composables show different color, fontSize, fontWeight and fontStyle in
     // Chinese, Arabic, and Hindi.
     Text(
-        text = buildAnnotatedString {
-            withStyle(
-                style = SpanStyle(
-                    color = Color(0xFFFF0000),
-                    fontSize = fontSize6,
-                    fontWeight = FontWeight.W200,
-                    fontStyle = FontStyle.Italic
-                )
-            ) {
-                append("$displayTextChinese   ")
-            }
+        text =
+            buildAnnotatedString {
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = Color(0xFFFF0000),
+                            fontSize = fontSize6,
+                            fontWeight = FontWeight.W200,
+                            fontStyle = FontStyle.Italic
+                        )
+                ) {
+                    append("$displayTextChinese   ")
+                }
 
-            withStyle(
-                style = SpanStyle(
-                    color = Color(0xFF00FF00),
-                    fontSize = fontSize8,
-                    fontWeight = FontWeight.W500,
-                    fontStyle = FontStyle.Normal
-                )
-            ) {
-                append("$displayTextArabic   ")
-            }
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = Color(0xFF00FF00),
+                            fontSize = fontSize8,
+                            fontWeight = FontWeight.W500,
+                            fontStyle = FontStyle.Normal
+                        )
+                ) {
+                    append("$displayTextArabic   ")
+                }
 
-            withStyle(
-                style = SpanStyle(
-                    color = Color(0xFF0000FF),
-                    fontSize = fontSize10,
-                    fontWeight = FontWeight.W800,
-                    fontStyle = FontStyle.Normal
-                )
-            ) {
-                append(displayTextHindi)
+                withStyle(
+                    style =
+                        SpanStyle(
+                            color = Color(0xFF0000FF),
+                            fontSize = fontSize10,
+                            fontWeight = FontWeight.W800,
+                            fontStyle = FontStyle.Normal
+                        )
+                ) {
+                    append(displayTextHindi)
+                }
             }
-        }
     )
 }
 
@@ -334,30 +332,15 @@ fun TextDemoFontFamily() {
     // This group of text composables show different fontFamilies in English.
     Text(
         buildAnnotatedString {
-            withStyle(
-                style = SpanStyle(
-                    fontSize = fontSize8,
-                    fontFamily = FontFamily.SansSerif
-                )
-            ) {
+            withStyle(style = SpanStyle(fontSize = fontSize8, fontFamily = FontFamily.SansSerif)) {
                 append("$displayText sans-serif\n")
             }
 
-            withStyle(
-                style = SpanStyle(
-                    fontSize = fontSize8,
-                    fontFamily = FontFamily.Serif
-                )
-            ) {
+            withStyle(style = SpanStyle(fontSize = fontSize8, fontFamily = FontFamily.Serif)) {
                 append("$displayText serif\n")
             }
 
-            withStyle(
-                style = SpanStyle(
-                    fontSize = fontSize8,
-                    fontFamily = FontFamily.Monospace
-                )
-            ) {
+            withStyle(style = SpanStyle(fontSize = fontSize8, fontFamily = FontFamily.Monospace)) {
                 append("$displayText monospace")
             }
         }
@@ -375,7 +358,8 @@ fun TextDemoFontFamilyDefaultValues() {
 
 @Composable
 fun TextDemoTextDecoration() {
-    // This group of text composables show different decoration, decorationColor and decorationStyle.
+    // This group of text composables show different decoration, decorationColor and
+    // decorationStyle.
     TextDecorationLineThroughSample()
     TextDecorationUnderlineSample()
     TextDecorationCombinedSample()
@@ -385,19 +369,13 @@ fun TextDemoTextDecoration() {
 fun TextDemoLetterSpacing() {
     // This group of text composables show different letterSpacing.
     Text(
-        text = buildAnnotatedString {
-            withStyle(style = SpanStyle(fontSize = fontSize8)) {
-                append("$displayText   ")
+        text =
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontSize = fontSize8)) { append("$displayText   ") }
+                withStyle(style = SpanStyle(fontSize = fontSize8, letterSpacing = 0.5.em)) {
+                    append(displayText)
+                }
             }
-            withStyle(
-                style = SpanStyle(
-                    fontSize = fontSize8,
-                    letterSpacing = 0.5.em
-                )
-            ) {
-                append(displayText)
-            }
-        }
     )
 }
 
@@ -410,10 +388,7 @@ fun TextDemoBaselineShift() {
 fun TextDemoHeight() {
     // This group of text composables show different height.
     Row(Modifier.fillMaxWidth()) {
-        Text(
-            text = "$displayText\n$displayText   ",
-            style = TextStyle(fontSize = fontSize8)
-        )
+        Text(text = "$displayText\n$displayText   ", style = TextStyle(fontSize = fontSize8))
         Text(
             text = "$displayText\n$displayText   ",
             style = TextStyle(fontSize = fontSize8, lineHeight = 50.sp)
@@ -425,19 +400,18 @@ fun TextDemoHeight() {
 fun TextDemoBackground() {
     // This group of text composables show different background.
     Text(
-        text = buildAnnotatedString {
-            withStyle(style = SpanStyle(background = Color(0xFFFF0000))) {
-                append("$displayText   ")
-            }
+        text =
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(background = Color(0xFFFF0000))) {
+                    append("$displayText   ")
+                }
 
-            withStyle(style = SpanStyle(background = Color(0xFF00FF00))) {
-                append("$displayText   ")
-            }
+                withStyle(style = SpanStyle(background = Color(0xFF00FF00))) {
+                    append("$displayText   ")
+                }
 
-            withStyle(style = SpanStyle(background = Color(0xFF0000FF))) {
-                append(displayText)
-            }
-        },
+                withStyle(style = SpanStyle(background = Color(0xFF0000FF))) { append(displayText) }
+            },
         style = TextStyle(fontSize = fontSize8)
     )
 }
@@ -447,26 +421,26 @@ fun TextDemoLocale() {
     // This group of text composables show different Locales of the same Unicode codepoint.
     val text = "\u82B1"
     Text(
-        text = buildAnnotatedString {
-            withStyle(style = SpanStyle(localeList = LocaleList("ja-JP"))) {
-                append("$text   ")
-            }
+        text =
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(localeList = LocaleList("ja-JP"))) {
+                    append("$text   ")
+                }
 
-            withStyle(style = SpanStyle(localeList = LocaleList("zh-CN"))) {
-                append("$text   ")
-            }
+                withStyle(style = SpanStyle(localeList = LocaleList("zh-CN"))) {
+                    append("$text   ")
+                }
 
-            withStyle(style = SpanStyle(localeList = LocaleList("zh-TW"))) {
-                append(text)
-            }
-        },
+                withStyle(style = SpanStyle(localeList = LocaleList("zh-TW"))) { append(text) }
+            },
         style = TextStyle(fontSize = fontSize8)
     )
 }
 
 @Composable
 fun TextDemoTextAlign() {
-    // This group of text composables show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START for
+    // This group of text composables show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START
+    // for
     // LTR and RTL, END for LTR and RTL.
     var text = ""
     for (i in 1..10) {
@@ -498,19 +472,17 @@ fun TextDemoTextAlign() {
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = text,
-            style = TextStyle(
-                fontSize = fontSize8,
-                color = Color(0xFFFF0000)
-            )
+            style = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000))
         )
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = text,
-            style = TextStyle(
-                fontSize = fontSize8,
-                color = Color(0xFF0000FF),
-                textAlign = TextAlign.Justify
-            )
+            style =
+                TextStyle(
+                    fontSize = fontSize8,
+                    color = Color(0xFF0000FF),
+                    textAlign = TextAlign.Justify
+                )
         )
 
         SecondTagLine(tag = "textAlign = TextAlign.Start for Ltr")
@@ -558,17 +530,13 @@ fun TextDemoSoftWrap() {
 @Composable
 fun TextDemoHyphens() {
     val text = "Transformation"
-    val textStyleHyphensOn = TextStyle(fontSize = fontSize8, color = Color.Red,
-        hyphens = Hyphens.Auto)
-    val textStyleHyphensOff = TextStyle(fontSize = fontSize8, color = Color.Blue,
-        hyphens = Hyphens.None)
+    val textStyleHyphensOn =
+        TextStyle(fontSize = fontSize8, color = Color.Red, hyphens = Hyphens.Auto)
+    val textStyleHyphensOff =
+        TextStyle(fontSize = fontSize8, color = Color.Blue, hyphens = Hyphens.None)
     Column {
         var width by remember { mutableFloatStateOf(30f) }
-        Slider(
-            value = width,
-            onValueChange = { width = it },
-            valueRange = 20f..400f
-        )
+        Slider(value = width, onValueChange = { width = it }, valueRange = 20f..400f)
         Column(Modifier.width(width.dp)) {
             Text(text = text, style = textStyleHyphensOn)
             Text(text = text, style = textStyleHyphensOff)
@@ -578,19 +546,14 @@ fun TextDemoHyphens() {
 
 @Composable
 fun TextDemoShadowEffect() {
-    val shadow = Shadow(
-        Color(0xFFE0A0A0),
-        Offset(5f, 5f),
-        blurRadius = 5.0f
-    )
+    val shadow = Shadow(Color(0xFFE0A0A0), Offset(5f, 5f), blurRadius = 5.0f)
     Text(
         style = TextStyle(fontSize = fontSize8),
-        text = buildAnnotatedString {
-            append("text with ")
-            withStyle(style = SpanStyle(shadow = shadow)) {
-                append("shadow!")
+        text =
+            buildAnnotatedString {
+                append("text with ")
+                withStyle(style = SpanStyle(shadow = shadow)) { append("shadow!") }
             }
-        }
     )
 }
 
@@ -598,14 +561,15 @@ fun TextDemoShadowEffect() {
 fun TextDemoFontSizeScale() {
     Text(
         style = TextStyle(fontSize = fontSize8),
-        text = buildAnnotatedString {
-            for (i in 4..12 step 4) {
-                val scale = i * 0.1f
-                withStyle(style = SpanStyle(fontSize = scale.em)) {
-                    append("fontSizeScale=$scale\n")
+        text =
+            buildAnnotatedString {
+                for (i in 4..12 step 4) {
+                    val scale = i * 0.1f
+                    withStyle(style = SpanStyle(fontSize = scale.em)) {
+                        append("fontSizeScale=$scale\n")
+                    }
                 }
             }
-        }
     )
 }
 
@@ -630,10 +594,7 @@ fun TextDemoTextOverflow() {
 
 @Composable
 fun TextOverflowVisibleInPopupDemo() {
-    Popup(
-        alignment = Alignment.Center,
-        properties = PopupProperties(clippingEnabled = false)
-    ) {
+    Popup(alignment = Alignment.Center, properties = PopupProperties(clippingEnabled = false)) {
         val text = "Line\n".repeat(10)
         Box(Modifier.background(Color.Magenta).size(100.dp)) {
             Text(text, fontSize = fontSize6, overflow = TextOverflow.Visible)
@@ -647,11 +608,8 @@ fun TextOverflowVisibleInDrawText() {
     val textMeasurer = rememberTextMeasurer()
     val text = "Line\n".repeat(10)
     Box(Modifier.fillMaxSize()) {
-        Canvas(Modifier
-            .graphicsLayer()
-            .align(Alignment.Center)
-            .background(Color.Green)
-            .size(100.dp)
+        Canvas(
+            Modifier.graphicsLayer().align(Alignment.Center).background(Color.Green).size(100.dp)
         ) {
             drawText(
                 textMeasurer = textMeasurer,
@@ -673,8 +631,7 @@ fun TextOverflowDemo() {
                 Text("TextOverflow", fontWeight = FontWeight.Bold)
                 overflowOptions.forEach {
                     Row(
-                        Modifier
-                            .fillMaxWidth()
+                        Modifier.fillMaxWidth()
                             .selectable(
                                 selected = (it == selectedOverflow),
                                 onClick = { selectedOverflow = it },
@@ -694,8 +651,7 @@ fun TextOverflowDemo() {
                 Text("Paragraph", fontWeight = FontWeight.Bold)
                 paragraphOptions.forEach {
                     Row(
-                        Modifier
-                            .fillMaxWidth()
+                        Modifier.fillMaxWidth()
                             .selectable(
                                 selected = (it == singleParagraph),
                                 onClick = { singleParagraph = it },
@@ -720,16 +676,17 @@ fun TextOverflowDemo() {
 @Composable
 private fun ColumnScope.TextOverflowDemo(singleParagraph: Boolean, textOverflow: TextOverflow) {
     Box(Modifier.weight(1f).fillMaxWidth()) {
-        val text = if (singleParagraph) {
-            AnnotatedString(longText)
-        } else {
-            buildAnnotatedString {
-                append(longText)
-                withStyle(ParagraphStyle(textAlign = TextAlign.End)) {
-                    append("This is a second paragraph.")
+        val text =
+            if (singleParagraph) {
+                AnnotatedString(longText)
+            } else {
+                buildAnnotatedString {
+                    append(longText)
+                    withStyle(ParagraphStyle(textAlign = TextAlign.End)) {
+                        append("This is a second paragraph.")
+                    }
                 }
             }
-        }
         Text(
             text = text,
             modifier = Modifier.align(Alignment.Center).background(Color.Magenta).size(100.dp),
@@ -742,30 +699,32 @@ private fun ColumnScope.TextOverflowDemo(singleParagraph: Boolean, textOverflow:
 @Composable
 fun TextDemoInlineContent() {
     val inlineContentId = "box"
-    val inlineTextContent = InlineTextContent(
-        placeholder = Placeholder(
-            width = 5.em,
-            height = 1.em,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
-        )
-    ) {
-        val colorAnimation = rememberInfiniteTransition()
-        val color by colorAnimation.animateColor(
-            initialValue = Color.Red,
-            targetValue = Color.Blue,
-            animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse)
-        )
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(color))
-    }
+    val inlineTextContent =
+        InlineTextContent(
+            placeholder =
+                Placeholder(
+                    width = 5.em,
+                    height = 1.em,
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                )
+        ) {
+            val colorAnimation = rememberInfiniteTransition()
+            val color by
+                colorAnimation.animateColor(
+                    initialValue = Color.Red,
+                    targetValue = Color.Blue,
+                    animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse)
+                )
+            Box(modifier = Modifier.fillMaxSize().background(color))
+        }
 
     Text(
-        text = buildAnnotatedString {
-            append("Here is a wide inline composable ")
-            appendInlineContent(inlineContentId)
-            append(" that is repeatedly changing its color.")
-        },
+        text =
+            buildAnnotatedString {
+                append("Here is a wide inline composable ")
+                appendInlineContent(inlineContentId)
+                append(" that is repeatedly changing its color.")
+            },
         inlineContent = mapOf(inlineContentId to inlineTextContent),
         modifier = Modifier.fillMaxWidth()
     )
@@ -773,11 +732,12 @@ fun TextDemoInlineContent() {
     SecondTagLine(tag = "RTL Layout")
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Text(
-            text = buildAnnotatedString {
-                append("Here is a wide inline composable ")
-                appendInlineContent(inlineContentId)
-                append(" that is repeatedly changing its color.")
-            },
+            text =
+                buildAnnotatedString {
+                    append("Here is a wide inline composable ")
+                    appendInlineContent(inlineContentId)
+                    append(" that is repeatedly changing its color.")
+                },
             inlineContent = mapOf(inlineContentId to inlineTextContent),
             modifier = Modifier.fillMaxWidth()
         )
@@ -785,22 +745,24 @@ fun TextDemoInlineContent() {
 
     SecondTagLine(tag = "Bidi Text - LTR/RTL")
     Text(
-        text = buildAnnotatedString {
-            append("$displayText   ")
-            appendInlineContent(inlineContentId)
-            append("$displayTextArabic   ")
-        },
+        text =
+            buildAnnotatedString {
+                append("$displayText   ")
+                appendInlineContent(inlineContentId)
+                append("$displayTextArabic   ")
+            },
         inlineContent = mapOf(inlineContentId to inlineTextContent),
         modifier = Modifier.fillMaxWidth()
     )
 
     SecondTagLine(tag = "Bidi Text - RTL/LTR")
     Text(
-        text = buildAnnotatedString {
-            append("$displayTextArabic   ")
-            appendInlineContent(inlineContentId)
-            append("$displayText   ")
-        },
+        text =
+            buildAnnotatedString {
+                append("$displayTextArabic   ")
+                appendInlineContent(inlineContentId)
+                append("$displayText   ")
+            },
         inlineContent = mapOf(inlineContentId to inlineTextContent),
         modifier = Modifier.fillMaxWidth()
     )
@@ -867,26 +829,25 @@ fun EllipsizeDemo() {
         }
 
         val fontSize = 16.sp
-        val text = "This is a very-very " +
-            "long text that has a limited height and width to test how it's ellipsized." +
-            " This is a second sentence of the text."
+        val text =
+            "This is a very-very " +
+                "long text that has a limited height and width to test how it's ellipsized." +
+                " This is a second sentence of the text."
         val textWithSpans = buildAnnotatedString {
             withStyle(SpanStyle(fontSize = fontSize / 2)) {
                 append("This is a very-very long text that has ")
             }
-            withStyle(SpanStyle(fontSize = fontSize * 2)) {
-                append("a limited height")
-            }
+            withStyle(SpanStyle(fontSize = fontSize * 2)) { append("a limited height") }
             append(" and width to test how it's ellipsized. This is a second sentence of the text.")
         }
         Text(
             text = if (withSpans) textWithSpans else AnnotatedString(text),
             fontSize = fontSize,
             lineHeight = lineHeight.value,
-            modifier = Modifier
-                .background(Color.Magenta)
-                .width(200.dp)
-                .heightIn(max = heightRestriction.value),
+            modifier =
+                Modifier.background(Color.Magenta)
+                    .width(200.dp)
+                    .heightIn(max = heightRestriction.value),
             softWrap = softWrap,
             overflow = if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip
         )

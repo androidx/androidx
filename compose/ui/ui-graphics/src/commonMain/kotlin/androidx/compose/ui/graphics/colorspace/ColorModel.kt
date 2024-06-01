@@ -23,17 +23,17 @@ import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 
 /**
- * A color model is required by a [ColorSpace] to describe the
- * way colors can be represented as tuples of numbers. A common color
- * model is the [RGB][Rgb] color model which defines a color
- * as represented by a tuple of 3 numbers (red, green and blue).
+ * A color model is required by a [ColorSpace] to describe the way colors can be represented as
+ * tuples of numbers. A common color model is the [RGB][Rgb] color model which defines a color as
+ * represented by a tuple of 3 numbers (red, green and blue).
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class ColorModel internal constructor(
+value class ColorModel
+internal constructor(
     /**
-     * pack both the number of components and an ordinal value to distinguish between
-     * different ColorModel types that have the same number of components
+     * pack both the number of components and an ordinal value to distinguish between different
+     * ColorModel types that have the same number of components
      */
     internal val packedValue: Long
 ) {
@@ -51,40 +51,36 @@ value class ColorModel internal constructor(
 
     companion object {
         /**
-         * The RGB model is a color model with 3 components that
-         * refer to the three additive primiaries: red, green
-         * and blue.
+         * The RGB model is a color model with 3 components that refer to the three additive
+         * primiaries: red, green and blue.
          */
         val Rgb = ColorModel(packInts(3, 0))
 
         /**
-         * The XYZ model is a color model with 3 components that
-         * are used to model human color vision on a basic sensory
-         * level.
+         * The XYZ model is a color model with 3 components that are used to model human color
+         * vision on a basic sensory level.
          */
         val Xyz = ColorModel(packInts(3, 1))
 
         /**
-         * The Lab model is a color model with 3 components used
-         * to describe a color space that is more perceptually
-         * uniform than XYZ.
+         * The Lab model is a color model with 3 components used to describe a color space that is
+         * more perceptually uniform than XYZ.
          */
         val Lab = ColorModel(packInts(3, 2))
 
         /**
-         * The CMYK model is a color model with 4 components that
-         * refer to four inks used in color printing: cyan, magenta,
-         * yellow and black (or key). CMYK is a subtractive color
-         * model.
+         * The CMYK model is a color model with 4 components that refer to four inks used in color
+         * printing: cyan, magenta, yellow and black (or key). CMYK is a subtractive color model.
          */
         val Cmyk = ColorModel(packInts(4, 3))
     }
 
-    override fun toString() = when (this) {
-        Rgb -> "Rgb"
-        Xyz -> "Xyz"
-        Lab -> "Lab"
-        Cmyk -> "Cmyk"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            Rgb -> "Rgb"
+            Xyz -> "Xyz"
+            Lab -> "Lab"
+            Cmyk -> "Cmyk"
+            else -> "Unknown"
+        }
 }

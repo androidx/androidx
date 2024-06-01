@@ -26,24 +26,22 @@ import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 sealed interface CompositionLocalMap {
     /**
      * Returns the value of the provided [composition local][key] at the position in the composition
-     * hierarchy represented by this [CompositionLocalMap] instance. If the provided [key]
-     * is not set at this point in the hierarchy, its default value will be used.
+     * hierarchy represented by this [CompositionLocalMap] instance. If the provided [key] is not
+     * set at this point in the hierarchy, its default value will be used.
      *
      * For [non-static CompositionLocals][compositionLocalOf], this function will return the latest
      * value of the CompositionLocal, which might change over time across the same instance of the
      * CompositionLocalMap. Reads done in this way are not tracked in the snapshot system.
      *
-     * For [static CompositionLocals][staticCompositionLocalOf], this function returns the value
-     * at the time of creation of the CompositionLocalMap. When a static CompositionLocal is
+     * For [static CompositionLocals][staticCompositionLocalOf], this function returns the value at
+     * the time of creation of the CompositionLocalMap. When a static CompositionLocal is
      * reassigned, the entire composition hierarchy is recomposed and a new CompositionLocalMap is
      * created with the updated value of the static CompositionLocal.
      */
     operator fun <T> get(key: CompositionLocal<T>): T
 
     companion object {
-        /**
-         * An empty [CompositionLocalMap] instance which contains no keys or values.
-         */
+        /** An empty [CompositionLocalMap] instance which contains no keys or values. */
         val Empty: CompositionLocalMap = persistentCompositionLocalHashMapOf()
     }
 }
@@ -86,9 +84,8 @@ internal fun <T> PersistentCompositionLocalMap.contains(key: CompositionLocal<T>
     this.containsKey(key as CompositionLocal<Any?>)
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T> PersistentCompositionLocalMap.read(
-    key: CompositionLocal<T>
-): T = getOrElse(key as CompositionLocal<Any?>) { key.defaultValueHolder }.readValue(this) as T
+internal fun <T> PersistentCompositionLocalMap.read(key: CompositionLocal<T>): T =
+    getOrElse(key as CompositionLocal<Any?>) { key.defaultValueHolder }.readValue(this) as T
 
 internal fun updateCompositionMap(
     values: Array<out ProvidedValue<*>>,

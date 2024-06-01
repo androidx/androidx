@@ -145,10 +145,9 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
     val endOffsetTransformed = offsetMapping.originalToTransformed(endOffset)
     val array = FloatArray((endOffsetTransformed - startOffsetTransformed) * 4)
     textLayoutResult.multiParagraph.fillBoundingBoxes(
-        TextRange(
-            startOffsetTransformed,
-            endOffsetTransformed
-        ), array, 0
+        TextRange(startOffsetTransformed, endOffsetTransformed),
+        array,
+        0
     )
 
     for (offset in startOffset until endOffset) {
@@ -173,7 +172,7 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
         }
         if (
             !innerTextFieldBounds.containsInclusive(rect.left, rect.top) ||
-            !innerTextFieldBounds.containsInclusive(rect.right, rect.bottom)
+                !innerTextFieldBounds.containsInclusive(rect.right, rect.bottom)
         ) {
             flags = flags or CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
         }

@@ -43,9 +43,7 @@ import org.junit.runners.Parameterized
 class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenario) {
     companion object {
 
-        /**
-         * Helper class for describing the parameter in test result
-         */
+        /** Helper class for describing the parameter in test result */
         data class InitialText(val text: String, val name: String) {
             override fun toString(): String = name
         }
@@ -53,38 +51,36 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
         private val longText = RandomTextGenerator().nextParagraph(500)
         private val shortText = RandomTextGenerator().nextParagraph(50)
 
-        /**
-         * Helper class for describing the parameter in test result
-         */
+        /** Helper class for describing the parameter in test result */
         data class TestScenario(val ops: List<EditCommand>, val name: String) {
             override fun toString(): String = name
         }
 
         @JvmStatic
         @Parameterized.Parameters(name = "initText={0}, senario={1}")
-        fun initParameters(): List<Array<Any?>> = cartesian(
-            arrayOf(
-                InitialText(longText, "Long Text"),
-                InitialText(shortText, "Short Text")
-            ),
-            arrayOf(
-                TestScenario(listOf(CommitTextCommand("Android", 1)), "Insert a text"),
-                TestScenario(listOf(SetComposingTextCommand("Android", 1)), "Insert composition"),
-                TestScenario(listOf(SetComposingRegionCommand(0, 1)), "Set composition"),
-                TestScenario(listOf(DeleteSurroundingTextCommand(0, 1)), "Delete text"),
-                TestScenario(
-                    listOf(DeleteSurroundingTextInCodePointsCommand(0, 1)),
-                    "Delete text in code points"
-                ),
-                TestScenario(listOf(SetSelectionCommand(0, 1)), "Set selection"),
-                TestScenario(listOf(BackspaceCommand()), "Backspace"),
-                TestScenario(listOf(MoveCursorCommand(1)), "Cursor movement")
+        fun initParameters(): List<Array<Any?>> =
+            cartesian(
+                arrayOf(InitialText(longText, "Long Text"), InitialText(shortText, "Short Text")),
+                arrayOf(
+                    TestScenario(listOf(CommitTextCommand("Android", 1)), "Insert a text"),
+                    TestScenario(
+                        listOf(SetComposingTextCommand("Android", 1)),
+                        "Insert composition"
+                    ),
+                    TestScenario(listOf(SetComposingRegionCommand(0, 1)), "Set composition"),
+                    TestScenario(listOf(DeleteSurroundingTextCommand(0, 1)), "Delete text"),
+                    TestScenario(
+                        listOf(DeleteSurroundingTextInCodePointsCommand(0, 1)),
+                        "Delete text in code points"
+                    ),
+                    TestScenario(listOf(SetSelectionCommand(0, 1)), "Set selection"),
+                    TestScenario(listOf(BackspaceCommand()), "Backspace"),
+                    TestScenario(listOf(MoveCursorCommand(1)), "Cursor movement")
+                )
             )
-        )
     }
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun scenarioTest() {
@@ -92,10 +88,7 @@ class EditProcessorBenchmark(val initText: InitialText, val scenario: TestScenar
             val ep = runWithTimingDisabled {
                 EditProcessor().apply {
                     reset(
-                        TextFieldValue(
-                            text = initText.text,
-                            selection = TextRange(5)
-                        ),
+                        TextFieldValue(text = initText.text, selection = TextRange(5)),
                         null // text input service, not used.
                     )
                 }

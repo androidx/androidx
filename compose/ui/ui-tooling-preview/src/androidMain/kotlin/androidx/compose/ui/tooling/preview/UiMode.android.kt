@@ -33,27 +33,26 @@ import android.content.res.Configuration.UI_MODE_TYPE_WATCH
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
-/**
- * Annotation of setting uiMode in [Preview].
- */
+/** Annotation of setting uiMode in [Preview]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("UniqueConstants") // UI_MODE_NIGHT_UNDEFINED == UI_MODE_TYPE_UNDEFINED
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
-    value = [
-        UI_MODE_TYPE_MASK,
-        UI_MODE_TYPE_UNDEFINED,
-        UI_MODE_TYPE_APPLIANCE,
-        UI_MODE_TYPE_CAR,
-        UI_MODE_TYPE_DESK,
-        UI_MODE_TYPE_NORMAL,
-        UI_MODE_TYPE_TELEVISION,
-        UI_MODE_TYPE_VR_HEADSET,
-        UI_MODE_TYPE_WATCH,
-        UI_MODE_NIGHT_MASK,
-        UI_MODE_NIGHT_UNDEFINED,
-        UI_MODE_NIGHT_NO,
-        UI_MODE_NIGHT_YES
-    ]
+    value =
+        [
+            UI_MODE_TYPE_MASK,
+            UI_MODE_TYPE_UNDEFINED,
+            UI_MODE_TYPE_APPLIANCE,
+            UI_MODE_TYPE_CAR,
+            UI_MODE_TYPE_DESK,
+            UI_MODE_TYPE_NORMAL,
+            UI_MODE_TYPE_TELEVISION,
+            UI_MODE_TYPE_VR_HEADSET,
+            UI_MODE_TYPE_WATCH,
+            UI_MODE_NIGHT_MASK,
+            UI_MODE_NIGHT_UNDEFINED,
+            UI_MODE_NIGHT_NO,
+            UI_MODE_NIGHT_YES
+        ]
 )
 annotation class UiMode

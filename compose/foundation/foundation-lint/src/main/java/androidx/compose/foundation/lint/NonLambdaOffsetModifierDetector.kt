@@ -53,10 +53,11 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
  */
 class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        FoundationNames.Layout.Offset.shortName,
-        FoundationNames.Layout.AbsoluteOffset.shortName
-    )
+    override fun getApplicableMethodNames(): List<String> =
+        listOf(
+            FoundationNames.Layout.Offset.shortName,
+            FoundationNames.Layout.AbsoluteOffset.shortName
+        )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // Non Modifier Offset
@@ -93,17 +94,15 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
         if (valueParameters.size != 2) {
             return false
         }
-        return valueParameters.all {
-            it.type.classifier == DpClassifier
-        }
+        return valueParameters.all { it.type.classifier == DpClassifier }
     }
 
     private fun hasStateBackedArguments(node: UCallExpression): Boolean {
         var dynamicArguments = false
 
-        node.valueArguments
-            .forEach { expression ->
-                expression.accept(object : AbstractUastVisitor() {
+        node.valueArguments.forEach { expression ->
+            expression.accept(
+                object : AbstractUastVisitor() {
                     override fun visitSimpleNameReferenceExpression(
                         node: USimpleNameReferenceExpression
                     ): Boolean {
@@ -111,8 +110,9 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
                         dynamicArguments = dynamicArguments || declaration.isCompositionAwareType()
                         return dynamicArguments
                     }
-                })
-            }
+                }
+            )
+        }
 
         return dynamicArguments
     }
@@ -123,19 +123,22 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
 
         const val IssueId = "UseOfNonLambdaOffsetOverload"
 
-        val UseOfNonLambdaOverload = Issue.create(
-            IssueId,
-            "Modifier.offset{ } is preferred over Modifier.offset() for " +
-                "`State` backed arguments.",
-            "`Modifier.offset()` is recommended to be used with static arguments only to " +
-                "avoid unnecessary recompositions. `Modifier.offset{ }` is " +
-                "preferred in the cases where the arguments are backed by a `State`.",
-            Category.PERFORMANCE, 3, Severity.WARNING,
-            Implementation(
-                NonLambdaOffsetModifierDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val UseOfNonLambdaOverload =
+            Issue.create(
+                IssueId,
+                "Modifier.offset{ } is preferred over Modifier.offset() for " +
+                    "`State` backed arguments.",
+                "`Modifier.offset()` is recommended to be used with static arguments only to " +
+                    "avoid unnecessary recompositions. `Modifier.offset{ }` is " +
+                    "preferred in the cases where the arguments are backed by a `State`.",
+                Category.PERFORMANCE,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    NonLambdaOffsetModifierDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 
@@ -149,9 +152,7 @@ private fun UDeclaration.isStateOrAnimatableVariable(): Boolean {
             type.inheritsFrom(Names.Animation.Core.Animatable))
 }
 
-/**
- * Special handling of implicit receiver types
- */
+/** Special handling of implicit receiver types */
 private fun UDeclaration.isMethodFromStateOrAnimatable(): Boolean {
     val argument = this as? UMethod
     val containingClass = argument?.containingClass ?: return false

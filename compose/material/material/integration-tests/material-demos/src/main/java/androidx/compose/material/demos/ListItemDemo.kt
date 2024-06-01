@@ -29,32 +29,18 @@ import androidx.compose.runtime.Composable
 @Composable
 fun ListItemDemo() {
     LazyColumn {
-        item {
-            ClickableListItems()
-        }
-        item {
-            OneLineListItems()
-        }
-        item {
-            TwoLineListItems()
-        }
-        item {
-            ThreeLineListItems()
-        }
+        item { ClickableListItems() }
+        item { OneLineListItems() }
+        item { TwoLineListItems() }
+        item { ThreeLineListItems() }
     }
 }
 
 @Composable
 fun MixedRtlLtrListItemDemo() {
     LazyColumn {
-        item {
-            OneLineRtlLtrListItems()
-        }
-        item {
-            TwoLineRtlLtrListItems()
-        }
-        item {
-            ThreeLineRtlLtrListItems()
-        }
+        item { OneLineRtlLtrListItems() }
+        item { TwoLineRtlLtrListItems() }
+        item { ThreeLineRtlLtrListItems() }
     }
 }

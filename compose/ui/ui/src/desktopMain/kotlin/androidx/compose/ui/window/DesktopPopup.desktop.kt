@@ -65,20 +65,13 @@ fun rememberCursorPositionProvider(
     alignment: Alignment = Alignment.BottomEnd,
     windowMargin: Dp = 4.dp
 ): PopupPositionProvider {
-    val offsetPx = with(LocalDensity.current) {
-        Offset(offset.x.toPx(), offset.y.toPx())
-    }
-    val windowMarginPx = with(LocalDensity.current) {
-        windowMargin.roundToPx()
-    }
+    val offsetPx = with(LocalDensity.current) { Offset(offset.x.toPx(), offset.y.toPx()) }
+    val windowMarginPx = with(LocalDensity.current) { windowMargin.roundToPx() }
     val cursorPosition = rememberCursorPosition()
 
     if (cursorPosition == null) {
         // if cursor is outside the scene, show popup under the parent component
-        return rememberComponentRectPositionProvider(
-            alignment = alignment,
-            offset = offset
-        )
+        return rememberComponentRectPositionProvider(alignment = alignment, offset = offset)
     }
 
     return remember(cursorPosition, offsetPx, alignment, windowMarginPx) {
@@ -107,31 +100,32 @@ fun rememberPopupPositionProviderAtPosition(
     offset: DpOffset = DpOffset.Zero,
     alignment: Alignment = Alignment.BottomEnd,
     windowMargin: Dp = 4.dp
-): PopupPositionProvider = with(LocalDensity.current) {
-    val offsetPx = Offset(offset.x.toPx(), offset.y.toPx())
-    val windowMarginPx = windowMargin.roundToPx()
+): PopupPositionProvider =
+    with(LocalDensity.current) {
+        val offsetPx = Offset(offset.x.toPx(), offset.y.toPx())
+        val windowMarginPx = windowMargin.roundToPx()
 
-    remember(positionPx, offsetPx, alignment, windowMarginPx) {
-        PopupPositionProviderAtPosition(
-            positionPx = positionPx,
-            isRelativeToAnchor = true,
-            offsetPx = offsetPx,
-            alignment = alignment,
-            windowMarginPx = windowMarginPx
-        )
+        remember(positionPx, offsetPx, alignment, windowMarginPx) {
+            PopupPositionProviderAtPosition(
+                positionPx = positionPx,
+                isRelativeToAnchor = true,
+                offsetPx = offsetPx,
+                alignment = alignment,
+                windowMarginPx = windowMarginPx
+            )
+        }
     }
-}
 
 /**
  * A [PopupPositionProvider] that positions the popup at the given offsets and alignment.
  *
  * @param positionPx The offset of the popup's location, in pixels.
  * @param isRelativeToAnchor Whether [positionPx] is relative to the anchor bounds passed to
- * [calculatePosition]. If `false`, it is relative to the window.
+ *   [calculatePosition]. If `false`, it is relative to the window.
  * @param offsetPx Extra offset to be added to the position of the popup, in pixels.
  * @param alignment The alignment of the popup relative to desired position.
  * @param windowMarginPx Defines the area within the window that limits the placement of the popup,
- * in pixels.
+ *   in pixels.
  */
 @ExperimentalComposeUiApi
 class PopupPositionProviderAtPosition(
@@ -147,20 +141,21 @@ class PopupPositionProviderAtPosition(
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
     ): IntOffset {
-        val anchor = IntRect(
-            offset = positionPx.round() +
-                (if (isRelativeToAnchor) anchorBounds.topLeft else IntOffset.Zero),
-            size = IntSize.Zero)
-        val tooltipArea = IntRect(
-            IntOffset(
-                anchor.left - popupContentSize.width,
-                anchor.top - popupContentSize.height,
-            ),
-            IntSize(
-                popupContentSize.width * 2,
-                popupContentSize.height * 2
+        val anchor =
+            IntRect(
+                offset =
+                    positionPx.round() +
+                        (if (isRelativeToAnchor) anchorBounds.topLeft else IntOffset.Zero),
+                size = IntSize.Zero
             )
-        )
+        val tooltipArea =
+            IntRect(
+                IntOffset(
+                    anchor.left - popupContentSize.width,
+                    anchor.top - popupContentSize.height,
+                ),
+                IntSize(popupContentSize.width * 2, popupContentSize.height * 2)
+            )
         val position = alignment.align(popupContentSize, tooltipArea.size, layoutDirection)
         var x = tooltipArea.left + position.x + offsetPx.x
         var y = tooltipArea.top + position.y + offsetPx.y
@@ -190,9 +185,8 @@ fun rememberComponentRectPositionProvider(
     alignment: Alignment = Alignment.BottomCenter,
     offset: DpOffset = DpOffset.Zero
 ): PopupPositionProvider {
-    val offsetPx = with(LocalDensity.current) {
-        IntOffset(offset.x.roundToPx(), offset.y.roundToPx())
-    }
+    val offsetPx =
+        with(LocalDensity.current) { IntOffset(offset.x.roundToPx(), offset.y.roundToPx()) }
     return remember(anchor, alignment, offsetPx) {
         object : PopupPositionProvider {
             override fun calculatePosition(
@@ -202,16 +196,14 @@ fun rememberComponentRectPositionProvider(
                 popupContentSize: IntSize
             ): IntOffset {
                 val anchorPoint = anchor.align(IntSize.Zero, anchorBounds.size, layoutDirection)
-                val tooltipArea = IntRect(
-                    IntOffset(
-                        anchorBounds.left + anchorPoint.x - popupContentSize.width,
-                        anchorBounds.top + anchorPoint.y - popupContentSize.height,
-                    ),
-                    IntSize(
-                        popupContentSize.width * 2,
-                        popupContentSize.height * 2
+                val tooltipArea =
+                    IntRect(
+                        IntOffset(
+                            anchorBounds.left + anchorPoint.x - popupContentSize.width,
+                            anchorBounds.top + anchorPoint.y - popupContentSize.height,
+                        ),
+                        IntSize(popupContentSize.width * 2, popupContentSize.height * 2)
                     )
-                )
                 val position = alignment.align(popupContentSize, tooltipArea.size, layoutDirection)
                 return tooltipArea.topLeft + position + offsetPx
             }

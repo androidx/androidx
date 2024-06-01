@@ -36,45 +36,25 @@ class FontTest {
 
     @Test
     fun `two equal font declarations are equal`() {
-        val font = Font(
-            resId = resourceId,
-            weight = FontWeight.W900,
-            style = FontStyle.Italic
-        )
+        val font = Font(resId = resourceId, weight = FontWeight.W900, style = FontStyle.Italic)
 
-        val otherFont = Font(
-            resId = resourceId,
-            weight = FontWeight.W900,
-            style = FontStyle.Italic
-        )
+        val otherFont = Font(resId = resourceId, weight = FontWeight.W900, style = FontStyle.Italic)
 
         assertThat(font).isEqualTo(otherFont)
     }
 
     @Test
     fun `two non equal font declarations are not equal`() {
-        val font = Font(
-            resId = resourceId,
-            weight = FontWeight.W900,
-            style = FontStyle.Italic
-        )
+        val font = Font(resId = resourceId, weight = FontWeight.W900, style = FontStyle.Italic)
 
-        val otherFont = Font(
-            resId = resourceId,
-            weight = FontWeight.W800,
-            style = FontStyle.Italic
-        )
+        val otherFont = Font(resId = resourceId, weight = FontWeight.W800, style = FontStyle.Italic)
 
         assertThat(font).isNotEqualTo(otherFont)
     }
 
     @Test
     fun `asFontFamilyList returns a FontFamily`() {
-        val font = Font(
-            resId = resourceId,
-            weight = FontWeight.W900,
-            style = FontStyle.Italic
-        )
+        val font = Font(resId = resourceId, weight = FontWeight.W900, style = FontStyle.Italic)
 
         val fontFamily = font.toFontFamily() as FontListFontFamily
 

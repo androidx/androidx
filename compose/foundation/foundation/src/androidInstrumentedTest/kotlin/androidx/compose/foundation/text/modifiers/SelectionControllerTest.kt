@@ -58,8 +58,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class SelectionControllerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val boxTag = "boxTag"
     private val tag = "tag"
@@ -68,27 +67,34 @@ class SelectionControllerTest {
     private val foregroundColor = Color.Black
     private val backgroundColor = Color.White
 
-    private val highlightArgb get() = highlightColor.toArgb()
-    private val foregroundArgb get() = foregroundColor.toArgb()
-    private val backgroundArgb get() = backgroundColor.toArgb()
+    private val highlightArgb
+        get() = highlightColor.toArgb()
+
+    private val foregroundArgb
+        get() = foregroundColor.toArgb()
+
+    private val backgroundArgb
+        get() = backgroundColor.toArgb()
 
     private val density = Density(1f)
     private val textSelectionColors = TextSelectionColors(highlightColor, highlightColor)
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun drawWithClip_doesClip() = runDrawWithClipTest(TextOverflow.Clip) { argbSet ->
-        assertThat(argbSet).containsExactly(backgroundArgb)
-    }
+    fun drawWithClip_doesClip() =
+        runDrawWithClipTest(TextOverflow.Clip) { argbSet ->
+            assertThat(argbSet).containsExactly(backgroundArgb)
+        }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    fun drawWithVisible_doesNotClip() = runDrawWithClipTest(TextOverflow.Visible) { argbSet ->
-        // there could be more colors due to anti-aliasing, so check that we have at least the
-        // expected colors, and none of the unexpected colors.
-        assertThat(argbSet).containsAtLeast(highlightArgb, foregroundArgb)
-        assertThat(argbSet).doesNotContain(backgroundArgb)
-    }
+    fun drawWithVisible_doesNotClip() =
+        runDrawWithClipTest(TextOverflow.Visible) { argbSet ->
+            // there could be more colors due to anti-aliasing, so check that we have at least the
+            // expected colors, and none of the unexpected colors.
+            assertThat(argbSet).containsAtLeast(highlightArgb, foregroundArgb)
+            assertThat(argbSet).doesNotContain(backgroundArgb)
+        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun runDrawWithClipTest(overflow: TextOverflow, assertBlock: (Set<Int>) -> Unit) {
@@ -98,17 +104,15 @@ class SelectionControllerTest {
                 LocalDensity provides density,
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .drawBehind { drawRect(backgroundColor) }
-                        .testTag(boxTag),
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .drawBehind { drawRect(backgroundColor) }
+                            .testTag(boxTag),
                     contentAlignment = Alignment.Center,
                 ) {
                     SelectionContainer {
                         BasicText(
-                            modifier = Modifier
-                                .width(10.dp)
-                                .testTag(tag),
+                            modifier = Modifier.width(10.dp).testTag(tag),
                             text = "OOOOOOO",
                             overflow = overflow,
                             softWrap = false,

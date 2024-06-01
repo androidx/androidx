@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2024 The Android Open Source Project
  *
@@ -79,8 +78,7 @@ import org.mockito.kotlin.whenever
 @SdkSuppress(minSdkVersion = 31)
 @RunWith(AndroidJUnit4::class)
 class ContentCaptureTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private val tag = "tag"
     private lateinit var androidComposeView: AndroidComposeView
@@ -133,25 +131,15 @@ class ContentCaptureTest {
         var appeared by mutableStateOf(false)
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Row(
-                Modifier
-                    .size(100.dp)
-                    .semantics {}
-            ) {
+            Row(Modifier.size(100.dp).semantics {}) {
                 if (appeared) {
                     Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics {
-                                text = AnnotatedString("foo")
-                                testTag = "testTagFoo"
-                            }
+                        Modifier.size(10.dp).semantics {
+                            text = AnnotatedString("foo")
+                            testTag = "testTagFoo"
+                        }
                     )
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics { text = AnnotatedString("bar") }
-                    )
+                    Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") })
                 }
             }
         }
@@ -193,21 +181,9 @@ class ContentCaptureTest {
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
             if (!disappeared) {
-                Row(
-                    Modifier
-                        .size(100.dp)
-                        .semantics { }
-                ) {
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics { }
-                    )
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics { }
-                    )
+                Row(Modifier.size(100.dp).semantics {}) {
+                    Box(Modifier.size(10.dp).semantics {})
+                    Box(Modifier.size(10.dp).semantics {})
                 }
             }
         }
@@ -241,21 +217,9 @@ class ContentCaptureTest {
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
             if (appeared) {
-                Row(
-                    Modifier
-                        .size(100.dp)
-                        .semantics { }
-                ) {
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics { }
-                    )
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics { }
-                    )
+                Row(Modifier.size(100.dp).semantics {}) {
+                    Box(Modifier.size(10.dp).semantics {})
+                    Box(Modifier.size(10.dp).semantics {})
                 }
             }
         }
@@ -300,17 +264,9 @@ class ContentCaptureTest {
 
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { }
-            ) {
+            Box(Modifier.size(10.dp).semantics {}) {
                 if (appeared) {
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics { }
-                    )
+                    Box(Modifier.size(10.dp).semantics {})
                 }
             }
         }
@@ -360,23 +316,17 @@ class ContentCaptureTest {
 
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { }
-            ) {
+            Box(Modifier.size(10.dp).semantics {}) {
                 if (appeared) {
                     Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics {
-                                text = AnnotatedString("foo")
-                                isShowingTextSubstitution = true
-                                showTextSubstitution {
-                                    result = it
-                                    true
-                                }
+                        Modifier.size(10.dp).semantics {
+                            text = AnnotatedString("foo")
+                            isShowingTextSubstitution = true
+                            showTextSubstitution {
+                                result = it
+                                true
                             }
+                        }
                     )
                 }
             }
@@ -400,23 +350,17 @@ class ContentCaptureTest {
 
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { }
-            ) {
+            Box(Modifier.size(10.dp).semantics {}) {
                 if (appeared) {
                     Box(
-                        Modifier
-                            .size(10.dp)
-                            .semantics {
-                                text = AnnotatedString("foo")
-                                isShowingTextSubstitution = false
-                                showTextSubstitution {
-                                    result = it
-                                    true
-                                }
+                        Modifier.size(10.dp).semantics {
+                            text = AnnotatedString("foo")
+                            isShowingTextSubstitution = false
+                            showTextSubstitution {
+                                result = it
+                                true
                             }
+                        }
                     )
                 }
             }
@@ -437,18 +381,12 @@ class ContentCaptureTest {
         // Arrange.
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { text = AnnotatedString("bar") }
-            ) {
+            Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
-                    Modifier
-                        .size(10.dp)
-                        .semantics {
-                            testTag = tag
-                            text = AnnotatedString("foo")
-                        }
+                    Modifier.size(10.dp).semantics {
+                        testTag = tag
+                        text = AnnotatedString("foo")
+                    }
                 )
             }
         }
@@ -470,12 +408,18 @@ class ContentCaptureTest {
         rule.runOnIdle {
             with(argumentCaptor<ViewTranslationRequest>()) {
                 verify(requestsCollector).accept(capture())
-                assertThat(firstValue).isEqualTo(
-                    ViewTranslationRequest
-                        .Builder(androidComposeView.autofillId, virtualViewId.toLong())
-                        .setValue(ID_TEXT, TranslationRequestValue.forText(AnnotatedString("foo")))
-                        .build()
-                )
+                assertThat(firstValue)
+                    .isEqualTo(
+                        ViewTranslationRequest.Builder(
+                                androidComposeView.autofillId,
+                                virtualViewId.toLong()
+                            )
+                            .setValue(
+                                ID_TEXT,
+                                TranslationRequestValue.forText(AnnotatedString("foo"))
+                            )
+                            .build()
+                    )
             }
         }
     }
@@ -487,22 +431,16 @@ class ContentCaptureTest {
         var result: AnnotatedString? = null
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { text = AnnotatedString("bar") }
-            ) {
+            Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
-                    Modifier
-                        .size(10.dp)
-                        .semantics {
-                            testTag = tag
-                            text = AnnotatedString("foo")
-                            setTextSubstitution {
-                                result = it
-                                true
-                            }
+                    Modifier.size(10.dp).semantics {
+                        testTag = tag
+                        text = AnnotatedString("foo")
+                        setTextSubstitution {
+                            result = it
+                            true
                         }
+                    }
                 )
             }
         }
@@ -514,8 +452,7 @@ class ContentCaptureTest {
                 LongSparseArray<ViewTranslationResponse?>().apply {
                     append(
                         virtualViewId.toLong(),
-                        ViewTranslationResponse
-                            .Builder(androidComposeView.autofillId)
+                        ViewTranslationResponse.Builder(androidComposeView.autofillId)
                             .setValue(
                                 ID_TEXT,
                                 TranslationResponseValue.Builder(0).setText("bar").build()
@@ -537,22 +474,16 @@ class ContentCaptureTest {
         var result = false
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { text = AnnotatedString("bar") }
-            ) {
+            Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
-                    Modifier
-                        .size(10.dp)
-                        .semantics {
-                            textSubstitution = AnnotatedString("foo")
-                            isShowingTextSubstitution = false
-                            showTextSubstitution {
-                                result = it
-                                true
-                            }
+                    Modifier.size(10.dp).semantics {
+                        textSubstitution = AnnotatedString("foo")
+                        isShowingTextSubstitution = false
+                        showTextSubstitution {
+                            result = it
+                            true
                         }
+                    }
                 )
             }
         }
@@ -571,23 +502,17 @@ class ContentCaptureTest {
         var result = true
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { text = AnnotatedString("bar") }
-            ) {
+            Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
-                    Modifier
-                        .size(10.dp)
-                        .semantics {
-                            text = AnnotatedString("bar")
-                            textSubstitution = AnnotatedString("foo")
-                            isShowingTextSubstitution = true
-                            showTextSubstitution {
-                                result = it
-                                true
-                            }
+                    Modifier.size(10.dp).semantics {
+                        text = AnnotatedString("bar")
+                        textSubstitution = AnnotatedString("foo")
+                        isShowingTextSubstitution = true
+                        showTextSubstitution {
+                            result = it
+                            true
                         }
+                    }
                 )
             }
         }
@@ -605,22 +530,16 @@ class ContentCaptureTest {
         var result = false
         rule.mainClock.autoAdvance = false
         rule.setContentWithContentCaptureEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics { text = AnnotatedString("bar") }
-            ) {
+            Box(Modifier.size(10.dp).semantics { text = AnnotatedString("bar") }) {
                 Box(
-                    Modifier
-                        .size(10.dp)
-                        .semantics {
-                            text = AnnotatedString("bar")
-                            isShowingTextSubstitution = true
-                            clearTextSubstitution {
-                                result = true
-                                true
-                            }
+                    Modifier.size(10.dp).semantics {
+                        text = AnnotatedString("bar")
+                        isShowingTextSubstitution = true
+                        clearTextSubstitution {
+                            result = true
+                            true
                         }
+                    }
                 )
             }
         }
@@ -643,16 +562,16 @@ class ContentCaptureTest {
 
         whenever(contentCaptureSessionCompat.newVirtualViewStructure(any(), any()))
             .thenReturn(viewStructureCompat)
-        whenever(viewStructureCompat.toViewStructure())
-            .thenReturn(viewStructure)
+        whenever(viewStructureCompat.toViewStructure()).thenReturn(viewStructure)
 
         // TODO(mnuzen): provideContentCaptureManager as a compositionLocal so that instead of
         //  casting view and getting ContentCaptureManager, retrieve it via
         //  `LocalContentCaptureManager.current`
         setContent {
             androidComposeView = LocalView.current as AndroidComposeView
-            androidComposeView.contentCaptureManager.onContentCaptureSession =
-                { contentCaptureSessionCompat }
+            androidComposeView.contentCaptureManager.onContentCaptureSession = {
+                contentCaptureSessionCompat
+            }
 
             whenever(contentCaptureSessionCompat.newAutofillId(any())).thenAnswer {
                 androidComposeView.autofillId
@@ -673,5 +592,6 @@ class ContentCaptureTest {
     }
 
     // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
-    private val SemanticsNodeInteraction.semanticsId: Int get() = fetchSemanticsNode().id
+    private val SemanticsNodeInteraction.semanticsId: Int
+        get() = fetchSemanticsNode().id
 }

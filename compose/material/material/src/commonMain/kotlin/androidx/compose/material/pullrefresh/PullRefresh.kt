@@ -32,16 +32,14 @@ import androidx.compose.ui.unit.Velocity
  *
  * @sample androidx.compose.material.samples.PullRefreshSample
  *
- * @param state The [PullRefreshState] associated with this pull-to-refresh component.
- * The state will be updated by this modifier.
+ * @param state The [PullRefreshState] associated with this pull-to-refresh component. The state
+ *   will be updated by this modifier.
  * @param enabled If not enabled, all scroll delta and fling velocity will be ignored.
  */
 // TODO(b/244423199): Move pullRefresh into its own material library similar to material-ripple.
 @ExperimentalMaterialApi
-fun Modifier.pullRefresh(
-    state: PullRefreshState,
-    enabled: Boolean = true
-) = pullRefresh(state::onPull, state::onRelease, enabled)
+fun Modifier.pullRefresh(state: PullRefreshState, enabled: Boolean = true) =
+    pullRefresh(state::onPull, state::onRelease, enabled)
 
 /**
  * A nested scroll modifier that provides [onPull] and [onRelease] callbacks to aid building custom
@@ -53,17 +51,17 @@ fun Modifier.pullRefresh(
  * @sample androidx.compose.material.samples.CustomPullRefreshSample
  *
  * @param onPull Callback for dispatching vertical scroll delta, takes float pullDelta as argument.
- * Positive delta (pulling down) is dispatched only if the child does not consume it (i.e. pulling
- * down despite being at the top of a scrollable component), whereas negative delta (swiping up) is
- * dispatched first (in case it is needed to push the indicator back up), and then the unconsumed
- * delta is passed on to the child. The callback returns how much delta was consumed.
- * @param onRelease Callback for when drag is released, takes float flingVelocity as argument.
- * The callback returns how much velocity was consumed - in most cases this should only consume
- * velocity if pull refresh has been dragged already and the velocity is positive (the fling is
- * downwards), as an upwards fling should typically still scroll a scrollable component beneath the
- * pullRefresh. This is invoked before any remaining velocity is passed to the child.
+ *   Positive delta (pulling down) is dispatched only if the child does not consume it (i.e. pulling
+ *   down despite being at the top of a scrollable component), whereas negative delta (swiping up)
+ *   is dispatched first (in case it is needed to push the indicator back up), and then the
+ *   unconsumed delta is passed on to the child. The callback returns how much delta was consumed.
+ * @param onRelease Callback for when drag is released, takes float flingVelocity as argument. The
+ *   callback returns how much velocity was consumed - in most cases this should only consume
+ *   velocity if pull refresh has been dragged already and the velocity is positive (the fling is
+ *   downwards), as an upwards fling should typically still scroll a scrollable component beneath
+ *   the pullRefresh. This is invoked before any remaining velocity is passed to the child.
  * @param enabled If not enabled, all scroll delta and fling velocity will be ignored and neither
- * [onPull] nor [onRelease] will be invoked.
+ *   [onPull] nor [onRelease] will be invoked.
  */
 @ExperimentalMaterialApi
 fun Modifier.pullRefresh(
@@ -78,30 +76,25 @@ private class PullRefreshNestedScrollConnection(
     private val enabled: Boolean
 ) : NestedScrollConnection {
 
-    override fun onPreScroll(
-        available: Offset,
-        source: NestedScrollSource
-    ): Offset = when {
-        !enabled -> Offset.Zero
-        source == NestedScrollSource.UserInput && available.y < 0 -> Offset(
-            0f,
-            onPull(available.y)
-        ) // Swiping up
-        else -> Offset.Zero
-    }
+    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
+        when {
+            !enabled -> Offset.Zero
+            source == NestedScrollSource.UserInput && available.y < 0 ->
+                Offset(0f, onPull(available.y)) // Swiping up
+            else -> Offset.Zero
+        }
 
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource
-    ): Offset = when {
-        !enabled -> Offset.Zero
-        source == NestedScrollSource.UserInput && available.y > 0 -> Offset(
-            0f,
-            onPull(available.y)
-        ) // Pulling down
-        else -> Offset.Zero
-    }
+    ): Offset =
+        when {
+            !enabled -> Offset.Zero
+            source == NestedScrollSource.UserInput && available.y > 0 ->
+                Offset(0f, onPull(available.y)) // Pulling down
+            else -> Offset.Zero
+        }
 
     override suspend fun onPreFling(available: Velocity): Velocity {
         return Velocity(0f, onRelease(available.y))

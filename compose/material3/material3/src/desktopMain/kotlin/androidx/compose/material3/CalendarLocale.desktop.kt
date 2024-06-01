@@ -19,9 +19,7 @@ package androidx.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
-/**
- * Returns the default [CalendarLocale].
- */
+/** Returns the default [CalendarLocale]. */
 @Composable
 @ReadOnlyComposable
 @OptIn(ExperimentalMaterial3Api::class)

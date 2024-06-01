@@ -90,6 +90,7 @@ internal actual val DefaultPointerKeyboardModifiers: PointerKeyboardModifiers =
 @OptIn(ExperimentalComposeUiApi::class)
 internal actual val PrimaryPressedPointerButtons: PointerButtons =
     PointerButtons(isPrimaryPressed = true)
+
 internal actual fun makeAccessibilityController(
     skiaBasedOwner: SkiaBasedOwner,
     component: PlatformComponent

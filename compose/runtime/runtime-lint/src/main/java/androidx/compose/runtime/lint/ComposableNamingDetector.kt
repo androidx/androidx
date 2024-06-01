@@ -36,86 +36,90 @@ import org.jetbrains.uast.UMethod
 
 /**
  * [Detector] that checks the naming of @Composable functions for consistency with guidelines.
- *
  * - @Composable functions that return Unit should follow typical class naming (PascalCase)
  * - @Composable functions with a return type should follow typical function naming (camelCase)
  */
 class ComposableNamingDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UMethod::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitMethod(node: UMethod) {
-            // Ignore non-composable functions
-            if (!node.isComposable) return
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitMethod(node: UMethod) {
+                // Ignore non-composable functions
+                if (!node.isComposable) return
 
-            // Ignore operator functions as their name is case sensitive and cannot be changed
-            if (context.evaluator.isOperator(node)) return
+                // Ignore operator functions as their name is case sensitive and cannot be changed
+                if (context.evaluator.isOperator(node)) return
 
-            // Ignore overrides as the check will flag the base function. This also ignores a
-            // special case where a generic return type and a Unit type parameter is used.
-            if (node.findSuperMethods().isNotEmpty()) return
+                // Ignore overrides as the check will flag the base function. This also ignores a
+                // special case where a generic return type and a Unit type parameter is used.
+                if (node.findSuperMethods().isNotEmpty()) return
 
-            val name = node.name
+                val name = node.name
 
-            val capitalizedFunctionName = name.first().isUpperCase()
+                val capitalizedFunctionName = name.first().isUpperCase()
 
-            if (node.returnsUnit) {
-                if (!capitalizedFunctionName) {
-                    val capitalizedName = name.replaceFirstChar {
-                        if (it.isLowerCase()) it.titlecase(
-                            Locale.getDefault()
-                        ) else it.toString()
+                if (node.returnsUnit) {
+                    if (!capitalizedFunctionName) {
+                        val capitalizedName =
+                            name.replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+                                else it.toString()
+                            }
+                        context.report(
+                            ComposableNaming,
+                            node,
+                            context.getNameLocation(node),
+                            "Composable functions that return Unit should start with an " +
+                                "uppercase letter",
+                            LintFix.create()
+                                .replace()
+                                .name("Change to $capitalizedName")
+                                .text(name)
+                                .with(capitalizedName)
+                                .autoFix()
+                                .build()
+                        )
                     }
-                    context.report(
-                        ComposableNaming,
-                        node,
-                        context.getNameLocation(node),
-                        "Composable functions that return Unit should start with an " +
-                            "uppercase letter",
-                        LintFix.create()
-                            .replace()
-                            .name("Change to $capitalizedName")
-                            .text(name)
-                            .with(capitalizedName)
-                            .autoFix()
-                            .build()
-                    )
-                }
-            } else {
-                if (capitalizedFunctionName) {
-                    val lowercaseName = name.replaceFirstChar { it.lowercase(Locale.getDefault()) }
-                    context.report(
-                        ComposableNaming,
-                        node,
-                        context.getNameLocation(node),
-                        "Composable functions with a return type should start with a " +
-                            "lowercase letter",
-                        LintFix.create()
-                            .replace()
-                            .name("Change to $lowercaseName")
-                            .text(name)
-                            .with(lowercaseName)
-                            .autoFix()
-                            .build()
-                    )
+                } else {
+                    if (capitalizedFunctionName) {
+                        val lowercaseName =
+                            name.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                        context.report(
+                            ComposableNaming,
+                            node,
+                            context.getNameLocation(node),
+                            "Composable functions with a return type should start with a " +
+                                "lowercase letter",
+                            LintFix.create()
+                                .replace()
+                                .name("Change to $lowercaseName")
+                                .text(name)
+                                .with(lowercaseName)
+                                .autoFix()
+                                .build()
+                        )
+                    }
                 }
             }
         }
-    }
 
     companion object {
-        val ComposableNaming = Issue.create(
-            "ComposableNaming",
-            "Incorrect naming for @Composable functions",
-            "@Composable functions without a return type should use similar naming to " +
-                "classes, starting with an uppercase letter and ending with a noun. @Composable " +
-                "functions with a return type should be treated as normal Kotlin functions, " +
-                "starting with a lowercase letter.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                ComposableNamingDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ComposableNaming =
+            Issue.create(
+                "ComposableNaming",
+                "Incorrect naming for @Composable functions",
+                "@Composable functions without a return type should use similar naming to " +
+                    "classes, starting with an uppercase letter and ending with a noun. @Composable " +
+                    "functions with a return type should be treated as normal Kotlin functions, " +
+                    "starting with a lowercase letter.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    ComposableNamingDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

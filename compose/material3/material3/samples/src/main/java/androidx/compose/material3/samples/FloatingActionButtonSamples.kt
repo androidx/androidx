@@ -82,9 +82,7 @@ fun LargeFloatingActionButtonSample() {
 @Sampled
 @Composable
 fun ExtendedFloatingActionButtonTextSample() {
-    ExtendedFloatingActionButton(onClick = { /* do something */ }) {
-        Text(text = "Extended FAB")
-    }
+    ExtendedFloatingActionButton(onClick = { /* do something */ }) { Text(text = "Extended FAB") }
 }
 
 @Preview
@@ -105,11 +103,7 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     val listState = rememberLazyListState()
     // The FAB is initially expanded. Once the first visible item is past the first item we
     // collapse the FAB. We use a remembered derived state to minimize unnecessary compositions.
-    val expandedFab by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex == 0
-        }
-    }
+    val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -124,12 +118,7 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     ) {
         LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
             for (index in 0 until 100) {
-                item {
-                    Text(
-                        text = "List item - $index",
-                        modifier = Modifier.padding(24.dp)
-                    )
-                }
+                item { Text(text = "List item - $index", modifier = Modifier.padding(24.dp)) }
             }
         }
     }

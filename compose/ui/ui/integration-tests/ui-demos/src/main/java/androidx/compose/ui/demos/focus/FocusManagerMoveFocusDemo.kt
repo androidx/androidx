@@ -81,9 +81,8 @@ fun FocusManagerMoveFocusDemo() {
             Row(Modifier.fillMaxWidth(), SpaceEvenly) {
                 FocusableText(
                     text = "1",
-                    modifier = Modifier
-                        .focusRequester(item1)
-                        .focusProperties {
+                    modifier =
+                        Modifier.focusRequester(item1).focusProperties {
                             previous = item4
                             next = item2
                             right = item2
@@ -92,9 +91,8 @@ fun FocusManagerMoveFocusDemo() {
                 )
                 FocusableText(
                     text = "2",
-                    modifier = Modifier
-                        .focusRequester(item2)
-                        .focusProperties {
+                    modifier =
+                        Modifier.focusRequester(item2).focusProperties {
                             previous = item1
                             next = item3
                             left = item1
@@ -105,9 +103,8 @@ fun FocusManagerMoveFocusDemo() {
             Row(Modifier.fillMaxWidth(), SpaceEvenly) {
                 FocusableText(
                     text = "3",
-                    modifier = Modifier
-                        .focusRequester(item3)
-                        .focusProperties {
+                    modifier =
+                        Modifier.focusRequester(item3).focusProperties {
                             previous = item2
                             next = item4
                             right = item4
@@ -116,9 +113,8 @@ fun FocusManagerMoveFocusDemo() {
                 )
                 FocusableText(
                     text = "4",
-                    modifier = Modifier
-                        .focusRequester(item4)
-                        .focusProperties {
+                    modifier =
+                        Modifier.focusRequester(item4).focusProperties {
                             previous = item3
                             next = item1
                             left = item3
@@ -128,7 +124,7 @@ fun FocusManagerMoveFocusDemo() {
             }
             DisposableEffect(Unit) {
                 item1.requestFocus()
-                onDispose { }
+                onDispose {}
             }
         }
     }
@@ -139,13 +135,14 @@ private fun FocusableText(text: String, modifier: Modifier = Modifier) {
     var color by remember { mutableStateOf(Black) }
     val focusRequester = remember { FocusRequester() }
     Text(
-        modifier = modifier
-            .border(width = 1.dp, color = Black)
-            .requiredWidth(50.dp)
-            .focusRequester(focusRequester)
-            .onFocusChanged { color = if (it.isFocused) Green else Black }
-            .focusTarget()
-            .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
+        modifier =
+            modifier
+                .border(width = 1.dp, color = Black)
+                .requiredWidth(50.dp)
+                .focusRequester(focusRequester)
+                .onFocusChanged { color = if (it.isFocused) Green else Black }
+                .focusTarget()
+                .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
         text = text,
         fontSize = 40.sp,
         textAlign = TextAlign.Center,

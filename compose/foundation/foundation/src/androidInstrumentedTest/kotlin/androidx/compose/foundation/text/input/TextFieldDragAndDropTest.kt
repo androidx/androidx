@@ -71,8 +71,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextFieldDragAndDropTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun nonTextContent_isNotAccepted() {
@@ -105,11 +104,7 @@ class TextFieldDragAndDropTest {
 
     @Test
     fun draggingNonText_updatesSelection_withReceiveContent() {
-        rule.setContentAndTestDragAndDrop(
-            modifier = Modifier.contentReceiver {
-                null
-            }
-        ) {
+        rule.setContentAndTestDragAndDrop(modifier = Modifier.contentReceiver { null }) {
             drag(Offset(fontSize.toPx() * 1, 10f), defaultUri)
             assertThat(state.selection).isEqualTo(TextRange(1))
             drag(Offset(fontSize.toPx() * 2, 10f), defaultUri)
@@ -204,44 +199,46 @@ class TextFieldDragAndDropTest {
             view = LocalView.current
             CompositionLocalProvider(
                 LocalDensity provides density,
-                LocalWindowInfo provides object : WindowInfo {
-                    override val isWindowFocused = false
-                }
+                LocalWindowInfo provides
+                    object : WindowInfo {
+                        override val isWindowFocused = false
+                    }
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .contentReceiver(object : ReceiveContentListener {
-                            override fun onDragStart() {
-                                calls += "start"
-                            }
+                    modifier =
+                        Modifier.size(200.dp)
+                            .contentReceiver(
+                                object : ReceiveContentListener {
+                                    override fun onDragStart() {
+                                        calls += "start"
+                                    }
 
-                            override fun onDragEnd() {
-                                calls += "end"
-                            }
+                                    override fun onDragEnd() {
+                                        calls += "end"
+                                    }
 
-                            override fun onDragEnter() {
-                                calls += "enter"
-                            }
+                                    override fun onDragEnter() {
+                                        calls += "enter"
+                                    }
 
-                            override fun onDragExit() {
-                                calls += "exit"
-                            }
+                                    override fun onDragExit() {
+                                        calls += "exit"
+                                    }
 
-                            override fun onReceive(c: TransferableContent): TransferableContent? {
-                                calls += "receive"
-                                return null
-                            }
-                        })
+                                    override fun onReceive(
+                                        c: TransferableContent
+                                    ): TransferableContent? {
+                                        calls += "receive"
+                                        return null
+                                    }
+                                }
+                            )
                 ) {
                     BasicTextField(
                         state = rememberTextFieldState(),
                         textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                         lineLimits = TextFieldLineLimits.SingleLine,
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(40.dp)
-                            .align(Alignment.Center)
+                        modifier = Modifier.width(100.dp).height(40.dp).align(Alignment.Center)
                     )
                 }
             }
@@ -277,44 +274,46 @@ class TextFieldDragAndDropTest {
             view = LocalView.current
             CompositionLocalProvider(
                 LocalDensity provides density,
-                LocalWindowInfo provides object : WindowInfo {
-                    override val isWindowFocused = false
-                }
+                LocalWindowInfo provides
+                    object : WindowInfo {
+                        override val isWindowFocused = false
+                    }
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(200.dp)
-                        .contentReceiver(object : ReceiveContentListener {
-                            override fun onDragStart() {
-                                calls += "start"
-                            }
+                    modifier =
+                        Modifier.size(200.dp)
+                            .contentReceiver(
+                                object : ReceiveContentListener {
+                                    override fun onDragStart() {
+                                        calls += "start"
+                                    }
 
-                            override fun onDragEnd() {
-                                calls += "end"
-                            }
+                                    override fun onDragEnd() {
+                                        calls += "end"
+                                    }
 
-                            override fun onDragEnter() {
-                                calls += "enter"
-                            }
+                                    override fun onDragEnter() {
+                                        calls += "enter"
+                                    }
 
-                            override fun onDragExit() {
-                                calls += "exit"
-                            }
+                                    override fun onDragExit() {
+                                        calls += "exit"
+                                    }
 
-                            override fun onReceive(c: TransferableContent): TransferableContent? {
-                                calls += "receive"
-                                return null
-                            }
-                        })
+                                    override fun onReceive(
+                                        c: TransferableContent
+                                    ): TransferableContent? {
+                                        calls += "receive"
+                                        return null
+                                    }
+                                }
+                            )
                 ) {
                     BasicTextField(
                         state = rememberTextFieldState(),
                         textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                         lineLimits = TextFieldLineLimits.SingleLine,
-                        modifier = Modifier
-                            .width(100.dp)
-                            .height(40.dp)
-                            .align(Alignment.Center)
+                        modifier = Modifier.width(100.dp).height(40.dp).align(Alignment.Center)
                     )
                 }
             }
@@ -335,10 +334,7 @@ class TextFieldDragAndDropTest {
     @Test
     fun droppedText_insertsAtCursor() {
         rule.setContentAndTestDragAndDrop("Hello World!") {
-            drag(
-                Offset(fontSize.toPx() * 5, 10f),
-                " Awesome"
-            )
+            drag(Offset(fontSize.toPx() * 5, 10f), " Awesome")
             drop()
             assertThat(state.selection).isEqualTo(TextRange("Hello Awesome".length))
             assertThat(state.text.toString()).isEqualTo("Hello Awesome World!")
@@ -350,13 +346,14 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver { content ->
-                receivedContent = content
-                receivedContent.consume {
-                    // do not consume text
-                    it.uri != null
+            modifier =
+                Modifier.contentReceiver { content ->
+                    receivedContent = content
+                    receivedContent.consume {
+                        // do not consume text
+                        it.uri != null
+                    }
                 }
-            }
         ) {
             val clipData = createClipData {
                 addText(" Awesome")
@@ -376,11 +373,12 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver {
-                receivedContent = it
-                // consume everything
-                null
-            }
+            modifier =
+                Modifier.contentReceiver {
+                    receivedContent = it
+                    // consume everything
+                    null
+                }
         ) {
             val clipData = createClipData {
                 addText(" Awesome")
@@ -400,17 +398,16 @@ class TextFieldDragAndDropTest {
         lateinit var receivedContent: TransferableContent
         rule.setContentAndTestDragAndDrop(
             "Hello World!",
-            modifier = Modifier.contentReceiver {
-                receivedContent = it
-                val uri = receivedContent.clipEntry.firstUriOrNull()
-                // replace the content
-                val clipData = createClipData { addText(uri.toString()) }
-                TransferableContent(clipData)
-            }
+            modifier =
+                Modifier.contentReceiver {
+                    receivedContent = it
+                    val uri = receivedContent.clipEntry.firstUriOrNull()
+                    // replace the content
+                    val clipData = createClipData { addText(uri.toString()) }
+                    TransferableContent(clipData)
+                }
         ) {
-            val clipData = createClipData {
-                addUri(defaultUri)
-            }
+            val clipData = createClipData { addUri(defaultUri) }
             drag(Offset(fontSize.toPx() * 5, 10f), clipData)
             drop()
             assertThat(state.text.toString()).isEqualTo("Hello$defaultUri World!")
@@ -434,10 +431,13 @@ class TextFieldDragAndDropTest {
     @Test
     fun droppedItem_doesNotRequestPermission_ifNoReceiveContent() {
         rule.setContentAndTestDragAndDrop("Hello World!") {
-            drag(Offset(fontSize.toPx() * 5, 10f), createClipData {
-                addText()
-                addUri()
-            })
+            drag(
+                Offset(fontSize.toPx() * 5, 10f),
+                createClipData {
+                    addText()
+                    addUri()
+                }
+            )
             drop()
             assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()
         }
@@ -466,24 +466,19 @@ class TextFieldDragAndDropTest {
         modifier: Modifier = Modifier,
         block: DragAndDropTestScope.() -> Unit
     ) {
-        val state = TextFieldState(
-            textContent,
-            initialSelection = TextRange.Zero
-        )
+        val state = TextFieldState(textContent, initialSelection = TextRange.Zero)
         var view: View? = null
         val density = Density(1f, 1f)
-        val mergedStyle = TextStyle(
-            fontFamily = TEST_FONT_FAMILY,
-            fontSize = 20.sp
-        ).merge(style)
+        val mergedStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp).merge(style)
         var isHovered: State<Boolean>? = null
         setContent { // Do not use setTextFieldTestContent for DnD tests.
             view = LocalView.current
             CompositionLocalProvider(
                 LocalDensity provides density,
-                LocalWindowInfo provides object : WindowInfo {
-                    override val isWindowFocused = isWindowFocused
-                }
+                LocalWindowInfo provides
+                    object : WindowInfo {
+                        override val isWindowFocused = isWindowFocused
+                    }
             ) {
                 isHovered = interactionSource?.collectIsHoveredAsState()
                 BasicTextField(

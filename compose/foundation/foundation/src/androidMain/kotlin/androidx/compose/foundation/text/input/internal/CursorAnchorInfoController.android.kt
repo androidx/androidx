@@ -54,9 +54,7 @@ internal class CursorAnchorInfoController(
     private val matrix = Matrix()
     private val androidMatrix = android.graphics.Matrix()
 
-    /**
-     * Requests [CursorAnchorInfo] updates to be provided to the [ComposeInputMethodManager].
-     */
+    /** Requests [CursorAnchorInfo] updates to be provided to the [ComposeInputMethodManager]. */
     fun requestUpdates(cursorUpdateMode: Int) {
         val immediate = cursorUpdateMode and InputConnection.CURSOR_UPDATE_IMMEDIATE != 0
         val monitor = cursorUpdateMode and InputConnection.CURSOR_UPDATE_MONITOR != 0
@@ -78,9 +76,9 @@ internal class CursorAnchorInfoController(
             // If no filter flags are used, then all info should be included.
             if (
                 !includeInsertionMarker &&
-                !includeCharacterBounds &&
-                !includeEditorBounds &&
-                !includeLineBounds
+                    !includeCharacterBounds &&
+                    !includeEditorBounds &&
+                    !includeLineBounds
             ) {
                 includeInsertionMarker = true
                 includeCharacterBounds = true
@@ -147,13 +145,14 @@ internal class CursorAnchorInfoController(
     private fun startOrStopMonitoring() {
         if (monitorEnabled) {
             if (monitorJob?.isActive != true) {
-                monitorJob = monitorScope.launch(start = CoroutineStart.UNDISPATCHED) {
-                    // TODO (b/291327369) Confirm that we are sending updates at the right time.
-                    snapshotFlow { calculateCursorAnchorInfo() }
-                        .drop(1)
-                        .filterNotNull()
-                        .collect { composeImm.updateCursorAnchorInfo(it) }
-                }
+                monitorJob =
+                    monitorScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                        // TODO (b/291327369) Confirm that we are sending updates at the right time.
+                        snapshotFlow { calculateCursorAnchorInfo() }
+                            .drop(1)
+                            .filterNotNull()
+                            .collect { composeImm.updateCursorAnchorInfo(it) }
+                    }
             }
         } else {
             monitorJob?.cancel()
@@ -163,17 +162,13 @@ internal class CursorAnchorInfoController(
 
     private fun calculateCursorAnchorInfo(): CursorAnchorInfo? {
         // State reads
-        val textLayoutCoordinates = textLayoutState.textLayoutNodeCoordinates
-            ?.takeIf { it.isAttached }
-            ?: return null
-        val coreCoordinates = textLayoutState.coreNodeCoordinates
-            ?.takeIf { it.isAttached }
-            ?: return null
-        val decorationBoxCoordinates = textLayoutState.decoratorNodeCoordinates
-            ?.takeIf { it.isAttached }
-            ?: return null
-        val textLayoutResult = textLayoutState.layoutResult
-            ?: return null
+        val textLayoutCoordinates =
+            textLayoutState.textLayoutNodeCoordinates?.takeIf { it.isAttached } ?: return null
+        val coreCoordinates =
+            textLayoutState.coreNodeCoordinates?.takeIf { it.isAttached } ?: return null
+        val decorationBoxCoordinates =
+            textLayoutState.decoratorNodeCoordinates?.takeIf { it.isAttached } ?: return null
+        val textLayoutResult = textLayoutState.layoutResult ?: return null
         val text = textFieldState.visualText
 
         // Updates matrix to transform text layout coordinates to screen coordinates.
@@ -181,10 +176,16 @@ internal class CursorAnchorInfoController(
         textLayoutCoordinates.transformToScreen(matrix)
         androidMatrix.setFrom(matrix)
 
-        val innerTextFieldBounds = coreCoordinates.visibleBounds()
-            .translate(textLayoutCoordinates.localPositionOf(coreCoordinates, Offset.Zero))
-        val decorationBoxBounds = decorationBoxCoordinates.visibleBounds()
-            .translate(textLayoutCoordinates.localPositionOf(decorationBoxCoordinates, Offset.Zero))
+        val innerTextFieldBounds =
+            coreCoordinates
+                .visibleBounds()
+                .translate(textLayoutCoordinates.localPositionOf(coreCoordinates, Offset.Zero))
+        val decorationBoxBounds =
+            decorationBoxCoordinates
+                .visibleBounds()
+                .translate(
+                    textLayoutCoordinates.localPositionOf(decorationBoxCoordinates, Offset.Zero)
+                )
         return builder.build(
             text,
             text.selection,

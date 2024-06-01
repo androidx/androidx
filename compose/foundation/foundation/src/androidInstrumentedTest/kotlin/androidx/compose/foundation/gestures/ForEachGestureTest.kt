@@ -46,14 +46,13 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ForEachGestureTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tag = "pointerInputTag"
 
     /**
-     * Make sure that a single `forEachGesture` block does not cause a crash.
-     * Note: Is is no longer possible for an empty gesture since pointerInput() is started lazily.
+     * Make sure that a single `forEachGesture` block does not cause a crash. Note: Is is no longer
+     * possible for an empty gesture since pointerInput() is started lazily.
      */
     // TODO (jjw): Check with George that this test is needed anymore.
     @Test
@@ -62,23 +61,26 @@ class ForEachGestureTest {
         val latch2 = CountDownLatch(1)
         rule.setContent {
             Box(
-                Modifier.testTag(tag).pointerInput(Unit) {
-                    forEachGesture {
-                        if (latch1.count == 0L) {
-                            // forEachGesture will loop infinitely with nothing in the middle
-                            // so wait for cancellation
-                            awaitCancellation()
+                Modifier.testTag(tag)
+                    .pointerInput(Unit) {
+                        forEachGesture {
+                            if (latch1.count == 0L) {
+                                // forEachGesture will loop infinitely with nothing in the middle
+                                // so wait for cancellation
+                                awaitCancellation()
+                            }
+                            latch1.countDown()
                         }
-                        latch1.countDown()
                     }
-                }.pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        // there is no awaitPointerEvent() / loop here, so it will only
-                        // execute once.
-                        assertTrue(currentEvent.changes.size == 1)
-                        latch2.countDown()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            // there is no awaitPointerEvent() / loop here, so it will only
+                            // execute once.
+                            assertTrue(currentEvent.changes.size == 1)
+                            latch2.countDown()
+                        }
                     }
-                }.size(10.dp)
+                    .size(10.dp)
             )
         }
         rule.waitForIdle()
@@ -93,26 +95,29 @@ class ForEachGestureTest {
         rule.setContent {
             Box(
                 Modifier.pointerInput(Unit) {
-                    try {
-                        var count = 0
+                        try {
+                            var count = 0
 
-                        forEachGesture {
-                            when (count++) {
-                                0 -> Unit // continue
-                                1 -> throw CancellationException("internal exception")
-                                else -> {
-                                    // forEachGesture will loop infinitely with nothing in the
-                                    // middle so wait for cancellation
-                                    awaitCancellation()
+                            forEachGesture {
+                                when (count++) {
+                                    0 -> Unit // continue
+                                    1 -> throw CancellationException("internal exception")
+                                    else -> {
+                                        // forEachGesture will loop infinitely with nothing in the
+                                        // middle so wait for cancellation
+                                        awaitCancellation()
+                                    }
                                 }
                             }
+                        } catch (cancellationException: CancellationException) {
+                            assertWithMessage(
+                                    "The internal exception shouldn't cancel forEachGesture"
+                                )
+                                .that(cancellationException.message)
+                                .isNotEqualTo("internal exception")
                         }
-                    } catch (cancellationException: CancellationException) {
-                        assertWithMessage("The internal exception shouldn't cancel forEachGesture")
-                            .that(cancellationException.message)
-                            .isNotEqualTo("internal exception")
                     }
-                }.size(10.dp)
+                    .size(10.dp)
             )
         }
     }
@@ -122,20 +127,24 @@ class ForEachGestureTest {
         rule.setContent {
             Box(
                 Modifier.pointerInput(Unit) {
-                    coroutineScope {
-                        val job = launch(Dispatchers.Unconfined) {
-                            forEachGesture {
-                                // forEachGesture will loop infinitely with nothing in the middle
-                                // so wait for cancellation
-                                awaitCancellation()
-                            }
+                        coroutineScope {
+                            val job =
+                                launch(Dispatchers.Unconfined) {
+                                    forEachGesture {
+                                        // forEachGesture will loop infinitely with nothing in the
+                                        // middle
+                                        // so wait for cancellation
+                                        awaitCancellation()
+                                    }
 
-                            assertWithMessage("forEachGesture should have been cancelled").fail()
+                                    assertWithMessage("forEachGesture should have been cancelled")
+                                        .fail()
+                                }
+
+                            job.cancel()
                         }
-
-                        job.cancel()
                     }
-                }.size(10.dp)
+                    .size(10.dp)
             )
         }
     }

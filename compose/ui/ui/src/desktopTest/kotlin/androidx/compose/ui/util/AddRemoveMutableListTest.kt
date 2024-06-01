@@ -61,12 +61,12 @@ class AddRemoveMutableListTest {
 // TODO(demin): why there is a compilation error when we use AddRemoveMutableList<Int>() ?
 
 @Suppress("UNCHECKED_CAST")
-private class TestList(
-    vararg items: Int
-) : AddRemoveMutableList<Any>() {
+private class TestList(vararg items: Int) : AddRemoveMutableList<Any>() {
     private val list: MutableList<Any> = items.toMutableList() as MutableList<Any>
 
-    override val size: Int get() = list.size
+    override val size: Int
+        get() = list.size
+
     override fun get(index: Int): Any = list[index]
 
     override fun performAdd(element: Any) {

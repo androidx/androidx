@@ -37,9 +37,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
-/**
- * RenderNode implementation of OwnedLayer.
- */
+/** RenderNode implementation of OwnedLayer. */
 @RequiresApi(Build.VERSION_CODES.M)
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
@@ -49,9 +47,7 @@ internal class RenderNodeLayer(
     private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
-    /**
-     * True when the RenderNodeLayer has been invalidated and not yet drawn.
-     */
+    /** True when the RenderNodeLayer has been invalidated and not yet drawn. */
     private var isDirty = false
         set(value) {
             if (value != field) {
@@ -59,13 +55,14 @@ internal class RenderNodeLayer(
                 ownerView.notifyLayerIsDirty(this, value)
             }
         }
+
     private val outlineResolver = OutlineResolver()
     private var isDestroyed = false
     private var drawnWithZ = false
 
     /**
-     * Optional paint used when the RenderNode is rendered on a software backed
-     * canvas and is somewhat transparent (i.e. alpha less than 1.0f)
+     * Optional paint used when the RenderNode is rendered on a software backed canvas and is
+     * somewhat transparent (i.e. alpha less than 1.0f)
      */
     private var softwareLayerPaint: Paint? = null
 
@@ -74,31 +71,34 @@ internal class RenderNodeLayer(
     private val canvasHolder = CanvasHolder()
 
     /**
-     * Local copy of the transform origin as GraphicsLayerModifier can be implemented
-     * as a model object. Update this field within [updateLayerProperties] and use it
-     * in [resize] or other methods
+     * Local copy of the transform origin as GraphicsLayerModifier can be implemented as a model
+     * object. Update this field within [updateLayerProperties] and use it in [resize] or other
+     * methods
      */
     private var transformOrigin: TransformOrigin = TransformOrigin.Center
 
-    private val renderNode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        RenderNodeApi29(ownerView)
-    } else {
-        RenderNodeApi23(ownerView)
-    }.apply {
-        setHasOverlappingRendering(true)
-        // in compose the default is to not clip.
-        clipToBounds = false
-    }
+    private val renderNode =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                RenderNodeApi29(ownerView)
+            } else {
+                RenderNodeApi23(ownerView)
+            }
+            .apply {
+                setHasOverlappingRendering(true)
+                // in compose the default is to not clip.
+                clipToBounds = false
+            }
 
     override val layerId: Long
         get() = renderNode.uniqueId
 
     override val ownerViewId: Long
-        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            UniqueDrawingIdApi29.getUniqueDrawingId(ownerView)
-        } else {
-            -1
-        }
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                UniqueDrawingIdApi29.getUniqueDrawingId(ownerView)
+            } else {
+                -1
+            }
 
     @RequiresApi(29)
     private object UniqueDrawingIdApi29 {
@@ -166,13 +166,14 @@ internal class RenderNodeLayer(
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
             renderNode.compositingStrategy = scope.compositingStrategy
         }
-        val shapeChanged = outlineResolver.update(
-            scope.outline,
-            scope.alpha,
-            clipToOutline,
-            scope.shadowElevation,
-            scope.size,
-        )
+        val shapeChanged =
+            outlineResolver.update(
+                scope.outline,
+                scope.alpha,
+                clipToOutline,
+                scope.shadowElevation,
+                scope.size,
+            )
         if (outlineResolver.cacheIsDirty) {
             renderNode.setOutline(outlineResolver.androidOutline)
         }
@@ -212,7 +213,8 @@ internal class RenderNodeLayer(
         val height = size.height
         renderNode.pivotX = transformOrigin.pivotFractionX * width
         renderNode.pivotY = transformOrigin.pivotFractionY * height
-        if (renderNode.setPosition(
+        if (
+            renderNode.setPosition(
                 renderNode.left,
                 renderNode.top,
                 renderNode.left + width,
@@ -250,9 +252,8 @@ internal class RenderNodeLayer(
     }
 
     /**
-     * This only triggers the system so that it knows that some kind of painting
-     * must happen without actually causing the layer to be invalidated and have
-     * to re-record its drawing.
+     * This only triggers the system so that it knows that some kind of painting must happen without
+     * actually causing the layer to be invalidated and have to re-record its drawing.
      */
     private fun triggerRepaint() {
         // onDescendantInvalidated is only supported on O+
@@ -283,15 +284,11 @@ internal class RenderNodeLayer(
             // If there is alpha applied, we must render into an offscreen buffer to
             // properly blend the contents of this layer against the background content
             if (renderNode.alpha < 1.0f) {
-                val paint = (softwareLayerPaint ?: Paint().also { softwareLayerPaint = it })
-                    .apply { alpha = renderNode.alpha }
-                androidCanvas.saveLayer(
-                    left,
-                    top,
-                    right,
-                    bottom,
-                    paint.asFrameworkPaint()
-                )
+                val paint =
+                    (softwareLayerPaint ?: Paint().also { softwareLayerPaint = it }).apply {
+                        alpha = renderNode.alpha
+                    }
+                androidCanvas.saveLayer(left, top, right, bottom, paint.asFrameworkPaint())
             } else {
                 canvas.save()
             }
@@ -307,8 +304,8 @@ internal class RenderNodeLayer(
     }
 
     /**
-     * Manually clips the content of the RenderNodeLayer in the provided canvas.
-     * This is used only in software rendered use cases
+     * Manually clips the content of the RenderNodeLayer in the provided canvas. This is used only
+     * in software rendered use cases
      */
     private fun clipRenderNode(canvas: Canvas) {
         if (renderNode.clipToOutline || renderNode.clipToBounds) {
@@ -318,15 +315,14 @@ internal class RenderNodeLayer(
 
     override fun updateDisplayList() {
         if (isDirty || !renderNode.hasDisplayList) {
-            val clipPath = if (renderNode.clipToOutline && !outlineResolver.outlineClipSupported) {
-                outlineResolver.clipPath
-            } else {
-                null
-            }
-            drawBlock?.let { drawBlock ->
-                renderNode.record(canvasHolder, clipPath) {
-                    drawBlock(it, null)
+            val clipPath =
+                if (renderNode.clipToOutline && !outlineResolver.outlineClipSupported) {
+                    outlineResolver.clipPath
+                } else {
+                    null
                 }
+            drawBlock?.let { drawBlock ->
+                renderNode.record(canvasHolder, clipPath) { drawBlock(it, null) }
             }
             isDirty = false
         }
@@ -396,9 +392,9 @@ internal class RenderNodeLayer(
 }
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal object WrapperRenderNodeLayerHelperMethods {

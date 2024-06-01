@@ -30,15 +30,16 @@ import androidx.compose.ui.unit.sp
 fun BaselineShiftSample() {
     Text(
         fontSize = 20.sp,
-        text = buildAnnotatedString {
-            append(text = "Hello")
-            withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
-                append("superscript")
-                withStyle(SpanStyle(baselineShift = BaselineShift.Subscript)) {
-                    append("subscript")
+        text =
+            buildAnnotatedString {
+                append(text = "Hello")
+                withStyle(SpanStyle(baselineShift = BaselineShift.Superscript, fontSize = 16.sp)) {
+                    append("superscript")
+                    withStyle(SpanStyle(baselineShift = BaselineShift.Subscript)) {
+                        append("subscript")
+                    }
                 }
             }
-        }
     )
 }
 
@@ -47,9 +48,7 @@ fun BaselineShiftSample() {
 fun BaselineShiftAnnotatedStringSample() {
     val annotatedString = buildAnnotatedString {
         append("Text ")
-        withStyle(SpanStyle(baselineShift = BaselineShift.Superscript)) {
-            append("Demo")
-        }
+        withStyle(SpanStyle(baselineShift = BaselineShift.Superscript)) { append("Demo") }
     }
     Text(text = annotatedString)
 }

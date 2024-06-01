@@ -44,9 +44,7 @@ fun ScrollableRowFocusDemo() {
     Column {
         Text("Use the dpad or arrow keys to move focus")
         Row(Modifier.horizontalScroll(rememberScrollState())) {
-            repeat(20) {
-                FocusableBox(it.toString())
-            }
+            repeat(20) { FocusableBox(it.toString()) }
         }
     }
 }
@@ -58,11 +56,12 @@ private fun FocusableBox(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = 50.sp,
         textAlign = TextAlign.Center,
-        modifier = modifier
-            .size(100.dp)
-            .border(2.dp, Black)
-            .onFocusChanged { color = if (it.isFocused) Red else White }
-            .background(color)
-            .focusable()
+        modifier =
+            modifier
+                .size(100.dp)
+                .border(2.dp, Black)
+                .onFocusChanged { color = if (it.isFocused) Red else White }
+                .background(color)
+                .focusable()
     )
 }

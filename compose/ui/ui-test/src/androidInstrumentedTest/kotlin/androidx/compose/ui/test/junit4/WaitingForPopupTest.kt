@@ -37,16 +37,12 @@ import org.junit.runner.RunWith
 class WaitingForPopupTest {
     @Composable
     private fun ShowPopup() {
-        Popup {
-            Box(Modifier.size(10.dp, 10.dp))
-        }
+        Popup { Box(Modifier.size(10.dp, 10.dp)) }
     }
 
     @Test
     fun popupInFirstComposition() = runComposeUiTest {
-        setContent {
-            ShowPopup()
-        }
+        setContent { ShowPopup() }
         onNode(isPopup()).assertExists()
     }
 

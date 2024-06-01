@@ -16,22 +16,20 @@
 
 package androidx.compose.ui.text
 
-/**
- * An annotation that represents a clickable part of the text.
- */
+/** An annotation that represents a clickable part of the text. */
 abstract class LinkAnnotation private constructor() {
     /** Interaction listener triggered when user interacts with this link. */
     abstract val linkInteractionListener: LinkInteractionListener?
-    /**
-     * Style configuration for this link in different states
-     */
+    /** Style configuration for this link in different states */
     abstract val styles: TextLinkStyles?
+
     /**
-     * An annotation that contains a [url] string. When clicking on the text to which this annotation
-     * is attached, the app will try to open the url using [androidx.compose.ui.platform.UriHandler].
-     * However, if [linkInteractionListener] is provided, its [LinkInteractionListener.onClick]
-     * method will be called instead and so you need to then handle opening url manually (for
-     * example by calling [androidx.compose.ui.platform.UriHandler]).
+     * An annotation that contains a [url] string. When clicking on the text to which this
+     * annotation is attached, the app will try to open the url using
+     * [androidx.compose.ui.platform.UriHandler]. However, if [linkInteractionListener] is provided,
+     * its [LinkInteractionListener.onClick] method will be called instead and so you need to then
+     * handle opening url manually (for example by calling
+     * [androidx.compose.ui.platform.UriHandler]).
      */
     class Url(
         val url: String,
@@ -62,8 +60,8 @@ abstract class LinkAnnotation private constructor() {
     }
 
     /**
-     * An annotation that contains a clickable marked with [tag]. When clicking on the text to
-     * which this annotation is attached, the app will trigger a [linkInteractionListener] listener.
+     * An annotation that contains a clickable marked with [tag]. When clicking on the text to which
+     * this annotation is attached, the app will trigger a [linkInteractionListener] listener.
      */
     class Clickable(
         val tag: String,

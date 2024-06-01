@@ -48,9 +48,7 @@ class LazyColumnActivity : ComponentActivity() {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth().semantics { contentDescription = "IamLazy" }
             ) {
-                items(entries) {
-                    ListRow(it)
-                }
+                items(entries) { ListRow(it) }
             }
         }
 
@@ -64,16 +62,17 @@ class LazyColumnActivity : ComponentActivity() {
 
 internal fun ComponentActivity.launchIdlenessTracking() {
     val contentView: View = findViewById(android.R.id.content)
-    val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
-        override fun doFrame(frameTimeNanos: Long) {
-            if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
-                contentView.contentDescription = "COMPOSE-BUSY"
-            } else {
-                contentView.contentDescription = "COMPOSE-IDLE"
+    val callback: Choreographer.FrameCallback =
+        object : Choreographer.FrameCallback {
+            override fun doFrame(frameTimeNanos: Long) {
+                if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
+                    contentView.contentDescription = "COMPOSE-BUSY"
+                } else {
+                    contentView.contentDescription = "COMPOSE-IDLE"
+                }
+                Choreographer.getInstance().postFrameCallback(this)
             }
-            Choreographer.getInstance().postFrameCallback(this)
         }
-    }
     Choreographer.getInstance().postFrameCallback(callback)
 }
 
@@ -81,16 +80,9 @@ internal fun ComponentActivity.launchIdlenessTracking() {
 private fun ListRow(entry: Entry) {
     Card(modifier = Modifier.padding(8.dp)) {
         Row {
-            Text(
-                text = entry.contents,
-                modifier = Modifier.padding(16.dp)
-            )
+            Text(text = entry.contents, modifier = Modifier.padding(16.dp))
             Spacer(modifier = Modifier.weight(1f, fill = true))
-            Checkbox(
-                checked = false,
-                onCheckedChange = {},
-                modifier = Modifier.padding(16.dp)
-            )
+            Checkbox(checked = false, onCheckedChange = {}, modifier = Modifier.padding(16.dp))
         }
     }
 }

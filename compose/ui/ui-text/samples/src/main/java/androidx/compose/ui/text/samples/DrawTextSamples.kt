@@ -57,9 +57,7 @@ import kotlin.math.roundToInt
 fun DrawTextSample() {
     val textMeasurer = rememberTextMeasurer()
 
-    Canvas(Modifier.fillMaxSize()) {
-        drawText(textMeasurer, "Hello, World!")
-    }
+    Canvas(Modifier.fillMaxSize()) { drawText(textMeasurer, "Hello, World!") }
 }
 
 @Sampled
@@ -71,11 +69,12 @@ fun DrawTextStyledSample() {
         drawText(
             textMeasurer = textMeasurer,
             text = "Hello, World!",
-            style = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                textDecoration = TextDecoration.Underline
-            )
+            style =
+                TextStyle(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textDecoration = TextDecoration.Underline
+                )
         )
     }
 }
@@ -88,14 +87,11 @@ fun DrawTextAnnotatedStringSample() {
     Canvas(Modifier.fillMaxSize()) {
         drawText(
             textMeasurer = textMeasurer,
-            text = buildAnnotatedString {
-                withStyle(ParagraphStyle(textAlign = TextAlign.Start)) {
-                    append("Hello")
+            text =
+                buildAnnotatedString {
+                    withStyle(ParagraphStyle(textAlign = TextAlign.Start)) { append("Hello") }
+                    withStyle(ParagraphStyle(textAlign = TextAlign.End)) { append("World") }
                 }
-                withStyle(ParagraphStyle(textAlign = TextAlign.End)) {
-                    append("World")
-                }
-            }
         )
     }
 }
@@ -110,28 +106,21 @@ fun DrawTextAnnotatedStringSample() {
 @Composable
 fun DrawTextMeasureInLayoutSample() {
     val textMeasurer = rememberTextMeasurer()
-    var textLayoutResult by remember {
-        mutableStateOf<TextLayoutResult?>(null)
-    }
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
     Canvas(
-        Modifier
-            .fillMaxSize()
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                // TextLayout can be done any time prior to its use in draw, including in a
-                // background thread.
-                // In this sample, text layout is measured in layout modifier. This way the layout
-                // call can be restarted when async font loading completes due to the fact that
-                // `.measure` call is executed in `.layout`.
-                textLayoutResult = textMeasurer.measure(
-                    text = "Hello, World!",
-                    style = TextStyle(fontSize = 24.sp)
-                )
-                layout(placeable.width, placeable.height) {
-                    placeable.placeRelative(0, 0)
-                }
-            }) {
+        Modifier.fillMaxSize().layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            // TextLayout can be done any time prior to its use in draw, including in a
+            // background thread.
+            // In this sample, text layout is measured in layout modifier. This way the layout
+            // call can be restarted when async font loading completes due to the fact that
+            // `.measure` call is executed in `.layout`.
+            textLayoutResult =
+                textMeasurer.measure(text = "Hello, World!", style = TextStyle(fontSize = 24.sp))
+            layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+        }
+    ) {
         // This happens during draw phase.
         textLayoutResult?.let { drawText(it) }
     }
@@ -155,38 +144,41 @@ fun DrawTextDrawWithCacheSample() {
 
     // Animate color repeatedly
     val infiniteTransition = rememberInfiniteTransition()
-    val color by infiniteTransition.animateColor(
-        initialValue = Color.Red,
-        targetValue = Color.Blue,
-        animationSpec = infiniteRepeatable(tween(1000))
-    )
+    val color by
+        infiniteTransition.animateColor(
+            initialValue = Color.Red,
+            targetValue = Color.Blue,
+            animationSpec = infiniteRepeatable(tween(1000))
+        )
 
     Box(
-        Modifier
-            .fillMaxSize()
-            .drawWithCache {
-                // Text layout will be measured just once until the size of the drawing area or
-                // materialTextStyle changes.
-                val textLayoutResult = textMeasurer.measure(
+        Modifier.fillMaxSize().drawWithCache {
+            // Text layout will be measured just once until the size of the drawing area or
+            // materialTextStyle changes.
+            val textLayoutResult =
+                textMeasurer.measure(
                     text = "Hello, World!",
                     style = materialTextStyle,
-                    constraints = Constraints.fixed(
-                        width = (size.width / 2).roundToInt(),
-                        height = (size.height / 2).roundToInt()
-                    ),
+                    constraints =
+                        Constraints.fixed(
+                            width = (size.width / 2).roundToInt(),
+                            height = (size.height / 2).roundToInt()
+                        ),
                     overflow = TextOverflow.Ellipsis
                 )
-                // color changes will only invalidate draw phase
-                onDrawWithContent {
-                    drawContent()
-                    drawText(
-                        textLayoutResult,
-                        color = color,
-                        topLeft = Offset(
+            // color changes will only invalidate draw phase
+            onDrawWithContent {
+                drawContent()
+                drawText(
+                    textLayoutResult,
+                    color = color,
+                    topLeft =
+                        Offset(
                             (size.width - textLayoutResult.size.width) / 2,
                             (size.height - textLayoutResult.size.height) / 2,
                         )
-                    )
-                }
-            })
+                )
+            }
+        }
+    )
 }

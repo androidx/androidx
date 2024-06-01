@@ -32,20 +32,22 @@ class MultiBrowseTest {
     @Test
     fun testMultiBrowse_doesNotResizeLargeWhenEnoughRoom() {
         val itemSize = 120f // minSmallItemSize = 40.dp * 3
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = 500f,
-            preferredItemSize = itemSize,
-            itemSpacing = 0f,
-            itemCount = 10,
-        )
-        val strategy = Strategy(
-            defaultKeylines = keylineList,
-            availableSpace = 500f,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = 500f,
+                preferredItemSize = itemSize,
+                itemSpacing = 0f,
+                itemCount = 10,
+            )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = 500f,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(strategy.itemMainAxisSize).isEqualTo(itemSize)
     }
@@ -53,20 +55,22 @@ class MultiBrowseTest {
     @Test
     fun testMultiBrowse_resizesItemLargerThanContainerToFit1Small() {
         val itemSize = 200f
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = 100f,
-            preferredItemSize = itemSize,
-            itemSpacing = 0f,
-            itemCount = 10,
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = 100f,
+                preferredItemSize = itemSize,
+                itemSpacing = 0f,
+                itemCount = 10,
             )
-        val strategy = Strategy(
-            defaultKeylines = keylineList,
-            availableSpace = 100f,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = 100f,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
         val minSmallItemSize: Float = with(Density) { CarouselDefaults.MinSmallItemSize.toPx() }
         val keylines = strategy.defaultKeylines
 
@@ -83,20 +87,22 @@ class MultiBrowseTest {
     @Test
     fun testMultiBrowse_hasNoSmallItemsIfNotEnoughRoom() {
         val minSmallItemSize: Float = with(Density) { CarouselDefaults.MinSmallItemSize.toPx() }
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = minSmallItemSize,
-            preferredItemSize = 200f,
-            itemSpacing = 0f,
-            itemCount = 10,
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = minSmallItemSize,
+                preferredItemSize = 200f,
+                itemSpacing = 0f,
+                itemCount = 10,
             )
-        val strategy = Strategy(
-            defaultKeylines = keylineList,
-            availableSpace = minSmallItemSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = minSmallItemSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
         val keylines = strategy.defaultKeylines
 
         assertThat(strategy.itemMainAxisSize).isEqualTo(minSmallItemSize)
@@ -106,12 +112,13 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_isNullIfAvailableSpaceIsZero() {
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = 0f,
-            preferredItemSize = 200f,
-            itemSpacing = 0f,
-            itemCount = 10,
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = 0f,
+                preferredItemSize = 200f,
+                itemSpacing = 0f,
+                itemCount = 10,
             )
         assertThat(keylineList).isEmpty()
     }
@@ -121,20 +128,22 @@ class MultiBrowseTest {
         val maxSmallItemSize: Float = with(Density) { CarouselDefaults.MaxSmallItemSize.toPx() }
         val preferredItemSize = 200f
         val carouselSize = preferredItemSize * 2 + maxSmallItemSize * 2
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = carouselSize,
-            preferredItemSize = preferredItemSize,
-            itemSpacing = 0f,
-            itemCount = 10,
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = carouselSize,
+                preferredItemSize = preferredItemSize,
+                itemSpacing = 0f,
+                itemCount = 10,
             )
-        val strategy = Strategy(
-            defaultKeylines = keylineList,
-            availableSpace = carouselSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = carouselSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
         val keylines = strategy.defaultKeylines
 
         // Assert that there's only one small item, and a medium item that has a size between
@@ -152,20 +161,22 @@ class MultiBrowseTest {
         val maxSmallItemSize: Float = with(Density) { CarouselDefaults.MaxSmallItemSize.toPx() }
         val preferredItemSize = 200f
         val carouselSize = preferredItemSize * 2 + maxSmallItemSize * 2
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = carouselSize,
-            preferredItemSize = preferredItemSize,
-            itemSpacing = 0f,
-            itemCount = 3,
-        )
-        val strategy = Strategy(
-            defaultKeylines = keylineList,
-            availableSpace = carouselSize,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = carouselSize,
+                preferredItemSize = preferredItemSize,
+                itemSpacing = 0f,
+                itemCount = 3,
+            )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = carouselSize,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
         val keylines = strategy.defaultKeylines
 
         // We originally expect a keyline list of [xSmall-Large-Large-Medium-Small-xSmall], but with
@@ -178,20 +189,22 @@ class MultiBrowseTest {
 
     @Test
     fun testMultiBrowse_adjustsForItemSpacing() {
-        val keylineList = multiBrowseKeylineList(
-            density = Density,
-            carouselMainAxisSize = 380f,
-            preferredItemSize = 186f,
-            itemSpacing = 8f,
-            itemCount = 10
-        )
-        val strategy = Strategy(
-            defaultKeylines = keylineList,
-            availableSpace = 380f,
-            itemSpacing = 8f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f
-        )
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = 380f,
+                preferredItemSize = 186f,
+                itemSpacing = 8f,
+                itemCount = 10
+            )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = 380f,
+                itemSpacing = 8f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f
+            )
 
         assertThat(keylineList.firstFocal.size).isEqualTo(186f)
         // Ensure the first visible item is large and aligned with the start of the container
@@ -206,10 +219,11 @@ class MultiBrowseTest {
         assertThat(lastVisible.offset).isEqualTo(380f - (56f / 2f))
 
         val maxScrollOffset = ((186f * 10) + (8f * 10)) - 380f
-        val defaultActualUnadjustedOffsets = strategy.getKeylineListForScrollOffset(
-            0f,
-            maxScrollOffset
-        ).map { it.unadjustedOffset }.toFloatArray()
+        val defaultActualUnadjustedOffsets =
+            strategy
+                .getKeylineListForScrollOffset(0f, maxScrollOffset)
+                .map { it.unadjustedOffset }
+                .toFloatArray()
         val defaultExpectedUnadjustedOffsets = floatArrayOf(-101f, 93f, 287f, 481f, 675f)
         assertThat(defaultActualUnadjustedOffsets).isEqualTo(defaultExpectedUnadjustedOffsets)
     }

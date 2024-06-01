@@ -21,45 +21,42 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
- * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
- * allow it to intercept [RotaryScrollEvent]s if it (or one of its children) is focused.
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will allow
+ * it to intercept [RotaryScrollEvent]s if it (or one of its children) is focused.
  *
- * @param onRotaryScrollEvent This callback is invoked when the user interacts with the
- * rotary side button or the bezel on a wear device. While implementing this callback, return true
- * to stop propagation of this event. If you return false, the event will be sent to this
- * [onRotaryScrollEvent]'s parent.
- *
+ * @param onRotaryScrollEvent This callback is invoked when the user interacts with the rotary side
+ *   button or the bezel on a wear device. While implementing this callback, return true to stop
+ *   propagation of this event. If you return false, the event will be sent to this
+ *   [onRotaryScrollEvent]'s parent.
  * @return true if the event is consumed, false otherwise.
  *
- * Here is an example of a scrollable container that scrolls in response to
- * [RotaryScrollEvent]s.
+ * Here is an example of a scrollable container that scrolls in response to [RotaryScrollEvent]s.
+ *
  * @sample androidx.compose.ui.samples.RotaryEventSample
  *
- * This sample demonstrates how a parent can add an [onRotaryScrollEvent] modifier to gain
- * access to a [RotaryScrollEvent] when a child does not consume it:
+ * This sample demonstrates how a parent can add an [onRotaryScrollEvent] modifier to gain access to
+ * a [RotaryScrollEvent] when a child does not consume it:
+ *
  * @sample androidx.compose.ui.samples.PreRotaryEventSample
  */
-fun Modifier.onRotaryScrollEvent(
-    onRotaryScrollEvent: (RotaryScrollEvent) -> Boolean
-): Modifier = this then RotaryInputElement(
-    onRotaryScrollEvent = onRotaryScrollEvent,
-    onPreRotaryScrollEvent = null
-)
+fun Modifier.onRotaryScrollEvent(onRotaryScrollEvent: (RotaryScrollEvent) -> Boolean): Modifier =
+    this then
+        RotaryInputElement(onRotaryScrollEvent = onRotaryScrollEvent, onPreRotaryScrollEvent = null)
 
 /**
- * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
- * allow it to intercept [RotaryScrollEvent]s if it (or one of its children) is focused.
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will allow
+ * it to intercept [RotaryScrollEvent]s if it (or one of its children) is focused.
  *
- * @param onPreRotaryScrollEvent This callback is invoked when the user interacts with the
- * rotary button on a wear device. It gives ancestors of a focused component the chance to
- * intercept a [RotaryScrollEvent].
+ * @param onPreRotaryScrollEvent This callback is invoked when the user interacts with the rotary
+ *   button on a wear device. It gives ancestors of a focused component the chance to intercept a
+ *   [RotaryScrollEvent].
  *
- * When the user rotates the side button on a wear device, a [RotaryScrollEvent] is sent to
- * the focused item. Before reaching the focused item, this event starts at the root composable,
- * and propagates down the hierarchy towards the focused item. It invokes any
- * [onPreRotaryScrollEvent]s it encounters on ancestors of the focused item. After reaching
- * the focused item, the event propagates up the hierarchy back towards the parent. It invokes any
- * [onRotaryScrollEvent]s it encounters on its way back.
+ * When the user rotates the side button on a wear device, a [RotaryScrollEvent] is sent to the
+ * focused item. Before reaching the focused item, this event starts at the root composable, and
+ * propagates down the hierarchy towards the focused item. It invokes any [onPreRotaryScrollEvent]s
+ * it encounters on ancestors of the focused item. After reaching the focused item, the event
+ * propagates up the hierarchy back towards the parent. It invokes any [onRotaryScrollEvent]s it
+ * encounters on its way back.
  *
  * Return true to indicate that you consumed the event and want to stop propagation of this event.
  *
@@ -69,19 +66,19 @@ fun Modifier.onRotaryScrollEvent(
  */
 fun Modifier.onPreRotaryScrollEvent(
     onPreRotaryScrollEvent: (RotaryScrollEvent) -> Boolean
-): Modifier = this then RotaryInputElement(
-    onRotaryScrollEvent = null,
-    onPreRotaryScrollEvent = onPreRotaryScrollEvent
-)
+): Modifier =
+    this then
+        RotaryInputElement(
+            onRotaryScrollEvent = null,
+            onPreRotaryScrollEvent = onPreRotaryScrollEvent
+        )
 
 private data class RotaryInputElement(
     val onRotaryScrollEvent: ((RotaryScrollEvent) -> Boolean)?,
     val onPreRotaryScrollEvent: ((RotaryScrollEvent) -> Boolean)?
 ) : ModifierNodeElement<RotaryInputNode>() {
-    override fun create() = RotaryInputNode(
-        onEvent = onRotaryScrollEvent,
-        onPreEvent = onPreRotaryScrollEvent
-    )
+    override fun create() =
+        RotaryInputNode(onEvent = onRotaryScrollEvent, onPreEvent = onPreRotaryScrollEvent)
 
     override fun update(node: RotaryInputNode) {
         node.onEvent = onRotaryScrollEvent
@@ -104,8 +101,8 @@ private class RotaryInputNode(
     var onEvent: ((RotaryScrollEvent) -> Boolean)?,
     var onPreEvent: ((RotaryScrollEvent) -> Boolean)?
 ) : RotaryInputModifierNode, Modifier.Node() {
-    override fun onRotaryScrollEvent(event: RotaryScrollEvent) =
-        onEvent?.invoke(event) ?: false
+    override fun onRotaryScrollEvent(event: RotaryScrollEvent) = onEvent?.invoke(event) ?: false
+
     override fun onPreRotaryScrollEvent(event: RotaryScrollEvent) =
         onPreEvent?.invoke(event) ?: false
 }

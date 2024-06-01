@@ -25,13 +25,15 @@ import org.junit.Test
 
 class ComposeMultiplatformCheckerTests(useFir: Boolean) : AbstractComposeDiagnosticsTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
-        languageVersionSettings = LanguageVersionSettingsImpl(
-            languageVersionSettings.languageVersion,
-            languageVersionSettings.apiVersion,
-            specificFeatures = hashMapOf(
-                LanguageFeature.MultiPlatformProjects to LanguageFeature.State.ENABLED
+        languageVersionSettings =
+            LanguageVersionSettingsImpl(
+                languageVersionSettings.languageVersion,
+                languageVersionSettings.apiVersion,
+                specificFeatures =
+                    hashMapOf(
+                        LanguageFeature.MultiPlatformProjects to LanguageFeature.State.ENABLED
+                    )
             )
-        )
     }
 
     @Test

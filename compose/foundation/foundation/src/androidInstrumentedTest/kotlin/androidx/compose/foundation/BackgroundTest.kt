@@ -65,22 +65,23 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BackgroundTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val contentTag = "Content"
 
-    private val rtlAwareShape = object : Shape {
-        override fun createOutline(
-            size: Size,
-            layoutDirection: LayoutDirection,
-            density: Density
-        ) = if (layoutDirection == LayoutDirection.Ltr) {
-            RectangleShape.createOutline(size, layoutDirection, density)
-        } else {
-            CircleShape.createOutline(size, layoutDirection, density)
+    private val rtlAwareShape =
+        object : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ) =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    RectangleShape.createOutline(size, layoutDirection, density)
+                } else {
+                    CircleShape.createOutline(size, layoutDirection, density)
+                }
         }
-    }
 
     @Before
     fun before() {
@@ -97,15 +98,10 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
-                        .background(Color.Magenta),
+                    Modifier.size(40f.toDp()).background(Color.Magenta),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        Modifier
-                            .size(20f.toDp())
-                            .background(Color.White))
+                    Box(Modifier.size(20f.toDp()).background(Color.White))
                 }
             }
         }
@@ -125,16 +121,10 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
-                        .background(Color.Magenta),
+                    Modifier.size(40f.toDp()).background(Color.Magenta),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        Modifier
-                            .size(20f.toDp())
-                            .background(SolidColor(Color.White))
-                    )
+                    Box(Modifier.size(20f.toDp()).background(SolidColor(Color.White)))
                 }
             }
         }
@@ -154,8 +144,7 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
+                    Modifier.size(40f.toDp())
                         .background(Color.Magenta)
                         .background(color = Color.White, shape = CircleShape)
                 )
@@ -176,13 +165,9 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
+                    Modifier.size(40f.toDp())
                         .background(Color.Magenta)
-                        .background(
-                            brush = SolidColor(Color.White),
-                            shape = CircleShape
-                        )
+                        .background(brush = SolidColor(Color.White), shape = CircleShape)
                 )
             }
         }
@@ -203,8 +188,7 @@ class BackgroundTest {
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
+                    Modifier.size(40f.toDp())
                         .background(Color.Magenta)
                         .background(color = Color.White, shape = shape)
                 )
@@ -237,25 +221,25 @@ class BackgroundTest {
     fun background_changeOutline_differentPaths_observableShape() {
         var roundCorners by mutableStateOf(false)
 
-        val shape = object : Shape {
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ): Outline {
-                return if (roundCorners) {
-                    RoundedCornerShape(50f).createOutline(size, layoutDirection, density)
-                } else {
-                    RectangleShape.createOutline(size, layoutDirection, density)
+        val shape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density
+                ): Outline {
+                    return if (roundCorners) {
+                        RoundedCornerShape(50f).createOutline(size, layoutDirection, density)
+                    } else {
+                        RectangleShape.createOutline(size, layoutDirection, density)
+                    }
                 }
             }
-        }
 
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
+                    Modifier.size(40f.toDp())
                         .background(Color.Magenta)
                         .background(color = Color.White, shape = shape)
                 )
@@ -301,28 +285,29 @@ class BackgroundTest {
         var roundCorners by mutableStateOf(false)
 
         val path = Path()
-        val shape = object : Shape {
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ): Outline {
-                val outlineToAdd = if (roundCorners) {
-                    RoundedCornerShape(50f).createOutline(size, layoutDirection, density)
-                } else {
-                    RectangleShape.createOutline(size, layoutDirection, density)
+        val shape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density
+                ): Outline {
+                    val outlineToAdd =
+                        if (roundCorners) {
+                            RoundedCornerShape(50f).createOutline(size, layoutDirection, density)
+                        } else {
+                            RectangleShape.createOutline(size, layoutDirection, density)
+                        }
+                    path.reset()
+                    path.addOutline(outlineToAdd)
+                    return Outline.Generic(path)
                 }
-                path.reset()
-                path.addOutline(outlineToAdd)
-                return Outline.Generic(path)
             }
-        }
 
         rule.setContent {
             SemanticParent {
                 Box(
-                    Modifier
-                        .size(40f.toDp())
+                    Modifier.size(40f.toDp())
                         .background(Color.Magenta)
                         .background(color = Color.White, shape = shape)
                 )
@@ -369,13 +354,9 @@ class BackgroundTest {
             SemanticParent {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Box(
-                        Modifier
-                            .size(40f.toDp())
+                        Modifier.size(40f.toDp())
                             .background(Color.Magenta)
-                            .background(
-                                brush = SolidColor(Color.White),
-                                shape = rtlAwareShape
-                            )
+                            .background(brush = SolidColor(Color.White), shape = rtlAwareShape)
                     )
                 }
             }
@@ -397,28 +378,25 @@ class BackgroundTest {
             SemanticParent {
                 CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
                     Box(
-                        Modifier
-                            .size(40f.toDp())
+                        Modifier.size(40f.toDp())
                             .background(Color.Magenta)
-                            .background(
-                                brush = SolidColor(Color.White),
-                                shape = rtlAwareShape
-                            )
+                            .background(brush = SolidColor(Color.White), shape = rtlAwareShape)
                     )
                 }
             }
         }
 
-        rule.runOnIdle {
-            direction.value = LayoutDirection.Rtl
-        }
-        rule.onNodeWithTag(contentTag).captureToImage().assertShape(
-            density = rule.density,
-            backgroundColor = Color.Magenta,
-            shape = CircleShape,
-            shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
-        )
+        rule.runOnIdle { direction.value = LayoutDirection.Rtl }
+        rule
+            .onNodeWithTag(contentTag)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                backgroundColor = Color.Magenta,
+                shape = CircleShape,
+                shapeColor = Color.White,
+                shapeOverlapPixelCount = 2.0f
+            )
     }
 
     @Test
@@ -426,10 +404,11 @@ class BackgroundTest {
         val modifier = Modifier.background(Color.Magenta) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("background")
         assertThat(modifier.valueOverride).isEqualTo(Color.Magenta)
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("color", Color.Magenta),
-            ValueElement("shape", RectangleShape)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(
+                ValueElement("color", Color.Magenta),
+                ValueElement("shape", RectangleShape)
+            )
     }
 
     @Test
@@ -437,11 +416,12 @@ class BackgroundTest {
         val modifier = Modifier.background(SolidColor(Color.Red)) as InspectableValue
         assertThat(modifier.nameFallback).isEqualTo("background")
         assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.asIterable()).containsExactly(
-            ValueElement("alpha", 1.0f),
-            ValueElement("brush", SolidColor(Color.Red)),
-            ValueElement("shape", RectangleShape)
-        )
+        assertThat(modifier.inspectableElements.asIterable())
+            .containsExactly(
+                ValueElement("alpha", 1.0f),
+                ValueElement("brush", SolidColor(Color.Red)),
+                ValueElement("shape", RectangleShape)
+            )
     }
 
     @Test
@@ -471,8 +451,6 @@ class BackgroundTest {
 
     @Composable
     private fun SemanticParent(content: @Composable Density.() -> Unit) {
-        Box(Modifier.testTag(contentTag)) {
-            LocalDensity.current.content()
-        }
+        Box(Modifier.testTag(contentTag)) { LocalDensity.current.content() }
     }
 }

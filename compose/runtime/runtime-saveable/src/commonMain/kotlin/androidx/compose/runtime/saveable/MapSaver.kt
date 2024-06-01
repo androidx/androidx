@@ -17,11 +17,11 @@
 package androidx.compose.runtime.saveable
 
 /**
- * The [Saver] implementation which allows to represent your class as a map of values which can
- * be saved individually.
+ * The [Saver] implementation which allows to represent your class as a map of values which can be
+ * saved individually.
  *
- * What types can be saved is defined by [SaveableStateRegistry], by default everything which can
- * be stored in the Bundle class can be saved.
+ * What types can be saved is defined by [SaveableStateRegistry], by default everything which can be
+ * stored in the Bundle class can be saved.
  *
  * You can use it as a parameter for [rememberSaveable].
  *
@@ -30,25 +30,26 @@ package androidx.compose.runtime.saveable
 fun <T> mapSaver(
     save: SaverScope.(value: T) -> Map<String, Any?>,
     restore: (Map<String, Any?>) -> T?
-) = listSaver<T, Any?>(
-    save = {
-        mutableListOf<Any?>().apply {
-            save(it).forEach { entry ->
-                add(entry.key)
-                add(entry.value)
+) =
+    listSaver<T, Any?>(
+        save = {
+            mutableListOf<Any?>().apply {
+                save(it).forEach { entry ->
+                    add(entry.key)
+                    add(entry.value)
+                }
             }
+        },
+        restore = { list ->
+            val map = mutableMapOf<String, Any?>()
+            check(list.size.rem(2) == 0) { "non-zero remainder" }
+            var index = 0
+            while (index < list.size) {
+                val key = list[index] as String
+                val value = list[index + 1]
+                map[key] = value
+                index += 2
+            }
+            restore(map)
         }
-    },
-    restore = { list ->
-        val map = mutableMapOf<String, Any?>()
-        check(list.size.rem(2) == 0) { "non-zero remainder" }
-        var index = 0
-        while (index < list.size) {
-            val key = list[index] as String
-            val value = list[index + 1]
-            map[key] = value
-            index += 2
-        }
-        restore(map)
-    }
-)
+    )

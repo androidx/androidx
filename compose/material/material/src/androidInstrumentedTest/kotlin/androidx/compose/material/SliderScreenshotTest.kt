@@ -46,11 +46,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SliderScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     val wrap = Modifier.requiredWidth(70.dp).wrapContentSize(Alignment.TopStart)
 
@@ -131,13 +129,13 @@ class SliderScreenshotTest {
                     value = position,
                     onValueChange = { position = it },
                     steps = 5,
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color.Red,
-                        activeTrackColor = Color.Blue,
-                        activeTickColor = Color.Yellow,
-                        inactiveTickColor = Color.Magenta
-                    )
-
+                    colors =
+                        SliderDefaults.colors(
+                            thumbColor = Color.Red,
+                            activeTrackColor = Color.Blue,
+                            activeTickColor = Color.Yellow,
+                            inactiveTickColor = Color.Magenta
+                        )
                 )
             }
         }
@@ -156,14 +154,14 @@ class SliderScreenshotTest {
                     enabled = false,
                     // this is intentionally made to appear as enabled in disabled state for a
                     // brighter test
-                    colors = SliderDefaults.colors(
-                        disabledThumbColor = Color.Blue,
-                        disabledActiveTrackColor = Color.Red,
-                        disabledInactiveTrackColor = Color.Yellow,
-                        disabledActiveTickColor = Color.Magenta,
-                        disabledInactiveTickColor = Color.Cyan
-                    )
-
+                    colors =
+                        SliderDefaults.colors(
+                            disabledThumbColor = Color.Blue,
+                            disabledActiveTrackColor = Color.Red,
+                            disabledInactiveTrackColor = Color.Yellow,
+                            disabledActiveTickColor = Color.Magenta,
+                            disabledInactiveTickColor = Color.Cyan
+                        )
                 )
             }
         }
@@ -171,7 +169,8 @@ class SliderScreenshotTest {
     }
 
     private fun assertSliderAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(wrapperTestTag)
+        rule
+            .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -233,14 +232,16 @@ class SliderScreenshotTest {
                 RangeSlider(
                     value = position,
                     valueRange = 0f..100f,
-                    onValueChange = { position = it }, steps = 9,
-                    colors = SliderDefaults.colors(
-                        thumbColor = Color.Blue,
-                        activeTrackColor = Color.Red,
-                        inactiveTrackColor = Color.Yellow,
-                        activeTickColor = Color.Magenta,
-                        inactiveTickColor = Color.Cyan
-                    )
+                    onValueChange = { position = it },
+                    steps = 9,
+                    colors =
+                        SliderDefaults.colors(
+                            thumbColor = Color.Blue,
+                            activeTrackColor = Color.Red,
+                            inactiveTrackColor = Color.Yellow,
+                            activeTickColor = Color.Magenta,
+                            inactiveTickColor = Color.Cyan
+                        )
                 )
             }
         }

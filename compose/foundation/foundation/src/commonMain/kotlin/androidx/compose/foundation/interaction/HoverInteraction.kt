@@ -45,7 +45,6 @@ interface HoverInteraction : Interaction {
      * An interaction representing a [Enter] event being released on a component.
      *
      * @property enter the source [Enter] interaction that is being released
-     *
      * @see androidx.compose.foundation.hoverable
      * @see Enter
      */

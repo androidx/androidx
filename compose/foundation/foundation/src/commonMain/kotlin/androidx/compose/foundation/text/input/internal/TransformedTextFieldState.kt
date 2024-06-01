@@ -61,9 +61,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * Text is transformed in two phases:
  * 1. The first phase applies [outputTransformation], and the resulting text, [outputText], is
- *   published to the semantics system (consumed by a11y services and tests).
+ *    published to the semantics system (consumed by a11y services and tests).
  * 2. The second phase applies [codepointTransformation] and the resulting text, [visualText], is
- *  laid out and drawn to the screen.
+ *    laid out and drawn to the screen.
  *
  * Any transformations that change the semantics (in the generic sense, not Compose semantics)
  * should be done in the first phase. Examples include adding prefixes or suffixes to the text or
@@ -72,11 +72,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * The second phase should only be used for purely visual or layout transformations. Examples
  * include password masking or inserting spaces for Scribe.
  *
- * In most cases, one or both phases will be noops. E.g., password fields will usually only use
- * the second phase, and non-password fields will usually only use the first phase.
+ * In most cases, one or both phases will be noops. E.g., password fields will usually only use the
+ * second phase, and non-password fields will usually only use the first phase.
  *
  * Here's a diagram explaining the phases:
- *
  * ```
  *  ┌──────────────────┐
  *  │                  │
@@ -175,8 +174,8 @@ internal class TransformedTextFieldState(
 
     /**
      * [TransformedTextFieldState] is not recreated when only [InputTransformation] changes. This
-     * method simply updates the internal [InputTransformation] to be used by input methods like
-     * the IME, hardware keyboard, or gestures.
+     * method simply updates the internal [InputTransformation] to be used by input methods like the
+     * IME, hardware keyboard, or gestures.
      *
      * [InputTransformation] property is not backed by snapshot state, so it can't be updated
      * directly in composition. Make sure to call this method from outside the composition.
@@ -215,9 +214,7 @@ internal class TransformedTextFieldState(
     }
 
     fun selectAll() {
-        textFieldState.editAsUser(inputTransformation) {
-            setSelection(0, length)
-        }
+        textFieldState.editAsUser(inputTransformation) { setSelection(0, length) }
     }
 
     fun deleteSelectedText() {
@@ -247,11 +244,7 @@ internal class TransformedTextFieldState(
             restartImeIfContentChanges = restartImeIfContentChanges
         ) {
             val selection = mapFromTransformed(range)
-            replace(
-                selection.min,
-                selection.max,
-                newText
-            )
+            replace(selection.min, selection.max, newText)
             val cursor = selection.min + newText.length
             setSelection(cursor, cursor)
         }
@@ -269,11 +262,7 @@ internal class TransformedTextFieldState(
 
             // `selection` is read from the buffer, so we don't need to transform it.
             val selection = selection
-            replace(
-                selection.min,
-                selection.max,
-                newText
-            )
+            replace(selection.min, selection.max, newText)
             val cursor = selection.min + newText.length
             setSelection(cursor, cursor)
         }
@@ -305,8 +294,8 @@ internal class TransformedTextFieldState(
      * Runs [block] with a buffer that contains the source untransformed text. This is the text that
      * will be fed into the [outputTransformation]. Any operations performed on this buffer MUST
      * take care to explicitly convert between transformed and untransformed offsets and ranges.
-     * When possible, use the other methods on this class to manipulate selection to avoid having
-     * to do these conversions manually.
+     * When possible, use the other methods on this class to manipulate selection to avoid having to
+     * do these conversions manually.
      *
      * @see mapToTransformed
      * @see mapFromTransformed
@@ -323,10 +312,11 @@ internal class TransformedTextFieldState(
     }
 
     /**
-     * Maps an [offset] in the untransformed text to the corresponding offset or range in [visualText].
+     * Maps an [offset] in the untransformed text to the corresponding offset or range in
+     * [visualText].
      *
-     * An untransformed offset will map to non-collapsed range if the offset is in the middle of
-     * a surrogate pair in the untransformed text, in which case it will return the range of the
+     * An untransformed offset will map to non-collapsed range if the offset is in the middle of a
+     * surrogate pair in the untransformed text, in which case it will return the range of the
      * codepoint that the surrogate maps to. Offsets on either side of a surrogate pair will return
      * collapsed ranges.
      *
@@ -339,18 +329,17 @@ internal class TransformedTextFieldState(
         val presentMapping = outputTransformedText?.value?.offsetMapping
         val visualMapping = codepointTransformedText?.value?.offsetMapping
 
-        val intermediateRange = presentMapping?.mapFromSource(offset)
-            ?: TextRange(offset)
-        return visualMapping
-            ?.let { mapToTransformed(intermediateRange, it, selectionWedgeAffinity) }
-            ?: intermediateRange
+        val intermediateRange = presentMapping?.mapFromSource(offset) ?: TextRange(offset)
+        return visualMapping?.let {
+            mapToTransformed(intermediateRange, it, selectionWedgeAffinity)
+        } ?: intermediateRange
     }
 
     /**
      * Maps a [range] in the untransformed text to the corresponding range in [visualText].
      *
-     * If there is no transformation, or the transformation does not change the text, [range]
-     * will be returned.
+     * If there is no transformation, or the transformation does not change the text, [range] will
+     * be returned.
      *
      * @see mapFromTransformed
      */
@@ -360,23 +349,21 @@ internal class TransformedTextFieldState(
 
         // Only apply the wedge affinity to the final range. If the first mapping returns a range,
         // the first range should have both edges expanded by the second.
-        val intermediateRange = presentMapping
-            ?.let { mapToTransformed(range, it) }
-            ?: range
-        return visualMapping
-            ?.let { mapToTransformed(intermediateRange, it, selectionWedgeAffinity) }
-            ?: intermediateRange
+        val intermediateRange = presentMapping?.let { mapToTransformed(range, it) } ?: range
+        return visualMapping?.let {
+            mapToTransformed(intermediateRange, it, selectionWedgeAffinity)
+        } ?: intermediateRange
     }
 
     /**
      * Maps an [offset] in [visualText] to the corresponding offset in the untransformed text.
      *
      * Multiple transformed offsets may map to the same untransformed offset. In particular, any
-     * offset in the middle of a surrogate pair will map to offset of the corresponding codepoint
-     * in the untransformed text.
+     * offset in the middle of a surrogate pair will map to offset of the corresponding codepoint in
+     * the untransformed text.
      *
-     * If there is no transformation, or the transformation does not change the text, [offset]
-     * will be returned.
+     * If there is no transformation, or the transformation does not change the text, [offset] will
+     * be returned.
      *
      * @see mapToTransformed
      */
@@ -384,8 +371,7 @@ internal class TransformedTextFieldState(
         val presentMapping = outputTransformedText?.value?.offsetMapping
         val visualMapping = codepointTransformedText?.value?.offsetMapping
 
-        val intermediateOffset = visualMapping?.mapFromDest(offset)
-            ?: TextRange(offset)
+        val intermediateOffset = visualMapping?.mapFromDest(offset) ?: TextRange(offset)
         return presentMapping?.let { mapFromTransformed(intermediateOffset, it) }
             ?: intermediateOffset
     }
@@ -393,8 +379,8 @@ internal class TransformedTextFieldState(
     /**
      * Maps a [range] in [visualText] to the corresponding range in the untransformed text.
      *
-     * If there is no transformation, or the transformation does not change the text, [range]
-     * will be returned.
+     * If there is no transformation, or the transformation does not change the text, [range] will
+     * be returned.
      *
      * @see mapToTransformed
      */
@@ -402,8 +388,7 @@ internal class TransformedTextFieldState(
         val presentMapping = outputTransformedText?.value?.offsetMapping
         val visualMapping = codepointTransformedText?.value?.offsetMapping
 
-        val intermediateRange = visualMapping?.let { mapFromTransformed(range, it) }
-            ?: range
+        val intermediateRange = visualMapping?.let { mapFromTransformed(range, it) } ?: range
         return presentMapping?.let { mapFromTransformed(intermediateRange, it) }
             ?: intermediateRange
     }
@@ -439,15 +424,16 @@ internal class TransformedTextFieldState(
         return result
     }
 
-    override fun toString(): String = "TransformedTextFieldState(" +
-        "textFieldState=$textFieldState, " +
-        "outputTransformation=$outputTransformation, " +
-        "outputTransformedText=$outputTransformedText, " +
-        "codepointTransformation=$codepointTransformation, " +
-        "codepointTransformedText=$codepointTransformedText, " +
-        "outputText=\"$outputText\", " +
-        "visualText=\"$visualText\"" +
-        ")"
+    override fun toString(): String =
+        "TransformedTextFieldState(" +
+            "textFieldState=$textFieldState, " +
+            "outputTransformation=$outputTransformation, " +
+            "outputTransformedText=$outputTransformedText, " +
+            "codepointTransformation=$codepointTransformation, " +
+            "codepointTransformedText=$codepointTransformedText, " +
+            "outputText=\"$outputText\", " +
+            "visualText=\"$visualText\"" +
+            ")"
 
     private data class TransformedText(
         val text: TextFieldCharSequence,
@@ -457,13 +443,13 @@ internal class TransformedTextFieldState(
     private companion object {
 
         /**
-         * Applies an [OutputTransformation] to a [TextFieldCharSequence], returning the
-         * transformed text content, the selection/cursor from the [untransformedValue] mapped to the
-         * offsets in the transformed text, and an [OffsetMappingCalculator] that can be used to map
-         * offsets in both directions between the transformed and untransformed text.
+         * Applies an [OutputTransformation] to a [TextFieldCharSequence], returning the transformed
+         * text content, the selection/cursor from the [untransformedValue] mapped to the offsets in
+         * the transformed text, and an [OffsetMappingCalculator] that can be used to map offsets in
+         * both directions between the transformed and untransformed text.
          *
-         * This function is relatively expensive, since it creates a copy of [untransformedValue], so
-         * its result should be cached.
+         * This function is relatively expensive, since it creates a copy of [untransformedValue],
+         * so its result should be cached.
          */
         @kotlin.jvm.JvmStatic
         private fun calculateTransformedText(
@@ -472,10 +458,11 @@ internal class TransformedTextFieldState(
             wedgeAffinity: SelectionWedgeAffinity
         ): TransformedText? {
             val offsetMappingCalculator = OffsetMappingCalculator()
-            val buffer = TextFieldBuffer(
-                initialValue = untransformedValue,
-                offsetMappingCalculator = offsetMappingCalculator
-            )
+            val buffer =
+                TextFieldBuffer(
+                    initialValue = untransformedValue,
+                    offsetMappingCalculator = offsetMappingCalculator
+                )
 
             // This is the call to external code.
             with(outputTransformation) { buffer.transformOutput() }
@@ -485,33 +472,37 @@ internal class TransformedTextFieldState(
                 return null
             }
 
-            val transformedTextWithSelection = buffer.toTextFieldCharSequence(
-                // Pass the calculator explicitly since the one on transformedText won't be updated
-                // yet.
-                selection = mapToTransformed(
-                    range = untransformedValue.selection,
-                    mapping = offsetMappingCalculator,
-                    wedgeAffinity = wedgeAffinity
-                ),
-                composition = untransformedValue.composition?.let {
-                    mapToTransformed(
-                        range = it,
-                        mapping = offsetMappingCalculator,
-                        wedgeAffinity = wedgeAffinity
-                    )
-                }
-            )
+            val transformedTextWithSelection =
+                buffer.toTextFieldCharSequence(
+                    // Pass the calculator explicitly since the one on transformedText won't be
+                    // updated
+                    // yet.
+                    selection =
+                        mapToTransformed(
+                            range = untransformedValue.selection,
+                            mapping = offsetMappingCalculator,
+                            wedgeAffinity = wedgeAffinity
+                        ),
+                    composition =
+                        untransformedValue.composition?.let {
+                            mapToTransformed(
+                                range = it,
+                                mapping = offsetMappingCalculator,
+                                wedgeAffinity = wedgeAffinity
+                            )
+                        }
+                )
             return TransformedText(transformedTextWithSelection, offsetMappingCalculator)
         }
 
         /**
          * Applies a [CodepointTransformation] to a [TextFieldCharSequence], returning the
-         * transformed text content, the selection/cursor from the [untransformedValue] mapped to the
-         * offsets in the transformed text, and an [OffsetMappingCalculator] that can be used to map
-         * offsets in both directions between the transformed and untransformed text.
+         * transformed text content, the selection/cursor from the [untransformedValue] mapped to
+         * the offsets in the transformed text, and an [OffsetMappingCalculator] that can be used to
+         * map offsets in both directions between the transformed and untransformed text.
          *
-         * This function is relatively expensive, since it creates a copy of [untransformedValue], so
-         * its result should be cached.
+         * This function is relatively expensive, since it creates a copy of [untransformedValue],
+         * so its result should be cached.
          */
         @kotlin.jvm.JvmStatic
         private fun calculateTransformedText(
@@ -530,19 +521,23 @@ internal class TransformedTextFieldState(
                 return null
             }
 
-            val transformedTextWithSelection = TextFieldCharSequence(
-                text = transformedText,
-                // Pass the calculator explicitly since the one on transformedText won't be updated
-                // yet.
-                selection = mapToTransformed(
-                    untransformedValue.selection,
-                    offsetMappingCalculator,
-                    wedgeAffinity
-                ),
-                composition = untransformedValue.composition?.let {
-                    mapToTransformed(it, offsetMappingCalculator, wedgeAffinity)
-                }
-            )
+            val transformedTextWithSelection =
+                TextFieldCharSequence(
+                    text = transformedText,
+                    // Pass the calculator explicitly since the one on transformedText won't be
+                    // updated
+                    // yet.
+                    selection =
+                        mapToTransformed(
+                            untransformedValue.selection,
+                            offsetMappingCalculator,
+                            wedgeAffinity
+                        ),
+                    composition =
+                        untransformedValue.composition?.let {
+                            mapToTransformed(it, offsetMappingCalculator, wedgeAffinity)
+                        }
+                )
             return TransformedText(transformedTextWithSelection, offsetMappingCalculator)
         }
 
@@ -550,7 +545,7 @@ internal class TransformedTextFieldState(
          * Maps [range] from untransformed to transformed indices.
          *
          * @param wedgeAffinity The [SelectionWedgeAffinity] to use to collapse the transformed
-         * range if necessary. If null, the range will be returned uncollapsed.
+         *   range if necessary. If null, the range will be returned uncollapsed.
          */
         @kotlin.jvm.JvmStatic
         private fun mapToTransformed(
@@ -560,17 +555,20 @@ internal class TransformedTextFieldState(
         ): TextRange {
             val transformedStart = mapping.mapFromSource(range.start)
             // Avoid calculating mapping again if it's going to be the same value.
-            val transformedEnd = if (range.collapsed) transformedStart else {
-                mapping.mapFromSource(range.end)
-            }
+            val transformedEnd =
+                if (range.collapsed) transformedStart
+                else {
+                    mapping.mapFromSource(range.end)
+                }
 
             val transformedMin = minOf(transformedStart.min, transformedEnd.min)
             val transformedMax = maxOf(transformedStart.max, transformedEnd.max)
-            val transformedRange = if (range.reversed) {
-                TextRange(transformedMax, transformedMin)
-            } else {
-                TextRange(transformedMin, transformedMax)
-            }
+            val transformedRange =
+                if (range.reversed) {
+                    TextRange(transformedMax, transformedMin)
+                } else {
+                    TextRange(transformedMin, transformedMax)
+                }
 
             return if (range.collapsed && !transformedRange.collapsed) {
                 // In a wedge.
@@ -591,9 +589,11 @@ internal class TransformedTextFieldState(
         ): TextRange {
             val untransformedStart = mapping.mapFromDest(range.start)
             // Avoid calculating mapping again if it's going to be the same value.
-            val untransformedEnd = if (range.collapsed) untransformedStart else {
-                mapping.mapFromDest(range.end)
-            }
+            val untransformedEnd =
+                if (range.collapsed) untransformedStart
+                else {
+                    mapping.mapFromDest(range.end)
+                }
 
             val untransformedMin = minOf(untransformedStart.min, untransformedEnd.min)
             val untransformedMax = maxOf(untransformedStart.max, untransformedEnd.max)
@@ -606,9 +606,7 @@ internal class TransformedTextFieldState(
     }
 }
 
-/**
- * Represents the [WedgeAffinity] for both sides of a selection.
- */
+/** Represents the [WedgeAffinity] for both sides of a selection. */
 internal data class SelectionWedgeAffinity(
     val startAffinity: WedgeAffinity,
     val endAffinity: WedgeAffinity,
@@ -622,7 +620,8 @@ internal data class SelectionWedgeAffinity(
  * created when an [OutputTransformation] either inserts or replaces a non-empty string.
  */
 internal enum class WedgeAffinity {
-    Start, End
+    Start,
+    End
 }
 
 internal enum class IndexTransformationType {
@@ -639,39 +638,34 @@ internal enum class IndexTransformationType {
  * This function uses continuation-passing style to return multiple values without allocating.
  *
  * @param onResult Called with the determined [IndexTransformationType] and the ranges that
- * [transformedQueryIndex] maps to both in the [TransformedTextFieldState.untransformedText] and
- * when that range is mapped back into the [TransformedTextFieldState.visualText].
+ *   [transformedQueryIndex] maps to both in the [TransformedTextFieldState.untransformedText] and
+ *   when that range is mapped back into the [TransformedTextFieldState.visualText].
  */
 internal inline fun <R> TransformedTextFieldState.getIndexTransformationType(
     transformedQueryIndex: Int,
-    onResult: (
-        IndexTransformationType,
-        untransformed: TextRange,
-        retransformed: TextRange
-    ) -> R
+    onResult: (IndexTransformationType, untransformed: TextRange, retransformed: TextRange) -> R
 ): R {
     val untransformed = mapFromTransformed(transformedQueryIndex)
     val retransformed = mapToTransformed(untransformed)
-    val type = when {
-        untransformed.collapsed && retransformed.collapsed -> {
-            // Simple case: no transformation in effect.
-            Untransformed
+    val type =
+        when {
+            untransformed.collapsed && retransformed.collapsed -> {
+                // Simple case: no transformation in effect.
+                Untransformed
+            }
+            !untransformed.collapsed && !retransformed.collapsed -> {
+                // Replacement: An non-empty range in the source was replaced with a non-empty
+                // string.
+                Replacement
+            }
+            untransformed.collapsed && !retransformed.collapsed -> {
+                // Insertion: An empty range in the source was replaced with a non-empty range.
+                Insertion
+            }
+            else /* !untransformed.collapsed && retransformed.collapsed */ -> {
+                // Deletion: A non-empty range in the source was replaced with an empty string.
+                Deletion
+            }
         }
-
-        !untransformed.collapsed && !retransformed.collapsed -> {
-            // Replacement: An non-empty range in the source was replaced with a non-empty string.
-            Replacement
-        }
-
-        untransformed.collapsed && !retransformed.collapsed -> {
-            // Insertion: An empty range in the source was replaced with a non-empty range.
-            Insertion
-        }
-
-        else /* !untransformed.collapsed && retransformed.collapsed */ -> {
-            // Deletion: A non-empty range in the source was replaced with an empty string.
-            Deletion
-        }
-    }
     return onResult(type, untransformed, retransformed)
 }

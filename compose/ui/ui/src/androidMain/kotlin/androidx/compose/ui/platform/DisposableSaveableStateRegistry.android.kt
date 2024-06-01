@@ -35,9 +35,7 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 import java.io.Serializable
 
-/**
- * Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner].
- */
+/** Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner]. */
 internal fun DisposableSaveableStateRegistry(
     view: View,
     owner: SavedStateRegistryOwner
@@ -60,10 +58,9 @@ internal fun DisposableSaveableStateRegistry(
  *
  * To provide a namespace we require unique [id]. We can't use the default way of doing it when we
  * have unique id on [AbstractComposeView] because we dynamically create [AbstractComposeView]s and
- * there is no way to have a unique id given there are could be any number of
- * [AbstractComposeView]s inside the same Activity. If we use [View.generateViewId]
- * this id will not survive Activity recreation. But it is reasonable to ask our users to have an
- * unique id on [AbstractComposeView].
+ * there is no way to have a unique id given there are could be any number of [AbstractComposeView]s
+ * inside the same Activity. If we use [View.generateViewId] this id will not survive Activity
+ * recreation. But it is reasonable to ask our users to have an unique id on [AbstractComposeView].
  */
 internal fun DisposableSaveableStateRegistry(
     id: String,
@@ -75,21 +72,20 @@ internal fun DisposableSaveableStateRegistry(
     val bundle = androidxRegistry.consumeRestoredStateForKey(key)
     val restored: Map<String, List<Any?>>? = bundle?.toMap()
 
-    val saveableStateRegistry = SaveableStateRegistry(restored) {
-        canBeSavedToBundle(it)
-    }
-    val registered = try {
-        androidxRegistry.registerSavedStateProvider(key) {
-            saveableStateRegistry.performSave().toBundle()
+    val saveableStateRegistry = SaveableStateRegistry(restored) { canBeSavedToBundle(it) }
+    val registered =
+        try {
+            androidxRegistry.registerSavedStateProvider(key) {
+                saveableStateRegistry.performSave().toBundle()
+            }
+            true
+        } catch (ignore: IllegalArgumentException) {
+            // this means there are two AndroidComposeViews composed into different parents with the
+            // same view id. currently we will just not save/restore state for the second
+            // AndroidComposeView.
+            // TODO: we should verify our strategy for such cases and improve it. b/162397322
+            false
         }
-        true
-    } catch (ignore: IllegalArgumentException) {
-        // this means there are two AndroidComposeViews composed into different parents with the
-        // same view id. currently we will just not save/restore state for the second
-        // AndroidComposeView.
-        // TODO: we should verify our strategy for such cases and improve it. b/162397322
-        false
-    }
     return DisposableSaveableStateRegistry(saveableStateRegistry) {
         if (registered) {
             androidxRegistry.unregisterSavedStateProvider(key)
@@ -97,9 +93,7 @@ internal fun DisposableSaveableStateRegistry(
     }
 }
 
-/**
- * [SaveableStateRegistry] which can be disposed using [dispose].
- */
+/** [SaveableStateRegistry] which can be disposed using [dispose]. */
 internal class DisposableSaveableStateRegistry(
     saveableStateRegistry: SaveableStateRegistry,
     private val onDispose: () -> Unit
@@ -110,15 +104,14 @@ internal class DisposableSaveableStateRegistry(
     }
 }
 
-/**
- * Checks that [value] can be stored inside [Bundle].
- */
+/** Checks that [value] can be stored inside [Bundle]. */
 private fun canBeSavedToBundle(value: Any): Boolean {
     // SnapshotMutableStateImpl is Parcelable, but we do extra checks
     if (value is SnapshotMutableState<*>) {
-        if (value.policy === neverEqualPolicy<Any?>() ||
-            value.policy === structuralEqualityPolicy<Any?>() ||
-            value.policy === referentialEqualityPolicy<Any?>()
+        if (
+            value.policy === neverEqualPolicy<Any?>() ||
+                value.policy === structuralEqualityPolicy<Any?>() ||
+                value.policy === referentialEqualityPolicy<Any?>()
         ) {
             val stateValue = value.value
             return if (stateValue == null) true else canBeSavedToBundle(stateValue)
@@ -147,24 +140,24 @@ private fun canBeSavedToBundle(value: Any): Boolean {
  *
  * This classes implement Serializable:
  * - Arrays (DoubleArray, BooleanArray, IntArray, LongArray, ByteArray, FloatArray, ShortArray,
- * CharArray, Array<Parcelable, Array<String>)
+ *   CharArray, Array<Parcelable, Array<String>)
  * - ArrayList
- * - Primitives (Boolean, Int, Long, Double, Float, Byte, Short, Char) will be boxed when casted
- * to Any, and all the boxed classes implements Serializable.
- * This class implements Parcelable:
+ * - Primitives (Boolean, Int, Long, Double, Float, Byte, Short, Char) will be boxed when casted to
+ *   Any, and all the boxed classes implements Serializable. This class implements Parcelable:
  * - Bundle
  *
  * Note: it is simplified copy of the array from SavedStateHandle (lifecycle-viewmodel-savedstate).
  */
-private val AcceptableClasses = arrayOf(
-    Serializable::class.java,
-    Parcelable::class.java,
-    String::class.java,
-    SparseArray::class.java,
-    Binder::class.java,
-    Size::class.java,
-    SizeF::class.java
-)
+private val AcceptableClasses =
+    arrayOf(
+        Serializable::class.java,
+        Parcelable::class.java,
+        String::class.java,
+        SparseArray::class.java,
+        Binder::class.java,
+        Size::class.java,
+        SizeF::class.java
+    )
 
 @Suppress("DEPRECATION")
 private fun Bundle.toMap(): Map<String, List<Any?>>? {
@@ -180,10 +173,7 @@ private fun Map<String, List<Any?>>.toBundle(): Bundle {
     val bundle = Bundle()
     forEach { (key, list) ->
         val arrayList = if (list is ArrayList<Any?>) list else ArrayList(list)
-        bundle.putParcelableArrayList(
-            key,
-            arrayList as ArrayList<Parcelable?>
-        )
+        bundle.putParcelableArrayList(key, arrayList as ArrayList<Parcelable?>)
     }
     return bundle
 }

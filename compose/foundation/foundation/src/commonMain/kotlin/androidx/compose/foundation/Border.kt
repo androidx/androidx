@@ -87,6 +87,7 @@ fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
  * and clip it.
  *
  * @sample androidx.compose.foundation.samples.BorderSampleWithBrush()
+ *
  * @sample androidx.compose.foundation.samples.BorderSampleWithDynamicData()
  *
  * @param width width of the border. Use [Dp.Hairline] for a hairline border.
@@ -97,11 +98,8 @@ fun Modifier.border(width: Dp, color: Color, shape: Shape = RectangleShape) =
 fun Modifier.border(width: Dp, brush: Brush, shape: Shape) =
     this then BorderModifierNodeElement(width, brush, shape)
 
-internal data class BorderModifierNodeElement(
-    val width: Dp,
-    val brush: Brush,
-    val shape: Shape
-) : ModifierNodeElement<BorderModifierNode>() {
+internal data class BorderModifierNodeElement(val width: Dp, val brush: Brush, val shape: Shape) :
+    ModifierNodeElement<BorderModifierNode>() {
     override fun create() = BorderModifierNode(width, brush, shape)
 
     override fun update(node: BorderModifierNode) {
@@ -142,6 +140,7 @@ internal class BorderModifierNode(
                 drawWithCacheModifierNode.invalidateDrawCache()
             }
         }
+
     var brush = brushParameter
         set(value) {
             if (field != value) {
@@ -149,6 +148,7 @@ internal class BorderModifierNode(
                 drawWithCacheModifierNode.invalidateDrawCache()
             }
         }
+
     var shape = shapeParameter
         set(value) {
             if (field != value) {
@@ -157,61 +157,46 @@ internal class BorderModifierNode(
             }
         }
 
-    private val drawWithCacheModifierNode = delegate(
-        CacheDrawModifierNode {
-            val hasValidBorderParams = width.toPx() >= 0f && size.minDimension > 0f
-            if (!hasValidBorderParams) {
-                drawContentWithoutBorder()
-            } else {
-                val strokeWidthPx = min(
-                    if (width == Dp.Hairline) 1f else ceil(width.toPx()),
-                    ceil(size.minDimension / 2)
-                )
-                val halfStroke = strokeWidthPx / 2
-                val topLeft = Offset(halfStroke, halfStroke)
-                val borderSize = Size(
-                    size.width - strokeWidthPx,
-                    size.height - strokeWidthPx
-                )
-                // The stroke is larger than the drawing area so just draw a full shape instead
-                val fillArea = (strokeWidthPx * 2) > size.minDimension
-                when (val outline = shape.createOutline(size, layoutDirection, this)) {
-                    is Outline.Generic ->
-                        drawGenericBorder(
-                            brush,
-                            outline,
-                            fillArea,
-                            strokeWidthPx
+    private val drawWithCacheModifierNode =
+        delegate(
+            CacheDrawModifierNode {
+                val hasValidBorderParams = width.toPx() >= 0f && size.minDimension > 0f
+                if (!hasValidBorderParams) {
+                    drawContentWithoutBorder()
+                } else {
+                    val strokeWidthPx =
+                        min(
+                            if (width == Dp.Hairline) 1f else ceil(width.toPx()),
+                            ceil(size.minDimension / 2)
                         )
-
-                    is Outline.Rounded ->
-                        drawRoundRectBorder(
-                            brush,
-                            outline,
-                            topLeft,
-                            borderSize,
-                            fillArea,
-                            strokeWidthPx
-                        )
-
-                    is Outline.Rectangle ->
-                        drawRectBorder(
-                            brush,
-                            topLeft,
-                            borderSize,
-                            fillArea,
-                            strokeWidthPx
-                        )
+                    val halfStroke = strokeWidthPx / 2
+                    val topLeft = Offset(halfStroke, halfStroke)
+                    val borderSize = Size(size.width - strokeWidthPx, size.height - strokeWidthPx)
+                    // The stroke is larger than the drawing area so just draw a full shape instead
+                    val fillArea = (strokeWidthPx * 2) > size.minDimension
+                    when (val outline = shape.createOutline(size, layoutDirection, this)) {
+                        is Outline.Generic ->
+                            drawGenericBorder(brush, outline, fillArea, strokeWidthPx)
+                        is Outline.Rounded ->
+                            drawRoundRectBorder(
+                                brush,
+                                outline,
+                                topLeft,
+                                borderSize,
+                                fillArea,
+                                strokeWidthPx
+                            )
+                        is Outline.Rectangle ->
+                            drawRectBorder(brush, topLeft, borderSize, fillArea, strokeWidthPx)
+                    }
                 }
             }
-        }
-    )
+        )
 
     /**
-     * Border implementation for generic paths. Note it is possible to be given paths
-     * that do not make sense in the context of a border (ex. a figure 8 path or a non-enclosed
-     * shape) We do not handle that here as we expect developers to give us enclosed,
-     * non-overlapping paths.
+     * Border implementation for generic paths. Note it is possible to be given paths that do not
+     * make sense in the context of a border (ex. a figure 8 path or a non-enclosed shape) We do not
+     * handle that here as we expect developers to give us enclosed, non-overlapping paths.
      */
     private fun CacheDrawScope.drawGenericBorder(
         brush: Brush,
@@ -247,49 +232,47 @@ internal class BorderModifierNode(
             if (borderCache == null) {
                 borderCache = BorderCache()
             }
-            val maskPath = borderCache!!.obtainPath().apply {
-                reset()
-                addRect(pathBounds)
-                op(this, outline.path, PathOperation.Difference)
-            }
+            val maskPath =
+                borderCache!!.obtainPath().apply {
+                    reset()
+                    addRect(pathBounds)
+                    op(this, outline.path, PathOperation.Difference)
+                }
 
             val cacheImageBitmap: ImageBitmap
-            val pathBoundsSize = IntSize(
-                ceil(pathBounds.width).toInt(),
-                ceil(pathBounds.height).toInt()
-            )
+            val pathBoundsSize =
+                IntSize(ceil(pathBounds.width).toInt(), ceil(pathBounds.height).toInt())
             with(borderCache!!) {
                 // Draw into offscreen bitmap with the size of the path
                 // We need to draw into this intermediate bitmap to act as a layer
                 // and make sure that the clearing logic does not generate underdraw
                 // into the target we are rendering into
-                cacheImageBitmap = drawBorderCache(
-                    pathBoundsSize,
-                    config
-                ) {
-                    // Paths can have offsets, so translate to keep the drawn path
-                    // within the bounds of the mask bitmap
-                    translate(-pathBounds.left, -pathBounds.top) {
-                        // Draw the path with a stroke width twice the provided value.
-                        // Because strokes are centered, this will draw both and inner and
-                        // outer stroke with the desired stroke width
-                        drawPath(
-                            path = outline.path,
-                            brush = brush,
-                            style = Stroke(strokeWidth * 2)
-                        )
+                cacheImageBitmap =
+                    drawBorderCache(pathBoundsSize, config) {
+                        // Paths can have offsets, so translate to keep the drawn path
+                        // within the bounds of the mask bitmap
+                        translate(-pathBounds.left, -pathBounds.top) {
+                            // Draw the path with a stroke width twice the provided value.
+                            // Because strokes are centered, this will draw both and inner and
+                            // outer stroke with the desired stroke width
+                            drawPath(
+                                path = outline.path,
+                                brush = brush,
+                                style = Stroke(strokeWidth * 2)
+                            )
 
-                        // Scale the canvas slightly to cover the background that may be visible
-                        // after clearing the outer stroke
-                        scale(
-                            (size.width + 1) / size.width,
-                            (size.height + 1) / size.height
-                        ) {
-                            // Remove the outer stroke by clearing the inverted mask path
-                            drawPath(path = maskPath, brush = brush, blendMode = BlendMode.Clear)
+                            // Scale the canvas slightly to cover the background that may be visible
+                            // after clearing the outer stroke
+                            scale((size.width + 1) / size.width, (size.height + 1) / size.height) {
+                                // Remove the outer stroke by clearing the inverted mask path
+                                drawPath(
+                                    path = maskPath,
+                                    brush = brush,
+                                    blendMode = BlendMode.Clear
+                                )
+                            }
                         }
                     }
-                }
             }
 
             onDrawWithContent {
@@ -300,10 +283,7 @@ internal class BorderModifierNode(
             }
         }
 
-    /**
-     * Border implementation for simple rounded rects and those with different corner
-     * radii
-     */
+    /** Border implementation for simple rounded rects and those with different corner radii */
     private fun CacheDrawScope.drawRoundRectBorder(
         brush: Brush,
         outline: Outline.Rounded,
@@ -371,8 +351,8 @@ internal class BorderModifierNode(
 }
 
 /**
- * Helper object that handles lazily allocating and re-using objects
- * to render the border into an offscreen ImageBitmap
+ * Helper object that handles lazily allocating and re-using objects to render the border into an
+ * offscreen ImageBitmap
  */
 private data class BorderCache(
     private var imageBitmap: ImageBitmap? = null,
@@ -390,64 +370,48 @@ private data class BorderCache(
         var targetCanvas = canvas
         // If we previously had allocated a full Argb888 ImageBitmap but are only requiring
         // an alpha mask, just re-use the same ImageBitmap instead of allocating a new one
-        val compatibleConfig = targetImageBitmap?.config == ImageBitmapConfig.Argb8888 ||
-            config == targetImageBitmap?.config
-        if (targetImageBitmap == null ||
-            targetCanvas == null ||
-            size.width > targetImageBitmap.width ||
-            size.height > targetImageBitmap.height ||
-            !compatibleConfig
+        val compatibleConfig =
+            targetImageBitmap?.config == ImageBitmapConfig.Argb8888 ||
+                config == targetImageBitmap?.config
+        if (
+            targetImageBitmap == null ||
+                targetCanvas == null ||
+                size.width > targetImageBitmap.width ||
+                size.height > targetImageBitmap.height ||
+                !compatibleConfig
         ) {
-            targetImageBitmap = ImageBitmap(
-                borderSize.width,
-                borderSize.height,
-                config = config
-            ).also {
-                imageBitmap = it
-            }
-            targetCanvas = androidx.compose.ui.graphics.Canvas(targetImageBitmap).also {
-                canvas = it
-            }
+            targetImageBitmap =
+                ImageBitmap(borderSize.width, borderSize.height, config = config).also {
+                    imageBitmap = it
+                }
+            targetCanvas =
+                androidx.compose.ui.graphics.Canvas(targetImageBitmap).also { canvas = it }
         }
 
-        val targetDrawScope =
-            canvasDrawScope ?: CanvasDrawScope().also { canvasDrawScope = it }
+        val targetDrawScope = canvasDrawScope ?: CanvasDrawScope().also { canvasDrawScope = it }
         val drawSize = borderSize.toSize()
-        targetDrawScope.draw(
-            this,
-            layoutDirection,
-            targetCanvas,
-            drawSize
-        ) {
+        targetDrawScope.draw(this, layoutDirection, targetCanvas, drawSize) {
             // Clear the previously rendered portion within this ImageBitmap as we could
             // be re-using it
-            drawRect(
-                color = Color.Black,
-                size = drawSize,
-                blendMode = BlendMode.Clear
-            )
+            drawRect(color = Color.Black, size = drawSize, blendMode = BlendMode.Clear)
             block()
         }
         targetImageBitmap.prepareToDraw()
         return targetImageBitmap
     }
 
-    fun obtainPath(): Path =
-        borderPath ?: Path().also { borderPath = it }
+    fun obtainPath(): Path = borderPath ?: Path().also { borderPath = it }
 }
 
 /**
- * Border implementation for invalid parameters that just draws the content
- * as the given border parameters are infeasible (ex. negative border width)
+ * Border implementation for invalid parameters that just draws the content as the given border
+ * parameters are infeasible (ex. negative border width)
  */
-private fun CacheDrawScope.drawContentWithoutBorder(): DrawResult =
-    onDrawWithContent {
-        drawContent()
-    }
+private fun CacheDrawScope.drawContentWithoutBorder(): DrawResult = onDrawWithContent {
+    drawContent()
+}
 
-/**
- * Border implementation for rectangular borders
- */
+/** Border implementation for rectangular borders */
 private fun CacheDrawScope.drawRectBorder(
     brush: Brush,
     topLeft: Offset,
@@ -464,18 +428,12 @@ private fun CacheDrawScope.drawRectBorder(
     val style = if (fillArea) Fill else Stroke(strokeWidthPx)
     return onDrawWithContent {
         drawContent()
-        drawRect(
-            brush = brush,
-            topLeft = rectTopLeft,
-            size = size,
-            style = style
-        )
+        drawRect(brush = brush, topLeft = rectTopLeft, size = size, style = style)
     }
 }
 
 /**
- * Helper method that creates a round rect with the inner region removed
- * by the given stroke width
+ * Helper method that creates a round rect with the inner region removed by the given stroke width
  */
 private fun createRoundRectPath(
     targetPath: Path,
@@ -487,32 +445,27 @@ private fun createRoundRectPath(
         reset()
         addRoundRect(roundedRect)
         if (!fillArea) {
-            val insetPath = Path().apply {
-                addRoundRect(createInsetRoundedRect(strokeWidth, roundedRect))
-            }
+            val insetPath =
+                Path().apply { addRoundRect(createInsetRoundedRect(strokeWidth, roundedRect)) }
             op(this, insetPath, PathOperation.Difference)
         }
     }
 
-private fun createInsetRoundedRect(
-    widthPx: Float,
-    roundedRect: RoundRect
-) = RoundRect(
-    left = widthPx,
-    top = widthPx,
-    right = roundedRect.width - widthPx,
-    bottom = roundedRect.height - widthPx,
-    topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
-    topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
-    bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
-    bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx)
-)
+private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
+    RoundRect(
+        left = widthPx,
+        top = widthPx,
+        right = roundedRect.width - widthPx,
+        bottom = roundedRect.height - widthPx,
+        topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
+        topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
+        bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
+        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx)
+    )
 
 /**
- * Helper method to shrink the corner radius by the given value, clamping to 0
- * if the resultant corner radius would be negative
+ * Helper method to shrink the corner radius by the given value, clamping to 0 if the resultant
+ * corner radius would be negative
  */
-private fun CornerRadius.shrink(value: Float): CornerRadius = CornerRadius(
-    max(0f, this.x - value),
-    max(0f, this.y - value)
-)
+private fun CornerRadius.shrink(value: Float): CornerRadius =
+    CornerRadius(max(0f, this.x - value), max(0f, this.y - value))

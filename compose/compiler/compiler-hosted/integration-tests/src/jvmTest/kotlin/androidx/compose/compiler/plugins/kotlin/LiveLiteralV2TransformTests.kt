@@ -27,27 +27,26 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
     }
 
     @Test
-    fun testSiblingCallArgs() = assertNoDuplicateKeys(
-        """
+    fun testSiblingCallArgs() =
+        assertNoDuplicateKeys(
+            """
         fun Test() {
             print(1)
             print(1)
         }
         """
-    )
+        )
 
     @Test
-    fun testFunctionCallWithConstArg() = assertKeys(
-        "Int%arg-0%call-print%fun-Test",
-        "Int%arg-0%call-print-1%fun-Test"
-    ) {
-        """
+    fun testFunctionCallWithConstArg() =
+        assertKeys("Int%arg-0%call-print%fun-Test", "Int%arg-0%call-print-1%fun-Test") {
+            """
         fun Test() {
             print(1)
             print(1)
         }
         """
-    }
+        }
 
     @Test
     fun testDispatchReceiver() {
@@ -65,13 +64,12 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
     }
 
     @Test
-    fun testInsidePropertyGetter() = assertKeys(
-        "Int%fun-%get-foo%%get%val-foo"
-    ) {
-        """
+    fun testInsidePropertyGetter() =
+        assertKeys("Int%fun-%get-foo%%get%val-foo") {
+            """
         val foo: Int get() = 1
         """
-    }
+        }
 
     // NOTE(lmr): For static initializer expressions we can/should do more.
     @Test
@@ -82,13 +80,12 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
     }
 
     @Test
-    fun testValueParameter() = assertKeys(
-        "Int%param-x%fun-Foo"
-    ) {
-        """
+    fun testValueParameter() =
+        assertKeys("Int%param-x%fun-Foo") {
+            """
         fun Foo(x: Int = 1) { print(x) }
         """
-    }
+        }
 
     @Test
     fun testAnnotation() = assertKeys {
@@ -112,11 +109,12 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
     }
 
     @Test
-    fun testWhileTrue() = assertKeys(
-        "Double%arg-1%call-greater%cond%if%body%loop%fun-Foo",
-        "Int%arg-0%call-print%body%loop%fun-Foo"
-    ) {
-        """
+    fun testWhileTrue() =
+        assertKeys(
+            "Double%arg-1%call-greater%cond%if%body%loop%fun-Foo",
+            "Int%arg-0%call-print%body%loop%fun-Foo"
+        ) {
+            """
         fun Foo() {
             while (true) {
                 print(1)
@@ -124,26 +122,24 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
             }
         }
         """
-    }
+        }
 
     @Test
-    fun testWhileCondition() = assertKeys(
-        "Int%arg-0%call-print%body%loop%fun-Foo"
-    ) {
-        """
+    fun testWhileCondition() =
+        assertKeys("Int%arg-0%call-print%body%loop%fun-Foo") {
+            """
         fun Foo() {
             while (Math.random() > 0.5) {
                 print(1)
             }
         }
         """
-    }
+        }
 
     @Test
-    fun testForInCollection() = assertKeys(
-        "Int%arg-0%call-print-1%body%loop%fun-Foo"
-    ) {
-        """
+    fun testForInCollection() =
+        assertKeys("Int%arg-0%call-print-1%body%loop%fun-Foo") {
+            """
         fun Foo(items: List<Int>) {
             for (item in items) {
                 print(item)
@@ -151,7 +147,7 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
             }
         }
         """
-    }
+        }
 
     // NOTE(lmr): we should deal with this in some cases, but leaving untouched for now
     @Test
@@ -162,35 +158,36 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
     }
 
     @Test
-    fun testSafeCall() = assertKeys(
-        "Boolean%arg-1%call-EQEQ%fun-Foo",
-        "String%arg-0%call-contains%else%when%arg-0%call-EQEQ%fun-Foo"
-    ) {
-        """
+    fun testSafeCall() =
+        assertKeys(
+            "Boolean%arg-1%call-EQEQ%fun-Foo",
+            "String%arg-0%call-contains%else%when%arg-0%call-EQEQ%fun-Foo"
+        ) {
+            """
         fun Foo(bar: String?): Boolean {
             return bar?.contains("foo") == true
         }
         """
-    }
+        }
 
     @Test
-    fun testElvis() = assertKeys(
-        "String%branch%when%fun-Foo"
-    ) {
-        """
+    fun testElvis() =
+        assertKeys("String%branch%when%fun-Foo") {
+            """
         fun Foo(bar: String?): String {
             return bar ?: "Hello World"
         }
         """
-    }
+        }
 
     @Test
-    fun testTryCatch() = assertKeys(
-        "Int%arg-0%call-invoke%catch%fun-Foo",
-        "Int%arg-0%call-invoke%finally%fun-Foo",
-        "Int%arg-0%call-invoke%try%fun-Foo"
-    ) {
-        """
+    fun testTryCatch() =
+        assertKeys(
+            "Int%arg-0%call-invoke%catch%fun-Foo",
+            "Int%arg-0%call-invoke%finally%fun-Foo",
+            "Int%arg-0%call-invoke%try%fun-Foo"
+        ) {
+            """
         fun Foo(block: (Int) -> Unit) {
             try {
                 block(1)
@@ -201,17 +198,18 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
             }
         }
         """
-    }
+        }
 
     @Test
-    fun testWhen() = assertKeys(
-        "Double%arg-1%call-greater%cond%when%fun-Foo",
-        "Double%arg-1%call-greater%cond-1%when%fun-Foo",
-        "Int%arg-0%call-print%branch%when%fun-Foo",
-        "Int%arg-0%call-print%branch-1%when%fun-Foo",
-        "Int%arg-0%call-print%else%when%fun-Foo"
-    ) {
-        """
+    fun testWhen() =
+        assertKeys(
+            "Double%arg-1%call-greater%cond%when%fun-Foo",
+            "Double%arg-1%call-greater%cond-1%when%fun-Foo",
+            "Int%arg-0%call-print%branch%when%fun-Foo",
+            "Int%arg-0%call-print%branch-1%when%fun-Foo",
+            "Int%arg-0%call-print%else%when%fun-Foo"
+        ) {
+            """
         fun Foo() {
             when {
                 Math.random() > 0.5 -> print(1)
@@ -220,19 +218,20 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
             }
         }
         """
-    }
+        }
 
     @Test
-    fun testWhenWithSubject() = assertKeys(
-        "Double%%%this%call-rangeTo%%this%call-contains%cond%when%fun-Foo",
-        "Double%%%this%call-rangeTo%%this%call-contains%cond-1%when%fun-Foo",
-        "Double%arg-0%call-rangeTo%%this%call-contains%cond%when%fun-Foo",
-        "Double%arg-0%call-rangeTo%%this%call-contains%cond-1%when%fun-Foo",
-        "Int%arg-0%call-print%branch%when%fun-Foo",
-        "Int%arg-0%call-print%branch-1%when%fun-Foo",
-        "Int%arg-0%call-print%else%when%fun-Foo"
-    ) {
-        """
+    fun testWhenWithSubject() =
+        assertKeys(
+            "Double%%%this%call-rangeTo%%this%call-contains%cond%when%fun-Foo",
+            "Double%%%this%call-rangeTo%%this%call-contains%cond-1%when%fun-Foo",
+            "Double%arg-0%call-rangeTo%%this%call-contains%cond%when%fun-Foo",
+            "Double%arg-0%call-rangeTo%%this%call-contains%cond-1%when%fun-Foo",
+            "Int%arg-0%call-print%branch%when%fun-Foo",
+            "Int%arg-0%call-print%branch-1%when%fun-Foo",
+            "Int%arg-0%call-print%else%when%fun-Foo"
+        ) {
+            """
         fun Foo() {
             when (val x = Math.random()) {
                 in 0.0..0.5 -> print(1)
@@ -241,15 +240,16 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
             }
         }
         """
-    }
+        }
 
     @Test
-    fun testWhenWithSubject2() = assertKeys(
-        "Int%arg-0%call-print%branch-1%when%fun-Foo",
-        "Int%arg-0%call-print%else%when%fun-Foo",
-        "String%arg-0%call-print%branch%when%fun-Foo"
-    ) {
-        """
+    fun testWhenWithSubject2() =
+        assertKeys(
+            "Int%arg-0%call-print%branch-1%when%fun-Foo",
+            "Int%arg-0%call-print%else%when%fun-Foo",
+            "String%arg-0%call-print%branch%when%fun-Foo"
+        ) {
+            """
         fun Foo(foo: Any) {
             when (foo) {
                 is String -> print("Hello World")
@@ -258,115 +258,121 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
             }
         }
         """
-    }
+        }
 
     @Test
-    fun testDelegatingCtor() = assertKeys(
-        "Int%arg-0%call-%init%%class-Bar"
-    ) {
-        """
+    fun testDelegatingCtor() =
+        assertKeys("Int%arg-0%call-%init%%class-Bar") {
+            """
         open class Foo(val x: Int)
         class Bar() : Foo(123)
         """
-    }
+        }
 
     @Test
-    fun testLocalVal() = assertKeys(
-        "Int%arg-0%call-plus%set-y%fun-Foo",
-        "Int%val-x%fun-Foo",
-        "Int%val-y%fun-Foo"
-    ) {
-        """
+    fun testLocalVal() =
+        assertKeys("Int%arg-0%call-plus%set-y%fun-Foo", "Int%val-x%fun-Foo", "Int%val-y%fun-Foo") {
+            """
         fun Foo() {
             val x = 1
             var y = 2
             y += 10
         }
         """
-    }
+        }
 
     @Test
-    fun testCapturedVar() = assertKeys(
-        "Int%val-a%fun-Example",
-        "String%0%str%fun-Example",
-        "String%2%str%fun-Example"
-    ) {
-        """
+    fun testCapturedVar() =
+        assertKeys(
+            "Int%val-a%fun-Example",
+            "String%0%str%fun-Example",
+            "String%2%str%fun-Example"
+        ) {
+            """
         fun Example(): String {
                 val a = 123
                 return "foo ${"$"}a bar"
             }
         """
-    }
+        }
 
     @Test
-    fun testStringTemplate(): Unit = assertKeys(
-        "Int%val-a%fun-Example",
-        "String%0%str%fun-Example",
-        "String%2%str%fun-Example"
-    ) {
-        """
+    fun testStringTemplate(): Unit =
+        assertKeys(
+            "Int%val-a%fun-Example",
+            "String%0%str%fun-Example",
+            "String%2%str%fun-Example"
+        ) {
+            """
         fun Example(): String {
             val a = 123
             return "foo ${"$"}a bar"
         }
         """
-    }
+        }
 
     @Test
-    fun testEnumEntryMultipleArgs(): Unit = assertKeys(
-        "Int%arg-0%call-%init%%entry-Bar%class-A",
-        "Int%arg-0%call-%init%%entry-Baz%class-A",
-        "Int%arg-0%call-%init%%entry-Foo%class-A",
-        "Int%arg-1%call-%init%%entry-Bar%class-A",
-        "Int%arg-1%call-%init%%entry-Baz%class-A",
-        "Int%arg-1%call-%init%%entry-Foo%class-A"
-    ) {
-        """
+    fun testEnumEntryMultipleArgs(): Unit =
+        assertKeys(
+            "Int%arg-0%call-%init%%entry-Bar%class-A",
+            "Int%arg-0%call-%init%%entry-Baz%class-A",
+            "Int%arg-0%call-%init%%entry-Foo%class-A",
+            "Int%arg-1%call-%init%%entry-Bar%class-A",
+            "Int%arg-1%call-%init%%entry-Baz%class-A",
+            "Int%arg-1%call-%init%%entry-Foo%class-A"
+        ) {
+            """
         enum class A(val x: Int, val y: Int) {
             Foo(1, 2),
             Bar(2, 3),
             Baz(3, 4)
         }
         """
-    }
+        }
 
     @Test
-    fun testCommentsAbove() = assertDurableChange(
-        """
+    fun testCommentsAbove() =
+        assertDurableChange(
+            """
             fun Test() {
                 print(1)
             }
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             fun Test() {
                 // this is a comment
                 print(1)
             }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
-    fun testValsAndStructureAbove() = assertDurableChange(
-        """
+    fun testValsAndStructureAbove() =
+        assertDurableChange(
+            """
             fun Test() {
                 print(1)
             }
-        """.trimIndent(),
         """
+                .trimIndent(),
+            """
             fun Test() {
                 val x = Math.random()
                 println(x)
                 print(1)
             }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
-    fun testAnonymousClass(): Unit = assertTransform(
-        """
+    fun testAnonymousClass(): Unit =
+        assertTransform(
+            """
         """,
-        """
+            """
             interface Foo { fun bar(): Int }
             fun a(): Foo {
                 return object : Foo {
@@ -374,7 +380,7 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
                 }
             }
         """
-    )
+        )
 
     @Test
     fun testBasicTransform() {
@@ -428,8 +434,9 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
     }
 
     @Test
-    fun testComposeIrSkippingWithDefaultsRelease() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposeIrSkippingWithDefaultsRelease() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.ui.text.input.TextFieldValue
             import androidx.compose.runtime.*
             import androidx.compose.foundation.layout.*
@@ -449,8 +456,10 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
                     Text("${'$'}keyboardActions2")
                 }
             }
-        """.trimIndent(),
-        extra = """
+        """
+                .trimIndent(),
+            extra =
+                """
             import androidx.compose.runtime.Composable
 
             @Composable
@@ -460,8 +469,9 @@ class LiveLiteralV2TransformTests(useFir: Boolean) : AbstractLiveLiteralTransfor
                 maxLines: Int = Int.MAX_VALUE,
                 minLines: Int = 1,
             ) {}
-        """.trimIndent()
-    )
+        """
+                    .trimIndent()
+        )
 
     @Test
     fun verifyInitInClass() {

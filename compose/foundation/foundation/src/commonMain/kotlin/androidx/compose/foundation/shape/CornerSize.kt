@@ -25,9 +25,7 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 
-/**
- * Defines size of a corner in pixels. For example for rounded shape it can be a corner radius.
- */
+/** Defines size of a corner in pixels. For example for rounded shape it can be a corner radius. */
 @Immutable
 interface CornerSize {
     /**
@@ -35,7 +33,6 @@ interface CornerSize {
      *
      * @param shapeSize the size of the shape
      * @param density the current density of the screen.
-     *
      * @return resolved size of the corner in pixels
      */
     fun toPx(shapeSize: Size, density: Density): Float
@@ -43,14 +40,13 @@ interface CornerSize {
 
 /**
  * Creates [CornerSize] with provided size.
+ *
  * @param size the corner size defined in [Dp].
  */
-@Stable
-fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
+@Stable fun CornerSize(size: Dp): CornerSize = DpCornerSize(size)
 
 private data class DpCornerSize(private val size: Dp) : CornerSize, InspectableValue {
-    override fun toPx(shapeSize: Size, density: Density) =
-        with(density) { size.toPx() }
+    override fun toPx(shapeSize: Size, density: Density) = with(density) { size.toPx() }
 
     override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
 
@@ -60,10 +56,10 @@ private data class DpCornerSize(private val size: Dp) : CornerSize, InspectableV
 
 /**
  * Creates [CornerSize] with provided size.
+ *
  * @param size the corner size defined in pixels.
  */
-@Stable
-fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
+@Stable fun CornerSize(size: Float): CornerSize = PxCornerSize(size)
 
 private data class PxCornerSize(private val size: Float) : CornerSize, InspectableValue {
     override fun toPx(shapeSize: Size, density: Density) = size
@@ -76,8 +72,9 @@ private data class PxCornerSize(private val size: Float) : CornerSize, Inspectab
 
 /**
  * Creates [CornerSize] with provided size.
- * @param percent the corner size defined in percents of the shape's smaller side.
- * Can't be negative or larger then 100 percents.
+ *
+ * @param percent the corner size defined in percents of the shape's smaller side. Can't be negative
+ *   or larger then 100 percents.
  */
 @Stable
 fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
@@ -85,12 +82,12 @@ fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
 
 /**
  * Creates [CornerSize] with provided size.
- * @param percent the corner size defined in float percents of the shape's smaller side.
- * Can't be negative or larger then 100 percents.
+ *
+ * @param percent the corner size defined in float percents of the shape's smaller side. Can't be
+ *   negative or larger then 100 percents.
  */
 private data class PercentCornerSize(
-    @FloatRange(from = 0.0, to = 100.0)
-    private val percent: Float
+    @FloatRange(from = 0.0, to = 100.0) private val percent: Float
 ) : CornerSize, InspectableValue {
     init {
         if (percent < 0 || percent > 100) {
@@ -98,8 +95,7 @@ private data class PercentCornerSize(
         }
     }
 
-    override fun toPx(shapeSize: Size, density: Density) =
-        shapeSize.minDimension * (percent / 100f)
+    override fun toPx(shapeSize: Size, density: Density) = shapeSize.minDimension * (percent / 100f)
 
     override fun toString(): String = "CornerSize(size = $percent%)"
 
@@ -107,15 +103,14 @@ private data class PercentCornerSize(
         get() = "$percent%"
 }
 
-/**
- * [CornerSize] always equals to zero.
- */
+/** [CornerSize] always equals to zero. */
 @Stable
-val ZeroCornerSize: CornerSize = object : CornerSize, InspectableValue {
-    override fun toPx(shapeSize: Size, density: Density) = 0.0f
+val ZeroCornerSize: CornerSize =
+    object : CornerSize, InspectableValue {
+        override fun toPx(shapeSize: Size, density: Density) = 0.0f
 
-    override fun toString(): String = "ZeroCornerSize"
+        override fun toString(): String = "ZeroCornerSize"
 
-    override val valueOverride: String
-        get() = "ZeroCornerSize"
-}
+        override val valueOverride: String
+            get() = "ZeroCornerSize"
+    }

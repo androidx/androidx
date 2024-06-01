@@ -33,10 +33,7 @@ import org.jetbrains.kotlin.name.FqName
 class ComposerIntrinsicTransformer(
     val context: IrPluginContext,
     private val decoysEnabled: Boolean
-) :
-    IrElementTransformerVoid(),
-    FileLoweringPass,
-    ModuleLoweringPass {
+) : IrElementTransformerVoid(), FileLoweringPass, ModuleLoweringPass {
 
     private val currentComposerIntrinsic = currentComposerFqName()
 
@@ -61,18 +58,19 @@ class ComposerIntrinsicTransformer(
             // since this call was transformed by the ComposerParamTransformer, the first argument
             // to this call is the composer itself. We just replace this expression with the
             // argument expression and we are good.
-            val expectedArgumentsCount = 1 + // composer parameter
-                1 // changed parameter
+            val expectedArgumentsCount =
+                1 + // composer parameter
+                    1 // changed parameter
             assert(expression.valueArgumentsCount == expectedArgumentsCount) {
                 """
                     Composer call doesn't match expected argument count:
                         expected: $expectedArgumentsCount,
                         actual: ${expression.valueArgumentsCount},
                         expression: ${expression.dump()}
-                """.trimIndent()
+                """
+                    .trimIndent()
             }
-            return expression.getValueArgument(0)
-                ?: error("Expected non-null composer argument")
+            return expression.getValueArgument(0) ?: error("Expected non-null composer argument")
         }
         return super.visitCall(expression)
     }

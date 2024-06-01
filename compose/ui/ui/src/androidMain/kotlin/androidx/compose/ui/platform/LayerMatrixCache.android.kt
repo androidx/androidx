@@ -24,9 +24,9 @@ import androidx.compose.ui.graphics.setFrom
  * Helper class to cache a [Matrix] and inverse [Matrix], allowing the instance to be reused until
  * the Layer's properties have changed, causing it to call [invalidate].
  *
- * This allows us to avoid repeated calls to [AndroidMatrix.getValues], which calls
- * an expensive native method (nGetValues). If we know the matrix hasn't changed, we can just
- * re-use it without needing to read and update values.
+ * This allows us to avoid repeated calls to [AndroidMatrix.getValues], which calls an expensive
+ * native method (nGetValues). If we know the matrix hasn't changed, we can just re-use it without
+ * needing to read and update values.
  */
 internal class LayerMatrixCache<T>(
     private val getMatrix: (target: T, matrix: AndroidMatrix) -> Unit
@@ -42,8 +42,8 @@ internal class LayerMatrixCache<T>(
 
     /**
      * Ensures that the internal matrix will be updated next time [calculateMatrix] or
-     * [calculateInverseMatrix] is called - this should be called when something that will
-     * change the matrix calculation has happened.
+     * [calculateInverseMatrix] is called - this should be called when something that will change
+     * the matrix calculation has happened.
      */
     fun invalidate() {
         isDirty = true
@@ -54,16 +54,12 @@ internal class LayerMatrixCache<T>(
      * Returns the cached [Matrix], updating it if required (if [invalidate] was previously called).
      */
     fun calculateMatrix(target: T): Matrix {
-        val matrix = matrixCache ?: Matrix().also {
-            matrixCache = it
-        }
+        val matrix = matrixCache ?: Matrix().also { matrixCache = it }
         if (!isDirty) {
             return matrix
         }
 
-        val cachedMatrix = androidMatrixCache ?: AndroidMatrix().also {
-            androidMatrixCache = it
-        }
+        val cachedMatrix = androidMatrixCache ?: AndroidMatrix().also { androidMatrixCache = it }
 
         getMatrix(target, cachedMatrix)
 
@@ -84,9 +80,7 @@ internal class LayerMatrixCache<T>(
      * when scaling is 0.
      */
     fun calculateInverseMatrix(target: T): Matrix? {
-        val matrix = inverseMatrixCache ?: Matrix().also {
-            inverseMatrixCache = it
-        }
+        val matrix = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
         if (isInverseDirty) {
             val normalMatrix = calculateMatrix(target)
             isInverseValid = normalMatrix.invertTo(matrix)

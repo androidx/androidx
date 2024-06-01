@@ -45,34 +45,26 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun default_button_light_theme() {
-        rule.setMaterialContent(lightColorScheme()) {
-            Button(onClick = { }) {
-                Text("Button")
-            }
-        }
+        rule.setMaterialContent(lightColorScheme()) { Button(onClick = {}) { Text("Button") } }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_light_theme")
     }
 
     @Test
     fun default_button_dark_theme() {
-        rule.setMaterialContent(darkColorScheme()) {
-            Button(onClick = { }) {
-                Text("Button")
-            }
-        }
+        rule.setMaterialContent(darkColorScheme()) { Button(onClick = {}) { Text("Button") } }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_dark_theme")
     }
@@ -80,12 +72,11 @@ class ButtonScreenshotTest {
     @Test
     fun disabled_button_light_theme() {
         rule.setMaterialContent(lightColorScheme()) {
-            Button(onClick = { }, enabled = false) {
-                Text("Button")
-            }
+            Button(onClick = {}, enabled = false) { Text("Button") }
         }
 
-        rule.onNodeWithText("Button")
+        rule
+            .onNodeWithText("Button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_disabled_light_theme")
     }
@@ -93,12 +84,11 @@ class ButtonScreenshotTest {
     @Test
     fun disabled_button_dark_theme() {
         rule.setMaterialContent(darkColorScheme()) {
-            Button(onClick = { }, enabled = false) {
-                Text("Button")
-            }
+            Button(onClick = {}, enabled = false) { Text("Button") }
         }
 
-        rule.onNodeWithText("Button")
+        rule
+            .onNodeWithText("Button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_disabled_dark_theme")
     }
@@ -113,7 +103,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag("elevated button")
+        rule
+            .onNodeWithTag("elevated button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "elevated_button_light_theme")
     }
@@ -140,7 +131,8 @@ class ButtonScreenshotTest {
             FilledTonalButton(onClick = {}) { Text("Filled tonal Button") }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "filled_tonal_button_light_theme")
     }
@@ -157,7 +149,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag("button")
+        rule
+            .onNodeWithTag("button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "filled_tonal_button_disabled_light_theme")
     }
@@ -168,7 +161,8 @@ class ButtonScreenshotTest {
             OutlinedButton(onClick = {}) { Text("Outlined Button") }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "outlined_button_light_theme")
     }
@@ -181,7 +175,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag("button")
+        rule
+            .onNodeWithTag("button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "outlined_button_disabled_light_theme")
     }
@@ -189,12 +184,11 @@ class ButtonScreenshotTest {
     @Test
     fun text_button_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            TextButton(onClick = {}) {
-                Text("Text Button")
-            }
+            TextButton(onClick = {}) { Text("Text Button") }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "text_button_light_theme")
     }
@@ -207,7 +201,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag("button")
+        rule
+            .onNodeWithTag("button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "text_button_disabled_light_theme")
     }
@@ -229,7 +224,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_withIcon_lightTheme")
     }
@@ -253,7 +249,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag("button")
+        rule
+            .onNodeWithTag("button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_withIcon_disabled_lightTheme")
     }
@@ -275,7 +272,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_withIcon_darkTheme")
     }
@@ -299,7 +297,8 @@ class ButtonScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag("button")
+        rule
+            .onNodeWithTag("button")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_withIcon_disabled_darkTheme")
     }

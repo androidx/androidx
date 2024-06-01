@@ -34,8 +34,7 @@ import org.junit.runners.JUnit4
 class InputsTest {
     private val tag = "slider"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     @Ignore("b/293410369")
@@ -49,13 +48,9 @@ class InputsTest {
                 valueRange = 0f..1f
             )
         }
-        rule.runOnIdle {
-            state.value = 2f
-        }
+        rule.runOnIdle { state.value = 2f }
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f, 0))
-        rule.runOnIdle {
-            state.value = -123145f
-        }
+        rule.runOnIdle { state.value = -123145f }
         rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f, 0))
     }
 }

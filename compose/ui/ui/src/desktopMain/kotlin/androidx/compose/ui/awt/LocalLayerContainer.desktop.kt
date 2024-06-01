@@ -19,6 +19,5 @@ package androidx.compose.ui.awt
 import androidx.compose.runtime.compositionLocalOf
 import java.awt.Container
 
-internal val LocalLayerContainer = compositionLocalOf<Container> {
-    error("CompositionLocal LayerContainer not provided")
-}
+internal val LocalLayerContainer =
+    compositionLocalOf<Container> { error("CompositionLocal LayerContainer not provided") }

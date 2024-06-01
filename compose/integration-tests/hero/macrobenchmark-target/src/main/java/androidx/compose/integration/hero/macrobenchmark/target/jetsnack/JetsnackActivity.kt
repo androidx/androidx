@@ -26,11 +26,7 @@ import androidx.compose.integration.hero.macrobenchmark.target.launchIdlenessTra
 class JetsnackActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            JetsnackTheme {
-                Feed(onSnackClick = { /* Do Nothing */ })
-            }
-        }
+        setContent { JetsnackTheme { Feed(onSnackClick = { /* Do Nothing */ }) } }
 
         launchIdlenessTracking()
     }

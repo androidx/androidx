@@ -16,18 +16,14 @@
 
 package androidx.compose.ui.text.input
 
-/**
- * Adds [this] and [right], and if an overflow occurs returns result of [defaultValue].
- */
+/** Adds [this] and [right], and if an overflow occurs returns result of [defaultValue]. */
 internal inline fun Int.addExactOrElse(right: Int, defaultValue: () -> Int): Int {
     val result = this + right
     // HD 2-12 Overflow iff both arguments have the opposite sign of the result
     return if (this xor result and (right xor result) < 0) defaultValue() else result
 }
 
-/**
- * Subtracts [right] from [this], and if an overflow occurs returns result of [defaultValue].
- */
+/** Subtracts [right] from [this], and if an overflow occurs returns result of [defaultValue]. */
 internal inline fun Int.subtractExactOrElse(right: Int, defaultValue: () -> Int): Int {
     val result = this - right
     // HD 2-12 Overflow iff the arguments have different signs and

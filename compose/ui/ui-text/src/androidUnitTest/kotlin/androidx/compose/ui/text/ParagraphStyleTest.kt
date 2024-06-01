@@ -78,9 +78,7 @@ class ParagraphStyleTest {
 
         val newStyle = style.merge(otherStyle)
 
-        assertThat(newStyle.textDirection).isEqualTo(
-            otherStyle.textDirection
-        )
+        assertThat(newStyle.textDirection).isEqualTo(otherStyle.textDirection)
     }
 
     @Test
@@ -253,21 +251,18 @@ class ParagraphStyleTest {
 
     @Test
     fun `plus operator merges`() {
-        val style = ParagraphStyle(
-            textAlign = TextAlign.Center,
-            textDirection = TextDirection.Rtl
-        ) + ParagraphStyle(
-            textAlign = TextAlign.Justify,
-            lineHeight = 12.sp
-        )
+        val style =
+            ParagraphStyle(textAlign = TextAlign.Center, textDirection = TextDirection.Rtl) +
+                ParagraphStyle(textAlign = TextAlign.Justify, lineHeight = 12.sp)
 
-        assertThat(style).isEqualTo(
-            ParagraphStyle(
-                textAlign = TextAlign.Justify, // overridden by RHS
-                textDirection = TextDirection.Rtl, // from LHS,
-                lineHeight = 12.sp // from RHS
+        assertThat(style)
+            .isEqualTo(
+                ParagraphStyle(
+                    textAlign = TextAlign.Justify, // overridden by RHS
+                    textDirection = TextDirection.Rtl, // from LHS,
+                    lineHeight = 12.sp // from RHS
+                )
             )
-        )
     }
 
     @Test
@@ -378,9 +373,7 @@ class ParagraphStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
-        assertThat(newStyle.textIndent).isEqualTo(
-            lerp(TextIndent(), style2.textIndent!!, fraction)
-        )
+        assertThat(newStyle.textIndent).isEqualTo(lerp(TextIndent(), style2.textIndent!!, fraction))
     }
 
     @Test
@@ -390,9 +383,8 @@ class ParagraphStyleTest {
         val fraction = 0.6f
         val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
-        assertThat(newStyle.textIndent).isEqualTo(
-            lerp(style1.textIndent!!, style2.textIndent!!, fraction)
-        )
+        assertThat(newStyle.textIndent)
+            .isEqualTo(lerp(style1.textIndent!!, style2.textIndent!!, fraction))
     }
 
     @Test
@@ -403,9 +395,8 @@ class ParagraphStyleTest {
 
         val newStyle = lerp(start = style1, stop = style2, fraction = fraction)
 
-        assertThat(newStyle.lineHeight).isEqualTo(
-            lerp(style1.lineHeight, style2.lineHeight, fraction)
-        )
+        assertThat(newStyle.lineHeight)
+            .isEqualTo(lerp(style1.lineHeight, style2.lineHeight, fraction))
     }
 
     @Test
@@ -556,34 +547,25 @@ class ParagraphStyleTest {
 
     @Test
     fun `hashCode is different for different line height behavior`() {
-        val style = ParagraphStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.None
+        val style =
+            ParagraphStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.None)
             )
-        )
-        val otherStyle = ParagraphStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Center,
-                trim = Trim.Both
+        val otherStyle =
+            ParagraphStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.Both)
             )
-        )
 
         assertThat(style.hashCode()).isNotEqualTo(otherStyle.hashCode())
     }
 
     @Test
     fun `copy with lineHeightStyle returns new lineHeightStyle`() {
-        val style = ParagraphStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.None
+        val style =
+            ParagraphStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.None)
             )
-        )
-        val newLineHeightStyle = LineHeightStyle(
-            alignment = Alignment.Center,
-            trim = Trim.Both
-        )
+        val newLineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.Both)
         val newStyle = style.copy(lineHeightStyle = newLineHeightStyle)
 
         assertThat(newStyle.lineHeightStyle).isEqualTo(newLineHeightStyle)
@@ -591,12 +573,10 @@ class ParagraphStyleTest {
 
     @Test
     fun `copy without lineHeightStyle uses existing lineHeightStyle`() {
-        val style = ParagraphStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.Both
+        val style =
+            ParagraphStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.Both)
             )
-        )
         val newStyle = style.copy()
 
         assertThat(newStyle.lineHeightStyle).isEqualTo(style.lineHeightStyle)
@@ -698,18 +678,14 @@ class ParagraphStyleTest {
 
     @Test
     fun `merge with both non-null lineHeightStyle returns other's lineHeightStyle`() {
-        val style = ParagraphStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Center,
-                trim = Trim.None
+        val style =
+            ParagraphStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.None)
             )
-        )
-        val otherStyle = ParagraphStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Bottom,
-                trim = Trim.Both
+        val otherStyle =
+            ParagraphStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.Both)
             )
-        )
 
         val newStyle = style.merge(otherStyle)
 

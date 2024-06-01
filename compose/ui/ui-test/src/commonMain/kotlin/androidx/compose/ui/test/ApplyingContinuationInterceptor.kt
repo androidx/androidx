@@ -29,35 +29,32 @@ import kotlin.coroutines.CoroutineContext
  * has [resumed][Continuation.resumeWith].
  *
  * This means that all snapshot backed state changes that were made in coroutines intercepted by
- * this class will be advertised to any observers after each individual coroutine rather than
- * after a set of coroutines.
+ * this class will be advertised to any observers after each individual coroutine rather than after
+ * a set of coroutines.
  *
  * For the testing framework specifically, this enables calls to [MainTestClock.advanceTimeBy] to
  * recompose during the same call to `advanceTimeBy`, if state was changed by coroutines that were
  * dispatched more than a frame before the end of that advancement.
  */
 @OptIn(ExperimentalStdlibApi::class, InternalTestApi::class)
-internal class ApplyingContinuationInterceptor(
-    private val delegate: ContinuationInterceptor
-) : DelayPropagatingContinuationInterceptorWrapper(delegate) {
+internal class ApplyingContinuationInterceptor(private val delegate: ContinuationInterceptor) :
+    DelayPropagatingContinuationInterceptorWrapper(delegate) {
 
-    companion object Key : AbstractCoroutineContextKey<
-        ContinuationInterceptor,
-        ApplyingContinuationInterceptor
-        >(
-        ContinuationInterceptor,
-        { it as? ApplyingContinuationInterceptor }
-    )
+    companion object Key :
+        AbstractCoroutineContextKey<ContinuationInterceptor, ApplyingContinuationInterceptor>(
+            ContinuationInterceptor,
+            { it as? ApplyingContinuationInterceptor }
+        )
 
-    override val key: CoroutineContext.Key<*> get() = Key
+    override val key: CoroutineContext.Key<*>
+        get() = Key
 
     override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
         return delegate.interceptContinuation(SendApplyContinuation(continuation))
     }
 
-    private class SendApplyContinuation<T>(
-        private val continuation: Continuation<T>
-    ) : Continuation<T> {
+    private class SendApplyContinuation<T>(private val continuation: Continuation<T>) :
+        Continuation<T> {
         override val context: CoroutineContext
             get() = continuation.context
 

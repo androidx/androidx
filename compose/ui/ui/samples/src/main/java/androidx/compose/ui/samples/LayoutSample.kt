@@ -50,20 +50,23 @@ fun LayoutUsage(content: @Composable () -> Unit) {
     Layout(content) { measurables, constraints ->
         // measurables contains one element corresponding to each of our layout children.
         // constraints are the constraints that our parent is currently measuring us with.
-        val childConstraints = Constraints(
-            minWidth = constraints.minWidth / 2,
-            minHeight = constraints.minHeight / 2,
-            maxWidth = if (constraints.hasBoundedWidth) {
-                constraints.maxWidth / 2
-            } else {
-                Constraints.Infinity
-            },
-            maxHeight = if (constraints.hasBoundedHeight) {
-                constraints.maxHeight / 2
-            } else {
-                Constraints.Infinity
-            }
-        )
+        val childConstraints =
+            Constraints(
+                minWidth = constraints.minWidth / 2,
+                minHeight = constraints.minHeight / 2,
+                maxWidth =
+                    if (constraints.hasBoundedWidth) {
+                        constraints.maxWidth / 2
+                    } else {
+                        Constraints.Infinity
+                    },
+                maxHeight =
+                    if (constraints.hasBoundedHeight) {
+                        constraints.maxHeight / 2
+                    } else {
+                        Constraints.Infinity
+                    }
+            )
         // We measure the children with half our constraints, to ensure we can be double
         // the size of the children.
         val placeables = measurables.map { it.measure(childConstraints) }
@@ -84,64 +87,69 @@ fun LayoutUsage(content: @Composable () -> Unit) {
 fun LayoutWithProvidedIntrinsicsUsage(content: @Composable () -> Unit) {
     // We build a layout that will occupy twice as much space as its children,
     // and will position them to be bottom right aligned.
-    val measurePolicy = object : MeasurePolicy {
-        override fun MeasureScope.measure(
-            measurables: List<Measurable>,
-            constraints: Constraints
-        ): MeasureResult {
-            // measurables contains one element corresponding to each of our layout children.
-            // constraints are the constraints that our parent is currently measuring us with.
-            val childConstraints = Constraints(
-                minWidth = constraints.minWidth / 2,
-                minHeight = constraints.minHeight / 2,
-                maxWidth = if (constraints.hasBoundedWidth) {
-                    constraints.maxWidth / 2
-                } else {
-                    Constraints.Infinity
-                },
-                maxHeight = if (constraints.hasBoundedHeight) {
-                    constraints.maxHeight / 2
-                } else {
-                    Constraints.Infinity
-                }
-            )
-            // We measure the children with half our constraints, to ensure we can be double
-            // the size of the children.
-            val placeables = measurables.map { it.measure(childConstraints) }
-            val layoutWidth = (placeables.maxByOrNull { it.width }?.width ?: 0) * 2
-            val layoutHeight = (placeables.maxByOrNull { it.height }?.height ?: 0) * 2
-            // We call layout to set the size of the current layout and to provide the positioning
-            // of the children. The children are placed relative to the current layout place.
-            return layout(layoutWidth, layoutHeight) {
-                placeables.forEach {
-                    it.placeRelative(layoutWidth - it.width, layoutHeight - it.height)
+    val measurePolicy =
+        object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                // measurables contains one element corresponding to each of our layout children.
+                // constraints are the constraints that our parent is currently measuring us with.
+                val childConstraints =
+                    Constraints(
+                        minWidth = constraints.minWidth / 2,
+                        minHeight = constraints.minHeight / 2,
+                        maxWidth =
+                            if (constraints.hasBoundedWidth) {
+                                constraints.maxWidth / 2
+                            } else {
+                                Constraints.Infinity
+                            },
+                        maxHeight =
+                            if (constraints.hasBoundedHeight) {
+                                constraints.maxHeight / 2
+                            } else {
+                                Constraints.Infinity
+                            }
+                    )
+                // We measure the children with half our constraints, to ensure we can be double
+                // the size of the children.
+                val placeables = measurables.map { it.measure(childConstraints) }
+                val layoutWidth = (placeables.maxByOrNull { it.width }?.width ?: 0) * 2
+                val layoutHeight = (placeables.maxByOrNull { it.height }?.height ?: 0) * 2
+                // We call layout to set the size of the current layout and to provide the
+                // positioning
+                // of the children. The children are placed relative to the current layout place.
+                return layout(layoutWidth, layoutHeight) {
+                    placeables.forEach {
+                        it.placeRelative(layoutWidth - it.width, layoutHeight - it.height)
+                    }
                 }
             }
+
+            // The min intrinsic width of this layout will be twice the largest min intrinsic
+            // width of a child. Note that we call minIntrinsicWidth with h / 2 for children,
+            // since we should be double the size of the children.
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ) = (measurables.map { it.minIntrinsicWidth(height / 2) }.maxByOrNull { it } ?: 0) * 2
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ) = (measurables.map { it.minIntrinsicHeight(width / 2) }.maxByOrNull { it } ?: 0) * 2
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ) = (measurables.map { it.maxIntrinsicHeight(height / 2) }.maxByOrNull { it } ?: 0) * 2
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ) = (measurables.map { it.maxIntrinsicHeight(width / 2) }.maxByOrNull { it } ?: 0) * 2
         }
-
-        // The min intrinsic width of this layout will be twice the largest min intrinsic
-        // width of a child. Note that we call minIntrinsicWidth with h / 2 for children,
-        // since we should be double the size of the children.
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-            measurables: List<IntrinsicMeasurable>,
-            height: Int
-        ) = (measurables.map { it.minIntrinsicWidth(height / 2) }.maxByOrNull { it } ?: 0) * 2
-
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-            measurables: List<IntrinsicMeasurable>,
-            width: Int
-        ) = (measurables.map { it.minIntrinsicHeight(width / 2) }.maxByOrNull { it } ?: 0) * 2
-
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-            measurables: List<IntrinsicMeasurable>,
-            height: Int
-        ) = (measurables.map { it.maxIntrinsicHeight(height / 2) }.maxByOrNull { it } ?: 0) * 2
-
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-            measurables: List<IntrinsicMeasurable>,
-            width: Int
-        ) = (measurables.map { it.maxIntrinsicHeight(width / 2) }.maxByOrNull { it } ?: 0) * 2
-    }
 
     Layout(content = content, measurePolicy = measurePolicy)
 }
@@ -155,38 +163,38 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
         Box(Modifier.layoutId("header")) { header() }
         Box(Modifier.layoutId("footer")) { footer() }
     }) { measurables, constraints ->
-        val placeables = measurables.map { measurable ->
-            when (measurable.layoutId) {
-                // You should use appropriate constraints. Here we measure fake constraints.
-                "header" -> measurable.measure(Constraints.fixed(100, 100))
-                "footer" -> measurable.measure(constraints)
-                else -> error("Unexpected tag")
+        val placeables =
+            measurables.map { measurable ->
+                when (measurable.layoutId) {
+                    // You should use appropriate constraints. Here we measure fake constraints.
+                    "header" -> measurable.measure(Constraints.fixed(100, 100))
+                    "footer" -> measurable.measure(constraints)
+                    else -> error("Unexpected tag")
+                }
             }
-        }
         // Size should be derived from children measured sizes on placeables,
         // but this is simplified for the purposes of the example.
-        layout(100, 100) {
-            placeables.forEach { it.placeRelative(0, 0) }
-        }
+        layout(100, 100) { placeables.forEach { it.placeRelative(0, 0) } }
     }
 }
 
 @Sampled
 @Composable
 fun LayoutModifierSample() {
-    val verticalPadding = object : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints
-        ): MeasureResult {
-            // an example modifier that adds 50 pixels of vertical padding.
-            val padding = 50
-            val placeable = measurable.measure(constraints.offset(vertical = -padding))
-            return layout(placeable.width, placeable.height + padding) {
-                placeable.placeRelative(0, padding)
+    val verticalPadding =
+        object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                // an example modifier that adds 50 pixels of vertical padding.
+                val padding = 50
+                val placeable = measurable.measure(constraints.offset(vertical = -padding))
+                return layout(placeable.width, placeable.height + padding) {
+                    placeable.placeRelative(0, padding)
+                }
             }
         }
-    }
     Box(Modifier.background(Color.Gray).then(verticalPadding)) {
         Box(Modifier.fillMaxSize().background(Color.DarkGray))
     }
@@ -208,13 +216,13 @@ fun LayoutModifierNodeSample() {
             }
         }
     }
-    data class VerticalPaddingElement(
-        val padding: Dp
-    ) : ModifierNodeElement<VerticalPadding>() {
+    data class VerticalPaddingElement(val padding: Dp) : ModifierNodeElement<VerticalPadding>() {
         override fun create() = VerticalPadding(padding)
+
         override fun update(node: VerticalPadding) {
             node.padding = padding
         }
+
         override fun InspectorInfo.inspectableProperties() {
             name = "verticalPadding"
             properties["padding"] = padding
@@ -230,15 +238,14 @@ fun LayoutModifierNodeSample() {
 @Composable
 fun ConvenienceLayoutModifierSample() {
     Box(
-        Modifier.background(Color.Gray)
-            .layout { measurable, constraints ->
-                // an example modifier that adds 50 pixels of vertical padding.
-                val padding = 50
-                val placeable = measurable.measure(constraints.offset(vertical = -padding))
-                layout(placeable.width, placeable.height + padding) {
-                    placeable.placeRelative(0, padding)
-                }
+        Modifier.background(Color.Gray).layout { measurable, constraints ->
+            // an example modifier that adds 50 pixels of vertical padding.
+            val padding = 50
+            val placeable = measurable.measure(constraints.offset(vertical = -padding))
+            layout(placeable.width, placeable.height + padding) {
+                placeable.placeRelative(0, padding)
             }
+        }
     ) {
         Box(Modifier.fillMaxSize().background(Color.DarkGray))
     }

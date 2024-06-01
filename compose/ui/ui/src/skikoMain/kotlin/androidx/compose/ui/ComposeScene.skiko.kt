@@ -56,9 +56,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 
-internal val LocalComposeScene = staticCompositionLocalOf<ComposeScene> {
-    error("CompositionLocal LocalComposeScene not provided")
-}
+internal val LocalComposeScene =
+    staticCompositionLocalOf<ComposeScene> {
+        error("CompositionLocal LocalComposeScene not provided")
+    }
 
 /**
  * A virtual container that encapsulates Compose UI content. UI content can be constructed via
@@ -68,10 +69,11 @@ internal val LocalComposeScene = staticCompositionLocalOf<ComposeScene> {
  *
  * To specify available size for the content, you should use [constraints].
  *
- * After [ComposeScene] will no longer needed, you should call [close] method, so all resources
- * and subscriptions will be properly closed. Otherwise there can be a memory leak.
+ * After [ComposeScene] will no longer needed, you should call [close] method, so all resources and
+ * subscriptions will be properly closed. Otherwise there can be a memory leak.
  */
-class ComposeScene internal constructor(
+class ComposeScene
+internal constructor(
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     internal val component: PlatformComponent,
     density: Density = Density(1f),
@@ -81,34 +83,30 @@ class ComposeScene internal constructor(
      * Constructs [ComposeScene]
      *
      * @param coroutineContext Context which will be used to launch effects ([LaunchedEffect],
-     * [rememberCoroutineScope]) and run recompositions.
+     *   [rememberCoroutineScope]) and run recompositions.
      * @param density Initial density of the content which will be used to convert [dp] units.
      * @param invalidate Callback which will be called when the content need to be recomposed or
-     * rerendered. If you draw your content using [render] method, in this callback you should
-     * schedule the next [render] in your rendering loop.
+     *   rerendered. If you draw your content using [render] method, in this callback you should
+     *   schedule the next [render] in your rendering loop.
      */
     constructor(
         coroutineContext: CoroutineContext = Dispatchers.Unconfined,
         density: Density = Density(1f),
         invalidate: () -> Unit = {}
-    ) : this(
-        coroutineContext,
-        DummyPlatformComponent,
-        density,
-        invalidate
-    )
+    ) : this(coroutineContext, DummyPlatformComponent, density, invalidate)
 
     private var isInvalidationDisabled = false
 
-    @Volatile
-    private var hasPendingDraws = true
+    @Volatile private var hasPendingDraws = true
+
     private inline fun <T> postponeInvalidation(block: () -> T): T {
         isInvalidationDisabled = true
-        val result = try {
-            block()
-        } finally {
-            isInvalidationDisabled = false
-        }
+        val result =
+            try {
+                block()
+            } finally {
+                isInvalidationDisabled = false
+            }
         invalidateIfNeeded()
         return result
     }
@@ -130,11 +128,12 @@ class ComposeScene internal constructor(
     }
 
     /**
-     * All currently registered [RootForTest]s. After calling [setContent] the first root
-     * will be added. If there is an any [Popup] is present in the content, it will be added as
-     * another [RootForTest]
+     * All currently registered [RootForTest]s. After calling [setContent] the first root will be
+     * added. If there is an any [Popup] is present in the content, it will be added as another
+     * [RootForTest]
      */
-    val roots: Set<RootForTest> get() = list
+    val roots: Set<RootForTest>
+        get() = list
 
     private val defaultPointerStateTracker = DefaultPointerStateTracker()
 
@@ -156,9 +155,7 @@ class ComposeScene internal constructor(
     internal var mainOwner: SkiaBasedOwner? = null
     private var composition: Composition? = null
 
-    /**
-     * Density of the content which will be used to convert [dp] units.
-     */
+    /** Density of the content which will be used to convert [dp] units. */
     var density: Density = density
         set(value) {
             check(!isClosed) { "ComposeScene is closed" }
@@ -182,8 +179,8 @@ class ComposeScene internal constructor(
      * Close all resources and subscriptions. Not calling this method when [ComposeScene] is no
      * longer needed will cause a memory leak.
      *
-     * All effects launched via [LaunchedEffect] or [rememberCoroutineScope] will be cancelled
-     * (but not immediately).
+     * All effects launched via [LaunchedEffect] or [rememberCoroutineScope] will be cancelled (but
+     * not immediately).
      *
      * After calling this method, you cannot call any other method of this [ComposeScene].
      */
@@ -196,19 +193,18 @@ class ComposeScene internal constructor(
     }
 
     private fun dispatchCommand(command: () -> Unit) {
-        coroutineScope.launch {
-            command()
-        }
+        coroutineScope.launch { command() }
     }
 
     /**
-     * Returns true if there are pending recompositions, renders or dispatched tasks.
-     * Can be called from any thread.
+     * Returns true if there are pending recompositions, renders or dispatched tasks. Can be called
+     * from any thread.
      */
-    fun hasInvalidations() = hasPendingDraws ||
-        recomposer.hasPendingWork ||
-        effectDispatcher.hasTasks() ||
-        recomposeDispatcher.hasTasks()
+    fun hasInvalidations() =
+        hasPendingDraws ||
+            recomposer.hasPendingWork ||
+            effectDispatcher.hasTasks() ||
+            recomposeDispatcher.hasTasks()
 
     internal fun attach(owner: SkiaBasedOwner) {
         check(!isClosed) { "ComposeScene is closed" }
@@ -216,10 +212,7 @@ class ComposeScene internal constructor(
         owner.onNeedRender = ::invalidateIfNeeded
         owner.onDispatchCommand = ::dispatchCommand
         owner.constraints = constraints
-        owner.accessibilityController = makeAccessibilityController(
-            owner,
-            component
-        )
+        owner.accessibilityController = makeAccessibilityController(owner, component)
         invalidateIfNeeded()
         if (owner.isFocusable) {
             focusedOwner = owner
@@ -238,20 +231,16 @@ class ComposeScene internal constructor(
     }
 
     /**
-     * Update the composition with the content described by the [content] composable. After this
-     * has been called the changes to produce the initial composition has been calculated and
-     * applied to the composition.
+     * Update the composition with the content described by the [content] composable. After this has
+     * been called the changes to produce the initial composition has been calculated and applied to
+     * the composition.
      *
      * Will throw an [IllegalStateException] if the composition has been disposed.
      *
      * @param content Content of the [ComposeScene]
      */
-    fun setContent(
-        content: @Composable () -> Unit
-    ) = setContent(
-        parentComposition = null,
-        content = content
-    )
+    fun setContent(content: @Composable () -> Unit) =
+        setContent(parentComposition = null, content = content)
 
     // TODO(demin): We should configure routing of key events if there
     //  are any popups/root present:
@@ -275,41 +264,34 @@ class ComposeScene internal constructor(
         check(!isClosed) { "ComposeScene is closed" }
         composition?.dispose()
         mainOwner?.dispose()
-        val mainOwner = SkiaBasedOwner(
-            platformInputService = platformInputService,
-            component = component,
-            density = density,
-            coroutineContext = recomposer.effectCoroutineContext,
-            onPreviewKeyEvent = onPreviewKeyEvent,
-            onKeyEvent = onKeyEvent
-        )
-        attach(mainOwner)
-        composition = mainOwner.setContent(parentComposition ?: recomposer) {
-            CompositionLocalProvider(
-                LocalComposeScene provides this,
-                content = content
+        val mainOwner =
+            SkiaBasedOwner(
+                platformInputService = platformInputService,
+                component = component,
+                density = density,
+                coroutineContext = recomposer.effectCoroutineContext,
+                onPreviewKeyEvent = onPreviewKeyEvent,
+                onKeyEvent = onKeyEvent
             )
-        }
+        attach(mainOwner)
+        composition =
+            mainOwner.setContent(parentComposition ?: recomposer) {
+                CompositionLocalProvider(LocalComposeScene provides this, content = content)
+            }
         this.mainOwner = mainOwner
 
         // to perform all pending work synchronously. to start LaunchedEffect for example
         recomposeDispatcher.flush()
     }
 
-    /**
-     * Set constraints, which will be used to measure and layout content.
-     */
+    /** Set constraints, which will be used to measure and layout content. */
     var constraints: Constraints = Constraints()
         set(value) {
             field = value
-            forEachOwner {
-                it.constraints = constraints
-            }
+            forEachOwner { it.constraints = constraints }
         }
 
-    /**
-     * Returns the current content size
-     */
+    /** Returns the current content size */
     val contentSize: IntSize
         get() {
             check(!isClosed) { "ComposeScene is closed" }
@@ -330,9 +312,7 @@ class ComposeScene internal constructor(
             recomposeDispatcher.flush()
             frameClock.sendFrame(nanoTime)
 
-            forEachOwner {
-                it.render(canvas)
-            }
+            forEachOwner { it.render(canvas) }
         }
     }
 
@@ -345,9 +325,8 @@ class ComposeScene internal constructor(
     private val hoveredOwner: SkiaBasedOwner?
         get() = list.lastOrNull { it.isHovered(pointLocation) } ?: list.lastOrNull()
 
-    private fun SkiaBasedOwner?.isAbove(
-        targetOwner: SkiaBasedOwner?
-    ) = list.indexOf(this) > list.indexOf(targetOwner)
+    private fun SkiaBasedOwner?.isAbove(targetOwner: SkiaBasedOwner?) =
+        list.indexOf(this) > list.indexOf(targetOwner)
 
     // TODO(demin): return Boolean (when it is consumed).
     //  see ComposeLayer todo about AWTDebounceEventQueue
@@ -357,13 +336,13 @@ class ComposeScene internal constructor(
      * @param eventType Indicates the primary reason that the event was sent.
      * @param position The [Offset] of the current pointer event, relative to the content.
      * @param scrollDelta scroll delta for the PointerEventType.Scroll event
-     * @param timeMillis The time of the current pointer event, in milliseconds. The start (`0`) time
-     * is platform-dependent.
-     * @param type The device type that produced the event, such as [mouse][PointerType.Mouse],
-     * or [touch][PointerType.Touch].
+     * @param timeMillis The time of the current pointer event, in milliseconds. The start (`0`)
+     *   time is platform-dependent.
+     * @param type The device type that produced the event, such as [mouse][PointerType.Mouse], or
+     *   [touch][PointerType.Touch].
      * @param buttons Contains the state of pointer buttons (e.g. mouse and stylus buttons).
-     * @param keyboardModifiers Contains the state of modifier keys, such as Shift, Control,
-     * and Alt, as well as the state of the lock keys, such as Caps Lock and Num Lock.
+     * @param keyboardModifiers Contains the state of modifier keys, such as Shift, Control, and
+     *   Alt, as well as the state of the lock keys, such as Caps Lock and Num Lock.
      * @param nativeEvent The original native event.
      */
     @OptIn(ExperimentalComposeUiApi::class)
@@ -388,18 +367,19 @@ class ComposeScene internal constructor(
             PointerEventType.Press -> isMousePressed = true
             PointerEventType.Release -> isMousePressed = false
         }
-        val event = pointerInputEvent(
-            eventType,
-            position,
-            timeMillis,
-            nativeEvent,
-            type,
-            isMousePressed,
-            pointerId,
-            scrollDelta,
-            actualButtons,
-            actualKeyboardModifiers
-        )
+        val event =
+            pointerInputEvent(
+                eventType,
+                position,
+                timeMillis,
+                nativeEvent,
+                type,
+                isMousePressed,
+                pointerId,
+                scrollDelta,
+                actualButtons,
+                actualKeyboardModifiers
+            )
         when (eventType) {
             PointerEventType.Press -> onMousePressed(event)
             PointerEventType.Release -> onMouseReleased(event)
@@ -436,6 +416,7 @@ class ComposeScene internal constructor(
 
     /**
      * Send [KeyEvent] to the content.
+     *
      * @return true if the event was consumed by the content
      */
     fun sendKeyEvent(event: ComposeKeyEvent): Boolean = postponeInvalidation {

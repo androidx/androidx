@@ -67,19 +67,14 @@ fun ClipboardDemo() {
     var selectedUri: Uri? by remember { mutableStateOf(null) }
     var pastedUri: Uri? by remember { mutableStateOf(null) }
 
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            selectedUri = uri
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                selectedUri = uri
+            }
         }
-    }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    Box(Modifier.fillMaxSize().padding(16.dp)) {
         Column {
             Text(
                 "First load an image from local files.\n" +
@@ -88,23 +83,26 @@ fun ClipboardDemo() {
 
             if (selectedUri != null) {
                 UriImage(uri = selectedUri!!)
-                Button(onClick = {
-                    clipboardManager.setClip(
-                        ClipData
-                            .newUri(context.contentResolver, "Image", selectedUri!!)
-                            .toClipEntry()
-                    )
-                }) {
+                Button(
+                    onClick = {
+                        clipboardManager.setClip(
+                            ClipData.newUri(context.contentResolver, "Image", selectedUri!!)
+                                .toClipEntry()
+                        )
+                    }
+                ) {
                     Text("Copy")
                 }
             } else {
                 ImagePlaceholder()
             }
-            Button(onClick = {
-                launcher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            }) {
+            Button(
+                onClick = {
+                    launcher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                }
+            ) {
                 Text("Load")
             }
 
@@ -116,24 +114,29 @@ fun ClipboardDemo() {
 
             Text("Or paste an image if one is available in the clipboard.")
 
-            Button(onClick = {
-                if (clipboardManager.hasImage()) {
-                    pastedUri = clipboardManager.getClip()?.firstUriOrNull()
-                } else {
-                    Toast.makeText(
-                        context,
-                        "There are no images in the clipboard",
-                        Toast.LENGTH_SHORT
-                    ).show()
+            Button(
+                onClick = {
+                    if (clipboardManager.hasImage()) {
+                        pastedUri = clipboardManager.getClip()?.firstUriOrNull()
+                    } else {
+                        Toast.makeText(
+                                context,
+                                "There are no images in the clipboard",
+                                Toast.LENGTH_SHORT
+                            )
+                            .show()
+                    }
                 }
-            }) {
+            ) {
                 Text("Paste")
             }
 
-            Button(onClick = {
-                selectedUri = null
-                pastedUri = null
-            }) {
+            Button(
+                onClick = {
+                    selectedUri = null
+                    pastedUri = null
+                }
+            ) {
                 Text("Clear")
             }
         }
@@ -141,45 +144,38 @@ fun ClipboardDemo() {
 }
 
 @Composable
-fun UriImage(
-    uri: Uri,
-    modifier: Modifier = Modifier
-) {
+fun UriImage(uri: Uri, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val imageBitmap by produceState<ImageBitmap?>(null, uri) {
-        withContext(Dispatchers.IO) {
-            value = uri.readImageBitmap(context)
+    val imageBitmap by
+        produceState<ImageBitmap?>(null, uri) {
+            withContext(Dispatchers.IO) { value = uri.readImageBitmap(context) }
         }
-    }
 
     imageBitmap?.let {
-        Image(
-            bitmap = it,
-            contentDescription = "image from file",
-            modifier = modifier
-        )
+        Image(bitmap = it, contentDescription = "image from file", modifier = modifier)
     }
 }
 
 @Composable
 fun ImagePlaceholder() {
-    Box(modifier = Modifier
-        .size(200.dp)
-        .drawBehind {
-            drawRect(Color.Blue, alpha = 0.4f, style = Stroke(width = 1.dp.toPx()))
-            drawLine(
-                Color.Blue,
-                alpha = 0.4f,
-                start = Offset.Zero,
-                end = Offset(size.width, size.height)
-            )
-            drawLine(
-                Color.Blue,
-                alpha = 0.4f,
-                start = Offset(size.width, 0f),
-                end = Offset(0f, size.height)
-            )
-        }) {
+    Box(
+        modifier =
+            Modifier.size(200.dp).drawBehind {
+                drawRect(Color.Blue, alpha = 0.4f, style = Stroke(width = 1.dp.toPx()))
+                drawLine(
+                    Color.Blue,
+                    alpha = 0.4f,
+                    start = Offset.Zero,
+                    end = Offset(size.width, size.height)
+                )
+                drawLine(
+                    Color.Blue,
+                    alpha = 0.4f,
+                    start = Offset(size.width, 0f),
+                    end = Offset(0f, size.height)
+                )
+            }
+    ) {
         Text("No Image", Modifier.align(Alignment.Center))
     }
 }
@@ -193,8 +189,9 @@ fun ClipboardManager.hasImage(): Boolean {
 @Suppress("ClassVerificationFailure", "DEPRECATION")
 fun Uri.readImageBitmap(context: Context): ImageBitmap {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
-    } else {
-        MediaStore.Images.Media.getBitmap(context.contentResolver, this)
-    }.asImageBitmap()
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, this))
+        } else {
+            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+        }
+        .asImageBitmap()
 }

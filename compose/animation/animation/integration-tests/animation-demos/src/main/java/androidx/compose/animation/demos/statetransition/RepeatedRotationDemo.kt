@@ -49,46 +49,37 @@ import androidx.compose.ui.unit.dp
 fun RepeatedRotationDemo() {
     val state = remember { mutableStateOf(RotationStates.Original) }
     Column(
-        Modifier.fillMaxSize()
-            .wrapContentSize(Alignment.Center),
+        Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Button(
-            { state.value = RotationStates.Rotated }
-        ) {
-            Text(text = "Rotate 10 times")
-        }
+        Button({ state.value = RotationStates.Rotated }) { Text(text = "Rotate 10 times") }
         Spacer(Modifier.requiredHeight(10.dp))
-        Button(
-            { state.value = RotationStates.Original }
-        ) {
-            Text(text = "Reset")
-        }
+        Button({ state.value = RotationStates.Original }) { Text(text = "Reset") }
         Spacer(Modifier.requiredHeight(10.dp))
         val transition = updateTransition(state.value)
         @Suppress("UnusedTransitionTargetStateParameter")
-        val rotation by transition.animateFloat(
-            transitionSpec = {
-                if (initialState == RotationStates.Original) {
-                    repeatable(
-                        iterations = 10,
-                        animation = keyframes {
-                            durationMillis = 1000
-                            0f at 0 using LinearEasing
-                            360f at 1000
-                        }
-                    )
-                } else {
-                    tween(durationMillis = 300)
+        val rotation by
+            transition.animateFloat(
+                transitionSpec = {
+                    if (initialState == RotationStates.Original) {
+                        repeatable(
+                            iterations = 10,
+                            animation =
+                                keyframes {
+                                    durationMillis = 1000
+                                    0f at 0 using LinearEasing
+                                    360f at 1000
+                                }
+                        )
+                    } else {
+                        tween(durationMillis = 300)
+                    }
                 }
+            ) {
+                0f
             }
-        ) {
-            0f
-        }
         Canvas(Modifier.size(100.dp)) {
-            rotate(rotation, Offset.Zero) {
-                drawRect(Color(0xFF00FF00))
-            }
+            rotate(rotation, Offset.Zero) { drawRect(Color(0xFF00FF00)) }
         }
     }
 }

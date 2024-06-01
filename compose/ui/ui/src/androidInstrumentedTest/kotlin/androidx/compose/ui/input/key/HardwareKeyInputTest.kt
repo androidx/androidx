@@ -48,8 +48,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalComposeUiApi::class)
 class HardwareKeyInputTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val initialFocus = FocusRequester()
 
@@ -59,8 +58,7 @@ class HardwareKeyInputTest {
         var receivedKeyEvent: KeyEvent? = null
         rule.setContentWithInitialFocus {
             Box(
-                Modifier
-                    .onInterceptKeyBeforeSoftKeyboard {
+                Modifier.onInterceptKeyBeforeSoftKeyboard {
                         receivedKeyEvent = it
                         true
                     }
@@ -87,8 +85,7 @@ class HardwareKeyInputTest {
         var receivedKeyEvent: KeyEvent? = null
         rule.setContentWithInitialFocus {
             Box(
-                Modifier
-                    .onPreInterceptKeyBeforeSoftKeyboard {
+                Modifier.onPreInterceptKeyBeforeSoftKeyboard {
                         receivedKeyEvent = it
                         true
                     }
@@ -116,8 +113,7 @@ class HardwareKeyInputTest {
         var receivedKeyEvent: KeyEvent? = null
         rule.setContentWithInitialFocus {
             Box(
-                Modifier
-                    .onInterceptKeyBeforeSoftKeyboard {
+                Modifier.onInterceptKeyBeforeSoftKeyboard {
                         receivedKeyEvent = it
                         true
                     }
@@ -152,8 +148,7 @@ class HardwareKeyInputTest {
         var onInterceptedPreKeyEventTrigger = 0
         rule.setContentWithInitialFocus {
             Box(
-                Modifier
-                    .onInterceptKeyBeforeSoftKeyboard {
+                Modifier.onInterceptKeyBeforeSoftKeyboard {
                         onInterceptedKeyEventTrigger = triggerIndex++
                         true
                     }
@@ -186,8 +181,7 @@ class HardwareKeyInputTest {
         var onPreviewKeyEventTrigger = 0
         rule.setContentWithInitialFocus {
             Box(
-                Modifier
-                    .onKeyEvent {
+                Modifier.onKeyEvent {
                         onKeyEventTrigger = triggerIndex++
                         false
                     }
@@ -234,8 +228,7 @@ class HardwareKeyInputTest {
         var onPreKeyEventParentTrigger = 0
         rule.setContentWithInitialFocus {
             Box(
-                Modifier
-                    .onKeyEvent {
+                Modifier.onKeyEvent {
                         onKeyEventParentTrigger = triggerIndex++
                         false
                     }
@@ -253,8 +246,7 @@ class HardwareKeyInputTest {
                     }
             ) {
                 Box(
-                    Modifier
-                        .onKeyEvent {
+                    Modifier.onKeyEvent {
                             onKeyEventChildTrigger = triggerIndex++
                             false
                         }
@@ -293,12 +285,8 @@ class HardwareKeyInputTest {
     }
 
     private fun ComposeContentTestRule.setContentWithInitialFocus(content: @Composable () -> Unit) {
-        setFocusableContent {
-            Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
-        }
-        runOnIdle {
-            initialFocus.requestFocus()
-        }
+        setFocusableContent { Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() } }
+        runOnIdle { initialFocus.requestFocus() }
     }
 
     /**
@@ -306,11 +294,12 @@ class HardwareKeyInputTest {
      * [KeyEvent] that can be used in tests.
      */
     private fun keyEvent(keycode: Int, keyEventType: KeyEventType): KeyEvent {
-        val action = when (keyEventType) {
-            KeyDown -> ACTION_DOWN
-            KeyUp -> ACTION_UP
-            else -> error("Unknown key event type")
-        }
+        val action =
+            when (keyEventType) {
+                KeyDown -> ACTION_DOWN
+                KeyUp -> ACTION_UP
+                else -> error("Unknown key event type")
+            }
         return KeyEvent(AndroidKeyEvent(0L, 0L, action, keycode, 0, 0))
     }
 }

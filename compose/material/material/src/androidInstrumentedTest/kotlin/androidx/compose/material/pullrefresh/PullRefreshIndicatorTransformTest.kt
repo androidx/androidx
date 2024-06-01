@@ -45,12 +45,13 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterialApi::class)
 class PullRefreshIndicatorTransformTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // Convert from floats to DP to avoid rounding issues later
 
-    private val IndicatorSize get() = with(rule.density) { 200f.toDp() }
+    private val IndicatorSize
+        get() = with(rule.density) { 200f.toDp() }
+
     // Make the box large enough so that when the indicator is offset when not shown, it is still
     // offset to within the bounds of the containing box
     private val ContainingBoxSize = with(rule.density) { 800f.toDp() }
@@ -62,8 +63,7 @@ class PullRefreshIndicatorTransformTest {
         rule.setContent {
             val state = rememberPullRefreshState(refreshing = false, {})
             Box(
-                Modifier
-                    .fillMaxSize()
+                Modifier.fillMaxSize()
                     .background(Color.White)
                     .wrapContentSize(Alignment.Center)
                     // Set a larger size so that when offset the indicator will still appear
@@ -71,10 +71,10 @@ class PullRefreshIndicatorTransformTest {
                     .testTag(BoxTag),
                 contentAlignment = Alignment.Center
             ) {
-                Box(Modifier
-                    .pullRefreshIndicatorTransform(state)
-                    .size(IndicatorSize)
-                    .background(Color.Black)
+                Box(
+                    Modifier.pullRefreshIndicatorTransform(state)
+                        .size(IndicatorSize)
+                        .background(Color.Black)
                 )
             }
         }
@@ -89,12 +89,10 @@ class PullRefreshIndicatorTransformTest {
         rule.setContent {
             // Pull down by 100 pixels (the actual position delta is half of this because the state
             // applies a multiplier)
-            state = rememberPullRefreshState(refreshing = false, onRefresh = {}).apply {
-                onPull(100f)
-            }
+            state =
+                rememberPullRefreshState(refreshing = false, onRefresh = {}).apply { onPull(100f) }
             Box(
-                Modifier
-                    .fillMaxSize()
+                Modifier.fillMaxSize()
                     .background(Color.White)
                     .wrapContentSize(Alignment.Center)
                     // Set a larger size so that when offset the indicator will still appear
@@ -102,19 +100,20 @@ class PullRefreshIndicatorTransformTest {
                     .testTag(BoxTag),
                 contentAlignment = Alignment.Center
             ) {
-                Box(Modifier
-                    .pullRefreshIndicatorTransform(state)
-                    .size(IndicatorSize)
-                    .background(Color.Black)
+                Box(
+                    Modifier.pullRefreshIndicatorTransform(state)
+                        .size(IndicatorSize)
+                        .background(Color.Black)
                 )
             }
         }
         // The indicator should be partially clipped
         rule.onNodeWithTag(BoxTag).captureToImage().run {
             val indicatorStart = with(rule.density) { width / 2 - IndicatorSize.toPx() / 2 }.toInt()
-            val indicatorXRange = with(rule.density) {
-                indicatorStart until (indicatorStart + IndicatorSize.toPx()).toInt()
-            }
+            val indicatorXRange =
+                with(rule.density) {
+                    indicatorStart until (indicatorStart + IndicatorSize.toPx()).toInt()
+                }
 
             val indicatorTop = with(rule.density) { height / 2 - IndicatorSize.toPx() / 2 }.toInt()
             val indicatorYRange = indicatorTop until indicatorTop + state.position.toInt()
@@ -122,11 +121,12 @@ class PullRefreshIndicatorTransformTest {
             val pixel = toPixelMap()
             for (x in 0 until width) {
                 for (y in 0 until height) {
-                    val expectedColor = if (x in indicatorXRange && y in indicatorYRange) {
-                        Color.Black
-                    } else {
-                        Color.White
-                    }
+                    val expectedColor =
+                        if (x in indicatorXRange && y in indicatorYRange) {
+                            Color.Black
+                        } else {
+                            Color.White
+                        }
                     pixel.assertPixelColor(expectedColor, x, y)
                 }
             }
@@ -141,14 +141,14 @@ class PullRefreshIndicatorTransformTest {
             // Set refreshing and set the refreshing offset to match the indicator size -
             // this means that the indicator will start to show at an offset of 0 from its normal
             // layout position, since by default it is negatively offset by its height
-            state = rememberPullRefreshState(
-                refreshing = true,
-                onRefresh = {},
-                refreshingOffset = IndicatorSize
-            )
+            state =
+                rememberPullRefreshState(
+                    refreshing = true,
+                    onRefresh = {},
+                    refreshingOffset = IndicatorSize
+                )
             Box(
-                Modifier
-                    .fillMaxSize()
+                Modifier.fillMaxSize()
                     .background(Color.White)
                     .wrapContentSize(Alignment.Center)
                     // Set a larger size so that when offset the indicator will still appear
@@ -156,33 +156,36 @@ class PullRefreshIndicatorTransformTest {
                     .testTag(BoxTag),
                 contentAlignment = Alignment.Center
             ) {
-                Box(Modifier
-                    .pullRefreshIndicatorTransform(state)
-                    .size(IndicatorSize)
-                    .background(Color.Black)
+                Box(
+                    Modifier.pullRefreshIndicatorTransform(state)
+                        .size(IndicatorSize)
+                        .background(Color.Black)
                 )
             }
         }
         // The indicator should be fully visible
         rule.onNodeWithTag(BoxTag).captureToImage().run {
             val indicatorStart = with(rule.density) { width / 2 - IndicatorSize.toPx() / 2 }.toInt()
-            val indicatorXRange = with(rule.density) {
-                indicatorStart until (indicatorStart + IndicatorSize.toPx()).toInt()
-            }
+            val indicatorXRange =
+                with(rule.density) {
+                    indicatorStart until (indicatorStart + IndicatorSize.toPx()).toInt()
+                }
 
             val indicatorTop = with(rule.density) { height / 2 - IndicatorSize.toPx() / 2 }.toInt()
-            val indicatorYRange = with(rule.density) {
-                indicatorTop until (indicatorTop + IndicatorSize.toPx()).toInt()
-            }
+            val indicatorYRange =
+                with(rule.density) {
+                    indicatorTop until (indicatorTop + IndicatorSize.toPx()).toInt()
+                }
 
             val pixel = toPixelMap()
             for (x in 0 until width) {
                 for (y in 0 until height) {
-                    val expectedColor = if (x in indicatorXRange && y in indicatorYRange) {
-                        Color.Black
-                    } else {
-                        Color.White
-                    }
+                    val expectedColor =
+                        if (x in indicatorXRange && y in indicatorYRange) {
+                            Color.Black
+                        } else {
+                            Color.White
+                        }
                     pixel.assertPixelColor(expectedColor, x, y)
                 }
             }

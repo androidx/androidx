@@ -27,55 +27,62 @@ class ImageVectorBuilderTest {
 
     @Test
     fun dslAndBuilderAreEqual() {
-        val builderFunctionVector = builder().apply {
-            addGroup(name = "Vector", pivotX = 0.2f, pivotY = 0.4f)
-            addPath(
-                listOf(PathNode.LineTo(10f, 10f), PathNode.Close)
-            )
-            addPath(
-                listOf(
-                    PathNode.HorizontalTo(20f),
-                    PathNode.RelativeReflectiveCurveTo(40f, 40f, 10f, 10f),
-                    PathNode.Close
-                )
-            )
-            clearGroup()
-        }.build()
+        val builderFunctionVector =
+            builder()
+                .apply {
+                    addGroup(name = "Vector", pivotX = 0.2f, pivotY = 0.4f)
+                    addPath(listOf(PathNode.LineTo(10f, 10f), PathNode.Close))
+                    addPath(
+                        listOf(
+                            PathNode.HorizontalTo(20f),
+                            PathNode.RelativeReflectiveCurveTo(40f, 40f, 10f, 10f),
+                            PathNode.Close
+                        )
+                    )
+                    clearGroup()
+                }
+                .build()
 
-        val dslFunctionVector = builder().apply {
-            group(name = "Vector", pivotX = 0.2f, pivotY = 0.4f) {
-                path {
-                    lineTo(10f, 10f)
-                    close()
+        val dslFunctionVector =
+            builder()
+                .apply {
+                    group(name = "Vector", pivotX = 0.2f, pivotY = 0.4f) {
+                        path {
+                            lineTo(10f, 10f)
+                            close()
+                        }
+                        path {
+                            horizontalLineTo(20f)
+                            reflectiveCurveToRelative(40f, 40f, 10f, 10f)
+                            close()
+                        }
+                    }
                 }
-                path {
-                    horizontalLineTo(20f)
-                    reflectiveCurveToRelative(40f, 40f, 10f, 10f)
-                    close()
-                }
-            }
-        }.build()
+                .build()
 
         Truth.assertThat(dslFunctionVector).isEqualTo(builderFunctionVector)
     }
 
     @Test
     fun testAddGroup() {
-        val imageVector = builder().apply {
-            addGroup("group1")
-            addPath(name = "path1", pathData = emptyList())
-            addGroup("group2")
-            addPath(name = "path2", pathData = emptyList())
-            clearGroup()
-            addGroup("group3")
-            addPath(name = "path3", pathData = emptyList())
-            addPath(name = "path4", pathData = emptyList())
-            clearGroup()
-            clearGroup()
-            addGroup(name = "group4")
-            addPath(name = "path5", pathData = emptyList())
-            // intentionally avoid popping group as build will pop all groups to the root
-        }.build()
+        val imageVector =
+            builder()
+                .apply {
+                    addGroup("group1")
+                    addPath(name = "path1", pathData = emptyList())
+                    addGroup("group2")
+                    addPath(name = "path2", pathData = emptyList())
+                    clearGroup()
+                    addGroup("group3")
+                    addPath(name = "path3", pathData = emptyList())
+                    addPath(name = "path4", pathData = emptyList())
+                    clearGroup()
+                    clearGroup()
+                    addGroup(name = "group4")
+                    addPath(name = "path5", pathData = emptyList())
+                    // intentionally avoid popping group as build will pop all groups to the root
+                }
+                .build()
 
         val root = imageVector.root
         Truth.assertThat(root.size).isEqualTo(2)
@@ -114,9 +121,10 @@ class ImageVectorBuilderTest {
     }
 }
 
-private fun builder() = ImageVector.Builder(
-    defaultWidth = 10.dp,
-    defaultHeight = 10.dp,
-    viewportWidth = 10f,
-    viewportHeight = 10f
-)
+private fun builder() =
+    ImageVector.Builder(
+        defaultWidth = 10.dp,
+        defaultHeight = 10.dp,
+        viewportWidth = 10f,
+        viewportHeight = 10f
+    )

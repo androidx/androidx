@@ -22,7 +22,7 @@ class StepTest(useFir: Boolean) : AbstractDebuggerTest(useFir) {
     @Test
     fun testSteppingIntoIf() {
         collectDebugEvents(
-            """
+                """
             import androidx.compose.runtime.*
             @Composable
             fun content() {
@@ -35,9 +35,11 @@ class StepTest(useFir: Boolean) : AbstractDebuggerTest(useFir) {
             fun computeIt(): Boolean = false
             @Composable
             fun anotherComposable() { }
-            """.trimIndent()
-        ).assertTrace(
             """
+                    .trimIndent()
+            )
+            .assertTrace(
+                """
             Test.kt:3 content
             Test.kt:4 content
             Test.kt:10 computeIt
@@ -45,7 +47,8 @@ class StepTest(useFir: Boolean) : AbstractDebuggerTest(useFir) {
             Test.kt:5 content
             Test.kt:8 content
             Test.kt:9 content
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 }

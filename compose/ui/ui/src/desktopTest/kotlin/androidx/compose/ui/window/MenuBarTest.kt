@@ -70,9 +70,7 @@ class MenuBarTest {
                 assertThat(getMenuComponent(1)).isInstanceOf(JSeparator::class.java)
             }
 
-            getMenu(1).apply {
-                assertThat(itemCount).isEqualTo(0)
-            }
+            getMenu(1).apply { assertThat(itemCount).isEqualTo(0) }
         }
 
         isMenubarShowing = false
@@ -268,11 +266,7 @@ class MenuBarTest {
             Window(onCloseRequest = {}) {
                 window = this.window
 
-                MenuBar {
-                    Menu("Menu") {
-                        Item("Item", icon = icon, onClick = {})
-                    }
-                }
+                MenuBar { Menu("Menu") { Item("Item", icon = icon, onClick = {}) } }
             }
         }
 
@@ -303,9 +297,7 @@ class MenuBarTest {
                 window = this.window
 
                 MenuBar {
-                    Menu("Menu") {
-                        Item("Item", icon = redIcon, enabled = false, onClick = {})
-                    }
+                    Menu("Menu") { Item("Item", icon = redIcon, enabled = false, onClick = {}) }
                 }
             }
         }
@@ -363,9 +355,7 @@ class MenuBarTest {
                 window = this.window
 
                 MenuBar {
-                    Menu("Menu") {
-                        CheckboxItem("Item", checked = checked, onCheckedChange = { })
-                    }
+                    Menu("Menu") { CheckboxItem("Item", checked = checked, onCheckedChange = {}) }
                 }
             }
         }
@@ -400,10 +390,14 @@ class MenuBarTest {
                 MenuBar {
                     Menu("Menu") {
                         RadioButtonItem(
-                            "Item0", selected = selected == 0, onClick = { selected = 0 }
+                            "Item0",
+                            selected = selected == 0,
+                            onClick = { selected = 0 }
                         )
                         RadioButtonItem(
-                            "Item1", selected = selected == 1, onClick = { selected = 1 }
+                            "Item1",
+                            selected = selected == 1,
+                            onClick = { selected = 1 }
                         )
                     }
                 }
@@ -443,12 +437,8 @@ class MenuBarTest {
 
                 MenuBar {
                     Menu("Menu") {
-                        RadioButtonItem(
-                            "Item0", selected = selected == 0, onClick = { }
-                        )
-                        RadioButtonItem(
-                            "Item1", selected = selected == 1, onClick = { }
-                        )
+                        RadioButtonItem("Item0", selected = selected == 0, onClick = {})
+                        RadioButtonItem("Item1", selected = selected == 1, onClick = {})
                     }
                 }
             }

@@ -36,12 +36,7 @@ fun JetsnackDivider(
     thickness: Dp = 1.dp,
     startIndent: Dp = 0.dp
 ) {
-    Divider(
-        modifier = modifier,
-        color = color,
-        thickness = thickness,
-        startIndent = startIndent
-    )
+    Divider(modifier = modifier, color = color, thickness = thickness, startIndent = startIndent)
 }
 
 private const val DividerAlpha = 0.12f

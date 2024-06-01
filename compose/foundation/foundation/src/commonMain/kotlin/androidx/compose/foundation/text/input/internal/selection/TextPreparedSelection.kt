@@ -51,36 +51,34 @@ internal class TextFieldPreparedSelectionState {
      */
     var cachedX: Float = Float.NaN
 
-    /**
-     * Remove and forget the cached X used for vertical navigation.
-     */
+    /** Remove and forget the cached X used for vertical navigation. */
     fun resetCachedX() {
         cachedX = Float.NaN
     }
 }
 
 /**
- * This utility class implements many selection-related operations on text (including basic
- * cursor movements and deletions) and combines them, taking into account how the text was
- * rendered. So, for example, [moveCursorToLineEnd] moves it to the visual line end.
+ * This utility class implements many selection-related operations on text (including basic cursor
+ * movements and deletions) and combines them, taking into account how the text was rendered. So,
+ * for example, [moveCursorToLineEnd] moves it to the visual line end.
  *
  * For many of these operations, it's particularly important to keep the difference between
  * selection start and selection end. In some systems, they are called "anchor" and "caret"
  * respectively. For example, for selection from scratch, after [moveCursorLeftByWord]
- * [moveCursorRight] will move the left side of the selection, but after [moveCursorRightByWord]
- * the right one.
+ * [moveCursorRight] will move the left side of the selection, but after [moveCursorRightByWord] the
+ * right one.
  *
  * @param state Transformed version of TextFieldState that helps to manipulate underlying buffer
- * through transformed coordinates.
- * @param textLayoutResult Visual representation of text inside [state]. Used to calculate line
- * and paragraph metrics.
+ *   through transformed coordinates.
+ * @param textLayoutResult Visual representation of text inside [state]. Used to calculate line and
+ *   paragraph metrics.
  * @param isFromSoftKeyboard Whether the source event that created this selection context is coming
- * from the IME.
+ *   from the IME.
  * @param visibleTextLayoutHeight Height of the visible area of text inside TextField to decide
- * where cursor needs to move when page up/down is requested.
+ *   where cursor needs to move when page up/down is requested.
  * @param textPreparedSelectionState An object that holds any context that needs to be long lived
- * between successive [TextFieldPreparedSelection]s, e.g. original X position of the cursor while
- * moving the cursor up/down.
+ *   between successive [TextFieldPreparedSelection]s, e.g. original X position of the cursor while
+ *   moving the cursor up/down.
  */
 internal class TextFieldPreparedSelection(
     private val state: TransformedTextFieldState,
@@ -97,14 +95,10 @@ internal class TextFieldPreparedSelection(
      */
     val initialValue = Snapshot.withoutReadObservation { state.visualText }
 
-    /**
-     * Current active selection in the context of this [TextFieldPreparedSelection]
-     */
+    /** Current active selection in the context of this [TextFieldPreparedSelection] */
     var selection = initialValue.selection
 
-    /**
-     * Initial text value.
-     */
+    /** Initial text value. */
     private val text: String = initialValue.toString()
 
     /**
@@ -129,34 +123,27 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    /**
-     * Executes PageUp key
-     */
-    fun moveCursorUpByPage() = applyIfNotEmpty(false) {
-        setCursor(jumpByPagesOffset(-1))
-    }
+    /** Executes PageUp key */
+    fun moveCursorUpByPage() = applyIfNotEmpty(false) { setCursor(jumpByPagesOffset(-1)) }
+
+    /** Executes PageDown key */
+    fun moveCursorDownByPage() = applyIfNotEmpty(false) { setCursor(jumpByPagesOffset(1)) }
 
     /**
-     * Executes PageDown key
-     */
-    fun moveCursorDownByPage() = applyIfNotEmpty(false) {
-        setCursor(jumpByPagesOffset(1))
-    }
-
-    /**
-     * Returns a cursor position after jumping back or forth by [pagesAmount] number of pages,
-     * where `page` is the visible amount of space in the text field. Visible rectangle is
-     * calculated by the coordinates of decoration box around the TextField. If text layout has not
-     * been measured yet, this function returns the current offset.
+     * Returns a cursor position after jumping back or forth by [pagesAmount] number of pages, where
+     * `page` is the visible amount of space in the text field. Visible rectangle is calculated by
+     * the coordinates of decoration box around the TextField. If text layout has not been measured
+     * yet, this function returns the current offset.
      */
     private fun jumpByPagesOffset(pagesAmount: Int): Int {
         val currentOffset = initialValue.selection.end
         if (textLayoutResult == null || visibleTextLayoutHeight.isNaN()) return currentOffset
         val currentPos = textLayoutResult.getCursorRect(currentOffset)
-        val newPos = currentPos.translate(
-            translateX = 0f,
-            translateY = visibleTextLayoutHeight * pagesAmount
-        )
+        val newPos =
+            currentPos.translate(
+                translateX = 0f,
+                translateY = visibleTextLayoutHeight * pagesAmount
+            )
         // which line does the new cursor position belong?
         val topLine = textLayoutResult.getLineForVerticalPosition(newPos.top)
         val lineSeparator = textLayoutResult.getLineBottom(topLine)
@@ -172,7 +159,8 @@ internal class TextFieldPreparedSelection(
     /**
      * Only apply the given [block] if the text is not empty.
      *
-     * @param resetCachedX Whether to reset the cachedX parameter in [TextFieldPreparedSelectionState].
+     * @param resetCachedX Whether to reset the cachedX parameter in
+     *   [TextFieldPreparedSelectionState].
      */
     private inline fun applyIfNotEmpty(
         resetCachedX: Boolean = true,
@@ -187,20 +175,14 @@ internal class TextFieldPreparedSelection(
         return this
     }
 
-    /**
-     * Sets a collapsed selection at given [offset].
-     */
+    /** Sets a collapsed selection at given [offset]. */
     private fun setCursor(offset: Int) {
         selection = TextRange(offset, offset)
     }
 
-    fun selectAll() = applyIfNotEmpty {
-        selection = TextRange(0, text.length)
-    }
+    fun selectAll() = applyIfNotEmpty { selection = TextRange(0, text.length) }
 
-    fun deselect() = applyIfNotEmpty {
-        setCursor(selection.end)
-    }
+    fun deselect() = applyIfNotEmpty { setCursor(selection.end) }
 
     fun moveCursorLeft() = applyIfNotEmpty {
         if (isLtr()) {
@@ -218,9 +200,7 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    /**
-     * If there is already a selection, collapse it to the left side. Otherwise, execute [or]
-     */
+    /** If there is already a selection, collapse it to the left side. Otherwise, execute [or] */
     fun collapseLeftOr(or: TextFieldPreparedSelection.() -> Unit) = applyIfNotEmpty {
         if (selection.collapsed) {
             or(this)
@@ -233,9 +213,7 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    /**
-     * If there is already a selection, collapse it to the right side. Otherwise, execute [or]
-     */
+    /** If there is already a selection, collapse it to the right side. Otherwise, execute [or] */
     fun collapseRightOr(or: TextFieldPreparedSelection.() -> Unit) = applyIfNotEmpty {
         if (selection.collapsed) {
             or(this)
@@ -248,9 +226,7 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    /**
-     * Returns the index of the character break preceding the end of [selection].
-     */
+    /** Returns the index of the character break preceding the end of [selection]. */
     fun getPrecedingCharacterIndex() = text.findPrecedingBreak(selection.end)
 
     /**
@@ -275,13 +251,9 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    fun moveCursorToHome() = applyIfNotEmpty {
-        setCursor(0)
-    }
+    fun moveCursorToHome() = applyIfNotEmpty { setCursor(0) }
 
-    fun moveCursorToEnd() = applyIfNotEmpty {
-        setCursor(text.length)
-    }
+    fun moveCursorToEnd() = applyIfNotEmpty { setCursor(text.length) }
 
     fun moveCursorLeftByWord() = applyIfNotEmpty {
         if (isLtr()) {
@@ -299,18 +271,13 @@ internal class TextFieldPreparedSelection(
         }
     }
 
-    fun getNextWordOffset(): Int =
-        textLayoutResult?.getNextWordOffsetForLayout() ?: text.length
+    fun getNextWordOffset(): Int = textLayoutResult?.getNextWordOffsetForLayout() ?: text.length
 
-    private fun moveCursorNextByWord() = applyIfNotEmpty {
-        setCursor(getNextWordOffset())
-    }
+    private fun moveCursorNextByWord() = applyIfNotEmpty { setCursor(getNextWordOffset()) }
 
     fun getPreviousWordOffset(): Int = textLayoutResult?.getPrevWordOffsetForLayout() ?: 0
 
-    private fun moveCursorPrevByWord() = applyIfNotEmpty {
-        setCursor(getPreviousWordOffset())
-    }
+    private fun moveCursorPrevByWord() = applyIfNotEmpty { setCursor(getPreviousWordOffset()) }
 
     fun moveCursorPrevByParagraph() = applyIfNotEmpty {
         var paragraphStart = text.findParagraphStart(selection.min)
@@ -330,30 +297,21 @@ internal class TextFieldPreparedSelection(
 
     fun moveCursorUpByLine(): TextFieldPreparedSelection {
         textLayoutResult ?: return this
-        return applyIfNotEmpty(false) {
-            setCursor(textLayoutResult!!.jumpByLinesOffset(-1))
-        }
+        return applyIfNotEmpty(false) { setCursor(textLayoutResult!!.jumpByLinesOffset(-1)) }
     }
 
     fun moveCursorDownByLine(): TextFieldPreparedSelection {
         textLayoutResult ?: return this
-        return applyIfNotEmpty(false) {
-            setCursor(textLayoutResult!!.jumpByLinesOffset(1))
-        }
+        return applyIfNotEmpty(false) { setCursor(textLayoutResult!!.jumpByLinesOffset(1)) }
     }
 
     fun getLineStartByOffset(): Int = textLayoutResult?.getLineStartByOffsetForLayout() ?: 0
 
-    fun moveCursorToLineStart() = applyIfNotEmpty {
-        setCursor(getLineStartByOffset())
-    }
+    fun moveCursorToLineStart() = applyIfNotEmpty { setCursor(getLineStartByOffset()) }
 
-    fun getLineEndByOffset(): Int =
-        textLayoutResult?.getLineEndByOffsetForLayout() ?: text.length
+    fun getLineEndByOffset(): Int = textLayoutResult?.getLineEndByOffsetForLayout() ?: text.length
 
-    fun moveCursorToLineEnd() = applyIfNotEmpty {
-        setCursor(getLineEndByOffset())
-    }
+    fun moveCursorToLineEnd() = applyIfNotEmpty { setCursor(getLineEndByOffset()) }
 
     fun moveCursorToLineLeftSide() = applyIfNotEmpty {
         if (isLtr()) {
@@ -372,9 +330,10 @@ internal class TextFieldPreparedSelection(
     }
 
     /** Selects a text from the original selection start to a current selection end. */
-    fun selectMovement() = applyIfNotEmpty(resetCachedX = false) {
-        selection = TextRange(initialValue.selection.start, selection.end)
-    }
+    fun selectMovement() =
+        applyIfNotEmpty(resetCachedX = false) {
+            selection = TextRange(initialValue.selection.start, selection.end)
+        }
 
     private fun isLtr(): Boolean {
         val direction = textLayoutResult?.getParagraphDirection(selection.end) ?: return true
@@ -435,20 +394,21 @@ internal class TextFieldPreparedSelection(
             targetLine < 0 -> {
                 return 0
             }
-
             targetLine >= lineCount -> {
                 return text.length
             }
         }
 
         val y = getLineBottom(targetLine) - 1
-        val x = textPreparedSelectionState.cachedX.also {
-            if ((isLtr() && it >= getLineRight(targetLine)) ||
-                (!isLtr() && it <= getLineLeft(targetLine))
-            ) {
-                return getLineEnd(targetLine, true)
+        val x =
+            textPreparedSelectionState.cachedX.also {
+                if (
+                    (isLtr() && it >= getLineRight(targetLine)) ||
+                        (!isLtr() && it <= getLineLeft(targetLine))
+                ) {
+                    return getLineEnd(targetLine, true)
+                }
             }
-        }
 
         return getOffsetForPosition(Offset(x, y))
     }
@@ -482,11 +442,12 @@ internal fun calculateAdjacentCursorPosition(
     // First step: find the index of the next cursor position in the visual text. In most cases this
     // will be the final result, however if transformations are applied we may need to jump the
     // cursor forward or backward.
-    val proposedCursor = if (forward) {
-        transformedText.findFollowingBreak(cursor)
-    } else {
-        transformedText.findPrecedingBreak(cursor)
-    }
+    val proposedCursor =
+        if (forward) {
+            transformedText.findFollowingBreak(cursor)
+        } else {
+            transformedText.findPrecedingBreak(cursor)
+        }
     if (proposedCursor == NoCharacterFound) {
         // At the start or end of the text, no change.
         return cursor

@@ -21,21 +21,19 @@ import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.sign
 
-/**
- * Earth's gravity in SI units (m/s^2); used to compute deceleration based on friction.
- */
+/** Earth's gravity in SI units (m/s^2); used to compute deceleration based on friction. */
 private const val GravityEarth = 9.80665f
 private const val InchesPerMeter = 39.37f
 
 /**
- * The default rate of deceleration for a fling if not specified in the
- * [FlingCalculator] constructor.
+ * The default rate of deceleration for a fling if not specified in the [FlingCalculator]
+ * constructor.
  */
 private val DecelerationRate = (ln(0.78) / ln(0.9)).toFloat()
 
 /**
- * Compute the rate of deceleration based on pixel density, physical gravity
- * and a [coefficient of friction][friction].
+ * Compute the rate of deceleration based on pixel density, physical gravity and a
+ * [coefficient of friction][friction].
  */
 private fun computeDeceleration(friction: Float, density: Float): Float =
     GravityEarth * InchesPerMeter * density * 160f * friction
@@ -46,84 +44,62 @@ private fun computeDeceleration(friction: Float, density: Float): Float =
  * @param friction scroll friction.
  * @param density density of the screen. Use LocalDensity to get current density in composition.
  */
-internal class FlingCalculator(
-    private val friction: Float,
-    val density: Density
-) {
+internal class FlingCalculator(private val friction: Float, val density: Density) {
 
-    /**
-     * A density-specific coefficient adjusted to physical values.
-     */
+    /** A density-specific coefficient adjusted to physical values. */
     private val magicPhysicalCoefficient: Float = computeDeceleration(density)
 
-    /**
-     * Computes the rate of deceleration in pixels based on
-     * the given [density].
-     */
-    private fun computeDeceleration(density: Density) =
-        computeDeceleration(0.84f, density.density)
+    /** Computes the rate of deceleration in pixels based on the given [density]. */
+    private fun computeDeceleration(density: Density) = computeDeceleration(0.84f, density.density)
 
-    private fun getSplineDeceleration(velocity: Float): Double = AndroidFlingSpline.deceleration(
-        velocity,
-        friction * magicPhysicalCoefficient
-    )
+    private fun getSplineDeceleration(velocity: Float): Double =
+        AndroidFlingSpline.deceleration(velocity, friction * magicPhysicalCoefficient)
 
-    /**
-     * Compute the duration in milliseconds of a fling with an initial velocity of [velocity]
-     */
+    /** Compute the duration in milliseconds of a fling with an initial velocity of [velocity] */
     fun flingDuration(velocity: Float): Long {
         val l = getSplineDeceleration(velocity)
         val decelMinusOne = DecelerationRate - 1.0
         return (1000.0 * exp(l / decelMinusOne)).toLong()
     }
 
-    /**
-     * Compute the distance of a fling in units given an initial [velocity] of units/second
-     */
+    /** Compute the distance of a fling in units given an initial [velocity] of units/second */
     fun flingDistance(velocity: Float): Float {
         val l = getSplineDeceleration(velocity)
         val decelMinusOne = DecelerationRate - 1.0
-        return (
-            friction * magicPhysicalCoefficient
-                * exp(DecelerationRate / decelMinusOne * l)
-            ).toFloat()
+        return (friction * magicPhysicalCoefficient * exp(DecelerationRate / decelMinusOne * l))
+            .toFloat()
     }
 
-    /**
-     * Compute all interesting information about a fling of initial velocity [velocity].
-     */
+    /** Compute all interesting information about a fling of initial velocity [velocity]. */
     fun flingInfo(velocity: Float): FlingInfo {
         val l = getSplineDeceleration(velocity)
         val decelMinusOne = DecelerationRate - 1.0
         return FlingInfo(
             initialVelocity = velocity,
-            distance = (
-                friction * magicPhysicalCoefficient
-                    * exp(DecelerationRate / decelMinusOne * l)
-                ).toFloat(),
+            distance =
+                (friction * magicPhysicalCoefficient * exp(DecelerationRate / decelMinusOne * l))
+                    .toFloat(),
             duration = (1000.0 * exp(l / decelMinusOne)).toLong()
         )
     }
 
     /**
-     * Info about a fling started with [initialVelocity]. The units of [initialVelocity]
-     * determine the distance units of [distance] and the time units of [duration].
+     * Info about a fling started with [initialVelocity]. The units of [initialVelocity] determine
+     * the distance units of [distance] and the time units of [duration].
      */
-    data class FlingInfo(
-        val initialVelocity: Float,
-        val distance: Float,
-        val duration: Long
-    ) {
+    data class FlingInfo(val initialVelocity: Float, val distance: Float, val duration: Long) {
         fun position(time: Long): Float {
             val splinePos = if (duration > 0) time / duration.toFloat() else 1f
-            return distance * sign(initialVelocity) *
+            return distance *
+                sign(initialVelocity) *
                 AndroidFlingSpline.flingPosition(splinePos).distanceCoefficient
         }
 
         fun velocity(time: Long): Float {
             val splinePos = if (duration > 0) time / duration.toFloat() else 1f
             return AndroidFlingSpline.flingPosition(splinePos).velocityCoefficient *
-                sign(initialVelocity) * distance / duration * 1000.0f
+                sign(initialVelocity) *
+                distance / duration * 1000.0f
         }
     }
 }

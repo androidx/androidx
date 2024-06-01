@@ -39,7 +39,9 @@ import org.jetbrains.kotlin.psi.KtParameter
 
 @JvmDefaultWithCompatibility
 interface FunctionMetrics {
-    val isEmpty: Boolean get() = false
+    val isEmpty: Boolean
+        get() = false
+
     val packageName: FqName
     val name: String
     val composable: Boolean
@@ -53,11 +55,14 @@ interface FunctionMetrics {
     val groups: Int
     val calls: Int
     val scheme: String?
+
     fun recordGroup()
+
     fun recordComposableCall(
         expression: IrCall,
         paramMeta: List<ComposableFunctionBodyTransformer.CallArgumentMeta>
     )
+
     fun recordParameter(
         declaration: IrValueParameter,
         type: IrType,
@@ -66,6 +71,7 @@ interface FunctionMetrics {
         defaultStatic: Boolean,
         used: Boolean,
     )
+
     fun recordFunction(
         composable: Boolean,
         restartable: Boolean,
@@ -75,98 +81,141 @@ interface FunctionMetrics {
         hasDefaults: Boolean,
         readonly: Boolean
     )
-    fun recordScheme(
-        scheme: String
-    )
+
+    fun recordScheme(scheme: String)
+
     fun print(out: Appendable, src: IrSourcePrinterVisitor)
 }
 
 @JvmDefaultWithCompatibility
 interface ModuleMetrics {
-    val isEmpty get() = false
+    val isEmpty
+        get() = false
 
     fun recordFunction(
         function: FunctionMetrics,
     )
+
     fun recordClass(
         declaration: IrClass,
         marked: Boolean,
         stability: Stability,
     )
+
     fun recordLambda(
         composable: Boolean,
         memoized: Boolean,
         singleton: Boolean,
     )
+
     fun recordComposableCall(
         expression: IrCall,
         paramMeta: List<ComposableFunctionBodyTransformer.CallArgumentMeta>
     )
+
     fun log(message: String)
+
     fun Appendable.appendModuleJson()
+
     fun Appendable.appendComposablesCsv()
+
     fun Appendable.appendComposablesTxt()
+
     fun Appendable.appendClassesTxt()
+
     fun saveMetricsTo(directory: String)
+
     fun saveReportsTo(directory: String)
+
     fun makeFunctionMetrics(function: IrFunction): FunctionMetrics
 }
 
 object EmptyModuleMetrics : ModuleMetrics {
-    override val isEmpty: Boolean get() = true
+    override val isEmpty: Boolean
+        get() = true
+
     override fun recordFunction(function: FunctionMetrics) {}
+
     override fun recordClass(declaration: IrClass, marked: Boolean, stability: Stability) {}
+
     override fun recordLambda(composable: Boolean, memoized: Boolean, singleton: Boolean) {}
+
     override fun recordComposableCall(
         expression: IrCall,
         paramMeta: List<ComposableFunctionBodyTransformer.CallArgumentMeta>
     ) {}
+
     override fun log(message: String) {
         println(message)
     }
+
     override fun Appendable.appendModuleJson() {}
+
     override fun Appendable.appendComposablesCsv() {}
+
     override fun Appendable.appendComposablesTxt() {}
+
     override fun Appendable.appendClassesTxt() {}
+
     override fun saveMetricsTo(directory: String) {}
+
     override fun saveReportsTo(directory: String) {}
+
     override fun makeFunctionMetrics(function: IrFunction): FunctionMetrics = EmptyFunctionMetrics
 }
 
 object EmptyFunctionMetrics : FunctionMetrics {
     private fun emptyMetricsAccessed(): Nothing = error("Empty metrics accessed")
-    override val isEmpty: Boolean get() = true
+
+    override val isEmpty: Boolean
+        get() = true
+
     override val packageName: FqName
         get() = emptyMetricsAccessed()
+
     override val name: String
         get() = emptyMetricsAccessed()
+
     override val composable: Boolean
         get() = emptyMetricsAccessed()
+
     override val skippable: Boolean
         get() = emptyMetricsAccessed()
+
     override val restartable: Boolean
         get() = emptyMetricsAccessed()
+
     override val readonly: Boolean
         get() = emptyMetricsAccessed()
+
     override val inline: Boolean
         get() = emptyMetricsAccessed()
+
     override val isLambda: Boolean
         get() = emptyMetricsAccessed()
+
     override val hasDefaults: Boolean
         get() = emptyMetricsAccessed()
+
     override val defaultsGroup: Boolean
         get() = emptyMetricsAccessed()
+
     override val groups: Int
         get() = emptyMetricsAccessed()
+
     override val calls: Int
         get() = emptyMetricsAccessed()
+
     override val scheme: String
         get() = emptyMetricsAccessed()
+
     override fun recordGroup() {}
+
     override fun recordComposableCall(
         expression: IrCall,
         paramMeta: List<ComposableFunctionBodyTransformer.CallArgumentMeta>
     ) {}
+
     override fun recordParameter(
         declaration: IrValueParameter,
         type: IrType,
@@ -175,6 +224,7 @@ object EmptyFunctionMetrics : FunctionMetrics {
         defaultStatic: Boolean,
         used: Boolean
     ) {}
+
     override fun recordFunction(
         composable: Boolean,
         restartable: Boolean,
@@ -184,14 +234,13 @@ object EmptyFunctionMetrics : FunctionMetrics {
         hasDefaults: Boolean,
         readonly: Boolean
     ) {}
+
     override fun recordScheme(scheme: String) {}
+
     override fun print(out: Appendable, src: IrSourcePrinterVisitor) {}
 }
 
-class ModuleMetricsImpl(
-    var name: String,
-    val stabilityOf: (IrType) -> Stability
-) : ModuleMetrics {
+class ModuleMetricsImpl(var name: String, val stabilityOf: (IrType) -> Stability) : ModuleMetrics {
     private var skippableComposables = 0
     private var restartableComposables = 0
     private var readonlyComposables = 0
@@ -226,42 +275,47 @@ class ModuleMetricsImpl(
         val stability: Stability
     ) {
 
-        private fun Stability.simpleHumanReadable() = when {
-            knownStable() -> "stable"
-            knownUnstable() -> "unstable"
-            else -> "runtime"
-        }
-        fun print(out: Appendable, src: IrSourcePrinterVisitor) = with(out) {
-            append("${stability.simpleHumanReadable()} ")
-            append("class ")
-            append(declaration.name.asString())
-            appendLine(" {")
-            for (decl in declaration.declarations) {
-                val isVar = when (decl) {
-                    is IrProperty -> decl.isVar
-                    is IrField -> true
-                    else -> false
-                }
-                val field = when (decl) {
-                    is IrProperty -> decl.backingField ?: continue
-                    is IrField -> decl
-                    else -> continue
-                }
-                if (field.name == ComposeNames.STABILITY_FLAG) continue
-                append("  ")
-                val fieldStability = stabilityOf(field.type)
-                append("${fieldStability.simpleHumanReadable()} ")
-                append(if (isVar) "var " else "val ")
-                append(field.name.asString())
-                append(": ")
-                append(src.printType(field.type))
-                appendLine()
+        private fun Stability.simpleHumanReadable() =
+            when {
+                knownStable() -> "stable"
+                knownUnstable() -> "unstable"
+                else -> "runtime"
             }
-            if (!marked) {
-                appendLine("  <runtime stability> = $stability")
+
+        fun print(out: Appendable, src: IrSourcePrinterVisitor) =
+            with(out) {
+                append("${stability.simpleHumanReadable()} ")
+                append("class ")
+                append(declaration.name.asString())
+                appendLine(" {")
+                for (decl in declaration.declarations) {
+                    val isVar =
+                        when (decl) {
+                            is IrProperty -> decl.isVar
+                            is IrField -> true
+                            else -> false
+                        }
+                    val field =
+                        when (decl) {
+                            is IrProperty -> decl.backingField ?: continue
+                            is IrField -> decl
+                            else -> continue
+                        }
+                    if (field.name == ComposeNames.STABILITY_FLAG) continue
+                    append("  ")
+                    val fieldStability = stabilityOf(field.type)
+                    append("${fieldStability.simpleHumanReadable()} ")
+                    append(if (isVar) "var " else "val ")
+                    append(field.name.asString())
+                    append(": ")
+                    append(src.printType(field.type))
+                    appendLine()
+                }
+                if (!marked) {
+                    appendLine("  <runtime stability> = $stability")
+                }
+                appendLine("}")
             }
-            appendLine("}")
-        }
     }
 
     override fun recordFunction(function: FunctionMetrics) {
@@ -277,18 +331,8 @@ class ModuleMetricsImpl(
         totalGroups += function.groups
     }
 
-    override fun recordClass(
-        declaration: IrClass,
-        marked: Boolean,
-        stability: Stability
-    ) {
-        classes.add(
-            ClassMetrics(
-                declaration,
-                marked,
-                stability
-            )
-        )
+    override fun recordClass(declaration: IrClass, marked: Boolean, stability: Stability) {
+        classes.add(ClassMetrics(declaration, marked, stability))
         totalClasses++
         when {
             marked -> {
@@ -415,28 +459,16 @@ class ModuleMetricsImpl(
 
     override fun saveMetricsTo(directory: String) {
         val dir = File(directory)
-        val prefix = name
-            .replace('.', '_')
-            .replace("<", "")
-            .replace(">", "")
-        File(dir, "$prefix-module.json").write {
-            appendModuleJson()
-        }
+        val prefix = name.replace('.', '_').replace("<", "").replace(">", "")
+        File(dir, "$prefix-module.json").write { appendModuleJson() }
     }
 
     override fun saveReportsTo(directory: String) {
         val dir = File(directory)
-        val prefix = name
-            .replace('.', '_')
-            .replace("<", "")
-            .replace(">", "")
-        File(dir, "$prefix-composables.csv").write {
-            appendComposablesCsv()
-        }
+        val prefix = name.replace('.', '_').replace("<", "").replace(">", "")
+        File(dir, "$prefix-composables.csv").write { appendComposablesCsv() }
 
-        File(dir, "$prefix-composables.txt").write {
-            appendComposablesTxt()
-        }
+        File(dir, "$prefix-composables.txt").write { appendComposablesTxt() }
 
         if (logMessages.isNotEmpty()) {
             File(dir, "$prefix-composables.log").write {
@@ -444,18 +476,14 @@ class ModuleMetricsImpl(
             }
         }
 
-        File(dir, "$prefix-classes.txt").write {
-            appendClassesTxt()
-        }
+        File(dir, "$prefix-classes.txt").write { appendClassesTxt() }
     }
 
     override fun makeFunctionMetrics(function: IrFunction): FunctionMetrics =
         FunctionMetricsImpl(function)
 }
 
-class FunctionMetricsImpl(
-    val function: IrFunction
-) : FunctionMetrics {
+class FunctionMetricsImpl(val function: IrFunction) : FunctionMetrics {
     override var packageName: FqName = function.fqNameForIrSerialization
     override var name: String = function.name.asString()
     override var composable: Boolean = false
@@ -469,6 +497,7 @@ class FunctionMetricsImpl(
     override var groups: Int = 0
     override var calls: Int = 0
     override var scheme: String? = null
+
     private class Param(
         val declaration: IrValueParameter,
         val type: IrType,
@@ -478,28 +507,28 @@ class FunctionMetricsImpl(
         val used: Boolean
     ) {
         @OptIn(ObsoleteDescriptorBasedAPI::class)
-        fun print(out: Appendable, src: IrSourcePrinterVisitor) = with(out) {
-            if (!used) append("unused ")
-            when {
-                stability.knownStable() -> append("stable ")
-                stability.knownUnstable() -> append("unstable ")
-            }
-            append(declaration.name.asString())
-            append(": ")
-            append(src.printType(type))
-            if (default != null) {
-                append(" = ")
-                if (defaultStatic) append("@static ")
-                else append("@dynamic ")
-                val psi = declaration.symbol.descriptor.findPsi() as? KtParameter
-                val str = psi?.defaultValue?.text
-                if (str != null) {
-                    append(str)
-                } else {
-                    default.accept(src, null)
+        fun print(out: Appendable, src: IrSourcePrinterVisitor) =
+            with(out) {
+                if (!used) append("unused ")
+                when {
+                    stability.knownStable() -> append("stable ")
+                    stability.knownUnstable() -> append("unstable ")
+                }
+                append(declaration.name.asString())
+                append(": ")
+                append(src.printType(type))
+                if (default != null) {
+                    append(" = ")
+                    if (defaultStatic) append("@static ") else append("@dynamic ")
+                    val psi = declaration.symbol.descriptor.findPsi() as? KtParameter
+                    val str = psi?.defaultValue?.text
+                    if (str != null) {
+                        append(str)
+                    } else {
+                        default.accept(src, null)
+                    }
                 }
             }
-        }
     }
 
     private val parameters = mutableListOf<Param>()
@@ -557,29 +586,30 @@ class FunctionMetricsImpl(
         this.scheme = scheme
     }
 
-    override fun print(out: Appendable, src: IrSourcePrinterVisitor): Unit = with(out) {
-        if (restartable) append("restartable ")
-        if (skippable) append("skippable ")
-        if (readonly) append("readonly ")
-        if (inline) append("inline ")
-        scheme?.let { append("scheme(\"$it\") ") }
-        append("fun ")
-        append(name)
-        if (parameters.isEmpty()) {
-            appendLine("()")
-        } else {
-            appendLine("(")
-            for (param in parameters) {
-                append("  ")
-                param.print(out, src)
+    override fun print(out: Appendable, src: IrSourcePrinterVisitor): Unit =
+        with(out) {
+            if (restartable) append("restartable ")
+            if (skippable) append("skippable ")
+            if (readonly) append("readonly ")
+            if (inline) append("inline ")
+            scheme?.let { append("scheme(\"$it\") ") }
+            append("fun ")
+            append(name)
+            if (parameters.isEmpty()) {
+                appendLine("()")
+            } else {
+                appendLine("(")
+                for (param in parameters) {
+                    append("  ")
+                    param.print(out, src)
+                    appendLine()
+                }
+                append(")")
+                if (!function.returnType.isUnitOrNullableUnit()) {
+                    append(": ")
+                    append(src.printType(function.returnType))
+                }
                 appendLine()
             }
-            append(")")
-            if (!function.returnType.isUnitOrNullableUnit()) {
-                append(": ")
-                append(src.printType(function.returnType))
-            }
-            appendLine()
         }
-    }
 }

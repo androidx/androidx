@@ -41,39 +41,39 @@ import kotlinx.coroutines.flow.receiveAsFlow
 // need, and not what we provide. It only affects macOs. This size will be scaled in asAwtImage to
 // support DPI=2.0
 // Unfortunately I hadn't enough time to find sources from the official docs
-private val iconSize = when (DesktopPlatform.Current) {
-    // https://doc.qt.io/qt-5/qtwidgets-desktop-systray-example.html (search 22x22)
-    DesktopPlatform.Linux -> Size(22f, 22f)
-    // https://doc.qt.io/qt-5/qtwidgets-desktop-systray-example.html (search 16x16)
-    DesktopPlatform.Windows -> Size(16f, 16f)
-    // https://medium.com/@acwrightdesign/creating-a-macos-menu-bar-application-using-swiftui-54572a5d5f87
-    DesktopPlatform.MacOS -> Size(22f, 22f)
-    DesktopPlatform.Unknown -> Size(32f, 32f)
-}
+private val iconSize =
+    when (DesktopPlatform.Current) {
+        // https://doc.qt.io/qt-5/qtwidgets-desktop-systray-example.html (search 22x22)
+        DesktopPlatform.Linux -> Size(22f, 22f)
+        // https://doc.qt.io/qt-5/qtwidgets-desktop-systray-example.html (search 16x16)
+        DesktopPlatform.Windows -> Size(16f, 16f)
+        // https://medium.com/@acwrightdesign/creating-a-macos-menu-bar-application-using-swiftui-54572a5d5f87
+        DesktopPlatform.MacOS -> Size(22f, 22f)
+        DesktopPlatform.Unknown -> Size(32f, 32f)
+    }
 
-/**
- * `true` if the platform supports tray icons in the taskbar
- */
-val isTraySupported: Boolean get() = SystemTray.isSupported()
+/** `true` if the platform supports tray icons in the taskbar */
+val isTraySupported: Boolean
+    get() = SystemTray.isSupported()
 
 // TODO(demin): add mouse click/double-click/right click listeners (can we use PointerInputEvent?)
 /**
  * Adds tray icon to the platform taskbar if it is supported.
  *
- * If tray icon isn't supported by the platform, in the "standard" error output stream
- * will be printed an error.
+ * If tray icon isn't supported by the platform, in the "standard" error output stream will be
+ * printed an error.
  *
- * See [isTraySupported] to know if tray icon is supported
- * (for example to show/hide an option in the application settings)
+ * See [isTraySupported] to know if tray icon is supported (for example to show/hide an option in
+ * the application settings)
  *
  * @param icon Icon of the tray
  * @param state State to control tray and show notifications
  * @param tooltip Hint/tooltip that will be shown to the user
  * @param menu Context menu of the tray that will be shown to the user on the mouse click (right
- * click on Windows, left click on macOs).
- * If it doesn't contain any items then context menu will not be shown.
+ *   click on Windows, left click on macOs). If it doesn't contain any items then context menu will
+ *   not be shown.
  * @param onAction Action performed when user clicks on the tray icon (double click on Windows,
- * right click on macOs)
+ *   right click on macOs)
  */
 @Suppress("unused")
 @Composable
@@ -103,23 +103,23 @@ fun ApplicationScope.Tray(
 
     val currentOnAction by rememberUpdatedState(onAction)
 
-    val awtIcon = remember(icon) {
-        // We shouldn't use LocalDensity here because Tray's density doesn't equal it. It
-        // equals to the density of the screen on which it shows. Currently Swing doesn't
-        // provide us such information, it only requests an image with the desired width/height
-        // (see MultiResolutionImage.getResolutionVariant). Resources like svg/xml should look okay
-        // because they don't use absolute '.dp' values to draw, they use values which are
-        // relative to their viewport.
-        icon.toAwtImage(GlobalDensity, GlobalLayoutDirection, iconSize)
-    }
+    val awtIcon =
+        remember(icon) {
+            // We shouldn't use LocalDensity here because Tray's density doesn't equal it. It
+            // equals to the density of the screen on which it shows. Currently Swing doesn't
+            // provide us such information, it only requests an image with the desired width/height
+            // (see MultiResolutionImage.getResolutionVariant). Resources like svg/xml should look
+            // okay
+            // because they don't use absolute '.dp' values to draw, they use values which are
+            // relative to their viewport.
+            icon.toAwtImage(GlobalDensity, GlobalLayoutDirection, iconSize)
+        }
 
     val tray = remember {
         TrayIcon(awtIcon).apply {
             isImageAutoSize = true
 
-            addActionListener {
-                currentOnAction()
-            }
+            addActionListener { currentOnAction() }
         }
     }
     val popupMenu = remember { PopupMenu() }
@@ -136,15 +136,11 @@ fun ApplicationScope.Tray(
     DisposableEffect(Unit) {
         tray.popupMenu = popupMenu
 
-        val menuComposition = popupMenu.setContent(composition) {
-            currentMenu()
-        }
+        val menuComposition = popupMenu.setContent(composition) { currentMenu() }
 
         SystemTray.getSystemTray().add(tray)
 
-        state.notificationFlow
-            .onEach(tray::displayMessage)
-            .launchIn(coroutineScope)
+        state.notificationFlow.onEach(tray::displayMessage).launchIn(coroutineScope)
 
         onDispose {
             menuComposition.dispose()
@@ -153,13 +149,8 @@ fun ApplicationScope.Tray(
     }
 }
 
-/**
- * Creates a [WindowState] that is remembered across compositions.
- */
-@Composable
-fun rememberTrayState() = remember {
-    TrayState()
-}
+/** Creates a [WindowState] that is remembered across compositions. */
+@Composable fun rememberTrayState() = remember { TrayState() }
 
 /**
  * A state object that can be hoisted to control tray and show notifications.
@@ -170,9 +161,8 @@ class TrayState {
     private val notificationChannel = Channel<Notification>(0)
 
     /**
-     * Flow of notifications sent by [sendNotification].
-     * This flow doesn't have a buffer, so all previously sent notifications will not appear in
-     * this flow.
+     * Flow of notifications sent by [sendNotification]. This flow doesn't have a buffer, so all
+     * previously sent notifications will not appear in this flow.
      */
     val notificationFlow: Flow<Notification>
         get() = notificationChannel.receiveAsFlow()
@@ -187,12 +177,13 @@ class TrayState {
 }
 
 private fun TrayIcon.displayMessage(notification: Notification) {
-    val messageType = when (notification.type) {
-        Notification.Type.None -> TrayIcon.MessageType.NONE
-        Notification.Type.Info -> TrayIcon.MessageType.INFO
-        Notification.Type.Warning -> TrayIcon.MessageType.WARNING
-        Notification.Type.Error -> TrayIcon.MessageType.ERROR
-    }
+    val messageType =
+        when (notification.type) {
+            Notification.Type.None -> TrayIcon.MessageType.NONE
+            Notification.Type.Info -> TrayIcon.MessageType.INFO
+            Notification.Type.Warning -> TrayIcon.MessageType.WARNING
+            Notification.Type.Error -> TrayIcon.MessageType.ERROR
+        }
 
     displayMessage(notification.title, notification.message, messageType)
 }

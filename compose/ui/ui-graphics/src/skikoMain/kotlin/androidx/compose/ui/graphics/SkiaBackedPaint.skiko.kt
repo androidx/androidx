@@ -24,14 +24,11 @@ actual typealias NativePaint = org.jetbrains.skia.Paint
 
 actual fun Paint(): Paint = SkiaBackedPaint()
 
-/**
- * Convert the [org.jetbrains.skia.Paint] instance into a Compose-compatible Paint
- */
+/** Convert the [org.jetbrains.skia.Paint] instance into a Compose-compatible Paint */
 fun org.jetbrains.skia.Paint.asComposePaint(): Paint = SkiaBackedPaint(this)
 
-internal class SkiaBackedPaint(
-    val skia: org.jetbrains.skia.Paint = org.jetbrains.skia.Paint()
-) : Paint {
+internal class SkiaBackedPaint(val skia: org.jetbrains.skia.Paint = org.jetbrains.skia.Paint()) :
+    Paint {
     override fun asFrameworkPaint(): NativePaint = skia
 
     private var mAlphaMultiplier = 1.0f
@@ -125,25 +122,28 @@ internal class SkiaBackedPaint(
             field = value
         }
 
-    private fun PaintingStyle.toSkia() = when (this) {
-        PaintingStyle.Fill -> SkPaintMode.FILL
-        PaintingStyle.Stroke -> SkPaintMode.STROKE
-        else -> SkPaintMode.FILL
-    }
+    private fun PaintingStyle.toSkia() =
+        when (this) {
+            PaintingStyle.Fill -> SkPaintMode.FILL
+            PaintingStyle.Stroke -> SkPaintMode.STROKE
+            else -> SkPaintMode.FILL
+        }
 
-    private fun StrokeCap.toSkia() = when (this) {
-        StrokeCap.Butt -> SkPaintStrokeCap.BUTT
-        StrokeCap.Round -> SkPaintStrokeCap.ROUND
-        StrokeCap.Square -> SkPaintStrokeCap.SQUARE
-        else -> SkPaintStrokeCap.BUTT
-    }
+    private fun StrokeCap.toSkia() =
+        when (this) {
+            StrokeCap.Butt -> SkPaintStrokeCap.BUTT
+            StrokeCap.Round -> SkPaintStrokeCap.ROUND
+            StrokeCap.Square -> SkPaintStrokeCap.SQUARE
+            else -> SkPaintStrokeCap.BUTT
+        }
 
-    private fun StrokeJoin.toSkia() = when (this) {
-        StrokeJoin.Miter -> SkPaintStrokeJoin.MITER
-        StrokeJoin.Round -> SkPaintStrokeJoin.ROUND
-        StrokeJoin.Bevel -> SkPaintStrokeJoin.BEVEL
-        else -> SkPaintStrokeJoin.MITER
-    }
+    private fun StrokeJoin.toSkia() =
+        when (this) {
+            StrokeJoin.Miter -> SkPaintStrokeJoin.MITER
+            StrokeJoin.Round -> SkPaintStrokeJoin.ROUND
+            StrokeJoin.Bevel -> SkPaintStrokeJoin.BEVEL
+            else -> SkPaintStrokeJoin.MITER
+        }
 }
 
 actual fun BlendMode.isSupported(): Boolean = true

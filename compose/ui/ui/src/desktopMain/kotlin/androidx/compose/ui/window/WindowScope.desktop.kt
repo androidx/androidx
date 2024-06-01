@@ -26,8 +26,8 @@ import java.awt.Window
 @Stable
 interface WindowScope {
     /**
-     * [Window] that was created inside [androidx.compose.ui.window.Window]
-     * or [androidx.compose.ui.window.Dialog]
+     * [Window] that was created inside [androidx.compose.ui.window.Window] or
+     * [androidx.compose.ui.window.Dialog]
      */
     val window: Window
 }

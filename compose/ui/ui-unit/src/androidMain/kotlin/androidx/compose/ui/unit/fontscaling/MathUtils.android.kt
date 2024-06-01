@@ -17,9 +17,7 @@ package androidx.compose.ui.unit.fontscaling
 
 import androidx.annotation.RestrictTo
 
-/**
- * A utility class providing functions useful for common mathematical operations.
- */
+/** A utility class providing functions useful for common mathematical operations. */
 // TODO(b/294384826): move these into core:core when the FontScaleConverter APIs are available.
 //  These are temporary shims until core and platform are in a stable state.
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -36,10 +34,8 @@ object MathUtils {
     }
 
     /**
-     * Inverse of [.lerp]. More precisely, returns the interpolation
-     * scalar (s) that satisfies the equation:
-     * `value = `[ ][.lerp]`(a, b, s)`
-     *
+     * Inverse of [.lerp]. More precisely, returns the interpolation scalar (s) that satisfies the
+     * equation: `value = `[ ][.lerp]`(a, b, s)`
      *
      * If `a == b`, then this function will return 0.
      */
@@ -51,23 +47,19 @@ object MathUtils {
      * Calculates a value in [rangeMin, rangeMax] that maps value in [valueMin, valueMax] to
      * returnVal in [rangeMin, rangeMax].
      *
-     *
      * Always returns a constrained value in the range [rangeMin, rangeMax], even if value is
      * outside [valueMin, valueMax].
      *
-     *
-     * Eg:
-     * constrainedMap(0f, 100f, 0f, 1f, 0.5f) = 50f
-     * constrainedMap(20f, 200f, 10f, 20f, 20f) = 200f
-     * constrainedMap(20f, 200f, 10f, 20f, 50f) = 200f
-     * constrainedMap(10f, 50f, 10f, 20f, 5f) = 10f
+     * Eg: constrainedMap(0f, 100f, 0f, 1f, 0.5f) = 50f constrainedMap(20f, 200f, 10f, 20f, 20f) =
+     * 200f constrainedMap(20f, 200f, 10f, 20f, 50f) = 200f constrainedMap(10f, 50f, 10f, 20f, 5f) =
+     * 10f
      *
      * @param rangeMin minimum of the range that should be returned.
      * @param rangeMax maximum of the range that should be returned.
      * @param valueMin minimum of range to map `value` to.
      * @param valueMax maximum of range to map `value` to.
-     * @param value to map to the range [`valueMin`, `valueMax`]. Note, can be outside
-     * this range, resulting in a clamped value.
+     * @param value to map to the range [`valueMin`, `valueMax`]. Note, can be outside this range,
+     *   resulting in a clamped value.
      * @return the mapped value, constrained to [`rangeMin`, `rangeMax`.
      */
     fun constrainedMap(
@@ -78,7 +70,8 @@ object MathUtils {
         value: Float
     ): Float {
         return lerp(
-            rangeMin, rangeMax,
+            rangeMin,
+            rangeMax,
             Math.max(0f, Math.min(1f, lerpInv(valueMin, valueMax, value)))
         )
     }

@@ -43,11 +43,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidAutofillBenchmark {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     private lateinit var autofillTree: AutofillTree
     private lateinit var composeView: View
@@ -67,19 +65,19 @@ class AndroidAutofillBenchmark {
     fun provideAutofillVirtualStructure_performAutofill() {
 
         // Arrange.
-        val autofillNode = AutofillNode(
-            onFill = {},
-            autofillTypes = listOf(AutofillType.PersonFullName),
-            boundingBox = Rect(0f, 0f, 0f, 0f)
-        )
-        val autofillValues = SparseArray<AutofillValue>().apply {
-            append(autofillNode.id, AutofillValue.forText("Name"))
-        }
+        val autofillNode =
+            AutofillNode(
+                onFill = {},
+                autofillTypes = listOf(AutofillType.PersonFullName),
+                boundingBox = Rect(0f, 0f, 0f, 0f)
+            )
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(autofillNode.id, AutofillValue.forText("Name"))
+            }
         autofillTree += autofillNode
 
         // Assess.
-        benchmarkRule.measureRepeated {
-            composeView.autofill(autofillValues)
-        }
+        benchmarkRule.measureRepeated { composeView.autofill(autofillValues) }
     }
 }

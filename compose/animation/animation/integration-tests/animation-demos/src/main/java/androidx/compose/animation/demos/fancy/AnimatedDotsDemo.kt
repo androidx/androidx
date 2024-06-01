@@ -39,14 +39,13 @@ import kotlin.math.min
 @Composable
 fun AnimatedDotsDemo() {
     val infiniteTransition = rememberInfiniteTransition()
-    val position by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = totalDotCount.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Reverse
+    val position by
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = totalDotCount.toFloat(),
+            animationSpec =
+                infiniteRepeatable(animation = tween(2000), repeatMode = RepeatMode.Reverse)
         )
-    )
     Dots(position)
 }
 
@@ -66,10 +65,11 @@ private fun Dots(position: Float) {
                 val nextDotSize = getDotSizeForPosition(position, nextDotPosition)
                 // Pick a direction to draw bridge from the smaller dot to the larger dot
                 val shouldFlip = nextDotSize > dotSize
-                val nextPositionDelta = -min(
-                    1f,
-                    abs(position - if (shouldFlip) nextDotPosition else currentDotPosition)
-                )
+                val nextPositionDelta =
+                    -min(
+                        1f,
+                        abs(position - if (shouldFlip) nextDotPosition else currentDotPosition)
+                    )
                 // Calculate the top-most and the bottom-most coordinates of current dot
                 val leftX = (currentDotPosition * dotSpacing).dp.toPx()
                 val leftYTop = (centerY - dotSize).dp.toPx()
@@ -81,23 +81,41 @@ private fun Dots(position: Float) {
                 // Calculate the middle Y coordinate between two dots
                 val midX = ((currentDotPosition + 0.5) * dotSpacing).dp.toPx()
 
-                val path = if (shouldFlip) {
-                    // Calculate control point Y coordinates a bit inside the current dot
-                    val bezierYTop = (centerY - dotSize - 5f * nextPositionDelta).dp.toPx()
-                    val bezierYBottom = (centerY + dotSize + 5f * nextPositionDelta).dp.toPx()
-                    getBridgePath(
-                        rightX, rightYTop, rightYBottom, leftX, leftYTop, leftYBottom,
-                        midX, bezierYTop, bezierYBottom, centerY.dp.toPx()
-                    )
-                } else {
-                    // Calculate control point Y coordinates a bit inside the next dot
-                    val bezierYTop = (centerY - nextDotSize - 5f * nextPositionDelta).dp.toPx()
-                    val bezierYBottom = (centerY + nextDotSize + 5f * nextPositionDelta).dp.toPx()
-                    getBridgePath(
-                        leftX, leftYTop, leftYBottom, rightX, rightYTop, rightYBottom,
-                        midX, bezierYTop, bezierYBottom, centerY.dp.toPx()
-                    )
-                }
+                val path =
+                    if (shouldFlip) {
+                        // Calculate control point Y coordinates a bit inside the current dot
+                        val bezierYTop = (centerY - dotSize - 5f * nextPositionDelta).dp.toPx()
+                        val bezierYBottom = (centerY + dotSize + 5f * nextPositionDelta).dp.toPx()
+                        getBridgePath(
+                            rightX,
+                            rightYTop,
+                            rightYBottom,
+                            leftX,
+                            leftYTop,
+                            leftYBottom,
+                            midX,
+                            bezierYTop,
+                            bezierYBottom,
+                            centerY.dp.toPx()
+                        )
+                    } else {
+                        // Calculate control point Y coordinates a bit inside the next dot
+                        val bezierYTop = (centerY - nextDotSize - 5f * nextPositionDelta).dp.toPx()
+                        val bezierYBottom =
+                            (centerY + nextDotSize + 5f * nextPositionDelta).dp.toPx()
+                        getBridgePath(
+                            leftX,
+                            leftYTop,
+                            leftYBottom,
+                            rightX,
+                            rightYTop,
+                            rightYBottom,
+                            midX,
+                            bezierYTop,
+                            bezierYBottom,
+                            centerY.dp.toPx()
+                        )
+                    }
                 drawPath(path, Color(0xff8eb4e6))
             }
             // Draw the current dot
@@ -113,10 +131,9 @@ private fun Dots(position: Float) {
 /**
  * Returns a path for a bridge between two dots drawn using two quadratic beziers.
  *
- * First bezier is drawn between (startX, startYTop) and (endX, endYTop) coordinates using
- * (bezierX, bezierYTop) as control point.
- * Second bezier is drawn between (startX, startYBottom) and (endX, endYBottom) coordinates using
- * (bezierX, bezierYBottom) as control point.
+ * First bezier is drawn between (startX, startYTop) and (endX, endYTop) coordinates using (bezierX,
+ * bezierYTop) as control point. Second bezier is drawn between (startX, startYBottom) and (endX,
+ * endYBottom) coordinates using (bezierX, bezierYBottom) as control point.
  *
  * Then additional lines are drawn to make this a filled path.
  */

@@ -48,11 +48,16 @@ internal class MultiTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTes
     override val pointerAreaTag = "selectionContainer"
     private val ltrWord = "hello"
     private val rtlWord = RtlChar.repeat(5)
-    override val textContent = mutableStateOf("""
+    override val textContent =
+        mutableStateOf(
+            """
         $ltrWord $rtlWord $ltrWord
         $rtlWord $ltrWord $rtlWord
         $ltrWord $rtlWord $ltrWord
-    """.trimIndent().trim())
+    """
+                .trimIndent()
+                .trim()
+        )
 
     override lateinit var asserter: TextSelectionAsserter
 
@@ -61,32 +66,31 @@ internal class MultiTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTes
 
     @Before
     fun setupAsserter() {
-        asserter = object : TextSelectionAsserter(
-            textContent = textContent.value,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { selection.value }
-        ) {
-            override fun subAssert() {
-                Truth.assertAbout(MultiSelectionSubject.withContent(texts.value))
-                    .that(getActual())
-                    .hasSelection(
-                        expected = selection,
-                        startTextDirection = startLayoutDirection,
-                        endTextDirection = endLayoutDirection,
-                    )
+        asserter =
+            object :
+                TextSelectionAsserter(
+                    textContent = textContent.value,
+                    rule = rule,
+                    textToolbar = textToolbar,
+                    hapticFeedback = hapticFeedback,
+                    getActual = { selection.value }
+                ) {
+                override fun subAssert() {
+                    Truth.assertAbout(MultiSelectionSubject.withContent(texts.value))
+                        .that(getActual())
+                        .hasSelection(
+                            expected = selection,
+                            startTextDirection = startLayoutDirection,
+                            endTextDirection = endLayoutDirection,
+                        )
+                }
             }
-        }
     }
 
     @Composable
     override fun TextContent() {
         texts = derivedStateOf {
-            textContent.value
-                .split("\n")
-                .withIndex()
-                .map { (index, str) -> str to "testTag$index" }
+            textContent.value.split("\n").withIndex().map { (index, str) -> str to "testTag$index" }
         }
 
         textContentIndices = derivedStateOf { texts.value.textContentIndices() }
@@ -95,13 +99,12 @@ internal class MultiTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTes
             texts.value.fastForEach { (str, tag) ->
                 BasicText(
                     text = str,
-                    style = TextStyle(
-                        fontFamily = fontFamily,
-                        fontSize = fontSize,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(tag),
+                    style =
+                        TextStyle(
+                            fontFamily = fontFamily,
+                            fontSize = fontSize,
+                        ),
+                    modifier = Modifier.fillMaxWidth().testTag(tag),
                 )
             }
         }
@@ -115,8 +118,10 @@ internal class MultiTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTes
             rule.onNodeWithTag(pointerAreaTag).fetchSemanticsNode().positionInRoot
         val nodePosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
         val textLayoutResult = rule.onNodeWithTag(tag).fetchTextLayoutResult()
-        val boundingBox = textLayoutResult.getBoundingBox(localOffset)
-            .translate(nodePosition - pointerAreaPosition)
+        val boundingBox =
+            textLayoutResult
+                .getBoundingBox(localOffset)
+                .translate(nodePosition - pointerAreaPosition)
         return if (isRtl) boundingBox.centerRight - Offset(2f, 0f)
         else boundingBox.centerLeft + Offset(2f, 0f)
     }

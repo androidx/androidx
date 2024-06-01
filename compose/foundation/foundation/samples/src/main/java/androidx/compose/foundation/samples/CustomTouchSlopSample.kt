@@ -48,15 +48,10 @@ fun CustomTouchSlopSample() {
 }
 
 @Composable
-fun CustomTouchSlopProvider(
-    newTouchSlop: Float,
-    content: @Composable () -> Unit
-) {
+fun CustomTouchSlopProvider(newTouchSlop: Float, content: @Composable () -> Unit) {
     CompositionLocalProvider(
-        LocalViewConfiguration provides CustomTouchSlopAngle(
-            newTouchSlop,
-            LocalViewConfiguration.current
-        )
+        LocalViewConfiguration provides
+            CustomTouchSlopAngle(newTouchSlop, LocalViewConfiguration.current)
     ) {
         content()
     }

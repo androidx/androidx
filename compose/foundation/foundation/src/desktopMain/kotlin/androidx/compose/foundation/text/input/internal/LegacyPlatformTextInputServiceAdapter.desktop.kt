@@ -67,9 +67,8 @@ internal class DesktopLegacyPlatformTextInputServiceAdapter :
     ) {
         val node = textInputModifierNode ?: return
         node.launchTextInputSession {
-            val input = CurrentInput(
-                value, onEditCommand, onImeActionPerformed, imeOptions.imeAction
-            )
+            val input =
+                CurrentInput(value, onEditCommand, onImeActionPerformed, imeOptions.imeAction)
             currentInput = input
             try {
                 startInputMethod(LegacyTextInputMethodRequest(input, node.layoutCoordinates))
@@ -85,15 +84,11 @@ internal class DesktopLegacyPlatformTextInputServiceAdapter :
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-        currentInput?.let { input ->
-            input.value = newValue
-        }
+        currentInput?.let { input -> input.value = newValue }
     }
 
     override fun notifyFocusedRect(rect: Rect) {
-        currentInput?.let { input ->
-            input.focusedRect = rect
-        }
+        currentInput?.let { input -> input.focusedRect = rect }
     }
 
     override fun startStylusHandwriting() {
@@ -104,9 +99,7 @@ internal class DesktopLegacyPlatformTextInputServiceAdapter :
 internal class LegacyTextInputMethodRequest(
     private val input: CurrentInput,
     private val coordinates: LayoutCoordinates?,
-) : PlatformTextInputMethodRequest,
-    InputMethodRequests,
-    InputMethodListener {
+) : PlatformTextInputMethodRequest, InputMethodRequests, InputMethodListener {
 
     // This is required to support input of accented characters using press-and-hold method
     // (http://support.apple.com/kb/PH11264). JDK currently properly supports this functionality
@@ -118,6 +111,7 @@ internal class LegacyTextInputMethodRequest(
 
     override val inputMethodListener: InputMethodListener
         get() = this
+
     override val inputMethodRequests: InputMethodRequests
         get() = this
 
@@ -227,12 +221,13 @@ internal class LegacyTextInputMethodRequest(
             val res = text.substring(range)
             return AttributedString(res).iterator
         }
-        val committed = text.substring(
-            TextRange(
-                min(range.min, comp.min),
-                max(range.max, comp.max).coerceAtMost(text.length)
+        val committed =
+            text.substring(
+                TextRange(
+                    min(range.min, comp.min),
+                    max(range.max, comp.max).coerceAtMost(text.length)
+                )
             )
-        )
         return AttributedString(committed).iterator
     }
 }

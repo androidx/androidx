@@ -50,11 +50,9 @@ object TestProcessServer {
 
     private val executor = Executors.newFixedThreadPool(1)!!
 
-    @Volatile
-    private var isProcessingTask = true
+    @Volatile private var isProcessingTask = true
 
-    @Volatile
-    private var lastTime = System.currentTimeMillis()
+    @Volatile private var lastTime = System.currentTimeMillis()
 
     private val scheduler = Executors.newScheduledThreadPool(1)
 
@@ -96,15 +94,18 @@ object TestProcessServer {
     }
 
     private fun scheduleShutdownProcess() {
-        handler = scheduler.scheduleAtFixedRate(
-            {
-                if (!isProcessingTask && (System.currentTimeMillis() - lastTime) >= 60 * 1000) {
-                    println("Stopping server...")
-                    serverSocket.close()
-                }
-            },
-            60, 60, TimeUnit.SECONDS
-        )
+        handler =
+            scheduler.scheduleAtFixedRate(
+                {
+                    if (!isProcessingTask && (System.currentTimeMillis() - lastTime) >= 60 * 1000) {
+                        println("Stopping server...")
+                        serverSocket.close()
+                    }
+                },
+                60,
+                60,
+                TimeUnit.SECONDS
+            )
     }
 }
 
@@ -129,8 +130,7 @@ private class ServerTest(val clientSocket: Socket, val suppressOutput: Boolean) 
             assert(message == MessageHeader.CLASS_PATH) {
                 "Class path marker missed, but $message received"
             }
-            @Suppress("UNCHECKED_CAST")
-            val classPath = input.readObject() as Array<URL>
+            @Suppress("UNCHECKED_CAST") val classPath = input.readObject() as Array<URL>
 
             executeTest(URLClassLoader(classPath))
             output?.writeObject(MessageHeader.RESULT)
@@ -146,8 +146,7 @@ private class ServerTest(val clientSocket: Socket, val suppressOutput: Boolean) 
 
     fun executeTest(classLoader: ClassLoader) {
         val clazz = getGeneratedClass(classLoader, className)
-        @Suppress("BanUncheckedReflection")
-        clazz.getMethodOrNull(testMethod)!!.invoke(null)
+        @Suppress("BanUncheckedReflection") clazz.getMethodOrNull(testMethod)!!.invoke(null)
     }
 }
 

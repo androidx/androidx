@@ -55,14 +55,11 @@ internal class SkiaParagraph(
     private val layouter = paragraphIntrinsics.layouter()
 
     /**
-     * Paragraph isn't always immutable, it could be changed via [paint] method without
-     * rerunning layout
+     * Paragraph isn't always immutable, it could be changed via [paint] method without rerunning
+     * layout
      */
-    private var para = layouter.layoutParagraph(
-        width = width,
-        maxLines = maxLines,
-        ellipsis = ellipsisChar
-    )
+    private var para =
+        layouter.layoutParagraph(width = width, maxLines = maxLines, ellipsis = ellipsisChar)
 
     init {
         para.layout(width)
@@ -94,25 +91,18 @@ internal class SkiaParagraph(
 
     override val lineCount: Int
         // workaround for https://bugs.chromium.org/p/skia/issues/detail?id=11321
-        get() = if (text == "") {
-            1
-        } else {
-            para.lineNumber.toInt()
-        }
-
-    override val placeholderRects: List<Rect?>
         get() =
-            para.rectsForPlaceholders.map {
-                it.rect.toComposeRect()
+            if (text == "") {
+                1
+            } else {
+                para.lineNumber.toInt()
             }
 
+    override val placeholderRects: List<Rect?>
+        get() = para.rectsForPlaceholders.map { it.rect.toComposeRect() }
+
     override fun getPathForRange(start: Int, end: Int): Path {
-        val boxes = para.getRectsForRange(
-            start,
-            end,
-            RectHeightMode.MAX,
-            RectWidthMode.MAX
-        )
+        val boxes = para.getRectsForRange(start, end, RectHeightMode.MAX, RectWidthMode.MAX)
         val path = Path()
         for (b in boxes) {
             path.asSkiaPath().addRect(b.rect)
@@ -178,8 +168,7 @@ internal class SkiaParagraph(
             if (lineIndex > 0 && metrics.startIndex < lineMetrics[lineIndex - 1].endIndex) {
                 metrics.endIndex.toInt()
             } else if (
-                metrics.startIndex < text.length &&
-                text[metrics.startIndex.toInt()] == '\n'
+                metrics.startIndex < text.length && text[metrics.startIndex.toInt()] == '\n'
             ) {
                 metrics.startIndex.toInt()
             } else {
@@ -192,8 +181,7 @@ internal class SkiaParagraph(
     override fun isLineEllipsized(lineIndex: Int) = false
 
     override fun getLineForOffset(offset: Int) =
-        lineMetricsForOffset(offset)?.run { lineNumber.toInt() }
-            ?: 0
+        lineMetricsForOffset(offset)?.run { lineNumber.toInt() } ?: 0
 
     override fun getLineForVerticalPosition(vertical: Float): Int {
         return 0
@@ -216,26 +204,24 @@ internal class SkiaParagraph(
 
     // workaround for https://bugs.chromium.org/p/skia/issues/detail?id=11321 :(
     private val lineMetrics: Array<LineMetrics>
-        get() = if (text == "") {
-            val height = layouter.defaultHeight.toDouble()
-            arrayOf(
-                LineMetrics(
-                    0, 0, 0, 0, true,
-                    height, 0.0, height, height, 0.0, 0.0, height, 0
+        get() =
+            if (text == "") {
+                val height = layouter.defaultHeight.toDouble()
+                arrayOf(
+                    LineMetrics(0, 0, 0, 0, true, height, 0.0, height, height, 0.0, 0.0, height, 0)
                 )
-            )
-        } else {
-            @Suppress("UNCHECKED_CAST", "USELESS_CAST")
-            para.lineMetrics as Array<LineMetrics>
-        }
+            } else {
+                @Suppress("UNCHECKED_CAST", "USELESS_CAST")
+                para.lineMetrics as Array<LineMetrics>
+            }
 
     private fun getBoxForwardByOffset(offset: Int): TextBox? {
         var to = offset + 1
         while (to <= text.length) {
-            val box = para.getRectsForRange(
-                offset, to,
-                RectHeightMode.STRUT, RectWidthMode.TIGHT
-            ).firstOrNull()
+            val box =
+                para
+                    .getRectsForRange(offset, to, RectHeightMode.STRUT, RectWidthMode.TIGHT)
+                    .firstOrNull()
             if (box != null) {
                 return box
             }
@@ -247,10 +233,10 @@ internal class SkiaParagraph(
     private fun getBoxBackwardByOffset(offset: Int, end: Int = offset): TextBox? {
         var from = offset - 1
         while (from >= 0) {
-            val box = para.getRectsForRange(
-                from, end,
-                RectHeightMode.STRUT, RectWidthMode.TIGHT
-            ).firstOrNull()
+            val box =
+                para
+                    .getRectsForRange(from, end, RectHeightMode.STRUT, RectWidthMode.TIGHT)
+                    .firstOrNull()
             when {
                 (box == null) -> from -= 1
                 (text.get(from) == '\n') -> {
@@ -301,13 +287,10 @@ internal class SkiaParagraph(
 
     override fun getWordBoundary(offset: Int): TextRange {
         return when {
-            (text[offset].isLetterOrDigit()) -> para.getWordBoundary(offset).let {
-                TextRange(it.start, it.end)
-            }
+            (text[offset].isLetterOrDigit()) ->
+                para.getWordBoundary(offset).let { TextRange(it.start, it.end) }
             (text.getOrNull(offset - 1)?.isLetterOrDigit() ?: false) ->
-                para.getWordBoundary(offset - 1).let {
-                    TextRange(it.start, it.end)
-                }
+                para.getWordBoundary(offset - 1).let { TextRange(it.start, it.end) }
             else -> TextRange(offset, offset)
         }
     }
@@ -318,14 +301,15 @@ internal class SkiaParagraph(
         shadow: Shadow?,
         textDecoration: TextDecoration?
     ) {
-        para = layouter.layoutParagraph(
-            width = width,
-            maxLines = maxLines,
-            ellipsis = ellipsisChar,
-            color = color,
-            shadow = shadow,
-            textDecoration = textDecoration
-        )
+        para =
+            layouter.layoutParagraph(
+                width = width,
+                maxLines = maxLines,
+                ellipsis = ellipsisChar,
+                color = color,
+                shadow = shadow,
+                textDecoration = textDecoration
+            )
 
         para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
     }
@@ -338,14 +322,15 @@ internal class SkiaParagraph(
         drawStyle: DrawStyle?,
         blendMode: BlendMode
     ) {
-        para = layouter.layoutParagraph(
-            width = width,
-            maxLines = maxLines,
-            ellipsis = ellipsisChar,
-            color = color,
-            shadow = shadow,
-            textDecoration = textDecoration
-        )
+        para =
+            layouter.layoutParagraph(
+                width = width,
+                maxLines = maxLines,
+                ellipsis = ellipsisChar,
+                color = color,
+                shadow = shadow,
+                textDecoration = textDecoration
+            )
 
         para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
     }
@@ -362,6 +347,7 @@ internal class SkiaParagraph(
     ) {
         throw UnsupportedOperationException(
             "Using brush for painting the paragraph is a separate functionality that " +
-                "is not supported on this platform")
+                "is not supported on this platform"
+        )
     }
 }

@@ -32,42 +32,30 @@ class FontFamilyTest {
 
     @Test
     fun `two equal family declarations are equal`() {
-        val fontFamily = FontFamily(
-            Font(
-                resId = resourceId1,
-                weight = FontWeight.W900,
-                style = FontStyle.Italic
+        val fontFamily =
+            FontFamily(
+                Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic)
             )
-        )
 
-        val otherFontFamily = FontFamily(
-            Font(
-                resId = resourceId1,
-                weight = FontWeight.W900,
-                style = FontStyle.Italic
+        val otherFontFamily =
+            FontFamily(
+                Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic)
             )
-        )
 
         assertThat(fontFamily).isEqualTo(otherFontFamily)
     }
 
     @Test
     fun `two non equal family declarations are not equal`() {
-        val fontFamily = FontFamily(
-            Font(
-                resId = resourceId1,
-                weight = FontWeight.W900,
-                style = FontStyle.Italic
+        val fontFamily =
+            FontFamily(
+                Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic)
             )
-        )
 
-        val otherFontFamily = FontFamily(
-            Font(
-                resId = resourceId1,
-                weight = FontWeight.W800,
-                style = FontStyle.Italic
+        val otherFontFamily =
+            FontFamily(
+                Font(resId = resourceId1, weight = FontWeight.W800, style = FontStyle.Italic)
             )
-        )
 
         assertThat(fontFamily).isNotEqualTo(otherFontFamily)
     }
@@ -75,16 +63,8 @@ class FontFamilyTest {
     @Test
     fun `can add fallback font at same weight and style`() {
         FontFamily(
-            Font(
-                resId = resourceId1,
-                weight = FontWeight.W900,
-                style = FontStyle.Italic
-            ),
-            Font(
-                resId = resourceId1,
-                weight = FontWeight.W900,
-                style = FontStyle.Italic
-            )
+            Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic),
+            Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic)
         )
     }
 }

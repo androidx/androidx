@@ -46,36 +46,39 @@ class AndroidPlatformTextInputSessionTest {
     private var hideKeyboardCalls = 0
 
     private val view = View(InstrumentationRegistry.getInstrumentation().context)
-    private val inputService = TextInputService(object : PlatformTextInputService {
-        override fun startInput() {
-            startInputCalls++
-        }
+    private val inputService =
+        TextInputService(
+            object : PlatformTextInputService {
+                override fun startInput() {
+                    startInputCalls++
+                }
 
-        override fun stopInput() {
-            stopInputCalls++
-        }
+                override fun stopInput() {
+                    stopInputCalls++
+                }
 
-        override fun showSoftwareKeyboard() {
-            showKeyboardCalls++
-        }
+                override fun showSoftwareKeyboard() {
+                    showKeyboardCalls++
+                }
 
-        override fun hideSoftwareKeyboard() {
-            hideKeyboardCalls++
-        }
+                override fun hideSoftwareKeyboard() {
+                    hideKeyboardCalls++
+                }
 
-        override fun startInput(
-            value: TextFieldValue,
-            imeOptions: ImeOptions,
-            onEditCommand: (List<EditCommand>) -> Unit,
-            onImeActionPerformed: (ImeAction) -> Unit
-        ) {
-            fail("Not supported")
-        }
+                override fun startInput(
+                    value: TextFieldValue,
+                    imeOptions: ImeOptions,
+                    onEditCommand: (List<EditCommand>) -> Unit,
+                    onImeActionPerformed: (ImeAction) -> Unit
+                ) {
+                    fail("Not supported")
+                }
 
-        override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-            fail("not supported")
-        }
-    })
+                override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
+                    fail("not supported")
+                }
+            }
+        )
 
     @Test
     fun keyboardNotShown_whenStartInputMethodNotCalled() = runTest {
@@ -88,9 +91,7 @@ class AndroidPlatformTextInputSessionTest {
     fun keyboardShown_whenStartInputMethodCalled() = runTest {
         val session = AndroidPlatformTextInputSession(view, inputService, coroutineScope = this)
 
-        launch {
-            session.startInputMethod(TestInputMethodRequest(view))
-        }
+        launch { session.startInputMethod(TestInputMethodRequest(view)) }
         advanceUntilIdle()
 
         assertThat(startInputCalls).isEqualTo(1)
@@ -102,9 +103,7 @@ class AndroidPlatformTextInputSessionTest {
     @Test
     fun keyboardHidden_whenInnerSessionCanceled() = runTest {
         val session = AndroidPlatformTextInputSession(view, inputService, coroutineScope = this)
-        val sessionJob = launch {
-            session.startInputMethod(TestInputMethodRequest(view))
-        }
+        val sessionJob = launch { session.startInputMethod(TestInputMethodRequest(view)) }
         advanceUntilIdle()
 
         sessionJob.cancel()
@@ -132,14 +131,10 @@ class AndroidPlatformTextInputSessionTest {
     @Test
     fun keyboardNotHidden_whenInnerSessionInterrupted() = runTest {
         val session = AndroidPlatformTextInputSession(view, inputService, coroutineScope = this)
-        launch {
-            session.startInputMethod(TestInputMethodRequest(view))
-        }
+        launch { session.startInputMethod(TestInputMethodRequest(view)) }
         advanceUntilIdle()
 
-        launch {
-            session.startInputMethod(TestInputMethodRequest(view))
-        }
+        launch { session.startInputMethod(TestInputMethodRequest(view)) }
         advanceUntilIdle()
 
         assertThat(startInputCalls).isEqualTo(2)

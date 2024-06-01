@@ -36,16 +36,19 @@ import org.junit.Test
 
 class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
-        setupLanguageVersionSettings(K2JVMCompilerArguments().apply {
-            // enabling multiPlatform to use expect/actual declarations
-            multiPlatform = true
-        })
+        setupLanguageVersionSettings(
+            K2JVMCompilerArguments().apply {
+                // enabling multiPlatform to use expect/actual declarations
+                multiPlatform = true
+            }
+        )
     }
 
     @Test // Bug report: https://github.com/JetBrains/compose-jb/issues/1407
     fun testSimpleDefaultInComposable() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 results["defaultValue"] = ExpectComposable()
                 results["anotherValue"] = ExpectComposable("anotherValue")
                 results["defaultValueDefaultTransform"] = ExpectComposableWithNonComposableLambda()
@@ -53,9 +56,12 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     ExpectComposableWithNonComposableLambda("anotherValue") {
                         it + "OtherTransform"
                     }
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -68,9 +74,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         value: String = "defaultValue",
                         transform: (String) -> String = { it + "DefaultTransform" }
                     ): String
-                """.trimIndent()
-            ),
-            platformFiles = mapOf("Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -83,8 +93,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         value: String,
                         transform: (String) -> String
                     ) = transform(value)
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("defaultValue", results["defaultValue"])
             assertEquals("anotherValue", results["anotherValue"])
@@ -96,7 +107,8 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test // Bug report: https://github.com/JetBrains/compose-jb/issues/1407
     fun testDefaultValuesFromExpectComposableFunctions() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 ExpectComposable { value ->
                     results["defaultValue"] = value
                 }
@@ -105,9 +117,12 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                 }
                 results["returnDefaultValue"] = ExpectComposableWithReturn()
                 results["returnAnotherValue"] = ExpectComposableWithReturn("returnAnotherValue")
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -119,9 +134,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     expect fun ExpectComposableWithReturn(
                         value: String = "returnDefaultValue"
                     ): String
-                """.trimIndent()
-            ),
-            platformFiles = mapOf("Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -135,8 +154,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     actual fun ExpectComposableWithReturn(
                         value: String
                     ): String = value
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("defaultValue", results["defaultValue"])
             assertEquals("anotherValue", results["anotherValue"])
@@ -148,16 +168,20 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testExpectWithGetExpectedPropertyInDefaultValueExpression() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 ExpectComposable { value ->
                     results["defaultValue"] = value
                 }
                 ExpectComposable({ expectedProperty + expectedProperty.reversed() }) { value ->
                     results["anotherValue"] = value
                 }
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     expect val expectedProperty: String
@@ -167,9 +191,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         value: () -> String = { expectedProperty },
                         content: @Composable (v: String) -> Unit
                     )
-                """.trimIndent()),
-            platformFiles = mapOf(
-                "Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     actual val expectedProperty = "actualExpectedProperty"
@@ -181,8 +209,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     ) {
                         content(value())
                     }
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("actualExpectedProperty", results["defaultValue"])
             assertEquals(
@@ -195,16 +224,20 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testExpectWithComposableExpressionInDefaultValue() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 ExpectComposable { value ->
                     results["defaultValue"] = value
                 }
                 ExpectComposable("anotherValue") { value ->
                     results["anotherValue"] = value
                 }
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -217,9 +250,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         value: String = defaultValueComposable(),
                         content: @Composable (v: String) -> Unit
                     )
-                """.trimIndent()),
-            platformFiles = mapOf(
-                "Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -229,8 +266,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     ) {
                         content(value)
                     }
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("defaultValueComposable", results["defaultValue"])
             assertEquals("anotherValue", results["anotherValue"])
@@ -240,16 +278,20 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testExpectWithTypedParameter() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 ExpectComposable<String>("aeiouy") { value ->
                     results["defaultValue"] = value
                 }
                 ExpectComposable<String>("aeiouy", { "anotherValue" }) { value ->
                     results["anotherValue"] = value
                 }
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -258,9 +300,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         composeValue: @Composable () -> T = { value },
                         content: @Composable (T) -> Unit
                     )
-                """.trimIndent()),
-            platformFiles = mapOf(
-                "Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -271,8 +317,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     ) {
                         content(composeValue())
                     }
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("aeiouy", results["defaultValue"])
             assertEquals("anotherValue", results["anotherValue"])
@@ -282,16 +329,20 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testExpectWithRememberInDefaultValueExpression() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 ExpectComposable { value ->
                     results["defaultValue"] = value
                 }
                 ExpectComposable(remember { "anotherRememberedValue" }) { value ->
                     results["anotherValue"] = value
                 }
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -299,9 +350,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         value: String = remember { "rememberedDefaultValue" },
                         content: @Composable (v: String) -> Unit
                     )
-                """.trimIndent()),
-            platformFiles = mapOf(
-                "Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -311,8 +366,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     ) {
                         content(value)
                     }
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("rememberedDefaultValue", results["defaultValue"])
             assertEquals("anotherRememberedValue", results["anotherValue"])
@@ -322,16 +378,20 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testExpectWithDefaultValueUsingAnotherArgument() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 ExpectComposable("AbccbA") { value ->
                     results["defaultValue"] = value
                 }
                 ExpectComposable("123", { s -> s + s.reversed() }) { value ->
                     results["anotherValue"] = value
                 }
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -340,9 +400,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         composeText: (String) -> String = { value },
                         content: @Composable (v: String) -> Unit
                     )
-                """.trimIndent()),
-            platformFiles = mapOf(
-                "Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     @Composable
@@ -353,8 +417,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     ) {
                         content(composeText(value))
                     }
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("AbccbA", results["defaultValue"])
             assertEquals("123321", results["anotherValue"])
@@ -364,7 +429,8 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     @Test
     fun testNonComposableFunWithComposableParam() {
         runCompose(
-            testFunBody = """
+            testFunBody =
+                """
                 savedContentLambda = null
                 ExpectFunWithComposableParam { value ->
                     results["defaultValue"] = value
@@ -376,9 +442,12 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                     results["anotherValue"] = value
                 }
                 savedContentLambda!!.invoke()
-            """.trimIndent(),
-            commonFiles = mapOf(
-                "Expect.kt" to """
+            """
+                    .trimIndent(),
+            commonFiles =
+                mapOf(
+                    "Expect.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     var savedContentLambda: (@Composable () -> Unit)? = null
@@ -387,9 +456,13 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                         value: String = "000",
                         content: @Composable (v: String) -> Unit
                     )
-                """.trimIndent()),
-            platformFiles = mapOf(
-                "Actual.kt" to """
+                """
+                            .trimIndent()
+                ),
+            platformFiles =
+                mapOf(
+                    "Actual.kt" to
+                        """
                     import androidx.compose.runtime.*
 
                     actual fun ExpectFunWithComposableParam(
@@ -400,8 +473,9 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                             content(value)
                         }
                     }
-                """.trimIndent()
-            )
+                """
+                            .trimIndent()
+                )
         ) { results ->
             assertEquals("000", results["defaultValue"])
             assertEquals("3.14", results["anotherValue"])
@@ -411,17 +485,18 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
     // This method was partially borrowed/copy-pasted from RobolectricComposeTester
     // where some of the code was commented out. Those commented out parts are needed here.
     private fun runCompose(
-        @Language("kotlin")
-        mainImports: String = "",
-        @Language("kotlin")
-        testFunBody: String,
+        @Language("kotlin") mainImports: String = "",
+        @Language("kotlin") testFunBody: String,
         commonFiles: Map<String, String>, // name to source code
         platformFiles: Map<String, String>, // name to source code
         accessResults: (results: HashMap<*, *>) -> Unit
     ) {
         val className = "TestFCS_${uniqueNumber++}"
 
-        val allCommonSources = commonFiles + ("Main.kt" to """
+        val allCommonSources =
+            commonFiles +
+                ("Main.kt" to
+                    """
             import androidx.compose.runtime.*
             $mainImports
 
@@ -434,17 +509,14 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
                 }
             }
 
-        """.trimIndent())
+        """
+                        .trimIndent())
 
         val compiledClassesLoader = classLoader(platformFiles, allCommonSources)
         val instanceClass = compiledClassesLoader.loadClass(className)
 
         val instanceOfClass = instanceClass.getDeclaredConstructor().newInstance()
-        val testMethod = instanceClass.getMethod(
-            "test",
-            Composer::class.java,
-            Int::class.java
-        )
+        val testMethod = instanceClass.getMethod("test", Composer::class.java, Int::class.java)
         val getResultsMethod = instanceClass.getMethod("getResults")
 
         val setContentMethod = Composition::class.java.methods.first { it.name == "setContent" }
@@ -466,29 +538,32 @@ class RunComposableTests(useFir: Boolean) : AbstractCodegenTest(useFir) {
             get() = Unit
 
         override fun down(node: Unit) {}
+
         override fun up() {}
+
         override fun insertTopDown(index: Int, instance: Unit) {}
+
         override fun insertBottomUp(index: Int, instance: Unit) {}
+
         override fun remove(index: Int, count: Int) {}
+
         override fun move(from: Int, to: Int, count: Int) {}
+
         override fun clear() {}
     }
 
     private object SixtyFpsMonotonicFrameClock : MonotonicFrameClock {
         private const val fps = 60
 
-        override suspend fun <R> withFrameNanos(
-            onFrame: (Long) -> R
-        ): R {
+        override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
             delay(1000L / fps)
             return onFrame(System.nanoTime())
         }
     }
 
     private fun createRecomposer(): Recomposer {
-        val mainScope = CoroutineScope(
-            NonCancellable + Dispatchers.Main + SixtyFpsMonotonicFrameClock
-        )
+        val mainScope =
+            CoroutineScope(NonCancellable + Dispatchers.Main + SixtyFpsMonotonicFrameClock)
 
         return Recomposer(mainScope.coroutineContext).also {
             mainScope.launch(start = CoroutineStart.UNDISPATCHED) {

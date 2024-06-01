@@ -37,26 +37,28 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CallSemanticsActionTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun performSemanticsAction() {
         rule.setContent {
             val state = remember { mutableStateOf("Nothing") }
             BoundaryNode {
-                setString("SetString") { state.value = it; return@setString true }
+                setString("SetString") {
+                    state.value = it
+                    return@setString true
+                }
                 contentDescription = state.value
             }
         }
 
-        rule.onNodeWithContentDescription("Nothing")
+        rule
+            .onNodeWithContentDescription("Nothing")
             .assertExists()
             .performSemanticsAction(MyActions.SetString) { it("Hello") }
             .assertDoesNotExist()
 
-        rule.onNodeWithContentDescription("Hello")
-            .assertExists()
+        rule.onNodeWithContentDescription("Hello").assertExists()
     }
 
     object MyActions {

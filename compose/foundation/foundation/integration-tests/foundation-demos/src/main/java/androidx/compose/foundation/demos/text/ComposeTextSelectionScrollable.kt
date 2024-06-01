@@ -44,29 +44,26 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TextScrollableColumnSelectionDemo() {
     val spacing = 16.dp
-    Column(
-        modifier = Modifier.padding(spacing),
-        verticalArrangement = spacedBy(spacing)
-    ) {
+    Column(modifier = Modifier.padding(spacing), verticalArrangement = spacedBy(spacing)) {
         Text(
-            text = "We expect that selection works, " +
-                "regardless of how many times each text goes in or out of view. " +
-                "The selection handles and text toolbar also should follow the selection " +
-                "when it is scrolled.",
+            text =
+                "We expect that selection works, " +
+                    "regardless of how many times each text goes in or out of view. " +
+                    "The selection handles and text toolbar also should follow the selection " +
+                    "when it is scrolled.",
             style = MaterialTheme.typography.body1.merge(),
         )
-        val (selectedOption, onOptionSelected) = remember {
-            mutableStateOf(Options.LongScrollableText)
-        }
+        val (selectedOption, onOptionSelected) =
+            remember { mutableStateOf(Options.LongScrollableText) }
         Column(Modifier.selectableGroup()) {
             Options.values().forEach { option ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = option == selectedOption,
-                            onClick = { onOptionSelected(option) }
-                        ),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .selectable(
+                                selected = option == selectedOption,
+                                onClick = { onOptionSelected(option) }
+                            ),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(
@@ -86,27 +83,35 @@ fun TextScrollableColumnSelectionDemo() {
 
 @Suppress("unused") // enum values used in .values()
 private enum class Options(val displayText: String, val content: @Composable () -> Unit) {
-    LongScrollableText("Long Scrollable Single Text", {
-        MyText(
-            modifier = Modifier.verticalScroll(rememberScrollState()),
-            text = (0..100).joinToString(separator = "\n") { it.toString() },
-        )
-    }),
-    LongTextScrollableColumn("Long Single Text in Scrollable Column", {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            MyText((0..100).joinToString(separator = "\n") { it.toString() })
+    LongScrollableText(
+        "Long Scrollable Single Text",
+        {
+            MyText(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                text = (0..100).joinToString(separator = "\n") { it.toString() },
+            )
         }
-    }),
-    MultiTextScrollableColumn("Multiple Texts in Scrollable Column", {
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            repeat(100) { MyText(it.toString()) }
+    ),
+    LongTextScrollableColumn(
+        "Long Single Text in Scrollable Column",
+        {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                MyText((0..100).joinToString(separator = "\n") { it.toString() })
+            }
         }
-    }),
-    MultiTextLazyColumn("Multiple Texts in LazyColumn", {
-        LazyColumn {
-            items(100) { MyText(it.toString()) }
+    ),
+    MultiTextScrollableColumn(
+        "Multiple Texts in Scrollable Column",
+        {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                repeat(100) { MyText(it.toString()) }
+            }
         }
-    });
+    ),
+    MultiTextLazyColumn(
+        "Multiple Texts in LazyColumn",
+        { LazyColumn { items(100) { MyText(it.toString()) } } }
+    );
 
     @Composable
     fun Content() {

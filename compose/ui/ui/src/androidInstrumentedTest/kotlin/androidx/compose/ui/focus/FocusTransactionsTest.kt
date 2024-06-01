@@ -44,8 +44,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusTransactionsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
@@ -56,8 +55,7 @@ class FocusTransactionsTest {
         var requestingFocusOnItem2 = false
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusRequester(item1)
+                Modifier.focusRequester(item1)
                     .onFocusChanged {
                         item1Focused = it.isFocused
                         if (!item1Focused && requestingFocusOnItem2) {
@@ -71,8 +69,7 @@ class FocusTransactionsTest {
                     .focusTarget()
             )
             Box(
-                Modifier
-                    .focusRequester(item2)
+                Modifier.focusRequester(item2)
                     .onFocusChanged { item2Focused = it.isFocused }
                     .focusTarget()
             )
@@ -100,8 +97,7 @@ class FocusTransactionsTest {
         var (item1Focused, item2Focused) = List(2) { false }
         rule.setFocusableContent {
             Box(
-                Modifier
-                    .focusRequester(item1)
+                Modifier.focusRequester(item1)
                     .onFocusChanged {
                         item1Focused = it.isFocused
                         if (item1Focused) item2.requestFocus()
@@ -109,8 +105,7 @@ class FocusTransactionsTest {
                     .focusTarget()
             )
             Box(
-                Modifier
-                    .focusRequester(item2)
+                Modifier.focusRequester(item2)
                     .onFocusChanged { item2Focused = it.isFocused }
                     .focusTarget()
             )
@@ -142,8 +137,7 @@ class FocusTransactionsTest {
             inputModeManager = LocalInputModeManager.current
             view = LocalView.current
             Box(
-                Modifier
-                    .size(10.dp)
+                Modifier.size(10.dp)
                     .focusRequester(box)
                     .onFocusChanged { focusState1 = it }
                     .onFocusChanged {
@@ -156,9 +150,7 @@ class FocusTransactionsTest {
         }
 
         // Act.
-        rule.runOnUiThread {
-            box.requestFocus()
-        }
+        rule.runOnUiThread { box.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -190,25 +182,13 @@ class FocusTransactionsTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             view = LocalView.current
-            Box(
-                Modifier
-                    .focusProperties {
-                        enter = { Cancel }
-                    }
-                    .focusTarget()
-            ) {
-                Box(
-                    Modifier
-                        .focusRequester(focusRequester)
-                        .focusTarget()
-                )
+            Box(Modifier.focusProperties { enter = { Cancel } }.focusTarget()) {
+                Box(Modifier.focusRequester(focusRequester).focusTarget())
             }
         }
 
         // Act.
-        rule.runOnIdle {
-            focusRequester.requestFocus()
-        }
+        rule.runOnIdle { focusRequester.requestFocus() }
 
         // Assert.
         rule.runOnIdle {
@@ -229,9 +209,7 @@ class FocusTransactionsTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            view.requestFocus()
-        }
+        rule.runOnIdle { view.requestFocus() }
 
         // Assert.
         val root = view as AndroidComposeView

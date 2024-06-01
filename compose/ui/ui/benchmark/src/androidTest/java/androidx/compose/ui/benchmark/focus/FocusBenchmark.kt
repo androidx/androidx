@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FocusBenchmark {
 
-    @get:Rule
-    val composeBenchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val composeBenchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun focusTarget() {

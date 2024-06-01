@@ -35,15 +35,15 @@ import androidx.compose.ui.text.platform.AndroidTypefaceWrapper
  *
  * @param context the context to be used for loading Typeface.
  * @param fontFamily the font family to be loaded
- * @param styles optional style filter for loading subset of fontFamily. null means load
- *                        all fonts in fontFamily.
+ * @param styles optional style filter for loading subset of fontFamily. null means load all fonts
+ *   in fontFamily.
  * @return [androidx.compose.ui.text.font.Typeface] instance
  */
-@Deprecated("This API is deprecated with the introduction of async fonts which cannot" +
-    " resolve in this context. To preload fonts, use FontFamily.Resolver.",
-    replaceWith = ReplaceWith(
-        "FontFamily.Resolver.preload(fontFamily, Font.AndroidResourceLoader(context))"
-    ),
+@Deprecated(
+    "This API is deprecated with the introduction of async fonts which cannot" +
+        " resolve in this context. To preload fonts, use FontFamily.Resolver.",
+    replaceWith =
+        ReplaceWith("FontFamily.Resolver.preload(fontFamily, Font.AndroidResourceLoader(context))"),
     level = DeprecationLevel.WARNING
 )
 fun Typeface(

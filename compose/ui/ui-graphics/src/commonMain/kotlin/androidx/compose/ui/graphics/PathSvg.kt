@@ -19,14 +19,13 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.graphics.vector.PathParser
 
 /**
- * Adds the specified SVG [path data](https://www.w3.org/TR/SVG2/paths.html#PathData) to
- * this [Path]. The SVG path data encodes a series of instructions that will be applied
- * to this path. For instance, the following path data:
+ * Adds the specified SVG [path data](https://www.w3.org/TR/SVG2/paths.html#PathData) to this
+ * [Path]. The SVG path data encodes a series of instructions that will be applied to this path. For
+ * instance, the following path data:
  *
  * `M200,300 Q400,50 600,300 L1000,300`
  *
  * Will generate the following series of instructions for this path:
- *
  * ```
  * moveTo(200f, 300f)
  * quadraticTo(400f, 50f, 600f, 300f)
@@ -36,7 +35,6 @@ import androidx.compose.ui.graphics.vector.PathParser
  * To convert a [Path] to its SVG path data representation, please refer to [Path.toSvg].
  *
  * @throws IllegalArgumentException if the path data contains an invalid instruction
- *
  * @see toSvg
  */
 fun Path.addSvg(pathData: String) {
@@ -47,15 +45,14 @@ fun Path.addSvg(pathData: String) {
 }
 
 /**
- * Returns an SVG representation of this path. The caller can choose whether the returned
- * SVG represents a fully-formed SVG document or only the
- * [path data](https://www.w3.org/TR/SVG2/paths.html#PathData). By default, only the path
- * data is returned which can be used either with [Path.addSvg] or
+ * Returns an SVG representation of this path. The caller can choose whether the returned SVG
+ * represents a fully-formed SVG document or only the
+ * [path data](https://www.w3.org/TR/SVG2/paths.html#PathData). By default, only the path data is
+ * returned which can be used either with [Path.addSvg] or
  * [androidx.compose.ui.graphics.vector.PathParser].
  *
- * @param asDocument When set to true, this function returns a fully-formed SVG document,
- *        otherwise returns only the path data.
- *
+ * @param asDocument When set to true, this function returns a fully-formed SVG document, otherwise
+ *   returns only the path data.
  * @see androidx.compose.ui.graphics.vector.PathParser
  * @see addSvg
  */

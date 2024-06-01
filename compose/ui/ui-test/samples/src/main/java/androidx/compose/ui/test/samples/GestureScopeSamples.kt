@@ -32,33 +32,30 @@ import androidx.compose.ui.test.up
 @Suppress("DEPRECATION")
 @Sampled
 fun gestureClick() {
-    composeTestRule.onNodeWithTag("myComponent")
-        .performGesture { click() }
+    composeTestRule.onNodeWithTag("myComponent").performGesture { click() }
 }
 
 @Suppress("DEPRECATION")
 @Sampled
 fun gestureSwipeUp() {
-    composeTestRule.onNodeWithTag("myComponent")
-        .performGesture { swipeUp() }
+    composeTestRule.onNodeWithTag("myComponent").performGesture { swipeUp() }
 }
 
 @Suppress("DEPRECATION")
 @Sampled
 fun gestureLShape() {
-    composeTestRule.onNodeWithTag("myComponent")
-        .performGesture {
-            down(topLeft)
-            moveTo(topLeft + percentOffset(0f, .1f))
-            moveTo(topLeft + percentOffset(0f, .2f))
-            moveTo(topLeft + percentOffset(0f, .3f))
-            moveTo(topLeft + percentOffset(0f, .4f))
-            moveTo(centerLeft)
-            moveTo(centerLeft + percentOffset(.1f, 0f))
-            moveTo(centerLeft + percentOffset(.2f, 0f))
-            moveTo(centerLeft + percentOffset(.3f, 0f))
-            moveTo(centerLeft + percentOffset(.4f, 0f))
-            moveTo(center)
-            up()
-        }
+    composeTestRule.onNodeWithTag("myComponent").performGesture {
+        down(topLeft)
+        moveTo(topLeft + percentOffset(0f, .1f))
+        moveTo(topLeft + percentOffset(0f, .2f))
+        moveTo(topLeft + percentOffset(0f, .3f))
+        moveTo(topLeft + percentOffset(0f, .4f))
+        moveTo(centerLeft)
+        moveTo(centerLeft + percentOffset(.1f, 0f))
+        moveTo(centerLeft + percentOffset(.2f, 0f))
+        moveTo(centerLeft + percentOffset(.3f, 0f))
+        moveTo(centerLeft + percentOffset(.4f, 0f))
+        moveTo(center)
+        up()
+    }
 }

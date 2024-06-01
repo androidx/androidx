@@ -48,14 +48,8 @@ class ParagraphIntrinsicsAsyncTypefaceTest {
 
     @Test
     fun hasStaleResolvedFonts_falseByDefault() {
-        val subject = paragraphIntrinsics(
-            "Text",
-            createFontFamilyResolver(context),
-            null
-        )
-        Snapshot.withMutableSnapshot {
-            assertThat(subject.hasStaleResolvedFonts).isFalse()
-        }
+        val subject = paragraphIntrinsics("Text", createFontFamilyResolver(context), null)
+        Snapshot.withMutableSnapshot { assertThat(subject.hasStaleResolvedFonts).isFalse() }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -69,21 +63,11 @@ class ParagraphIntrinsicsAsyncTypefaceTest {
             val resolverJob = Job(coroutineContext[Job])
             val resolverContext = coroutineContext + resolverJob
             val fontFamilyResolver = createFontFamilyResolver(context, resolverContext)
-            val subject = paragraphIntrinsics(
-                "Text",
-                fontFamilyResolver,
-                fontFamily
-            )
+            val subject = paragraphIntrinsics("Text", fontFamilyResolver, fontFamily)
 
-            val result = async {
-                snapshotFlow { subject.hasStaleResolvedFonts }
-                    .take(2)
-                    .toList()
-            }
+            val result = async { snapshotFlow { subject.hasStaleResolvedFonts }.take(2).toList() }
 
-            Snapshot.withMutableSnapshot {
-                loader.completeOne(asyncFauxFont, Typeface.MONOSPACE)
-            }
+            Snapshot.withMutableSnapshot { loader.completeOne(asyncFauxFont, Typeface.MONOSPACE) }
 
             assertThat(result.await()).isEqualTo(listOf(false, true))
             resolverJob.cancel()
@@ -104,22 +88,11 @@ class ParagraphIntrinsicsAsyncTypefaceTest {
 
             val spanStyle = SpanStyle(fontFamily = fontFamily)
             val styles = listOf(AnnotatedString.Range(spanStyle, 0, 1))
-            val subject = paragraphIntrinsics(
-                "Text",
-                fontFamilyResolver,
-                null,
-                styles
-            )
+            val subject = paragraphIntrinsics("Text", fontFamilyResolver, null, styles)
 
-            val result = async {
-                snapshotFlow { subject.hasStaleResolvedFonts }
-                    .take(2)
-                    .toList()
-            }
+            val result = async { snapshotFlow { subject.hasStaleResolvedFonts }.take(2).toList() }
 
-            Snapshot.withMutableSnapshot {
-                loader.completeOne(asyncFauxFont, Typeface.MONOSPACE)
-            }
+            Snapshot.withMutableSnapshot { loader.completeOne(asyncFauxFont, Typeface.MONOSPACE) }
 
             assertThat(result.await()).isEqualTo(listOf(false, true))
             resolverJob.cancel()

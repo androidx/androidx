@@ -50,25 +50,28 @@ fun JetsnackSurface(
     border: BorderStroke? = null,
     elevation: Dp = 0.dp,
     content: @Composable () -> Unit
-) = trace("JetsnackSurface") {
-    Box(
-        modifier = modifier
-            .shadow(elevation = elevation, shape = shape, clip = false)
-            .zIndex(elevation.value)
-            .then(if (border != null) Modifier.border(border, shape) else Modifier)
-            .background(
-                color = getBackgroundColorForElevation(color, elevation),
-                shape = shape
-            )
-            .clip(shape)
-    ) {
-        CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
+) =
+    trace("JetsnackSurface") {
+        Box(
+            modifier =
+                modifier
+                    .shadow(elevation = elevation, shape = shape, clip = false)
+                    .zIndex(elevation.value)
+                    .then(if (border != null) Modifier.border(border, shape) else Modifier)
+                    .background(
+                        color = getBackgroundColorForElevation(color, elevation),
+                        shape = shape
+                    )
+                    .clip(shape)
+        ) {
+            CompositionLocalProvider(LocalContentColor provides contentColor, content = content)
+        }
     }
-}
 
 @Composable
 private fun getBackgroundColorForElevation(color: Color, elevation: Dp): Color {
-    return if (elevation > 0.dp // && https://issuetracker.google.com/issues/161429530
+    return if (
+        elevation > 0.dp // && https://issuetracker.google.com/issues/161429530
     // JetsnackTheme.colors.isDark //&&
     // color == JetsnackTheme.colors.uiBackground
     ) {
@@ -90,8 +93,8 @@ private fun Color.withElevation(elevation: Dp): Color {
 }
 
 /**
- * @return the alpha-modified [Color.White] to overlay on top of the surface color to produce
- * the resultant color.
+ * @return the alpha-modified [Color.White] to overlay on top of the surface color to produce the
+ *   resultant color.
  */
 private fun calculateForeground(elevation: Dp): Color {
     val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f

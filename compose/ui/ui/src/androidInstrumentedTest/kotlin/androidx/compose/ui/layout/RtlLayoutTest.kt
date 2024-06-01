@@ -61,9 +61,7 @@ class RtlLayoutTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityTestRule =
-        androidx.test.rule.ActivityTestRule<TestActivity>(
-            TestActivity::class.java
-        )
+        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var activity: TestActivity
     internal lateinit var density: Density
     internal lateinit var countDownLatch: CountDownLatch
@@ -80,98 +78,58 @@ class RtlLayoutTest {
     }
 
     @Test
-    fun customLayout_absolutePositioning() = with(density) {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                CustomLayout(true, LayoutDirection.Ltr)
+    fun customLayout_absolutePositioning() =
+        with(density) {
+            activityTestRule.runOnUiThreadIR {
+                activity.setContent { CustomLayout(true, LayoutDirection.Ltr) }
             }
-        }
 
-        countDownLatch.await(1, TimeUnit.SECONDS)
-        assertEquals(Offset(0f, 0f), position[0].value)
-        assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
-        assertEquals(
-            Offset(
-                (size * 2).toFloat(),
-                (size * 2).toFloat()
-            ),
-            position[2].value
-        )
-    }
+            countDownLatch.await(1, TimeUnit.SECONDS)
+            assertEquals(Offset(0f, 0f), position[0].value)
+            assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
+            assertEquals(Offset((size * 2).toFloat(), (size * 2).toFloat()), position[2].value)
+        }
 
     @Test
-    fun customLayout_absolutePositioning_rtl() = with(density) {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                CustomLayout(true, LayoutDirection.Rtl)
+    fun customLayout_absolutePositioning_rtl() =
+        with(density) {
+            activityTestRule.runOnUiThreadIR {
+                activity.setContent { CustomLayout(true, LayoutDirection.Rtl) }
             }
-        }
 
-        countDownLatch.await(1, TimeUnit.SECONDS)
-        assertEquals(
-            Offset(0f, 0f),
-            position[0].value
-        )
-        assertEquals(
-            Offset(
-                size.toFloat(),
-                size.toFloat()
-            ),
-            position[1].value
-        )
-        assertEquals(
-            Offset(
-                (size * 2).toFloat(),
-                (size * 2).toFloat()
-            ),
-            position[2].value
-        )
-    }
+            countDownLatch.await(1, TimeUnit.SECONDS)
+            assertEquals(Offset(0f, 0f), position[0].value)
+            assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
+            assertEquals(Offset((size * 2).toFloat(), (size * 2).toFloat()), position[2].value)
+        }
 
     @Test
-    fun customLayout_positioning() = with(density) {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                CustomLayout(false, LayoutDirection.Ltr)
+    fun customLayout_positioning() =
+        with(density) {
+            activityTestRule.runOnUiThreadIR {
+                activity.setContent { CustomLayout(false, LayoutDirection.Ltr) }
             }
-        }
 
-        countDownLatch.await(1, TimeUnit.SECONDS)
-        assertEquals(Offset(0f, 0f), position[0].value)
-        assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
-        assertEquals(
-            Offset(
-                (size * 2).toFloat(),
-                (size * 2).toFloat()
-            ),
-            position[2].value
-        )
-    }
+            countDownLatch.await(1, TimeUnit.SECONDS)
+            assertEquals(Offset(0f, 0f), position[0].value)
+            assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
+            assertEquals(Offset((size * 2).toFloat(), (size * 2).toFloat()), position[2].value)
+        }
 
     @Test
-    fun customLayout_positioning_rtl() = with(density) {
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                CustomLayout(false, LayoutDirection.Rtl)
+    fun customLayout_positioning_rtl() =
+        with(density) {
+            activityTestRule.runOnUiThreadIR {
+                activity.setContent { CustomLayout(false, LayoutDirection.Rtl) }
             }
+
+            countDownLatch.await(1, TimeUnit.SECONDS)
+
+            countDownLatch.await(1, TimeUnit.SECONDS)
+            assertEquals(Offset((size * 2).toFloat(), 0f), position[0].value)
+            assertEquals(Offset(size.toFloat(), size.toFloat()), position[1].value)
+            assertEquals(Offset(0f, (size * 2).toFloat()), position[2].value)
         }
-
-        countDownLatch.await(1, TimeUnit.SECONDS)
-
-        countDownLatch.await(1, TimeUnit.SECONDS)
-        assertEquals(
-            Offset(
-                (size * 2).toFloat(),
-                0f
-            ),
-            position[0].value
-        )
-        assertEquals(
-            Offset(size.toFloat(), size.toFloat()),
-            position[1].value
-        )
-        assertEquals(Offset(0f, (size * 2).toFloat()), position[2].value)
-    }
 
     @Test
     fun customLayout_updatingDirectionCausesRemeasure() {
@@ -181,13 +139,14 @@ class RtlLayoutTest {
 
         activityTestRule.runOnUiThread {
             activity.setContent {
-                val children = @Composable {
-                    Layout({}) { _, _ ->
-                        actualDirection = layoutDirection
-                        latch.countDown()
-                        layout(100, 100) {}
+                val children =
+                    @Composable {
+                        Layout({}) { _, _ ->
+                            actualDirection = layoutDirection
+                            latch.countDown()
+                            layout(100, 100) {}
+                        }
                     }
-                }
                 CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
                     Layout(children) { measurables, constraints ->
                         layout(100, 100) {
@@ -206,6 +165,7 @@ class RtlLayoutTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(LayoutDirection.Ltr, actualDirection)
     }
+
     @Test
     fun testModifiedLayoutDirection_inMeasureScope() {
         val latch = CountDownLatch(1)
@@ -235,36 +195,37 @@ class RtlLayoutTest {
         activityTestRule.runOnUiThread {
             activity.setContent {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    val measurePolicy = object : MeasurePolicy {
-                        override fun MeasureScope.measure(
-                            measurables: List<Measurable>,
-                            constraints: Constraints
-                        ) = layout(0, 0) {}
+                    val measurePolicy =
+                        object : MeasurePolicy {
+                            override fun MeasureScope.measure(
+                                measurables: List<Measurable>,
+                                constraints: Constraints
+                            ) = layout(0, 0) {}
 
-                        override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                            measurables: List<IntrinsicMeasurable>,
-                            height: Int
-                        ) = 0
+                            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                                measurables: List<IntrinsicMeasurable>,
+                                height: Int
+                            ) = 0
 
-                        override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                            measurables: List<IntrinsicMeasurable>,
-                            width: Int
-                        ) = 0
+                            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                                measurables: List<IntrinsicMeasurable>,
+                                width: Int
+                            ) = 0
 
-                        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                            measurables: List<IntrinsicMeasurable>,
-                            height: Int
-                        ): Int {
-                            resultLayoutDirection = this.layoutDirection
-                            latch.countDown()
-                            return 0
+                            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                                measurables: List<IntrinsicMeasurable>,
+                                height: Int
+                            ): Int {
+                                resultLayoutDirection = this.layoutDirection
+                                latch.countDown()
+                                return 0
+                            }
+
+                            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                                measurables: List<IntrinsicMeasurable>,
+                                width: Int
+                            ) = 0
                         }
-
-                        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                            measurables: List<IntrinsicMeasurable>,
-                            width: Int
-                        ) = 0
-                    }
                     Layout(
                         content = {},
                         modifier = Modifier.width(IntrinsicSize.Max),
@@ -348,24 +309,24 @@ class RtlLayoutTest {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Row(modifier = Modifier.width(rowWidth)) {
                         Box(
-                            modifier = Modifier
-                                .onGloballyPositioned {
-                                    outerLC = it
-                                    latch.countDown()
-                                }
-                                .size(outerBoxWidth)
-                                .background(color = Color.Red)
-                                .padding(horizontal = padding)
-                                .then(MinimumTouchTargetModifier())
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .onGloballyPositioned {
-                                        innerLC = it
+                            modifier =
+                                Modifier.onGloballyPositioned {
+                                        outerLC = it
                                         latch.countDown()
                                     }
-                                    .size(30.dp)
-                                    .background(color = Color.Gray)
+                                    .size(outerBoxWidth)
+                                    .background(color = Color.Red)
+                                    .padding(horizontal = padding)
+                                    .then(MinimumTouchTargetModifier())
+                        ) {
+                            Box(
+                                modifier =
+                                    Modifier.onGloballyPositioned {
+                                            innerLC = it
+                                            latch.countDown()
+                                        }
+                                        .size(30.dp)
+                                        .background(color = Color.Gray)
                             )
                         }
                     }
@@ -374,12 +335,8 @@ class RtlLayoutTest {
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
-        val (innerOffset, innerWidth) = with(innerLC!!) {
-            localToWindow(Offset.Zero) to size.width
-        }
-        val (outerOffset, outerWidth) = with(outerLC!!) {
-            localToWindow(Offset.Zero) to size.width
-        }
+        val (innerOffset, innerWidth) = with(innerLC!!) { localToWindow(Offset.Zero) to size.width }
+        val (outerOffset, outerWidth) = with(outerLC!!) { localToWindow(Offset.Zero) to size.width }
         assertTrue(innerWidth < outerWidth)
         assertTrue(innerOffset.x > outerOffset.x)
         assertTrue(innerWidth + innerOffset.x < outerWidth + outerOffset.x)
@@ -396,10 +353,7 @@ class RtlLayoutTest {
     }
 
     @Composable
-    private fun CustomLayout(
-        absolutePositioning: Boolean,
-        testLayoutDirection: LayoutDirection
-    ) {
+    private fun CustomLayout(absolutePositioning: Boolean, testLayoutDirection: LayoutDirection) {
         CompositionLocalProvider(LocalLayoutDirection provides testLayoutDirection) {
             Layout(
                 content = {

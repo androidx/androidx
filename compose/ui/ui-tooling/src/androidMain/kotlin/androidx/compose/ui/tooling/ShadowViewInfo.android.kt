@@ -24,10 +24,8 @@ import androidx.compose.ui.tooling.data.UiToolingDataApi
  * composition roots to the right tree.
  */
 @OptIn(UiToolingDataApi::class)
-private class ShadowViewInfo private constructor(
-    var parent: ShadowViewInfo?,
-    private val viewInfo: ViewInfo
-) {
+private class ShadowViewInfo
+private constructor(var parent: ShadowViewInfo?, private val viewInfo: ViewInfo) {
 
     /** Constructor for root ShadowViewInfo nodes */
     constructor(viewInfo: ViewInfo) : this(null, viewInfo)
@@ -52,20 +50,17 @@ private class ShadowViewInfo private constructor(
         this.parent = parent
     }
 
-    fun findRoot(): ShadowViewInfo =
-        if (this.parent == null)
-            this
-        else
-            this.parent!!.findRoot()
+    fun findRoot(): ShadowViewInfo = if (this.parent == null) this else this.parent!!.findRoot()
 
-    fun toViewInfo(): ViewInfo = ViewInfo(
-        viewInfo.fileName,
-        viewInfo.lineNumber,
-        viewInfo.bounds,
-        viewInfo.location,
-        _children.map { it.toViewInfo() },
-        viewInfo.layoutInfo
-    )
+    fun toViewInfo(): ViewInfo =
+        ViewInfo(
+            viewInfo.fileName,
+            viewInfo.lineNumber,
+            viewInfo.bounds,
+            viewInfo.location,
+            _children.map { it.toViewInfo() },
+            viewInfo.layoutInfo
+        )
 }
 
 /**
@@ -81,40 +76,39 @@ internal fun stitchTrees(allViewInfoRoots: List<ViewInfo>): List<ViewInfo> {
 
     // Create an index of all the nodes indexed by their layoutInfo so we can quickly lookup
     // the ShadowNode based on its LayoutInfo
-    val shadowNodesWithLayoutInfo = shadowTreeRoots
-        .flatMap { it.allNodes }
-        .map { it.layoutInfo to it }
-        .filter { it.first != null }
-        .groupBy { it.first }
+    val shadowNodesWithLayoutInfo =
+        shadowTreeRoots
+            .flatMap { it.allNodes }
+            .map { it.layoutInfo to it }
+            .filter { it.first != null }
+            .groupBy { it.first }
 
     val currentRoots = LinkedHashSet(shadowTreeRoots)
 
     // Now, for each root, see if it can be attached to any other tree.
-    shadowTreeRoots
-        .forEach { rootToAttach ->
-            rootToAttach
-                // For the root we are trying to find, if it belongs somewhere else, get all
-                // nodes and see if any has a LayoutInfo parent information that matches the
-                // LayoutInfo in a separate tree.
-                .allNodes
-                .flatMap { candidate ->
-                    shadowNodesWithLayoutInfo[candidate.layoutInfo?.parentInfo] ?: emptyList()
-                }
-                .filter {
-                    // Ensure that the node we have found is in a different root
-                    it.second.findRoot() != rootToAttach
-                }
-                .map { (_, candidateNode) -> candidateNode }
-                .firstOrNull()?.let { nodeToAttachTo ->
-                    // We found it, re-attach to the candidate node
-                    rootToAttach.setNewParent(nodeToAttachTo)
-                    currentRoots.remove(rootToAttach)
-                }
-        }
-
-    val newTree = currentRoots.map {
-        it.toViewInfo()
+    shadowTreeRoots.forEach { rootToAttach ->
+        rootToAttach
+            // For the root we are trying to find, if it belongs somewhere else, get all
+            // nodes and see if any has a LayoutInfo parent information that matches the
+            // LayoutInfo in a separate tree.
+            .allNodes
+            .flatMap { candidate ->
+                shadowNodesWithLayoutInfo[candidate.layoutInfo?.parentInfo] ?: emptyList()
+            }
+            .filter {
+                // Ensure that the node we have found is in a different root
+                it.second.findRoot() != rootToAttach
+            }
+            .map { (_, candidateNode) -> candidateNode }
+            .firstOrNull()
+            ?.let { nodeToAttachTo ->
+                // We found it, re-attach to the candidate node
+                rootToAttach.setNewParent(nodeToAttachTo)
+                currentRoots.remove(rootToAttach)
+            }
     }
+
+    val newTree = currentRoots.map { it.toViewInfo() }
 
     return newTree
 }

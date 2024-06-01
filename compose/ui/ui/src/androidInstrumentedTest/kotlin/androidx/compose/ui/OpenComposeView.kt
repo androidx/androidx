@@ -23,11 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.AbstractComposeView
 
 // Copy of ComposeView, but open, so we can use it with Mockito spy()
-open class OpenComposeView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : AbstractComposeView(context, attrs, defStyleAttr) {
+open class OpenComposeView
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    AbstractComposeView(context, attrs, defStyleAttr) {
 
     @Suppress("RemoveExplicitTypeArguments")
     private val content = mutableStateOf<@Composable () -> Unit>({})

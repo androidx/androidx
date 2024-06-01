@@ -40,7 +40,7 @@ import androidx.compose.ui.util.fastAll
  * Representation of menu is defined by [LocalContextMenuRepresentation]`
  *
  * @param items List of context menu items. Final context menu contains all items from descendant
- * [ContextMenuArea] and [ContextMenuDataProvider].
+ *   [ContextMenuArea] and [ContextMenuDataProvider].
  * @param state [ContextMenuState] of menu controlled by this area.
  * @param enabled If false then gesture detector is disabled.
  * @param content The content of the [ContextMenuArea].
@@ -63,56 +63,37 @@ fun ContextMenuArea(
 }
 
 /**
- * Adds items to the hierarchy of context menu items. Can be used, for example, to customize
- * context menu of text fields.
+ * Adds items to the hierarchy of context menu items. Can be used, for example, to customize context
+ * menu of text fields.
  *
  * @param items List of context menu items. Final context menu contains all items from descendant
- * [ContextMenuArea] and [ContextMenuDataProvider].
+ *   [ContextMenuArea] and [ContextMenuDataProvider].
  * @param content The content of the [ContextMenuDataProvider].
- *
  * @see [[ContextMenuArea]]
  */
 @Composable
-fun ContextMenuDataProvider(
-    items: () -> List<ContextMenuItem>,
-    content: @Composable () -> Unit
-) {
-    ContextMenuDataProvider(
-        ContextMenuData(items, LocalContextMenuData.current),
-        content
-    )
+fun ContextMenuDataProvider(items: () -> List<ContextMenuItem>, content: @Composable () -> Unit) {
+    ContextMenuDataProvider(ContextMenuData(items, LocalContextMenuData.current), content)
 }
 
 @Composable
-internal fun ContextMenuDataProvider(
-    data: ContextMenuData,
-    content: @Composable () -> Unit
-) {
-    CompositionLocalProvider(
-        LocalContextMenuData provides data
-    ) {
-        content()
-    }
+internal fun ContextMenuDataProvider(data: ContextMenuData, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalContextMenuData provides data) { content() }
 }
 
-private val LocalContextMenuData = staticCompositionLocalOf<ContextMenuData?> {
-    null
-}
+private val LocalContextMenuData = staticCompositionLocalOf<ContextMenuData?> { null }
 
 private fun Modifier.contextMenuDetector(
     state: ContextMenuState,
     enabled: Boolean = true
 ): Modifier {
-    return if (
-        enabled && state.status == ContextMenuState.Status.Closed
-    ) {
+    return if (enabled && state.status == ContextMenuState.Status.Closed) {
         this.pointerInput(state) {
             awaitEachGesture {
                 val event = awaitEventFirstDown()
                 if (event.buttons.isSecondaryPressed) {
                     event.changes.forEach { it.consume() }
-                    state.status =
-                        ContextMenuState.Status.Open(Rect(event.changes[0].position, 0f))
+                    state.status = ContextMenuState.Status.Open(Rect(event.changes[0].position, 0f))
                 }
             }
         }
@@ -125,9 +106,7 @@ private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
     var event: PointerEvent
     do {
         event = awaitPointerEvent()
-    } while (
-        !event.changes.fastAll { it.changedToDown() }
-    )
+    } while (!event.changes.fastAll { it.changedToDown() })
     return event
 }
 
@@ -137,10 +116,7 @@ private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
  * @param label The text to be displayed as a context menu item.
  * @param onClick The action to be executed after click on the item.
  */
-class ContextMenuItem(
-    val label: String,
-    val onClick: () -> Unit
-) {
+class ContextMenuItem(val label: String, val onClick: () -> Unit) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -168,14 +144,9 @@ class ContextMenuItem(
  * Data container contains all [ContextMenuItem]s were defined previously in the hierarchy.
  * [ContextMenuRepresentation] uses it to display context menu.
  */
-class ContextMenuData(
-    val items: () -> List<ContextMenuItem>,
-    val next: ContextMenuData?
-) {
+class ContextMenuData(val items: () -> List<ContextMenuItem>, val next: ContextMenuData?) {
 
-    internal val allItems: List<ContextMenuItem> by lazy {
-        allItemsSeq.toList()
-    }
+    internal val allItems: List<ContextMenuItem> by lazy { allItemsSeq.toList() }
 
     internal val allItemsSeq: Sequence<ContextMenuItem>
         get() = sequence {
@@ -203,15 +174,13 @@ class ContextMenuData(
 }
 
 /**
- * Represents a state of context menu in [ContextMenuArea]. [status] is implemented
- * via [androidx.compose.runtime.MutableState] so it's possible to track it inside @Composable
+ * Represents a state of context menu in [ContextMenuArea]. [status] is implemented via
+ * [androidx.compose.runtime.MutableState] so it's possible to track it inside @Composable
  * functions.
  */
 class ContextMenuState {
     sealed class Status {
-        class Open(
-            val rect: Rect
-        ) : Status() {
+        class Open(val rect: Rect) : Status() {
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (other == null || this::class != other::class) return false
@@ -241,19 +210,15 @@ class ContextMenuState {
 /**
  * Implementations of this interface are responsible for displaying context menus. There are two
  * implementations out of the box: [LightDefaultContextMenuRepresentation] and
- * [DarkDefaultContextMenuRepresentation].
- * To change currently used representation, different value for [LocalContextMenuRepresentation]
- * could be provided.
+ * [DarkDefaultContextMenuRepresentation]. To change currently used representation, different value
+ * for [LocalContextMenuRepresentation] could be provided.
  */
 interface ContextMenuRepresentation {
-    @Composable
-    fun Representation(state: ContextMenuState, items: List<ContextMenuItem>)
+    @Composable fun Representation(state: ContextMenuState, items: List<ContextMenuItem>)
 }
 
-/**
- * Composition local that keeps [ContextMenuRepresentation] which is used by [ContextMenuArea]s.
- */
-val LocalContextMenuRepresentation:
-    ProvidableCompositionLocal<ContextMenuRepresentation> = staticCompositionLocalOf {
-    LightDefaultContextMenuRepresentation
-}
+/** Composition local that keeps [ContextMenuRepresentation] which is used by [ContextMenuArea]s. */
+val LocalContextMenuRepresentation: ProvidableCompositionLocal<ContextMenuRepresentation> =
+    staticCompositionLocalOf {
+        LightDefaultContextMenuRepresentation
+    }

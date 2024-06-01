@@ -45,27 +45,26 @@ fun ComponentItem(
     cellsCount: Int,
 ) {
     Box(
-        modifier = Modifier
-            .height(ComponentItemHeight)
-            .clickable { onClick(component) }
-            .gridItemBorder(
-                itemIndex = index,
-                cellsCount = cellsCount,
-                color = compositeBorderColor()
-            )
-            .padding(ComponentItemPadding)
+        modifier =
+            Modifier.height(ComponentItemHeight)
+                .clickable { onClick(component) }
+                .gridItemBorder(
+                    itemIndex = index,
+                    cellsCount = cellsCount,
+                    color = compositeBorderColor()
+                )
+                .padding(ComponentItemPadding)
     ) {
         Image(
             painter = painterResource(id = component.icon),
             contentDescription = null,
-            modifier = Modifier
-                .size(ComponentItemIconSize)
-                .align(Alignment.Center),
-            colorFilter = if (component.tintIcon) {
-                ColorFilter.tint(LocalContentColor.current.copy(alpha = ContentAlpha.disabled))
-            } else {
-                null
-            },
+            modifier = Modifier.size(ComponentItemIconSize).align(Alignment.Center),
+            colorFilter =
+                if (component.tintIcon) {
+                    ColorFilter.tint(LocalContentColor.current.copy(alpha = ContentAlpha.disabled))
+                } else {
+                    null
+                },
             contentScale = ContentScale.Inside
         )
         Text(

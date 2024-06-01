@@ -33,10 +33,10 @@ import org.jetbrains.kotlin.serialization.SerializerExtension
  * determined at runtime. We need to know from other modules whether or not this field got
  * synthesized or not though, and to do that, we also synthesize an annotation on the class.
  *
- * The kotlin metadata has a flag to indicate whether or not there are any annotations on the
- * class or not. If the flag is false, then a synthesized annotation will never be seen from
- * another module, so we have to use this plugin to flip the flag for all classes that we
- * synthesize the annotation on, even if the source of the class didn't have any annotations.
+ * The kotlin metadata has a flag to indicate whether or not there are any annotations on the class
+ * or not. If the flag is false, then a synthesized annotation will never be seen from another
+ * module, so we have to use this plugin to flip the flag for all classes that we synthesize the
+ * annotation on, even if the source of the class didn't have any annotations.
  */
 class ClassStabilityFieldSerializationPlugin(
     val classStabilityInferredCollection: ClassStabilityInferredCollection? = null
@@ -47,19 +47,23 @@ class ClassStabilityFieldSerializationPlugin(
         extension: SerializerExtension,
         value: Int
     ): ProtoBuf.Annotation {
-        return ProtoBuf.Annotation.newBuilder().apply {
-            id = extension.stringTable.getQualifiedClassNameIndex(StabilityInferred)
-            // Same as in StabilityInferred definition
-            val ix = extension.stringTable.getStringIndex("parameters")
-            addArgument(ProtoBuf.Annotation.Argument.newBuilder().apply {
-                setNameId(ix)
-                setValue(
-                    ProtoBuf.Annotation.Argument.Value.newBuilder()
-                        .setIntValue(value.toLong())
-                        .setType(ProtoBuf.Annotation.Argument.Value.Type.INT)
+        return ProtoBuf.Annotation.newBuilder()
+            .apply {
+                id = extension.stringTable.getQualifiedClassNameIndex(StabilityInferred)
+                // Same as in StabilityInferred definition
+                val ix = extension.stringTable.getStringIndex("parameters")
+                addArgument(
+                    ProtoBuf.Annotation.Argument.newBuilder().apply {
+                        setNameId(ix)
+                        setValue(
+                            ProtoBuf.Annotation.Argument.Value.newBuilder()
+                                .setIntValue(value.toLong())
+                                .setType(ProtoBuf.Annotation.Argument.Value.Type.INT)
+                        )
+                    }
                 )
-            })
-        }.build()
+            }
+            .build()
     }
 
     override fun afterClass(
@@ -71,15 +75,16 @@ class ClassStabilityFieldSerializationPlugin(
     ) {
         if (
             descriptor.visibility != DescriptorVisibilities.PUBLIC ||
-            descriptor.kind == ClassKind.ENUM_CLASS ||
-            descriptor.kind == ClassKind.ENUM_ENTRY ||
-            descriptor.kind == ClassKind.INTERFACE ||
-            descriptor.kind == ClassKind.ANNOTATION_CLASS ||
-            descriptor.isExpect ||
-            descriptor.isInner ||
-            descriptor.isCompanionObject ||
-            descriptor.isInline
-        ) return
+                descriptor.kind == ClassKind.ENUM_CLASS ||
+                descriptor.kind == ClassKind.ENUM_ENTRY ||
+                descriptor.kind == ClassKind.INTERFACE ||
+                descriptor.kind == ClassKind.ANNOTATION_CLASS ||
+                descriptor.isExpect ||
+                descriptor.isInner ||
+                descriptor.isCompanionObject ||
+                descriptor.isInline
+        )
+            return
 
         if (proto.flags and hasAnnotationFlag == 0) {
             proto.flags = proto.flags or hasAnnotationFlag

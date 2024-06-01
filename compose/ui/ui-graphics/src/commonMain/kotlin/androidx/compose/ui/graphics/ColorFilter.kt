@@ -22,21 +22,19 @@ import androidx.compose.runtime.Stable
 // TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
 /* internal */ expect class NativeColorFilter
 
-/**
- * Effect used to modify the color of each pixel drawn on a [Paint] that it is installed on
- */
+/** Effect used to modify the color of each pixel drawn on a [Paint] that it is installed on */
 @Immutable
 open class ColorFilter internal constructor(internal val nativeColorFilter: NativeColorFilter) {
 
     companion object {
         /**
-         * Creates a color filter that applies the blend mode given as the second
-         * argument. The source color is the one given as the first argument, and the
-         * destination color is the one from the layer being composited.
+         * Creates a color filter that applies the blend mode given as the second argument. The
+         * source color is the one given as the first argument, and the destination color is the one
+         * from the layer being composited.
          *
-         * The output of this filter is then composited into the background according
-         * to the [Paint.blendMode], using the output of this filter as the source
-         * and the background as the destination.
+         * The output of this filter is then composited into the background according to the
+         * [Paint.blendMode], using the output of this filter as the source and the background as
+         * the destination.
          *
          * @param color Color used to blend source content
          * @param blendMode BlendMode used when compositing the tint color to the destination
@@ -52,37 +50,36 @@ open class ColorFilter internal constructor(internal val nativeColorFilter: Nati
          * @param colorMatrix ColorMatrix used to transform pixel values when drawn
          */
         @Stable
-        fun colorMatrix(colorMatrix: ColorMatrix): ColorFilter =
-            ColorMatrixColorFilter(colorMatrix)
+        fun colorMatrix(colorMatrix: ColorMatrix): ColorFilter = ColorMatrixColorFilter(colorMatrix)
 
         /**
-         * Create a [ColorFilter] that can be used to simulate simple lighting effects.
-         * A lighting ColorFilter is defined by two parameters, one used to multiply the source
-         * color and one used to add to the source color
+         * Create a [ColorFilter] that can be used to simulate simple lighting effects. A lighting
+         * ColorFilter is defined by two parameters, one used to multiply the source color and one
+         * used to add to the source color
          *
          * @param multiply Color used to multiply the source color when the color filter is applied.
          * @param add Color that will be added to the source color when the color filter is applied.
          */
         @Stable
-        fun lighting(multiply: Color, add: Color): ColorFilter =
-            LightingColorFilter(multiply, add)
+        fun lighting(multiply: Color, add: Color): ColorFilter = LightingColorFilter(multiply, add)
     }
 }
 
 /**
- * Creates a color filter that applies the blend mode given as the second
- * argument. The source color is the one given as the first argument, and the
- * destination color is the one from the layer being composited.
+ * Creates a color filter that applies the blend mode given as the second argument. The source color
+ * is the one given as the first argument, and the destination color is the one from the layer being
+ * composited.
  *
- * The output of this filter is then composited into the background according
- * to the [Paint.blendMode], using the output of this filter as the source
- * and the background as the destination.
+ * The output of this filter is then composited into the background according to the
+ * [Paint.blendMode], using the output of this filter as the source and the background as the
+ * destination.
  *
  * @param color Color used to blend source content
  * @param blendMode BlendMode used when compositing the tint color to the destination
  */
 @Immutable
-class BlendModeColorFilter internal constructor(
+class BlendModeColorFilter
+internal constructor(
     val color: Color,
     val blendMode: BlendMode,
     nativeColorFilter: NativeColorFilter
@@ -115,24 +112,22 @@ class BlendModeColorFilter internal constructor(
 }
 
 /**
- * Create a [ColorFilter] that transforms colors through a 4x5 color matrix. This filter can
- * be used to change the saturation of pixels, convert from YUV to RGB, etc.
+ * Create a [ColorFilter] that transforms colors through a 4x5 color matrix. This filter can be used
+ * to change the saturation of pixels, convert from YUV to RGB, etc.
  */
 @Immutable
-class ColorMatrixColorFilter internal constructor(
-    private var colorMatrix: ColorMatrix?,
-    nativeColorFilter: NativeColorFilter
-) : ColorFilter(nativeColorFilter) {
+class ColorMatrixColorFilter
+internal constructor(private var colorMatrix: ColorMatrix?, nativeColorFilter: NativeColorFilter) :
+    ColorFilter(nativeColorFilter) {
 
     constructor(
         colorMatrix: ColorMatrix
     ) : this(colorMatrix, actualColorMatrixColorFilter(colorMatrix))
 
     /**
-     * Copy the internal [ColorMatrix] into the provided [ColorMatrix] instance. By default
-     * this creates a new [ColorMatrix] instance, however, consumers are encouraged to create
-     * and re-use instances of [ColorMatrix]. This method returns the copied result for
-     * convenience
+     * Copy the internal [ColorMatrix] into the provided [ColorMatrix] instance. By default this
+     * creates a new [ColorMatrix] instance, however, consumers are encouraged to create and re-use
+     * instances of [ColorMatrix]. This method returns the copied result for convenience
      *
      * @param targetColorMatrix Optional [ColorMatrix] to copy contents into
      * @return the copied [ColorMatrix] instance
@@ -158,9 +153,7 @@ class ColorMatrixColorFilter internal constructor(
         // In the event that this ColorMatrixFilter was instantiated from a conversion
         // from the NativeColorFilter, lazily query the ColorMatrix here to avoid doing
         // a copy of ColorMatrix instances until this method is invoked
-        colorMatrix ?: actualColorMatrixFromFilter(nativeColorFilter).also {
-            colorMatrix = it
-        }
+        colorMatrix ?: actualColorMatrixFromFilter(nativeColorFilter).also { colorMatrix = it }
 
     override fun hashCode(): Int {
         return colorMatrix?.hashCode() ?: 0
@@ -172,19 +165,17 @@ class ColorMatrixColorFilter internal constructor(
 }
 
 /**
- * Create a [ColorFilter] that can be used to simulate simple lighting effects.
- * A lighting ColorFilter is defined by two parameters, one used to multiply the source
- * color and one used to add to the source color
+ * Create a [ColorFilter] that can be used to simulate simple lighting effects. A lighting
+ * ColorFilter is defined by two parameters, one used to multiply the source color and one used to
+ * add to the source color
  *
  * @param multiply Color used to multiply the source color when the color filter is applied.
  * @param add Color that will be added to the source color when the color filter is applied.
  */
 @Immutable
-class LightingColorFilter internal constructor(
-    val multiply: Color,
-    val add: Color,
-    nativeColorFilter: NativeColorFilter
-) : ColorFilter(nativeColorFilter) {
+class LightingColorFilter
+internal constructor(val multiply: Color, val add: Color, nativeColorFilter: NativeColorFilter) :
+    ColorFilter(nativeColorFilter) {
 
     constructor(
         multiply: Color,

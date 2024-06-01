@@ -36,9 +36,7 @@ import org.junit.runner.RunWith
 class TextDelegateWidthWithLetterSpacingTest {
     private val fontFamily = TEST_FONT_FAMILY
 
-    /**
-     * values are exact values for the repro case (on Pixel4, Android 11)
-     */
+    /** values are exact values for the repro case (on Pixel4, Android 11) */
     private val density = Density(3.051f, 1.15f)
     private val letterSpacing = 0.4.sp
     private val lineHeight = 16.sp
@@ -48,9 +46,7 @@ class TextDelegateWidthWithLetterSpacingTest {
 
     @Test
     fun letterSpacing_and_lineHeight() {
-        assertLineCount(
-            TextStyle(letterSpacing = letterSpacing, lineHeight = lineHeight)
-        )
+        assertLineCount(TextStyle(letterSpacing = letterSpacing, lineHeight = lineHeight))
     }
 
     @Test
@@ -69,17 +65,15 @@ class TextDelegateWidthWithLetterSpacingTest {
     }
 
     private fun assertLineCount(style: TextStyle) {
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(text = "This is a callout message"),
-            style = style.copy(
-                fontFamily = fontFamily,
-                fontSize = fontSize
-            ),
-            softWrap = true,
-            overflow = TextOverflow.Clip,
-            density = density,
-            fontFamilyResolver = fontFamilyResolver
-        )
+        val textDelegate =
+            TextDelegate(
+                text = AnnotatedString(text = "This is a callout message"),
+                style = style.copy(fontFamily = fontFamily, fontSize = fontSize),
+                softWrap = true,
+                overflow = TextOverflow.Clip,
+                density = density,
+                fontFamilyResolver = fontFamilyResolver
+            )
         val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
         assertThat(layoutResult.lineCount).isEqualTo(1)
     }

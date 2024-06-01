@@ -74,37 +74,32 @@ class DynamicThemeActivity : ComponentActivity() {
     private val Colors.darkenedPrimary: Int
         get() {
             return with(primary) {
-                copy(
-                    red = red * 0.75f,
-                    green = green * 0.75f,
-                    blue = blue * 0.75f
-                )
-            }.toArgb()
+                    copy(red = red * 0.75f, green = green * 0.75f, blue = blue * 0.75f)
+                }
+                .toArgb()
         }
 }
 
 private typealias ScrollFraction = MutableState<Float>
 
-private val LazyListState.scrollOffset: Float get() {
-    val total = layoutInfo.totalItemsCount
-    if (total == 0 || layoutInfo.visibleItemsInfo.isEmpty()) {
-        return 0f
-    } else {
-        val itemSize = layoutInfo.visibleItemsInfo.first().size
-        val currentOffset = firstVisibleItemIndex * itemSize +
-            firstVisibleItemScrollOffset
-        return (currentOffset.toFloat() / (total * itemSize)).coerceIn(0f, 1f)
+private val LazyListState.scrollOffset: Float
+    get() {
+        val total = layoutInfo.totalItemsCount
+        if (total == 0 || layoutInfo.visibleItemsInfo.isEmpty()) {
+            return 0f
+        } else {
+            val itemSize = layoutInfo.visibleItemsInfo.first().size
+            val currentOffset = firstVisibleItemIndex * itemSize + firstVisibleItemScrollOffset
+            return (currentOffset.toFloat() / (total * itemSize)).coerceIn(0f, 1f)
+        }
     }
-}
 
 @Composable
 private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: Colors) {
     MaterialTheme(palette) {
         val state = rememberLazyListState()
         LaunchedEffect(state) {
-            snapshotFlow { state.scrollOffset }.collect {
-                scrollFraction.value = it
-            }
+            snapshotFlow { state.scrollOffset }.collect { scrollFraction.value = it }
         }
         Scaffold(
             topBar = { TopAppBar({ Text("Scroll down!") }) },
@@ -113,11 +108,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: Colors) {
             floatingActionButtonPosition = FabPosition.Center,
             isFloatingActionButtonDocked = true,
             content = { innerPadding ->
-                LazyColumn(state = state, contentPadding = innerPadding) {
-                    items(20) {
-                        Card(it)
-                    }
-                }
+                LazyColumn(state = state, contentPadding = innerPadding) { items(20) { Card(it) } }
             }
         )
     }
@@ -140,7 +131,9 @@ private fun Card(index: Int) {
     // colour from the Material theme to work out text colour, so we end up doing a
     // large amount of work here when the top level theme changes
     Box(
-        Modifier.padding(25.dp).fillMaxWidth().height(150.dp)
+        Modifier.padding(25.dp)
+            .fillMaxWidth()
+            .height(150.dp)
             .background(shapeColor, RoundedCornerShape(10.dp)),
         contentAlignment = Alignment.Center
     ) {
@@ -155,16 +148,10 @@ private fun interpolateTheme(fraction: Float): Colors {
     val secondary = lerp(Color(0xFF03DAC6), Color(0xFFBB86FC), interpolatedFraction)
     val background = lerp(Color.White, Color(0xFF121212), interpolatedFraction)
 
-    return lightColors(
-        primary = primary,
-        secondary = secondary,
-        background = background
-    )
+    return lightColors(primary = primary, secondary = secondary, background = background)
 }
 
-/**
- * 'Animate' the emoji in the FAB from 'sun' to 'moon' as we darken the theme
- */
+/** 'Animate' the emoji in the FAB from 'sun' to 'moon' as we darken the theme */
 private fun emojiForScrollFraction(fraction: Float): String {
     return when {
         // Sun

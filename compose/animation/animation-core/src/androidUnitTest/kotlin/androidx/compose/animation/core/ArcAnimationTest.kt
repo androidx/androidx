@@ -26,9 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Mostly tests some mathematical assumptions about arcs.
- */
+/** Mostly tests some mathematical assumptions about arcs. */
 @Suppress("JoinDeclarationAndAssignment") // Looks kinda messy
 @OptIn(ExperimentalAnimationSpecApi::class)
 @RunWith(JUnit4::class)
@@ -165,8 +163,7 @@ class ArcAnimationTest {
     @Test
     fun test2DInterpolation_withEasing() {
         val animation = createArcAnimation<AnimationVector2D>(ArcLinear)
-        val easedAnimation =
-            createArcAnimation<AnimationVector2D>(ArcLinear, FastOutSlowInEasing)
+        val easedAnimation = createArcAnimation<AnimationVector2D>(ArcLinear, FastOutSlowInEasing)
 
         var arcValue: AnimationVector2D
         var easedArcValue: AnimationVector2D
@@ -308,18 +305,20 @@ class ArcAnimationTest {
         assertEquals(animationA, animationB)
 
         // Equals with custom values
-        animationA = ArcAnimationSpec(
-            mode = ArcBelow,
-            durationMillis = 13,
-            delayMillis = 17,
-            easing = EaseInOut
-        )
-        animationB = ArcAnimationSpec(
-            mode = ArcBelow,
-            durationMillis = 13,
-            delayMillis = 17,
-            easing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f) // Re-declared EasInOut
-        )
+        animationA =
+            ArcAnimationSpec(
+                mode = ArcBelow,
+                durationMillis = 13,
+                delayMillis = 17,
+                easing = EaseInOut
+            )
+        animationB =
+            ArcAnimationSpec(
+                mode = ArcBelow,
+                durationMillis = 13,
+                delayMillis = 17,
+                easing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f) // Re-declared EasInOut
+            )
         assertEquals(animationA, animationB)
     }
 
@@ -346,8 +345,8 @@ class ArcAnimationTest {
         assertNotEquals(animationA, animationB)
     }
 
-    private inline fun <reified V : AnimationVector>
-        VectorizedDurationBasedAnimationSpec<V>.valueAt(timePercent: Float): V =
+    private inline fun <reified V : AnimationVector> VectorizedDurationBasedAnimationSpec<V>
+        .valueAt(timePercent: Float): V =
         this.getValueFromNanos(
             playTimeNanos = (durationMillis * timePercent).toLong() * 1_000_000,
             initialValue = createFilledVector(initialValue),
@@ -355,8 +354,8 @@ class ArcAnimationTest {
             initialVelocity = createFilledVector(0f)
         )
 
-    private inline fun <reified V : AnimationVector>
-        VectorizedDurationBasedAnimationSpec<V>.velocityAt(timePercent: Float): V =
+    private inline fun <reified V : AnimationVector> VectorizedDurationBasedAnimationSpec<V>
+        .velocityAt(timePercent: Float): V =
         this.getVelocityFromNanos(
             playTimeNanos = (durationMillis * timePercent).toLong() * 1_000_000,
             initialValue = createFilledVector(initialValue),
@@ -369,18 +368,13 @@ class ArcAnimationTest {
         return createFilledVector<V>(value)
     }
 
-    /**
-     * Creates an [ArcAnimationSpec] for the given [AnimationVector] type.
-     */
+    /** Creates an [ArcAnimationSpec] for the given [AnimationVector] type. */
     private inline fun <reified V : AnimationVector> createArcAnimation(
         mode: ArcMode,
         easing: Easing = LinearEasing
     ): VectorizedDurationBasedAnimationSpec<V> {
-        val spec = ArcAnimationSpec<FloatArray>(
-            mode = mode,
-            durationMillis = timeMillis,
-            easing = easing
-        )
+        val spec =
+            ArcAnimationSpec<FloatArray>(mode = mode, durationMillis = timeMillis, easing = easing)
         return spec.vectorize(createFloatArrayConverter())
     }
 }

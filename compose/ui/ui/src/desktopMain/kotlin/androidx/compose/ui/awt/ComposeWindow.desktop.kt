@@ -29,15 +29,14 @@ import javax.swing.JFrame
 import org.jetbrains.skiko.GraphicsApi
 
 /**
- * ComposeWindow is a window for building UI using Compose for Desktop.
- * ComposeWindow inherits javax.swing.JFrame.
+ * ComposeWindow is a window for building UI using Compose for Desktop. ComposeWindow inherits
+ * javax.swing.JFrame.
  *
  * @param graphicsConfiguration the GraphicsConfiguration that is used to construct the new window.
- * If null, the system default GraphicsConfiguration is assumed.
+ *   If null, the system default GraphicsConfiguration is assumed.
  */
-class ComposeWindow(
-    graphicsConfiguration: GraphicsConfiguration? = null
-) : JFrame(graphicsConfiguration) {
+class ComposeWindow(graphicsConfiguration: GraphicsConfiguration? = null) :
+    JFrame(graphicsConfiguration) {
     private val delegate = ComposeWindowDelegate(this, ::isUndecorated)
 
     init {
@@ -54,25 +53,20 @@ class ComposeWindow(
      * @param content Composable content of the ComposeWindow.
      */
     @OptIn(ExperimentalComposeUiApi::class)
-    fun setContent(
-        content: @Composable FrameWindowScope.() -> Unit
-    ) = setContent(
-        onPreviewKeyEvent = { false },
-        onKeyEvent = { false },
-        content = content
-    )
+    fun setContent(content: @Composable FrameWindowScope.() -> Unit) =
+        setContent(onPreviewKeyEvent = { false }, onKeyEvent = { false }, content = content)
 
     /**
      * Composes the given composable into the ComposeWindow.
      *
      * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
-     * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
-     * Return true to stop propagation of this event. If you return false, the key event will be
-     * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
-     * it will be sent back up to the root using the onKeyEvent callback.
+     *   keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+     *   Return true to stop propagation of this event. If you return false, the key event will be
+     *   sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it
+     *   will be sent back up to the root using the onKeyEvent callback.
      * @param onKeyEvent This callback is invoked when the user interacts with the hardware
-     * keyboard. While implementing this callback, return true to stop propagation of this event.
-     * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+     *   keyboard. While implementing this callback, return true to stop propagation of this event.
+     *   If you return false, the key event will be sent to this [onKeyEvent]'s parent.
      * @param content Composable content of the ComposeWindow.
      */
     @ExperimentalComposeUiApi
@@ -81,15 +75,12 @@ class ComposeWindow(
         onKeyEvent: (KeyEvent) -> Boolean = { false },
         content: @Composable FrameWindowScope.() -> Unit
     ) {
-        val scope = object : FrameWindowScope {
-            override val window: ComposeWindow get() = this@ComposeWindow
-        }
-        delegate.setContent(
-            onPreviewKeyEvent,
-            onKeyEvent
-        ) {
-            scope.content()
-        }
+        val scope =
+            object : FrameWindowScope {
+                override val window: ComposeWindow
+                    get() = this@ComposeWindow
+            }
+        delegate.setContent(onPreviewKeyEvent, onKeyEvent) { scope.content() }
     }
 
     override fun dispose() {
@@ -108,18 +99,19 @@ class ComposeWindow(
     }
 
     /**
-     * `true` if background of the window is transparent, `false` otherwise
-     * Transparency should be set only if window is not showing and `isUndecorated` is set to
-     * `true`, otherwise AWT will throw an exception.
+     * `true` if background of the window is transparent, `false` otherwise Transparency should be
+     * set only if window is not showing and `isUndecorated` is set to `true`, otherwise AWT will
+     * throw an exception.
      */
     var isTransparent: Boolean by delegate::isTransparent
 
     var placement: WindowPlacement
-        get() = when {
-            isFullscreen -> WindowPlacement.Fullscreen
-            isMaximized -> WindowPlacement.Maximized
-            else -> WindowPlacement.Floating
-        }
+        get() =
+            when {
+                isFullscreen -> WindowPlacement.Fullscreen
+                isMaximized -> WindowPlacement.Maximized
+                else -> WindowPlacement.Floating
+            }
         set(value) {
             when (value) {
                 WindowPlacement.Fullscreen -> {
@@ -135,64 +127,59 @@ class ComposeWindow(
             }
         }
 
-    /**
-     * `true` if the window is in fullscreen mode, `false` otherwise
-     */
+    /** `true` if the window is in fullscreen mode, `false` otherwise */
     private var isFullscreen: Boolean by delegate::fullscreen
 
-    /**
-     * `true` if the window is maximized to fill all available screen space, `false` otherwise
-     */
+    /** `true` if the window is maximized to fill all available screen space, `false` otherwise */
     private var isMaximized: Boolean
         get() = extendedState and MAXIMIZED_BOTH != 0
         set(value) {
-            extendedState = if (value) {
-                extendedState or MAXIMIZED_BOTH
-            } else {
-                extendedState and MAXIMIZED_BOTH.inv()
-            }
+            extendedState =
+                if (value) {
+                    extendedState or MAXIMIZED_BOTH
+                } else {
+                    extendedState and MAXIMIZED_BOTH.inv()
+                }
         }
 
-    /**
-     * `true` if the window is minimized to the taskbar, `false` otherwise
-     */
+    /** `true` if the window is minimized to the taskbar, `false` otherwise */
     var isMinimized: Boolean
         get() = extendedState and ICONIFIED != 0
         set(value) {
-            extendedState = if (value) {
-                extendedState or ICONIFIED
-            } else {
-                extendedState and ICONIFIED.inv()
-            }
+            extendedState =
+                if (value) {
+                    extendedState or ICONIFIED
+                } else {
+                    extendedState and ICONIFIED.inv()
+                }
         }
 
-    /**
-     * Registers a task to run when the rendering API changes.
-     */
+    /** Registers a task to run when the rendering API changes. */
     fun onRenderApiChanged(action: () -> Unit) {
         delegate.onRenderApiChanged(action)
     }
 
     /**
      * Retrieve underlying platform-specific operating system handle for the root window where
-     * ComposeWindow is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow
-     * on macOS.
+     * ComposeWindow is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow on
+     * macOS.
      */
-    val windowHandle: Long get() = delegate.windowHandle
+    val windowHandle: Long
+        get() = delegate.windowHandle
 
     /**
      * Returns low-level rendering API used for rendering in this ComposeWindow. API is
      * automatically selected based on operating system, graphical hardware and `SKIKO_RENDER_API`
      * environment variable.
      */
-    val renderApi: GraphicsApi get() = delegate.renderApi
+    val renderApi: GraphicsApi
+        get() = delegate.renderApi
 
     // We need overridden listeners because we mix Swing and AWT components in the
     // org.jetbrains.skiko.SkiaLayer, they don't work well together.
     // TODO(demin): is it possible to fix that without overriding?
 
-    override fun addMouseListener(listener: MouseListener) =
-        delegate.addMouseListener(listener)
+    override fun addMouseListener(listener: MouseListener) = delegate.addMouseListener(listener)
 
     override fun removeMouseListener(listener: MouseListener) =
         delegate.removeMouseListener(listener)

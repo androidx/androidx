@@ -48,8 +48,8 @@ internal val SelectionHandleInfoKey =
  *
  * @param handle Which selection [Handle] this is about.
  * @param position The position that the handle is anchored to relative to the selectable content.
- * This position is not necessarily the position of the popup itself, it's the position that the
- * handle "points" to (so e.g. top-middle for [Handle.Cursor]).
+ *   This position is not necessarily the position of the popup itself, it's the position that the
+ *   handle "points" to (so e.g. top-middle for [Handle.Cursor]).
  * @param anchor How the selection handle is anchored to its position
  * @param visible Whether the icon of the handle is actually shown
  */
@@ -63,9 +63,8 @@ internal data class SelectionHandleInfo(
 /**
  * How the selection handle is anchored to its position
  *
- * In a regular text selection, selection start is anchored to left.
- * Only cursor handle is always anchored at the middle.
- * In a regular text selection, selection end is anchored to right.
+ * In a regular text selection, selection start is anchored to left. Only cursor handle is always
+ * anchored at the middle. In a regular text selection, selection end is anchored to right.
  */
 internal enum class SelectionHandleAnchor {
     Left,
@@ -83,9 +82,7 @@ internal expect fun SelectionHandle(
     modifier: Modifier,
 )
 
-/**
- * Avoids boxing of [Offset] which is an inline value class.
- */
+/** Avoids boxing of [Offset] which is an inline value class. */
 internal fun interface OffsetProvider {
     fun provide(): Offset
 }
@@ -93,17 +90,17 @@ internal fun interface OffsetProvider {
 /**
  * Adjust coordinates for given text offset.
  *
- * Currently [android.text.Layout.getLineBottom] returns y coordinates of the next
- * line's top offset, which is not included in current line's hit area. To be able to
- * hit current line, move up this y coordinates by 1 pixel.
+ * Currently [android.text.Layout.getLineBottom] returns y coordinates of the next line's top
+ * offset, which is not included in current line's hit area. To be able to hit current line, move up
+ * this y coordinates by 1 pixel.
  */
 internal fun getAdjustedCoordinates(position: Offset): Offset {
     return Offset(position.x, position.y - 1f)
 }
 
 /**
- * This [PopupPositionProvider] for a selection handle. It will position the selection handle
- * to the result of [positionProvider] in its anchor layout.
+ * This [PopupPositionProvider] for a selection handle. It will position the selection handle to the
+ * result of [positionProvider] in its anchor layout.
  */
 internal class HandlePositionProvider(
     private val handleReferencePoint: Alignment,
@@ -133,9 +130,7 @@ internal class HandlePositionProvider(
     }
 }
 
-/**
- * Computes whether the handle's appearance should be left-pointing or right-pointing.
- */
+/** Computes whether the handle's appearance should be left-pointing or right-pointing. */
 internal fun isLeftSelectionHandle(
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
@@ -149,14 +144,13 @@ internal fun isLeftSelectionHandle(
 }
 
 /**
- * This method is to check if the selection handles should use the natural Ltr pointing
- * direction.
+ * This method is to check if the selection handles should use the natural Ltr pointing direction.
  * If the context is Ltr and the handles are not crossed, or if the context is Rtl and the handles
  * are crossed, return true.
  *
- * In Ltr context, the start handle should point to the left, and the end handle should point to
- * the right. However, in Rtl context or when handles are crossed, the start handle should point to
- * the right, and the end handle should point to left.
+ * In Ltr context, the start handle should point to the left, and the end handle should point to the
+ * right. However, in Rtl context or when handles are crossed, the start handle should point to the
+ * right, and the end handle should point to left.
  */
 /*@VisibleForTesting*/
 internal fun isHandleLtrDirection(

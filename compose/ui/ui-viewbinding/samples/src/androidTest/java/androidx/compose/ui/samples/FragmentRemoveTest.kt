@@ -48,8 +48,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FragmentRemoveTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<EmptyFragmentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<EmptyFragmentActivity>()
 
     @Test
     fun testRemoval() {
@@ -61,8 +60,8 @@ class FragmentRemoveTest {
             }
         }
 
-        var fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        var fragment =
+            rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be present when AndroidViewBinding is in the hierarchy")
             .that(fragment)
             .isNotNull()
@@ -71,8 +70,7 @@ class FragmentRemoveTest {
 
         rule.waitForIdle()
 
-        fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        fragment = rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be removed when the AndroidViewBinding is removed")
             .that(fragment)
             .isNull()
@@ -88,8 +86,8 @@ class FragmentRemoveTest {
             }
         }
 
-        var fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        var fragment =
+            rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be present when AndroidViewBinding is in the hierarchy")
             .that(fragment)
             .isNotNull()
@@ -99,16 +97,13 @@ class FragmentRemoveTest {
 
         // Update the state to allow verifying the state is destroyed when the
         // AndroidViewBinding is removed from composition
-        rule.runOnUiThread {
-            binding.editText.setText("Updated")
-        }
+        rule.runOnUiThread { binding.editText.setText("Updated") }
 
         show = false
 
         rule.waitForIdle()
 
-        fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        fragment = rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be removed when the AndroidViewBinding is removed")
             .that(fragment)
             .isNull()
@@ -117,8 +112,7 @@ class FragmentRemoveTest {
 
         rule.waitForIdle()
 
-        fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        fragment = rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be present when AndroidViewBinding is in the hierarchy")
             .that(fragment)
             .isNotNull()
@@ -136,14 +130,12 @@ class FragmentRemoveTest {
             if (showStateA) {
                 AndroidViewBinding(TestFragmentLayoutBinding::inflate)
             } else {
-                SideEffect {
-                    showStateA = true
-                }
+                SideEffect { showStateA = true }
             }
         }
 
-        var fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        var fragment =
+            rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be present when AndroidViewBinding is in the hierarchy")
             .that(fragment)
             .isNotNull()
@@ -153,16 +145,13 @@ class FragmentRemoveTest {
 
         // Update the state to allow verifying the state is destroyed when the
         // AndroidViewBinding is removed from composition
-        rule.runOnUiThread {
-            binding.editText.setText("Updated")
-        }
+        rule.runOnUiThread { binding.editText.setText("Updated") }
 
         showStateA = false
 
         rule.waitForIdle()
 
-        fragment = rule.activity.supportFragmentManager
-            .findFragmentById(R.id.fragment_container)
+        fragment = rule.activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
         assertWithMessage("Fragment should be present when AndroidViewBinding is in the hierarchy")
             .that(fragment)
             .isNotNull()
@@ -194,8 +183,7 @@ class FragmentRemoveTest {
                 val fragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
                 assertThat(fragment).isNotNull()
                 assertThat(fragment!!.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
-                val recreatedBinding = SampleEditTextLayoutBinding.bind(
-                    fragment.requireView())
+                val recreatedBinding = SampleEditTextLayoutBinding.bind(fragment.requireView())
                 assertThat(recreatedBinding.editText.text.toString()).isEqualTo("Default")
             }
         }
@@ -216,8 +204,8 @@ class ComposeInflatedFragmentActivity : FragmentActivity() {
             )
         }
 
-        composeView = window.decorView
-            .findViewById<ViewGroup>(android.R.id.content)
-            .getChildAt(0) as? ComposeView
+        composeView =
+            window.decorView.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+                as? ComposeView
     }
 }

@@ -19,24 +19,21 @@ package androidx.compose.ui.graphics.colorspace
 import androidx.annotation.Size
 
 /**
- * Class for constructing white points used in [RGB][Rgb] color space. The value is
- * stored in the CIE xyY color space. The Y component of the white point is assumed
- * to be 1.
+ * Class for constructing white points used in [RGB][Rgb] color space. The value is stored in the
+ * CIE xyY color space. The Y component of the white point is assumed to be 1.
  *
  * @see Illuminant
  */
 data class WhitePoint(val x: Float, val y: Float) {
-    /**
-     * Illuminant for CIE XYZ white point
-     */
+    /** Illuminant for CIE XYZ white point */
     constructor(x: Float, y: Float, z: Float) : this(x, y, z, x + y + z)
 
     @Suppress("UNUSED_PARAMETER")
     private constructor(x: Float, y: Float, z: Float, sum: Float) : this(x / sum, y / sum)
 
     /**
-     * Converts a value from CIE xyY to CIE XYZ. Y is assumed to be 1 so the
-     * input xyY array only contains the x and y components.
+     * Converts a value from CIE xyY to CIE XYZ. Y is assumed to be 1 so the input xyY array only
+     * contains the x and y components.
      *
      * @return A new float array of length 3 containing XYZ values
      */

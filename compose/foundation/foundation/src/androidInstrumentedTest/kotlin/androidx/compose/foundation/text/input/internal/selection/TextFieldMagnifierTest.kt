@@ -109,18 +109,12 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
 
     @Test
     fun magnifier_staysAtLineEnd_whenCursorDraggedPastStart() {
-        checkMagnifierConstrainedToLineHorizontalBounds(
-            Handle.Cursor,
-            checkStart = true
-        )
+        checkMagnifierConstrainedToLineHorizontalBounds(Handle.Cursor, checkStart = true)
     }
 
     @Test
     fun magnifier_staysAtLineEnd_whenCursorDraggedPastEnd() {
-        checkMagnifierConstrainedToLineHorizontalBounds(
-            Handle.Cursor,
-            checkStart = false
-        )
+        checkMagnifierConstrainedToLineHorizontalBounds(Handle.Cursor, checkStart = false)
     }
 
     @Test
@@ -170,10 +164,11 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         rule.runOnIdle {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
-            val moveEvent = makeTextDragEvent(
-                action = DragEvent.ACTION_DRAG_LOCATION,
-                offset = Offset(40f, 10f)
-            )
+            val moveEvent =
+                makeTextDragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    offset = Offset(40f, 10f)
+                )
 
             view.dispatchDragEvent(startEvent)
             view.dispatchDragEvent(enterEvent)
@@ -190,10 +185,8 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         rule.runOnIdle {
             val startEvent = makeImageDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeImageDragEvent(DragEvent.ACTION_DRAG_ENTERED)
-            val moveEvent = makeImageDragEvent(
-                DragEvent.ACTION_DRAG_LOCATION,
-                offset = Offset(40f, 10f)
-            )
+            val moveEvent =
+                makeImageDragEvent(DragEvent.ACTION_DRAG_LOCATION, offset = Offset(40f, 10f))
 
             view.dispatchDragEvent(startEvent)
             view.dispatchDragEvent(enterEvent)
@@ -210,10 +203,11 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         rule.runOnIdle {
             val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
             val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
-            val moveEvent = makeTextDragEvent(
-                action = DragEvent.ACTION_DRAG_LOCATION,
-                offset = Offset(40f, 10f)
-            )
+            val moveEvent =
+                makeTextDragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    offset = Offset(40f, 10f)
+                )
 
             view.dispatchDragEvent(startEvent)
             view.dispatchDragEvent(enterEvent)
@@ -223,10 +217,11 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         assertMagnifierExists(rule)
 
         rule.runOnIdle {
-            val moveEvent2 = makeTextDragEvent(
-                action = DragEvent.ACTION_DRAG_LOCATION,
-                offset = Offset(40f, 40f) // force it out of BTF2's hit box
-            )
+            val moveEvent2 =
+                makeTextDragEvent(
+                    action = DragEvent.ACTION_DRAG_LOCATION,
+                    offset = Offset(40f, 40f) // force it out of BTF2's hit box
+                )
             view.dispatchDragEvent(moveEvent2)
         }
 
@@ -236,10 +231,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
     @Test
     fun magnifier_insideDecorationBox() {
         val tag = "BasicTextField"
-        val state = TextFieldState(
-            "aaaa",
-            initialSelection = TextRange.Zero
-        )
+        val state = TextFieldState("aaaa", initialSelection = TextRange.Zero)
 
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
@@ -248,36 +240,26 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
                     Modifier.testTag(tag),
                     textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                     lineLimits = TextFieldLineLimits.SingleLine,
-                    decorator = {
-                        Box(modifier = Modifier.padding(8.dp)) {
-                            it()
-                        }
-                    }
+                    decorator = { Box(modifier = Modifier.padding(8.dp)) { it() } }
                 )
             }
         }
 
-        rule.onNodeWithTag(tag).performTouchInput {
-            click(topLeft)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { click(topLeft) }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
             down(center)
             movePastSlopBy(Offset(-0.1f, 0.1f))
         }
 
-        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
-            Offset(0f, 10f) + Offset(8f, 8f)
-        )
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(Offset(0f, 10f) + Offset(8f, 8f))
     }
 
     @Test
     fun magnifier_insideDecorationBox_scrolledVertically() {
         val tag = "BasicTextField"
-        val state = TextFieldState(
-            "aaaa\naaaa\naaaa\n".repeat(5),
-            initialSelection = TextRange.Zero
-        )
+        val state =
+            TextFieldState("aaaa\naaaa\naaaa\n".repeat(5), initialSelection = TextRange.Zero)
         val scrollState = ScrollState(0)
         var coroutineScope: CoroutineScope? = null
 
@@ -290,41 +272,28 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
                     textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                     lineLimits = TextFieldLineLimits.MultiLine(1, 2),
                     scrollState = scrollState,
-                    decorator = {
-                        Box(modifier = Modifier.padding(8.dp)) {
-                            it()
-                        }
-                    }
+                    decorator = { Box(modifier = Modifier.padding(8.dp)) { it() } }
                 )
             }
         }
 
         rule.waitForIdle()
-        coroutineScope?.launch {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
+        coroutineScope?.launch { scrollState.scrollTo(scrollState.maxValue) }
 
-        rule.onNodeWithTag(tag).performTouchInput {
-            click(bottomLeft)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { click(bottomLeft) }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
             down(center)
             movePastSlopBy(Offset(0.1f, 0.1f))
         }
 
-        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
-            Offset(0f, 30f) + Offset(8f, 8f)
-        )
+        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(Offset(0f, 30f) + Offset(8f, 8f))
     }
 
     @Test
     fun magnifier_insideDecorationBox_scrolledHorizontally() {
         val tag = "BasicTextField"
-        val state = TextFieldState(
-            "aaaa aaaa aaaa ".repeat(5),
-            initialSelection = TextRange.Zero
-        )
+        val state = TextFieldState("aaaa aaaa aaaa ".repeat(5), initialSelection = TextRange.Zero)
         val scrollState = ScrollState(0)
         var coroutineScope: CoroutineScope? = null
 
@@ -337,33 +306,26 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
                     textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
                     lineLimits = TextFieldLineLimits.SingleLine,
                     scrollState = scrollState,
-                    decorator = {
-                        Box(modifier = Modifier.padding(8.dp)) {
-                            it()
-                        }
-                    }
+                    decorator = { Box(modifier = Modifier.padding(8.dp)) { it() } }
                 )
             }
         }
 
         rule.waitForIdle()
-        coroutineScope?.launch {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
+        coroutineScope?.launch { scrollState.scrollTo(scrollState.maxValue) }
 
-        rule.onNodeWithTag(tag).performTouchInput {
-            click(centerRight)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { click(centerRight) }
 
         rule.onNode(isSelectionHandle(Handle.Cursor)).performTouchInput {
             down(center)
             movePastSlopBy(Offset(0.1f, 0.1f))
         }
 
-        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
-            // x: drag threshold, y: line center(2nd line in view) + x: padding, y: padding
-            Offset(100f - 16f, 10f) + Offset(8f, 8f)
-        )
+        Truth.assertThat(getMagnifierCenterOffset(rule))
+            .isEqualTo(
+                // x: drag threshold, y: line center(2nd line in view) + x: padding, y: padding
+                Offset(100f - 16f, 10f) + Offset(8f, 8f)
+            )
     }
 
     // regression - When dragging to the final empty line, the magnifier appeared on the second
@@ -376,11 +338,12 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         rule.setTextFieldTestContent {
             Content(
                 text = "a\n\n",
-                modifier = Modifier
-                    // Center the text to give the magnifier lots of room to move.
-                    .fillMaxSize()
-                    .wrapContentSize()
-                    .testTag(tag),
+                modifier =
+                    Modifier
+                        // Center the text to give the magnifier lots of room to move.
+                        .fillMaxSize()
+                        .wrapContentSize()
+                        .testTag(tag),
                 onTextLayout = { textLayout = it }
             )
         }
@@ -398,30 +361,26 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         }
 
         // start selection at first character
-        rule.onNodeWithTag(tag).performTouchInput {
-            longPress(firstPressOffset)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { longPress(firstPressOffset) }
         assertMagnifierAt(firstPressOffset)
 
-        fun getOffsetAtLine(line: Int): Offset = Offset(
-            x = firstPressOffset.x,
-            y = lerp(
-                start = textLayout.getLineTop(lineIndex = line),
-                stop = textLayout.getLineBottom(lineIndex = line),
-                fraction = 0.5f
+        fun getOffsetAtLine(line: Int): Offset =
+            Offset(
+                x = firstPressOffset.x,
+                y =
+                    lerp(
+                        start = textLayout.getLineTop(lineIndex = line),
+                        stop = textLayout.getLineBottom(lineIndex = line),
+                        fraction = 0.5f
+                    )
             )
-        )
 
         val secondOffset = getOffsetAtLine(1)
-        rule.onNodeWithTag(tag).performTouchInput {
-            moveTo(secondOffset)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { moveTo(secondOffset) }
         assertMagnifierAt(Offset(0f, secondOffset.y))
 
         val thirdOffset = getOffsetAtLine(2)
-        rule.onNodeWithTag(tag).performTouchInput {
-            moveTo(thirdOffset)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { moveTo(thirdOffset) }
         assertMagnifierAt(Offset(0f, thirdOffset.y))
     }
 
@@ -437,16 +396,20 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         lateinit var textLayout: TextLayoutResult
         rule.setTextFieldTestContent {
             Content(
-                text = """
+                text =
+                    """
                     $rtlWord $ltrWord
                     $ltrWord $rtlWord
                     $rtlWord $ltrWord
-                """.trimIndent().trim(),
-                modifier = Modifier
-                    // Center the text to give the magnifier lots of room to move.
-                    .fillMaxSize()
-                    .wrapContentHeight()
-                    .testTag(tag),
+                """
+                        .trimIndent()
+                        .trim(),
+                modifier =
+                    Modifier
+                        // Center the text to give the magnifier lots of room to move.
+                        .fillMaxSize()
+                        .wrapContentHeight()
+                        .testTag(tag),
                 onTextLayout = { textLayout = it }
             )
         }
@@ -471,9 +434,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
 
         val secondLineCenterY = getCenterForLine(1)
         val secondOffset = Offset(farRightX, secondLineCenterY)
-        rule.onNodeWithTag(tag).performTouchInput {
-            moveTo(secondOffset)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { moveTo(secondOffset) }
         rule.waitForIdle()
         Truth.assertWithMessage("Magnifier should not be shown")
             .that(getMagnifierCenterOffset(rule).isUnspecified)
@@ -481,9 +442,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
 
         val lineRightX = textLayout.getLineRight(1)
         val thirdOffset = Offset(lineRightX + 1f, secondLineCenterY)
-        rule.onNodeWithTag(tag).performTouchInput {
-            moveTo(thirdOffset)
-        }
+        rule.onNodeWithTag(tag).performTouchInput { moveTo(thirdOffset) }
         rule.waitForIdle()
         val actual = getMagnifierCenterOffset(rule, requireSpecified = true) - placedPosition
         assertThatOffset(actual).equalsWithTolerance(Offset(lineRightX, secondLineCenterY))
@@ -497,23 +456,21 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         var screenSize = Size.Zero
         val dragDirection = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f
         val directionVector = Offset(1f, 0f) * dragDirection
-        val fillerWord = if (layoutDirection == LayoutDirection.Ltr)
-            "aaaa"
-        else
-            "\u05D0\u05D1\u05D2\u05D3"
+        val fillerWord =
+            if (layoutDirection == LayoutDirection.Ltr) "aaaa" else "\u05D0\u05D1\u05D2\u05D3"
 
         val tag = "BasicTextField"
-        val state = TextFieldState(
-            "$fillerWord $fillerWord $fillerWord ".repeat(10),
-            initialSelection = TextRange.Zero
-        )
+        val state =
+            TextFieldState(
+                "$fillerWord $fillerWord $fillerWord ".repeat(10),
+                initialSelection = TextRange.Zero
+            )
 
         rule.setTextFieldTestContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 BasicTextField(
                     state = state,
-                    Modifier
-                        .fillMaxWidth()
+                    Modifier.fillMaxWidth()
                         .onSizeChanged { screenSize = it.toSize() }
                         .wrapContentSize()
                         .testTag(tag),
@@ -540,19 +497,18 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         val magnifierInitialPosition = getMagnifierCenterOffset(rule, requireSpecified = true)
 
         // Drag all the way past the end of the line.
-        rule.onNode(isSelectionHandle(handle))
-            .performTouchInput {
-                val delta = Offset(
+        rule.onNode(isSelectionHandle(handle)).performTouchInput {
+            val delta =
+                Offset(
                     x = screenSize.width * directionVector.x,
                     y = screenSize.height * directionVector.y
                 )
-                moveBy(delta)
-            }
+            moveBy(delta)
+        }
 
         val x = if (layoutDirection == LayoutDirection.Ltr) screenSize.width else 0f
-        Truth.assertThat(getMagnifierCenterOffset(rule)).isEqualTo(
-            Offset(x, magnifierInitialPosition.y)
-        )
+        Truth.assertThat(getMagnifierCenterOffset(rule))
+            .isEqualTo(Offset(x, magnifierInitialPosition.y))
     }
 
     /**
@@ -571,31 +527,30 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         rule.setTextFieldTestContent {
             Content(
                 text = "$word $word $word",
-                modifier = Modifier
-                    // Center the text to give the magnifier lots of room to move.
-                    .fillMaxSize()
-                    .wrapContentSize()
-                    .testTag(tag)
+                modifier =
+                    Modifier
+                        // Center the text to give the magnifier lots of room to move.
+                        .fillMaxSize()
+                        .wrapContentSize()
+                        .testTag(tag)
             )
         }
 
         // Initiate selection.
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                down(center)
-                moveBy(Offset.Zero, delayMillis = viewConfiguration.longPressTimeoutMillis + 100)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(center)
+            moveBy(Offset.Zero, delayMillis = viewConfiguration.longPressTimeoutMillis + 100)
+        }
 
         // Magnifier should show after long-press starts.
         val magnifierInitialPosition = getMagnifierCenterOffset(rule, requireSpecified = true)
 
         // Drag horizontally - the magnifier should follow.
-        rule.onNodeWithTag(tag)
-            .performTouchInput {
-                // Don't need to worry about touch slop for this test since the drag starts as soon
-                // as the long click is detected.
-                moveBy(dragDistance * dragDirection)
-            }
+        rule.onNodeWithTag(tag).performTouchInput {
+            // Don't need to worry about touch slop for this test since the drag starts as soon
+            // as the long click is detected.
+            moveBy(dragDistance * dragDirection)
+        }
 
         // make the assertion without sending an `up` event which would cause an input session
         // to start and keyboard to show up.
@@ -604,18 +559,16 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
     }
 
     private fun setupDragAndDropContent(): View {
-        val state = TextFieldState(
-            "aaaa",
-            initialSelection = TextRange.Zero
-        )
+        val state = TextFieldState("aaaa", initialSelection = TextRange.Zero)
         var view: View? = null
         rule.setContent { // Do not use setTextFieldTestContent for DnD tests.
             view = LocalView.current
             CompositionLocalProvider(
                 LocalDensity provides Density(1f, 1f),
-                LocalWindowInfo provides object : WindowInfo {
-                    override val isWindowFocused = false
-                }
+                LocalWindowInfo provides
+                    object : WindowInfo {
+                        override val isWindowFocused = false
+                    }
             ) {
                 BasicTextField(
                     state = state,

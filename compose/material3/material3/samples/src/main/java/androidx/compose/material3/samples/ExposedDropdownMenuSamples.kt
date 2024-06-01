@@ -132,10 +132,11 @@ fun EditableExposedDropdownMenuSample() {
                 DropdownMenuItem(
                     text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
                     onClick = {
-                        text = TextFieldValue(
-                            text = option.text,
-                            selection = TextRange(option.text.length),
-                        )
+                        text =
+                            TextFieldValue(
+                                text = option.text,
+                                selection = TextRange(option.text.length),
+                            )
                         setExpanded(false)
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -146,8 +147,8 @@ fun EditableExposedDropdownMenuSample() {
 }
 
 /**
- * Returns the element of [this] list that contain [text] as a subsequence,
- * with the subsequence underlined as an [AnnotatedString].
+ * Returns the element of [this] list that contain [text] as a subsequence, with the subsequence
+ * underlined as an [AnnotatedString].
  */
 private fun List<String>.filteredBy(text: String): List<AnnotatedString> {
     fun underlineSubsequence(needle: String, haystack: String): AnnotatedString? {
@@ -156,8 +157,7 @@ private fun List<String>.filteredBy(text: String): List<AnnotatedString> {
             for (char in needle) {
                 val start = i
                 haystack.indexOf(char, startIndex = i, ignoreCase = true).let {
-                    if (it < 0) return null
-                    else i = it
+                    if (it < 0) return null else i = it
                 }
                 append(haystack.substring(start, i))
                 withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {

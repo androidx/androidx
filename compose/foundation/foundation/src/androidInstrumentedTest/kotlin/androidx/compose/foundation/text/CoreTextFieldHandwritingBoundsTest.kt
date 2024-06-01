@@ -54,45 +54,45 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class CoreTextFieldHandwritingBoundsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
-    private val fakeImm = object : InputMethodManager {
-        private var stylusHandwritingStartCount = 0
+    private val fakeImm =
+        object : InputMethodManager {
+            private var stylusHandwritingStartCount = 0
 
-        fun expectStylusHandwriting(started: Boolean) {
-            if (started) {
-                assertThat(stylusHandwritingStartCount).isEqualTo(1)
-                stylusHandwritingStartCount = 0
-            } else {
-                assertThat(stylusHandwritingStartCount).isZero()
+            fun expectStylusHandwriting(started: Boolean) {
+                if (started) {
+                    assertThat(stylusHandwritingStartCount).isEqualTo(1)
+                    stylusHandwritingStartCount = 0
+                } else {
+                    assertThat(stylusHandwritingStartCount).isZero()
+                }
+            }
+
+            override fun isActive(): Boolean = true
+
+            override fun restartInput() {}
+
+            override fun showSoftInput() {}
+
+            override fun hideSoftInput() {}
+
+            override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
+
+            override fun updateSelection(
+                selectionStart: Int,
+                selectionEnd: Int,
+                compositionStart: Int,
+                compositionEnd: Int
+            ) {}
+
+            override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
+
+            override fun startStylusHandwriting() {
+                ++stylusHandwritingStartCount
             }
         }
-
-        override fun isActive(): Boolean = true
-
-        override fun restartInput() {}
-
-        override fun showSoftInput() {}
-
-        override fun hideSoftInput() {}
-
-        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
-
-        override fun updateSelection(
-            selectionStart: Int,
-            selectionEnd: Int,
-            compositionStart: Int,
-            compositionEnd: Int
-        ) {}
-
-        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
-
-        override fun startStylusHandwriting() {
-            ++stylusHandwritingStartCount
-        }
-    }
 
     @Before
     fun setup() {
@@ -134,9 +134,10 @@ class CoreTextFieldHandwritingBoundsTest {
             Column(Modifier.safeContentPadding()) {
                 EditLine(Modifier.testTag(editorTag1))
                 Spacer(
-                    modifier = Modifier.fillMaxWidth()
-                        .height(HandwritingBoundsVerticalOffset)
-                        .testTag(spacerTag)
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(HandwritingBoundsVerticalOffset)
+                            .testTag(spacerTag)
                 )
                 EditLine(Modifier.testTag(editorTag2))
             }
@@ -169,11 +170,12 @@ class CoreTextFieldHandwritingBoundsTest {
         CoreTextField(
             value = value,
             onValueChange = { value = it },
-            modifier = modifier
-                .fillMaxWidth()
-                // make the size of TextFields equal to padding, so that touch bounds of editors
-                // in the same column/row are overlapping.
-                .height(HandwritingBoundsVerticalOffset)
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    // make the size of TextFields equal to padding, so that touch bounds of editors
+                    // in the same column/row are overlapping.
+                    .height(HandwritingBoundsVerticalOffset)
         )
     }
 
@@ -182,9 +184,7 @@ class CoreTextFieldHandwritingBoundsTest {
         content: @Composable () -> Unit
     ) {
         rule.setFocusableContent(extraItemForInitialFocus) {
-            inputMethodInterceptor.Content {
-                content()
-            }
+            inputMethodInterceptor.Content { content() }
         }
     }
 }

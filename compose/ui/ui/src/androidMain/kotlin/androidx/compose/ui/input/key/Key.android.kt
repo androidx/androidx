@@ -39,18 +39,16 @@ actual value class Key(val keyCode: Long) {
         /**
          * Soft Left key.
          *
-         * Usually situated below the display on phones and used as a multi-function
-         * feature key for selecting a software defined function shown on the bottom left
-         * of the display.
+         * Usually situated below the display on phones and used as a multi-function feature key for
+         * selecting a software defined function shown on the bottom left of the display.
          */
         actual val SoftLeft = Key(KeyEvent.KEYCODE_SOFT_LEFT)
 
         /**
          * Soft Right key.
          *
-         * Usually situated below the display on phones and used as a multi-function
-         * feature key for selecting a software defined function shown on the bottom right
-         * of the display.
+         * Usually situated below the display on phones and used as a multi-function feature key for
+         * selecting a software defined function shown on the bottom right of the display.
          */
         actual val SoftRight = Key(KeyEvent.KEYCODE_SOFT_RIGHT)
 
@@ -176,7 +174,7 @@ actual value class Key(val keyCode: Long) {
          */
         actual val VolumeDown = Key(KeyEvent.KEYCODE_VOLUME_DOWN)
 
-        /** Power key.  */
+        /** Power key. */
         actual val Power = Key(KeyEvent.KEYCODE_POWER)
 
         /**
@@ -407,16 +405,16 @@ actual value class Key(val keyCode: Long) {
         /**
          * Home Movement key.
          *
-         * Used for scrolling or moving the cursor around to the start of a line
-         * or to the top of a list.
+         * Used for scrolling or moving the cursor around to the start of a line or to the top of a
+         * list.
          */
         actual val MoveHome = Key(KeyEvent.KEYCODE_MOVE_HOME)
 
         /**
          * End Movement key.
          *
-         * Used for scrolling or moving the cursor around to the end of a line
-         * or to the bottom of a list.
+         * Used for scrolling or moving the cursor around to the end of a line or to the bottom of a
+         * list.
          */
         actual val MoveEnd = Key(KeyEvent.KEYCODE_MOVE_END)
 
@@ -463,8 +461,7 @@ actual value class Key(val keyCode: Long) {
         /**
          * Number modifier key.
          *
-         * Used to enter numeric symbols.
-         * This key is not Num Lock; it is more like  [AltLeft].
+         * Used to enter numeric symbols. This key is not Num Lock; it is more like [AltLeft].
          */
         actual val Number = Key(KeyEvent.KEYCODE_NUM)
 
@@ -514,96 +511,96 @@ actual value class Key(val keyCode: Long) {
         /**
          * A Button key.
          *
-         * On a game controller, the A button should be either the button labeled A
-         * or the first button on the bottom row of controller buttons.
+         * On a game controller, the A button should be either the button labeled A or the first
+         * button on the bottom row of controller buttons.
          */
         actual val ButtonA = Key(KeyEvent.KEYCODE_BUTTON_A)
 
         /**
          * B Button key.
          *
-         * On a game controller, the B button should be either the button labeled B
-         * or the second button on the bottom row of controller buttons.
+         * On a game controller, the B button should be either the button labeled B or the second
+         * button on the bottom row of controller buttons.
          */
         actual val ButtonB = Key(KeyEvent.KEYCODE_BUTTON_B)
 
         /**
          * C Button key.
          *
-         * On a game controller, the C button should be either the button labeled C
-         * or the third button on the bottom row of controller buttons.
+         * On a game controller, the C button should be either the button labeled C or the third
+         * button on the bottom row of controller buttons.
          */
         actual val ButtonC = Key(KeyEvent.KEYCODE_BUTTON_C)
 
         /**
          * X Button key.
          *
-         * On a game controller, the X button should be either the button labeled X
-         * or the first button on the upper row of controller buttons.
+         * On a game controller, the X button should be either the button labeled X or the first
+         * button on the upper row of controller buttons.
          */
         actual val ButtonX = Key(KeyEvent.KEYCODE_BUTTON_X)
 
         /**
          * Y Button key.
          *
-         * On a game controller, the Y button should be either the button labeled Y
-         * or the second button on the upper row of controller buttons.
+         * On a game controller, the Y button should be either the button labeled Y or the second
+         * button on the upper row of controller buttons.
          */
         actual val ButtonY = Key(KeyEvent.KEYCODE_BUTTON_Y)
 
         /**
          * Z Button key.
          *
-         * On a game controller, the Z button should be either the button labeled Z
-         * or the third button on the upper row of controller buttons.
+         * On a game controller, the Z button should be either the button labeled Z or the third
+         * button on the upper row of controller buttons.
          */
         actual val ButtonZ = Key(KeyEvent.KEYCODE_BUTTON_Z)
 
         /**
          * L1 Button key.
          *
-         * On a game controller, the L1 button should be either the button labeled L1 (or L)
-         * or the top left trigger button.
+         * On a game controller, the L1 button should be either the button labeled L1 (or L) or the
+         * top left trigger button.
          */
         actual val ButtonL1 = Key(KeyEvent.KEYCODE_BUTTON_L1)
 
         /**
          * R1 Button key.
          *
-         * On a game controller, the R1 button should be either the button labeled R1 (or R)
-         * or the top right trigger button.
+         * On a game controller, the R1 button should be either the button labeled R1 (or R) or the
+         * top right trigger button.
          */
         actual val ButtonR1 = Key(KeyEvent.KEYCODE_BUTTON_R1)
 
         /**
          * L2 Button key.
          *
-         * On a game controller, the L2 button should be either the button labeled L2
-         * or the bottom left trigger button.
+         * On a game controller, the L2 button should be either the button labeled L2 or the bottom
+         * left trigger button.
          */
         actual val ButtonL2 = Key(KeyEvent.KEYCODE_BUTTON_L2)
 
         /**
          * R2 Button key.
          *
-         * On a game controller, the R2 button should be either the button labeled R2
-         * or the bottom right trigger button.
+         * On a game controller, the R2 button should be either the button labeled R2 or the bottom
+         * right trigger button.
          */
         actual val ButtonR2 = Key(KeyEvent.KEYCODE_BUTTON_R2)
 
         /**
          * Left Thumb Button key.
          *
-         * On a game controller, the left thumb button indicates that the left (or only)
-         * joystick is pressed.
+         * On a game controller, the left thumb button indicates that the left (or only) joystick is
+         * pressed.
          */
         actual val ButtonThumbLeft = Key(KeyEvent.KEYCODE_BUTTON_THUMBL)
 
         /**
          * Right Thumb Button key.
          *
-         * On a game controller, the right thumb button indicates that the right
-         * joystick is pressed.
+         * On a game controller, the right thumb button indicates that the right joystick is
+         * pressed.
          */
         actual val ButtonThumbRight = Key(KeyEvent.KEYCODE_BUTTON_THUMBR)
 
@@ -722,8 +719,8 @@ actual value class Key(val keyCode: Long) {
         /**
          * Num Lock key.
          *
-         * This is the Num Lock key; it is different from [Number].
-         * This key alters the behavior of other keys on the numeric keypad.
+         * This is the Num Lock key; it is different from [Number]. This key alters the behavior of
+         * other keys on the numeric keypad.
          */
         actual val NumLock = Key(KeyEvent.KEYCODE_NUM_LOCK)
 
@@ -874,16 +871,16 @@ actual value class Key(val keyCode: Long) {
          *
          * Mutes the speaker, unlike [MicrophoneMute].
          *
-         * This key should normally be implemented as a toggle such that the first press
-         * mutes the speaker and the second press restores the original volume.
+         * This key should normally be implemented as a toggle such that the first press mutes the
+         * speaker and the second press restores the original volume.
          */
         actual val VolumeMute = Key(KeyEvent.KEYCODE_VOLUME_MUTE)
 
         /**
          * Info key.
          *
-         * Common on TV remotes to show additional information related to what is
-         * currently being viewed.
+         * Common on TV remotes to show additional information related to what is currently being
+         * viewed.
          */
         actual val Info = Key(KeyEvent.KEYCODE_INFO)
 
@@ -917,8 +914,8 @@ actual value class Key(val keyCode: Long) {
         /**
          * Window key.
          *
-         * On TV remotes, toggles picture-in-picture mode or other windowing functions.
-         * On Android Wear devices, triggers a display offset.
+         * On TV remotes, toggles picture-in-picture mode or other windowing functions. On Android
+         * Wear devices, triggers a display offset.
          */
         actual val Window = Key(KeyEvent.KEYCODE_WINDOW)
 
@@ -1037,18 +1034,18 @@ actual value class Key(val keyCode: Long) {
         /**
          * Language Switch key.
          *
-         * Toggles the current input language such as switching between English and Japanese on
-         * a QWERTY keyboard.  On some devices, the same function may be performed by
-         * pressing Shift+Space.
+         * Toggles the current input language such as switching between English and Japanese on a
+         * QWERTY keyboard. On some devices, the same function may be performed by pressing
+         * Shift+Space.
          */
         actual val LanguageSwitch = Key(KeyEvent.KEYCODE_LANGUAGE_SWITCH)
 
         /**
          * Manner Mode key.
          *
-         * Toggles silent or vibrate mode on and off to make the device behave more politely
-         * in certain settings such as on a crowded train.  On some devices, the key may only
-         * operate when long-pressed.
+         * Toggles silent or vibrate mode on and off to make the device behave more politely in
+         * certain settings such as on a crowded train. On some devices, the key may only operate
+         * when long-pressed.
          */
         actual val MannerMode = Key(KeyEvent.KEYCODE_MANNER_MODE)
 
@@ -1114,7 +1111,7 @@ actual value class Key(val keyCode: Long) {
         /**
          * Assist key.
          *
-         * Launches the global assist activity.  Not delivered to applications.
+         * Launches the global assist activity. Not delivered to applications.
          */
         actual val Assist = Key(KeyEvent.KEYCODE_ASSIST)
 
@@ -1135,28 +1132,27 @@ actual value class Key(val keyCode: Long) {
         /**
          * Sleep key.
          *
-         * Puts the device to sleep. Behaves somewhat like [Power] but it
-         * has no effect if the device is already asleep.
+         * Puts the device to sleep. Behaves somewhat like [Power] but it has no effect if the
+         * device is already asleep.
          */
         actual val Sleep = Key(KeyEvent.KEYCODE_SLEEP)
 
         /**
          * Wakeup key.
          *
-         * Wakes up the device.  Behaves somewhat like [Power] but it
-         * has no effect if the device is already awake.
+         * Wakes up the device. Behaves somewhat like [Power] but it has no effect if the device is
+         * already awake.
          */
         actual val WakeUp = Key(KeyEvent.KEYCODE_WAKEUP)
 
-        /** Put device to sleep unless a wakelock is held.  */
+        /** Put device to sleep unless a wakelock is held. */
         actual val SoftSleep = Key(KeyEvent.KEYCODE_SOFT_SLEEP)
 
         /**
          * Pairing key.
          *
-         * Initiates peripheral pairing mode. Useful for pairing remote control
-         * devices or game controllers, especially if no other input mode is
-         * available.
+         * Initiates peripheral pairing mode. Useful for pairing remote control devices or game
+         * controllers, especially if no other input mode is available.
          */
         actual val Pairing = Key(KeyEvent.KEYCODE_PAIRING)
 
@@ -1198,9 +1194,9 @@ actual value class Key(val keyCode: Long) {
         /**
          * Number entry key.
          *
-         * Initiates to enter multi-digit channel number when each digit key is assigned
-         * for selecting separate channel. Corresponds to Number Entry Mode (0x1D) of CEC
-         * User Control Code.
+         * Initiates to enter multi-digit channel number when each digit key is assigned for
+         * selecting separate channel. Corresponds to Number Entry Mode (0x1D) of CEC User Control
+         * Code.
          */
         actual val TvNumberEntry = Key(KeyEvent.KEYCODE_TV_NUMBER_ENTRY)
 
@@ -1361,16 +1357,16 @@ actual value class Key(val keyCode: Long) {
         /**
          * Media context menu key.
          *
-         * Goes to the context menu of media contents. Corresponds to Media Context-sensitive
-         * Menu (0x11) of CEC User Control Code.
+         * Goes to the context menu of media contents. Corresponds to Media Context-sensitive Menu
+         * (0x11) of CEC User Control Code.
          */
         actual val TvMediaContextMenu = Key(KeyEvent.KEYCODE_TV_MEDIA_CONTEXT_MENU)
 
         /**
          * Timer programming key.
          *
-         * Goes to the timer recording menu. Corresponds to Timer Programming (0x54) of
-         * CEC User Control Code.
+         * Goes to the timer recording menu. Corresponds to Timer Programming (0x54) of CEC User
+         * Control Code.
          */
         actual val TvTimerProgramming = Key(KeyEvent.KEYCODE_TV_TIMER_PROGRAMMING)
 
@@ -1403,8 +1399,8 @@ actual value class Key(val keyCode: Long) {
         actual val ThumbsDown = Key(KeyEvent.KEYCODE_THUMBS_DOWN)
 
         /**
-         * Used to switch current [account][android.accounts.Account] that is
-         * consuming content. May be consumed by system to set account globally.
+         * Used to switch current [account][android.accounts.Account] that is consuming content. May
+         * be consumed by system to set account globally.
          */
         actual val ProfileSwitch = Key(KeyEvent.KEYCODE_PROFILE_SWITCH)
     }
@@ -1412,9 +1408,7 @@ actual value class Key(val keyCode: Long) {
     actual override fun toString(): String = "Key code: $keyCode"
 }
 
-/**
- * The native keycode corresponding to this [Key].
- */
+/** The native keycode corresponding to this [Key]. */
 val Key.nativeKeyCode: Int
     get() = unpackInt1(keyCode)
 

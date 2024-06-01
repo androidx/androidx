@@ -25,13 +25,12 @@ interface PlatformLocalization {
     val selectAll: String
 }
 
-internal val defaultPlatformLocalization = object : PlatformLocalization {
-    override val copy = "Copy"
-    override val cut = "Cut"
-    override val paste = "Paste"
-    override val selectAll = "Select All"
-}
+internal val defaultPlatformLocalization =
+    object : PlatformLocalization {
+        override val copy = "Copy"
+        override val cut = "Cut"
+        override val paste = "Paste"
+        override val selectAll = "Select All"
+    }
 
-val LocalLocalization = staticCompositionLocalOf {
-    defaultPlatformLocalization
-}
+val LocalLocalization = staticCompositionLocalOf { defaultPlatformLocalization }

@@ -60,18 +60,12 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-/**
- * Possible values of [BottomSheetState].
- */
+/** Possible values of [BottomSheetState]. */
 enum class BottomSheetValue {
-    /**
-     * The bottom sheet is visible, but only showing its peek height.
-     */
+    /** The bottom sheet is visible, but only showing its peek height. */
     Collapsed,
 
-    /**
-     * The bottom sheet is visible at its maximum height.
-     */
+    /** The bottom sheet is visible at its maximum height. */
     Expanded
 }
 
@@ -92,17 +86,18 @@ class BottomSheetState(
     confirmValueChange: (BottomSheetValue) -> Boolean = { true }
 ) {
 
-    internal val anchoredDraggableState = AnchoredDraggableState(
-        initialValue = initialValue,
-        animationSpec = animationSpec,
-        confirmValueChange = confirmValueChange,
-        positionalThreshold = { with(density) { BottomSheetScaffoldPositionalThreshold.toPx() } },
-        velocityThreshold = { with(density) { BottomSheetScaffoldVelocityThreshold.toPx() } }
-    )
+    internal val anchoredDraggableState =
+        AnchoredDraggableState(
+            initialValue = initialValue,
+            animationSpec = animationSpec,
+            confirmValueChange = confirmValueChange,
+            positionalThreshold = {
+                with(density) { BottomSheetScaffoldPositionalThreshold.toPx() }
+            },
+            velocityThreshold = { with(density) { BottomSheetScaffoldVelocityThreshold.toPx() } }
+        )
 
-    /**
-     * The current value of the [BottomSheetState].
-     */
+    /** The current value of the [BottomSheetState]. */
     val currentValue: BottomSheetValue
         get() = anchoredDraggableState.currentValue
 
@@ -113,15 +108,11 @@ class BottomSheetState(
     val targetValue: BottomSheetValue
         get() = anchoredDraggableState.targetValue
 
-    /**
-     * Whether the bottom sheet is expanded.
-     */
+    /** Whether the bottom sheet is expanded. */
     val isExpanded: Boolean
         get() = anchoredDraggableState.currentValue == Expanded
 
-    /**
-     * Whether the bottom sheet is collapsed.
-     */
+    /** Whether the bottom sheet is collapsed. */
     val isCollapsed: Boolean
         get() = anchoredDraggableState.currentValue == Collapsed
 
@@ -146,34 +137,32 @@ class BottomSheetState(
      * @param to The end value used to calculate the distance
      */
     @FloatRange(from = 0.0, to = 1.0)
-    fun progress(
-        from: BottomSheetValue,
-        to: BottomSheetValue
-    ): Float {
+    fun progress(from: BottomSheetValue, to: BottomSheetValue): Float {
         val fromOffset = anchoredDraggableState.anchors.positionOf(from)
         val toOffset = anchoredDraggableState.anchors.positionOf(to)
-        val currentOffset = anchoredDraggableState.offset.coerceIn(
-            min(fromOffset, toOffset), // fromOffset might be > toOffset
-            max(fromOffset, toOffset)
-        )
+        val currentOffset =
+            anchoredDraggableState.offset.coerceIn(
+                min(fromOffset, toOffset), // fromOffset might be > toOffset
+                max(fromOffset, toOffset)
+            )
         val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
         return if (fraction.isNaN()) 1f else abs(fraction)
     }
 
     /**
      * Expand the bottom sheet with an animation and suspend until the animation finishes or is
-     * cancelled.
-     * Note: If the peek height is equal to the sheet height, this method will animate to the
-     * [Collapsed] state.
+     * cancelled. Note: If the peek height is equal to the sheet height, this method will animate to
+     * the [Collapsed] state.
      *
      * This method will throw [CancellationException] if the animation is interrupted.
      */
     suspend fun expand() {
-        val target = if (anchoredDraggableState.anchors.hasAnchorFor(Expanded)) {
-            Expanded
-        } else {
-            Collapsed
-        }
+        val target =
+            if (anchoredDraggableState.anchors.hasAnchorFor(Expanded)) {
+                Expanded
+            } else {
+                Collapsed
+            }
         anchoredDraggableState.animateTo(target)
     }
 
@@ -200,24 +189,23 @@ class BottomSheetState(
 
     companion object {
 
-        /**
-         * The default [Saver] implementation for [BottomSheetState].
-         */
+        /** The default [Saver] implementation for [BottomSheetState]. */
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (BottomSheetValue) -> Boolean,
             density: Density
-        ): Saver<BottomSheetState, *> = Saver(
-            save = { it.anchoredDraggableState.currentValue },
-            restore = {
-                BottomSheetState(
-                    initialValue = it,
-                    density = density,
-                    animationSpec = animationSpec,
-                    confirmValueChange = confirmStateChange
-                )
-            }
-        )
+        ): Saver<BottomSheetState, *> =
+            Saver(
+                save = { it.anchoredDraggableState.currentValue },
+                restore = {
+                    BottomSheetState(
+                        initialValue = it,
+                        density = density,
+                        animationSpec = animationSpec,
+                        confirmValueChange = confirmStateChange
+                    )
+                }
+            )
     }
 }
 
@@ -237,11 +225,12 @@ fun rememberBottomSheetState(
     val density = LocalDensity.current
     return rememberSaveable(
         animationSpec,
-        saver = BottomSheetState.Saver(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange,
-            density = density
-        )
+        saver =
+            BottomSheetState.Saver(
+                animationSpec = animationSpec,
+                confirmStateChange = confirmStateChange,
+                density = density
+            )
     ) {
         BottomSheetState(
             initialValue = initialValue,
@@ -284,20 +273,20 @@ fun rememberBottomSheetScaffoldState(
 }
 
 /**
- * <a href="https://material.io/components/sheets-bottom#standard-bottom-sheet" class="external" target="_blank">Material Design standard bottom sheet</a>.
+ * <a href="https://material.io/components/sheets-bottom#standard-bottom-sheet" class="external"
+ * target="_blank">Material Design standard bottom sheet</a>.
  *
  * Standard bottom sheets co-exist with the screen’s main UI region and allow for simultaneously
- * viewing and interacting with both regions. They are commonly used to keep a feature or
- * secondary content visible on screen when content in main UI region is frequently scrolled or
- * panned.
+ * viewing and interacting with both regions. They are commonly used to keep a feature or secondary
+ * content visible on screen when content in main UI region is frequently scrolled or panned.
  *
- * ![Standard bottom sheet image](https://developer.android.com/images/reference/androidx/compose/material/standard-bottom-sheet.png)
+ * ![Standard bottom sheet
+ * image](https://developer.android.com/images/reference/androidx/compose/material/standard-bottom-sheet.png)
  *
  * This component provides an API to put together several material components to construct your
- * screen. For a similar component which implements the basic material design layout strategy
- * with app bars, floating action buttons and navigation drawers, use the standard [Scaffold].
- * For similar component that uses a backdrop as the centerpiece of the screen, use
- * [BackdropScaffold].
+ * screen. For a similar component which implements the basic material design layout strategy with
+ * app bars, floating action buttons and navigation drawers, use the standard [Scaffold]. For
+ * similar component that uses a backdrop as the centerpiece of the screen, use [BackdropScaffold].
  *
  * A simple example of a bottom sheet scaffold looks like this:
  *
@@ -315,16 +304,16 @@ fun rememberBottomSheetScaffoldState(
  * @param sheetElevation The elevation of the bottom sheet.
  * @param sheetBackgroundColor The background color of the bottom sheet.
  * @param sheetContentColor The preferred content color provided by the bottom sheet to its
- * children. Defaults to the matching content color for [sheetBackgroundColor], or if that is
- * not a color from the theme, this will keep the same content color set above the bottom sheet.
+ *   children. Defaults to the matching content color for [sheetBackgroundColor], or if that is not
+ *   a color from the theme, this will keep the same content color set above the bottom sheet.
  * @param sheetPeekHeight The height of the bottom sheet when it is collapsed. If the peek height
- * equals the sheet's full height, the sheet will only have a collapsed state.
+ *   equals the sheet's full height, the sheet will only have a collapsed state.
  * @param backgroundColor The background color of the scaffold body.
  * @param contentColor The color of the content in scaffold body. Defaults to either the matching
- * content color for [backgroundColor], or, if it is not a color from the theme, this will keep
- * the same value set above this Surface.
- * @param content The main content of the screen. You should use the provided [PaddingValues]
- * to properly offset the content, so that it is not obstructed by the bottom sheet when collapsed.
+ *   content color for [backgroundColor], or, if it is not a color from the theme, this will keep
+ *   the same value set above this Surface.
+ * @param content The main content of the screen. You should use the provided [PaddingValues] to
+ *   properly offset the content, so that it is not obstructed by the bottom sheet when collapsed.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -346,19 +335,14 @@ fun BottomSheetScaffold(
     contentColor: Color = contentColorFor(backgroundColor),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    Surface(
-        modifier
-            .fillMaxSize(),
-        color = backgroundColor,
-        contentColor = contentColor
-    ) {
+    Surface(modifier.fillMaxSize(), color = backgroundColor, contentColor = contentColor) {
         BottomSheetScaffoldLayout(
             topBar = topBar,
             body = { content(PaddingValues(bottom = sheetPeekHeight)) },
             bottomSheet = {
-                val nestedScroll = if (sheetGesturesEnabled) {
-                    Modifier
-                        .nestedScroll(
+                val nestedScroll =
+                    if (sheetGesturesEnabled) {
+                        Modifier.nestedScroll(
                             remember(scaffoldState.bottomSheetState.anchoredDraggableState) {
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                     state = scaffoldState.bottomSheetState.anchoredDraggableState,
@@ -366,12 +350,10 @@ fun BottomSheetScaffold(
                                 )
                             }
                         )
-                } else Modifier
+                    } else Modifier
                 BottomSheet(
                     state = scaffoldState.bottomSheetState,
-                    modifier = nestedScroll
-                        .fillMaxWidth()
-                        .requiredHeightIn(min = sheetPeekHeight),
+                    modifier = nestedScroll.fillMaxWidth().requiredHeightIn(min = sheetPeekHeight),
                     sheetBackgroundColor = sheetBackgroundColor,
                     sheetContentColor = sheetContentColor,
                     sheetElevation = sheetElevation,
@@ -382,9 +364,7 @@ fun BottomSheetScaffold(
                 )
             },
             floatingActionButton = floatingActionButton,
-            snackbarHost = {
-                snackbarHost(scaffoldState.snackbarHostState)
-            },
+            snackbarHost = { snackbarHost(scaffoldState.snackbarHostState) },
             sheetPeekHeight = sheetPeekHeight,
             sheetState = scaffoldState.bottomSheetState,
             sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
@@ -410,23 +390,22 @@ private fun BottomSheet(
     val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
     Surface(
         modifier
-            .draggableAnchors(
-                state.anchoredDraggableState,
-                Orientation.Vertical
-            ) { sheetSize, constraints ->
+            .draggableAnchors(state.anchoredDraggableState, Orientation.Vertical) {
+                sheetSize,
+                constraints ->
                 val layoutHeight = constraints.maxHeight
                 val sheetHeight = sheetSize.height.toFloat()
-                val newAnchors =
-                    DraggableAnchors {
-                        Collapsed at layoutHeight - peekHeightPx
-                        if (sheetHeight > 0f && sheetHeight != peekHeightPx) {
-                            Expanded at layoutHeight - sheetHeight
-                        }
+                val newAnchors = DraggableAnchors {
+                    Collapsed at layoutHeight - peekHeightPx
+                    if (sheetHeight > 0f && sheetHeight != peekHeightPx) {
+                        Expanded at layoutHeight - sheetHeight
                     }
-                val newTarget = when (state.anchoredDraggableState.targetValue) {
-                    Collapsed -> Collapsed
-                    Expanded -> if (newAnchors.hasAnchorFor(Expanded)) Expanded else Collapsed
                 }
+                val newTarget =
+                    when (state.anchoredDraggableState.targetValue) {
+                        Collapsed -> Collapsed
+                        Expanded -> if (newAnchors.hasAnchorFor(Expanded)) Expanded else Collapsed
+                    }
                 return@draggableAnchors newAnchors to newTarget
             }
             .anchoredDraggable(
@@ -463,27 +442,17 @@ private fun BottomSheet(
     )
 }
 
-/**
- * Contains useful defaults for [BottomSheetScaffold].
- */
+/** Contains useful defaults for [BottomSheetScaffold]. */
 object BottomSheetScaffoldDefaults {
-    /**
-     * The default elevation used by [BottomSheetScaffold].
-     */
+    /** The default elevation used by [BottomSheetScaffold]. */
     val SheetElevation = 8.dp
 
-    /**
-     * The default peek height used by [BottomSheetScaffold].
-     */
+    /** The default peek height used by [BottomSheetScaffold]. */
     val SheetPeekHeight = 56.dp
 
-    /**
-     * The default animation spec used by [BottomSheetScaffoldState].
-     */
-    val AnimationSpec: AnimationSpec<Float> = tween(
-        durationMillis = 300,
-        easing = FastOutSlowInEasing
-    )
+    /** The default animation spec used by [BottomSheetScaffoldState]. */
+    val AnimationSpec: AnimationSpec<Float> =
+        tween(durationMillis = 300, easing = FastOutSlowInEasing)
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -500,20 +469,22 @@ private fun BottomSheetScaffoldLayout(
     sheetState: BottomSheetState,
 ) {
     Layout(
-        contents = listOf<@Composable () -> Unit>(
-            topBar ?: { },
-            body,
-            bottomSheet,
-            floatingActionButton ?: { },
-            snackbarHost
-        )
-    ) { (
-        topBarMeasurables,
-        bodyMeasurables,
-        sheetMeasurables,
-        fabMeasurables,
-        snackbarHostMeasurables
-    ), constraints ->
+        contents =
+            listOf<@Composable () -> Unit>(
+                topBar ?: {},
+                body,
+                bottomSheet,
+                floatingActionButton ?: {},
+                snackbarHost
+            )
+    ) {
+        (
+            topBarMeasurables,
+            bodyMeasurables,
+            sheetMeasurables,
+            fabMeasurables,
+            snackbarHostMeasurables),
+        constraints ->
         val layoutWidth = constraints.maxWidth
         val layoutHeight = constraints.maxHeight
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
@@ -537,22 +508,25 @@ private fun BottomSheetScaffoldLayout(
         layout(layoutWidth, layoutHeight) {
             val sheetOffsetY = sheetOffset().roundToInt()
 
-            val fabOffsetX = when (floatingActionButtonPosition) {
-                FabPosition.Start -> FabSpacing.roundToPx()
-                FabPosition.Center -> (layoutWidth - fabWidth) / 2
-                else -> layoutWidth - fabWidth - FabSpacing.roundToPx()
-            }
+            val fabOffsetX =
+                when (floatingActionButtonPosition) {
+                    FabPosition.Start -> FabSpacing.roundToPx()
+                    FabPosition.Center -> (layoutWidth - fabWidth) / 2
+                    else -> layoutWidth - fabWidth - FabSpacing.roundToPx()
+                }
 
             // In case sheet peek height < (FAB height / 2), give the FAB some minimum space
-            val fabOffsetY = if (sheetPeekHeight.toPx() < fabHeight / 2) {
-                sheetOffsetY - fabHeight - FabSpacing.roundToPx()
-            } else sheetOffsetY - (fabHeight / 2)
+            val fabOffsetY =
+                if (sheetPeekHeight.toPx() < fabHeight / 2) {
+                    sheetOffsetY - fabHeight - FabSpacing.roundToPx()
+                } else sheetOffsetY - (fabHeight / 2)
 
             val snackbarOffsetX = (layoutWidth - snackbarWidth) / 2
-            val snackbarOffsetY = when (sheetState.currentValue) {
-                Collapsed -> fabOffsetY - snackbarHeight
-                Expanded -> layoutHeight - snackbarHeight
-            }
+            val snackbarOffsetY =
+                when (sheetState.currentValue) {
+                    Collapsed -> fabOffsetY - snackbarHeight
+                    Expanded -> layoutHeight - snackbarHeight
+                }
 
             // Placement order is important for elevation
             bodyPlaceables.fastForEach { it.placeRelative(0, topBarHeight) }
@@ -568,56 +542,58 @@ private fun BottomSheetScaffoldLayout(
 private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     state: AnchoredDraggableState<*>,
     orientation: Orientation
-): NestedScrollConnection = object : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        val delta = available.toFloat()
-        return if (delta < 0 && source == NestedScrollSource.UserInput) {
-            state.dispatchRawDelta(delta).toOffset()
-        } else {
-            Offset.Zero
+): NestedScrollConnection =
+    object : NestedScrollConnection {
+        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            val delta = available.toFloat()
+            return if (delta < 0 && source == NestedScrollSource.UserInput) {
+                state.dispatchRawDelta(delta).toOffset()
+            } else {
+                Offset.Zero
+            }
         }
-    }
 
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource
-    ): Offset {
-        return if (source == NestedScrollSource.UserInput) {
-            state.dispatchRawDelta(available.toFloat()).toOffset()
-        } else {
-            Offset.Zero
+        override fun onPostScroll(
+            consumed: Offset,
+            available: Offset,
+            source: NestedScrollSource
+        ): Offset {
+            return if (source == NestedScrollSource.UserInput) {
+                state.dispatchRawDelta(available.toFloat()).toOffset()
+            } else {
+                Offset.Zero
+            }
         }
-    }
 
-    override suspend fun onPreFling(available: Velocity): Velocity {
-        val toFling = available.toFloat()
-        val currentOffset = state.requireOffset()
-        return if (toFling < 0 && currentOffset > state.anchors.minAnchor()) {
-            state.settle(velocity = toFling)
-            // since we go to the anchor with tween settling, consume all for the best UX
-            available
-        } else {
-            Velocity.Zero
+        override suspend fun onPreFling(available: Velocity): Velocity {
+            val toFling = available.toFloat()
+            val currentOffset = state.requireOffset()
+            return if (toFling < 0 && currentOffset > state.anchors.minAnchor()) {
+                state.settle(velocity = toFling)
+                // since we go to the anchor with tween settling, consume all for the best UX
+                available
+            } else {
+                Velocity.Zero
+            }
         }
+
+        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+            state.settle(velocity = available.toFloat())
+            return available
+        }
+
+        private fun Float.toOffset(): Offset =
+            Offset(
+                x = if (orientation == Orientation.Horizontal) this else 0f,
+                y = if (orientation == Orientation.Vertical) this else 0f
+            )
+
+        @JvmName("velocityToFloat")
+        private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
+
+        @JvmName("offsetToFloat")
+        private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
-
-    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-        state.settle(velocity = available.toFloat())
-        return available
-    }
-
-    private fun Float.toOffset(): Offset = Offset(
-        x = if (orientation == Orientation.Horizontal) this else 0f,
-        y = if (orientation == Orientation.Vertical) this else 0f
-    )
-
-    @JvmName("velocityToFloat")
-    private fun Velocity.toFloat() = if (orientation == Orientation.Horizontal) x else y
-
-    @JvmName("offsetToFloat")
-    private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
-}
 
 private val FabSpacing = 16.dp
 private val BottomSheetScaffoldPositionalThreshold = 56.dp

@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 
 /**
- * [Painter] implementation used to fill the provided bounds with the specified [Brush].
- * The intrinsic size of this [Painter] is determined by [Brush.intrinsicSize]
+ * [Painter] implementation used to fill the provided bounds with the specified [Brush]. The
+ * intrinsic size of this [Painter] is determined by [Brush.intrinsicSize]
  */
 class BrushPainter(
     val brush: Brush,

@@ -56,10 +56,7 @@ internal class ScrollExpecter(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun expectScrollRequest(
-        expectedOffset: Offset,
-        consume: Offset = expectedOffset
-    ) {
+    suspend fun expectScrollRequest(expectedOffset: Offset, consume: Offset = expectedOffset) {
         coroutineScope.launch {
             val request = select {
                 scrollRequests.onReceive { it }
@@ -80,8 +77,10 @@ internal class ScrollExpecter(
                     request.getOrNull()?.let(::add)
                 } while (request.isSuccess)
             }
-            fail("Expected no scroll requests, but had ${requests.size}: " +
-                requests.joinToString { it.requestedOffset.toString() })
+            fail(
+                "Expected no scroll requests, but had ${requests.size}: " +
+                    requests.joinToString { it.requestedOffset.toString() }
+            )
         }
     }
 

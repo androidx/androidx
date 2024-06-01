@@ -17,4 +17,5 @@
 package androidx.compose.testutils
 
 class NativeViewEmptyImpl
+
 actual typealias NativeView = NativeViewEmptyImpl

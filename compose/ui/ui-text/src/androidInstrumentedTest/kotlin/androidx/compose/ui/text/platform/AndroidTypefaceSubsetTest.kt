@@ -36,26 +36,27 @@ class AndroidTypefaceSubsetTest {
 
     val context = InstrumentationRegistry.getInstrumentation().targetContext!!
 
-    val fontFamily = FontFamily(
-        FontTestData.FONT_100_REGULAR,
-        FontTestData.FONT_100_ITALIC,
-        FontTestData.FONT_200_REGULAR,
-        FontTestData.FONT_200_ITALIC,
-        FontTestData.FONT_300_REGULAR,
-        FontTestData.FONT_300_ITALIC,
-        FontTestData.FONT_400_REGULAR,
-        FontTestData.FONT_400_ITALIC,
-        FontTestData.FONT_500_REGULAR,
-        FontTestData.FONT_500_ITALIC,
-        FontTestData.FONT_600_REGULAR,
-        FontTestData.FONT_600_ITALIC,
-        FontTestData.FONT_700_REGULAR,
-        FontTestData.FONT_700_ITALIC,
-        FontTestData.FONT_800_REGULAR,
-        FontTestData.FONT_800_ITALIC,
-        FontTestData.FONT_900_REGULAR,
-        FontTestData.FONT_900_ITALIC
-    )
+    val fontFamily =
+        FontFamily(
+            FontTestData.FONT_100_REGULAR,
+            FontTestData.FONT_100_ITALIC,
+            FontTestData.FONT_200_REGULAR,
+            FontTestData.FONT_200_ITALIC,
+            FontTestData.FONT_300_REGULAR,
+            FontTestData.FONT_300_ITALIC,
+            FontTestData.FONT_400_REGULAR,
+            FontTestData.FONT_400_ITALIC,
+            FontTestData.FONT_500_REGULAR,
+            FontTestData.FONT_500_ITALIC,
+            FontTestData.FONT_600_REGULAR,
+            FontTestData.FONT_600_ITALIC,
+            FontTestData.FONT_700_REGULAR,
+            FontTestData.FONT_700_ITALIC,
+            FontTestData.FONT_800_REGULAR,
+            FontTestData.FONT_800_ITALIC,
+            FontTestData.FONT_900_REGULAR,
+            FontTestData.FONT_900_ITALIC
+        )
 
     @Suppress("DEPRECATION")
     private fun androidTypefaceFromFontFamily(
@@ -70,20 +71,18 @@ class AndroidTypefaceSubsetTest {
     @Test
     fun subset_load_regular_bold_only_and_query_regular() {
         // Load only Regular and Bold font
-        val typeface = androidTypefaceFromFontFamily(
-            context,
-            fontFamily,
-            listOf(
-                Pair(FontWeight.W400, FontStyle.Normal),
-                Pair(FontWeight.W700, FontStyle.Normal)
+        val typeface =
+            androidTypefaceFromFontFamily(
+                context,
+                fontFamily,
+                listOf(
+                    Pair(FontWeight.W400, FontStyle.Normal),
+                    Pair(FontWeight.W700, FontStyle.Normal)
+                )
             )
-        )
 
-        val typefaceFromSubset = typeface.getNativeTypeface(
-            FontWeight.Normal,
-            FontStyle.Normal,
-            FontSynthesis.None
-        )
+        val typefaceFromSubset =
+            typeface.getNativeTypeface(FontWeight.Normal, FontStyle.Normal, FontSynthesis.None)
 
         assertThat(typefaceFromSubset).isTypefaceOf(FontWeight.Normal, FontStyle.Normal)
     }
@@ -91,20 +90,18 @@ class AndroidTypefaceSubsetTest {
     @Test
     fun subset_load_regular_bold_only_and_query_bold() {
         // Load only Regular and Bold font
-        val typeface = androidTypefaceFromFontFamily(
-            context,
-            fontFamily,
-            listOf(
-                Pair(FontWeight.W400, FontStyle.Normal),
-                Pair(FontWeight.W700, FontStyle.Normal)
+        val typeface =
+            androidTypefaceFromFontFamily(
+                context,
+                fontFamily,
+                listOf(
+                    Pair(FontWeight.W400, FontStyle.Normal),
+                    Pair(FontWeight.W700, FontStyle.Normal)
+                )
             )
-        )
 
-        val typefaceFromSubset = typeface.getNativeTypeface(
-            FontWeight.Bold,
-            FontStyle.Normal,
-            FontSynthesis.None
-        )
+        val typefaceFromSubset =
+            typeface.getNativeTypeface(FontWeight.Bold, FontStyle.Normal, FontSynthesis.None)
 
         assertThat(typefaceFromSubset).isTypefaceOf(FontWeight.Bold, FontStyle.Normal)
     }
@@ -112,20 +109,18 @@ class AndroidTypefaceSubsetTest {
     @Test
     fun subset_load_regular_bold_only_and_query_black() {
         // Load only Regular and Bold font
-        val typeface = androidTypefaceFromFontFamily(
-            context,
-            fontFamily,
-            listOf(
-                Pair(FontWeight.W400, FontStyle.Normal),
-                Pair(FontWeight.W700, FontStyle.Normal)
+        val typeface =
+            androidTypefaceFromFontFamily(
+                context,
+                fontFamily,
+                listOf(
+                    Pair(FontWeight.W400, FontStyle.Normal),
+                    Pair(FontWeight.W700, FontStyle.Normal)
+                )
             )
-        )
 
-        val typefaceFromSubset = typeface.getNativeTypeface(
-            FontWeight.Normal,
-            FontStyle.Italic,
-            FontSynthesis.None
-        )
+        val typefaceFromSubset =
+            typeface.getNativeTypeface(FontWeight.Normal, FontStyle.Italic, FontSynthesis.None)
 
         // The italic font is not loaded, so querying Italic will return Normal font.
         assertThat(typefaceFromSubset).isTypefaceOf(FontWeight.Normal, FontStyle.Normal)

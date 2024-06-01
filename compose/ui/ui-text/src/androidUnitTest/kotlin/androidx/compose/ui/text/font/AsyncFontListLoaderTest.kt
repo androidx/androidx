@@ -39,11 +39,7 @@ class AsyncFontListLoaderTest {
         val resourceLoader = makeResourceLoader { expected }
         val font = makeFont()
         val subject = makeSubject(resourceLoader)
-        val result = runBlocking {
-            with(subject) {
-                font.loadWithTimeoutOrNull()
-            }
-        }
+        val result = runBlocking { with(subject) { font.loadWithTimeoutOrNull() } }
         assertThat(result).isEqualTo(expected)
     }
 
@@ -53,11 +49,7 @@ class AsyncFontListLoaderTest {
         val resourceLoader = makeResourceLoader { throw IllegalStateException("Thrown") }
         val font = makeFont()
         val subject = makeSubject(resourceLoader)
-        val result = runBlocking {
-            with(subject) {
-                font.loadWithTimeoutOrNull()
-            }
-        }
+        val result = runBlocking { with(subject) { font.loadWithTimeoutOrNull() } }
         assertThat(result).isEqualTo(expected)
     }
 
@@ -69,18 +61,13 @@ class AsyncFontListLoaderTest {
         val latch = CountDownLatch(1)
         val resourceLoader = makeResourceLoader { throw expected }
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            synchronized(lock) {
-                actualException = throwable
-            }
+            synchronized(lock) { actualException = throwable }
             latch.countDown()
         }
         val font = makeFont()
         val subject = makeSubject(resourceLoader)
-        val result = runBlocking(exceptionHandler) {
-            with(subject) {
-                font.loadWithTimeoutOrNull()
-            }
-        }
+        val result =
+            runBlocking(exceptionHandler) { with(subject) { font.loadWithTimeoutOrNull() } }
         assertThat(result).isNull()
         latch.await(1, TimeUnit.SECONDS)
         synchronized(lock) {
@@ -95,25 +82,20 @@ class AsyncFontListLoaderTest {
         val resourceLoader = makeResourceLoader { throw IllegalStateException("Thrown") }
         val font = makeFont()
         val subject = makeSubject(resourceLoader)
-        val result = runBlocking {
-            with(subject) {
-                font.loadWithTimeoutOrNull()
-            }
-        }
+        val result = runBlocking { with(subject) { font.loadWithTimeoutOrNull() } }
         assertThat(result).isEqualTo(expected)
     }
 
     @Test
     fun loadWithTimeoutOrNull_nullsOnCancellation() {
         val expected = null
-        val resourceLoader = makeResourceLoader { coroutineContext.cancel(); 3 }
+        val resourceLoader = makeResourceLoader {
+            coroutineContext.cancel()
+            3
+        }
         val font = makeFont()
         val subject = makeSubject(resourceLoader)
-        val result = runBlocking {
-            with(subject) {
-                font.loadWithTimeoutOrNull()
-            }
-        }
+        val result = runBlocking { with(subject) { font.loadWithTimeoutOrNull() } }
         assertThat(result).isEqualTo(expected)
     }
 
@@ -125,7 +107,7 @@ class AsyncFontListLoaderTest {
             0,
             mock(TypefaceRequest::class.java),
             AsyncTypefaceCache(),
-            onCompletion = { },
+            onCompletion = {},
             platformFontLoader
         )
     }
@@ -142,7 +124,9 @@ class AsyncFontListLoaderTest {
     private fun makeResourceLoader(asyncLoad: suspend (Font) -> Any?): PlatformFontLoader {
         return object : PlatformFontLoader {
             override fun loadBlocking(font: Font): Any = TODO("Not called")
+
             override suspend fun awaitLoad(font: Font): Any? = asyncLoad(font)
+
             override val cacheKey: String = "androidx.compose.ui.text.font.makeResourceLoader"
         }
     }

@@ -30,13 +30,9 @@ import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.text.platform.setAlpha
 
-/**
- * A span that applies [ShaderBrush] to TextPaint after receiving a specified size
- */
-internal class ShaderBrushSpan(
-    val shaderBrush: ShaderBrush,
-    val alpha: Float
-) : CharacterStyle(), UpdateAppearance {
+/** A span that applies [ShaderBrush] to TextPaint after receiving a specified size */
+internal class ShaderBrushSpan(val shaderBrush: ShaderBrush, val alpha: Float) :
+    CharacterStyle(), UpdateAppearance {
 
     var size: Size by mutableStateOf(Size.Unspecified)
 

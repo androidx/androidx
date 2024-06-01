@@ -16,8 +16,5 @@
 
 package androidx.compose.foundation.lazy
 
-/**
- * DSL marker used to distinguish between lazy layout scope and the item scope.
- */
-@DslMarker
-annotation class LazyScopeMarker
+/** DSL marker used to distinguish between lazy layout scope and the item scope. */
+@DslMarker annotation class LazyScopeMarker

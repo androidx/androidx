@@ -35,11 +35,11 @@ import kotlinx.coroutines.flow.drop
  * shows and hides the [ModalBottomSheetLayout] through the [sheetState] when the sheet content
  * enters or leaves the composition.
  *
- * @param backStackEntry The [NavBackStackEntry] holding the [BottomSheetNavigator.Destination],
- * or null if there is no [NavBackStackEntry]
+ * @param backStackEntry The [NavBackStackEntry] holding the [BottomSheetNavigator.Destination], or
+ *   null if there is no [NavBackStackEntry]
  * @param sheetState The [ModalBottomSheetState] used to observe and control the sheet visibility
- * @param onSheetDismissed Callback when the sheet has been dismissed. Typically, you'll want to
- * pop the back stack here.
+ * @param onSheetDismissed Callback when the sheet has been dismissed. Typically, you'll want to pop
+ *   the back stack here.
  */
 @Composable
 internal fun ColumnScope.SheetContentHost(
@@ -67,8 +67,7 @@ internal fun ColumnScope.SheetContentHost(
                 }
         }
         backStackEntry.LocalOwnersProvider(saveableStateHolder) {
-            val content =
-                (backStackEntry.destination as BottomSheetNavigator.Destination).content
+            val content = (backStackEntry.destination as BottomSheetNavigator.Destination).content
             content(backStackEntry)
         }
     }

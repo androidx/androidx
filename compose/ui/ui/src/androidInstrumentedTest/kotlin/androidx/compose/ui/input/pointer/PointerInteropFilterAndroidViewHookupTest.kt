@@ -58,41 +58,42 @@ class PointerInteropFilterAndroidViewHookupTest {
         eventStringLog.add("motionEvent")
     }
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Before
     fun setup() {
         rule.activityRule.scenario.onActivity { activity ->
+            child =
+                CustomView2(activity, motionEventCallback).apply {
+                    layoutParams = ViewGroup.LayoutParams(100, 100)
+                }
 
-            child = CustomView2(activity, motionEventCallback).apply {
-                layoutParams = ViewGroup.LayoutParams(100, 100)
-            }
-
-            val parent = ComposeView(activity).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                setContent {
-                    Box(Modifier.fillMaxSize()) {
-                        Box(Modifier.fillMaxSize()
-                            .pointerInput(Unit) {
-                                awaitPointerEventScope {
-                                    while (true) {
-                                        val event = awaitPointerEvent()
-                                        siblingEvents += event.type
+            val parent =
+                ComposeView(activity).apply {
+                    layoutParams =
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    setContent {
+                        Box(Modifier.fillMaxSize()) {
+                            Box(
+                                Modifier.fillMaxSize().pointerInput(Unit) {
+                                    awaitPointerEventScope {
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            siblingEvents += event.type
+                                        }
                                     }
                                 }
-                            }
-                        )
-                        AndroidView(
-                            { child },
-                            Modifier.spyGestureFilter { eventStringLog.add(it.name) }
-                        )
+                            )
+                            AndroidView(
+                                { child },
+                                Modifier.spyGestureFilter { eventStringLog.add(it.name) }
+                            )
+                        }
                     }
                 }
-            }
 
             captureRequestDisallow = CaptureRequestDisallow(activity)
             captureRequestDisallow.addView(parent)
@@ -115,9 +116,7 @@ class PointerInteropFilterAndroidViewHookupTest {
                 root
             )
 
-        rule.runOnIdle {
-            root.dispatchTouchEvent(down)
-        }
+        rule.runOnIdle { root.dispatchTouchEvent(down) }
 
         assertThat(motionEventLog).hasSize(1)
         assertThat(motionEventLog[0]).isSameInstanceAs(down)
@@ -463,9 +462,7 @@ class PointerInteropFilterAndroidViewHookupTest {
     @Test
     fun disallowNotTriggeredWhenMovementInClickChild() {
         var clicked = false
-        rule.runOnUiThread {
-            child.setOnClickListener { clicked = true }
-        }
+        rule.runOnUiThread { child.setOnClickListener { clicked = true } }
         rule.runOnIdle {
             val outOfView = Offset(-50f, -50f)
             root.dispatchTouchEvent(down())
@@ -480,9 +477,7 @@ class PointerInteropFilterAndroidViewHookupTest {
     @Test
     fun disallowTriggeredWhenMovementInClickChildAfterRequestDisallow() {
         var clicked = false
-        rule.runOnUiThread {
-            child.setOnClickListener { clicked = true }
-        }
+        rule.runOnUiThread { child.setOnClickListener { clicked = true } }
 
         rule.runOnIdle {
             val outOfView = Offset(-50f, -50f)
@@ -510,12 +505,13 @@ class PointerInteropFilterAndroidViewHookupTest {
 
         rule.runOnIdle {
             assertThat(siblingEvents).hasSize(4)
-            assertThat(siblingEvents).containsExactly(
-                PointerEventType.Press,
-                PointerEventType.Move,
-                PointerEventType.Move,
-                PointerEventType.Release
-            )
+            assertThat(siblingEvents)
+                .containsExactly(
+                    PointerEventType.Press,
+                    PointerEventType.Move,
+                    PointerEventType.Move,
+                    PointerEventType.Release
+                )
         }
     }
 
@@ -553,8 +549,8 @@ class PointerInteropFilterAndroidViewHookupTest {
         )
 }
 
-private class CustomView2(context: Context, val callBack: (MotionEvent?) -> Unit) : ViewGroup
-(context) {
+private class CustomView2(context: Context, val callBack: (MotionEvent?) -> Unit) :
+    ViewGroup(context) {
     var retVal = true
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -567,6 +563,7 @@ private class CustomView2(context: Context, val callBack: (MotionEvent?) -> Unit
 
 private class CaptureRequestDisallow(context: Context) : FrameLayout(context) {
     var disallowIntercept = false
+
     override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
         this.disallowIntercept = disallowIntercept
         super.requestDisallowInterceptTouchEvent(disallowIntercept)

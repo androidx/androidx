@@ -53,8 +53,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PlatformTextInputMethodTestOverrideTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var testNode: TestNode
     private lateinit var hostView: View
@@ -66,31 +65,29 @@ class PlatformTextInputMethodTestOverrideTest {
         val testRequest = PlatformTextInputMethodRequest { fail("not needed") }
         val coroutineName = "this is a test"
 
-        val testHandler = object : PlatformTextInputSession {
-            override val view: View
-                get() = fail("not needed")
+        val testHandler =
+            object : PlatformTextInputSession {
+                override val view: View
+                    get() = fail("not needed")
 
-            override suspend fun startInputMethod(
-                request: PlatformTextInputMethodRequest
-            ): Nothing {
-                lastRequest = request
-                suspendCancellableCoroutine<Nothing> {
-                    lastContinuation = it
+                override suspend fun startInputMethod(
+                    request: PlatformTextInputMethodRequest
+                ): Nothing {
+                    lastRequest = request
+                    suspendCancellableCoroutine<Nothing> { lastContinuation = it }
                 }
             }
-        }
         setContent(testHandler)
 
-        val testJob = rule.runOnIdle {
-            launch {
-                testNode.establishTextInputSession {
-                    // This context should be propagated to startInputMethod.
-                    withContext(CoroutineName(coroutineName)) {
-                        startInputMethod(testRequest)
+        val testJob =
+            rule.runOnIdle {
+                launch {
+                    testNode.establishTextInputSession {
+                        // This context should be propagated to startInputMethod.
+                        withContext(CoroutineName(coroutineName)) { startInputMethod(testRequest) }
                     }
                 }
             }
-        }
         // Let the session start.
         testScheduler.advanceUntilIdle()
 
@@ -103,23 +100,21 @@ class PlatformTextInputMethodTestOverrideTest {
     fun overrideBlocksSystemHandler() = runTest {
         val testRequest = PlatformTextInputMethodRequest { fail("not needed") }
 
-        val testHandler = object : PlatformTextInputSession {
-            override val view: View
-                get() = fail("not needed")
+        val testHandler =
+            object : PlatformTextInputSession {
+                override val view: View
+                    get() = fail("not needed")
 
-            override suspend fun startInputMethod(
-                request: PlatformTextInputMethodRequest
-            ): Nothing = awaitCancellation()
-        }
+                override suspend fun startInputMethod(
+                    request: PlatformTextInputMethodRequest
+                ): Nothing = awaitCancellation()
+            }
         setContent(testHandler)
 
-        val testJob = rule.runOnIdle {
-            launch {
-                testNode.establishTextInputSession {
-                    startInputMethod(testRequest)
-                }
+        val testJob =
+            rule.runOnIdle {
+                launch { testNode.establishTextInputSession { startInputMethod(testRequest) } }
             }
-        }
         // Let the session start.
         testScheduler.advanceUntilIdle()
 
@@ -134,27 +129,22 @@ class PlatformTextInputMethodTestOverrideTest {
         rule.setContent {
             hostView = LocalView.current
             PlatformTextInputMethodTestOverride(sessionHandler = testHandler) {
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .then(TestElement { testNode = it })
-                )
+                Box(Modifier.size(1.dp).then(TestElement { testNode = it }))
             }
         }
     }
 
-    private data class TestElement(
-        val onNode: (TestNode) -> Unit
-    ) : ModifierNodeElement<TestNode>() {
+    private data class TestElement(val onNode: (TestNode) -> Unit) :
+        ModifierNodeElement<TestNode>() {
         override fun create(): TestNode = TestNode(onNode)
+
         override fun update(node: TestNode) {
             node.onNode = onNode
         }
     }
 
-    private class TestNode(
-        var onNode: (TestNode) -> Unit
-    ) : Modifier.Node(), PlatformTextInputModifierNode {
+    private class TestNode(var onNode: (TestNode) -> Unit) :
+        Modifier.Node(), PlatformTextInputModifierNode {
 
         override fun onAttach() {
             onNode(this)

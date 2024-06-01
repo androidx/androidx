@@ -27,8 +27,10 @@ import com.google.common.truth.Truth
 import kotlin.math.max
 import kotlin.math.min
 
-private val Selection.min get() = min(start.offset, end.offset)
-private val Selection.max get() = max(start.offset, end.offset)
+private val Selection.min
+    get() = min(start.offset, end.offset)
+private val Selection.max
+    get() = max(start.offset, end.offset)
 
 internal class SelectionSubject(
     failureMetadata: FailureMetadata?,
@@ -58,11 +60,12 @@ internal class SelectionSubject(
 
         val startHandle = Selection.AnchorInfo(startTextDirection, expected.start, 1)
         val endHandle = Selection.AnchorInfo(endTextDirection, expected.end, 1)
-        val expectedSelection = Selection(
-            start = startHandle,
-            end = endHandle,
-            handlesCrossed = expected.start > expected.end,
-        )
+        val expectedSelection =
+            Selection(
+                start = startHandle,
+                end = endHandle,
+                handlesCrossed = expected.start > expected.end,
+            )
         if (subject != expectedSelection) {
             failWithActual(
                 Fact.simpleFact("expected equal selections"),
@@ -77,28 +80,31 @@ internal class SelectionSubject(
 
 private fun Selection.textToString(content: String): String {
     val collapsedSelection = start.offset == end.offset
-    val selectionString = content
-        .map { if (it == '\n') '\n' else '.' }
-        .joinToString("")
-        .let {
-            if (collapsedSelection) {
-                if (start.offset == content.length) {
-                    // edge case of selection being at end of text,
-                    // so append the marker instead of replacing
-                    "$it|"
-                } else if (content[start.offset] == '\n') {
-                    it.replaceRange(start.offset..start.offset, "|\n")
+    val selectionString =
+        content
+            .map { if (it == '\n') '\n' else '.' }
+            .joinToString("")
+            .let {
+                if (collapsedSelection) {
+                    if (start.offset == content.length) {
+                        // edge case of selection being at end of text,
+                        // so append the marker instead of replacing
+                        "$it|"
+                    } else if (content[start.offset] == '\n') {
+                        it.replaceRange(start.offset..start.offset, "|\n")
+                    } else {
+                        it.replaceRange(start.offset..start.offset, "|")
+                    }
                 } else {
-                    it.replaceRange(start.offset..start.offset, "|")
+                    val selectionRange = min until max
+                    it.replaceRange(selectionRange, content.substring(selectionRange))
                 }
-            } else {
-                val selectionRange = min until max
-                it.replaceRange(selectionRange, content.substring(selectionRange))
             }
-        }
     return """
                 |Collapsed = $collapsedSelection
                 |Selection = $this
                 |$selectionString
-            """.trimMargin().trim()
+            """
+        .trimMargin()
+        .trim()
 }

@@ -39,21 +39,14 @@ class TooltipActivity : ComponentActivity() {
             TooltipBox(
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
-                    PlainTooltip(
-                        caretSize = TooltipDefaults.caretSize
-                    ) {
+                    PlainTooltip(caretSize = TooltipDefaults.caretSize) {
                         Text("Tooltip Description")
                     }
                 },
                 state = rememberTooltipState()
             ) {
-                IconButton(
-                    onClick = { /* Icon button's click event */ }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "tooltipAnchor"
-                    )
+                IconButton(onClick = { /* Icon button's click event */ }) {
+                    Icon(imageVector = Icons.Filled.Favorite, contentDescription = "tooltipAnchor")
                 }
             }
         }

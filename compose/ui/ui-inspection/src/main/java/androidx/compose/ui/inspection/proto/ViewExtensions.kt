@@ -21,18 +21,20 @@ import android.view.View
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Resource
 
 /**
- * Search this view for a resource with matching [resourceId] and, if found, return its
- * proto representation.
+ * Search this view for a resource with matching [resourceId] and, if found, return its proto
+ * representation.
  */
 fun View.createResource(stringTable: StringTable, resourceId: Int): Resource? {
     if (resourceId <= 0) return null
 
     return try {
-        return Resource.newBuilder().apply {
-            type = stringTable.put(resources.getResourceTypeName(resourceId))
-            namespace = stringTable.put(resources.getResourcePackageName(resourceId))
-            name = stringTable.put(resources.getResourceEntryName(resourceId))
-        }.build()
+        return Resource.newBuilder()
+            .apply {
+                type = stringTable.put(resources.getResourceTypeName(resourceId))
+                namespace = stringTable.put(resources.getResourcePackageName(resourceId))
+                name = stringTable.put(resources.getResourceEntryName(resourceId))
+            }
+            .build()
     } catch (ex: Resources.NotFoundException) {
         null
     }

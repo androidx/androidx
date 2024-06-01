@@ -56,16 +56,12 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         context: DeclarationCheckerContext
     ) {
         when {
-            declaration is KtProperty &&
-                descriptor is PropertyDescriptor -> checkProperty(declaration, descriptor, context)
-            declaration is KtPropertyAccessor &&
-                descriptor is PropertyAccessorDescriptor -> checkPropertyAccessor(
-                declaration,
-                descriptor,
-                context
-            )
-            declaration is KtFunction &&
-                descriptor is FunctionDescriptor -> checkFunction(declaration, descriptor, context)
+            declaration is KtProperty && descriptor is PropertyDescriptor ->
+                checkProperty(declaration, descriptor, context)
+            declaration is KtPropertyAccessor && descriptor is PropertyAccessorDescriptor ->
+                checkPropertyAccessor(declaration, descriptor, context)
+            declaration is KtFunction && descriptor is FunctionDescriptor ->
+                checkFunction(declaration, descriptor, context)
         }
     }
 
@@ -79,16 +75,17 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
             val override = descriptor.overriddenDescriptors.first()
             val overrideFunctionIsComposable =
                 if (descriptor.isOperator && descriptor.name == OperatorNameConventions.INVOKE) {
-                    override.hasComposableAnnotation() || descriptor.let {
-                        val cls = descriptor.containingDeclaration as? ClassDescriptor
-                        cls?.run {
-                            defaultType.supertypes().any {
-                                it.isFunctionType &&
-                                    it.arguments.size == descriptor.arity + 1 &&
-                                    it.hasComposableAnnotation()
-                            }
-                        } ?: false
-                    }
+                    override.hasComposableAnnotation() ||
+                        descriptor.let {
+                            val cls = descriptor.containingDeclaration as? ClassDescriptor
+                            cls?.run {
+                                defaultType.supertypes().any {
+                                    it.isFunctionType &&
+                                        it.arguments.size == descriptor.arity + 1 &&
+                                        it.hasComposableAnnotation()
+                                }
+                            } ?: false
+                        }
                 } else {
                     override.hasComposableAnnotation()
                 }
@@ -122,16 +119,16 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         }
         if (descriptor.isSuspend && hasComposableAnnotation) {
             context.trace.report(
-                ComposeErrors.COMPOSABLE_SUSPEND_FUN.on(
-                    declaration.nameIdentifier ?: declaration
-                )
+                ComposeErrors.COMPOSABLE_SUSPEND_FUN.on(declaration.nameIdentifier ?: declaration)
             )
         }
 
         if (descriptor.isActual) {
             val expectDescriptor = descriptor.findCompatibleExpectsForActual().singleOrNull()
-            if (expectDescriptor != null &&
-                expectDescriptor.hasComposableAnnotation() != hasComposableAnnotation) {
+            if (
+                expectDescriptor != null &&
+                    expectDescriptor.hasComposableAnnotation() != hasComposableAnnotation
+            ) {
                 context.trace.report(
                     ComposeErrors.MISMATCHED_COMPOSABLE_IN_EXPECT_ACTUAL.on(
                         declaration.nameIdentifier ?: declaration
@@ -152,29 +149,24 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         }
         // NOTE: only use the MainFunctionDetector if the descriptor name is main, to avoid
         // unnecessarily allocating this class
-        if (hasComposableAnnotation &&
-            descriptor.name.asString() == "main" &&
-            MainFunctionDetector(
-                    context.trace.bindingContext,
-                    context.languageVersionSettings
-                ).isMain(descriptor)
+        if (
+            hasComposableAnnotation &&
+                descriptor.name.asString() == "main" &&
+                MainFunctionDetector(context.trace.bindingContext, context.languageVersionSettings)
+                    .isMain(descriptor)
         ) {
             context.trace.report(
-                ComposeErrors.COMPOSABLE_FUN_MAIN.on(
-                    declaration.nameIdentifier ?: declaration
-                )
+                ComposeErrors.COMPOSABLE_FUN_MAIN.on(declaration.nameIdentifier ?: declaration)
             )
         }
 
         if (
             hasComposableAnnotation &&
-            descriptor.isOperator &&
-            descriptor.name == OperatorNameConventions.SET_VALUE
+                descriptor.isOperator &&
+                descriptor.name == OperatorNameConventions.SET_VALUE
         ) {
             context.trace.report(
-                ComposeErrors.COMPOSE_INVALID_DELEGATE.on(
-                    declaration.nameIdentifier ?: declaration
-                )
+                ComposeErrors.COMPOSE_INVALID_DELEGATE.on(declaration.nameIdentifier ?: declaration)
             )
         }
     }
@@ -185,9 +177,7 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         context: DeclarationCheckerContext
     ) {
         if (type.hasComposableAnnotation() && type.isSuspendFunctionType) {
-            context.trace.report(
-                ComposeErrors.COMPOSABLE_SUSPEND_FUN.on(element)
-            )
+            context.trace.report(ComposeErrors.COMPOSABLE_SUSPEND_FUN.on(element))
         }
     }
 
@@ -196,13 +186,12 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         descriptor: PropertyDescriptor,
         context: DeclarationCheckerContext
     ) {
-        val hasComposableAnnotation = descriptor
-            .getter
-            ?.hasComposableAnnotation() == true
+        val hasComposableAnnotation = descriptor.getter?.hasComposableAnnotation() == true
         if (descriptor.overriddenDescriptors.isNotEmpty()) {
             val override = descriptor.overriddenDescriptors.first()
-            val overrideIsComposable = override.hasComposableAnnotation() ||
-                override.getter?.hasComposableAnnotation() == true
+            val overrideIsComposable =
+                override.hasComposableAnnotation() ||
+                    override.getter?.hasComposableAnnotation() == true
             if (overrideIsComposable != hasComposableAnnotation) {
                 context.trace.report(
                     ComposeErrors.CONFLICTING_OVERLOADS.on(
@@ -254,8 +243,8 @@ class ComposableDeclarationChecker : DeclarationChecker, StorageComponentContain
         }
     }
 
-    private val FunctionDescriptor.arity get(): Int =
-        if (extensionReceiverParameter != null) 1 else 0 +
-            contextReceiverParameters.size +
-            valueParameters.size
+    private val FunctionDescriptor.arity
+        get(): Int =
+            if (extensionReceiverParameter != null) 1
+            else 0 + contextReceiverParameters.size + valueParameters.size
 }

@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class InfiniteAnimationTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testInfiniteTransition_finishes() {
@@ -88,10 +87,11 @@ class InfiniteAnimationTest {
         // If animating, animation moves by 8.dp per frame
         rule.setContent {
             val transition = rememberInfiniteTransition()
-            val animationSpec = infiniteRepeatable<Float>(
-                tween(durationMillis = 200, easing = LinearEasing),
-                RepeatMode.Reverse
-            )
+            val animationSpec =
+                infiniteRepeatable<Float>(
+                    tween(durationMillis = 200, easing = LinearEasing),
+                    RepeatMode.Reverse
+                )
             val offset = transition.animateFloat(0f, 100f, animationSpec)
             ClickableTestBox(Modifier.padding(start = offset.value.dp))
         }
@@ -103,8 +103,8 @@ class InfiniteAnimationTest {
         rule.onNodeWithTag(ClickableTestBox.defaultTag).assertLeftPositionInRootIsEqualTo(0.dp)
         rule.mainClock.advanceTimeByFrame()
         // 3rd composition: animation running, one frame done
-        rule.onNodeWithTag(ClickableTestBox.defaultTag).assertLeftPositionInRootIsEqualTo(
-            if (autoAdvance) 0.dp else 8.dp
-        )
+        rule
+            .onNodeWithTag(ClickableTestBox.defaultTag)
+            .assertLeftPositionInRootIsEqualTo(if (autoAdvance) 0.dp else 8.dp)
     }
 }

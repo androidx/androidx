@@ -40,21 +40,21 @@ class PathDivisionTest {
 
     @Test
     fun divide() {
-        val paths = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }.divide()
+        val paths =
+            Path()
+                .apply {
+                    addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
+                    addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+                }
+                .divide()
 
         assertEquals(2, paths.size)
 
-        val sourcePaths = listOf(
-            Path().apply {
-                addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            },
-            Path().apply {
-                addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-            }
-        )
+        val sourcePaths =
+            listOf(
+                Path().apply { addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise) },
+                Path().apply { addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise) }
+            )
 
         val points1 = FloatArray(8)
         val points2 = FloatArray(8)
@@ -69,12 +69,15 @@ class PathDivisionTest {
 
     @Test
     fun divideWithEmptyContour() {
-        val paths = Path().apply {
-            addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
-            moveTo(10.0f, 10.0f)
-            moveTo(100.0f, 100.0f)
-            addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
-        }.divide()
+        val paths =
+            Path()
+                .apply {
+                    addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise)
+                    moveTo(10.0f, 10.0f)
+                    moveTo(100.0f, 100.0f)
+                    addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise)
+                }
+                .divide()
 
         assertEquals(2, paths.size)
     }

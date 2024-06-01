@@ -58,13 +58,14 @@ class ParagraphIntegrationTextDirectionTest {
     fun unspecifiedTextDirection_withLtrLocale_resolvesToLtr() {
         Locale.setDefault(ltrLocale)
 
-        val paragraph = Paragraph(
-            text = "",
-            style = TextStyle(textDirection = TextDirection.Unspecified),
-            constraints = Constraints(),
-            density = defaultDensity,
-            fontFamilyResolver = resourceLoader
-        )
+        val paragraph =
+            Paragraph(
+                text = "",
+                style = TextStyle(textDirection = TextDirection.Unspecified),
+                constraints = Constraints(),
+                density = defaultDensity,
+                fontFamilyResolver = resourceLoader
+            )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
     }
@@ -73,45 +74,50 @@ class ParagraphIntegrationTextDirectionTest {
     fun unspecifiedTextDirection_withRtlLocale_resolvesToRtl() {
         Locale.setDefault(rtlLocale)
 
-        val paragraph = Paragraph(
-            text = "",
-            style = TextStyle(textDirection = TextDirection.Unspecified),
-            constraints = Constraints(),
-            density = defaultDensity,
-            fontFamilyResolver = resourceLoader
-        )
+        val paragraph =
+            Paragraph(
+                text = "",
+                style = TextStyle(textDirection = TextDirection.Unspecified),
+                constraints = Constraints(),
+                density = defaultDensity,
+                fontFamilyResolver = resourceLoader
+            )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
     }
 
     @Test
     fun unspecifiedTextDirection_withLtrLocaleList_resolvesToLtr() {
-        val paragraph = Paragraph(
-            text = "",
-            style = TextStyle(
-                textDirection = TextDirection.Unspecified,
-                localeList = ltrLocaleList
-            ),
-            constraints = Constraints(),
-            density = defaultDensity,
-            fontFamilyResolver = resourceLoader
-        )
+        val paragraph =
+            Paragraph(
+                text = "",
+                style =
+                    TextStyle(
+                        textDirection = TextDirection.Unspecified,
+                        localeList = ltrLocaleList
+                    ),
+                constraints = Constraints(),
+                density = defaultDensity,
+                fontFamilyResolver = resourceLoader
+            )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
     }
 
     @Test
     fun unspecifiedTextDirection_withRtlLocaleList_resolvesToRtl() {
-        val paragraph = Paragraph(
-            text = "",
-            style = TextStyle(
-                textDirection = TextDirection.Unspecified,
-                localeList = rtlLocaleList
-            ),
-            constraints = Constraints(),
-            density = defaultDensity,
-            fontFamilyResolver = resourceLoader
-        )
+        val paragraph =
+            Paragraph(
+                text = "",
+                style =
+                    TextStyle(
+                        textDirection = TextDirection.Unspecified,
+                        localeList = rtlLocaleList
+                    ),
+                constraints = Constraints(),
+                density = defaultDensity,
+                fontFamilyResolver = resourceLoader
+            )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
     }

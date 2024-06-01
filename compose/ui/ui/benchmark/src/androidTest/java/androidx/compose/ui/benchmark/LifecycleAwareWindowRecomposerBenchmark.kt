@@ -41,8 +41,7 @@ import org.junit.runners.model.Statement
 @RunWith(AndroidJUnit4::class)
 class LifecycleAwareWindowRecomposerBenchmark {
 
-    @get:Rule
-    val rule = CombinedActivityBenchmarkRule()
+    @get:Rule val rule = CombinedActivityBenchmarkRule()
 
     @Test
     @UiThreadTest
@@ -65,8 +64,7 @@ class LifecycleAwareWindowRecomposerBenchmark {
 
     class CombinedActivityBenchmarkRule() : TestRule {
         @Suppress("DEPRECATION")
-        val activityTestRule =
-            androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
+        val activityTestRule = androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
         val benchmarkRule = BenchmarkRule()
 

@@ -28,20 +28,18 @@ import androidx.compose.ui.text.ExperimentalTextApi
 @Immutable
 interface Font {
     /**
-     * The weight of the font. The system uses this to match a font to a font request
-     * that is given in a [androidx.compose.ui.text.SpanStyle].
+     * The weight of the font. The system uses this to match a font to a font request that is given
+     * in a [androidx.compose.ui.text.SpanStyle].
      */
     val weight: FontWeight
 
     /**
-     * The style of the font, normal or italic. The system uses this to match a font to a
-     * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+     * The style of the font, normal or italic. The system uses this to match a font to a font
+     * request that is given in a [androidx.compose.ui.text.SpanStyle].
      */
     val style: FontStyle
 
-    /**
-     * Interface used to load a font resource.
-     */
+    /** Interface used to load a font resource. */
     @Deprecated(
         "Replaced with FontFamily.Resolver during the introduction of async fonts, " +
             "all usages should be replaced. Custom subclasses can be converted into a " +
@@ -51,10 +49,10 @@ interface Font {
         /**
          * Loads resource represented by the [Font] object.
          *
-         * @throws Exception if font cannot be loaded
-         * @throws IllegalStateException if font cannot be loaded
          * @param font [Font] to be loaded
          * @return platform specific typeface
+         * @throws Exception if font cannot be loaded
+         * @throws IllegalStateException if font cannot be loaded
          */
         @Deprecated(
             "Replaced by FontFamily.Resolver, this method should not be called",
@@ -63,9 +61,7 @@ interface Font {
         fun load(font: Font): Any
     }
 
-    /**
-     * Loading strategy for this font.
-     */
+    /** Loading strategy for this font. */
     val loadingStrategy: FontLoadingStrategy
         get() = FontLoadingStrategy.Blocking
 
@@ -77,18 +73,16 @@ interface Font {
          * longer trigger text reflow and is considered "resolved."
          *
          * Each async font is given separate loading window and goes through these states:
-         *
          * ```
          * (initial) -> (loading with timeout) -> (resolved)
          * ```
-         *
          * - In the initial state, a fallback typeface is used to display text, which will reflow if
-         * the font successfully loads.
+         *   the font successfully loads.
          * - In the loading state, the font continues to use the fallback typeface and may cause one
-         * text reflow by finishing load. After a successful load it is considered resolved and will
-         * not cause another text reflow.
+         *   text reflow by finishing load. After a successful load it is considered resolved and
+         *   will not cause another text reflow.
          * - If the font fails to load by the timeout, the failure is permanent, and the font will
-         * never attempt to load again. Failure never causes text reflow.
+         *   never attempt to load again. Failure never causes text reflow.
          *
          * After a font is in resolved, it will never cause text reflow unless it is evicted from
          * the font cache and re-enters initial.
@@ -99,9 +93,7 @@ interface Font {
     }
 }
 
-/**
- * Interface used to load a font resource into a platform-specific typeface.
- */
+/** Interface used to load a font resource into a platform-specific typeface. */
 internal interface PlatformFontLoader {
     /**
      * Loads the resource represented by the [Font] in a blocking manner for use in the current
@@ -109,43 +101,39 @@ internal interface PlatformFontLoader {
      *
      * This method may safely throw if a font fails to load, or return null.
      *
-     * This method will be called on a UI-critical thread, however the font has been determined
-     * to be critical to the current frame display and blocking for file system reads is
-     * permitted.
+     * This method will be called on a UI-critical thread, however the font has been determined to
+     * be critical to the current frame display and blocking for file system reads is permitted.
      *
-     * @throws Exception subclass may optionally be thrown if font cannot be loaded
      * @param font [Font] to be loaded
      * @return platform specific typeface, or null if not available
+     * @throws Exception subclass may optionally be thrown if font cannot be loaded
      */
     fun loadBlocking(font: Font): Any?
 
     /**
-     * Loads resource represented by the [Font] object in a non-blocking manner which causes
-     * text reflow when the font resolves.
+     * Loads resource represented by the [Font] object in a non-blocking manner which causes text
+     * reflow when the font resolves.
      *
      * This method may safely throw if the font cannot be loaded, or return null.
      *
      * This method will be called on a UI-critical thread and should not block the thread beyond
-     * loading local fonts from disk. Loading fonts from sources slower than the local file
-     * system such as a network access should not block the calling thread.
+     * loading local fonts from disk. Loading fonts from sources slower than the local file system
+     * such as a network access should not block the calling thread.
      *
-     * @throws Exception subclass may optionally be thrown if font cannot be loaded
      * @param font [Font] to be loaded
      * @return platform specific typeface, or null if not available
+     * @throws Exception subclass may optionally be thrown if font cannot be loaded
      */
     suspend fun awaitLoad(font: Font): Any?
 
     /**
-     * If this loader returns different results for the same [Font] than the platform default
-     * loader return a non-null object that uniquely identifies this loader for caching. This
-     * cache key will be retained in global maps, and should ensure that it does not create a
-     * memory leak.
+     * If this loader returns different results for the same [Font] than the platform default loader
+     * return a non-null object that uniquely identifies this loader for caching. This cache key
+     * will be retained in global maps, and should ensure that it does not create a memory leak.
      *
-     * Loaders that return the same results for all fonts as the platform default may return
-     * null.
+     * Loaders that return the same results for all fonts as the platform default may return null.
      *
-     * This cache key ensures that [FontFamily.Resolver] can lookup cache
-     * results per-loader.
+     * This cache key ensures that [FontFamily.Resolver] can lookup cache results per-loader.
      */
     val cacheKey: Any?
 }
@@ -156,16 +144,16 @@ internal interface PlatformFontLoader {
  * @sample androidx.compose.ui.text.samples.CustomFontFamilySample
  *
  * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.TextStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.TextStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.TextStyle].
+ *   font request that is given in a [androidx.compose.ui.text.TextStyle].
  * @param loadingStrategy Load strategy for this font
- *
  * @see FontFamily
  */
 @OptIn(ExperimentalTextApi::class)
-class ResourceFont internal constructor(
+class ResourceFont
+internal constructor(
     val resId: Int,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
@@ -238,10 +226,10 @@ class ResourceFont internal constructor(
  * available locally.
  *
  * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  *
  * Fonts made with this factory are local fonts, and will block the first frame for loading. To
  * allow async font loading use [Font(resId, weight, style, isLocal)][Font]
@@ -251,9 +239,7 @@ class ResourceFont internal constructor(
 // TODO(b/219783755): Remove this when safe after Compose 1.3
 @Deprecated(
     "Maintained for binary compatibility until Compose 1.3.",
-    replaceWith = ReplaceWith(
-        "Font(resId, weight, style)"
-    ),
+    replaceWith = ReplaceWith("Font(resId, weight, style)"),
     DeprecationLevel.HIDDEN
 )
 @Stable
@@ -275,12 +261,11 @@ fun Font(
  * [FontLoadingStrategy.Async].
  *
  * @param resId The resource ID of the font file in font resources. i.e. "R.font.myfont".
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @param loadingStrategy Load strategy for this font, may be async for async resource fonts
- *
  * @see FontFamily
  */
 @Stable
@@ -300,8 +285,5 @@ fun Font(
     variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
 ): Font = ResourceFont(resId, weight, style, variationSettings, loadingStrategy)
 
-/**
- * Create a [FontFamily] from this single [Font].
- */
-@Stable
-fun Font.toFontFamily() = FontFamily(this)
+/** Create a [FontFamily] from this single [Font]. */
+@Stable fun Font.toFontFamily() = FontFamily(this)

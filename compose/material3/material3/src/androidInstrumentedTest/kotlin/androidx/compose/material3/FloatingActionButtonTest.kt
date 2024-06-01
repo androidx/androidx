@@ -74,8 +74,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FloatingActionButtonTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun fabDefaultSemantics() {
@@ -87,7 +86,8 @@ class FloatingActionButtonTest {
             }
         }
 
-        rule.onNodeWithTag("myButton")
+        rule
+            .onNodeWithTag("myButton")
             .assertIsEnabled()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
@@ -99,17 +99,12 @@ class FloatingActionButtonTest {
         val text = "myButton"
 
         rule.setMaterialContent(lightColorScheme()) {
-            Box {
-                ExtendedFloatingActionButton(onClick = onClick, content = { Text(text) })
-            }
+            Box { ExtendedFloatingActionButton(onClick = onClick, content = { Text(text) }) }
         }
 
-        rule.onNodeWithText(text)
-            .performClick()
+        rule.onNodeWithText(text).performClick()
 
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -117,10 +112,7 @@ class FloatingActionButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 FloatingActionButton(onClick = {}) {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        null,
-                        modifier = Modifier.testTag("icon"))
+                    Icon(Icons.Filled.Favorite, null, modifier = Modifier.testTag("icon"))
                 }
             }
             .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
@@ -140,11 +132,7 @@ class FloatingActionButtonTest {
                     LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     SmallFloatingActionButton(onClick = {}) {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            null,
-                            modifier = Modifier.testTag("icon")
-                        )
+                        Icon(Icons.Filled.Favorite, null, modifier = Modifier.testTag("icon"))
                     }
                 }
             }
@@ -162,9 +150,7 @@ class FloatingActionButtonTest {
     fun smallFabHasMinTouchTarget() {
         rule
             .setMaterialContentForSizeAssertions {
-                SmallFloatingActionButton(onClick = {}) {
-                    Icon(Icons.Filled.Favorite, null)
-                }
+                SmallFloatingActionButton(onClick = {}) { Icon(Icons.Filled.Favorite, null) }
             }
             // Expecting the size to be equal to the minimum touch target.
             .assertTouchWidthIsEqualTo(48.dp)
@@ -181,9 +167,9 @@ class FloatingActionButtonTest {
                     Icon(
                         Icons.Filled.Favorite,
                         null,
-                        modifier = Modifier
-                            .size(FloatingActionButtonDefaults.LargeIconSize)
-                            .testTag("icon")
+                        modifier =
+                            Modifier.size(FloatingActionButtonDefaults.LargeIconSize)
+                                .testTag("icon")
                     )
                 }
             }
@@ -206,7 +192,8 @@ class FloatingActionButtonTest {
             )
         }
 
-        rule.onNodeWithTag("FAB")
+        rule
+            .onNodeWithTag("FAB")
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
             .assertWidthIsAtLeast(FabPrimaryTokens.ContainerHeight)
     }
@@ -221,7 +208,8 @@ class FloatingActionButtonTest {
             )
         }
 
-        rule.onNodeWithTag("FAB")
+        rule
+            .onNodeWithTag("FAB")
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
             .assertWidthIsEqualTo(80.dp)
     }
@@ -282,8 +270,7 @@ class FloatingActionButtonTest {
                     }
                 )
             }
-            expectedTextStyle =
-                ExtendedFabPrimaryTokens.LabelTextFont.value
+            expectedTextStyle = ExtendedFabPrimaryTokens.LabelTextFont.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
@@ -301,29 +288,22 @@ class FloatingActionButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Column {
                 Spacer(
-                    Modifier
-                        .requiredSize(10.dp)
-                        .weight(1f)
-                        .onGloballyPositioned {
-                            item1Bounds = it.boundsInRoot()
-                        }
+                    Modifier.requiredSize(10.dp).weight(1f).onGloballyPositioned {
+                        item1Bounds = it.boundsInRoot()
+                    }
                 )
 
                 FloatingActionButton(
                     onClick = {},
-                    modifier = Modifier
-                        .weight(1f)
-                        .onGloballyPositioned {
+                    modifier =
+                        Modifier.weight(1f).onGloballyPositioned {
                             buttonBounds = it.boundsInRoot()
                         }
                 ) {
                     Text("Button")
                 }
 
-                Spacer(
-                    Modifier
-                        .requiredSize(10.dp)
-                        .weight(1f))
+                Spacer(Modifier.requiredSize(10.dp).weight(1f))
             }
         }
 
@@ -337,17 +317,8 @@ class FloatingActionButtonTest {
         var contentCoordinates: LayoutCoordinates? = null
         rule.setMaterialContent(lightColorScheme()) {
             Box {
-                FloatingActionButton(
-                    {},
-                    Modifier.onGloballyPositioned {
-                        buttonCoordinates = it
-                    }
-                ) {
-                    Box(
-                        Modifier
-                            .size(2.dp)
-                            .onGloballyPositioned { contentCoordinates = it }
-                    )
+                FloatingActionButton({}, Modifier.onGloballyPositioned { buttonCoordinates = it }) {
+                    Box(Modifier.size(2.dp).onGloballyPositioned { contentCoordinates = it })
                 }
             }
         }
@@ -375,11 +346,7 @@ class FloatingActionButtonTest {
                     onClick = {},
                     modifier = Modifier.onGloballyPositioned { buttonCoordinates = it },
                 ) {
-                    Box(
-                        Modifier
-                            .size(2.dp)
-                            .onGloballyPositioned { contentCoordinates = it }
-                    )
+                    Box(Modifier.size(2.dp).onGloballyPositioned { contentCoordinates = it })
                 }
             }
         }
@@ -406,18 +373,10 @@ class FloatingActionButtonTest {
             Box {
                 ExtendedFloatingActionButton(
                     text = {
-                        Box(
-                            Modifier
-                                .size(2.dp)
-                                .onGloballyPositioned { textCoordinates = it }
-                        )
+                        Box(Modifier.size(2.dp).onGloballyPositioned { textCoordinates = it })
                     },
                     icon = {
-                        Box(
-                            Modifier
-                                .size(10.dp)
-                                .onGloballyPositioned { iconCoordinates = it }
-                        )
+                        Box(Modifier.size(10.dp).onGloballyPositioned { iconCoordinates = it })
                     },
                     onClick = {},
                     modifier = Modifier.onGloballyPositioned { buttonCoordinates = it }
@@ -459,7 +418,7 @@ class FloatingActionButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             ExtendedFloatingActionButton(
                 expanded = true,
-                onClick = { },
+                onClick = {},
                 icon = {
                     Icon(
                         Icons.Filled.Favorite,
@@ -477,7 +436,8 @@ class FloatingActionButtonTest {
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
             .assertWidthIsEqualTo(ExtendedFabPrimaryTokens.IconSize)
 
-        rule.onNodeWithTag("FAB")
+        rule
+            .onNodeWithTag("FAB")
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
             .assertWidthIsAtLeast(80.dp)
 
@@ -490,21 +450,14 @@ class FloatingActionButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             ExtendedFloatingActionButton(
                 expanded = false,
-                onClick = { },
-                icon = {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        "Add",
-                        modifier = Modifier.testTag("icon")
-                    )
-                },
+                onClick = {},
+                icon = { Icon(Icons.Filled.Favorite, "Add", modifier = Modifier.testTag("icon")) },
                 text = { Text(text = "FAB", modifier = Modifier.testTag("text")) },
                 modifier = Modifier.testTag("FAB"),
             )
         }
 
-        rule.onNodeWithTag("FAB")
-            .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
+        rule.onNodeWithTag("FAB").assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
@@ -524,26 +477,22 @@ class FloatingActionButtonTest {
             ExtendedFloatingActionButton(
                 expanded = expanded,
                 onClick = {},
-                icon = {
-                    Icon(
-                        Icons.Filled.Favorite,
-                        "Add",
-                        modifier = Modifier.testTag("icon")
-                    )
-                },
+                icon = { Icon(Icons.Filled.Favorite, "Add", modifier = Modifier.testTag("icon")) },
                 text = { Text(text = "FAB", modifier = Modifier.testTag("text")) },
                 modifier = Modifier.testTag("FAB"),
             )
         }
 
-        rule.onNodeWithTag("FAB")
+        rule
+            .onNodeWithTag("FAB")
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
             .assertWidthIsAtLeast(80.dp)
 
         rule.runOnIdle { expanded = false }
         rule.mainClock.advanceTimeBy(200)
 
-        rule.onNodeWithTag("FAB")
+        rule
+            .onNodeWithTag("FAB")
             .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
             .assertHeightIsEqualTo(FabPrimaryTokens.ContainerHeight)
             .assertWidthIsEqualTo(FabPrimaryTokens.ContainerWidth)
@@ -560,12 +509,13 @@ class FloatingActionButtonTest {
         lateinit var shadowElevation: State<Dp>
 
         rule.setMaterialContent(lightColorScheme()) {
-            val fabElevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = defaultElevation,
-                pressedElevation = pressedElevation,
-                hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
-            )
+            val fabElevation =
+                FloatingActionButtonDefaults.elevation(
+                    defaultElevation = defaultElevation,
+                    pressedElevation = pressedElevation,
+                    hoveredElevation = hoveredElevation,
+                    focusedElevation = focusedElevation
+                )
 
             tonalElevation = fabElevation.tonalElevation()
             shadowElevation = fabElevation.shadowElevation(interactionSource)
@@ -576,9 +526,7 @@ class FloatingActionButtonTest {
             assertThat(shadowElevation.value).isEqualTo(defaultElevation)
         }
 
-        rule.runOnIdle {
-            interactionSource.tryEmit(PressInteraction.Press(Offset.Zero))
-        }
+        rule.runOnIdle { interactionSource.tryEmit(PressInteraction.Press(Offset.Zero)) }
 
         rule.runOnIdle {
             assertThat(tonalElevation).isEqualTo(defaultElevation)
@@ -597,12 +545,13 @@ class FloatingActionButtonTest {
         lateinit var shadowElevation: State<Dp>
 
         rule.setMaterialContent(lightColorScheme()) {
-            val fabElevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = defaultElevation,
-                pressedElevation = pressedElevation,
-                hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
-            )
+            val fabElevation =
+                FloatingActionButtonDefaults.elevation(
+                    defaultElevation = defaultElevation,
+                    pressedElevation = pressedElevation,
+                    hoveredElevation = hoveredElevation,
+                    focusedElevation = focusedElevation
+                )
 
             tonalElevation = fabElevation.tonalElevation()
             shadowElevation = fabElevation.shadowElevation(interactionSource)
@@ -613,9 +562,7 @@ class FloatingActionButtonTest {
             assertThat(shadowElevation.value).isEqualTo(defaultElevation)
         }
 
-        rule.runOnIdle {
-            defaultElevation = 5.dp
-        }
+        rule.runOnIdle { defaultElevation = 5.dp }
 
         rule.runOnIdle {
             assertThat(tonalElevation).isEqualTo(5.dp)
@@ -634,12 +581,13 @@ class FloatingActionButtonTest {
         lateinit var shadowElevation: State<Dp>
 
         rule.setMaterialContent(lightColorScheme()) {
-            val fabElevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = defaultElevation,
-                pressedElevation = pressedElevation,
-                hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
-            )
+            val fabElevation =
+                FloatingActionButtonDefaults.elevation(
+                    defaultElevation = defaultElevation,
+                    pressedElevation = pressedElevation,
+                    hoveredElevation = hoveredElevation,
+                    focusedElevation = focusedElevation
+                )
 
             tonalElevation = fabElevation.tonalElevation()
             shadowElevation = fabElevation.shadowElevation(interactionSource)
@@ -650,18 +598,14 @@ class FloatingActionButtonTest {
             assertThat(shadowElevation.value).isEqualTo(defaultElevation)
         }
 
-        rule.runOnIdle {
-            interactionSource.tryEmit(PressInteraction.Press(Offset.Zero))
-        }
+        rule.runOnIdle { interactionSource.tryEmit(PressInteraction.Press(Offset.Zero)) }
 
         rule.runOnIdle {
             assertThat(tonalElevation).isEqualTo(defaultElevation)
             assertThat(shadowElevation.value).isEqualTo(pressedElevation)
         }
 
-        rule.runOnIdle {
-            pressedElevation = 5.dp
-        }
+        rule.runOnIdle { pressedElevation = 5.dp }
 
         // We are still pressed, so we should now show the updated value for the pressed state
         rule.runOnIdle {

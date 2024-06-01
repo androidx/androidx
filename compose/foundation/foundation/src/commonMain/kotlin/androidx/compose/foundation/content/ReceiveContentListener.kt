@@ -33,17 +33,12 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
  *
  * Let's assume we have two [contentReceiver] boxes named A and B where B is a child of A, aligned
  * to bottom end.
- *
  * ---------
- * | A     |
- * |   |---|
- * |   | B |
+ * | A | | |---| | | B |
  * ---------
- *
  * When a dragging item moves over to A from left, then over to B, then starts moving up and goes
  * back to A leaving B, then finally leaves them both, the following would be the list of expected
  * [ReceiveContentListener] calls in order to both nodes.
- *
  * - A#onStart
  * - B#onStart
  * - A#onEnter
@@ -55,8 +50,8 @@ import androidx.compose.foundation.draganddrop.dragAndDropTarget
  *
  * The interesting part in this order of calls is that A does not receive an exit event when the
  * item moves over to B. This is different than what would happen if you were to use
- * [dragAndDropTarget] modifier because semantically [contentReceiver] works as a chain of nodes.
- * If the item were to be dropped on B, its [onReceive] chain would also call A's [onReceive] with
+ * [dragAndDropTarget] modifier because semantically [contentReceiver] works as a chain of nodes. If
+ * the item were to be dropped on B, its [onReceive] chain would also call A's [onReceive] with
  * what's left from B.
  */
 @ExperimentalFoundationApi
@@ -75,9 +70,7 @@ fun interface ReceiveContentListener {
      */
     fun onDragEnd() = Unit
 
-    /**
-     * Optional callback that's called when a dragging item moves into this node's coordinates.
-     */
+    /** Optional callback that's called when a dragging item moves into this node's coordinates. */
     fun onDragEnter() = Unit
 
     /**
@@ -87,14 +80,15 @@ fun interface ReceiveContentListener {
 
     /**
      * Callback that's triggered when a content is successfully committed.
+     *
      * @return An optional [TransferableContent] that contains the ignored parts of the received
-     * [TransferableContent] by this node. The remaining [TransferableContent] first will be sent to
-     * to the closest ancestor [contentReceiver] modifier. This chain will continue until there's no
-     * ancestor modifier left, or [TransferableContent] is fully consumed. After, the source
-     * subsystem that created the original [TransferableContent] and initiated the chain will
-     * receive any remaining items to apply its default behavior. For example a text editor that
-     * receives content by DragAndDrop should insert the remaining text from the receive chain
-     * to the drop position.
+     *   [TransferableContent] by this node. The remaining [TransferableContent] first will be sent
+     *   to to the closest ancestor [contentReceiver] modifier. This chain will continue until
+     *   there's no ancestor modifier left, or [TransferableContent] is fully consumed. After, the
+     *   source subsystem that created the original [TransferableContent] and initiated the chain
+     *   will receive any remaining items to apply its default behavior. For example a text editor
+     *   that receives content by DragAndDrop should insert the remaining text from the receive
+     *   chain to the drop position.
      */
     fun onReceive(transferableContent: TransferableContent): TransferableContent?
 }

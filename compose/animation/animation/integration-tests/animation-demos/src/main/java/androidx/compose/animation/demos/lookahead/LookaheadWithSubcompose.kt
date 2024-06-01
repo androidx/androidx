@@ -43,63 +43,61 @@ import kotlinx.coroutines.delay
 fun LookaheadWithSubcompose() {
     Column {
         LookaheadScope {
-            val isWide by produceState(initialValue = true) {
-                while (true) {
-                    delay(1000)
-                    value = !value
+            val isWide by
+                produceState(initialValue = true) {
+                    while (true) {
+                        delay(1000)
+                        value = !value
+                    }
                 }
-            }
-            var shouldAnimate by remember {
-                mutableStateOf(false)
-            }
+            var shouldAnimate by remember { mutableStateOf(false) }
             Button(onClick = { shouldAnimate = !shouldAnimate }) {
                 Text(if (shouldAnimate) "Stop animating bounds" else "Animate bounds")
             }
             SubcomposeLayout(
-                Modifier
-                    .background(colors[3])
-                    .conditionallyAnimateBounds(shouldAnimate)
+                Modifier.background(colors[3]).conditionallyAnimateBounds(shouldAnimate)
             ) {
                 val constraints = it.copy(minWidth = 0)
-                val placeable = subcompose(0) {
-                    Box(
-                        Modifier
-                            .conditionallyAnimateBounds(
-                                shouldAnimate,
-                                Modifier
-                                    .width(if (isWide) 150.dp else 70.dp)
-                                    .requiredHeight(400.dp)
+                val placeable =
+                    subcompose(0) {
+                            Box(
+                                Modifier.conditionallyAnimateBounds(
+                                        shouldAnimate,
+                                        Modifier.width(if (isWide) 150.dp else 70.dp)
+                                            .requiredHeight(400.dp)
+                                    )
+                                    .background(colors[0])
                             )
-                            .background(colors[0])
-                    )
-                }[0].measure(constraints)
+                        }[0]
+                        .measure(constraints)
 
-                val rightPlaceable = subcompose(1) {
-                    Box(
-                        Modifier
-                            .conditionallyAnimateBounds(
-                                shouldAnimate,
-                                Modifier
-                                    .width(if (isWide) 150.dp else 70.dp)
-                                    .requiredHeight(400.dp)
+                val rightPlaceable =
+                    subcompose(1) {
+                            Box(
+                                Modifier.conditionallyAnimateBounds(
+                                        shouldAnimate,
+                                        Modifier.width(if (isWide) 150.dp else 70.dp)
+                                            .requiredHeight(400.dp)
+                                    )
+                                    .background(colors[1])
                             )
-                            .background(colors[1])
-                    )
-                }[0].measure(constraints)
+                        }[0]
+                        .measure(constraints)
 
                 val totalWidth = placeable.width + rightPlaceable.width + 150
                 layout(totalWidth, placeable.height) {
-                    val bottomPlaceable = subcompose(2) {
-                        Box(
-                            Modifier
-                                .width(totalWidth.toDp())
-                                .conditionallyAnimateBounds(
-                                    shouldAnimate,
-                                    Modifier.height(if (isWide) 150.dp else 70.dp)
+                    val bottomPlaceable =
+                        subcompose(2) {
+                                Box(
+                                    Modifier.width(totalWidth.toDp())
+                                        .conditionallyAnimateBounds(
+                                            shouldAnimate,
+                                            Modifier.height(if (isWide) 150.dp else 70.dp)
+                                        )
+                                        .background(colors[2])
                                 )
-                                .background(colors[2])
-                        )
-                    }[0].measure(constraints)
+                            }[0]
+                            .measure(constraints)
 
                     placeable.place(50, 0)
                     bottomPlaceable.place(0, placeable.height - bottomPlaceable.height - 50)
@@ -117,9 +115,5 @@ private fun Modifier.conditionallyAnimateBounds(
     modifier: Modifier = Modifier
 ) = if (shouldAnimate) this.animateBounds(modifier) else this.then(modifier)
 
-private val colors = listOf(
-    Color(0xffff6f69),
-    Color(0xffffcc5c),
-    Color(0xff2a9d84),
-    Color(0xff264653)
-)
+private val colors =
+    listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff2a9d84), Color(0xff264653))

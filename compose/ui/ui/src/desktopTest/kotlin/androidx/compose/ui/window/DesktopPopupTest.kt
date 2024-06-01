@@ -42,22 +42,17 @@ import org.junit.Rule
 import org.junit.Test
 
 class DesktopPopupTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun `pass composition locals to popup`() {
-        val compositionLocal = staticCompositionLocalOf<Int> {
-            error("not set")
-        }
+        val compositionLocal = staticCompositionLocalOf<Int> { error("not set") }
 
         var actualLocalValue = 0
 
         rule.setContent {
             CompositionLocalProvider(compositionLocal provides 3) {
-                Popup {
-                    actualLocalValue = compositionLocal.current
-                }
+                Popup { actualLocalValue = compositionLocal.current }
             }
         }
 
@@ -71,13 +66,7 @@ class DesktopPopupTest {
 
         rule.setContent {
             if (isPopupShowing) {
-                Popup {
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            isDisposed = true
-                        }
-                    }
-                }
+                Popup { DisposableEffect(Unit) { onDispose { isDisposed = true } } }
             }
         }
 
@@ -94,9 +83,7 @@ class DesktopPopupTest {
 
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides density) {
-                Popup {
-                    densityInsidePopup = LocalDensity.current.density
-                }
+                Popup { densityInsidePopup = LocalDensity.current.density }
             }
         }
 
@@ -114,14 +101,10 @@ class DesktopPopupTest {
         rule.setContent {
             val isPressed = derivedStateOf { false }
 
-            Canvas(Modifier.size(100.dp)) {
-                isPressed.value
-            }
+            Canvas(Modifier.size(100.dp)) { isPressed.value }
 
             if (showPopup) {
-                Popup {
-                    Box(Modifier)
-                }
+                Popup { Box(Modifier) }
             }
         }
 
@@ -144,9 +127,7 @@ class DesktopPopupTest {
             }
 
             if (showPopup) {
-                Popup {
-                    Box(Modifier)
-                }
+                Popup { Box(Modifier) }
             }
         }
 
@@ -165,9 +146,7 @@ class DesktopPopupTest {
         var lastCompositionState = 0
 
         rule.setContent {
-            Canvas(Modifier.size(100.dp)) {
-                lastCompositionState = state
-            }
+            Canvas(Modifier.size(100.dp)) { lastCompositionState = state }
 
             if (showPopup) {
                 Popup {
@@ -203,18 +182,10 @@ class DesktopPopupTest {
     fun `(Bug) use Popup inside LazyColumn`() {
         rule.setContent {
             var count by remember { mutableStateOf(0) }
-            LazyColumn {
-                items(count) {
-                    Popup { }
-                }
-            }
+            LazyColumn { items(count) { Popup {} } }
             LaunchedEffect(Unit) {
-                withFrameNanos {
-                    count++
-                }
-                withFrameNanos {
-                    count++
-                }
+                withFrameNanos { count++ }
+                withFrameNanos { count++ }
             }
         }
 

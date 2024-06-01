@@ -17,20 +17,18 @@
 package androidx.compose.ui.text
 
 /**
- * An annotation that contains the metadata intended for text-to-speech engine. If the text is
- * being processed by a text-to-speech engine, the engine may use the data in this annotation in
- * addition to or instead of its associated text.
+ * An annotation that contains the metadata intended for text-to-speech engine. If the text is being
+ * processed by a text-to-speech engine, the engine may use the data in this annotation in addition
+ * to or instead of its associated text.
  */
 sealed class TtsAnnotation
 
 /**
- * The text associated with this annotation is a series of characters that have to be read
- * verbatim.
+ * The text associated with this annotation is a series of characters that have to be read verbatim.
+ *
  * @param verbatim a string where the characters are read verbatim except whitespace.
  */
-class VerbatimTtsAnnotation(
-    val verbatim: String
-) : TtsAnnotation() {
+class VerbatimTtsAnnotation(val verbatim: String) : TtsAnnotation() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is VerbatimTtsAnnotation) return false

@@ -28,9 +28,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
 /**
- * This is an inaccurate implementation that will only be used when running linked against
- * Android SDK stubs in host-side tests. A real implementation should synchronize with the
- * device's default display's vsync rate.
+ * This is an inaccurate implementation that will only be used when running linked against Android
+ * SDK stubs in host-side tests. A real implementation should synchronize with the device's default
+ * display's vsync rate.
  */
 private object FallbackFrameClock : MonotonicFrameClock {
     private const val DefaultFrameDelay = 16L // milliseconds
@@ -43,19 +43,18 @@ private object FallbackFrameClock : MonotonicFrameClock {
 }
 
 private object DefaultChoreographerFrameClock : MonotonicFrameClock {
-    private val choreographer = runBlocking(Dispatchers.Main.immediate) {
-        Choreographer.getInstance()
-    }
+    private val choreographer =
+        runBlocking(Dispatchers.Main.immediate) { Choreographer.getInstance() }
 
-    override suspend fun <R> withFrameNanos(
-        onFrame: (frameTimeNanos: Long) -> R
-    ): R = suspendCancellableCoroutine<R> { co ->
-        val callback = Choreographer.FrameCallback { frameTimeNanos ->
-            co.resumeWith(runCatching { onFrame(frameTimeNanos) })
+    override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+        suspendCancellableCoroutine<R> { co ->
+            val callback =
+                Choreographer.FrameCallback { frameTimeNanos ->
+                    co.resumeWith(runCatching { onFrame(frameTimeNanos) })
+                }
+            choreographer.postFrameCallback(callback)
+            co.invokeOnCancellation { choreographer.removeFrameCallback(callback) }
         }
-        choreographer.postFrameCallback(callback)
-        co.invokeOnCancellation { choreographer.removeFrameCallback(callback) }
-    }
 }
 
 // For local testing
@@ -71,6 +70,5 @@ actual val DefaultMonotonicFrameClock: MonotonicFrameClock by lazy {
     // When linked against Android SDK stubs and running host-side tests, APIs such as
     // Looper.getMainLooper() that will never return null on a real device will return null.
     // This branch offers an alternative solution.
-    if (Looper.getMainLooper() != null) DefaultChoreographerFrameClock
-    else FallbackFrameClock
+    if (Looper.getMainLooper() != null) DefaultChoreographerFrameClock else FallbackFrameClock
 }

@@ -27,9 +27,7 @@ internal class InlineClassConverter {
     // Return value used in functions
     private val notInlineType: (Any) -> Any = { it }
 
-    /**
-     * Clear any cached data.
-     */
+    /** Clear any cached data. */
     fun clear() {
         typeMap.clear()
     }
@@ -41,8 +39,8 @@ internal class InlineClassConverter {
      * @param value the value to convert to an instance of [inlineClassName].
      */
     fun castParameterValue(inlineClassName: String?, value: Any?): Any? =
-        if (value != null && inlineClassName != null)
-            typeMapperFor(inlineClassName)(value) else value
+        if (value != null && inlineClassName != null) typeMapperFor(inlineClassName)(value)
+        else value
 
     private fun typeMapperFor(typeName: String): (Any) -> (Any) =
         typeMap.getOrPut(typeName) { loadTypeMapper(typeName.replace('.', '/')) }

@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.text.input
 
-/**
- * Provides bidirectional offset mapping between original and transformed text.
- */
+/** Provides bidirectional offset mapping between original and transformed text. */
 interface OffsetMapping {
     /**
      * Convert offset in original text into the offset in transformed text.
@@ -28,7 +26,6 @@ interface OffsetMapping {
      *
      * @param offset offset in original text.
      * @return offset in transformed text
-     *
      * @see VisualTransformation
      */
     fun originalToTransformed(offset: Int): Int
@@ -42,18 +39,17 @@ interface OffsetMapping {
      *
      * @param offset offset in transformed text
      * @return offset in original text
-     *
      * @see VisualTransformation
      */
     fun transformedToOriginal(offset: Int): Int
 
     companion object {
-        /**
-         * The offset map used for identity mapping.
-         */
-        val Identity = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int = offset
-            override fun transformedToOriginal(offset: Int): Int = offset
-        }
+        /** The offset map used for identity mapping. */
+        val Identity =
+            object : OffsetMapping {
+                override fun originalToTransformed(offset: Int): Int = offset
+
+                override fun transformedToOriginal(offset: Int): Int = offset
+            }
     }
 }

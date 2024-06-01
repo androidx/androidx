@@ -29,25 +29,19 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * The benchmark for a Text composable with ellipsis and restricted height.
- */
+/** The benchmark for a Text composable with ellipsis and restricted height. */
 @LargeTest
 @RunWith(Parameterized::class)
-class TextEllipsisBenchmark(
-    private val textLength: Int
-) {
+class TextEllipsisBenchmark(private val textLength: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0}")
         fun initParameters(): Array<Any> = arrayOf(32, 128, 512).filterForCi { max() }
     }
 
-    @get:Rule
-    val textBenchmarkRule = TextBenchmarkTestRule()
+    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule()
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
@@ -57,17 +51,12 @@ class TextEllipsisBenchmark(
             /**
              * Text render has a word cache in the underlying system. To get a proper metric of its
              * performance, the cache needs to be disabled, which unfortunately is not doable via
-             * public API. Here is a workaround which generates a new string when a new test case
-             * is created.
+             * public API. Here is a workaround which generates a new string when a new test case is
+             * created.
              */
-            val texts = List(textBenchmarkRule.repeatTimes) {
-                textGenerator.nextParagraph(textLength)
-            }
-            TextWithEllipsisTestCase(
-                texts = texts,
-                width = width,
-                fontSize = fontSize
-            )
+            val texts =
+                List(textBenchmarkRule.repeatTimes) { textGenerator.nextParagraph(textLength) }
+            TextWithEllipsisTestCase(texts = texts, width = width, fontSize = fontSize)
         }
     }
 
@@ -89,9 +78,7 @@ class TextEllipsisBenchmark(
         benchmarkRule.benchmarkFirstLayout(caseFactory)
     }
 
-    /**
-     * Measure the time taken to layout the a Text composable when alignment gets toggled.
-     */
+    /** Measure the time taken to layout the a Text composable when alignment gets toggled. */
     @Test
     fun toggleAlignment_measureLayout() {
         benchmarkRule.toggleStateBenchmarkMeasureLayout(caseFactory, assertOneRecomposition = false)

@@ -51,29 +51,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Experimenting with sharedBounds default transition for texts of different sizes, colors and
- * font styles, using the default scaleToBounds resize mode and fadeIn/Out
- * // TODO: A demo to compare different contentScale (i.e. Fill, Crop) for texts
- * // TODO: Play with scale in sharedElement
+ * Experimenting with sharedBounds default transition for texts of different sizes, colors and font
+ * styles, using the default scaleToBounds resize mode and fadeIn/Out // TODO: A demo to compare
+ * different contentScale (i.e. Fill, Crop) for texts // TODO: Play with scale in sharedElement
  */
 @Preview
 @Composable
 fun TextSharedBoundsExperiments() {
-    var isHorizontal by remember {
-        mutableStateOf(true)
-    }
+    var isHorizontal by remember { mutableStateOf(true) }
     SharedTransitionLayout(
-        Modifier
-            .clickable(
+        Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { isHorizontal = !isHorizontal }
+            ) {
+                isHorizontal = !isHorizontal
+            }
             .fillMaxSize()
-            .padding(20.dp)) {
+            .padding(20.dp)
+    ) {
         AnimatedContent(
             isHorizontal,
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .aspectRatio(1f)
                 .shadow(10.dp, RoundedCornerShape(10), clip = false)
                 .background(color = Color.White, shape = RoundedCornerShape(10))
@@ -86,9 +84,10 @@ fun TextSharedBoundsExperiments() {
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Text(
-                        "Bold", fontSize = 30.sp,
-                        modifier = Modifier
-                            .sharedBounds(
+                        "Bold",
+                        fontSize = 30.sp,
+                        modifier =
+                            Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Bold"),
                                 this@AnimatedContent
                             ),
@@ -96,9 +95,10 @@ fun TextSharedBoundsExperiments() {
                         color = Color(0xff4f6d7a)
                     )
                     Text(
-                        "Italic", fontSize = 30.sp,
-                        modifier = Modifier
-                            .sharedBounds(
+                        "Italic",
+                        fontSize = 30.sp,
+                        modifier =
+                            Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Italic"),
                                 this@AnimatedContent
                             ),
@@ -106,10 +106,11 @@ fun TextSharedBoundsExperiments() {
                         color = Color.Gray
                     )
                     Text(
-                        "Normal", fontSize = 30.sp,
+                        "Normal",
+                        fontSize = 30.sp,
                         color = Color(0xff56a3a6),
-                        modifier = Modifier
-                            .sharedBounds(
+                        modifier =
+                            Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Normal"),
                                 this@AnimatedContent
                             )
@@ -117,41 +118,41 @@ fun TextSharedBoundsExperiments() {
                 }
             } else {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp),
+                    modifier = Modifier.fillMaxSize().padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
                     Text(
-                        "Normal", fontSize = 50.sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentWidth(align = Alignment.CenterHorizontally)
-                            .sharedBounds(
-                                rememberSharedContentState(key = "Normal"),
-                                this@AnimatedContent,
-                            ),
+                        "Normal",
+                        fontSize = 50.sp,
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "Normal"),
+                                    this@AnimatedContent,
+                                ),
                         color = Color(0xffE85D04)
                     )
                     Text(
-                        "Bold", fontSize = 70.sp,
+                        "Bold",
+                        fontSize = 70.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xffF48C06),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentWidth(align = Alignment.CenterHorizontally)
-                            .sharedBounds(
-                                rememberSharedContentState(key = "Bold"),
-                                this@AnimatedContent
-                            )
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "Bold"),
+                                    this@AnimatedContent
+                                )
                     )
                     Text(
                         "Italic",
                         fontSize = 50.sp,
                         fontStyle = FontStyle.Italic,
-                        modifier = Modifier
-                            .sharedBounds(
+                        modifier =
+                            Modifier.sharedBounds(
                                 rememberSharedContentState(key = "Italic"),
                                 this@AnimatedContent
                             ),

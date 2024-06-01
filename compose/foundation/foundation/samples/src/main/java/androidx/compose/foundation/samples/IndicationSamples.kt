@@ -38,24 +38,26 @@ fun IndicationSample() {
     Column {
         Text(
             text = "Click me and my neighbour will indicate as well!",
-            modifier = Modifier
-                // clickable will dispatch events using MutableInteractionSource
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = LocalIndication.current
-                ) {
-                    /**do something */
-                }
-                .padding(10.dp)
+            modifier =
+                Modifier
+                    // clickable will dispatch events using MutableInteractionSource
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = LocalIndication.current
+                    ) {
+                        /** do something */
+                    }
+                    .padding(10.dp)
         )
         Spacer(Modifier.requiredHeight(10.dp))
         Text(
             text = "I'm neighbour and I indicate when you click the other one",
-            modifier = Modifier
-                // this element doesn't have a click, but will show default indication from the
-                // CompositionLocal as it accepts the same MutableInteractionSource
-                .indication(interactionSource, LocalIndication.current)
-                .padding(10.dp)
+            modifier =
+                Modifier
+                    // this element doesn't have a click, but will show default indication from the
+                    // CompositionLocal as it accepts the same MutableInteractionSource
+                    .indication(interactionSource, LocalIndication.current)
+                    .padding(10.dp)
         )
     }
 }

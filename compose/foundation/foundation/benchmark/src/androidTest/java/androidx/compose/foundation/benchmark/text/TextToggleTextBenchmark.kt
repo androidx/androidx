@@ -31,20 +31,16 @@ import org.junit.runners.Parameterized
 
 @SmallTest
 @RunWith(Parameterized::class)
-class TextToggleTextBenchmark(
-    private val textLength: Int
-) {
+class TextToggleTextBenchmark(private val textLength: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "length={0}")
         fun initParameters(): Array<Any> = arrayOf(32, 512).filterForCi()
     }
 
-    @get:Rule
-    val textBenchmarkRule = TextBenchmarkTestRule()
+    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule()
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
@@ -61,25 +57,19 @@ class TextToggleTextBenchmark(
         }
     }
 
-    /**
-     * Measure the time taken to recompose the [Text] composable when text gets toggled.
-     */
+    /** Measure the time taken to recompose the [Text] composable when text gets toggled. */
     @Test
     fun toggleText_recompose() {
         benchmarkRule.toggleStateBenchmarkRecompose(caseFactory)
     }
 
-    /**
-     * Measure the time taken to measure the [Text] composable when text gets toggled.
-     */
+    /** Measure the time taken to measure the [Text] composable when text gets toggled. */
     @Test
     fun toggleText_measureLayout() {
         benchmarkRule.toggleStateBenchmarkMeasureLayout(caseFactory, assertOneRecomposition = false)
     }
 
-    /**
-     * Measure the time taken to draw the [Text] composable when text gets toggled.
-     */
+    /** Measure the time taken to draw the [Text] composable when text gets toggled. */
     @Test
     fun toggleText_draw() {
         benchmarkRule.toggleStateBenchmarkDraw(caseFactory)

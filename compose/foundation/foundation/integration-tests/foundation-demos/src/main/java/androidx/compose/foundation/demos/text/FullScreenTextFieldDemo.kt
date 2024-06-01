@@ -35,8 +35,6 @@ fun FullScreenTextFieldDemo() {
     TextField(
         value,
         onValueChange = { value = it },
-        modifier = Modifier
-            .border(3.dp, MaterialTheme.colors.primary)
-            .fillMaxSize()
+        modifier = Modifier.border(3.dp, MaterialTheme.colors.primary).fillMaxSize()
     )
 }

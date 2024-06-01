@@ -23,31 +23,21 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-fun TextView(
-    id: Int = 0,
-    text: String = "",
-    onClickListener: View.OnClickListener? = null
-) {
+fun TextView(id: Int = 0, text: String = "", onClickListener: View.OnClickListener? = null) {
     AndroidView(factory = { TextView(it) }) { view ->
         view.id = id
         view.text = text
-        if (onClickListener != null)
-            view.setOnClickListener(onClickListener)
+        if (onClickListener != null) view.setOnClickListener(onClickListener)
     }
 }
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-fun Button(
-    id: Int = 0,
-    text: String = "",
-    onClickListener: View.OnClickListener? = null
-) {
+fun Button(id: Int = 0, text: String = "", onClickListener: View.OnClickListener? = null) {
     AndroidView(factory = { Button(it) }) { view ->
         view.id = id
         view.text = text
-        if (onClickListener != null)
-            view.setOnClickListener(onClickListener)
+        if (onClickListener != null) view.setOnClickListener(onClickListener)
     }
 }
 
