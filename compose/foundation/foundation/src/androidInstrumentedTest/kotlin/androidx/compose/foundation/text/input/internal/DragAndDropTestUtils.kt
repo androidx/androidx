@@ -86,6 +86,10 @@ object DragAndDropTestUtils {
             parcel.writeFloat(0f)
             parcel.writeFloat(0f)
         }
+        if (Build.VERSION.SDK_INT >= 35) {
+            // mFlags was added
+            parcel.writeInt(0)
+        }
         parcel.writeInt(0) // Result
         parcel.writeInt(1)
         clipData.writeToParcel(parcel, 0)
