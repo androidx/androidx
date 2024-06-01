@@ -61,7 +61,6 @@ import sqlite3.sqlite3_step
  *     * (b/304295573) busy / locked handling
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
-@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
     private val stmtPointer: CPointer<sqlite3_stmt>

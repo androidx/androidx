@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-
 package androidx.sqlite.driver
 
 import cnames.structs.sqlite3
