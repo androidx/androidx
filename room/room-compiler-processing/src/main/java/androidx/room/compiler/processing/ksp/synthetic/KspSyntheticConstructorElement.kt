@@ -24,8 +24,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 /**
- * A synthetic element the represents and overload of constructor that exist
- * in kapt, but not in ksp.
+ * A synthetic element the represents and overload of constructor that exist in kapt, but not in
+ * ksp.
  */
 internal class KspSyntheticConstructorElement(
     env: KspProcessingEnv,

@@ -42,11 +42,13 @@ internal class LayoutInspectionStep(
     private val processingEnv: ProcessingEnvironment,
     processorClass: Class<out Processor>
 ) : BasicAnnotationProcessor.Step {
-    private val generatedAnnotation: AnnotationSpec? = generatedAnnotationSpec(
-        processingEnv.elementUtils,
-        processingEnv.sourceVersion,
-        processorClass
-    ).orElse(null)
+    private val generatedAnnotation: AnnotationSpec? =
+        generatedAnnotationSpec(
+                processingEnv.elementUtils,
+                processingEnv.sourceVersion,
+                processorClass
+            )
+            .orElse(null)
 
     override fun annotations(): Set<String> {
         return setOf(ATTRIBUTE, APP_COMPAT_SHADOWED_ATTRIBUTES)
@@ -63,12 +65,16 @@ internal class LayoutInspectionStep(
             return emptySet()
         }
 
-        val views = mergeViews(
-            elementsByAnnotation[ATTRIBUTE]
-                .groupBy({ asType(it.enclosingElement) }, { asExecutable(it) }),
-            elementsByAnnotation[APP_COMPAT_SHADOWED_ATTRIBUTES]
-                .mapTo(mutableSetOf()) { asType(it) }
-        )
+        val views =
+            mergeViews(
+                elementsByAnnotation[ATTRIBUTE].groupBy(
+                    { asType(it.enclosingElement) },
+                    { asExecutable(it) }
+                ),
+                elementsByAnnotation[APP_COMPAT_SHADOWED_ATTRIBUTES].mapTo(mutableSetOf()) {
+                    asType(it)
+                }
+            )
         val filer = processingEnv.filer
 
         views.forEach { generateInspectionCompanion(it, generatedAnnotation).writeTo(filer) }
@@ -104,19 +110,17 @@ internal class LayoutInspectionStep(
 
     /** Parse the annotated getters of a view class into a [View]. */
     private fun createView(type: TypeElement, attributes: Collection<Attribute?>): View? {
-        val duplicateAttributes = attributes
-            .filterNotNull()
-            .groupBy { it.qualifiedName }
-            .values
-            .filter { it.size > 1 }
+        val duplicateAttributes =
+            attributes.filterNotNull().groupBy { it.qualifiedName }.values.filter { it.size > 1 }
 
         if (duplicateAttributes.any()) {
             duplicateAttributes.forEach { duplicates ->
                 duplicates.forEach { attribute ->
                     val qualifiedName = attribute.qualifiedName
-                    val otherGetters = duplicates
-                        .filter { it.invocation != attribute.invocation }
-                        .joinToString { it.invocation }
+                    val otherGetters =
+                        duplicates
+                            .filter { it.invocation != attribute.invocation }
+                            .joinToString { it.invocation }
 
                     printError(
                         "Duplicate attribute $qualifiedName is also present on $otherGetters",
@@ -190,16 +194,18 @@ internal class LayoutInspectionStep(
 
     /** Parse `Attribute.intMapping`. */
     private fun parseIntMapping(annotation: AnnotationMirror): List<IntMap> {
-        return (getAnnotationValue(annotation, "intMapping").value as List<*>).map { entry ->
-            val intMapAnnotation = (entry as AnnotationValue).value as AnnotationMirror
+        return (getAnnotationValue(annotation, "intMapping").value as List<*>)
+            .map { entry ->
+                val intMapAnnotation = (entry as AnnotationValue).value as AnnotationMirror
 
-            IntMap(
-                name = getAnnotationValue(intMapAnnotation, "name").value as String,
-                value = getAnnotationValue(intMapAnnotation, "value").value as Int,
-                mask = getAnnotationValue(intMapAnnotation, "mask").value as Int,
-                annotation = intMapAnnotation
-            )
-        }.sortedBy { it.value }
+                IntMap(
+                    name = getAnnotationValue(intMapAnnotation, "name").value as String,
+                    value = getAnnotationValue(intMapAnnotation, "value").value as Int,
+                    mask = getAnnotationValue(intMapAnnotation, "mask").value as Int,
+                    annotation = intMapAnnotation
+                )
+            }
+            .sortedBy { it.value }
     }
 
     /** Check that int mapping is valid and consistent */
@@ -258,10 +264,11 @@ internal class LayoutInspectionStep(
             }
 
             // Check for duplicate flags
-            val duplicatePairs = intMapping
-                .groupBy { Pair(if (it.mask != 0) it.mask else it.value, it.value) }
-                .values
-                .filter { it.size > 1 }
+            val duplicatePairs =
+                intMapping
+                    .groupBy { Pair(if (it.mask != 0) it.mask else it.value, it.value) }
+                    .values
+                    .filter { it.size > 1 }
 
             duplicatePairs.forEach { group ->
                 group.forEach { intMap ->
@@ -296,21 +303,23 @@ internal class LayoutInspectionStep(
             TypeKind.DOUBLE -> AttributeType.DOUBLE
             TypeKind.FLOAT -> AttributeType.FLOAT
             TypeKind.SHORT -> AttributeType.SHORT
-            TypeKind.INT -> when {
-                getter.isAnnotationPresent(COLOR_INT) -> AttributeType.COLOR
-                getter.isAnnotationPresent(GRAVITY_INT) -> AttributeType.GRAVITY
-                getter.hasResourceIdAnnotation() -> AttributeType.RESOURCE_ID
-                intMapping.any { it.mask != 0 } -> AttributeType.INT_FLAG
-                intMapping.isNotEmpty() -> AttributeType.INT_ENUM
-                else -> AttributeType.INT
-            }
+            TypeKind.INT ->
+                when {
+                    getter.isAnnotationPresent(COLOR_INT) -> AttributeType.COLOR
+                    getter.isAnnotationPresent(GRAVITY_INT) -> AttributeType.GRAVITY
+                    getter.hasResourceIdAnnotation() -> AttributeType.RESOURCE_ID
+                    intMapping.any { it.mask != 0 } -> AttributeType.INT_FLAG
+                    intMapping.isNotEmpty() -> AttributeType.INT_ENUM
+                    else -> AttributeType.INT
+                }
             TypeKind.LONG ->
                 if (getter.isAnnotationPresent(COLOR_LONG)) {
                     AttributeType.COLOR
                 } else {
                     AttributeType.LONG
                 }
-            TypeKind.DECLARED, TypeKind.ARRAY ->
+            TypeKind.DECLARED,
+            TypeKind.ARRAY ->
                 if (getter.returnType.isAssignableTo(COLOR)) {
                     AttributeType.COLOR
                 } else {
@@ -340,9 +349,8 @@ internal class LayoutInspectionStep(
             return null
         }
 
-        val attributes = viewType.interfaces.flatMap {
-            APP_COMPAT_INTERFACE_MAP[it.toString()].orEmpty()
-        }
+        val attributes =
+            viewType.interfaces.flatMap { APP_COMPAT_INTERFACE_MAP[it.toString()].orEmpty() }
 
         if (attributes.isEmpty()) {
             printError(
@@ -359,9 +367,12 @@ internal class LayoutInspectionStep(
 
     /** Check if an R.java file exists for [namespace] and that it contains attribute [name] */
     private fun isAttributeInRFile(namespace: String, name: String): Boolean {
-        return processingEnv.elementUtils.getTypeElement("$namespace.R")
-            ?.enclosedElements?.find { it.simpleName.contentEquals("attr") }
-            ?.enclosedElements?.find { it.simpleName.contentEquals(name) } != null
+        return processingEnv.elementUtils
+            .getTypeElement("$namespace.R")
+            ?.enclosedElements
+            ?.find { it.simpleName.contentEquals("attr") }
+            ?.enclosedElements
+            ?.find { it.simpleName.contentEquals(name) } != null
     }
 
     private fun Element.hasResourceIdAnnotation(): Boolean {
@@ -371,9 +382,10 @@ internal class LayoutInspectionStep(
     }
 
     private fun TypeMirror.isAssignableTo(typeName: String): Boolean {
-        val assignableType = requireNotNull(processingEnv.elementUtils.getTypeElement(typeName)) {
-            "Expected $typeName to exist"
-        }
+        val assignableType =
+            requireNotNull(processingEnv.elementUtils.getTypeElement(typeName)) {
+                "Expected $typeName to exist"
+            }
         return processingEnv.typeUtils.isAssignable(this, assignableType.asType())
     }
 
@@ -396,8 +408,7 @@ internal class LayoutInspectionStep(
     /** Find an annotation mirror by its qualified name */
     private fun Element.getAnnotationMirror(qualifiedName: String): AnnotationMirror? {
         return this.annotationMirrors.firstOrNull { annotation ->
-            asType(annotation.annotationType.asElement())
-                .qualifiedName.contentEquals(qualifiedName)
+            asType(annotation.annotationType.asElement()).qualifiedName.contentEquals(qualifiedName)
         }
     }
 
@@ -436,63 +447,77 @@ internal class LayoutInspectionStep(
         const val VIEW = "android.view.View"
 
         /** Fully qualified names of the view inspector classes introduced in API 29 */
-        val VIEW_INSPECTOR_CLASSES = listOf(
-            "android.view.inspector.InspectionCompanion",
-            "android.view.inspector.PropertyReader",
-            "android.view.inspector.PropertyMapper"
-        )
+        val VIEW_INSPECTOR_CLASSES =
+            listOf(
+                "android.view.inspector.InspectionCompanion",
+                "android.view.inspector.PropertyReader",
+                "android.view.inspector.PropertyMapper"
+            )
 
         /**
-         * Map of compat interface names in `androidx.core` to the AppCompat attributes they
-         * shadow. These virtual attributes are added to the inspection companion for views within
-         * AppCompat with the `@AppCompatShadowedAttributes` annotation.
+         * Map of compat interface names in `androidx.core` to the AppCompat attributes they shadow.
+         * These virtual attributes are added to the inspection companion for views within AppCompat
+         * with the `@AppCompatShadowedAttributes` annotation.
          *
          * As you can tell, this is brittle. The good news is these are established platform APIs
-         * from API <= 29 (the minimum for app inspection) and are unlikely to change in the
-         * future. If you update this list, please update the documentation comment in
+         * from API <= 29 (the minimum for app inspection) and are unlikely to change in the future.
+         * If you update this list, please update the documentation comment in
          * [androidx.resourceinspection.annotation.AppCompatShadowedAttributes] as well.
          */
-        val APP_COMPAT_INTERFACE_MAP: Map<String, List<ShadowedAttribute>> = mapOf(
-            "androidx.core.view.TintableBackgroundView" to listOf(
-                ShadowedAttribute("backgroundTint", "getBackgroundTintList()"),
-                ShadowedAttribute("backgroundTintMode", "getBackgroundTintMode()")
-            ),
-            "androidx.core.widget.AutoSizeableTextView" to listOf(
-                ShadowedAttribute(
-                    "autoSizeTextType",
-                    "getAutoSizeTextType()",
-                    AttributeType.INT_ENUM,
+        val APP_COMPAT_INTERFACE_MAP: Map<String, List<ShadowedAttribute>> =
+            mapOf(
+                "androidx.core.view.TintableBackgroundView" to
                     listOf(
-                        IntMap("none", 0 /* TextView.AUTO_SIZE_TEXT_TYPE_NONE */),
-                        IntMap("uniform", 1 /* TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM */),
+                        ShadowedAttribute("backgroundTint", "getBackgroundTintList()"),
+                        ShadowedAttribute("backgroundTintMode", "getBackgroundTintMode()")
+                    ),
+                "androidx.core.widget.AutoSizeableTextView" to
+                    listOf(
+                        ShadowedAttribute(
+                            "autoSizeTextType",
+                            "getAutoSizeTextType()",
+                            AttributeType.INT_ENUM,
+                            listOf(
+                                IntMap("none", 0 /* TextView.AUTO_SIZE_TEXT_TYPE_NONE */),
+                                IntMap("uniform", 1 /* TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM */),
+                            )
+                        ),
+                        ShadowedAttribute(
+                            "autoSizeStepGranularity",
+                            "getAutoSizeStepGranularity()",
+                            AttributeType.INT
+                        ),
+                        ShadowedAttribute(
+                            "autoSizeMinTextSize",
+                            "getAutoSizeMinTextSize()",
+                            AttributeType.INT
+                        ),
+                        ShadowedAttribute(
+                            "autoSizeMaxTextSize",
+                            "getAutoSizeMaxTextSize()",
+                            AttributeType.INT
+                        )
+                    ),
+                "androidx.core.widget.TintableCheckedTextView" to
+                    listOf(
+                        ShadowedAttribute("checkMarkTint", "getCheckMarkTintList()"),
+                        ShadowedAttribute("checkMarkTintMode", "getCheckMarkTintMode()")
+                    ),
+                "androidx.core.widget.TintableCompoundButton" to
+                    listOf(
+                        ShadowedAttribute("buttonTint", "getButtonTintList()"),
+                        ShadowedAttribute("buttonTintMode", "getButtonTintMode()")
+                    ),
+                "androidx.core.widget.TintableCompoundDrawablesView" to
+                    listOf(
+                        ShadowedAttribute("drawableTint", "getCompoundDrawableTintList()"),
+                        ShadowedAttribute("drawableTintMode", "getCompoundDrawableTintMode()")
+                    ),
+                "androidx.core.widget.TintableImageSourceView" to
+                    listOf(
+                        ShadowedAttribute("tint", "getImageTintList()"),
+                        ShadowedAttribute("tintMode", "getImageTintMode()"),
                     )
-                ),
-                ShadowedAttribute(
-                    "autoSizeStepGranularity", "getAutoSizeStepGranularity()", AttributeType.INT
-                ),
-                ShadowedAttribute(
-                    "autoSizeMinTextSize", "getAutoSizeMinTextSize()", AttributeType.INT
-                ),
-                ShadowedAttribute(
-                    "autoSizeMaxTextSize", "getAutoSizeMaxTextSize()", AttributeType.INT
-                )
-            ),
-            "androidx.core.widget.TintableCheckedTextView" to listOf(
-                ShadowedAttribute("checkMarkTint", "getCheckMarkTintList()"),
-                ShadowedAttribute("checkMarkTintMode", "getCheckMarkTintMode()")
-            ),
-            "androidx.core.widget.TintableCompoundButton" to listOf(
-                ShadowedAttribute("buttonTint", "getButtonTintList()"),
-                ShadowedAttribute("buttonTintMode", "getButtonTintMode()")
-            ),
-            "androidx.core.widget.TintableCompoundDrawablesView" to listOf(
-                ShadowedAttribute("drawableTint", "getCompoundDrawableTintList()"),
-                ShadowedAttribute("drawableTintMode", "getCompoundDrawableTintMode()")
-            ),
-            "androidx.core.widget.TintableImageSourceView" to listOf(
-                ShadowedAttribute("tint", "getImageTintList()"),
-                ShadowedAttribute("tintMode", "getImageTintMode()"),
             )
-        )
     }
 }

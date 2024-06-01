@@ -21,13 +21,12 @@ import androidx.sqlite.SQLiteConnection
 /**
  * Base class for a database migration.
  *
- * Each migration can move between 2 versions that are defined by [startVersion] and
- * [endVersion].
+ * Each migration can move between 2 versions that are defined by [startVersion] and [endVersion].
  *
- * A migration can handle more than 1 version (e.g. if you have a faster path to choose when
- * going version 3 to 5 without going to version 4). If Room opens a database at version
- * 3 and latest version is 5, Room will use the migration object that can migrate from
- * 3 to 5 instead of 3 to 4 and 4 to 5.
+ * A migration can handle more than 1 version (e.g. if you have a faster path to choose when going
+ * version 3 to 5 without going to version 4). If Room opens a database at version 3 and latest
+ * version is 5, Room will use the migration object that can migrate from 3 to 5 instead of 3 to 4
+ * and 4 to 5.
  *
  * If there are not enough migrations provided to move from the current version to the latest
  * version, Room will might clear the database and recreate if destructive migrations are enabled.

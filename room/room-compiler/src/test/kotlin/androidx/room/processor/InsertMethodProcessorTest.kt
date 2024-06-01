@@ -36,8 +36,10 @@ class InsertMethodProcessorTest :
     InsertOrUpsertShortcutMethodProcessorTest<InsertMethod>(Insert::class) {
     override fun noParamsError(): String = INSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT
 
-    override fun missingPrimaryKey(partialEntityName: String, primaryKeyName: List<String>):
-    String {
+    override fun missingPrimaryKey(
+        partialEntityName: String,
+        primaryKeyName: List<String>
+    ): String {
         return ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
             partialEntityName,
             primaryKeyName
@@ -46,11 +48,11 @@ class InsertMethodProcessorTest :
 
     override fun noAdapter(): String = CANNOT_FIND_INSERT_RESULT_ADAPTER
 
-    override fun multiParamAndSingleReturnMismatchError():
-        String = INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
+    override fun multiParamAndSingleReturnMismatchError(): String =
+        INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH
 
-    override fun singleParamAndMultiReturnMismatchError():
-        String = INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
+    override fun singleParamAndMultiReturnMismatchError(): String =
+        INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH
 
     @Test
     fun onConflict_Default() {
@@ -73,9 +75,7 @@ class InsertMethodProcessorTest :
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_ON_CONFLICT_VALUE
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
             }
         }
     }
@@ -83,22 +83,23 @@ class InsertMethodProcessorTest :
     @Test
     fun onConflict_EachValue() {
         listOf(
-            Pair("NONE", 0),
-            Pair("REPLACE", 1),
-            Pair("ROLLBACK", 2),
-            Pair("ABORT", 3),
-            Pair("FAIL", 4),
-            Pair("IGNORE", 5)
-        ).forEach { pair ->
-            singleInsertUpsertShortcutMethod(
-                """
+                Pair("NONE", 0),
+                Pair("REPLACE", 1),
+                Pair("ROLLBACK", 2),
+                Pair("ABORT", 3),
+                Pair("FAIL", 4),
+                Pair("IGNORE", 5)
+            )
+            .forEach { pair ->
+                singleInsertUpsertShortcutMethod(
+                    """
                 @Insert(onConflict=OnConflictStrategy.${pair.first})
                 abstract public void foo(User user);
                 """
-            ) { insertion, _ ->
-                assertThat(insertion.onConflict).isEqualTo(pair.second)
+                ) { insertion, _ ->
+                    assertThat(insertion.onConflict).isEqualTo(pair.second)
+                }
             }
-        }
     }
 
     override fun process(

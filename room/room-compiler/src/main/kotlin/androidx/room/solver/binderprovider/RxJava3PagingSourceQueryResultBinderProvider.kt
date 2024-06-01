@@ -22,18 +22,17 @@ import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT
 import androidx.room.solver.QueryResultBinderProvider
 
-fun RxJava3PagingSourceQueryResultBinderProvider(
-    context: Context
-): QueryResultBinderProvider {
+fun RxJava3PagingSourceQueryResultBinderProvider(context: Context): QueryResultBinderProvider {
     val rxjava3PagingSource = RoomPagingRx3TypeNames.LIMIT_OFFSET_RX_PAGING_SOURCE
 
     return MultiTypedPagingSourceQueryResultBinderProvider(
-        context = context,
-        roomPagingClassName = rxjava3PagingSource,
-        pagingSourceTypeName = PagingTypeNames.RX3_PAGING_SOURCE
-    ).requireArtifact(
-        context = context,
-        requiredType = rxjava3PagingSource,
-        missingArtifactErrorMsg = MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT
-    )
+            context = context,
+            roomPagingClassName = rxjava3PagingSource,
+            pagingSourceTypeName = PagingTypeNames.RX3_PAGING_SOURCE
+        )
+        .requireArtifact(
+            context = context,
+            requiredType = rxjava3PagingSource,
+            missingArtifactErrorMsg = MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT
+        )
 }

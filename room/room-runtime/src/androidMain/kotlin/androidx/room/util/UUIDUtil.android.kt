@@ -22,10 +22,7 @@ import androidx.annotation.RestrictTo
 import java.nio.ByteBuffer
 import java.util.UUID
 
-/**
- * UUID / byte[] two-way conversion utility for Room
- *
- */
+/** UUID / byte[] two-way conversion utility for Room */
 
 /**
  * Converts a 16-bytes array BLOB into a UUID pojo

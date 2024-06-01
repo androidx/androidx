@@ -30,25 +30,22 @@ import javax.lang.model.type.TypeMirror
  * Implementation of [OriginatingElementWrapper] to wrap a [KSFile] for the case of a dependency
  * within the sources being processed.
  */
-internal data class KSFileAsOriginatingElement(
-    val ksFile: KSFile
-) : OriginatingElementWrapper(ksFile.fileName)
+internal data class KSFileAsOriginatingElement(val ksFile: KSFile) :
+    OriginatingElementWrapper(ksFile.fileName)
 
 /**
- * Implementation of [OriginatingElementWrapper] to wrap a [KSClassDeclaration] for the case of
- * a dependency in the classpath, in which case a [KSFile] is not available.
+ * Implementation of [OriginatingElementWrapper] to wrap a [KSClassDeclaration] for the case of a
+ * dependency in the classpath, in which case a [KSFile] is not available.
  */
 internal data class KSClassDeclarationAsOriginatingElement(
     val ksClassDeclaration: KSClassDeclaration
 ) : OriginatingElementWrapper(ksClassDeclaration.simpleName.asString())
 
 /**
- * When generating java code, JavaPoet only provides an API that receives Element.
- * This wrapper class helps us wrap KSP constructs which KspFiler can unwrap later.
+ * When generating java code, JavaPoet only provides an API that receives Element. This wrapper
+ * class helps us wrap KSP constructs which KspFiler can unwrap later.
  */
-internal sealed class OriginatingElementWrapper(
-    val elementSimpleName: String
-) : Element {
+internal sealed class OriginatingElementWrapper(val elementSimpleName: String) : Element {
     override fun getAnnotationMirrors(): List<AnnotationMirror> {
         return emptyList()
     }
@@ -58,8 +55,7 @@ internal sealed class OriginatingElementWrapper(
     }
 
     override fun <A : Annotation?> getAnnotationsByType(annotationType: Class<A>): Array<A> {
-        @Suppress("UNCHECKED_CAST")
-        return arrayOfNulls<Any?>(size = 0) as Array<A>
+        @Suppress("UNCHECKED_CAST") return arrayOfNulls<Any?>(size = 0) as Array<A>
     }
 
     override fun asType(): TypeMirror {

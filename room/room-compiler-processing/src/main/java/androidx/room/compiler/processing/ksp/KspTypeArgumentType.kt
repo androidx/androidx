@@ -27,8 +27,8 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 
 /**
- * The typeName for type arguments requires the type parameter, hence we have a special type
- * for them when we produce them.
+ * The typeName for type arguments requires the type parameter, hence we have a special type for
+ * them when we produce them.
  */
 internal class KspTypeArgumentType(
     env: KspProcessingEnv,
@@ -36,25 +36,25 @@ internal class KspTypeArgumentType(
     originalKSAnnotations: Sequence<KSAnnotation> = typeArg.annotations,
     scope: KSTypeVarianceResolverScope? = null,
     typeAlias: KSType? = null,
-) : KspType(
-    env = env,
-    ksType = typeArg.requireType(),
-    originalKSAnnotations = originalKSAnnotations,
-    scope = scope,
-    typeAlias = typeAlias,
-) {
+) :
+    KspType(
+        env = env,
+        ksType = typeArg.requireType(),
+        originalKSAnnotations = originalKSAnnotations,
+        scope = scope,
+        typeAlias = typeAlias,
+    ) {
     /**
-     * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we
-     * pass to super is actually our extendsBound. Note that an unbound type argument will resolve
-     * to itself thus we need to check if the extendBound is not the same as this type arg.
+     * When KSP resolves classes, it always resolves to the upper bound. Hence, the ksType we pass
+     * to super is actually our extendsBound. Note that an unbound type argument will resolve to
+     * itself thus we need to check if the extendBound is not the same as this type arg.
      */
     private val _extendsBound by lazy {
-        val extendBound = env.wrap(
-            ksType = ksType,
-            allowPrimitives = false
-        )
-        if (typeArg.variance == Variance.STAR ||
-            (this.ksType.declaration is KSTypeParameter && this == extendBound)) {
+        val extendBound = env.wrap(ksType = ksType, allowPrimitives = false)
+        if (
+            typeArg.variance == Variance.STAR ||
+                (this.ksType.declaration is KSTypeParameter && this == extendBound)
+        ) {
             null
         } else {
             extendBound
@@ -83,13 +83,14 @@ internal class KspTypeArgumentType(
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?
-    ) = KspTypeArgumentType(
-        env = env,
-        typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
-        originalKSAnnotations,
-        scope = scope,
-        typeAlias = typeAlias
-    )
+    ) =
+        KspTypeArgumentType(
+            env = env,
+            typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
+            originalKSAnnotations,
+            scope = scope,
+            typeAlias = typeAlias
+        )
 
     private class DelegatingTypeArg(
         val original: KSTypeArgument,

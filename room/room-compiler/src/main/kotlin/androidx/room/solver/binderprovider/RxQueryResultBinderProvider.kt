@@ -25,10 +25,9 @@ import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RxQueryResultBinder
 
-class RxQueryResultBinderProvider private constructor(
-    context: Context,
-    private val rxType: RxType
-) : ObservableQueryResultBinderProvider(context) {
+class RxQueryResultBinderProvider
+private constructor(context: Context, private val rxType: RxType) :
+    ObservableQueryResultBinderProvider(context) {
     private val rawRxType: XRawType? by lazy {
         context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
@@ -59,17 +58,20 @@ class RxQueryResultBinderProvider private constructor(
     }
 
     companion object {
-        fun getAll(context: Context) = listOf(
-            RxType.RX2_FLOWABLE,
-            RxType.RX2_OBSERVABLE,
-            RxType.RX3_FLOWABLE,
-            RxType.RX3_OBSERVABLE
-        ).map {
-            RxQueryResultBinderProvider(context, it).requireArtifact(
-                context = context,
-                requiredType = it.version.rxRoomClassName,
-                missingArtifactErrorMsg = it.version.missingArtifactMessage
-            )
-        }
+        fun getAll(context: Context) =
+            listOf(
+                    RxType.RX2_FLOWABLE,
+                    RxType.RX2_OBSERVABLE,
+                    RxType.RX3_FLOWABLE,
+                    RxType.RX3_OBSERVABLE
+                )
+                .map {
+                    RxQueryResultBinderProvider(context, it)
+                        .requireArtifact(
+                            context = context,
+                            requiredType = it.version.rxRoomClassName,
+                            missingArtifactErrorMsg = it.version.missingArtifactMessage
+                        )
+                }
     }
 }

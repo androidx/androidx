@@ -33,9 +33,7 @@ import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 
-/**
- * Binder that knows how to write instant (blocking) transaction wrapper methods.
- */
+/** Binder that knows how to write instant (blocking) transaction wrapper methods. */
 class InstantTransactionMethodBinder(
     private val returnType: XType,
     adapter: TransactionMethodAdapter,
@@ -47,47 +45,52 @@ class InstantTransactionMethodBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        val returnPrefix = when (scope.language) {
-            CodeLanguage.JAVA ->
-                if (returnType.isVoid() || returnType.isKotlinUnit()) "" else "return "
-            CodeLanguage.KOTLIN -> "return "
-        }
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
-            argFormat = listOf("%N", "%L", "%L"),
-            args = listOf(dbProperty, /* isReadOnly = */ false, /* inTransaction = */ true),
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
-                parameterName = when (scope.language) {
-                    CodeLanguage.JAVA -> scope.getTmpVar("_connection")
-                    CodeLanguage.KOTLIN -> "_"
-                },
-                returnTypeName = returnType.asTypeName().box(),
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    val adapterScope = scope.fork()
-                    adapter.createDelegateToSuperCode(
-                        parameterNames = parameterNames,
-                        daoName = daoName,
-                        daoImplName = daoImplName,
-                        scope = adapterScope
-                    )
-                    when (scope.language) {
-                        CodeLanguage.JAVA -> {
-                            addStatement("$returnPrefix%L", adapterScope.generate())
-                            if (returnPrefix.isEmpty()) {
-                                addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
+        val returnPrefix =
+            when (scope.language) {
+                CodeLanguage.JAVA ->
+                    if (returnType.isVoid() || returnType.isKotlinUnit()) "" else "return "
+                CodeLanguage.KOTLIN -> "return "
+            }
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName =
+                                when (scope.language) {
+                                    CodeLanguage.JAVA -> scope.getTmpVar("_connection")
+                                    CodeLanguage.KOTLIN -> "_"
+                                },
+                            returnTypeName = returnType.asTypeName().box(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val adapterScope = scope.fork()
+                            adapter.createDelegateToSuperCode(
+                                parameterNames = parameterNames,
+                                daoName = daoName,
+                                daoImplName = daoImplName,
+                                scope = adapterScope
+                            )
+                            when (scope.language) {
+                                CodeLanguage.JAVA -> {
+                                    addStatement("$returnPrefix%L", adapterScope.generate())
+                                    if (returnPrefix.isEmpty()) {
+                                        addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
+                                    }
+                                }
+                                CodeLanguage.KOTLIN -> {
+                                    addStatement("%L", adapterScope.generate())
+                                }
                             }
                         }
-                        CodeLanguage.KOTLIN -> {
-                            addStatement("%L", adapterScope.generate())
-                        }
                     }
-                }
-            }
-        )
+            )
         scope.builder.add("$returnPrefix%L", performBlock)
     }
 }

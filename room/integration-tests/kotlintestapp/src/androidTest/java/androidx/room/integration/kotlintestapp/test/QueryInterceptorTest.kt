@@ -44,9 +44,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class QueryInterceptorTest {
-    @Rule
-    @JvmField
-    val countingTaskExecutorRule = CountingTaskExecutorRule()
+    @Rule @JvmField val countingTaskExecutorRule = CountingTaskExecutorRule()
     lateinit var mDatabase: QueryInterceptorTestDatabase
     var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any?>>>()
 
@@ -55,40 +53,34 @@ class QueryInterceptorTest {
 
     @Dao
     interface QueryInterceptorDao {
-        @Query("DELETE FROM queryInterceptorTestDatabase WHERE id=:id")
-        fun delete(id: String)
+        @Query("DELETE FROM queryInterceptorTestDatabase WHERE id=:id") fun delete(id: String)
 
-        @Insert
-        fun insert(item: QueryInterceptorEntity)
+        @Insert fun insert(item: QueryInterceptorEntity)
 
-        @Update
-        fun update(vararg item: QueryInterceptorEntity)
+        @Update fun update(vararg item: QueryInterceptorEntity)
     }
 
-    @Database(
-        version = 1,
-        entities = [
-            QueryInterceptorEntity::class
-        ],
-        exportSchema = false
-    )
+    @Database(version = 1, entities = [QueryInterceptorEntity::class], exportSchema = false)
     abstract class QueryInterceptorTestDatabase : RoomDatabase() {
         abstract fun queryInterceptorDao(): QueryInterceptorDao
     }
 
     @Before
     fun setUp() {
-        mDatabase = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            QueryInterceptorTestDatabase::class.java
-        ).setQueryCallback(
-            { sqlQuery, bindArgs ->
-                val argTrace = ArrayList<Any?>()
-                argTrace.addAll(bindArgs)
-                queryAndArgs.add(Pair(sqlQuery, argTrace))
-            },
-            MoreExecutors.directExecutor()
-        ).build()
+        mDatabase =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    QueryInterceptorTestDatabase::class.java
+                )
+                .setQueryCallback(
+                    { sqlQuery, bindArgs ->
+                        val argTrace = ArrayList<Any?>()
+                        argTrace.addAll(bindArgs)
+                        queryAndArgs.add(Pair(sqlQuery, argTrace))
+                    },
+                    MoreExecutors.directExecutor()
+                )
+                .build()
     }
 
     @After
@@ -98,9 +90,9 @@ class QueryInterceptorTest {
 
     @Test
     fun testInsert() {
-        mDatabase.queryInterceptorDao().insert(
-            QueryInterceptorEntity("Insert", "Inserted a placeholder query")
-        )
+        mDatabase
+            .queryInterceptorDao()
+            .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
 
         assertQueryLogged(
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
@@ -113,21 +105,18 @@ class QueryInterceptorTest {
     @Test
     fun testDelete() {
         mDatabase.queryInterceptorDao().delete("Insert")
-        assertQueryLogged(
-            "DELETE FROM queryInterceptorTestDatabase WHERE id=?",
-            listOf("Insert")
-        )
+        assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", listOf("Insert"))
         assertTransactionQueries()
     }
 
     @Test
     fun testUpdate() {
-        mDatabase.queryInterceptorDao().insert(
-            QueryInterceptorEntity("Insert", "Inserted a placeholder query")
-        )
-        mDatabase.queryInterceptorDao().update(
-            QueryInterceptorEntity("Insert", "Updated the placeholder query")
-        )
+        mDatabase
+            .queryInterceptorDao()
+            .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
+        mDatabase
+            .queryInterceptorDao()
+            .update(QueryInterceptorEntity("Insert", "Updated the placeholder query"))
 
         assertQueryLogged(
             "UPDATE OR ABORT `queryInterceptorTestDatabase` SET `id` " +
@@ -141,12 +130,12 @@ class QueryInterceptorTest {
     @Test
     fun testCompileStatement() {
         assertEquals(queryAndArgs.size, 0)
-        mDatabase.queryInterceptorDao().insert(
-            QueryInterceptorEntity("Insert", "Inserted a placeholder query")
-        )
-        mDatabase.openHelper.writableDatabase.compileStatement(
-            "DELETE FROM queryInterceptorTestDatabase WHERE id=?"
-        ).execute()
+        mDatabase
+            .queryInterceptorDao()
+            .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
+        mDatabase.openHelper.writableDatabase
+            .compileStatement("DELETE FROM queryInterceptorTestDatabase WHERE id=?")
+            .execute()
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", emptyList())
     }
 
@@ -198,8 +187,9 @@ class QueryInterceptorTest {
 
     @Test
     fun testNullBindArgumentCompileStatement() {
-        val sql = "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
-            "VALUES (?,?)"
+        val sql =
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)"
         val statement = mDatabase.openHelper.writableDatabase.compileStatement(sql)
         statement.bindString(1, "ID")
         statement.bindNull(2)
@@ -215,25 +205,27 @@ class QueryInterceptorTest {
 
     @Test
     fun testCallbackCalledOnceAfterCloseAndReOpen() {
-        val dbBuilder = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            QueryInterceptorTestDatabase::class.java
-        ).setQueryCallback(
-            { sqlQuery, bindArgs ->
-                val argTrace = ArrayList<Any?>()
-                argTrace.addAll(bindArgs)
-                queryAndArgs.add(Pair(sqlQuery, argTrace))
-            },
-            MoreExecutors.directExecutor()
-        )
+        val dbBuilder =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    QueryInterceptorTestDatabase::class.java
+                )
+                .setQueryCallback(
+                    { sqlQuery, bindArgs ->
+                        val argTrace = ArrayList<Any?>()
+                        argTrace.addAll(bindArgs)
+                        queryAndArgs.add(Pair(sqlQuery, argTrace))
+                    },
+                    MoreExecutors.directExecutor()
+                )
 
         dbBuilder.build().close()
 
         mDatabase = dbBuilder.build()
 
-        mDatabase.queryInterceptorDao().insert(
-            QueryInterceptorEntity("Insert", "Inserted a placeholder query")
-        )
+        mDatabase
+            .queryInterceptorDao()
+            .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
 
         assertQueryLogged(
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
@@ -243,32 +235,15 @@ class QueryInterceptorTest {
         assertTransactionQueries()
     }
 
-    private fun assertQueryLogged(
-        query: String,
-        expectedArgs: List<String?>
-    ) {
-        val filteredQueries = queryAndArgs.filter {
-            it.first == query
-        }
+    private fun assertQueryLogged(query: String, expectedArgs: List<String?>) {
+        val filteredQueries = queryAndArgs.filter { it.first == query }
         assertThat(filteredQueries).hasSize(1)
         assertThat(expectedArgs).containsExactlyElementsIn(filteredQueries[0].second)
     }
 
     private fun assertTransactionQueries() {
-        assertNotNull(
-            queryAndArgs.any {
-                it.equals("BEGIN TRANSACTION")
-            }
-        )
-        assertNotNull(
-            queryAndArgs.any {
-                it.equals("TRANSACTION SUCCESSFUL")
-            }
-        )
-        assertNotNull(
-            queryAndArgs.any {
-                it.equals("END TRANSACTION")
-            }
-        )
+        assertNotNull(queryAndArgs.any { it.equals("BEGIN TRANSACTION") })
+        assertNotNull(queryAndArgs.any { it.equals("TRANSACTION SUCCESSFUL") })
+        assertNotNull(queryAndArgs.any { it.equals("END TRANSACTION") })
     }
 }

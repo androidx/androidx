@@ -17,8 +17,8 @@
 package androidx.room.compiler.processing
 
 /**
- * Common interface for elements which might have type parameters (e.g. class, interface, method,
- * or constructor)
+ * Common interface for elements which might have type parameters (e.g. class, interface, method, or
+ * constructor)
  */
 interface XParameterizable {
     /** The type parameters of this element. */

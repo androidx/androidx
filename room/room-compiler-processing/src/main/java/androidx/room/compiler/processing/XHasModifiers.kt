@@ -16,52 +16,32 @@
 
 package androidx.room.compiler.processing
 
-/**
- * Common interface for elements which might have modifiers (e.g. field, method, class)
- */
+/** Common interface for elements which might have modifiers (e.g. field, method, class) */
 interface XHasModifiers {
-    /**
-     * Returns `true` if this element has public modifier.
-     */
+    /** Returns `true` if this element has public modifier. */
     fun isPublic(): Boolean
 
-    /**
-     * Returns `true` if this element has internal (source) modifier.
-     */
+    /** Returns `true` if this element has internal (source) modifier. */
     fun isInternal(): Boolean
 
-    /**
-     * Returns `true` if this element has protected modifier.
-     */
+    /** Returns `true` if this element has protected modifier. */
     fun isProtected(): Boolean
 
-    /**
-     * Returns `true` if this element has abstract modifier.
-     */
+    /** Returns `true` if this element has abstract modifier. */
     fun isAbstract(): Boolean
 
-    /**
-     * Returns `true` if this element has private modifier in Kotlin.
-     */
+    /** Returns `true` if this element has private modifier in Kotlin. */
     fun isKtPrivate(): Boolean = isPrivate()
 
-    /**
-     * Returns `true` if this element has private modifier.
-     */
+    /** Returns `true` if this element has private modifier. */
     fun isPrivate(): Boolean
 
-    /**
-     * Returns `true` if this element has static modifier.
-     */
+    /** Returns `true` if this element has static modifier. */
     fun isStatic(): Boolean
 
-    /**
-     * Returns `true` if this element has transient modifier.
-     */
+    /** Returns `true` if this element has transient modifier. */
     fun isTransient(): Boolean
 
-    /**
-     * Returns `true` if this element is final and cannot be overridden.
-     */
+    /** Returns `true` if this element is final and cannot be overridden. */
     fun isFinal(): Boolean
 }

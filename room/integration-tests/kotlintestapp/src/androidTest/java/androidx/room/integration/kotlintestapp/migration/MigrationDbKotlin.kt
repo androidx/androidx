@@ -34,18 +34,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     version = MigrationDbKotlin.LATEST_VERSION,
-    entities = [
-        MigrationDbKotlin.Entity1::class,
-        MigrationDbKotlin.Entity2::class,
-        MigrationDbKotlin.Entity4::class
-    ],
-    autoMigrations = [
-        AutoMigration(7, 8)
-    ]
+    entities =
+        [
+            MigrationDbKotlin.Entity1::class,
+            MigrationDbKotlin.Entity2::class,
+            MigrationDbKotlin.Entity4::class
+        ],
+    autoMigrations = [AutoMigration(7, 8)]
 )
 abstract class MigrationDbKotlin : RoomDatabase() {
 
     internal abstract fun dao(): MigrationDao
+
     @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
     @Entity(indices = arrayOf(Index(value = ["name"], unique = true)))
     data class Entity1(@PrimaryKey var id: Int = 0, var name: String?) {
@@ -76,14 +76,15 @@ abstract class MigrationDbKotlin : RoomDatabase() {
 
     @SuppressWarnings(RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD)
     @Entity(
-        foreignKeys = arrayOf(
-            ForeignKey(
-                entity = Entity1::class,
-                parentColumns = arrayOf("name"),
-                childColumns = arrayOf("name"),
-                deferred = true
+        foreignKeys =
+            arrayOf(
+                ForeignKey(
+                    entity = Entity1::class,
+                    parentColumns = arrayOf("name"),
+                    childColumns = arrayOf("name"),
+                    deferred = true
+                )
             )
-        )
     )
     data class Entity4(@PrimaryKey var id: Int = 0, var name: String?) {
         companion object {
@@ -93,54 +94,43 @@ abstract class MigrationDbKotlin : RoomDatabase() {
 
     @Dao
     internal interface MigrationDao {
-        @Query("SELECT * from Entity1 ORDER BY id ASC")
-        fun loadAllEntity1s(): List<Entity1>
+        @Query("SELECT * from Entity1 ORDER BY id ASC") fun loadAllEntity1s(): List<Entity1>
 
-        @Query("SELECT * from Entity2 ORDER BY id ASC")
-        fun loadAllEntity2s(): List<Entity2>
+        @Query("SELECT * from Entity2 ORDER BY id ASC") fun loadAllEntity2s(): List<Entity2>
 
         @Query("SELECT * from Entity2 ORDER BY id ASC")
         fun loadAllEntity2sAsPojo(): List<Entity2Pojo>
 
-        @Insert
-        fun insert(vararg entity2: Entity2)
+        @Insert fun insert(vararg entity2: Entity2)
     }
 
     internal class Entity2Pojo(id: Int, addedInV3: String?, name: String?) :
         Entity2(id, addedInV3, name)
 
-    /**
-     * not a real dao because database will change.
-     */
+    /** not a real dao because database will change. */
     internal class Dao_V1(val mDb: SupportSQLiteDatabase) {
 
         fun insertIntoEntity1(id: Int, name: String) {
             val values = ContentValues()
             values.put("id", id)
             values.put("name", name)
-            val insertionId = mDb.insert(
-                Entity1.TABLE_NAME,
-                SQLiteDatabase.CONFLICT_REPLACE, values
-            )
+            val insertionId =
+                mDb.insert(Entity1.TABLE_NAME, SQLiteDatabase.CONFLICT_REPLACE, values)
             if (insertionId == -1L) {
                 throw RuntimeException("test failure")
             }
         }
     }
 
-    /**
-     * not a real dao because database will change.
-     */
+    /** not a real dao because database will change. */
     internal class Dao_V2(val mDb: SupportSQLiteDatabase) {
 
         fun insertIntoEntity2(id: Int, name: String) {
             val values = ContentValues()
             values.put("id", id)
             values.put("name", name)
-            val insertionId = mDb.insert(
-                Entity2.TABLE_NAME,
-                SQLiteDatabase.CONFLICT_REPLACE, values
-            )
+            val insertionId =
+                mDb.insert(Entity2.TABLE_NAME, SQLiteDatabase.CONFLICT_REPLACE, values)
             if (insertionId == -1L) {
                 throw RuntimeException("test failure")
             }

@@ -20,6 +20,7 @@ import java.sql.SQLException
 
 /**
  * Represents the result of a query.
+ *
  * <p>
  * This information is obtained by preparing the query against an in memory database at compile
  * time.

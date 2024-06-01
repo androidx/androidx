@@ -25,8 +25,8 @@ class QueryTest : BaseQueryTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
         return Room.inMemoryDatabaseBuilder<SampleDatabase> {
-            SampleDatabase::class.instantiateImpl()
-        }
+                SampleDatabase::class.instantiateImpl()
+            }
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()

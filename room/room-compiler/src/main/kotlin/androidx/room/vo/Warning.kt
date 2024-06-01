@@ -18,9 +18,7 @@ package androidx.room.vo
 
 import java.util.Locale
 
-/**
- * Internal representation of supported warnings
- */
+/** Internal representation of supported warnings */
 // If these warnings are updated also update androidx.room.RoomWarnings
 enum class Warning(val publicKey: String) {
     ALL("ALL"),
@@ -54,6 +52,7 @@ enum class Warning(val publicKey: String) {
 
     companion object {
         val PUBLIC_KEY_MAP = values().associateBy { it.publicKey }
+
         fun fromPublicKey(publicKey: String): Warning? {
             return PUBLIC_KEY_MAP[publicKey.uppercase(Locale.US)]
         }

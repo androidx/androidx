@@ -39,8 +39,7 @@ interface SchemaFileResolver {
      * The path will be a either a sibling of Room's schema location or the folder itself as
      * provided via the annotation processor options 'room.schemaLocation' or 'roomSchemaInput.
      */
-    @Throws(IOException::class)
-    fun readPath(path: Path): InputStream?
+    @Throws(IOException::class) fun readPath(path: Path): InputStream?
 
     /**
      * Requests an input stream to be opened for a given path.
@@ -48,8 +47,7 @@ interface SchemaFileResolver {
      * The path will be a either a sibling of Room's schema location or the folder itself as
      * provided via the annotation processor options 'room.schemaLocation' or 'roomSchemaOutput.
      */
-    @Throws(IOException::class)
-    fun writePath(path: Path): OutputStream
+    @Throws(IOException::class) fun writePath(path: Path): OutputStream
 
     companion object {
         val RESOLVER: SchemaFileResolver by lazy {
@@ -58,26 +56,31 @@ interface SchemaFileResolver {
             // classpath and the default class loader (i.e. current thread's context class
             // loader) might miss a provided implementation.
             ServiceLoader.load(
-                SchemaFileResolver::class.java,
-            ).firstOrNull() ?: ServiceLoader.load(
-                SchemaFileResolver::class.java,
-                SchemaFileResolver::class.java.classLoader
-            ).firstOrNull() ?: DEFAULT_RESOLVER
+                    SchemaFileResolver::class.java,
+                )
+                .firstOrNull()
+                ?: ServiceLoader.load(
+                        SchemaFileResolver::class.java,
+                        SchemaFileResolver::class.java.classLoader
+                    )
+                    .firstOrNull()
+                ?: DEFAULT_RESOLVER
         }
 
-        private val DEFAULT_RESOLVER = object : SchemaFileResolver {
+        private val DEFAULT_RESOLVER =
+            object : SchemaFileResolver {
 
-            override fun readPath(path: Path): InputStream? {
-                return if (path.exists()) path.inputStream() else null
-            }
-
-            override fun writePath(path: Path): OutputStream {
-                val parent = path.parent
-                if (parent != null && !parent.exists()) {
-                    parent.createDirectories()
+                override fun readPath(path: Path): InputStream? {
+                    return if (path.exists()) path.inputStream() else null
                 }
-                return path.outputStream()
+
+                override fun writePath(path: Path): OutputStream {
+                    val parent = path.parent
+                    if (parent != null && !parent.exists()) {
+                        parent.createDirectories()
+                    }
+                    return path.outputStream()
+                }
             }
-        }
     }
 }

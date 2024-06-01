@@ -23,8 +23,8 @@ import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 
 /**
- * A class that holds information about a QueryMethod.
- * It is self sufficient and must have all generics etc resolved once created.
+ * A class that holds information about a QueryMethod. It is self sufficient and must have all
+ * generics etc resolved once created.
  */
 sealed class QueryMethod(
     val element: XMethodElement,
@@ -38,12 +38,7 @@ sealed class QueryMethod(
                 Pair(it, parameters.firstOrNull())
             } else if (it.text.startsWith(":")) {
                 val subName = it.text.substring(1)
-                Pair(
-                    it,
-                    parameters.firstOrNull {
-                        it.sqlName == subName
-                    }
-                )
+                Pair(it, parameters.firstOrNull { it.sqlName == subName })
             } else {
                 Pair(it, null)
             }
@@ -51,9 +46,7 @@ sealed class QueryMethod(
     }
 }
 
-/**
- * A query method who's query is a SELECT statement.
- */
+/** A query method who's query is a SELECT statement. */
 class ReadQueryMethod(
     element: XMethodElement,
     query: ParsedQuery,
@@ -65,9 +58,7 @@ class ReadQueryMethod(
     val isProperty = element.isKotlinPropertyMethod()
 }
 
-/**
- * A query method who's query is a INSERT, UPDATE or DELETE statement.
- */
+/** A query method who's query is a INSERT, UPDATE or DELETE statement. */
 class WriteQueryMethod(
     element: XMethodElement,
     query: ParsedQuery,

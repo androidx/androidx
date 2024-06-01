@@ -40,25 +40,28 @@ class XExecutableTypeTest {
     @Test
     fun constructorInheritanceResolution() {
         runProcessorTest(
-            sources = listOf(
-                Source.kotlin(
-                    "KotlinClass.kt",
-                    """
+            sources =
+                listOf(
+                    Source.kotlin(
+                        "KotlinClass.kt",
+                        """
                     abstract class KotlinClass<T> constructor(t: T) {
                         abstract fun foo(): KotlinClass<String>
                     }
-                    """.trimIndent()
-                ),
-                Source.java(
-                    "JavaClass",
                     """
+                            .trimIndent()
+                    ),
+                    Source.java(
+                        "JavaClass",
+                        """
                     abstract class JavaClass<T> {
                         JavaClass(T t) {}
                         abstract JavaClass<String> foo();
                     }
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) { invocation ->
             fun checkConstructor(className: String) {
                 val typeElement = invocation.processingEnv.requireTypeElement(className)
@@ -81,9 +84,10 @@ class XExecutableTypeTest {
 
     @Test
     fun inheritanceResolution() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             interface MyInterface<T> {
                 fun getT(): T
                 fun setT(t:T): Unit
@@ -91,11 +95,10 @@ class XExecutableTypeTest {
                 suspend fun suspendSetT(t:T): Unit
             }
             abstract class Subject : MyInterface<String>
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
 
             // helper method to get executable types both from sub class and also as direct child of
@@ -118,30 +121,29 @@ class XExecutableTypeTest {
                 assertThat(type.returnType.typeName).isEqualTo(String::class.typeName())
             }
             checkMethods("setT", subject) { type ->
-                assertThat(type.parameterTypes).containsExactly(
-                    invocation.processingEnv.requireType(String::class)
-                )
+                assertThat(type.parameterTypes)
+                    .containsExactly(invocation.processingEnv.requireType(String::class))
                 assertThat(type.returnType.typeName).isEqualTo(TypeName.VOID)
             }
             checkMethods("suspendGetT", subject) { type ->
-                assertThat(type.parameterTypes.first().typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        CONTINUATION_JCLASS_NAME,
-                        WildcardTypeName.supertypeOf(String::class.java)
+                assertThat(type.parameterTypes.first().typeName)
+                    .isEqualTo(
+                        ParameterizedTypeName.get(
+                            CONTINUATION_JCLASS_NAME,
+                            WildcardTypeName.supertypeOf(String::class.java)
+                        )
                     )
-                )
                 assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)
             }
             checkMethods("suspendSetT", subject) { type ->
-                assertThat(type.parameterTypes.first().typeName).isEqualTo(
-                    String::class.typeName()
-                )
-                assertThat(type.parameterTypes[1].typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        CONTINUATION_JCLASS_NAME,
-                        WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
+                assertThat(type.parameterTypes.first().typeName).isEqualTo(String::class.typeName())
+                assertThat(type.parameterTypes[1].typeName)
+                    .isEqualTo(
+                        ParameterizedTypeName.get(
+                            CONTINUATION_JCLASS_NAME,
+                            WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
+                        )
                     )
-                )
                 assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)
             }
         }
@@ -149,9 +151,10 @@ class XExecutableTypeTest {
 
     @Test
     fun isSameMethodTypeTest() {
-        val src = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             interface MyInterface {
               fun method(foo: Foo): Bar
               fun methodWithDifferentName(foo: Foo): Bar
@@ -173,15 +176,13 @@ class XExecutableTypeTest {
             }
             class Foo
             class Bar
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
             val method = myInterface.getMethodByJvmName("method")
-            val methodWithDifferentName =
-                myInterface.getMethodByJvmName("methodWithDifferentName")
+            val methodWithDifferentName = myInterface.getMethodByJvmName("methodWithDifferentName")
             val methodWithDifferentThrows =
                 myInterface.getMethodByJvmName("methodWithDifferentThrows")
             val methodWithDifferentReturn =
@@ -194,10 +195,12 @@ class XExecutableTypeTest {
             val staticMethod = myObject.getMethodByJvmName("staticMethod")
             val myClass = invocation.processingEnv.requireTypeElement("MyClass")
             val classMethod = myClass.getMethodByJvmName("classMethod")
-            val companionObject = myClass.getEnclosedElements()
-                .mapNotNull { it as? XTypeElement }
-                .filter { it.isCompanionObject() }
-                .single()
+            val companionObject =
+                myClass
+                    .getEnclosedElements()
+                    .mapNotNull { it as? XTypeElement }
+                    .filter { it.isCompanionObject() }
+                    .single()
             val companionMethod = companionObject.getMethodByJvmName("companionMethod")
 
             assertIsSameType(method, methodWithDifferentName)
@@ -217,9 +220,10 @@ class XExecutableTypeTest {
 
     @Test
     fun isSameGenericMethodTypeTest() {
-        val src = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             interface FooBar : MyInterface<Foo, Bar>
             interface BarFoo : MyInterface<Bar, Foo>
             interface MyInterface<T1, T2> {
@@ -229,11 +233,10 @@ class XExecutableTypeTest {
             }
             class Foo
             class Bar
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
             val fooBar = invocation.processingEnv.requireTypeElement("FooBar")
             val barFoo = invocation.processingEnv.requireTypeElement("BarFoo")
@@ -256,20 +259,20 @@ class XExecutableTypeTest {
 
     @Test
     fun isSameConstructorTypeTest() {
-        val src = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             abstract class ClassFoo constructor(foo: Foo)
             abstract class ClassBar constructor(bar: Bar)
             abstract class OtherClassFoo constructor(foo: Foo)
             abstract class SubClassBar constructor(bar: Bar) : ClassBar(bar)
             class Foo
             class Bar
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
             val classBar = invocation.processingEnv.requireTypeElement("ClassBar")
             val otherClassFoo = invocation.processingEnv.requireTypeElement("OtherClassFoo")
@@ -296,18 +299,18 @@ class XExecutableTypeTest {
 
     @Test
     fun isSameConstructorTypeAndMethodTypeTest() {
-        val src = Source.kotlin(
-            "ClassFoo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "ClassFoo.kt",
+                """
             abstract class ClassFoo constructor(foo: Foo) {
               abstract fun method(otherFoo: Foo)
             }
             class Foo
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
 
             assertThat(classFoo.getConstructors()).hasSize(1)
@@ -323,18 +326,18 @@ class XExecutableTypeTest {
 
     @Test
     fun isSameGenericConstructorTypeTest() {
-        val src = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             abstract class GenericClass<T> constructor(t: T)
             abstract class GenericClassFoo constructor(foo: Foo) : GenericClass<Foo>(foo)
             abstract class ClassFoo constructor(foo: Foo)
             class Foo
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val genericClass = invocation.processingEnv.requireTypeElement("GenericClass")
             val genericClassFoo = invocation.processingEnv.requireTypeElement("GenericClassFoo")
             val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
@@ -359,9 +362,10 @@ class XExecutableTypeTest {
 
     @Test
     fun isSamePropertyMethodTypeTest() {
-        val src = Source.kotlin(
-            "MyInterface.kt",
-            """
+        val src =
+            Source.kotlin(
+                "MyInterface.kt",
+                """
             class MyClass {
                 var fooField: Foo = TODO()
                 var fooFieldWithDifferentName: Foo = TODO()
@@ -373,11 +377,10 @@ class XExecutableTypeTest {
             }
             class Foo
             class Bar
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(src)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val myClass = invocation.processingEnv.requireTypeElement("MyClass")
             val fooFieldGetter = myClass.getMethodByJvmName("getFooField")
             val fooFieldSetter = myClass.getMethodByJvmName("setFooField")
@@ -423,9 +426,10 @@ class XExecutableTypeTest {
 
     @Test
     fun kotlinPropertyInheritance() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             interface MyInterface<T> {
                 val immutableT: T
                 var mutableT: T?
@@ -434,8 +438,9 @@ class XExecutableTypeTest {
             }
             abstract class Subject : MyInterface<String>
             abstract class NullableSubject: MyInterface<String?>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
 
@@ -484,23 +489,14 @@ class XExecutableTypeTest {
                 assertThat(method.typeVariables).isEmpty()
             }
             checkMethods("getList", subject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        List::class.java,
-                        String::class.java
-                    )
-                )
-                assertThat(method.returnType.nullability).isEqualTo(
-                    XNullability.NONNULL
-                )
+                assertThat(method.returnType.typeName)
+                    .isEqualTo(ParameterizedTypeName.get(List::class.java, String::class.java))
+                assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(method.returnType.typeArguments.first().extendsBound()).isNull()
                 if (invocation.isKsp) {
                     // kapt cannot read type parameter nullability yet
-                    assertThat(
-                        method.returnType.typeArguments.first().nullability
-                    ).isEqualTo(
-                        XNullability.NONNULL
-                    )
+                    assertThat(method.returnType.typeArguments.first().nullability)
+                        .isEqualTo(XNullability.NONNULL)
                 }
             }
 
@@ -538,39 +534,21 @@ class XExecutableTypeTest {
             }
 
             checkMethods("getList", nullableSubject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        List::class.java,
-                        String::class.java
-                    )
-                )
-                assertThat(method.returnType.nullability).isEqualTo(
-                    XNullability.NONNULL
-                )
+                assertThat(method.returnType.typeName)
+                    .isEqualTo(ParameterizedTypeName.get(List::class.java, String::class.java))
+                assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 if (invocation.isKsp) {
-                    assertThat(
-                        method.returnType.typeArguments.first().nullability
-                    ).isEqualTo(
-                        XNullability.NULLABLE
-                    )
+                    assertThat(method.returnType.typeArguments.first().nullability)
+                        .isEqualTo(XNullability.NULLABLE)
                 }
             }
             checkMethods("getNullableList", subject, nullableSubject) { method ->
-                assertThat(method.returnType.typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        List::class.java,
-                        String::class.java
-                    )
-                )
-                assertThat(method.returnType.nullability).isEqualTo(
-                    XNullability.NONNULL
-                )
+                assertThat(method.returnType.typeName)
+                    .isEqualTo(ParameterizedTypeName.get(List::class.java, String::class.java))
+                assertThat(method.returnType.nullability).isEqualTo(XNullability.NONNULL)
                 if (invocation.isKsp) {
-                    assertThat(
-                        method.returnType.typeArguments.first().nullability
-                    ).isEqualTo(
-                        XNullability.NULLABLE
-                    )
+                    assertThat(method.returnType.typeArguments.first().nullability)
+                        .isEqualTo(XNullability.NULLABLE)
                 }
             }
         }
@@ -578,9 +556,10 @@ class XExecutableTypeTest {
 
     @Test
     fun typeVariableTest() {
-        val kotlinSrc = Source.kotlin(
-            "KotlinSubject.kt",
-            """
+        val kotlinSrc =
+            Source.kotlin(
+                "KotlinSubject.kt",
+                """
             class KotlinSubject {
               fun <T> oneTypeVar(): Unit = TODO()
               fun <T : MutableList<*>?> oneBoundedTypeVar(): Unit = TODO()
@@ -589,11 +568,13 @@ class XExecutableTypeTest {
               fun <T : Any> oneBoundedTypeVarNotNullAny(): Unit = TODO()
               fun <A, B> twoTypeVar(param: B): A = TODO()
             }
-            """.trimIndent()
-        )
-        val javaSrc = Source.java(
-            "JavaSubject",
             """
+                    .trimIndent()
+            )
+        val javaSrc =
+            Source.java(
+                "JavaSubject",
+                """
             import java.util.List;
             import org.jetbrains.annotations.NotNull;
             class JavaSubject {
@@ -604,8 +585,9 @@ class XExecutableTypeTest {
               <T extends @NotNull Object> void oneBoundedTypeVarNotNullAny() {}
               <A, B> A twoTypeVar(B param) { return null; }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         fun handler(invocation: XTestInvocation) {
             val isKsp2 = invocation.isKsp && (invocation.processingEnv as KspProcessingEnv).isKsp2
@@ -613,8 +595,7 @@ class XExecutableTypeTest {
                 val subject = invocation.processingEnv.requireTypeElement(subjectFqn)
                 subject.getMethodByJvmName("oneTypeVar").let {
                     val typeVar = it.executableType.typeVariables.single()
-                    assertThat(typeVar.asTypeName())
-                        .isEqualTo(XTypeName.getTypeVariableName("T"))
+                    assertThat(typeVar.asTypeName()).isEqualTo(XTypeName.getTypeVariableName("T"))
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
                         .containsExactly(XTypeName.ANY_OBJECT.copy(nullable = true))
                         .inOrder()
@@ -627,11 +608,12 @@ class XExecutableTypeTest {
                         .isEqualTo(
                             XTypeName.getTypeVariableName(
                                 name = "T",
-                                bounds = listOf(
-                                    List::class.asMutableClassName()
-                                        .parametrizedBy(XTypeName.ANY_WILDCARD)
-                                        .copy(nullable = true)
-                                )
+                                bounds =
+                                    listOf(
+                                        List::class.asMutableClassName()
+                                            .parametrizedBy(XTypeName.ANY_WILDCARD)
+                                            .copy(nullable = true)
+                                    )
                             )
                         )
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
@@ -640,7 +622,8 @@ class XExecutableTypeTest {
                             List::class.asMutableClassName()
                                 .parametrizedBy(XTypeName.ANY_WILDCARD)
                                 .copy(nullable = true)
-                        ).inOrder()
+                        )
+                        .inOrder()
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()
                 }
@@ -650,11 +633,12 @@ class XExecutableTypeTest {
                         .isEqualTo(
                             XTypeName.getTypeVariableName(
                                 name = "T",
-                                bounds = listOf(
-                                    List::class.asMutableClassName()
-                                        .parametrizedBy(XTypeName.ANY_WILDCARD)
-                                        .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
-                                )
+                                bounds =
+                                    listOf(
+                                        List::class.asMutableClassName()
+                                            .parametrizedBy(XTypeName.ANY_WILDCARD)
+                                            .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
+                                    )
                             )
                         )
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
@@ -663,7 +647,8 @@ class XExecutableTypeTest {
                             List::class.asMutableClassName()
                                 .parametrizedBy(XTypeName.ANY_WILDCARD)
                                 .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
-                        ).inOrder()
+                        )
+                        .inOrder()
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()
                 }
@@ -673,17 +658,21 @@ class XExecutableTypeTest {
                         .isEqualTo(
                             XTypeName.getTypeVariableName(
                                 name = "T",
-                                bounds = listOf(
-                                    XTypeName.ANY_OBJECT
-                                        .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
-                                )
+                                bounds =
+                                    listOf(
+                                        XTypeName.ANY_OBJECT.copy(
+                                            nullable = isKsp2 && subjectFqn == "JavaSubject"
+                                        )
+                                    )
                             )
                         )
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
                         .containsExactly(
-                            XTypeName.ANY_OBJECT
-                                .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
-                        ).inOrder()
+                            XTypeName.ANY_OBJECT.copy(
+                                nullable = isKsp2 && subjectFqn == "JavaSubject"
+                            )
+                        )
+                        .inOrder()
                     assertThat(typeVar.superTypes.single().nullability).equals(XNullability.NONNULL)
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()

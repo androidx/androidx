@@ -38,16 +38,16 @@ import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMetho
 /**
  * Returns the method descriptor of this KSP field element.
  *
- * For reference, see the [JVM
- * specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2).
+ * For reference, see the
+ * [JVM specification, section 4.3.2](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2).
  */
 internal fun KspFieldElement.jvmDescriptor() = name + ":" + type.jvmDescriptor()
 
 /**
  * Returns the method descriptor of this KSP method element.
  *
- * For reference, see the [JVM
- * specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
+ * For reference, see the
+ * [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
  */
 internal fun KspExecutableElement.jvmDescriptor() =
     when (this) {
@@ -58,8 +58,8 @@ internal fun KspExecutableElement.jvmDescriptor() =
 /**
  * Returns the method descriptor of this KSP method element.
  *
- * For reference, see the [JVM
- * specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
+ * For reference, see the
+ * [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
  */
 internal fun KspSyntheticPropertyMethodElement.jvmDescriptor() =
     jvmName + executableType.jvmDescriptor()
@@ -67,18 +67,19 @@ internal fun KspSyntheticPropertyMethodElement.jvmDescriptor() =
 /**
  * Returns the method descriptor of this constructor element.
  *
- * For reference, see the [JVM
- * specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
+ * For reference, see the
+ * [JVM specification, section 4.3.3](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.3).
  */
 internal fun KspConstructorElement.jvmDescriptor() = name + executableType.jvmDescriptor()
 
 private fun XExecutableType.jvmDescriptor(): String {
     val parameterTypeDescriptors = parameterTypes.joinToString("") { it.jvmDescriptor() }
-    val returnTypeDescriptor = when (this) {
-        is XMethodType -> returnType.jvmDescriptor()
-        is XConstructorType -> "V"
-        else -> error("Unexpected executable type: $javaClass")
-    }
+    val returnTypeDescriptor =
+        when (this) {
+            is XMethodType -> returnType.jvmDescriptor()
+            is XConstructorType -> "V"
+            else -> error("Unexpected executable type: $javaClass")
+        }
     return "($parameterTypeDescriptors)$returnTypeDescriptor"
 }
 

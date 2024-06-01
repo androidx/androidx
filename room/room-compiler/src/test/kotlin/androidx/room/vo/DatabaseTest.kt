@@ -32,49 +32,54 @@ class DatabaseTest {
 
     @Test
     fun indexLegacyHash() {
-        val database = Database(
-            element = mock(XTypeElement::class.java),
-            type = mock(XType::class.java),
-            entities = listOf(
-                Entity(
-                    mock(XTypeElement::class.java),
-                    tableName = "TheTable",
-                    type = mock(XType::class.java),
-                    fields = emptyList(),
-                    embeddedFields = emptyList(),
-                    primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
-                    indices = listOf(
-                        Index(
-                            name = "leIndex",
-                            unique = false,
-                            fields = Fields(),
-                            orders = emptyList()
-                        ),
-                        Index(
-                            name = "leIndex2",
-                            unique = true,
-                            fields = Fields(),
-                            orders = emptyList()
+        val database =
+            Database(
+                element = mock(XTypeElement::class.java),
+                type = mock(XType::class.java),
+                entities =
+                    listOf(
+                        Entity(
+                            mock(XTypeElement::class.java),
+                            tableName = "TheTable",
+                            type = mock(XType::class.java),
+                            fields = emptyList(),
+                            embeddedFields = emptyList(),
+                            primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
+                            indices =
+                                listOf(
+                                    Index(
+                                        name = "leIndex",
+                                        unique = false,
+                                        fields = Fields(),
+                                        orders = emptyList()
+                                    ),
+                                    Index(
+                                        name = "leIndex2",
+                                        unique = true,
+                                        fields = Fields(),
+                                        orders = emptyList()
+                                    )
+                                ),
+                            foreignKeys = emptyList(),
+                            constructor =
+                                Constructor(mock(XConstructorElement::class.java), emptyList()),
+                            shadowTableName = null
                         )
                     ),
-                    foreignKeys = emptyList(),
-                    constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
-                    shadowTableName = null
-                )
-            ),
-            views = emptyList(),
-            daoMethods = emptyList(),
-            version = 1,
-            exportSchema = false,
-            enableForeignKeys = false,
-            overrideClearAllTables = true
-        )
+                views = emptyList(),
+                daoMethods = emptyList(),
+                version = 1,
+                exportSchema = false,
+                enableForeignKeys = false,
+                overrideClearAllTables = true
+            )
 
-        val expectedLegacyHash = DigestUtils.md5Hex(
-            "CREATE TABLE IF NOT EXISTS `TheTable` ()¯\\_(ツ)_/¯" +
-                "CREATE  INDEX `leIndex` ON `TheTable` ()¯\\_(ツ)_/¯" +
-                "CREATE UNIQUE INDEX `leIndex2` ON `TheTable` ()"
-        )
+        val expectedLegacyHash =
+            DigestUtils.md5Hex(
+                "CREATE TABLE IF NOT EXISTS `TheTable` ()¯\\_(ツ)_/¯" +
+                    "CREATE  INDEX `leIndex` ON `TheTable` ()¯\\_(ツ)_/¯" +
+                    "CREATE UNIQUE INDEX `leIndex2` ON `TheTable` ()"
+            )
         assertEquals(expectedLegacyHash, database.legacyIdentityHash)
     }
 }

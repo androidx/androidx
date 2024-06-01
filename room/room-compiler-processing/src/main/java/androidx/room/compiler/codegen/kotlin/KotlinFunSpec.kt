@@ -25,25 +25,19 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 
-internal class KotlinFunSpec(
-    override val name: String,
-    internal val actual: FunSpec
-) : KotlinLang(), XFunSpec {
+internal class KotlinFunSpec(override val name: String, internal val actual: FunSpec) :
+    KotlinLang(), XFunSpec {
     override fun toString() = actual.toString()
 
-    internal class Builder(
-        override val name: String,
-        internal val actual: FunSpec.Builder
-    ) : KotlinLang(), XFunSpec.Builder {
+    internal class Builder(override val name: String, internal val actual: FunSpec.Builder) :
+        KotlinLang(), XFunSpec.Builder {
 
         override fun addAnnotation(annotation: XAnnotationSpec) = apply {
             require(annotation is KotlinAnnotationSpec)
             actual.addAnnotation(annotation.actual)
         }
 
-        override fun addAbstractModifier() = apply {
-            actual.addModifiers(KModifier.ABSTRACT)
-        }
+        override fun addAbstractModifier() = apply { actual.addModifiers(KModifier.ABSTRACT) }
 
         override fun addCode(code: XCodeBlock) = apply {
             require(code is KotlinCodeBlock)
@@ -56,9 +50,11 @@ internal class KotlinFunSpec(
             annotations: List<XAnnotationSpec>
         ) = apply {
             actual.addParameter(
-                ParameterSpec.builder(name, typeName.kotlin).apply {
-                    // TODO(b/247247439): Add other annotations
-                }.build()
+                ParameterSpec.builder(name, typeName.kotlin)
+                    .apply {
+                        // TODO(b/247247439): Add other annotations
+                    }
+                    .build()
             )
         }
 
@@ -71,17 +67,16 @@ internal class KotlinFunSpec(
             )
         }
 
-        override fun returns(typeName: XTypeName) = apply {
-            actual.returns(typeName.kotlin)
-        }
+        override fun returns(typeName: XTypeName) = apply { actual.returns(typeName.kotlin) }
 
         override fun build() = KotlinFunSpec(name, actual.build())
     }
 }
 
-internal fun VisibilityModifier.toKotlinVisibilityModifier() = when (this) {
-    VisibilityModifier.PUBLIC -> KModifier.PUBLIC
-    VisibilityModifier.PROTECTED -> KModifier.PROTECTED
-    VisibilityModifier.INTERNAL -> KModifier.INTERNAL
-    VisibilityModifier.PRIVATE -> KModifier.PRIVATE
-}
+internal fun VisibilityModifier.toKotlinVisibilityModifier() =
+    when (this) {
+        VisibilityModifier.PUBLIC -> KModifier.PUBLIC
+        VisibilityModifier.PROTECTED -> KModifier.PROTECTED
+        VisibilityModifier.INTERNAL -> KModifier.INTERNAL
+        VisibilityModifier.PRIVATE -> KModifier.PRIVATE
+    }

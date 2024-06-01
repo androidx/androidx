@@ -28,16 +28,15 @@ object LiveDataTestUtil {
     fun <T> awaitValue(liveData: LiveData<T>): T {
         val latch = CountDownLatch(1)
         var data: T? = null
-        val observer = object : Observer<T> {
-            override fun onChanged(value: T) {
-                data = value
-                liveData.removeObserver(this)
-                latch.countDown()
+        val observer =
+            object : Observer<T> {
+                override fun onChanged(value: T) {
+                    data = value
+                    liveData.removeObserver(this)
+                    latch.countDown()
+                }
             }
-        }
-        ArchTaskExecutor.getMainThreadExecutor().execute {
-            liveData.observeForever(observer)
-        }
+        ArchTaskExecutor.getMainThreadExecutor().execute { liveData.observeForever(observer) }
         latch.await(10, TimeUnit.SECONDS)
         return data!!
     }

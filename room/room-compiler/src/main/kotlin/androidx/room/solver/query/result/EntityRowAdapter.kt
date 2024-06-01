@@ -37,27 +37,31 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
 
     private var cursorDelegateVarName: String? = null
 
-    private val indexAdapter = object : IndexAdapter {
+    private val indexAdapter =
+        object : IndexAdapter {
 
-        private var indexVars: List<ColumnIndexVar>? = null
+            private var indexVars: List<ColumnIndexVar>? = null
 
-        override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
-            indexVars = entity.columnNames.map { columnName ->
-                ColumnIndexVar(
-                    column = columnName,
-                    indexVar = XCodeBlock.of(
-                        scope.language,
-                        "%M(%L, %S)",
-                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
-                        cursorVarName,
-                        columnName
-                    ).toString()
-                )
+            override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
+                indexVars =
+                    entity.columnNames.map { columnName ->
+                        ColumnIndexVar(
+                            column = columnName,
+                            indexVar =
+                                XCodeBlock.of(
+                                        scope.language,
+                                        "%M(%L, %S)",
+                                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
+                                        cursorVarName,
+                                        columnName
+                                    )
+                                    .toString()
+                        )
+                    }
             }
-        }
 
-        override fun getIndexVars() = indexVars ?: emptyList()
-    }
+            override fun getIndexVars() = indexVars ?: emptyList()
+        }
 
     override fun onCursorReady(
         cursorVarName: String,
@@ -70,31 +74,35 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
         // original cursor.
         if (indices.isNotEmpty() && indices != indexAdapter.getIndexVars()) {
             // Due to entity converter code being shared and using Cursor.getColumnIndex() we can't
-            // generate code that uses the mapping directly. Instead we create a wrapped Cursor that is
+            // generate code that uses the mapping directly. Instead we create a wrapped Cursor that
+            // is
             // solely used in the shared converter method and whose getColumnIndex() is overridden
             // to return the resolved column index.
             cursorDelegateVarName = scope.getTmpVar("_wrappedCursor")
-            val entityColumnNamesParam = ArrayLiteral(
-                scope.language,
-                CommonTypeNames.STRING,
-                *entity.columnNames.toTypedArray()
-            )
-            val entityColumnIndicesParam = ArrayLiteral(
-                scope.language,
-                XTypeName.PRIMITIVE_INT,
-                *indices.map { it.indexVar }.toTypedArray()
-            )
+            val entityColumnNamesParam =
+                ArrayLiteral(
+                    scope.language,
+                    CommonTypeNames.STRING,
+                    *entity.columnNames.toTypedArray()
+                )
+            val entityColumnIndicesParam =
+                ArrayLiteral(
+                    scope.language,
+                    XTypeName.PRIMITIVE_INT,
+                    *indices.map { it.indexVar }.toTypedArray()
+                )
             scope.builder.addLocalVariable(
                 checkNotNull(cursorDelegateVarName),
                 AndroidTypeNames.CURSOR,
-                assignExpr = XCodeBlock.of(
-                    scope.language,
-                    "%M(%L, %L, %L)",
-                    RoomMemberNames.CURSOR_UTIL_WRAP_MAPPED_COLUMNS,
-                    cursorVarName,
-                    entityColumnNamesParam,
-                    entityColumnIndicesParam
-                )
+                assignExpr =
+                    XCodeBlock.of(
+                        scope.language,
+                        "%M(%L, %L, %L)",
+                        RoomMemberNames.CURSOR_UTIL_WRAP_MAPPED_COLUMNS,
+                        cursorVarName,
+                        entityColumnNamesParam,
+                        entityColumnIndicesParam
+                    )
             )
         }
         functionSpec = scope.writer.getOrCreateFunction(EntityCursorConverterWriter(entity))
@@ -103,7 +111,9 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder.addStatement(
             "%L = %N(%L)",
-            outVarName, functionSpec, cursorDelegateVarName ?: cursorVarName
+            outVarName,
+            functionSpec,
+            cursorDelegateVarName ?: cursorVarName
         )
     }
 

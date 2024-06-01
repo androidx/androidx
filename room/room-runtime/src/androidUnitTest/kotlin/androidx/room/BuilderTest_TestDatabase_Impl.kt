@@ -25,6 +25,7 @@ import org.mockito.kotlin.mock
 internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
     lateinit var mConfig: DatabaseConfiguration
     var mAutoMigrations = listOf<Migration>(BuilderTest.EmptyMigration(1, 2))
+
     override fun init(configuration: DatabaseConfiguration) {
         super.init(configuration)
         mConfig = configuration

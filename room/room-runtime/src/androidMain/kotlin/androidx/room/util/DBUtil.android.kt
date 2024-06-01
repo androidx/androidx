@@ -41,25 +41,22 @@ import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-/**
- * Performs a database operation.
- */
+/** Performs a database operation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 actual suspend fun <R> performSuspending(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
     block: (SQLiteConnection) -> R
-): R = db.compatCoroutineExecute(inTransaction) {
-    db.internalPerform(isReadOnly, inTransaction) { connection ->
-        val rawConnection = (connection as RawConnectionAccessor).rawConnection
-        block.invoke(rawConnection)
+): R =
+    db.compatCoroutineExecute(inTransaction) {
+        db.internalPerform(isReadOnly, inTransaction) { connection ->
+            val rawConnection = (connection as RawConnectionAccessor).rawConnection
+            block.invoke(rawConnection)
+        }
     }
-}
 
-/**
- * Blocking version of [performSuspending]
- */
+/** Blocking version of [performSuspending] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun <R> performBlocking(
     db: RoomDatabase,
@@ -84,18 +81,16 @@ fun <R> performBlocking(
  * delegates in Java and Kotlin. It is preferred to use the other 'perform' functions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performInTransactionSuspending(
-    db: RoomDatabase,
-    block: suspend () -> R
-): R = if (db.inCompatibilityMode()) {
-    db.withTransactionContext {
-        db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+actual suspend fun <R> performInTransactionSuspending(db: RoomDatabase, block: suspend () -> R): R =
+    if (db.inCompatibilityMode()) {
+        db.withTransactionContext {
+            db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+        }
+    } else {
+        withContext(db.getCoroutineScope().coroutineContext) {
+            db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+        }
     }
-} else {
-    withContext(db.getCoroutineScope().coroutineContext) {
-        db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
-    }
-}
 
 /**
  * Compatibility suspend function execution with driver usage. This will maintain the dispatcher
@@ -133,19 +128,16 @@ internal actual suspend fun RoomDatabase.getCoroutineContext(
 /**
  * Performs the SQLiteQuery on the given database.
  *
- * This util method encapsulates copying the cursor if the `maybeCopy` parameter is
- * `true` and either the api level is below a certain threshold or the full result of the
- * query does not fit in a single window.
+ * This util method encapsulates copying the cursor if the `maybeCopy` parameter is `true` and
+ * either the api level is below a certain threshold or the full result of the query does not fit in
+ * a single window.
  *
- * @param db          The database to perform the query on.
+ * @param db The database to perform the query on.
  * @param sqLiteQuery The query to perform.
- * @param maybeCopy   True if the result cursor should maybe be copied, false otherwise.
+ * @param maybeCopy True if the result cursor should maybe be copied, false otherwise.
  * @return Result of the query.
- *
  */
-@Deprecated(
-    "This is only used in the generated code and shouldn't be called directly."
-)
+@Deprecated("This is only used in the generated code and shouldn't be called directly.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean): Cursor {
     return query(db, sqLiteQuery, maybeCopy, null)
@@ -154,14 +146,14 @@ fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean)
 /**
  * Performs the SQLiteQuery on the given database.
  *
- * This util method encapsulates copying the cursor if the `maybeCopy` parameter is
- * `true` and either the api level is below a certain threshold or the full result of the
- * query does not fit in a single window.
+ * This util method encapsulates copying the cursor if the `maybeCopy` parameter is `true` and
+ * either the api level is below a certain threshold or the full result of the query does not fit in
+ * a single window.
  *
- * @param db          The database to perform the query on.
+ * @param db The database to perform the query on.
  * @param sqLiteQuery The query to perform.
- * @param maybeCopy   True if the result cursor should maybe be copied, false otherwise.
- * @param signal      The cancellation signal to be attached to the query.
+ * @param maybeCopy True if the result cursor should maybe be copied, false otherwise.
+ * @param signal The cancellation signal to be attached to the query.
  * @return Result of the query.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -174,11 +166,12 @@ fun query(
     val cursor = db.query(sqLiteQuery, signal)
     if (maybeCopy && cursor is AbstractWindowedCursor) {
         val rowsInCursor = cursor.count // Should fill the window.
-        val rowsInWindow = if (cursor.hasWindow()) {
-            cursor.window.numRows
-        } else {
-            rowsInCursor
-        }
+        val rowsInWindow =
+            if (cursor.hasWindow()) {
+                cursor.window.numRows
+            } else {
+                rowsInCursor
+            }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || rowsInWindow < rowsInCursor) {
             return copyAndClose(cursor)
         }
@@ -200,18 +193,10 @@ fun dropFtsSyncTriggers(db: SupportSQLiteDatabase) {
     dropFtsSyncTriggers(SupportSQLiteConnection(db))
 }
 
-/**
- * Checks for foreign key violations by executing a PRAGMA foreign_key_check.
- */
+/** Checks for foreign key violations by executing a PRAGMA foreign_key_check. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun foreignKeyCheck(
-    db: SupportSQLiteDatabase,
-    tableName: String
-) {
-    foreignKeyCheck(
-        SupportSQLiteConnection(db),
-        tableName
-    )
+fun foreignKeyCheck(db: SupportSQLiteDatabase, tableName: String) {
+    foreignKeyCheck(SupportSQLiteConnection(db), tableName)
 }
 
 /**
@@ -220,10 +205,8 @@ fun foreignKeyCheck(
  * @param databaseFile the database file.
  * @return the database version
  * @throws IOException if something goes wrong reading the file, such as bad database header or
- * missing permissions.
- *
- * @see [User Version
- * Number](https://www.sqlite.org/fileformat.html.user_version_number).
+ *   missing permissions.
+ * @see [User Version Number](https://www.sqlite.org/fileformat.html.user_version_number).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Throws(IOException::class)

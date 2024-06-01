@@ -31,29 +31,26 @@ import androidx.room.vo.Pojo
 import androidx.room.vo.Warning
 import com.google.auto.value.AutoValue.CopyAnnotations
 
-/**
- * Delegate to process generated AutoValue class as a Pojo.
- */
+/** Delegate to process generated AutoValue class as a Pojo. */
 class AutoValuePojoProcessorDelegate(
     private val context: Context,
     private val autoValueElement: XTypeElement
 ) : PojoProcessor.Delegate {
 
-    private val autoValueDeclaredType: XType by lazy {
-        autoValueElement.type
-    }
+    private val autoValueDeclaredType: XType by lazy { autoValueElement.type }
 
     override fun onPreProcess(element: XTypeElement) {
         val allMethods = autoValueElement.getAllMethods()
-        val autoValueAbstractGetters = allMethods
-            .filter { it.isAbstract() && it.parameters.size == 0 }
+        val autoValueAbstractGetters =
+            allMethods.filter { it.isAbstract() && it.parameters.size == 0 }
 
         // Warn about missing @AutoValue.CopyAnnotations in the property getters.
         autoValueAbstractGetters.forEach {
             val hasRoomAnnotation = it.hasAnnotationWithPackage("androidx.room")
             if (hasRoomAnnotation && !it.hasAnnotation(CopyAnnotations::class)) {
                 context.logger.w(
-                    Warning.MISSING_COPY_ANNOTATIONS, it,
+                    Warning.MISSING_COPY_ANNOTATIONS,
+                    it,
                     ProcessorErrors.MISSING_COPY_ANNOTATIONS
                 )
             }
@@ -64,8 +61,8 @@ class AutoValuePojoProcessorDelegate(
         (allMethods - autoValueAbstractGetters)
             .filter { it.hasAnyAnnotation(*TARGET_METHOD_ANNOTATIONS) }
             .forEach { method ->
-                val annotationName = TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }
-                    .java.simpleName
+                val annotationName =
+                    TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }.java.simpleName
                 context.logger.e(
                     method,
                     ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName())

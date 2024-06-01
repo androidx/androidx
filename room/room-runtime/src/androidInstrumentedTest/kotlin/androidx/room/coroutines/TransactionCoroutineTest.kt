@@ -32,9 +32,11 @@ import org.junit.Test
 
 class TransactionCoroutineTest {
 
-    private val database = Room.inMemoryDatabaseBuilder<TestDatabase>(
-        InstrumentationRegistry.getInstrumentation().context
-    ).build()
+    private val database =
+        Room.inMemoryDatabaseBuilder<TestDatabase>(
+                InstrumentationRegistry.getInstrumentation().context
+            )
+            .build()
 
     @Test
     fun transactionDaoFunctionHasElement() = runTest {
@@ -55,8 +57,7 @@ class TransactionCoroutineTest {
         abstract fun getDao(): TestDao
     }
 
-    @Entity
-    data class TestEntity(@PrimaryKey val id: Long)
+    @Entity data class TestEntity(@PrimaryKey val id: Long)
 
     @Dao
     interface TestDao {

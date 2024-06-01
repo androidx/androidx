@@ -19,29 +19,25 @@ package androidx.room.compiler.processing
 import androidx.room.compiler.processing.ksp.KspFileMemberContainer
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
 
-/**
- * Field in an [XTypeElement].
- */
+/** Field in an [XTypeElement]. */
 interface XFieldElement : XVariableElement, XHasModifiers {
     /**
-     * The element that declared this field.
-     * For fields declared in classes, this will be an [XTypeElement].
+     * The element that declared this field. For fields declared in classes, this will be an
+     * [XTypeElement].
      *
      * For fields declared as top level properties in Kotlin:
-     *   * When running with KAPT, the value will be an [XTypeElement].
-     *   * When running with KSP, the value will **NOT** be an [XTypeElement]. It will
-     *   be an [KspSyntheticFileMemberContainer] if this property is coming from the classpath or
-     *   [KspFileMemberContainer] if this property is in source. If you need the generated
-     *   synthetic java class name, you can use [XMemberContainer.asClassName] property.
+     * * When running with KAPT, the value will be an [XTypeElement].
+     * * When running with KSP, the value will **NOT** be an [XTypeElement]. It will be an
+     *   [KspSyntheticFileMemberContainer] if this property is coming from the classpath or
+     *   [KspFileMemberContainer] if this property is in source. If you need the generated synthetic
+     *   java class name, you can use [XMemberContainer.asClassName] property.
      */
     override val enclosingElement: XMemberContainer
 
     override val fallbackLocationText: String
         get() = "$name in ${enclosingElement.fallbackLocationText}"
 
-    /**
-     * The descriptor of this field in JVM.
-     */
+    /** The descriptor of this field in JVM. */
     val jvmDescriptor: String
 
     /**

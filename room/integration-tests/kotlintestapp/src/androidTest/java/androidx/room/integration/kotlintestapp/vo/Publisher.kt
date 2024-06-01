@@ -19,5 +19,4 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
-data class Publisher(@PrimaryKey val publisherId: String, val name: String)
+@Entity data class Publisher(@PrimaryKey val publisherId: String, val name: String)

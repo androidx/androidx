@@ -27,13 +27,12 @@ import androidx.room.solver.CodeGenScope
  * A type converter that checks if the input is null and returns null instead of calling the
  * [delegate].
  */
-class NullSafeTypeConverter(
-    val delegate: TypeConverter
-) : TypeConverter(
-    from = delegate.from.makeNullable(),
-    to = delegate.to.makeNullable(),
-    cost = delegate.cost + Cost.NULL_SAFE
-) {
+class NullSafeTypeConverter(val delegate: TypeConverter) :
+    TypeConverter(
+        from = delegate.from.makeNullable(),
+        to = delegate.to.makeNullable(),
+        cost = delegate.cost + Cost.NULL_SAFE
+    ) {
     init {
         check(delegate.from.nullability == XNullability.NONNULL) {
             "NullableWrapper can ony be used if the input type is non-nullable"
@@ -45,24 +44,16 @@ class NullSafeTypeConverter(
             beginControlFlow("if (%L == null)", inputVarName).apply {
                 addStatement("%L = null", outputVarName)
             }
-            nextControlFlow("else").apply {
-                delegate.convert(inputVarName, outputVarName, scope)
-            }
+            nextControlFlow("else").apply { delegate.convert(inputVarName, outputVarName, scope) }
             endControlFlow()
         }
     }
 }
 
-/**
- * A [TypeConverter] that checks the value is `non-null` and throws if it is null.
- */
+/** A [TypeConverter] that checks the value is `non-null` and throws if it is null. */
 class RequireNotNullTypeConverter(
     from: XType,
-) : TypeConverter(
-    from = from,
-    to = from.makeNonNullable(),
-    cost = Cost.REQUIRE_NOT_NULL
-) {
+) : TypeConverter(from = from, to = from.makeNonNullable(), cost = Cost.REQUIRE_NOT_NULL) {
     init {
         check(from.nullability != XNullability.NONNULL) {
             "No reason to null check a non-null input"
@@ -71,21 +62,15 @@ class RequireNotNullTypeConverter(
 
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
-            beginControlFlow("if (%L == null)", inputVarName).apply {
-                addIllegalStateException()
-            }
-            nextControlFlow("else").apply {
-                addStatement("%L = %L", outputVarName, inputVarName)
-            }
+            beginControlFlow("if (%L == null)", inputVarName).apply { addIllegalStateException() }
+            nextControlFlow("else").apply { addStatement("%L = %L", outputVarName, inputVarName) }
             endControlFlow()
         }
     }
 
     override fun doConvert(inputVarName: String, scope: CodeGenScope): String {
         scope.builder.apply {
-            beginControlFlow("if (%L == null)", inputVarName).apply {
-                addIllegalStateException()
-            }
+            beginControlFlow("if (%L == null)", inputVarName).apply { addIllegalStateException() }
             endControlFlow()
         }
         return inputVarName
@@ -93,21 +78,17 @@ class RequireNotNullTypeConverter(
 
     private fun XCodeBlock.Builder.addIllegalStateException() {
         val typeName = from.asTypeName().copy(nullable = false).toString(language)
-        val exceptionClassName = when (language) {
-            CodeLanguage.JAVA -> ExceptionTypeNames.JAVA_ILLEGAL_STATE_EXCEPTION
-            CodeLanguage.KOTLIN -> ExceptionTypeNames.KOTLIN_ILLEGAL_STATE_EXCEPTION
-        }
+        val exceptionClassName =
+            when (language) {
+                CodeLanguage.JAVA -> ExceptionTypeNames.JAVA_ILLEGAL_STATE_EXCEPTION
+                CodeLanguage.KOTLIN -> ExceptionTypeNames.KOTLIN_ILLEGAL_STATE_EXCEPTION
+            }
         val message = "Expected NON-NULL '$typeName', but it was NULL."
         when (language) {
             CodeLanguage.JAVA -> {
                 addStatement(
                     "throw %L",
-                    XCodeBlock.ofNewInstance(
-                        language,
-                        exceptionClassName,
-                        "%S",
-                        message
-                    )
+                    XCodeBlock.ofNewInstance(language, exceptionClassName, "%S", message)
                 )
             }
             CodeLanguage.KOTLIN -> {

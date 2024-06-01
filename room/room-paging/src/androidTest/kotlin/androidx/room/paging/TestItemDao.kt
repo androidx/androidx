@@ -23,14 +23,11 @@ import androidx.room.Query
 
 @Dao
 interface TestItemDao {
-    @Insert
-    fun addAllItems(testItems: List<TestItem>)
+    @Insert fun addAllItems(testItems: List<TestItem>)
 
-    @Insert
-    fun addTestItem(testItem: TestItem): Long
+    @Insert fun addTestItem(testItem: TestItem): Long
 
-    @Delete
-    fun deleteTestItem(testItem: TestItem): Int
+    @Delete fun deleteTestItem(testItem: TestItem): Int
 
     @Query("DELETE FROM TestItem WHERE id >= :start AND id <= :end")
     fun deleteTestItems(start: Int, end: Int): Int

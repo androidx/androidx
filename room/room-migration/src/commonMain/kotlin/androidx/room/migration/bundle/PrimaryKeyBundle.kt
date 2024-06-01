@@ -20,16 +20,12 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information about a [androidx.room.PrimaryKey].
- */
+/** Data class that holds the schema information about a [androidx.room.PrimaryKey]. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PrimaryKeyBundle(
-    @SerialName("autoGenerate")
-    val isAutoGenerate: Boolean,
-    @SerialName("columnNames")
-    val columnNames: List<String>
+    @SerialName("autoGenerate") val isAutoGenerate: Boolean,
+    @SerialName("columnNames") val columnNames: List<String>
 ) : SchemaEquality<PrimaryKeyBundle> {
 
     override fun isSchemaEqual(other: PrimaryKeyBundle): Boolean {

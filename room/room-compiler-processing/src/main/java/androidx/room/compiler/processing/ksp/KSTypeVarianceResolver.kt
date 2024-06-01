@@ -51,9 +51,9 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
      */
     @OptIn(KspExperimental::class)
     fun applyTypeVariance(type: KSType, scope: KSTypeVarianceResolverScope?): KSType {
-        if (type.isError ||
-            resolver.isJavaRawType(type) ||
-            scope?.needsWildcardResolution == false) {
+        if (
+            type.isError || resolver.isJavaRawType(type) || scope?.needsWildcardResolution == false
+        ) {
             // There's nothing to resolve in this case, so just return the original type.
             return type
         }
@@ -79,20 +79,21 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
 
     private fun KSTypeWrapper.replaceTypeAliases(): KSTypeWrapper {
         return if (declaration is KSTypeAlias) {
-            // Note: KSP only gives us access to the type alias through the declaration. This means
-            // that any type arguments on the type alias won't be resolved.
-            // For example, if we have a type alias,  MyAlias<T> = Foo<Bar<T>>, and a property,
-            // MyAlias<Baz>, then calling KSTypeAlias#type on the property will give Foo<Bar<T>>
-            // rather than Foo<Bar<Baz>>.
-            val typeParamNameToTypeArgs = declaration.typeParameters.indices.associate { i ->
-                declaration.typeParameters[i].name.asString() to arguments[i]
+                // Note: KSP only gives us access to the type alias through the declaration. This
+                // means
+                // that any type arguments on the type alias won't be resolved.
+                // For example, if we have a type alias,  MyAlias<T> = Foo<Bar<T>>, and a property,
+                // MyAlias<Baz>, then calling KSTypeAlias#type on the property will give Foo<Bar<T>>
+                // rather than Foo<Bar<Baz>>.
+                val typeParamNameToTypeArgs =
+                    declaration.typeParameters.indices.associate { i ->
+                        declaration.typeParameters[i].name.asString() to arguments[i]
+                    }
+                replaceType(declaration.type.resolve()).replaceTypeArgs(typeParamNameToTypeArgs)
+            } else {
+                this
             }
-            replaceType(declaration.type.resolve()).replaceTypeArgs(typeParamNameToTypeArgs)
-        } else {
-            this
-        }.let {
-            it.replace(it.arguments.map { typeArg -> typeArg.replaceTypeAliases() })
-        }
+            .let { it.replace(it.arguments.map { typeArg -> typeArg.replaceTypeAliases() }) }
     }
 
     private fun KSTypeArgumentWrapper.replaceTypeAliases(): KSTypeArgumentWrapper {
@@ -124,24 +125,25 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         } else {
             val newKSType = newType.replaceSuspendFunctionTypes(resolver)
             val newType = KSTypeWrapper(resolver, newKSType)
-            replaceType(newKSType).replace(
-                buildList {
-                    addAll(newArguments.dropLast(1))
-                    val originalArg = newArguments.last()
-                    val continuationArg = newType.arguments[newType.arguments.lastIndex - 1]
-                    add(
-                        continuationArg.replace(
-                            continuationArg.type!!.replace(
-                                continuationArg.type!!.arguments.map {
-                                    it.replace(originalArg.type!!, originalArg.variance)
-                                }
-                            ),
-                            continuationArg.variance
+            replaceType(newKSType)
+                .replace(
+                    buildList {
+                        addAll(newArguments.dropLast(1))
+                        val originalArg = newArguments.last()
+                        val continuationArg = newType.arguments[newType.arguments.lastIndex - 1]
+                        add(
+                            continuationArg.replace(
+                                continuationArg.type!!.replace(
+                                    continuationArg.type!!.arguments.map {
+                                        it.replace(originalArg.type!!, originalArg.variance)
+                                    }
+                                ),
+                                continuationArg.variance
+                            )
                         )
-                    )
-                    add(newType.arguments.last())
-                }
-            )
+                        add(newType.arguments.last())
+                    }
+                )
         }
     }
 
@@ -150,23 +152,23 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         return replace(type.replaceSuspendFunctionTypes(), variance)
     }
 
-    private fun KSTypeWrapper.resolveWildcards(
-        scope: KSTypeVarianceResolverScope?
-    ) = if (scope == null) {
-        this
-    } else if (hasTypeVariables(scope.declarationType())) {
-        // If the associated declared type contains type variables that were resolved, e.g.
-        // using "asMemberOf", then it has special rules about how to resolve the types.
-        getJavaWildcardWithTypeVariables(
-            declarationType = KSTypeWrapper(resolver, scope.declarationType())
-                .replaceTypeAliases()
-                .replaceSuspendFunctionTypes()
-                .getJavaWildcard(scope),
-            scope = scope,
-        )
-    } else {
-        getJavaWildcard(scope)
-    }
+    private fun KSTypeWrapper.resolveWildcards(scope: KSTypeVarianceResolverScope?) =
+        if (scope == null) {
+            this
+        } else if (hasTypeVariables(scope.declarationType())) {
+            // If the associated declared type contains type variables that were resolved, e.g.
+            // using "asMemberOf", then it has special rules about how to resolve the types.
+            getJavaWildcardWithTypeVariables(
+                declarationType =
+                    KSTypeWrapper(resolver, scope.declarationType())
+                        .replaceTypeAliases()
+                        .replaceSuspendFunctionTypes()
+                        .getJavaWildcard(scope),
+                scope = scope,
+            )
+        } else {
+            getJavaWildcard(scope)
+        }
 
     private fun hasTypeVariables(type: KSType?, stack: List<KSType> = emptyList()): Boolean {
         if (type == null || type.isError || stack.contains(type)) {
@@ -188,25 +190,28 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
             // The variance of previous type arguments on the stack. If the type argument has no
             // explicit (aka use-site) variance, the type param (aka declaration site) variance is
             // used.
-            val varianceStack = typeArgStack.indices.map { i ->
-                if (typeArgStack[i].variance != Variance.INVARIANT) {
-                    typeArgStack[i].variance
-                } else {
-                    typeParamStack[i].variance
+            val varianceStack =
+                typeArgStack.indices.map { i ->
+                    if (typeArgStack[i].variance != Variance.INVARIANT) {
+                        typeArgStack[i].variance
+                    } else {
+                        typeParamStack[i].variance
+                    }
                 }
-            }
             // Before we check the current variance, we need to check the previous variance in the
             // stack to see if they allow us to inherit the current variance, and that logic differs
             // depending on the scope.
             if (scope.isValOrReturnType()) {
                 // For val and return type scopes, we don't use the declaration-site variance if
                 // none of variances in the stack are contravariant.
-                if (varianceStack.indices.none { i ->
+                if (
+                    varianceStack.indices.none { i ->
                         (varianceStack[i] == Variance.CONTRAVARIANT) &&
                             // The declaration and use site variance is ignored when using
                             // @JvmWildcard explicitly on a type.
                             !typeArgStack[i].hasJvmWildcardAnnotation()
-                    }) {
+                    }
+                ) {
                     return false
                 }
             } else {
@@ -214,12 +219,12 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
                 // variance if all of the following conditions apply.
                 if ( // If the last variance in the stack is not contravariant
                     varianceStack.isNotEmpty() &&
-                    varianceStack.last() != Variance.CONTRAVARIANT &&
-                    // And the stack contains at least one invariant parameter.
-                    varianceStack.any { it == Variance.INVARIANT } &&
-                    // And the first invariant comes before the last contravariant (if any).
-                    varianceStack.indexOfFirst { it == Variance.INVARIANT } >=
-                    varianceStack.indexOfLast { it == Variance.CONTRAVARIANT }
+                        varianceStack.last() != Variance.CONTRAVARIANT &&
+                        // And the stack contains at least one invariant parameter.
+                        varianceStack.any { it == Variance.INVARIANT } &&
+                        // And the first invariant comes before the last contravariant (if any).
+                        varianceStack.indexOfFirst { it == Variance.INVARIANT } >=
+                            varianceStack.indexOfLast { it == Variance.CONTRAVARIANT }
                 ) {
                     return false
                 }
@@ -231,86 +236,103 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
                 Variance.CONTRAVARIANT -> true
                 // If the current declaration-site variance is covariant then inherit it unless
                 // it's a final class (excluding enum/sealed classes).
-                Variance.COVARIANT -> when (val declaration = type.declaration) {
-                    is KSClassDeclaration -> declaration.isOpen() ||
-                        declaration.classKind == ClassKind.ENUM_CLASS ||
-                        declaration.modifiers.contains(Modifier.SEALED) ||
-                        // For non-open/enum/sealed classes we may still decided to use the
-                        // declaration-site variance based on if any of the type arguments in the
-                        // resolved type has variance and the use-site variance is not equal to
-                        // covariant/contravariant.
-                        resolvedType.arguments.indices.any { i ->
-                            resolvedType.arguments[i].variance != Variance.INVARIANT &&
-                                type.arguments[i].variance != Variance.COVARIANT &&
-                                type.arguments[i].variance != Variance.CONTRAVARIANT
-                        }
-                    else -> true
-                }
-                Variance.STAR -> error {
-                    "Declaration site variance was not expected to contain STAR: $typeParam."
-                }
+                Variance.COVARIANT ->
+                    when (val declaration = type.declaration) {
+                        is KSClassDeclaration ->
+                            declaration.isOpen() ||
+                                declaration.classKind == ClassKind.ENUM_CLASS ||
+                                declaration.modifiers.contains(Modifier.SEALED) ||
+                                // For non-open/enum/sealed classes we may still decided to use the
+                                // declaration-site variance based on if any of the type arguments
+                                // in the
+                                // resolved type has variance and the use-site variance is not equal
+                                // to
+                                // covariant/contravariant.
+                                resolvedType.arguments.indices.any { i ->
+                                    resolvedType.arguments[i].variance != Variance.INVARIANT &&
+                                        type.arguments[i].variance != Variance.COVARIANT &&
+                                        type.arguments[i].variance != Variance.CONTRAVARIANT
+                                }
+                        else -> true
+                    }
+                Variance.STAR ->
+                    error {
+                        "Declaration site variance was not expected to contain STAR: $typeParam."
+                    }
             }
         }
-        val resolvedVariance = if (inheritDeclarationSiteVariance()) {
-            typeParam.variance
-        } else if (typeParam.variance == variance) {
-            // If we're not applying the declaration-site variance, and the use-site variance is the
-            // same as the declaration-site variance then we don't include the use-site variance in
-            // the jvm type either.
-            Variance.INVARIANT
-        } else {
-            variance
-        }
+        val resolvedVariance =
+            if (inheritDeclarationSiteVariance()) {
+                typeParam.variance
+            } else if (typeParam.variance == variance) {
+                // If we're not applying the declaration-site variance, and the use-site variance is
+                // the
+                // same as the declaration-site variance then we don't include the use-site variance
+                // in
+                // the jvm type either.
+                Variance.INVARIANT
+            } else {
+                variance
+            }
         return replace(resolvedType, resolvedVariance)
     }
 
     private fun KSTypeWrapper.getJavaWildcardWithTypeVariables(
         scope: KSTypeVarianceResolverScope,
         declarationType: KSTypeWrapper?,
-    ) = if (declarationType?.isTypeParameter() == false) {
-        replace(
-            declarationType.arguments.indices.map { i ->
-                arguments[i].getJavaWildcardWithTypeVariablesForOuterType(
-                    declarationTypeArg = declarationType.arguments[i],
-                    scope = scope,
-                )
-            }
-        )
-    } else {
-        getJavaWildcardWithTypeVariablesForInnerType(scope)
-    }
+    ) =
+        if (declarationType?.isTypeParameter() == false) {
+            replace(
+                declarationType.arguments.indices.map { i ->
+                    arguments[i].getJavaWildcardWithTypeVariablesForOuterType(
+                        declarationTypeArg = declarationType.arguments[i],
+                        scope = scope,
+                    )
+                }
+            )
+        } else {
+            getJavaWildcardWithTypeVariablesForInnerType(scope)
+        }
 
     private fun KSTypeWrapper.getJavaWildcardWithTypeVariablesForInnerType(
         scope: KSTypeVarianceResolverScope,
         typeParamStack: List<KSTypeParameter> = emptyList(),
-    ) = replace(
-        arguments.map { it.getJavaWildcardWithTypeVariablesForInnerType(scope, typeParamStack) }
-    )
+    ) =
+        replace(
+            arguments.map { it.getJavaWildcardWithTypeVariablesForInnerType(scope, typeParamStack) }
+        )
 
     private fun KSTypeArgumentWrapper.getJavaWildcardWithTypeVariablesForInnerType(
         scope: KSTypeVarianceResolverScope,
         typeParamStack: List<KSTypeParameter>,
     ): KSTypeArgumentWrapper {
         val type = type ?: return this
-        val resolvedType = type.getJavaWildcardWithTypeVariablesForInnerType(
-            scope = scope,
-            typeParamStack = typeParamStack + typeParam
-        )
-        val resolvedVariance = if (
-            typeParam.variance != Variance.INVARIANT &&
-            // This is a weird rule, but empirically whether or not we inherit type variance in
-            // this case depends on the scope of the type used when calling asMemberOf. For
-            // example, if XMethodElement#asMemberOf(XType) is called with an XType that has no
-            // scope or has a matching method scope then we inherit the parameter variance; however,
-            // if asMemberOf was called with an XType that was from a different scope we only
-            // inherit variance here if there is at least one contravariant in the param stack.
-            (scope.asMemberOfScopeOrSelf() == scope ||
-                typeParamStack.any { it.variance == Variance.CONTRAVARIANT })
-        ) {
-            typeParam.variance
-        } else {
-            variance
-        }
+        val resolvedType =
+            type.getJavaWildcardWithTypeVariablesForInnerType(
+                scope = scope,
+                typeParamStack = typeParamStack + typeParam
+            )
+        val resolvedVariance =
+            if (
+                typeParam.variance != Variance.INVARIANT &&
+                    // This is a weird rule, but empirically whether or not we inherit type variance
+                    // in
+                    // this case depends on the scope of the type used when calling asMemberOf. For
+                    // example, if XMethodElement#asMemberOf(XType) is called with an XType that has
+                    // no
+                    // scope or has a matching method scope then we inherit the parameter variance;
+                    // however,
+                    // if asMemberOf was called with an XType that was from a different scope we
+                    // only
+                    // inherit variance here if there is at least one contravariant in the param
+                    // stack.
+                    (scope.asMemberOfScopeOrSelf() == scope ||
+                        typeParamStack.any { it.variance == Variance.CONTRAVARIANT })
+            ) {
+                typeParam.variance
+            } else {
+                variance
+            }
         return replace(resolvedType, resolvedVariance)
     }
 
@@ -319,40 +341,43 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
         scope: KSTypeVarianceResolverScope,
     ): KSTypeArgumentWrapper {
         val type = type ?: return this
-        val resolvedType = type.getJavaWildcardWithTypeVariables(
-            declarationType = declarationTypeArg.type,
-            scope = scope,
-        )
-        val resolvedVariance = if (declarationTypeArg.variance != Variance.INVARIANT) {
-            declarationTypeArg.variance
-        } else {
-            variance
-        }
+        val resolvedType =
+            type.getJavaWildcardWithTypeVariables(
+                declarationType = declarationTypeArg.type,
+                scope = scope,
+            )
+        val resolvedVariance =
+            if (declarationTypeArg.variance != Variance.INVARIANT) {
+                declarationTypeArg.variance
+            } else {
+                variance
+            }
         return replace(resolvedType, resolvedVariance)
     }
 
-    private fun KSTypeWrapper.applyJvmWildcardAnnotations(
-        scope: KSTypeVarianceResolverScope?
-    ) = replace(arguments.map { it.applyJvmWildcardAnnotations(scope) })
+    private fun KSTypeWrapper.applyJvmWildcardAnnotations(scope: KSTypeVarianceResolverScope?) =
+        replace(arguments.map { it.applyJvmWildcardAnnotations(scope) })
 
     private fun KSTypeArgumentWrapper.applyJvmWildcardAnnotations(
         scope: KSTypeVarianceResolverScope?
     ): KSTypeArgumentWrapper {
         val type = type ?: return this
         val resolvedType = type.applyJvmWildcardAnnotations(scope)
-        val resolvedVariance = when {
-            typeParam.variance == Variance.INVARIANT && variance != Variance.INVARIANT -> variance
-            hasJvmWildcardAnnotation() -> typeParam.variance
-            scope?.hasSuppressWildcards == true ||
-                // We only need to check the first type in the stack for @JvmSuppressWildcards.
-                // Any other @JvmSuppressWildcards usages will be placed on the type arguments
-                // rather than the types, so no need to check the rest of the types.
-                typeStack.first().hasSuppressJvmWildcardAnnotation() ||
-                this.hasSuppressWildcardsAnnotationInHierarchy() ||
-                typeArgStack.any { it.hasSuppressJvmWildcardAnnotation() } ||
-                typeParam.hasSuppressWildcardsAnnotationInHierarchy() -> Variance.INVARIANT
-            else -> variance
-        }
+        val resolvedVariance =
+            when {
+                typeParam.variance == Variance.INVARIANT && variance != Variance.INVARIANT ->
+                    variance
+                hasJvmWildcardAnnotation() -> typeParam.variance
+                scope?.hasSuppressWildcards == true ||
+                    // We only need to check the first type in the stack for @JvmSuppressWildcards.
+                    // Any other @JvmSuppressWildcards usages will be placed on the type arguments
+                    // rather than the types, so no need to check the rest of the types.
+                    typeStack.first().hasSuppressJvmWildcardAnnotation() ||
+                    this.hasSuppressWildcardsAnnotationInHierarchy() ||
+                    typeArgStack.any { it.hasSuppressJvmWildcardAnnotation() } ||
+                    typeParam.hasSuppressWildcardsAnnotationInHierarchy() -> Variance.INVARIANT
+                else -> variance
+            }
         return replace(resolvedType, resolvedVariance)
     }
 }
@@ -364,7 +389,8 @@ internal class KSTypeVarianceResolver(private val resolver: Resolver) {
  * [KSType#replace(KSTypeArgument)] directly when using [KSTypeArgumentWrapper] or we'll get an
  * [IllegalStateException] since KSP tries to cast to its own implementation of [KSTypeArgument].
  */
-private class KSTypeWrapper constructor(
+private class KSTypeWrapper
+constructor(
     val resolver: Resolver,
     val originalType: KSType,
     val newType: KSType = originalType,
@@ -380,13 +406,15 @@ private class KSTypeWrapper constructor(
         if (resolver.isJavaRawType(newType)) {
             return@lazy emptyList()
         }
-        val arguments = newTypeArguments ?: newType.arguments.indices.map { i ->
-            KSTypeArgumentWrapper(
-                originalTypeArg = newType.arguments[i],
-                typeParam = newType.declaration.typeParameters[i],
-                resolver = resolver,
-            )
-        }
+        val arguments =
+            newTypeArguments
+                ?: newType.arguments.indices.map { i ->
+                    KSTypeArgumentWrapper(
+                        originalTypeArg = newType.arguments[i],
+                        typeParam = newType.declaration.typeParameters[i],
+                        resolver = resolver,
+                    )
+                }
         arguments.map { newTypeArg ->
             newTypeArg.copy(
                 typeStack = typeStack + this,
@@ -408,15 +436,16 @@ private class KSTypeWrapper constructor(
         typeStack: List<KSTypeWrapper> = this.typeStack,
         typeArgStack: List<KSTypeArgumentWrapper> = this.typeArgStack,
         typeParamStack: List<KSTypeParameter> = this.typeParamStack,
-    ) = KSTypeWrapper(
-        resolver = resolver,
-        originalType = originalType,
-        newType = newType,
-        newTypeArguments = newTypeArguments,
-        typeStack = typeStack,
-        typeArgStack = typeArgStack,
-        typeParamStack = typeParamStack,
-    )
+    ) =
+        KSTypeWrapper(
+            resolver = resolver,
+            originalType = originalType,
+            newType = newType,
+            newTypeArguments = newTypeArguments,
+            typeStack = typeStack,
+            typeArgStack = typeArgStack,
+            typeParamStack = typeParamStack,
+        )
 
     fun hasSuppressJvmWildcardAnnotation() = originalType.hasSuppressJvmWildcardAnnotation()
 
@@ -444,7 +473,8 @@ private class KSTypeWrapper constructor(
  * we'll lose information about annotations (e.g. `@JvmSuppressWildcards`) that were on the original
  * type argument.
  */
-private class KSTypeArgumentWrapper constructor(
+private class KSTypeArgumentWrapper
+constructor(
     val originalTypeArg: KSTypeArgument,
     val newType: KSTypeWrapper? = null,
     val resolver: Resolver,
@@ -467,10 +497,11 @@ private class KSTypeArgumentWrapper constructor(
         )
     }
 
-    fun replace(newType: KSTypeWrapper, newVariance: Variance) = copy(
-        newType = newType,
-        variance = newVariance,
-    )
+    fun replace(newType: KSTypeWrapper, newVariance: Variance) =
+        copy(
+            newType = newType,
+            variance = newVariance,
+        )
 
     fun copy(
         originalTypeArg: KSTypeArgument = this.originalTypeArg,
@@ -480,16 +511,17 @@ private class KSTypeArgumentWrapper constructor(
         typeStack: List<KSTypeWrapper> = this.typeStack,
         typeArgStack: List<KSTypeArgumentWrapper> = this.typeArgStack,
         typeParamStack: List<KSTypeParameter> = this.typeParamStack,
-    ) = KSTypeArgumentWrapper(
-        resolver = resolver,
-        originalTypeArg = originalTypeArg,
-        newType = newType,
-        variance = variance,
-        typeParam = typeParam,
-        typeStack = typeStack,
-        typeArgStack = typeArgStack,
-        typeParamStack = typeParamStack,
-    )
+    ) =
+        KSTypeArgumentWrapper(
+            resolver = resolver,
+            originalTypeArg = originalTypeArg,
+            newType = newType,
+            variance = variance,
+            typeParam = typeParam,
+            typeStack = typeStack,
+            typeArgStack = typeArgStack,
+            typeParamStack = typeParamStack,
+        )
 
     fun hasJvmWildcardAnnotation() = originalTypeArg.hasJvmWildcardAnnotation()
 

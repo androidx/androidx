@@ -19,12 +19,10 @@ package androidx.room.solver.types
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 
-/**
- * Binds a value into a statement
- * see: CursorValueReader
- */
+/** Binds a value into a statement see: CursorValueReader */
 interface StatementValueBinder {
     fun typeMirror(): XType
+
     fun bindToStmt(
         stmtName: String,
         indexVarName: String,

@@ -23,9 +23,7 @@ import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Origin
 
-/**
- * Provides KSType resolution scope for a type.
- */
+/** Provides KSType resolution scope for a type. */
 internal sealed class KSTypeVarianceResolverScope(
     val annotated: KSAnnotated,
     private val container: KSDeclaration?,
@@ -40,13 +38,14 @@ internal sealed class KSTypeVarianceResolverScope(
     }
 
     val hasSuppressWildcards: Boolean by lazy {
-        val nodeForSuppressionCheck = when (this) {
-            // For property setter and getter methods skip to the enclosing class to check for
-            // suppression annotations to match KAPT.
-            is PropertySetterParameterType,
-            is PropertyGetterMethodReturnType -> annotated.parent?.parent as? KSAnnotated
-            else -> annotated
-        }
+        val nodeForSuppressionCheck =
+            when (this) {
+                // For property setter and getter methods skip to the enclosing class to check for
+                // suppression annotations to match KAPT.
+                is PropertySetterParameterType,
+                is PropertyGetterMethodReturnType -> annotated.parent?.parent as? KSAnnotated
+                else -> annotated
+            }
         nodeForSuppressionCheck?.hasSuppressWildcardsAnnotationInHierarchy() == true
     }
 
@@ -90,11 +89,12 @@ internal sealed class KSTypeVarianceResolverScope(
     internal class PropertySetterParameterType(
         private val setterMethod: KspSyntheticPropertyMethodElement.Setter,
         asMemberOf: KspType?,
-    ) : KSTypeVarianceResolverScope(
-        annotated = setterMethod.accessor,
-        container = setterMethod.field.enclosingElement.declaration,
-        asMemberOf = asMemberOf,
-    ) {
+    ) :
+        KSTypeVarianceResolverScope(
+            annotated = setterMethod.accessor,
+            container = setterMethod.field.enclosingElement.declaration,
+            asMemberOf = asMemberOf,
+        ) {
         override fun declarationType(): KSType {
             // We return the declaration from the setter, not the field because the setter parameter
             // will have a different type in jvm (due to jvm wildcard resolution)
@@ -107,11 +107,12 @@ internal sealed class KSTypeVarianceResolverScope(
     internal class PropertyGetterMethodReturnType(
         private val getterMethod: KspSyntheticPropertyMethodElement.Getter,
         asMemberOf: KspType?,
-    ) : KSTypeVarianceResolverScope(
-        annotated = getterMethod.accessor,
-        container = getterMethod.field.enclosingElement.declaration,
-        asMemberOf = asMemberOf,
-    ) {
+    ) :
+        KSTypeVarianceResolverScope(
+            annotated = getterMethod.accessor,
+            container = getterMethod.field.enclosingElement.declaration,
+            asMemberOf = asMemberOf,
+        ) {
         override fun declarationType(): KSType {
             // We return the declaration from the getter, not the field because the getter return
             // type will have a different type in jvm (due to jvm wildcard resolution)
@@ -124,11 +125,12 @@ internal sealed class KSTypeVarianceResolverScope(
     internal class PropertyType(
         val field: KspFieldElement,
         asMemberOf: KspType?,
-    ) : KSTypeVarianceResolverScope(
-        annotated = field.declaration,
-        container = field.enclosingElement.declaration,
-        asMemberOf = asMemberOf,
-    ) {
+    ) :
+        KSTypeVarianceResolverScope(
+            annotated = field.declaration,
+            container = field.enclosingElement.declaration,
+            asMemberOf = asMemberOf,
+        ) {
         override fun declarationType() = field.type.ksType
 
         override fun isValOrReturnType() = field.isFinal()
@@ -137,11 +139,12 @@ internal sealed class KSTypeVarianceResolverScope(
     internal class MethodReturnType(
         val method: KspMethodElement,
         asMemberOf: KspType?,
-    ) : KSTypeVarianceResolverScope(
-        annotated = method.declaration,
-        container = method.enclosingElement.declaration,
-        asMemberOf = asMemberOf,
-    ) {
+    ) :
+        KSTypeVarianceResolverScope(
+            annotated = method.declaration,
+            container = method.enclosingElement.declaration,
+            asMemberOf = asMemberOf,
+        ) {
         override fun declarationType() = method.returnType.ksType
 
         override fun isValOrReturnType() = true

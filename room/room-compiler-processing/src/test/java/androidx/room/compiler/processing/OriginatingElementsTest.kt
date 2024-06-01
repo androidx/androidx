@@ -40,10 +40,11 @@ class OriginatingElementsTest {
     @Test
     fun xElementIsConvertedToOriginatingElement() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "foo.bar.Baz",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "foo.bar.Baz",
+                        """
                 package foo.bar;
                 public class Baz {
                     private void foo() {}
@@ -51,9 +52,10 @@ class OriginatingElementsTest {
                         return "";
                     }
                 }
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
 
@@ -64,9 +66,7 @@ class OriginatingElementsTest {
 
                 val originatingFile = (originatingElement as KSFileAsOriginatingElement).ksFile
                 assertThat(originatingFile)
-                    .isEqualTo(
-                        (element as KspTypeElement).declaration.containingFile
-                    )
+                    .isEqualTo((element as KspTypeElement).declaration.containingFile)
             } else {
                 assertThat(originatingElement).isInstanceOf<TypeElement>()
                 assertThat((originatingElement as TypeElement).qualifiedName.toString())
@@ -78,8 +78,10 @@ class OriginatingElementsTest {
     @Test
     fun classPathTypeIsConvertedToOriginatingElement() {
         runProcessorTest {
-            val element = it.processingEnv
-                .requireTypeElement("com.google.devtools.ksp.processing.SymbolProcessor")
+            val element =
+                it.processingEnv.requireTypeElement(
+                    "com.google.devtools.ksp.processing.SymbolProcessor"
+                )
 
             val originatingElement = element.originatingElementForPoet()
 
@@ -90,10 +92,7 @@ class OriginatingElementsTest {
                 val ksClassDeclaration =
                     (originatingElement as KSClassDeclarationAsOriginatingElement)
                         .ksClassDeclaration
-                assertThat(ksClassDeclaration)
-                    .isEqualTo(
-                        (element as KspTypeElement).declaration
-                    )
+                assertThat(ksClassDeclaration).isEqualTo((element as KspTypeElement).declaration)
             } else {
                 assertThat(originatingElement).isInstanceOf<TypeElement>()
                 assertThat((originatingElement as TypeElement).qualifiedName.toString())
@@ -104,17 +103,19 @@ class OriginatingElementsTest {
 
     @Test
     fun syntheticPropertyElementConvertedToOriginatingElement() {
-        val source = Source.kotlin(
-            "Foo.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo {
                 companion object {
                     @JvmStatic
                     var bar = 1
                 }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
             sources = listOf(source),
         ) { invocation ->
@@ -128,14 +129,15 @@ class OriginatingElementsTest {
                 val originatingElement = syntheticPropertyElement.originatingElementForPoet()
 
                 if (invocation.isKsp) {
-                    assertThat(originatingElement)
-                        .isInstanceOf<KSFileAsOriginatingElement>()
+                    assertThat(originatingElement).isInstanceOf<KSFileAsOriginatingElement>()
 
                     val originatingFile = (originatingElement as KSFileAsOriginatingElement).ksFile
                     assertThat(originatingFile)
                         .isEqualTo(
                             (syntheticPropertyElement as KspSyntheticPropertyMethodElement)
-                                .field.declaration.containingFile
+                                .field
+                                .declaration
+                                .containingFile
                         )
                 } else {
                     assertThat(originatingElement).isInstanceOf<ExecutableElement>()
@@ -166,7 +168,10 @@ class OriginatingElementsTest {
                         .isEqualTo(
                             // Parent is the Companion
                             (syntheticPropertyElement as KspSyntheticPropertyMethodElement)
-                                .field.declaration.parentDeclaration!!.parentDeclaration
+                                .field
+                                .declaration
+                                .parentDeclaration!!
+                                .parentDeclaration
                         )
                 } else {
                     assertThat(originatingElement).isInstanceOf<ExecutableElement>()
@@ -178,10 +183,11 @@ class OriginatingElementsTest {
     @Test
     fun originatingElementIsAddedToPoet() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "foo.bar.Baz",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "foo.bar.Baz",
+                        """
                 package foo.bar;
                 public class Baz {
                     private void foo() {}
@@ -189,19 +195,20 @@ class OriginatingElementsTest {
                         return "";
                     }
                 }
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
             val xTypeElement = it.processingEnv.requireTypeElement("foo.bar.Baz")
 
-            val javaPoetTypeSpec = TypeSpec.classBuilder("Foo")
-                .addOriginatingElement(xTypeElement)
-                .build()
+            val javaPoetTypeSpec =
+                TypeSpec.classBuilder("Foo").addOriginatingElement(xTypeElement).build()
 
-            val kotlinPoetTypeSpec = com.squareup.kotlinpoet.TypeSpec.classBuilder("Foo")
-                .addOriginatingElement(xTypeElement)
-                .build()
+            val kotlinPoetTypeSpec =
+                com.squareup.kotlinpoet.TypeSpec.classBuilder("Foo")
+                    .addOriginatingElement(xTypeElement)
+                    .build()
 
             assertThat(javaPoetTypeSpec.originatingElements).apply {
                 hasSize(1)
@@ -213,20 +220,21 @@ class OriginatingElementsTest {
 
     @Test
     fun fileAsOriginatingElement() {
-        val source = Source.kotlin(
-            "foo.bar.Baz.kt",
-            """
+        val source =
+            Source.kotlin(
+                "foo.bar.Baz.kt",
+                """
             package foo.bar
             fun f(): String = TODO()
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(source)) {
             it.processingEnv.getElementsFromPackage("foo.bar").forEach { element ->
                 val originatingElement = element.originatingElementForPoet()
 
                 if (it.isKsp) {
-                    assertThat(originatingElement)
-                        .isInstanceOf<KSFileAsOriginatingElement>()
+                    assertThat(originatingElement).isInstanceOf<KSFileAsOriginatingElement>()
 
                     val originatingFile = (originatingElement as KSFileAsOriginatingElement).ksFile
                     assertThat(originatingFile)
@@ -245,9 +253,12 @@ class OriginatingElementsTest {
                         element.originatingElementForPoet()
                         fail("Shouldn't reach here")
                     } catch (e: IllegalStateException) {
-                        assertThat(e.message).isEqualTo("Originating element is not" +
-                            " implemented for class androidx.room.compiler.processing.ksp" +
-                            ".synthetic.KspSyntheticFileMemberContainer")
+                        assertThat(e.message)
+                            .isEqualTo(
+                                "Originating element is not" +
+                                    " implemented for class androidx.room.compiler.processing.ksp" +
+                                    ".synthetic.KspSyntheticFileMemberContainer"
+                            )
                     }
                 } else {
                     val originatingElement = element.originatingElementForPoet()

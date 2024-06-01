@@ -29,8 +29,7 @@ import androidx.room.TypeConverters
 @TypeConverters(CategoryListConverter::class)
 @SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
 class EntityWithJavaPojoList {
-    @PrimaryKey
-    var id: Long = 0
+    @PrimaryKey var id: Long = 0
     var pojoList: List<JavaPojo>? = null
 }
 

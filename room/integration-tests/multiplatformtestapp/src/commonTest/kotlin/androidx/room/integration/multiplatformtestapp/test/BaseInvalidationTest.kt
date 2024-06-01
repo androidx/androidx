@@ -70,6 +70,7 @@ abstract class BaseInvalidationTest {
 
         var invalidatedTables: Set<String>? = null
             private set
+
         private var latch = Mutex(locked = true)
 
         override fun onInvalidated(tables: Set<String>) {
@@ -79,9 +80,7 @@ abstract class BaseInvalidationTest {
 
         suspend fun await(): Boolean {
             try {
-                withTimeout(200) {
-                    latch.withLock { }
-                }
+                withTimeout(200) { latch.withLock {} }
                 return true
             } catch (ex: TimeoutCancellationException) {
                 return false

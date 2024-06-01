@@ -71,9 +71,7 @@ fun <K : Any, V> recursiveFetchHashMap(
     }
 }
 
-/**
- * Same as [recursiveFetchHashMap] but for [LongSparseArray].
- */
+/** Same as [recursiveFetchHashMap] but for [LongSparseArray]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun <V> recursiveFetchLongSparseArray(
     map: LongSparseArray<V>,
@@ -89,8 +87,7 @@ fun <V> recursiveFetchLongSparseArray(
             tmpMap.put(map.keyAt(mapIndex), map.valueAt(mapIndex))
         } else {
             // Safe because `V` is a nullable type arg when isRelationCollection == false
-            @Suppress("UNCHECKED_CAST")
-            tmpMap.put(map.keyAt(mapIndex), null as V)
+            @Suppress("UNCHECKED_CAST") tmpMap.put(map.keyAt(mapIndex), null as V)
         }
         mapIndex++
         count++
@@ -111,9 +108,7 @@ fun <V> recursiveFetchLongSparseArray(
     }
 }
 
-/**
- * Same as [recursiveFetchHashMap] but for [ArrayMap].
- */
+/** Same as [recursiveFetchHashMap] but for [ArrayMap]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun <K : Any, V> recursiveFetchArrayMap(
     map: ArrayMap<K, V>,

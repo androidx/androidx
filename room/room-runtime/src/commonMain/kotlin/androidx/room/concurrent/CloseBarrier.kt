@@ -32,15 +32,14 @@ import kotlinx.atomicfu.loop
  *    // while also preventing the close() action from occurring.
  * }
  * ```
- * Ideally we would use a read-write mutex, but it does not exist yet,
- * see https://github.com/Kotlin/kotlinx.coroutines/issues/94.
+ *
+ * Ideally we would use a read-write mutex, but it does not exist yet, see
+ * https://github.com/Kotlin/kotlinx.coroutines/issues/94.
  *
  * @param [closeAction] The action to be performed exactly once and when there are no pending
- * blockers.
+ *   blockers.
  */
-internal class CloseBarrier(
-    private val closeAction: () -> Unit
-) : SynchronizedObject() {
+internal class CloseBarrier(private val closeAction: () -> Unit) : SynchronizedObject() {
     private val blockers = atomic(0)
     private val closeInitiated = atomic(false)
     private val isClosed by closeInitiated
@@ -51,17 +50,17 @@ internal class CloseBarrier(
      * A call to this function must be balanced with [unblock] after.
      *
      * @return `true` if the block is registered and the resource is protected from closing, or
-     * `false` if [close] has been called and the block is not registered.
-     *
+     *   `false` if [close] has been called and the block is not registered.
      * @see ifNotClosed
      */
-    internal fun block(): Boolean = synchronized(this) {
-        if (isClosed) {
-            return false
+    internal fun block(): Boolean =
+        synchronized(this) {
+            if (isClosed) {
+                return false
+            }
+            blockers.incrementAndGet()
+            return true
         }
-        blockers.incrementAndGet()
-        return true
-    }
 
     /**
      * Unblocks the [closeAction] from occurring.
@@ -70,10 +69,11 @@ internal class CloseBarrier(
      *
      * @see ifNotClosed
      */
-    internal fun unblock(): Unit = synchronized(this) {
-        blockers.decrementAndGet()
-        check(blockers.value >= 0) { "Unbalanced call to unblock() detected." }
-    }
+    internal fun unblock(): Unit =
+        synchronized(this) {
+            blockers.decrementAndGet()
+            check(blockers.value >= 0) { "Unbalanced call to unblock() detected." }
+        }
 
     /**
      * Executes the [closeAction] once there are no blockers.
@@ -98,9 +98,7 @@ internal class CloseBarrier(
     }
 }
 
-/**
- * Executes the [action] if [CloseBarrier.close] has not been called on this object.
- */
+/** Executes the [action] if [CloseBarrier.close] has not been called on this object. */
 internal inline fun CloseBarrier.ifNotClosed(action: () -> Unit) {
     if (!block()) return
     try {

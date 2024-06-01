@@ -17,15 +17,13 @@
 package androidx.room.compiler.processing
 
 /**
- * Helper interface to enforce implementing equality in wrappers so that we don't by mistake
- * create wrappers that do not properly handle equality.
+ * Helper interface to enforce implementing equality in wrappers so that we don't by mistake create
+ * wrappers that do not properly handle equality.
  *
  * Enforcement is done in JavacType and JavacElement
  */
 internal interface XEquality {
-    /**
-     * The list of items that should participate in equality checks.
-     */
+    /** The list of items that should participate in equality checks. */
     val equalityItems: Array<out Any?>
 
     companion object {

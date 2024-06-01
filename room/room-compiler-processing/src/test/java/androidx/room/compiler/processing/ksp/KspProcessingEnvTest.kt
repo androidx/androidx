@@ -31,31 +31,16 @@ class KspProcessingEnvTest {
         runKspTest(sources = emptyList()) { invocation ->
             val intType = invocation.kspResolver.builtIns.intType
             val kspProcessingEnv = invocation.processingEnv as KspProcessingEnv
-            kspProcessingEnv.wrap(
-                ksType = intType,
-                allowPrimitives = true
-            ).let {
-                assertThat(it.nullability).isEqualTo(
-                    XNullability.NONNULL
-                )
+            kspProcessingEnv.wrap(ksType = intType, allowPrimitives = true).let {
+                assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(it.typeName).isEqualTo(TypeName.INT)
             }
-            kspProcessingEnv.wrap(
-                ksType = intType,
-                allowPrimitives = false
-            ).let {
-                assertThat(it.nullability).isEqualTo(
-                    XNullability.NONNULL
-                )
+            kspProcessingEnv.wrap(ksType = intType, allowPrimitives = false).let {
+                assertThat(it.nullability).isEqualTo(XNullability.NONNULL)
                 assertThat(it.typeName).isEqualTo(TypeName.INT.box())
             }
-            kspProcessingEnv.wrap(
-                ksType = intType.makeNullable(),
-                allowPrimitives = true
-            ).let {
-                assertThat(it.nullability).isEqualTo(
-                    XNullability.NULLABLE
-                )
+            kspProcessingEnv.wrap(ksType = intType.makeNullable(), allowPrimitives = true).let {
+                assertThat(it.nullability).isEqualTo(XNullability.NULLABLE)
                 assertThat(it.typeName).isEqualTo(TypeName.INT.box())
             }
         }

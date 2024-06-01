@@ -22,14 +22,13 @@ package androidx.room
  * The value of the annotation is a SELECT query used when the view is created.
  *
  * The class will behave like normal POJO when it is used in a [Dao]. You can SELECT FROM a
- * [DatabaseView] similar to an [Entity], but you can not INSERT, DELETE or UPDATE
- * into a [DatabaseView].
+ * [DatabaseView] similar to an [Entity], but you can not INSERT, DELETE or UPDATE into a
+ * [DatabaseView].
  *
- * Similar to an [Entity], you can use [ColumnInfo] and [Embedded] inside to
- * customize the data class.
+ * Similar to an [Entity], you can use [ColumnInfo] and [Embedded] inside to customize the data
+ * class.
  *
  * Example:
- *
  * ```
  * @DatabaseView(
  *   "SELECT id, name, release_year FROM Song " +

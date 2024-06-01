@@ -24,6 +24,7 @@ interface HasFields {
 // and functions don't have a way to store calculated value.
 data class Fields(private val fields: List<Field> = emptyList()) : List<Field> by fields {
     constructor(field: Field) : this(listOf(field))
+
     internal val columnNames by lazy(LazyThreadSafetyMode.NONE) { map { it.columnName } }
 }
 

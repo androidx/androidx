@@ -48,8 +48,7 @@ public class AutoCloserTest {
 
     private lateinit var callback: Callback
 
-    private class Callback(var throwOnOpen: Boolean = false) :
-        SupportSQLiteOpenHelper.Callback(1) {
+    private class Callback(var throwOnOpen: Boolean = false) : SupportSQLiteOpenHelper.Callback(1) {
         override fun onCreate(db: SupportSQLiteDatabase) {}
 
         override fun onOpen(db: SupportSQLiteDatabase) {
@@ -65,25 +64,24 @@ public class AutoCloserTest {
     public fun setUp() {
         callback = Callback()
 
-        val delegateOpenHelper = FrameworkSQLiteOpenHelperFactory()
-            .create(
-                SupportSQLiteOpenHelper.Configuration
-                    .builder(ApplicationProvider.getApplicationContext())
-                    .callback(callback)
-                    .name("name")
-                    .build()
-            )
+        val delegateOpenHelper =
+            FrameworkSQLiteOpenHelperFactory()
+                .create(
+                    SupportSQLiteOpenHelper.Configuration.builder(
+                            ApplicationProvider.getApplicationContext()
+                        )
+                        .callback(callback)
+                        .name("name")
+                        .build()
+                )
 
         val autoCloseExecutor = ArchTaskExecutor.getIOThreadExecutor()
 
-        autoCloser = AutoCloser(
-            1,
-            TimeUnit.MILLISECONDS,
-            autoCloseExecutor
-        ).also {
-            it.init(delegateOpenHelper)
-            it.setAutoCloseCallback { }
-        }
+        autoCloser =
+            AutoCloser(1, TimeUnit.MILLISECONDS, autoCloseExecutor).also {
+                it.init(delegateOpenHelper)
+                it.setAutoCloseCallback {}
+            }
     }
 
     @After
@@ -123,9 +121,7 @@ public class AutoCloserTest {
     @Test
     public fun executeRefCountingFunctionPropagatesFailure() {
         assertThrows<IOException> {
-            autoCloser.executeRefCountingFunction<Nothing> {
-                throw IOException()
-            }
+            autoCloser.executeRefCountingFunction<Nothing> { throw IOException() }
         }
 
         assertThat(autoCloser.refCountForTest).isEqualTo(0)
@@ -185,9 +181,7 @@ public class AutoCloserTest {
     @Test
     public fun refCountStaysIncrementedWhenErrorIsEncountered() {
         callback.throwOnOpen = true
-        assertThrows<IOException> {
-            autoCloser.incrementCountAndEnsureDbIsOpen()
-        }
+        assertThrows<IOException> { autoCloser.incrementCountAndEnsureDbIsOpen() }
 
         assertThat(autoCloser.refCountForTest).isEqualTo(1)
 
@@ -211,12 +205,11 @@ public class AutoCloserTest {
         assertThat(db.isOpen).isFalse()
 
         assertThrows<IllegalStateException> { db.query("select * from users").close() }
-            .hasMessageThat().contains("closed")
+            .hasMessageThat()
+            .contains("closed")
 
         autoCloser.decrementCountAndScheduleClose() // Should succeed
 
-        assertThrows<IllegalStateException> {
-            autoCloser.incrementCountAndEnsureDbIsOpen()
-        }
+        assertThrows<IllegalStateException> { autoCloser.incrementCountAndEnsureDbIsOpen() }
     }
 }

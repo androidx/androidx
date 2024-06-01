@@ -18,9 +18,7 @@ package androidx.room.compiler.processing
 
 import javax.tools.Diagnostic
 
-/**
- * Logging interface for the processor
- */
+/** Logging interface for the processor */
 abstract class XMessager {
     private val watchers = mutableListOf<XMessager>()
 
@@ -96,9 +94,7 @@ abstract class XMessager {
         annotation: XAnnotation? = null,
         annotationValue: XAnnotationValue? = null
     ) {
-        watchers.forEach {
-            it.printMsg(kind, msg, element, annotation, annotationValue)
-        }
+        watchers.forEach { it.printMsg(kind, msg, element, annotation, annotationValue) }
         onPrintMessage(kind, msg, element, annotation, annotationValue)
     }
 

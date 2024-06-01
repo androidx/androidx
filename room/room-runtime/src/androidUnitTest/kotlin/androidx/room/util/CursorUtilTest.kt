@@ -21,51 +21,26 @@ import org.junit.Test
 class CursorUtilTest {
     @Test
     fun findColumnIndex_simple() {
-        assertThat(
-            findColumnIndexBySuffix(
-                arrayOf("a.b"),
-                "b"
-            )
-        ).isEqualTo(0)
+        assertThat(findColumnIndexBySuffix(arrayOf("a.b"), "b")).isEqualTo(0)
     }
 
     @Test
     fun findColumnIndex_emptyList() {
-        assertThat(
-            findColumnIndexBySuffix(
-                emptyArray(),
-                "b"
-            )
-        ).isEqualTo(-1)
+        assertThat(findColumnIndexBySuffix(emptyArray(), "b")).isEqualTo(-1)
     }
 
     @Test
     fun findColumnIndex_tooShort() {
-        assertThat(
-            findColumnIndexBySuffix(
-                arrayOf("b"),
-                "b"
-            )
-        ).isEqualTo(-1)
+        assertThat(findColumnIndexBySuffix(arrayOf("b"), "b")).isEqualTo(-1)
     }
 
     @Test
     fun findColumnIndex_backTick() {
-        assertThat(
-            findColumnIndexBySuffix(
-                arrayOf("`a.b`"),
-                "b"
-            )
-        ).isEqualTo(0)
+        assertThat(findColumnIndexBySuffix(arrayOf("`a.b`"), "b")).isEqualTo(0)
     }
 
     @Test
     fun findColumnIndex_backTick_missingFirstTick() {
-        assertThat(
-            findColumnIndexBySuffix(
-                arrayOf("a.b`"),
-                "b"
-            )
-        ).isEqualTo(-1)
+        assertThat(findColumnIndexBySuffix(arrayOf("a.b`"), "b")).isEqualTo(-1)
     }
 }

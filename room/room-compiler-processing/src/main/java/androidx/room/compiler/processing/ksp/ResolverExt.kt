@@ -25,23 +25,22 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Nullability
 
-internal fun Resolver.findClass(qName: String) = getClassDeclarationByName(
-    getKSNameFromString(qName)
-)
+internal fun Resolver.findClass(qName: String) =
+    getClassDeclarationByName(getKSNameFromString(qName))
 
-internal fun Resolver.requireClass(qName: String) = checkNotNull(findClass(qName)) {
-    "cannot find class $qName"
-}
+internal fun Resolver.requireClass(qName: String) =
+    checkNotNull(findClass(qName)) { "cannot find class $qName" }
 
 internal fun Resolver.requireType(qName: String) = requireClass(qName).asType(emptyList())
 
 internal fun Resolver.requireContinuationClass() = requireClass("kotlin.coroutines.Continuation")
 
-private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration = when (this) {
-    is KspExecutableElement -> this.declaration
-    is KspSyntheticPropertyMethodElement -> this.field.declaration
-    else -> throw IllegalStateException("unexpected XExecutableElement type. $this")
-}
+private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration =
+    when (this) {
+        is KspExecutableElement -> this.declaration
+        is KspSyntheticPropertyMethodElement -> this.field.declaration
+        else -> throw IllegalStateException("unexpected XExecutableElement type. $this")
+    }
 
 internal fun Resolver.overrides(
     overriderElement: XMethodElement,
@@ -75,26 +74,22 @@ internal fun Resolver.overrides(
 }
 
 /**
- * If the overrider specifies a primitive value for a type argument, ignore the override as
- * kotlin will generate two class methods for them.
+ * If the overrider specifies a primitive value for a type argument, ignore the override as kotlin
+ * will generate two class methods for them.
  *
  * see: b/160258066 for details
  */
-private fun KSFunctionDeclaration.overridesInJvm(
-    other: KSFunctionDeclaration
-): Boolean {
+private fun KSFunctionDeclaration.overridesInJvm(other: KSFunctionDeclaration): Boolean {
     parameters.forEachIndexed { index, myParam ->
         val myParamType = myParam.type.resolve()
         if (myParamType.nullability == Nullability.NOT_NULL) {
             val myParamDecl = myParamType.declaration
             val paramQName = myParamDecl.qualifiedName?.asString()
-            if (paramQName != null &&
-                KspTypeMapper.getPrimitiveJavaTypeName(paramQName) != null
-            ) {
+            if (paramQName != null && KspTypeMapper.getPrimitiveJavaTypeName(paramQName) != null) {
                 // parameter is a primitive. Check if the parent declared it as a type argument,
                 // in which case, we should ignore the override.
-                val otherParamDeclaration = other.parameters
-                    .getOrNull(index)?.type?.resolve()?.declaration
+                val otherParamDeclaration =
+                    other.parameters.getOrNull(index)?.type?.resolve()?.declaration
                 if (otherParamDeclaration is KSTypeParameter) {
                     return false
                 }

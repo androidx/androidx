@@ -40,37 +40,28 @@ import org.junit.runner.RunWith
 class EnumColumnTypeAdapterTest {
     private lateinit var db: EnumColumnTypeAdapterDatabase
 
-    @Entity
-    data class EntityWithEnum(
-        @PrimaryKey
-        val id: Long,
-        val fruit: Fruit
-    )
+    @Entity data class EntityWithEnum(@PrimaryKey val id: Long, val fruit: Fruit)
 
-    @Entity
-    data class EntityWithOneWayEnum(
-        @PrimaryKey
-        val id: Long,
-        val color: Color
-    )
+    @Entity data class EntityWithOneWayEnum(@PrimaryKey val id: Long, val color: Color)
 
-    @Entity
-    data class ComplexEntityWithEnum(
-        @PrimaryKey
-        val id: Long,
-        val season: Season
-    )
+    @Entity data class ComplexEntityWithEnum(@PrimaryKey val id: Long, val season: Season)
 
     enum class Color {
-        RED, GREEN
+        RED,
+        GREEN
     }
 
     enum class Fruit {
-        BANANA, STRAWBERRY, WILDBERRY
+        BANANA,
+        STRAWBERRY,
+        WILDBERRY
     }
 
     enum class Season(private val text: String) {
-        SUMMER("Sunny"), SPRING("Warm"), WINTER("Cold"), AUTUMN("Rainy");
+        SUMMER("Sunny"),
+        SPRING("Warm"),
+        WINTER("Cold"),
+        AUTUMN("Rainy")
     }
 
     @Dao
@@ -112,30 +103,25 @@ class EnumColumnTypeAdapterTest {
     }
 
     @Database(
-        entities = [
-            EntityWithEnum::class,
-            ComplexEntityWithEnum::class,
-            EntityWithOneWayEnum::class
-        ],
+        entities =
+            [EntityWithEnum::class, ComplexEntityWithEnum::class, EntityWithOneWayEnum::class],
         version = 1,
         exportSchema = false
     )
-    @TypeConverters(
-        ColorTypeConverter::class
-    )
+    @TypeConverters(ColorTypeConverter::class)
     abstract class EnumColumnTypeAdapterDatabase : RoomDatabase() {
         abstract fun dao(): SampleDao
+
         abstract fun oneWayDao(): SampleDaoWithOneWayConverter
+
         abstract fun complexDao(): SampleDaoWithComplexEnum
     }
 
     @Before
     fun initDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(
-            context,
-            EnumColumnTypeAdapterDatabase::class.java
-        ).build()
+        db =
+            Room.inMemoryDatabaseBuilder(context, EnumColumnTypeAdapterDatabase::class.java).build()
     }
 
     @After
@@ -147,31 +133,19 @@ class EnumColumnTypeAdapterTest {
     fun readAndWriteEnumToDatabase() {
         db.dao().insert(1, Fruit.BANANA)
         db.dao().insert(2, Fruit.STRAWBERRY)
-        assertThat(
-            db.dao().getValueWithId(1).fruit
-        ).isEqualTo(Fruit.BANANA)
-        assertThat(
-            db.dao().getValueWithId(2).fruit
-        ).isEqualTo(Fruit.STRAWBERRY)
+        assertThat(db.dao().getValueWithId(1).fruit).isEqualTo(Fruit.BANANA)
+        assertThat(db.dao().getValueWithId(2).fruit).isEqualTo(Fruit.STRAWBERRY)
     }
 
     @Test
     fun writeOneWayEnumToDatabase() {
         db.oneWayDao().insert(1, 1)
-        assertThat(
-            db.oneWayDao().getValueWithId(1).color
-        ).isEqualTo(
-            Color.RED
-        )
+        assertThat(db.oneWayDao().getValueWithId(1).color).isEqualTo(Color.RED)
     }
 
     @Test
     fun filterOutComplexEnumTest() {
         db.complexDao().insertComplex(1, Season.AUTUMN)
-        assertThat(
-            db.complexDao().getComplexValueWithId(1).season
-        ).isEqualTo(
-            Season.AUTUMN
-        )
+        assertThat(db.complexDao().getComplexValueWithId(1).season).isEqualTo(Season.AUTUMN)
     }
 }

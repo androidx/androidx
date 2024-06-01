@@ -27,54 +27,48 @@ import org.junit.Test
 class InternalModifierTest {
     @Test
     fun testInternalsAndInlines_excludeInlines() {
-        val signatures = buildSignatures(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = true,
+        val signatures =
+            buildSignatures(
+                XProcessingEnvConfig.DEFAULT.copy(
+                    excludeMethodsWithInvalidJvmSourceNames = true,
+                )
             )
-        )
         assertThat(signatures.ksp).containsExactlyElementsIn(signatures.kapt)
     }
 
     @Test
     fun testInternalsAndInlines_includeInlines() {
-        val signatures = buildSignatures(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = false
+        val signatures =
+            buildSignatures(
+                XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
             )
-        )
         // KAPT will always remove methods with invalid java source names when generating stubs
         // so we need to assert them manually.
-        val nonJvmSourceSignatures = signatures.ksp.filter {
-            it.startsWith("main.") && it.contains("-")
-        }
-        assertThat(
-            signatures.ksp - nonJvmSourceSignatures
-        ).containsExactlyElementsIn(signatures.kapt)
-        assertThat(
-            nonJvmSourceSignatures.map {
-                it.substringBefore("-")
-            }
-        ).containsExactly(
-            "main.Subject.getInlineProp",
-            "main.Subject.getInternalInlineProp",
-            "main.Subject.inlineReceivingFun",
-            "main.Subject.inlineReturningFun",
-            "main.Subject.internalInlineReceivingFun",
-            "main.Subject.internalInlineReturningFun",
-            "main.Subject.setInlineProp",
-            "main.Subject.setInternalInlineProp"
-        )
+        val nonJvmSourceSignatures =
+            signatures.ksp.filter { it.startsWith("main.") && it.contains("-") }
+        assertThat(signatures.ksp - nonJvmSourceSignatures)
+            .containsExactlyElementsIn(signatures.kapt)
+        assertThat(nonJvmSourceSignatures.map { it.substringBefore("-") })
+            .containsExactly(
+                "main.Subject.getInlineProp",
+                "main.Subject.getInternalInlineProp",
+                "main.Subject.inlineReceivingFun",
+                "main.Subject.inlineReturningFun",
+                "main.Subject.internalInlineReceivingFun",
+                "main.Subject.internalInlineReturningFun",
+                "main.Subject.setInlineProp",
+                "main.Subject.setInternalInlineProp"
+            )
     }
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun buildSignatures(config: XProcessingEnvConfig): Signatures {
         CompilationTestCapabilities.assumeKspIsEnabled()
-        /**
-         * parse same file w/ kapt and KSP and ensure results are the same.
-         */
-        fun buildSource(pkg: String) = Source.kotlin(
-            "Subject.kt",
-            """
+        /** parse same file w/ kapt and KSP and ensure results are the same. */
+        fun buildSource(pkg: String) =
+            Source.kotlin(
+                "Subject.kt",
+                """
             package $pkg
             internal class InternalClass(val value: String)
             inline class InlineClass(val value:String)
@@ -98,8 +92,9 @@ class InternalModifierTest {
                 inline fun inlineFun() {
                 }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         fun XType.toSignature() = this.asTypeName().java.toString()
 
@@ -113,30 +108,23 @@ class InternalModifierTest {
             append(".")
             append(jvmName)
             append("(")
-            parameters.forEach {
-                append(it.type.toSignature())
-            }
+            parameters.forEach { append(it.type.toSignature()) }
             append(")")
             append(":")
             append(returnType.toSignature())
         }
 
-        fun traverse(env: XProcessingEnv) = buildList {
-            listOf(
-                "main.Subject",
-                "lib.Subject"
-            ).flatMap {
-                val subject = env.requireTypeElement(it)
-                add(subject.name)
-                add(subject.qualifiedName)
-                subject.getDeclaredMethods().forEach {
-                    add(it.toSignature())
+        fun traverse(env: XProcessingEnv) =
+            buildList {
+                    listOf("main.Subject", "lib.Subject").flatMap {
+                        val subject = env.requireTypeElement(it)
+                        add(subject.name)
+                        add(subject.qualifiedName)
+                        subject.getDeclaredMethods().forEach { add(it.toSignature()) }
+                        subject.getAllFieldsIncludingPrivateSupers().map { add(it.toSignature()) }
+                    }
                 }
-                subject.getAllFieldsIncludingPrivateSupers().map {
-                    add(it.toSignature())
-                }
-            }
-        }.sorted()
+                .sorted()
 
         var kaptResult: List<String>? = null
         var kspResult: List<String>? = null
@@ -157,14 +145,8 @@ class InternalModifierTest {
         ) { invocation ->
             kspResult = traverse(invocation.processingEnv)
         }
-        return Signatures(
-            ksp = checkNotNull(kspResult),
-            kapt = checkNotNull(kaptResult)
-        )
+        return Signatures(ksp = checkNotNull(kspResult), kapt = checkNotNull(kaptResult))
     }
 
-    private data class Signatures(
-        val ksp: List<String>,
-        val kapt: List<String>
-    )
+    private data class Signatures(val ksp: List<String>, val kapt: List<String>)
 }

@@ -15,13 +15,8 @@
  */
 package androidx.room
 
-/**
- * APIs marked with ExperimentalRoomApi are experimental and may change.
- */
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION
-)
+/** APIs marked with ExperimentalRoomApi are experimental and may change. */
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Suppress("UnsafeOptInUsageError")
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)

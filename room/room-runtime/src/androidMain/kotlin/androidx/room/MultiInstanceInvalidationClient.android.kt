@@ -30,13 +30,11 @@ import java.util.concurrent.atomic.AtomicBoolean
  * Handles all the communication from [RoomDatabase] and [InvalidationTracker] to
  * [MultiInstanceInvalidationService].
  *
- * @param context             The Context to be used for binding
- * [IMultiInstanceInvalidationService].
- * @param name                The name of the database file.
- * @param serviceIntent       The [Intent] used for binding
- * [IMultiInstanceInvalidationService].
+ * @param context The Context to be used for binding [IMultiInstanceInvalidationService].
+ * @param name The name of the database file.
+ * @param serviceIntent The [Intent] used for binding [IMultiInstanceInvalidationService].
  * @param invalidationTracker The [InvalidationTracker]
- * @param executor            The background executor.
+ * @param executor The background executor.
  */
 internal class MultiInstanceInvalidationClient(
     context: Context,
@@ -47,9 +45,7 @@ internal class MultiInstanceInvalidationClient(
 ) {
     private val appContext = context.applicationContext
 
-    /**
-     * The client ID assigned by [MultiInstanceInvalidationService].
-     */
+    /** The client ID assigned by [MultiInstanceInvalidationService]. */
     var clientId = 0
     lateinit var observer: InvalidationTracker.Observer
     var service: IMultiInstanceInvalidationService? = null
@@ -63,18 +59,19 @@ internal class MultiInstanceInvalidationClient(
 
     val stopped = AtomicBoolean(false)
 
-    val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            this@MultiInstanceInvalidationClient.service =
-                IMultiInstanceInvalidationService.Stub.asInterface(service)
-            executor.execute(setUpRunnable)
-        }
+    val serviceConnection: ServiceConnection =
+        object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                this@MultiInstanceInvalidationClient.service =
+                    IMultiInstanceInvalidationService.Stub.asInterface(service)
+                executor.execute(setUpRunnable)
+            }
 
-        override fun onServiceDisconnected(name: ComponentName) {
-            executor.execute(removeObserverRunnable)
-            service = null
+            override fun onServiceDisconnected(name: ComponentName) {
+                executor.execute(removeObserverRunnable)
+                service = null
+            }
         }
-    }
 
     val setUpRunnable = Runnable {
         try {
@@ -92,27 +89,24 @@ internal class MultiInstanceInvalidationClient(
     init {
         // Use all tables names for observer.
         val tableNames = invalidationTracker.tableNames
-        observer = object : InvalidationTracker.Observer(tableNames) {
-            override fun onInvalidated(tables: Set<String>) {
-                if (stopped.get()) {
-                    return
+        observer =
+            object : InvalidationTracker.Observer(tableNames) {
+                override fun onInvalidated(tables: Set<String>) {
+                    if (stopped.get()) {
+                        return
+                    }
+
+                    try {
+                        service?.broadcastInvalidation(clientId, tables.toTypedArray())
+                    } catch (e: RemoteException) {
+                        Log.w(LOG_TAG, "Cannot broadcast invalidation", e)
+                    }
                 }
 
-                try {
-                    service?.broadcastInvalidation(clientId, tables.toTypedArray())
-                } catch (e: RemoteException) {
-                    Log.w(LOG_TAG, "Cannot broadcast invalidation", e)
-                }
+                override val isRemote: Boolean
+                    get() = true
             }
-
-            override val isRemote: Boolean
-                get() = true
-        }
-        appContext.bindService(
-            serviceIntent,
-            serviceConnection,
-            Context.BIND_AUTO_CREATE
-        )
+        appContext.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     fun stop() {

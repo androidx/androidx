@@ -34,12 +34,14 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
             addLocalVariable(
                 name = expectedInfoVar,
                 typeName = RoomTypeNames.VIEW_INFO,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    RoomTypeNames.VIEW_INFO,
-                    "%S, %S",
-                    view.viewName, view.createViewQuery
-                )
+                assignExpr =
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        RoomTypeNames.VIEW_INFO,
+                        "%S, %S",
+                        view.viewName,
+                        view.createViewQuery
+                    )
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
@@ -47,7 +49,9 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                 existingVar,
                 RoomTypeNames.VIEW_INFO,
                 "%M(%L, %S)",
-                RoomMemberNames.VIEW_INFO_READ, connectionParamName, view.viewName
+                RoomMemberNames.VIEW_INFO_READ,
+                connectionParamName,
+                view.viewName
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {

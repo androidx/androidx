@@ -29,21 +29,24 @@ import javax.lang.model.util.SimpleAnnotationValueVisitor8
 
 internal interface JavacClassGetter {
     fun getAsType(methodName: String): XType?
+
     fun getAsTypeList(methodName: String): List<XType>
+
     fun <T : Annotation> getAsAnnotationBox(methodName: String): XAnnotationBox<T>
+
     fun <T : Annotation> getAsAnnotationBoxArray(methodName: String): Array<XAnnotationBox<T>>
 }
 
 /**
- * Class that helps to read values from annotations. Simple types as string, int, lists can
- * be read from [value]. If you need to read classes or another annotations from annotation use
- * [getAsType], [getAsAnnotationBox] and [getAsAnnotationBoxArray] correspondingly.
+ * Class that helps to read values from annotations. Simple types as string, int, lists can be read
+ * from [value]. If you need to read classes or another annotations from annotation use [getAsType],
+ * [getAsAnnotationBox] and [getAsAnnotationBoxArray] correspondingly.
  */
 internal class JavacAnnotationBox<T : Annotation>(obj: Any) : XAnnotationBox<T> {
     private val classGetter = obj as JavacClassGetter
 
-    @Suppress("UNCHECKED_CAST")
-    override val value: T = obj as T
+    @Suppress("UNCHECKED_CAST") override val value: T = obj as T
+
     override fun getAsType(methodName: String): XType? = classGetter.getAsType(methodName)
 
     override fun getAsTypeList(methodName: String): List<XType> =
@@ -67,60 +70,69 @@ internal fun <T : Annotation> AnnotationMirror.box(
     if (!cl.isAnnotation) {
         throw IllegalArgumentException("$cl is not annotation")
     }
-    val map = cl.declaredMethods.associate { method ->
-        val value = AnnotationMirrors.getAnnotationValue(this, method.name)
-        val returnType = method.returnType
-        val defaultValue = method.defaultValue
-        val result: Any? = when {
-            returnType == Int::class.java -> value.getAsInt(defaultValue as Int?)
-            returnType == Double::class.java -> value.getAsDouble(defaultValue as Double?)
-            returnType == Float::class.java -> value.getAsFloat(defaultValue as Float?)
-            returnType == Char::class.java -> value.getAsChar(defaultValue as Char?)
-            returnType == Byte::class.java -> value.getAsByte(defaultValue as Byte?)
-            returnType == Short::class.java -> value.getAsShort(defaultValue as Short?)
-            returnType == Long::class.java -> value.getAsLong(defaultValue as Long?)
-            returnType == Boolean::class.java -> value.getAsBoolean(defaultValue as Boolean)
-            returnType == String::class.java -> value.getAsString(defaultValue as String?)
-            returnType == Array<String>::class.java -> value.getAsStringList().toTypedArray()
-            returnType == emptyArray<Class<*>>()::class.java -> value.toListOfClassTypes(env)
-            returnType == IntArray::class.java -> value.getAsIntList().toIntArray()
-            returnType == DoubleArray::class.java -> value.getAsDoubleList().toDoubleArray()
-            returnType == FloatArray::class.java -> value.getAsFloatList().toFloatArray()
-            returnType == CharArray::class.java -> value.getAsCharList().toCharArray()
-            returnType == ByteArray::class.java -> value.getAsByteList().toByteArray()
-            returnType == ShortArray::class.java -> value.getAsShortList().toShortArray()
-            returnType == LongArray::class.java -> value.getAsLongList().toLongArray()
-            returnType == BooleanArray::class.java -> value.getAsBooleanList().toBooleanArray()
-            returnType == Class::class.java -> {
-                try {
-                    value.toClassType(env)
-                } catch (notPresent: TypeNotPresentException) {
-                    null
+    val map =
+        cl.declaredMethods.associate { method ->
+            val value = AnnotationMirrors.getAnnotationValue(this, method.name)
+            val returnType = method.returnType
+            val defaultValue = method.defaultValue
+            val result: Any? =
+                when {
+                    returnType == Int::class.java -> value.getAsInt(defaultValue as Int?)
+                    returnType == Double::class.java -> value.getAsDouble(defaultValue as Double?)
+                    returnType == Float::class.java -> value.getAsFloat(defaultValue as Float?)
+                    returnType == Char::class.java -> value.getAsChar(defaultValue as Char?)
+                    returnType == Byte::class.java -> value.getAsByte(defaultValue as Byte?)
+                    returnType == Short::class.java -> value.getAsShort(defaultValue as Short?)
+                    returnType == Long::class.java -> value.getAsLong(defaultValue as Long?)
+                    returnType == Boolean::class.java -> value.getAsBoolean(defaultValue as Boolean)
+                    returnType == String::class.java -> value.getAsString(defaultValue as String?)
+                    returnType == Array<String>::class.java ->
+                        value.getAsStringList().toTypedArray()
+                    returnType == emptyArray<Class<*>>()::class.java ->
+                        value.toListOfClassTypes(env)
+                    returnType == IntArray::class.java -> value.getAsIntList().toIntArray()
+                    returnType == DoubleArray::class.java -> value.getAsDoubleList().toDoubleArray()
+                    returnType == FloatArray::class.java -> value.getAsFloatList().toFloatArray()
+                    returnType == CharArray::class.java -> value.getAsCharList().toCharArray()
+                    returnType == ByteArray::class.java -> value.getAsByteList().toByteArray()
+                    returnType == ShortArray::class.java -> value.getAsShortList().toShortArray()
+                    returnType == LongArray::class.java -> value.getAsLongList().toLongArray()
+                    returnType == BooleanArray::class.java ->
+                        value.getAsBooleanList().toBooleanArray()
+                    returnType == Class::class.java -> {
+                        try {
+                            value.toClassType(env)
+                        } catch (notPresent: TypeNotPresentException) {
+                            null
+                        }
+                    }
+                    returnType.isAnnotation -> {
+                        @Suppress("UNCHECKED_CAST")
+                        AnnotationClassVisitor(env, returnType as Class<out Annotation>)
+                            .visit(value)
+                    }
+                    returnType.isArray && returnType.componentType.isAnnotation -> {
+                        @Suppress("UNCHECKED_CAST")
+                        AnnotationListVisitor(
+                                env,
+                                returnType.componentType as Class<out Annotation>
+                            )
+                            .visit(value)
+                    }
+                    returnType.isArray && returnType.componentType.isEnum -> {
+                        @Suppress("UNCHECKED_CAST")
+                        EnumListVisitor(returnType.componentType as Class<out Enum<*>>).visit(value)
+                    }
+                    returnType.isEnum -> {
+                        @Suppress("UNCHECKED_CAST")
+                        value.getAsEnum(returnType as Class<out Enum<*>>)
+                    }
+                    else -> {
+                        throw UnsupportedOperationException("$returnType isn't supported")
+                    }
                 }
-            }
-            returnType.isAnnotation -> {
-                @Suppress("UNCHECKED_CAST")
-                AnnotationClassVisitor(env, returnType as Class<out Annotation>).visit(value)
-            }
-            returnType.isArray && returnType.componentType.isAnnotation -> {
-                @Suppress("UNCHECKED_CAST")
-                AnnotationListVisitor(env, returnType.componentType as Class<out Annotation>)
-                    .visit(value)
-            }
-            returnType.isArray && returnType.componentType.isEnum -> {
-                @Suppress("UNCHECKED_CAST")
-                EnumListVisitor(returnType.componentType as Class<out Enum<*>>).visit(value)
-            }
-            returnType.isEnum -> {
-                @Suppress("UNCHECKED_CAST")
-                value.getAsEnum(returnType as Class<out Enum<*>>)
-            }
-            else -> {
-                throw UnsupportedOperationException("$returnType isn't supported")
-            }
+            method.name to result
         }
-        method.name to result
-    }
     return JavacAnnotationBox(
         Proxy.newProxyInstance(
             JavacClassGetter::class.java.classLoader,
@@ -137,11 +149,12 @@ internal fun <T : Annotation> AnnotationMirror.box(
     )
 }
 
-private val ANNOTATION_VALUE_TO_INT_VISITOR = object : SimpleAnnotationValueVisitor8<Int?, Void>() {
-    override fun visitInt(i: Int, p: Void?): Int {
-        return i
+private val ANNOTATION_VALUE_TO_INT_VISITOR =
+    object : SimpleAnnotationValueVisitor8<Int?, Void>() {
+        override fun visitInt(i: Int, p: Void?): Int {
+            return i
+        }
     }
-}
 
 private val ANNOTATION_VALUE_TO_DOUBLE_VISITOR =
     object : SimpleAnnotationValueVisitor8<Double?, Void>() {
@@ -185,100 +198,82 @@ private val ANNOTATION_VALUE_TO_LONG_VISITOR =
         }
     }
 
-private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR = object :
-    SimpleAnnotationValueVisitor8<Boolean?, Void>() {
-    override fun visitBoolean(b: Boolean, p: Void?): Boolean {
-        return b
+private val ANNOTATION_VALUE_TO_BOOLEAN_VISITOR =
+    object : SimpleAnnotationValueVisitor8<Boolean?, Void>() {
+        override fun visitBoolean(b: Boolean, p: Void?): Boolean {
+            return b
+        }
     }
-}
 
-private val ANNOTATION_VALUE_TO_STRING_VISITOR = object :
-    SimpleAnnotationValueVisitor8<String?, Void>() {
-    override fun visitString(s: String?, p: Void?): String? {
-        return s
+private val ANNOTATION_VALUE_TO_STRING_VISITOR =
+    object : SimpleAnnotationValueVisitor8<String?, Void>() {
+        override fun visitString(s: String?, p: Void?): String? {
+            return s
+        }
     }
-}
 
-private val ANNOTATION_VALUE_STRING_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<String>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_STRING_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_STRING_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<String>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<String> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_STRING_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_INT_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Int>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Int> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_INT_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_INT_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Int>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Int> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_INT_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_DOUBLE_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Double>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Double> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_DOUBLE_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_DOUBLE_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Double>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Double> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_DOUBLE_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_FLOAT_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Float>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Float> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_FLOAT_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_FLOAT_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Float>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Float> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_FLOAT_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_CHAR_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Char>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Char> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_CHAR_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_CHAR_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Char>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Char> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_CHAR_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_BYTE_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Byte>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Byte> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_BYTE_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_BYTE_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Byte>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Byte> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_BYTE_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_SHORT_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Short>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Short> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_SHORT_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_SHORT_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Short>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Short> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_SHORT_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_LONG_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Long>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Long> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_LONG_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_LONG_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Long>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Long> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_LONG_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
-private val ANNOTATION_VALUE_BOOLEAN_ARR_VISITOR = object :
-    SimpleAnnotationValueVisitor8<List<Boolean>, Void>() {
-    override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Boolean> {
-        return vals?.mapNotNull {
-            ANNOTATION_VALUE_TO_BOOLEAN_VISITOR.visit(it)
-        } ?: emptyList()
+private val ANNOTATION_VALUE_BOOLEAN_ARR_VISITOR =
+    object : SimpleAnnotationValueVisitor8<List<Boolean>, Void>() {
+        override fun visitArray(vals: MutableList<out AnnotationValue>?, p: Void?): List<Boolean> {
+            return vals?.mapNotNull { ANNOTATION_VALUE_TO_BOOLEAN_VISITOR.visit(it) } ?: emptyList()
+        }
     }
-}
 
 private fun AnnotationValue.getAsInt(def: Int? = null): Int? {
     return ANNOTATION_VALUE_TO_INT_VISITOR.visit(this) ?: def
@@ -354,30 +349,34 @@ private fun AnnotationValue.getAsStringList(): List<String> {
 
 // code below taken from dagger2
 // compiler/src/main/java/dagger/internal/codegen/ConfigurationAnnotations.java
-private val TO_LIST_OF_TYPES = object :
-    SimpleAnnotationValueVisitor8<List<TypeMirror>, Void?>() {
-    override fun visitArray(values: MutableList<out AnnotationValue>?, p: Void?): List<TypeMirror> {
-        return values?.mapNotNull {
-            val tmp = TO_TYPE.visit(it)
-            tmp
-        } ?: emptyList()
+private val TO_LIST_OF_TYPES =
+    object : SimpleAnnotationValueVisitor8<List<TypeMirror>, Void?>() {
+        override fun visitArray(
+            values: MutableList<out AnnotationValue>?,
+            p: Void?
+        ): List<TypeMirror> {
+            return values?.mapNotNull {
+                val tmp = TO_TYPE.visit(it)
+                tmp
+            } ?: emptyList()
+        }
+
+        override fun defaultAction(o: Any?, p: Void?): List<TypeMirror> {
+            return emptyList()
+        }
     }
 
-    override fun defaultAction(o: Any?, p: Void?): List<TypeMirror> {
-        return emptyList()
-    }
-}
+private val TO_TYPE =
+    object : SimpleAnnotationValueVisitor8<TypeMirror, Void>() {
 
-private val TO_TYPE = object : SimpleAnnotationValueVisitor8<TypeMirror, Void>() {
+        override fun visitType(t: TypeMirror, p: Void?): TypeMirror {
+            return t
+        }
 
-    override fun visitType(t: TypeMirror, p: Void?): TypeMirror {
-        return t
+        override fun defaultAction(o: Any?, p: Void?): TypeMirror {
+            throw TypeNotPresentException(o!!.toString(), null)
+        }
     }
-
-    override fun defaultAction(o: Any?, p: Void?): TypeMirror {
-        throw TypeNotPresentException(o!!.toString(), null)
-    }
-}
 
 private fun AnnotationValue.toListOfClassTypes(env: JavacProcessingEnv): List<XType> {
     return TO_LIST_OF_TYPES.visit(this).map {
@@ -391,19 +390,14 @@ private fun AnnotationValue.toListOfClassTypes(env: JavacProcessingEnv): List<XT
 
 private fun AnnotationValue.toClassType(env: JavacProcessingEnv): XType? {
     return TO_TYPE.visit(this)?.let {
-        env.wrap(
-            typeMirror = it,
-            kotlinType = null,
-            elementNullability = XNullability.UNKNOWN
-        )
+        env.wrap(typeMirror = it, kotlinType = null, elementNullability = XNullability.UNKNOWN)
     }
 }
 
 private class AnnotationListVisitor<T : Annotation>(
     private val env: JavacProcessingEnv,
     private val annotationClass: Class<T>
-) :
-    SimpleAnnotationValueVisitor8<Array<JavacAnnotationBox<T>>, Void?>() {
+) : SimpleAnnotationValueVisitor8<Array<JavacAnnotationBox<T>>, Void?>() {
     override fun visitArray(
         values: MutableList<out AnnotationValue>?,
         void: Void?
@@ -415,17 +409,12 @@ private class AnnotationListVisitor<T : Annotation>(
 
 private class EnumListVisitor<T : Enum<T>>(private val enumClass: Class<T>) :
     SimpleAnnotationValueVisitor8<Array<T>, Void?>() {
-    override fun visitArray(
-        values: MutableList<out AnnotationValue>?,
-        void: Void?
-    ): Array<T> {
+    override fun visitArray(values: MutableList<out AnnotationValue>?, void: Void?): Array<T> {
         val result = values?.map { it.getAsEnum(enumClass) }
         @Suppress("UNCHECKED_CAST")
-        val resultArray = java.lang.reflect.Array
-            .newInstance(enumClass, result?.size ?: 0) as Array<T>
-        result?.forEachIndexed { index, value ->
-            resultArray[index] = value
-        }
+        val resultArray =
+            java.lang.reflect.Array.newInstance(enumClass, result?.size ?: 0) as Array<T>
+        result?.forEachIndexed { index, value -> resultArray[index] = value }
         return resultArray
     }
 }
@@ -433,17 +422,18 @@ private class EnumListVisitor<T : Enum<T>>(private val enumClass: Class<T>) :
 private class AnnotationClassVisitor<T : Annotation>(
     private val env: JavacProcessingEnv,
     private val annotationClass: Class<T>
-) :
-    SimpleAnnotationValueVisitor8<JavacAnnotationBox<T>?, Void?>() {
+) : SimpleAnnotationValueVisitor8<JavacAnnotationBox<T>?, Void?>() {
     override fun visitAnnotation(a: AnnotationMirror?, v: Void?) = a?.box(env, annotationClass)
 }
 
 @Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
 private fun <T : Enum<*>> AnnotationValue.getAsEnum(enumClass: Class<T>): T {
     return object : SimpleAnnotationValueVisitor8<T, Void>() {
-        override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
-            return enumClass.getDeclaredMethod("valueOf", String::class.java)
-                .invoke(null, value!!.simpleName.toString()) as T
+            override fun visitEnumConstant(value: VariableElement?, p: Void?): T {
+                return enumClass
+                    .getDeclaredMethod("valueOf", String::class.java)
+                    .invoke(null, value!!.simpleName.toString()) as T
+            }
         }
-    }.visit(this)
+        .visit(this)
 }

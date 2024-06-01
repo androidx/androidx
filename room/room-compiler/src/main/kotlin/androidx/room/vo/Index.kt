@@ -21,9 +21,7 @@ import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 
 private typealias IndexOrder = androidx.room.Index.Order
 
-/**
- * Represents a processed index.
- */
+/** Represents a processed index. */
 data class Index(
     val name: String,
     val unique: Boolean,
@@ -51,26 +49,35 @@ data class Index(
     }
 
     fun createQuery(tableName: String): String {
-        val indexSQL = if (unique) {
-            "UNIQUE INDEX"
-        } else {
-            "INDEX"
-        }
+        val indexSQL =
+            if (unique) {
+                "UNIQUE INDEX"
+            } else {
+                "INDEX"
+            }
 
-        val columns = if (orders.isNotEmpty()) {
-            columnNames.mapIndexed { index, columnName -> "`$columnName` ${orders[index]}" }
-        } else {
-            columnNames.map { "`$it`" }
-        }.joinToString(", ")
+        val columns =
+            if (orders.isNotEmpty()) {
+                    columnNames.mapIndexed { index, columnName -> "`$columnName` ${orders[index]}" }
+                } else {
+                    columnNames.map { "`$it`" }
+                }
+                .joinToString(", ")
 
         return """
             CREATE $indexSQL IF NOT EXISTS `$name`
             ON `$tableName` ($columns)
-        """.trimIndent().replace("\n", " ")
+        """
+            .trimIndent()
+            .replace("\n", " ")
     }
 
-    fun toBundle(): IndexBundle = IndexBundle(
-        name, unique, columnNames, orders.map { it.name },
-        createQuery(TABLE_NAME_PLACEHOLDER)
-    )
+    fun toBundle(): IndexBundle =
+        IndexBundle(
+            name,
+            unique,
+            columnNames,
+            orders.map { it.name },
+            createQuery(TABLE_NAME_PLACEHOLDER)
+        )
 }

@@ -17,8 +17,8 @@
 package androidx.room
 
 /**
- * Repeatable annotation declaring the renamed columns in the [AutoMigration.to] version of
- * an auto migration.
+ * Repeatable annotation declaring the renamed columns in the [AutoMigration.to] version of an auto
+ * migration.
  *
  * @see AutoMigration
  */
@@ -29,9 +29,9 @@ package androidx.room
 @OptionalExpectation
 public expect annotation class RenameColumn(
     /**
-     * Name of the table in the [AutoMigration.from] version of the database the renamed
-     * column is found in. The name in [AutoMigration.from] version is used in case the table
-     * was renamed in the [AutoMigration.to] version.
+     * Name of the table in the [AutoMigration.from] version of the database the renamed column is
+     * found in. The name in [AutoMigration.from] version is used in case the table was renamed in
+     * the [AutoMigration.to] version.
      *
      * @return Name of the table
      */

@@ -21,17 +21,21 @@ import androidx.room.Index
 
 @Entity(
     primaryKeys = ["mPlaylistId", "mSongId"],
-    foreignKeys = [ForeignKey(
-        entity = Playlist::class,
-        parentColumns = ["mPlaylistId"],
-        childColumns = ["mPlaylistId"],
-        onDelete = ForeignKey.CASCADE
-    ), ForeignKey(
-        entity = Song::class,
-        parentColumns = ["mSongId"],
-        childColumns = ["mSongId"],
-        onDelete = ForeignKey.CASCADE
-    )],
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = Playlist::class,
+                parentColumns = ["mPlaylistId"],
+                childColumns = ["mPlaylistId"],
+                onDelete = ForeignKey.CASCADE
+            ),
+            ForeignKey(
+                entity = Song::class,
+                parentColumns = ["mSongId"],
+                childColumns = ["mSongId"],
+                onDelete = ForeignKey.CASCADE
+            )
+        ],
     indices = [Index("mPlaylistId"), Index("mSongId")]
 )
 data class PlaylistSongXRef(val mPlaylistId: Int, val mSongId: Int)

@@ -20,21 +20,15 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information about a [androidx.room.DatabaseView].
- */
+/** Data class that holds the schema information about a [androidx.room.DatabaseView]. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DatabaseViewBundle(
-    @SerialName("viewName")
-    val viewName: String,
-    @SerialName("createSql")
-    val createSql: String
+    @SerialName("viewName") val viewName: String,
+    @SerialName("createSql") val createSql: String
 ) : SchemaEquality<DatabaseViewBundle> {
 
-    /**
-     * CREATE VIEW SQL query that uses the actual view name.
-     */
+    /** CREATE VIEW SQL query that uses the actual view name. */
     fun createView(): String {
         return replaceViewName(createSql, viewName)
     }

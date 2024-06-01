@@ -37,9 +37,7 @@ interface XElement : XAnnotated {
     /** The simple name of the element. */
     val name: String
 
-    /**
-     * Returns the string representation of the Element's kind.
-     */
+    /** Returns the string representation of the Element's kind. */
     fun kindName(): String
 
     /**
@@ -48,23 +46,18 @@ interface XElement : XAnnotated {
      */
     val fallbackLocationText: String
 
-    /**
-     * The documentation comment of the element, or null if there is none.
-     */
+    /** The documentation comment of the element, or null if there is none. */
     val docComment: String?
 
-    /**
-     * Returns true if all types referenced by this element are valid, i.e. resolvable.
-     */
+    /** Returns true if all types referenced by this element are valid, i.e. resolvable. */
     fun validate(): Boolean
 
     /**
-     * Returns the immediate enclosing element. This uses Element.getEnclosingElement() on the
-     * Java side, and KSNode.parent on the KSP side. For non-nested classes we return null.
-     * For fields declared in primary constructors in Kotlin we return
-     * the enclosing type, not the constructor. For top-level properties or functions in Kotlin
-     * we return JavacTypeElement on the Javac/KAPT side and KspFileMemberContainer or
-     * KspSyntheticFileMemberContainer on the KSP side.
+     * Returns the immediate enclosing element. This uses Element.getEnclosingElement() on the Java
+     * side, and KSNode.parent on the KSP side. For non-nested classes we return null. For fields
+     * declared in primary constructors in Kotlin we return the enclosing type, not the constructor.
+     * For top-level properties or functions in Kotlin we return JavacTypeElement on the Javac/KAPT
+     * side and KspFileMemberContainer or KspSyntheticFileMemberContainer on the KSP side.
      */
     val enclosingElement: XElement?
 
@@ -74,80 +67,52 @@ interface XElement : XAnnotated {
     val closestMemberContainer: XMemberContainer
 }
 
-/**
- * Checks whether this element represents an [XTypeElement].
- */
+/** Checks whether this element represents an [XTypeElement]. */
 // we keep these as extension methods to be able to use contracts
 fun XElement.isTypeElement(): Boolean {
-    contract {
-        returns(true) implies (this@isTypeElement is XTypeElement)
-    }
+    contract { returns(true) implies (this@isTypeElement is XTypeElement) }
     return this is XTypeElement
 }
 
-/**
- * Checks whether this element represents an [XEnumTypeElement].
- */
+/** Checks whether this element represents an [XEnumTypeElement]. */
 fun XElement.isEnum(): Boolean {
-    contract {
-        returns(true) implies (this@isEnum is XEnumTypeElement)
-    }
+    contract { returns(true) implies (this@isEnum is XEnumTypeElement) }
     return this is XEnumTypeElement
 }
 
-/**
- * Checks whether this element represents an [XVariableElement].
- */
+/** Checks whether this element represents an [XVariableElement]. */
 fun XElement.isVariableElement(): Boolean {
-    contract {
-        returns(true) implies (this@isVariableElement is XVariableElement)
-    }
+    contract { returns(true) implies (this@isVariableElement is XVariableElement) }
     return this is XVariableElement
 }
 
-/**
- * Checks whether this element represents an [XFieldElement].
- */
+/** Checks whether this element represents an [XFieldElement]. */
 fun XElement.isField(): Boolean {
-    contract {
-        returns(true) implies (this@isField is XFieldElement)
-    }
+    contract { returns(true) implies (this@isField is XFieldElement) }
     return this is XFieldElement
 }
 
-/**
- * Checks whether this element represents an [XMethodElement].
- */
+/** Checks whether this element represents an [XMethodElement]. */
 fun XElement.isMethod(): Boolean {
-    contract {
-        returns(true) implies (this@isMethod is XMethodElement)
-    }
+    contract { returns(true) implies (this@isMethod is XMethodElement) }
     return this is XMethodElement
 }
 
-/**
- * Checks whether this element represents an [XExecutableParameterElement].
- */
+/** Checks whether this element represents an [XExecutableParameterElement]. */
 fun XElement.isMethodParameter(): Boolean {
-    contract {
-        returns(true) implies (this@isMethodParameter is XExecutableParameterElement)
-    }
+    contract { returns(true) implies (this@isMethodParameter is XExecutableParameterElement) }
     return this is XExecutableParameterElement
 }
 
-/**
- * Checks whether this element represents an [XConstructorElement].
- */
+/** Checks whether this element represents an [XConstructorElement]. */
 fun XElement.isConstructor(): Boolean {
-    contract {
-        returns(true) implies (this@isConstructor is XConstructorElement)
-    }
+    contract { returns(true) implies (this@isConstructor is XConstructorElement) }
     return this is XConstructorElement
 }
 
 /**
- * Attempts to get a Javac [Element] representing the originating element for attribution
- * when writing a file for incremental processing.
+ * Attempts to get a Javac [Element] representing the originating element for attribution when
+ * writing a file for incremental processing.
  *
  * In KSP a synthetic javac element will be returned, which allows us to pass originating elements
  * to JavaPoet and KotlinPoet, and later extract the KSP file when writing with [XFiler] if it
@@ -170,8 +135,7 @@ internal fun XElement.originatingElementForPoet(): Element {
                     KSFileAsOriginatingElement(ksFile)
                 }
                 else -> {
-                    error("Originating element is not implemented for" +
-                        " ${this.javaClass}")
+                    error("Originating element is not implemented for" + " ${this.javaClass}")
                 }
             }
         }

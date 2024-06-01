@@ -26,12 +26,9 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 
-/**
- * Provider for Guava ListenableFuture binders.
- */
-class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
-    val context: Context
-) : DeleteOrUpdateMethodBinderProvider {
+/** Provider for Guava ListenableFuture binders. */
+class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(val context: Context) :
+    DeleteOrUpdateMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
         context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.canonicalName) != null

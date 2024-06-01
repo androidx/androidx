@@ -16,9 +16,7 @@
 
 package androidx.room.compiler.processing
 
-/**
- * Parameter of a method.
- */
+/** Parameter of a method. */
 interface XExecutableParameterElement : XVariableElement {
 
     /**
@@ -34,9 +32,7 @@ interface XExecutableParameterElement : XVariableElement {
      */
     fun isContinuationParam(): Boolean
 
-    /**
-     * Returns `true` if this parameter represents the receiver of an extension function.
-     */
+    /** Returns `true` if this parameter represents the receiver of an extension function. */
     fun isReceiverParam(): Boolean
 
     /**
@@ -45,20 +41,15 @@ interface XExecutableParameterElement : XVariableElement {
      */
     fun isKotlinPropertyParam(): Boolean
 
-    /**
-     * Returns `true` if this parameter is a vararg.
-     */
+    /** Returns `true` if this parameter is a vararg. */
     fun isVarArgs(): Boolean
 
-    /**
-     * The enclosing [XExecutableElement] this parameter belongs to.
-     */
+    /** The enclosing [XExecutableElement] this parameter belongs to. */
     override val enclosingElement: XExecutableElement
 
-    /**
-     * The enclosing [XExecutableElement] this parameter belongs to.
-     */
-    @Deprecated(message = "use XExecutableParameterElement#enclosingElement() instead.",
+    /** The enclosing [XExecutableElement] this parameter belongs to. */
+    @Deprecated(
+        message = "use XExecutableParameterElement#enclosingElement() instead.",
         replaceWith = ReplaceWith("enclosingElement")
     )
     val enclosingMethodElement: XExecutableElement

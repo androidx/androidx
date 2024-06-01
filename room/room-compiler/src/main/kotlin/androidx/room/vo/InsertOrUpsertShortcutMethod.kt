@@ -15,13 +15,12 @@
  */
 
 package androidx.room.vo
+
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 
-/**
- * Base class for shortcut methods in @DAO.
- */
+/** Base class for shortcut methods in @DAO. */
 abstract class InsertOrUpsertShortcutMethod(
     val element: XMethodElement,
     val entities: Map<String, ShortcutEntity>,

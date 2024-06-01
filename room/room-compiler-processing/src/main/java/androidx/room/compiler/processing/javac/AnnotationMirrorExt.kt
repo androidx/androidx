@@ -53,7 +53,8 @@ internal fun AnnotationMirror.isRepeatable(): Boolean {
             // mapper should convert them, but it may not be possible because there are
             // differences to how they work (eg different parameters).
             MoreElements.isAnnotationPresent(
-                componentElement, kotlin.annotation.Repeatable::class.java
+                componentElement,
+                kotlin.annotation.Repeatable::class.java
             )
     } catch (t: Throwable) {
         // TODO(b/314160063): Turbine can throw when getting enclosed elements. Remove this once

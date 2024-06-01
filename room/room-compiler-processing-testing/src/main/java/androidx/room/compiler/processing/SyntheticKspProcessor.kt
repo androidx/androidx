@@ -20,21 +20,17 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 
 @ExperimentalProcessingApi
-class SyntheticKspProcessor private constructor(
+class SyntheticKspProcessor
+private constructor(
     symbolProcessorEnvironment: SymbolProcessorEnvironment,
     config: XProcessingEnvConfig,
     private val impl: SyntheticProcessorImpl,
-) : KspBasicAnnotationProcessor(symbolProcessorEnvironment, config),
-    SyntheticProcessor by impl {
+) : KspBasicAnnotationProcessor(symbolProcessorEnvironment, config), SyntheticProcessor by impl {
     constructor(
         symbolProcessorEnvironment: SymbolProcessorEnvironment,
         config: XProcessingEnvConfig,
         handlers: List<(XTestInvocation) -> Unit>,
-    ) : this(
-        symbolProcessorEnvironment,
-        config,
-        SyntheticProcessorImpl(handlers)
-    )
+    ) : this(symbolProcessorEnvironment, config, SyntheticProcessorImpl(handlers))
 
     override fun processingSteps(): Iterable<XProcessingStep> = impl.processingSteps()
 

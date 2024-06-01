@@ -48,11 +48,7 @@ class SuspendingTransactionCancellationTest : TestDatabaseTest() {
     @Before
     fun prepareDb() = runBlocking {
         booksDao = database.booksDao()
-        booksDao.addAuthorPublisherBooks(
-            TestUtil.AUTHOR_1,
-            TestUtil.PUBLISHER,
-            TestUtil.BOOK_1
-        )
+        booksDao.addAuthorPublisherBooks(TestUtil.AUTHOR_1, TestUtil.PUBLISHER, TestUtil.BOOK_1)
     }
 
     @After
@@ -65,11 +61,7 @@ class SuspendingTransactionCancellationTest : TestDatabaseTest() {
     @Test
     @SmallTest
     fun canceledTransaction() = runBlocking {
-        val toBeCancelled = async {
-            getBook {
-                throw CancellationException("custom-cancel")
-            }
-        }
+        val toBeCancelled = async { getBook { throw CancellationException("custom-cancel") } }
         val cancelled = runCatching { toBeCancelled.await() }
         assertThat(cancelled.exceptionOrNull()?.message).isEqualTo("custom-cancel")
         // now should be able to read again
@@ -95,76 +87,70 @@ class SuspendingTransactionCancellationTest : TestDatabaseTest() {
     }
 
     /**
-     * This is a race condition test hence we execute it multiple times :(
-     * Unfortunately, there is no way to hook into the exact moment of race.
+     * This is a race condition test hence we execute it multiple times :( Unfortunately, there is
+     * no way to hook into the exact moment of race.
      */
     @Test
     @MediumTest
-    fun canceledTransaction_viaJob_beforeTransactionStarts() = repeat(10) {
-        runBlocking(Dispatchers.Main.immediate) {
-            val toBeCancelled = launch {
-                getBook {
-                    suspendCancellableCoroutine<Unit> {
-                        // never ending, will be cancelled
-                    }
-                }
-            }
-
-            toBeCancelled.cancel()
-            // now should be able to read again
-            withTimeout(10_000) {
-                assertThat(getBook()).isEqualTo(TestUtil.BOOK_1)
-            }
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun canceledTransaction_withDelay_large() = repeat(100) {
-        canceledTransaction_viaJob_beforeTransactionStarts()
-    }
-
-    /**
-     * This is a race condition test hence we execute it multiple times :(
-     * Unfortunately, there is no way to hook into the exact moment of race.
-     */
-    @Test
-    @MediumTest
-    fun canceledTransaction_immediatelyOnTheSameThread() = repeat(10) {
-        runBlocking {
-            // see b/148181325
-            // cancelling a coroutine from the same thread (hence immediately) was deadlocking
-            // room ktx transactions.
-            val immediateMainScope = CoroutineScope(
-                SupervisorJob() + Dispatchers.Main.immediate
-            )
-            InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                val toBeCancelled = immediateMainScope.launch {
+    fun canceledTransaction_viaJob_beforeTransactionStarts() =
+        repeat(10) {
+            runBlocking(Dispatchers.Main.immediate) {
+                val toBeCancelled = launch {
                     getBook {
                         suspendCancellableCoroutine<Unit> {
-                            // infinite
+                            // never ending, will be cancelled
                         }
                     }
                 }
+
                 toBeCancelled.cancel()
-            }
-            immediateMainScope.cancel()
-            // now should be able to read again
-            withTimeout(10_000) {
-                assertThat(getBook()).isEqualTo(TestUtil.BOOK_1)
+                // now should be able to read again
+                withTimeout(10_000) { assertThat(getBook()).isEqualTo(TestUtil.BOOK_1) }
             }
         }
-    }
 
     @Test
     @LargeTest
-    fun canceledTransaction_immediatelyOnTheSameThread_large() = repeat(100) {
-        canceledTransaction_immediatelyOnTheSameThread()
-    }
+    fun canceledTransaction_withDelay_large() =
+        repeat(100) { canceledTransaction_viaJob_beforeTransactionStarts() }
 
     /**
-     * Reads data from the database but also runs the given code inside the transaction.
+     * This is a race condition test hence we execute it multiple times :( Unfortunately, there is
+     * no way to hook into the exact moment of race.
      */
+    @Test
+    @MediumTest
+    fun canceledTransaction_immediatelyOnTheSameThread() =
+        repeat(10) {
+            runBlocking {
+                // see b/148181325
+                // cancelling a coroutine from the same thread (hence immediately) was deadlocking
+                // room ktx transactions.
+                val immediateMainScope =
+                    CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+                InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                    val toBeCancelled =
+                        immediateMainScope.launch {
+                            getBook {
+                                suspendCancellableCoroutine<Unit> {
+                                    // infinite
+                                }
+                            }
+                        }
+                    toBeCancelled.cancel()
+                }
+                immediateMainScope.cancel()
+                // now should be able to read again
+                withTimeout(10_000) { assertThat(getBook()).isEqualTo(TestUtil.BOOK_1) }
+            }
+        }
+
+    @Test
+    @LargeTest
+    fun canceledTransaction_immediatelyOnTheSameThread_large() =
+        repeat(100) { canceledTransaction_immediatelyOnTheSameThread() }
+
+    /** Reads data from the database but also runs the given code inside the transaction. */
     private suspend fun getBook(
         // executed after method starts
         inTransaction: (suspend () -> Unit)? = null

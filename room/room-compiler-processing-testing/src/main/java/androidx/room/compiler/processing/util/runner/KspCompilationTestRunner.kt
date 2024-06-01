@@ -39,31 +39,32 @@ internal class KspCompilationTestRunner(
     }
 
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
-        val processorProvider = object : SymbolProcessorProvider {
-            lateinit var processor: SyntheticKspProcessor
+        val processorProvider =
+            object : SymbolProcessorProvider {
+                lateinit var processor: SyntheticKspProcessor
 
-            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-                return SyntheticKspProcessor(
-                    symbolProcessorEnvironment = environment,
-                    handlers = params.handlers,
-                    config = params.config
-                ).also { processor = it }
+                override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                    return SyntheticKspProcessor(
+                            symbolProcessorEnvironment = environment,
+                            handlers = params.handlers,
+                            config = params.config
+                        )
+                        .also { processor = it }
+                }
+
+                fun isProcessorInitialized() = this::processor.isInitialized
             }
-
-            fun isProcessorInitialized() = this::processor.isInitialized
-        }
-        val args = TestCompilationArguments(
-            sources = params.sources,
-            classpath = params.classpath,
-            symbolProcessorProviders = testProcessorProviders + processorProvider,
-            processorOptions = params.options,
-            javacArguments = params.javacArguments,
-            kotlincArguments = params.kotlincArguments,
-        ).withAtLeastOneKotlinSource()
-        val result = compile(
-            workingDir = workingDir,
-            arguments = args
-        )
+        val args =
+            TestCompilationArguments(
+                    sources = params.sources,
+                    classpath = params.classpath,
+                    symbolProcessorProviders = testProcessorProviders + processorProvider,
+                    processorOptions = params.options,
+                    javacArguments = params.javacArguments,
+                    kotlincArguments = params.kotlincArguments,
+                )
+                .withAtLeastOneKotlinSource()
+        val result = compile(workingDir = workingDir, arguments = args)
         if (!processorProvider.isProcessorInitialized()) {
             // KSP did not completely run, report diagnostic messages those with an exception.
             val exceptionMsg = buildString {

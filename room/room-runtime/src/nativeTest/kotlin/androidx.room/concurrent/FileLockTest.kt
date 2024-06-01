@@ -107,14 +107,16 @@ class FileLockTest {
         assertThat(childTimeStamps.during).isLessThan(childTimeStamps.after)
 
         // Find out who got the lock first
-        val (first, second) = if (parentTimeStamps.during < childTimeStamps.during) {
-            parentTimeStamps to childTimeStamps
-        } else {
-            childTimeStamps to parentTimeStamps
-        }
+        val (first, second) =
+            if (parentTimeStamps.during < childTimeStamps.during) {
+                parentTimeStamps to childTimeStamps
+            } else {
+                childTimeStamps to parentTimeStamps
+            }
         // Now really validate second acquired the lock *after* first released it
         assertWithMessage("Comparing first unlock time with second acquire time")
-            .that(first.after).isLessThan(second.during)
+            .that(first.after)
+            .isLessThan(second.during)
     }
 
     private fun writeTimestamps(logFile: String, timeStamps: TimeStamps) {
@@ -135,11 +137,7 @@ class FileLockTest {
     }
 
     // All times are in microseconds
-    data class TimeStamps(
-        var before: Long = -1,
-        var during: Long = -1,
-        var after: Long = -1
-    )
+    data class TimeStamps(var before: Long = -1, var during: Long = -1, var after: Long = -1)
 
     private fun getUnixMicroseconds(): Long = memScoped {
         val tv = alloc<timeval>()

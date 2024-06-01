@@ -21,9 +21,9 @@ import kotlin.reflect.KClass
 /**
  * Declares a junction to be used for joining a relationship.
  *
- * If a [Relation] should use an associative table (also know as junction table or join
- * table) then you can use this annotation to reference such table. This is useful for fetching
- * many-to-many relations.
+ * If a [Relation] should use an associative table (also know as junction table or join table) then
+ * you can use this annotation to reference such table. This is useful for fetching many-to-many
+ * relations.
  *
  * ```
  * @Entity(primaryKeys = {"pId", "sId"})
@@ -53,8 +53,8 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
- * In the above example the many-to-many relationship between a `Song` and a `Playlist` has
- * an associative table defined by the entity `PlaylistSongXRef`.
+ * In the above example the many-to-many relationship between a `Song` and a `Playlist` has an
+ * associative table defined by the entity `PlaylistSongXRef`.
  *
  * @see [Relation]
  */
@@ -62,8 +62,8 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.BINARY)
 public annotation class Junction(
     /**
-     * An entity or database view to be used as a junction table when fetching the
-     * relating entities.
+     * An entity or database view to be used as a junction table when fetching the relating
+     * entities.
      *
      * @return The entity or database view to be used as a junction table.
      */

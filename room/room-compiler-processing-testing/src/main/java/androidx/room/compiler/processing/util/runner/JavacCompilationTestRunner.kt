@@ -42,52 +42,50 @@ internal class JavacCompilationTestRunner(
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
         val syntheticJavacProcessor = SyntheticJavacProcessor(params.config, params.handlers)
         val processors = testProcessors + syntheticJavacProcessor
-        val sources = if (params.sources.isEmpty()) {
-            // synthesize a source to trigger compilation
-            listOf(
-                Source.java(
-                    qName = "xprocessing.generated.SyntheticSource",
-                    code = """
+        val sources =
+            if (params.sources.isEmpty()) {
+                // synthesize a source to trigger compilation
+                listOf(
+                    Source.java(
+                        qName = "xprocessing.generated.SyntheticSource",
+                        code =
+                            """
                     package xprocessing.generated;
                     public class SyntheticSource {}
-                    """.trimIndent()
+                    """
+                                .trimIndent()
+                    )
                 )
-            )
-        } else {
-            params.sources
-        }
-
-        val optionsArg = params.options.entries.map {
-            "-A${it.key}=${it.value}"
-        }
-        val compiler = Compiler
-            .javac()
-            .withProcessors(processors)
-            .withOptions(params.javacArguments + optionsArg + "-Xlint")
-            .let {
-                if (params.classpath.isNotEmpty()) {
-                    it.withClasspath(params.classpath)
-                } else {
-                    it
-                }
+            } else {
+                params.sources
             }
+
+        val optionsArg = params.options.entries.map { "-A${it.key}=${it.value}" }
+        val compiler =
+            Compiler.javac()
+                .withProcessors(processors)
+                .withOptions(params.javacArguments + optionsArg + "-Xlint")
+                .let {
+                    if (params.classpath.isNotEmpty()) {
+                        it.withClasspath(params.classpath)
+                    } else {
+                        it
+                    }
+                }
         val javaFileObjects = sources.associateBy { it.toJFO() }
         val compilation = compiler.compile(javaFileObjects.keys)
-        val generatedSources = if (compilation.status() == Compilation.Status.SUCCESS) {
-            compilation.generatedSourceFiles().associate {
-                it to Source.fromJavaFileObject(it)
+        val generatedSources =
+            if (compilation.status() == Compilation.Status.SUCCESS) {
+                compilation.generatedSourceFiles().associate { it to Source.fromJavaFileObject(it) }
+            } else {
+                compilation
+                    .diagnostics()
+                    .mapNotNull { it.source }
+                    .associate { it to Source.fromJavaFileObject(it) }
             }
-        } else {
-            compilation.diagnostics().mapNotNull {
-                it.source
-            }.associate {
-                it to Source.fromJavaFileObject(it)
-            }
-        }
 
-        val diagnostics: List<DiagnosticMessage> = compilation.diagnostics().toDiagnosticMessages(
-            javaFileObjects + generatedSources
-        )
+        val diagnostics: List<DiagnosticMessage> =
+            compilation.diagnostics().toDiagnosticMessages(javaFileObjects + generatedSources)
 
         return JavaCompileTestingCompilationResult(
             testRunner = this,

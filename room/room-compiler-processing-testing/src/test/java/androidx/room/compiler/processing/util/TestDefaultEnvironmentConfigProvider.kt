@@ -30,11 +30,10 @@ class TestDefaultEnvironmentConfigProvider : XProcessingEnvironmentTestConfigPro
     }
 
     companion object {
-        /**
-         * Used in test to assert it is used
-         */
+        /** Used in test to assert it is used */
         internal var initialized: Boolean = false
             private set
+
         internal var invoked: Boolean = false
             private set
     }

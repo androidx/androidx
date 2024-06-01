@@ -20,16 +20,14 @@ import androidx.room.compiler.codegen.XClassName
 import com.squareup.javapoet.ClassName
 import kotlin.reflect.KClass
 
-/**
- * Common interface implemented by elements that might have annotations.
- */
+/** Common interface implemented by elements that might have annotations. */
 interface XAnnotated {
     /**
      * Returns the list of [XAnnotation] elements that have the same qualified name as the given
      * [annotationName]. Otherwise, returns an empty list.
      *
-     * For repeated annotations declared in Java code, please use the repeated annotation type,
-     * not the container. Calling this method with a container annotation will have inconsistent
+     * For repeated annotations declared in Java code, please use the repeated annotation type, not
+     * the container. Calling this method with a container annotation will have inconsistent
      * behaviour between Java AP and KSP.
      *
      * @see [hasAnnotation]
@@ -43,8 +41,8 @@ interface XAnnotated {
      * Returns the list of [XAnnotation] elements that have the same qualified name as the given
      * [annotationName]. Otherwise, returns an empty list.
      *
-     * For repeated annotations declared in Java code, please use the repeated annotation type,
-     * not the container. Calling this method with a container annotation will have inconsistent
+     * For repeated annotations declared in Java code, please use the repeated annotation type, not
+     * the container. Calling this method with a container annotation will have inconsistent
      * behaviour between Java AP and KSP.
      *
      * @see [hasAnnotation]
@@ -57,25 +55,23 @@ interface XAnnotated {
     /**
      * Gets the list of annotations with the given type.
      *
-     * For repeated annotations declared in Java code, please use the repeated annotation type,
-     * not the container. Calling this method with a container annotation will have inconsistent
+     * For repeated annotations declared in Java code, please use the repeated annotation type, not
+     * the container. Calling this method with a container annotation will have inconsistent
      * behaviour between Java AP and KSP.
      *
      * @see [hasAnnotation]
      * @see [hasAnnotationWithPackage]
      */
-    fun <T : Annotation> getAnnotations(
-        annotation: KClass<T>
-    ): List<XAnnotationBox<T>>
+    fun <T : Annotation> getAnnotations(annotation: KClass<T>): List<XAnnotationBox<T>>
 
     /**
      * Returns all annotations on this element represented as [XAnnotation].
      *
      * As opposed to other functions like [getAnnotations] this does not require you to have a
      * reference to each annotation class, and thus it can represent annotations in the module
-     * sources being compiled. However, note that the returned [XAnnotation] cannot provide
-     * an instance of the annotation (like [XAnnotationBox.value] can) and instead all values
-     * must be accessed dynamically.
+     * sources being compiled. However, note that the returned [XAnnotation] cannot provide an
+     * instance of the annotation (like [XAnnotationBox.value] can) and instead all values must be
+     * accessed dynamically.
      *
      * The returned [XAnnotation]s can be converted to [XAnnotationBox] via
      * [XAnnotation.asAnnotationBox] if the annotation class is on the class path.
@@ -85,18 +81,17 @@ interface XAnnotated {
     /**
      * Returns `true` if this element is annotated with the given [annotation].
      *
-     * For repeated annotations declared in Java code, please use the repeated annotation type,
-     * not the container. Calling this method with a container annotation will have inconsistent
+     * For repeated annotations declared in Java code, please use the repeated annotation type, not
+     * the container. Calling this method with a container annotation will have inconsistent
      * behaviour between Java AP and KSP.
+     *
      * @see [hasAnyAnnotation]
      */
-    fun hasAnnotation(
-        annotation: KClass<out Annotation>
-    ): Boolean
+    fun hasAnnotation(annotation: KClass<out Annotation>): Boolean
 
     /**
-     * Returns `true` if this element is annotated with an [XAnnotation] that has the same
-     * qualified name as the given [annotationName].
+     * Returns `true` if this element is annotated with an [XAnnotation] that has the same qualified
+     * name as the given [annotationName].
      *
      * @see [hasAnyAnnotation]
      */
@@ -105,8 +100,8 @@ interface XAnnotated {
     }
 
     /**
-     * Returns `true` if this element is annotated with an [XAnnotation] that has the same
-     * qualified name as the given [annotationName].
+     * Returns `true` if this element is annotated with an [XAnnotation] that has the same qualified
+     * name as the given [annotationName].
      *
      * @see [hasAnyAnnotation]
      */
@@ -120,49 +115,32 @@ interface XAnnotated {
      */
     fun hasAnnotationWithPackage(pkg: String): Boolean
 
-    /**
-     * Returns `true` if this element has one of the [annotations].
-     */
+    /** Returns `true` if this element has one of the [annotations]. */
     fun hasAnyAnnotation(vararg annotations: ClassName) = annotations.any(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has one of the [annotations].
-     */
+    /** Returns `true` if this element has one of the [annotations]. */
     fun hasAnyAnnotation(vararg annotations: KClass<out Annotation>) =
         annotations.any(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has one of the [annotations].
-     */
+    /** Returns `true` if this element has one of the [annotations]. */
     fun hasAnyAnnotation(annotations: Collection<ClassName>) = annotations.any(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has one of the [annotations].
-     */
-    fun hasAnyAnnotation(vararg annotations: XClassName) =
-        annotations.any(this::hasAnnotation)
+    /** Returns `true` if this element has one of the [annotations]. */
+    fun hasAnyAnnotation(vararg annotations: XClassName) = annotations.any(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has all the [annotations].
-     */
+    /** Returns `true` if this element has all the [annotations]. */
     fun hasAllAnnotations(vararg annotations: ClassName): Boolean =
         annotations.all(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has all the [annotations].
-     */
+    /** Returns `true` if this element has all the [annotations]. */
     fun hasAllAnnotations(vararg annotations: KClass<out Annotation>): Boolean =
         annotations.all(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has all the [annotations].
-     */
+    /** Returns `true` if this element has all the [annotations]. */
     fun hasAllAnnotations(annotations: Collection<ClassName>): Boolean =
         annotations.all(this::hasAnnotation)
 
-    /**
-     * Returns `true` if this element has all the [annotations].
-     */
+    /** Returns `true` if this element has all the [annotations]. */
     fun hasAllAnnotations(vararg annotations: XClassName): Boolean =
         annotations.all(this::hasAnnotation)
 
@@ -186,8 +164,8 @@ interface XAnnotated {
     }
 
     /**
-     * Returns the [XAnnotation] that has the same qualified name as [annotationName].
-     * Otherwise, `null` value is returned.
+     * Returns the [XAnnotation] that has the same qualified name as [annotationName]. Otherwise,
+     * `null` value is returned.
      *
      * @see [hasAnnotation]
      * @see [getAnnotations]
@@ -198,8 +176,8 @@ interface XAnnotated {
     }
 
     /**
-     * Returns the [XAnnotation] that has the same qualified name as [annotationName].
-     * Otherwise, `null` value is returned.
+     * Returns the [XAnnotation] that has the same qualified name as [annotationName]. Otherwise,
+     * `null` value is returned.
      *
      * @see [hasAnnotation]
      * @see [getAnnotations]
@@ -209,26 +187,18 @@ interface XAnnotated {
         return getAnnotations(annotationName).firstOrNull()
     }
 
-    /**
-     * Returns the [Annotation]s that are annotated with [annotationName]
-     */
-    fun getAnnotationsAnnotatedWith(
-        annotationName: ClassName
-    ): Set<XAnnotation> {
-        return getAllAnnotations().filter {
-            it.type.typeElement?.hasAnnotation(annotationName) ?: false
-        }.toSet()
+    /** Returns the [Annotation]s that are annotated with [annotationName] */
+    fun getAnnotationsAnnotatedWith(annotationName: ClassName): Set<XAnnotation> {
+        return getAllAnnotations()
+            .filter { it.type.typeElement?.hasAnnotation(annotationName) ?: false }
+            .toSet()
     }
 
-    /**
-     * Returns the [Annotation]s that are annotated with [annotationName]
-     */
-    fun getAnnotationsAnnotatedWith(
-        annotationName: XClassName
-    ): Set<XAnnotation> {
-        return getAllAnnotations().filter {
-            it.type.typeElement?.hasAnnotation(annotationName) ?: false
-        }.toSet()
+    /** Returns the [Annotation]s that are annotated with [annotationName] */
+    fun getAnnotationsAnnotatedWith(annotationName: XClassName): Set<XAnnotation> {
+        return getAllAnnotations()
+            .filter { it.type.typeElement?.hasAnnotation(annotationName) ?: false }
+            .toSet()
     }
 
     /**
@@ -261,19 +231,13 @@ interface XAnnotated {
      * @see [hasAnnotationWithPackage]
      */
     fun <T : Annotation> requireAnnotation(annotation: KClass<T>) =
-        checkNotNull(getAnnotation(annotation)) {
-            "Cannot find required annotation $annotation"
-        }
+        checkNotNull(getAnnotation(annotation)) { "Cannot find required annotation $annotation" }
 }
 
-/**
- * Returns `true` if this element has one of the [annotations].
- */
+/** Returns `true` if this element has one of the [annotations]. */
 fun XAnnotated.hasAnyAnnotation(annotations: Collection<XClassName>) =
     annotations.any(this::hasAnnotation)
 
-/**
- * Returns `true` if this element has all the [annotations].
- */
+/** Returns `true` if this element has all the [annotations]. */
 fun XAnnotated.hasAllAnnotations(annotations: Collection<XClassName>): Boolean =
     annotations.all(this::hasAnnotation)

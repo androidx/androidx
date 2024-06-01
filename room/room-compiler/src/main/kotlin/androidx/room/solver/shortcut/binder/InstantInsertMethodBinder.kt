@@ -30,9 +30,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Binder that knows how to write instant (blocking) insert methods.
- */
+/** Binder that knows how to write instant (blocking) insert methods. */
 class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
     InsertOrUpsertMethodBinder(adapter) {
 
@@ -46,31 +44,40 @@ class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
             return
         }
         val connectionVar = scope.getTmpVar("_connection")
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
-            argFormat = listOf("%N", "%L", "%L"),
-            args = listOf(dbProperty, /* isReadOnly = */ false, /* inTransaction = */ true),
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
-                parameterName = connectionVar,
-                returnTypeName = adapter.returnType.asTypeName().box(),
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    adapter.generateMethodBody(
-                        scope = scope,
-                        parameters = parameters,
-                        adapters = adapters,
-                        connectionVar = connectionVar
-                    )
-                }
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName = connectionVar,
+                            returnTypeName = adapter.returnType.asTypeName().box(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            adapter.generateMethodBody(
+                                scope = scope,
+                                parameters = parameters,
+                                adapters = adapters,
+                                connectionVar = connectionVar
+                            )
+                        }
+                    }
+            )
+        val returnPrefix =
+            when (scope.language) {
+                CodeLanguage.JAVA ->
+                    if (adapter.returnType.isNotVoid()) {
+                        "return "
+                    } else {
+                        ""
+                    }
+                CodeLanguage.KOTLIN -> "return "
             }
-        )
-        val returnPrefix = when (scope.language) {
-            CodeLanguage.JAVA -> if (adapter.returnType.isNotVoid()) { "return " } else { "" }
-            CodeLanguage.KOTLIN -> "return "
-        }
         scope.builder.add("$returnPrefix%L", performBlock)
     }
 

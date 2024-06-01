@@ -35,21 +35,16 @@ import androidx.sqlite.db.SupportSQLiteStatement
 import java.io.IOException
 import java.util.Locale
 
-/**
- * A SupportSQLiteOpenHelper that has auto close enabled for database connections.
- */
+/** A SupportSQLiteOpenHelper that has auto close enabled for database connections. */
 internal class AutoClosingRoomOpenHelper(
     override val delegate: SupportSQLiteOpenHelper,
-    @JvmField
-    internal val autoCloser: AutoCloser
+    @JvmField internal val autoCloser: AutoCloser
 ) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
     private val autoClosingDb: AutoClosingSupportSQLiteDatabase
 
     init {
         autoCloser.init(delegate)
-        autoClosingDb = AutoClosingSupportSQLiteDatabase(
-            autoCloser
-        )
+        autoClosingDb = AutoClosingSupportSQLiteDatabase(autoCloser)
     }
 
     @get:RequiresApi(api = Build.VERSION_CODES.N)
@@ -72,12 +67,9 @@ internal class AutoClosingRoomOpenHelper(
         autoClosingDb.close()
     }
 
-    /**
-     * SupportSQLiteDatabase that also keeps refcounts and autocloses the database
-     */
-    internal class AutoClosingSupportSQLiteDatabase(
-        private val autoCloser: AutoCloser
-    ) : SupportSQLiteDatabase {
+    /** SupportSQLiteDatabase that also keeps refcounts and autocloses the database */
+    internal class AutoClosingSupportSQLiteDatabase(private val autoCloser: AutoCloser) :
+        SupportSQLiteDatabase {
         fun pokeOpen() {
             autoCloser.executeRefCountingFunction<Any?> { null }
         }
@@ -157,9 +149,8 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         override fun setTransactionSuccessful() {
-            autoCloser.delegateDatabase?.setTransactionSuccessful() ?: error(
-                "setTransactionSuccessful called but delegateDb is null"
-            )
+            autoCloser.delegateDatabase?.setTransactionSuccessful()
+                ?: error("setTransactionSuccessful called but delegateDb is null")
         }
 
         override fun inTransaction(): Boolean {
@@ -171,17 +162,18 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         override val isDbLockedByCurrentThread: Boolean
-            get() = if (autoCloser.delegateDatabase == null) {
-                false
-            } else {
-                autoCloser.executeRefCountingFunction(
-                    SupportSQLiteDatabase::isDbLockedByCurrentThread
-                )
-            }
+            get() =
+                if (autoCloser.delegateDatabase == null) {
+                    false
+                } else {
+                    autoCloser.executeRefCountingFunction(
+                        SupportSQLiteDatabase::isDbLockedByCurrentThread
+                    )
+                }
 
         override fun yieldIfContendedSafely(): Boolean {
             return autoCloser.executeRefCountingFunction(
-                    SupportSQLiteDatabase::yieldIfContendedSafely
+                SupportSQLiteDatabase::yieldIfContendedSafely
             )
         }
 
@@ -192,9 +184,7 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         override var version: Int
-            get() = autoCloser.executeRefCountingFunction(
-                SupportSQLiteDatabase::version
-            )
+            get() = autoCloser.executeRefCountingFunction(SupportSQLiteDatabase::version)
             set(version) {
                 autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
                     db.version = version
@@ -203,13 +193,11 @@ internal class AutoClosingRoomOpenHelper(
             }
 
         override val maximumSize: Long
-            get() = autoCloser.executeRefCountingFunction(
-                SupportSQLiteDatabase::maximumSize
-            )
+            get() = autoCloser.executeRefCountingFunction(SupportSQLiteDatabase::maximumSize)
 
         override fun setMaximumSize(numBytes: Long): Long {
-            return autoCloser.executeRefCountingFunction {
-                    db: SupportSQLiteDatabase -> db.setMaximumSize(numBytes)
+            return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                db.setMaximumSize(numBytes)
             }
         }
 
@@ -223,32 +211,35 @@ internal class AutoClosingRoomOpenHelper(
             }
 
         override fun query(query: String): Cursor {
-            val result = try {
-                autoCloser.incrementCountAndEnsureDbIsOpen().query(query)
-            } catch (throwable: Throwable) {
-                autoCloser.decrementCountAndScheduleClose()
-                throw throwable
-            }
+            val result =
+                try {
+                    autoCloser.incrementCountAndEnsureDbIsOpen().query(query)
+                } catch (throwable: Throwable) {
+                    autoCloser.decrementCountAndScheduleClose()
+                    throw throwable
+                }
             return KeepAliveCursor(result, autoCloser)
         }
 
         override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
-            val result = try {
-                autoCloser.incrementCountAndEnsureDbIsOpen().query(query, bindArgs)
-            } catch (throwable: Throwable) {
-                autoCloser.decrementCountAndScheduleClose()
-                throw throwable
-            }
+            val result =
+                try {
+                    autoCloser.incrementCountAndEnsureDbIsOpen().query(query, bindArgs)
+                } catch (throwable: Throwable) {
+                    autoCloser.decrementCountAndScheduleClose()
+                    throw throwable
+                }
             return KeepAliveCursor(result, autoCloser)
         }
 
         override fun query(query: SupportSQLiteQuery): Cursor {
-            val result = try {
-                autoCloser.incrementCountAndEnsureDbIsOpen().query(query)
-            } catch (throwable: Throwable) {
-                autoCloser.decrementCountAndScheduleClose()
-                throw throwable
-            }
+            val result =
+                try {
+                    autoCloser.incrementCountAndEnsureDbIsOpen().query(query)
+                } catch (throwable: Throwable) {
+                    autoCloser.decrementCountAndScheduleClose()
+                    throw throwable
+                }
             return KeepAliveCursor(result, autoCloser)
         }
 
@@ -257,32 +248,26 @@ internal class AutoClosingRoomOpenHelper(
             query: SupportSQLiteQuery,
             cancellationSignal: CancellationSignal?
         ): Cursor {
-            val result = try {
-                autoCloser.incrementCountAndEnsureDbIsOpen().query(query, cancellationSignal)
-            } catch (throwable: Throwable) {
-                autoCloser.decrementCountAndScheduleClose()
-                throw throwable
-            }
+            val result =
+                try {
+                    autoCloser.incrementCountAndEnsureDbIsOpen().query(query, cancellationSignal)
+                } catch (throwable: Throwable) {
+                    autoCloser.decrementCountAndScheduleClose()
+                    throw throwable
+                }
             return KeepAliveCursor(result, autoCloser)
         }
 
         @Throws(SQLException::class)
         override fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
-                db.insert(
-                    table, conflictAlgorithm,
-                    values
-                )
+                db.insert(table, conflictAlgorithm, values)
             }
         }
 
         override fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
-                db.delete(
-                    table,
-                    whereClause,
-                    whereArgs
-                )
+                db.delete(table, whereClause, whereArgs)
             }
         }
 
@@ -294,10 +279,7 @@ internal class AutoClosingRoomOpenHelper(
             whereArgs: Array<out Any?>?
         ): Int {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
-                db.update(
-                    table, conflictAlgorithm,
-                    values, whereClause, whereArgs
-                )
+                db.update(table, conflictAlgorithm, values, whereClause, whereArgs)
             }
         }
 
@@ -318,9 +300,10 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         override val isReadOnly: Boolean
-            get() = autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
-                obj.isReadOnly
-            }
+            get() =
+                autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
+                    obj.isReadOnly
+                }
 
         override val isOpen: Boolean
             get() {
@@ -332,16 +315,12 @@ internal class AutoClosingRoomOpenHelper(
 
         override fun needUpgrade(newVersion: Int): Boolean {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
-                db.needUpgrade(
-                    newVersion
-                )
+                db.needUpgrade(newVersion)
             }
         }
 
         override val path: String?
-            get() = autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
-                obj.path
-            }
+            get() = autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase -> obj.path }
 
         override fun setLocale(locale: Locale) {
             autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
@@ -379,19 +358,22 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         override val isWriteAheadLoggingEnabled: Boolean
-            get() = autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
-                return@executeRefCountingFunction db.isWriteAheadLoggingEnabled
-            }
+            get() =
+                autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
+                    return@executeRefCountingFunction db.isWriteAheadLoggingEnabled
+                }
 
         override val attachedDbs: List<Pair<String, String>>?
-            get() = autoCloser.executeRefCountingFunction {
-                    obj: SupportSQLiteDatabase -> obj.attachedDbs
-            }
+            get() =
+                autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
+                    obj.attachedDbs
+                }
 
         override val isDatabaseIntegrityOk: Boolean
-            get() = autoCloser.executeRefCountingFunction {
-                    obj: SupportSQLiteDatabase -> obj.isDatabaseIntegrityOk
-            }
+            get() =
+                autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
+                    obj.isDatabaseIntegrityOk
+                }
 
         @Throws(IOException::class)
         override fun close() {
@@ -400,9 +382,9 @@ internal class AutoClosingRoomOpenHelper(
     }
 
     /**
-     * We need to keep the db alive until the cursor is closed, so we can't decrement our
-     * reference count until the cursor is closed. The underlying database will not close until
-     * this cursor is closed.
+     * We need to keep the db alive until the cursor is closed, so we can't decrement our reference
+     * count until the cursor is closed. The underlying database will not close until this cursor is
+     * closed.
      */
     private class KeepAliveCursor(
         private val delegate: Cursor,
@@ -415,10 +397,7 @@ internal class AutoClosingRoomOpenHelper(
         }
 
         @RequiresApi(api = Build.VERSION_CODES.Q)
-        override fun setNotificationUris(
-            cr: ContentResolver,
-            uris: List<Uri>
-        ) {
+        override fun setNotificationUris(cr: ContentResolver, uris: List<Uri>) {
             SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)
         }
 
@@ -442,8 +421,8 @@ internal class AutoClosingRoomOpenHelper(
      *
      * Each of these that are created need to be registered with RefCounter.
      *
-     * On auto-close, RefCounter needs to close each of these before closing the db that these
-     * were constructed from.
+     * On auto-close, RefCounter needs to close each of these before closing the db that these were
+     * constructed from.
      *
      * Each of the methods here need to get
      */
@@ -456,6 +435,7 @@ internal class AutoClosingRoomOpenHelper(
         private val autoCloser: AutoCloser
     ) : SupportSQLiteStatement {
         private val binds = ArrayList<Any?>()
+
         private fun <T> executeSqliteStatementWithRefCount(
             block: (SupportSQLiteStatement) -> T
         ): T {
@@ -515,7 +495,8 @@ internal class AutoClosingRoomOpenHelper(
 
         override fun executeUpdateDelete(): Int {
             return executeSqliteStatementWithRefCount { obj: SupportSQLiteStatement ->
-                obj.executeUpdateDelete() }
+                obj.executeUpdateDelete()
+            }
         }
 
         override fun executeInsert(): Long {

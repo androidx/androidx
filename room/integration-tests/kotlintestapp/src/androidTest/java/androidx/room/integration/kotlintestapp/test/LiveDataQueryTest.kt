@@ -33,9 +33,7 @@ class LiveDataQueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        val book = LiveDataTestUtil.awaitValue(
-            booksDao.getBookLiveData(TestUtil.BOOK_1.bookId)
-        )
+        val book = LiveDataTestUtil.awaitValue(booksDao.getBookLiveData(TestUtil.BOOK_1.bookId))
 
         assertThat(book, `is`<Book>(TestUtil.BOOK_1))
     }
@@ -46,15 +44,11 @@ class LiveDataQueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        var expected = BookWithPublisher(
-            TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
-            TestUtil.PUBLISHER
-        )
+        var expected =
+            BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title, TestUtil.PUBLISHER)
         var expectedList = ArrayList<BookWithPublisher>()
         expectedList.add(expected)
-        val actual = LiveDataTestUtil.awaitValue(
-            booksDao.getBooksWithPublisherLiveData()
-        )
+        val actual = LiveDataTestUtil.awaitValue(booksDao.getBooksWithPublisherLiveData())
         assertThat(actual, `is`<List<BookWithPublisher>>(expectedList))
     }
 
@@ -64,9 +58,10 @@ class LiveDataQueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
-        var actualPublisherWithBooks = LiveDataTestUtil.awaitValue(
-            booksDao.getPublisherWithBooksLiveData(TestUtil.PUBLISHER.publisherId)
-        )
+        var actualPublisherWithBooks =
+            LiveDataTestUtil.awaitValue(
+                booksDao.getPublisherWithBooksLiveData(TestUtil.PUBLISHER.publisherId)
+            )
 
         assertThat(actualPublisherWithBooks.publisher, `is`<Publisher>(TestUtil.PUBLISHER))
         assertThat(actualPublisherWithBooks.books?.size, `is`(2))

@@ -18,9 +18,6 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Relation
 
 class RelationFromDependency(val sharedName: String) {
-    @Relation(
-        parentColumn = "sharedName",
-        entityColumn = "name"
-    )
+    @Relation(parentColumn = "sharedName", entityColumn = "name")
     lateinit var dataItems: List<DataClassFromDependency>
 }

@@ -23,9 +23,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import java.io.File
 
-/**
- * Common interface for compilation tests
- */
+/** Common interface for compilation tests */
 @ExperimentalProcessingApi
 internal interface CompilationTestRunner {
     // user visible name that we can print in assertions

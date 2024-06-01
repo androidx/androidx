@@ -31,16 +31,15 @@ import com.google.devtools.ksp.symbol.KSNode
  * KSP implementation of a [XBasicAnnotationProcessor] with built-in support for validating and
  * deferring symbols.
  */
-abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
+abstract class KspBasicAnnotationProcessor
+@JvmOverloads
+constructor(
     symbolProcessorEnvironment: SymbolProcessorEnvironment,
     config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT,
 ) : SymbolProcessor, XBasicAnnotationProcessor {
     private val logger = DelegateLogger(symbolProcessorEnvironment.logger)
 
-    private val xEnv = KspProcessingEnv(
-        delegate = symbolProcessorEnvironment,
-        config = config
-    )
+    private val xEnv = KspProcessingEnv(delegate = symbolProcessorEnvironment, config = config)
 
     // Cache and lazily get steps during the initial process() so steps initialization is done once.
     private val steps by lazy { processingSteps().toList() }
@@ -49,7 +48,8 @@ abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
 
     private var initialized = false
 
-    final override val xProcessingEnv: XProcessingEnv get() = xEnv
+    final override val xProcessingEnv: XProcessingEnv
+        get() = xEnv
 
     final override fun process(resolver: Resolver): List<KSAnnotated> {
         xEnv.resolver = resolver // Set the resolver at the beginning of each round
@@ -88,10 +88,12 @@ abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
     // KSPLogger delegate to keep track if an error was raised or not.
     private class DelegateLogger(val delegate: KSPLogger) : KSPLogger by delegate {
         var hasError = false
+
         override fun error(message: String, symbol: KSNode?) {
             hasError = true
             delegate.error(message, symbol)
         }
+
         override fun exception(e: Throwable) {
             hasError = true
             delegate.exception(e)

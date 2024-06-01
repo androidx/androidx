@@ -32,10 +32,7 @@ class ExpandableSqlParserTest {
 
     @Test
     fun multipleQueries() {
-        assertErrors(
-            "SELECT * FROM users; SELECT * FROM books;",
-            ParserErrors.NOT_ONE_QUERY
-        )
+        assertErrors("SELECT * FROM users; SELECT * FROM books;", ParserErrors.NOT_ONE_QUERY)
     }
 
     @Test
@@ -67,20 +64,22 @@ class ExpandableSqlParserTest {
 
     @Test
     fun insertQuery() {
-        val parsed = ExpandableSqlParser.parse(
-            "INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)"
-        )
+        val parsed =
+            ExpandableSqlParser.parse(
+                "INSERT OR REPLACE INTO notes (id, content) VALUES (:id, :content)"
+            )
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
     }
 
     @Test
     fun upsertQuery() {
-        val parsed = ExpandableSqlParser.parse(
-            "INSERT INTO notes (id, content) VALUES (:id, :content) " +
-                "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
-                "revision = revision + 1, modifiedTime = strftime('%s','now')"
-        )
+        val parsed =
+            ExpandableSqlParser.parse(
+                "INSERT INTO notes (id, content) VALUES (:id, :content) " +
+                    "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
+                    "revision = revision + 1, modifiedTime = strftime('%s','now')"
+            )
         assertThat(parsed.errors, `is`(emptyList()))
         assertThat(parsed.type, `is`(QueryType.INSERT))
     }
@@ -96,12 +95,26 @@ class ExpandableSqlParserTest {
     @Test
     fun validColumnNames() {
         listOf(
-            "f", "fo", "f2", "f 2", "foo_2", "foo-2", "_", "foo bar baz",
-            "foo 2 baz", "_baz", "fooBar", "2", "*", "foo*2", "dsa$", "\$fsa",
-            "-bar", "şoöğüı"
-        ).forEach {
-            assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true))
-        }
+                "f",
+                "fo",
+                "f2",
+                "f 2",
+                "foo_2",
+                "foo-2",
+                "_",
+                "foo bar baz",
+                "foo 2 baz",
+                "_baz",
+                "fooBar",
+                "2",
+                "*",
+                "foo*2",
+                "dsa$",
+                "\$fsa",
+                "-bar",
+                "şoöğüı"
+            )
+            .forEach { assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true)) }
     }
 
     @Test
@@ -113,10 +126,10 @@ class ExpandableSqlParserTest {
 
     @Test
     fun projection() {
-        val query = ExpandableSqlParser.parse(
-            "SELECT * FROM User WHERE teamId IN " +
-                "(SELECT * FROM Team WHERE active != 0)"
-        )
+        val query =
+            ExpandableSqlParser.parse(
+                "SELECT * FROM User WHERE teamId IN " + "(SELECT * FROM Team WHERE active != 0)"
+            )
         assertThat(query.errors, `is`(emptyList()))
         assertThat(query.projections.size, `is`(1))
         assertThat(query.projections.first().section.text, `is`(equalTo("*")))
@@ -238,33 +251,17 @@ class ExpandableSqlParserTest {
     fun tablePrefixInSelect_projection() {
         val query = ExpandableSqlParser.parse("SELECT a.name, b.last_name from user a, book b")
         assertThat(query.errors, `is`(emptyList()))
-        assertThat(
-            query.tables,
-            `is`(
-                setOf(
-                    Table("user", "a"),
-                    Table("book", "b")
-                )
-            )
-        )
+        assertThat(query.tables, `is`(setOf(Table("user", "a"), Table("book", "b"))))
     }
 
     @Test
     fun tablePrefixInSelect_where() {
-        val query = ExpandableSqlParser.parse(
-            "SELECT a.name, b.last_name from user a, book b" +
-                " WHERE a.name = b.name"
-        )
-        assertThat(query.errors, `is`(emptyList()))
-        assertThat(
-            query.tables,
-            `is`(
-                setOf(
-                    Table("user", "a"),
-                    Table("book", "b")
-                )
+        val query =
+            ExpandableSqlParser.parse(
+                "SELECT a.name, b.last_name from user a, book b" + " WHERE a.name = b.name"
             )
-        )
+        assertThat(query.errors, `is`(emptyList()))
+        assertThat(query.tables, `is`(setOf(Table("user", "a"), Table("book", "b"))))
     }
 
     @Test
@@ -294,10 +291,7 @@ class ExpandableSqlParserTest {
 
     @Test
     fun indexedVariablesError() {
-        assertErrors(
-            "select * from users where name like ?",
-            ParserErrors.ANONYMOUS_BIND_ARGUMENT
-        )
+        assertErrors("select * from users where name like ?", ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors(
             "select * from users where name like ? or last_name like ?",
             ParserErrors.ANONYMOUS_BIND_ARGUMENT

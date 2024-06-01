@@ -42,10 +42,8 @@ class CallableInsertMethodBinder(
         fun createInsertBinder(
             typeArg: XType,
             adapter: InsertOrUpsertMethodAdapter?,
-            addCodeBlock: XCodeBlock.Builder.(
-                callableImpl: XTypeSpec,
-                dbField: XPropertySpec
-            ) -> Unit
+            addCodeBlock:
+                XCodeBlock.Builder.(callableImpl: XTypeSpec, dbField: XPropertySpec) -> Unit
         ) = CallableInsertMethodBinder(typeArg, addCodeBlock, adapter)
     }
 
@@ -65,22 +63,24 @@ class CallableInsertMethodBinder(
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
-        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
-            addCode(
-                XCodeBlock.builder(language).apply {
-                    adapter?.generateMethodBodyCompat(
-                        parameters = parameters,
-                        adapters = adapters,
-                        dbProperty = dbProperty,
-                        scope = adapterScope
+        val callableImpl =
+            CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+                    addCode(
+                        XCodeBlock.builder(language)
+                            .apply {
+                                adapter?.generateMethodBodyCompat(
+                                    parameters = parameters,
+                                    adapters = adapters,
+                                    dbProperty = dbProperty,
+                                    scope = adapterScope
+                                )
+                                addCode(adapterScope.generate())
+                            }
+                            .build()
                     )
-                    addCode(adapterScope.generate())
-                }.build()
-            )
-        }.build()
+                }
+                .build()
 
-        scope.builder.apply {
-            addStmntBlock(callableImpl, dbProperty)
-        }
+        scope.builder.apply { addStmntBlock(callableImpl, dbProperty) }
     }
 }

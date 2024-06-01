@@ -20,8 +20,5 @@ import androidx.room.Relation
 
 class RobotAndHivemind(
     @field:Embedded val mRobot: Robot,
-    @field:Relation(
-        parentColumn = "mHiveId",
-        entityColumn = "mId"
-    ) val mHivemind: Hivemind
+    @field:Relation(parentColumn = "mHiveId", entityColumn = "mId") val mHivemind: Hivemind
 )

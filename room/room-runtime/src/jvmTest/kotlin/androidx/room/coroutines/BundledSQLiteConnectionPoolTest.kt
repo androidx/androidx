@@ -22,8 +22,8 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile
 
 class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
-    override val fileName = createTempFile("test.db").also { it.toFile().deleteOnExit() }
-        .absolutePathString()
+    override val fileName =
+        createTempFile("test.db").also { it.toFile().deleteOnExit() }.absolutePathString()
 
     override fun getDriver(): SQLiteDriver {
         return BundledSQLiteDriver()

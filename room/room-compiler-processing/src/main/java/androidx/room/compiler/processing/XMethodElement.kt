@@ -46,14 +46,10 @@ interface XMethodElement : XExecutableElement {
      */
     val returnType: XType
 
-    /**
-     * The property name if this is a setter/getter method for a kotlin property.
-     */
+    /** The property name if this is a setter/getter method for a kotlin property. */
     val propertyName: String?
 
-    /**
-     * The type representation of the method where more type parameters might be resolved.
-     */
+    /** The type representation of the method where more type parameters might be resolved. */
     override val executableType: XMethodType
 
     override val fallbackLocationText: String
@@ -64,9 +60,7 @@ interface XMethodElement : XExecutableElement {
             append("(")
             // don't report last parameter if it is a suspend function
             append(
-                parameters.dropLast(
-                    if (isSuspendFunction()) 1 else 0
-                ).joinToString(", ") {
+                parameters.dropLast(if (isSuspendFunction()) 1 else 0).joinToString(", ") {
                     it.type.asTypeName().java.toString()
                 }
             )
@@ -104,14 +98,10 @@ interface XMethodElement : XExecutableElement {
      */
     fun isSuspendFunction(): Boolean
 
-    /**
-     * Returns true if this is an extension function.
-     */
+    /** Returns true if this is an extension function. */
     fun isExtensionFunction(): Boolean
 
-    /**
-     * Returns true if this method can be overridden without checking its enclosing [XElement].
-     */
+    /** Returns true if this method can be overridden without checking its enclosing [XElement]. */
     fun isOverrideableIgnoringContainer(): Boolean {
         return !isFinal() && !isPrivate() && !isStatic()
     }
@@ -135,28 +125,21 @@ interface XMethodElement : XExecutableElement {
     /**
      * Returns true if this method is a Kotlin property getter or setter.
      *
-     * Note that if the origin is a Java source this function will always return `false` even if
-     * the method name matches the property naming convention.
+     * Note that if the origin is a Java source this function will always return `false` even if the
+     * method name matches the property naming convention.
      */
     fun isKotlinPropertyMethod(): Boolean
 
-    /**
-     * Returns true if this method is a Kotlin property setter.
-     */
+    /** Returns true if this method is a Kotlin property setter. */
     fun isKotlinPropertySetter(): Boolean
 
-    /**
-     * Returns true if this method is a Kotlin property getter.
-     */
+    /** Returns true if this method is a Kotlin property getter. */
     fun isKotlinPropertyGetter(): Boolean
 }
 
-internal fun <T : XMethodElement> List<T>.filterMethodsByConfig(
-    env: XProcessingEnv
-): List<T> = if (env.config.excludeMethodsWithInvalidJvmSourceNames) {
-    filter {
-        it.hasValidJvmSourceName()
+internal fun <T : XMethodElement> List<T>.filterMethodsByConfig(env: XProcessingEnv): List<T> =
+    if (env.config.excludeMethodsWithInvalidJvmSourceNames) {
+        filter { it.hasValidJvmSourceName() }
+    } else {
+        this
     }
-} else {
-    this
-}

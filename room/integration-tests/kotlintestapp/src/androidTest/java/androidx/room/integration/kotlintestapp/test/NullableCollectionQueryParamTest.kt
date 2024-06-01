@@ -42,10 +42,12 @@ class NullableCollectionQueryParamTest {
 
     @Before
     fun setup() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            TestDatabase::class.java
-        ).build()
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    TestDatabase::class.java
+                )
+                .build()
         dao = db.getDao()
 
         dao.addSong(songOne)
@@ -59,73 +61,52 @@ class NullableCollectionQueryParamTest {
 
     @Test
     fun nullableList() {
-        assertThat(dao.queryList(null))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryList(null)).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryList(listOf("tag_1", "tag_2")))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryList(listOf("tag_1", "tag_2"))).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryList(listOf("tag_2")))
-            .containsExactly(songTwo)
+        assertThat(dao.queryList(listOf("tag_2"))).containsExactly(songTwo)
     }
 
     @Test
     fun nullableArray() {
-        assertThat(dao.queryArray(null))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryArray(null)).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryArray(arrayOf("tag_1", "tag_2")))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryArray(arrayOf("tag_1", "tag_2"))).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryArray(arrayOf("tag_2")))
-            .containsExactly(songTwo)
+        assertThat(dao.queryArray(arrayOf("tag_2"))).containsExactly(songTwo)
     }
 
     @Test
     fun nullableVararg() {
-        assertThat(dao.queryVarargs(null))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryVarargs(null)).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryVarargs("tag_1", "tag_2"))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryVarargs("tag_1", "tag_2")).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryVarargs("tag_2"))
-            .containsExactly(songTwo)
+        assertThat(dao.queryVarargs("tag_2")).containsExactly(songTwo)
     }
 
     @Test
     fun nullablePrimitiveArray() {
-        assertThat(dao.queryPrimitiveArray(null))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryPrimitiveArray(null)).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryPrimitiveArray(intArrayOf(1, 2)))
-            .containsExactly(songOne, songTwo)
+        assertThat(dao.queryPrimitiveArray(intArrayOf(1, 2))).containsExactly(songOne, songTwo)
 
-        assertThat(dao.queryPrimitiveArray(intArrayOf(2)))
-            .containsExactly(songTwo)
+        assertThat(dao.queryPrimitiveArray(intArrayOf(2))).containsExactly(songTwo)
     }
 
-    @Entity
-    data class Song(
-        @PrimaryKey val id: Long,
-        val tag: String,
-        val num: Int
-    )
+    @Entity data class Song(@PrimaryKey val id: Long, val tag: String, val num: Int)
 
     @Dao
     interface SongDao {
 
-        @Insert
-        fun addSong(song: Song)
+        @Insert fun addSong(song: Song)
 
-        @Query(COALESCE_QUERY)
-        fun queryList(inputTags: List<String>?): List<Song>
+        @Query(COALESCE_QUERY) fun queryList(inputTags: List<String>?): List<Song>
 
-        @Query(COALESCE_QUERY)
-        fun queryArray(inputTags: Array<String>?): List<Song>
+        @Query(COALESCE_QUERY) fun queryArray(inputTags: Array<String>?): List<Song>
 
-        @Query(COALESCE_QUERY)
-        fun queryVarargs(vararg inputTags: String?): List<Song>
+        @Query(COALESCE_QUERY) fun queryVarargs(vararg inputTags: String?): List<Song>
 
         @Query("SELECT * FROM Song WHERE num IN (:inputNum) OR COALESCE(:inputNum, 0) = 0")
         fun queryPrimitiveArray(inputNum: IntArray?): List<Song>

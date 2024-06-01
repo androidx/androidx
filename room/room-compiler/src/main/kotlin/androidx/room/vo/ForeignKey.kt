@@ -18,9 +18,7 @@ package androidx.room.vo
 
 import androidx.room.migration.bundle.ForeignKeyBundle
 
-/**
- * Keeps information about a foreign key.
- */
+/** Keeps information about a foreign key. */
 data class ForeignKey(
     val parentTable: String,
     val parentColumns: List<String>,
@@ -56,9 +54,12 @@ data class ForeignKey(
 
     private fun joinEscaped(values: Iterable<String>) = values.joinToString(", ") { "`$it`" }
 
-    fun toBundle(): ForeignKeyBundle = ForeignKeyBundle(
-        parentTable, onDelete.sqlName, onUpdate.sqlName,
-        childFields.map { it.columnName },
-        parentColumns
-    )
+    fun toBundle(): ForeignKeyBundle =
+        ForeignKeyBundle(
+            parentTable,
+            onDelete.sqlName,
+            onUpdate.sqlName,
+            childFields.map { it.columnName },
+            parentColumns
+        )
 }

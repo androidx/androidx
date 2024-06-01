@@ -24,24 +24,21 @@ import androidx.sqlite.SQLiteConnection
  * A data class that holds the information about a table.
  *
  * It directly maps to the result of `PRAGMA table_info(<table_name>)`. Check the
- * [PRAGMA table_info](http://www.sqlite.org/pragma.html#pragma_table_info)
- * documentation for more details.
+ * [PRAGMA table_info](http://www.sqlite.org/pragma.html#pragma_table_info) documentation for more
+ * details.
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual class TableInfo actual constructor(
-    /**
-     * The table name.
-     */
+actual class TableInfo
+actual constructor(
+    /** The table name. */
     actual val name: String,
     actual val columns: Map<String, Column>,
     actual val foreignKeys: Set<ForeignKey>,
     actual val indices: Set<Index>?
 ) {
-    /**
-     * Identifies from where the info object was created.
-     */
+    /** Identifies from where the info object was created. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE])
     internal annotation class CreatedFrom()
@@ -53,9 +50,7 @@ actual class TableInfo actual constructor(
     actual override fun toString() = toStringCommon()
 
     actual companion object {
-        /**
-         * Identifier for when the info is created from an unknown source.
-         */
+        /** Identifier for when the info is created from an unknown source. */
         actual const val CREATED_FROM_UNKNOWN = 0
 
         /**
@@ -82,27 +77,19 @@ actual class TableInfo actual constructor(
         }
     }
 
-    /**
-     * Holds the information about a database column.
-     */
+    /** Holds the information about a database column. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    actual class Column actual constructor(
-        /**
-         * The column name.
-         */
+    actual class Column
+    actual constructor(
+        /** The column name. */
         actual val name: String,
-        /**
-         * The column type affinity.
-         */
+        /** The column type affinity. */
         actual val type: String,
-        /**
-         * Whether or not the column can be NULL.
-         */
+        /** Whether or not the column can be NULL. */
         actual val notNull: Boolean,
         actual val primaryKeyPosition: Int,
         actual val defaultValue: String?,
-        @CreatedFrom
-        actual val createdFrom: Int
+        @CreatedFrom actual val createdFrom: Int
     ) {
         /**
          * The column type after it is normalized to one of the basic types according to
@@ -110,8 +97,7 @@ actual class TableInfo actual constructor(
          *
          * This is the value Room uses for equality check.
          */
-        @SQLiteTypeAffinity
-        actual val affinity: Int = findAffinity(type)
+        @SQLiteTypeAffinity actual val affinity: Int = findAffinity(type)
 
         /**
          * Returns whether this column is part of the primary key or not.
@@ -128,11 +114,10 @@ actual class TableInfo actual constructor(
         actual override fun toString() = toStringCommon()
     }
 
-    /**
-     * Holds the information about an SQLite foreign key
-     */
+    /** Holds the information about an SQLite foreign key */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    actual class ForeignKey actual constructor(
+    actual class ForeignKey
+    actual constructor(
         actual val referenceTable: String,
         actual val onDelete: String,
         actual val onUpdate: String,
@@ -146,20 +131,17 @@ actual class TableInfo actual constructor(
         actual override fun toString() = toStringCommon()
     }
 
-    /**
-     * Holds the information about an SQLite index
-     */
+    /** Holds the information about an SQLite index */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    actual class Index actual constructor(
+    actual class Index
+    actual constructor(
         actual val name: String,
         actual val unique: Boolean,
         actual val columns: List<String>,
         actual var orders: List<String>
     ) {
         init {
-            orders = orders.ifEmpty {
-                List(columns.size) { androidx.room.Index.Order.ASC.name }
-            }
+            orders = orders.ifEmpty { List(columns.size) { androidx.room.Index.Order.ASC.name } }
         }
 
         actual companion object {
@@ -175,9 +157,7 @@ actual class TableInfo actual constructor(
     }
 }
 
-/**
- * Checks if the primary key match.
- */
+/** Checks if the primary key match. */
 internal actual fun TableInfo.Column.equalsInPrimaryKey(other: TableInfo.Column): Boolean {
     return isPrimaryKey == other.isPrimaryKey
 }

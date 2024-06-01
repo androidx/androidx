@@ -33,10 +33,7 @@ import kotlin.jvm.JvmName
  * @return True if a valid migration is required, false otherwise.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
-internal fun DatabaseConfiguration.isMigrationRequired(
-    fromVersion: Int,
-    toVersion: Int
-): Boolean {
+internal fun DatabaseConfiguration.isMigrationRequired(fromVersion: Int, toVersion: Int): Boolean {
     // Migrations are not required if it is a downgrade AND destructive migration during downgrade
     // has been allowed.
     val isDowngrade = fromVersion > toVersion
@@ -53,8 +50,8 @@ internal fun DatabaseConfiguration.isMigrationRequired(
 }
 
 /**
- * Indicates if the given migration is contained within the [MigrationContainer] based
- * on its start-end versions.
+ * Indicates if the given migration is contained within the [MigrationContainer] based on its
+ * start-end versions.
  *
  * @param startVersion Start version of the migration.
  * @param endVersion End version of the migration
@@ -71,19 +68,15 @@ internal fun MigrationContainer.contains(startVersion: Int, endVersion: Int): Bo
 }
 
 /**
- * Finds the list of migrations that should be run to move from `start` version to
- * `end` version.
+ * Finds the list of migrations that should be run to move from `start` version to `end` version.
  *
  * @param start The current database version
  * @param end The target database version
- * @return An ordered list of [Migration] objects that should be run to migrate
- * between the given versions. If a migration path cannot be found, `null` is returned.
+ * @return An ordered list of [Migration] objects that should be run to migrate between the given
+ *   versions. If a migration path cannot be found, `null` is returned.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
-internal fun MigrationContainer.findMigrationPath(
-    start: Int,
-    end: Int
-): List<Migration>? {
+internal fun MigrationContainer.findMigrationPath(start: Int, end: Int): List<Migration>? {
     if (start == end) {
         return emptyList()
     }
@@ -101,18 +94,20 @@ private fun MigrationContainer.findUpMigrationPath(
     var migrationStart = start
     while (if (upgrade) migrationStart < end else migrationStart > end) {
         // Use ordered keys and start searching from one end of them.
-        val (targetNodes, keySet) = if (upgrade) {
-            getSortedDescendingNodes(migrationStart)
-        } else {
-            getSortedNodes(migrationStart)
-        } ?: return null
+        val (targetNodes, keySet) =
+            if (upgrade) {
+                getSortedDescendingNodes(migrationStart)
+            } else {
+                getSortedNodes(migrationStart)
+            } ?: return null
         var found = false
         for (targetVersion in keySet) {
-            val shouldAddToPath = if (upgrade) {
-                targetVersion in (migrationStart + 1)..end
-            } else {
-                targetVersion in end until migrationStart
-            }
+            val shouldAddToPath =
+                if (upgrade) {
+                    targetVersion in (migrationStart + 1)..end
+                } else {
+                    targetVersion in end until migrationStart
+                }
             if (shouldAddToPath) {
                 // We are iterating over the key set of targetNodes, so we can assume it
                 // won't return a null value.

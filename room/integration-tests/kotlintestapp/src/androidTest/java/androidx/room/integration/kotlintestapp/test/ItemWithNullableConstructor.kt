@@ -38,12 +38,15 @@ import org.junit.runner.RunWith
 @SmallTest
 class ItemWithNullableConstructor {
     lateinit var db: Db
+
     @Before
     fun initDb() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            Db::class.java
-        ).build()
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    Db::class.java
+                )
+                .build()
     }
 
     @After
@@ -59,25 +62,18 @@ class ItemWithNullableConstructor {
 
     @Entity
     data class TestItem(
-        @PrimaryKey(autoGenerate = true)
-        val id: Long? = null,
+        @PrimaryKey(autoGenerate = true) val id: Long? = null,
         val nullable: Boolean?
     )
 
     @Dao
     interface TestDao {
-        @Insert
-        fun insert(testItem: TestItem)
+        @Insert fun insert(testItem: TestItem)
 
-        @Query("SELECT * FROM TestItem LIMIT 1")
-        fun get(): TestItem?
+        @Query("SELECT * FROM TestItem LIMIT 1") fun get(): TestItem?
     }
 
-    @Database(
-        version = 1,
-        entities = [TestItem::class],
-        exportSchema = false
-    )
+    @Database(version = 1, entities = [TestItem::class], exportSchema = false)
     @SuppressWarnings(RoomWarnings.MISSING_SCHEMA_LOCATION)
     abstract class Db : RoomDatabase() {
         abstract fun getDao(): TestDao

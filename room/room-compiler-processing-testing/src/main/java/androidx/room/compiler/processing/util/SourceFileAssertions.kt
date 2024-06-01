@@ -19,8 +19,8 @@ package androidx.room.compiler.processing.util
 /**
  * Compares two source files and returns the line that does not match.
  *
- * It ignores all indentation and empty lines but is incapable of omitting comments etc (like
- * java compile testing does).
+ * It ignores all indentation and empty lines but is incapable of omitting comments etc (like java
+ * compile testing does).
  */
 internal fun Source.findMismatch(other: Source): SourceFileMismatch? {
     val myLines = contents.lineSequence().nonEmptySourceLines()
@@ -29,10 +29,7 @@ internal fun Source.findMismatch(other: Source): SourceFileMismatch? {
         val myLine = myLines.nextOrNull()
         val otherLine = otherLines.nextOrNull()
         if (myLine?.content != otherLine?.content) {
-            return SourceFileMismatch(
-                myLine,
-                otherLine
-            )
+            return SourceFileMismatch(myLine, otherLine)
         }
     } while (myLine != null || otherLine != null)
     return null
@@ -43,26 +40,18 @@ internal fun Source.findMismatch(other: Source): SourceFileMismatch? {
  * line.
  */
 private fun Sequence<String>.nonEmptySourceLines() =
-    map {
-        it.trim()
-    }.mapIndexed { index, content ->
-        Line(index + 1, content)
-    }.filterNot {
-        it.content.isNullOrBlank()
-    }.iterator()
+    map { it.trim() }
+        .mapIndexed { index, content -> Line(index + 1, content) }
+        .filterNot { it.content.isNullOrBlank() }
+        .iterator()
 
-private fun <T> Iterator<T>.nextOrNull(): T? = if (this.hasNext()) {
-    next()
-} else {
-    null
-}
+private fun <T> Iterator<T>.nextOrNull(): T? =
+    if (this.hasNext()) {
+        next()
+    } else {
+        null
+    }
 
-internal data class SourceFileMismatch(
-    val expected: Line?,
-    val actual: Line?
-)
+internal data class SourceFileMismatch(val expected: Line?, val actual: Line?)
 
-internal data class Line(
-    val pos: Int,
-    val content: String?
-)
+internal data class Line(val pos: Int, val content: String?)

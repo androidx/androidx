@@ -36,8 +36,11 @@ interface XPropertySpec : TargetLanguage {
 
     interface Builder : TargetLanguage {
         fun addAnnotation(annotation: XAnnotationSpec): Builder
+
         fun initializer(initExpr: XCodeBlock): Builder
+
         fun getter(code: XCodeBlock): Builder
+
         fun build(): XPropertySpec
 
         companion object {
@@ -68,31 +71,33 @@ interface XPropertySpec : TargetLanguage {
             isMutable: Boolean = false,
         ): Builder {
             return when (language) {
-                CodeLanguage.JAVA -> JavaPropertySpec.Builder(
-                    name,
-                    FieldSpec.builder(typeName.java, name).apply {
-                        val visibilityModifier = visibility.toJavaVisibilityModifier()
-                        // TODO(b/247242374) Add nullability annotations for non-private fields
-                        if (visibilityModifier != Modifier.PRIVATE) {
-                            if (typeName.nullability == XNullability.NULLABLE) {
-                                addAnnotation(NULLABLE_ANNOTATION)
-                            } else if (typeName.nullability == XNullability.NONNULL) {
-                                addAnnotation(NONNULL_ANNOTATION)
+                CodeLanguage.JAVA ->
+                    JavaPropertySpec.Builder(
+                        name,
+                        FieldSpec.builder(typeName.java, name).apply {
+                            val visibilityModifier = visibility.toJavaVisibilityModifier()
+                            // TODO(b/247242374) Add nullability annotations for non-private fields
+                            if (visibilityModifier != Modifier.PRIVATE) {
+                                if (typeName.nullability == XNullability.NULLABLE) {
+                                    addAnnotation(NULLABLE_ANNOTATION)
+                                } else if (typeName.nullability == XNullability.NONNULL) {
+                                    addAnnotation(NONNULL_ANNOTATION)
+                                }
+                            }
+                            addModifiers(visibilityModifier)
+                            if (!isMutable) {
+                                addModifiers(Modifier.FINAL)
                             }
                         }
-                        addModifiers(visibilityModifier)
-                        if (!isMutable) {
-                            addModifiers(Modifier.FINAL)
+                    )
+                CodeLanguage.KOTLIN ->
+                    KotlinPropertySpec.Builder(
+                        name,
+                        PropertySpec.builder(name, typeName.kotlin).apply {
+                            mutable(isMutable)
+                            addModifiers(visibility.toKotlinVisibilityModifier())
                         }
-                    }
-                )
-                CodeLanguage.KOTLIN -> KotlinPropertySpec.Builder(
-                    name,
-                    PropertySpec.builder(name, typeName.kotlin).apply {
-                        mutable(isMutable)
-                        addModifiers(visibility.toKotlinVisibilityModifier())
-                    }
-                )
+                    )
             }
         }
 
@@ -103,13 +108,13 @@ interface XPropertySpec : TargetLanguage {
         ): Builder {
             require(element.isKotlinPropertyMethod())
             return when (language) {
-                CodeLanguage.JAVA -> error(
-                    "Overriding a property is not supported when code language is Java."
-                )
-                CodeLanguage.KOTLIN -> KotlinPropertySpec.Builder(
-                    name = element.name,
-                    actual = PropertySpecHelper.overriding(element, owner)
-                )
+                CodeLanguage.JAVA ->
+                    error("Overriding a property is not supported when code language is Java.")
+                CodeLanguage.KOTLIN ->
+                    KotlinPropertySpec.Builder(
+                        name = element.name,
+                        actual = PropertySpecHelper.overriding(element, owner)
+                    )
             }
         }
     }

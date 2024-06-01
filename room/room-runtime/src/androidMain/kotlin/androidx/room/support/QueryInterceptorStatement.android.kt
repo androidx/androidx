@@ -20,9 +20,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteStatement
 import java.util.concurrent.Executor
 
-/**
- * Implements an instance of [SupportSQLiteStatement] for SQLite queries.
- */
+/** Implements an instance of [SupportSQLiteStatement] for SQLite queries. */
 internal class QueryInterceptorStatement(
     private val delegate: SupportSQLiteStatement,
     private val sqlStatement: String,
@@ -33,37 +31,27 @@ internal class QueryInterceptorStatement(
     private val bindArgsCache = mutableListOf<Any?>()
 
     override fun execute() {
-        queryCallbackExecutor.execute {
-            queryCallback.onQuery(sqlStatement, bindArgsCache)
-        }
+        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
         delegate.execute()
     }
 
     override fun executeUpdateDelete(): Int {
-        queryCallbackExecutor.execute {
-            queryCallback.onQuery(sqlStatement, bindArgsCache)
-        }
+        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
         return delegate.executeUpdateDelete()
     }
 
-   override fun executeInsert(): Long {
-        queryCallbackExecutor.execute {
-            queryCallback.onQuery(sqlStatement, bindArgsCache)
-        }
+    override fun executeInsert(): Long {
+        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
         return delegate.executeInsert()
     }
 
     override fun simpleQueryForLong(): Long {
-        queryCallbackExecutor.execute {
-            queryCallback.onQuery(sqlStatement, bindArgsCache)
-        }
+        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
         return delegate.simpleQueryForLong()
     }
 
     override fun simpleQueryForString(): String? {
-        queryCallbackExecutor.execute {
-            queryCallback.onQuery(sqlStatement, bindArgsCache)
-        }
+        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
         return delegate.simpleQueryForString()
     }
 
@@ -101,9 +89,7 @@ internal class QueryInterceptorStatement(
         val index = bindIndex - 1
         if (index >= bindArgsCache.size) {
             // Add null entries to the list until we have the desired # of indices
-            repeat(index - bindArgsCache.size + 1) {
-                bindArgsCache.add(null)
-            }
+            repeat(index - bindArgsCache.size + 1) { bindArgsCache.add(null) }
         }
         bindArgsCache[index] = value
     }

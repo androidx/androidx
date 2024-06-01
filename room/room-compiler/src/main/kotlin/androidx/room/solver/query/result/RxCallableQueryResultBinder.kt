@@ -32,9 +32,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 
-/**
- * Generic Result binder for Rx classes that accept a callable.
- */
+/** Generic Result binder for Rx classes that accept a callable. */
 internal class RxCallableQueryResultBinder(
     private val rxType: RxType,
     val typeArg: XType,
@@ -47,23 +45,28 @@ internal class RxCallableQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callable = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
-            addCode(
-                XCodeBlock.builder(language).apply {
-                    fillInCallMethod(
-                        roomSQLiteQueryVar = roomSQLiteQueryVar,
-                        dbProperty = dbProperty,
-                        inTransaction = inTransaction,
-                        scope = scope,
-                        returnType = typeArg
+        val callable =
+            CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+                    addCode(
+                        XCodeBlock.builder(language)
+                            .apply {
+                                fillInCallMethod(
+                                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                                    dbProperty = dbProperty,
+                                    inTransaction = inTransaction,
+                                    scope = scope,
+                                    returnType = typeArg
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.apply {
-            if (canReleaseQuery) {
-                createFinalizeMethod(roomSQLiteQueryVar)
-            }
-        }.build()
+                }
+                .apply {
+                    if (canReleaseQuery) {
+                        createFinalizeMethod(roomSQLiteQueryVar)
+                    }
+                }
+                .build()
         scope.builder.apply {
             if (rxType.isSingle()) {
                 addStatement("return %T.createSingle(%L)", rxType.version.rxRoomClassName, callable)
@@ -81,11 +84,12 @@ internal class RxCallableQueryResultBinder(
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
-        val transactionWrapper = if (inTransaction) {
-            transactionWrapper(dbProperty.name)
-        } else {
-            null
-        }
+        val transactionWrapper =
+            if (inTransaction) {
+                transactionWrapper(dbProperty.name)
+            } else {
+                null
+            }
         transactionWrapper?.beginTransactionWithControlFlow()
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
@@ -93,24 +97,25 @@ internal class RxCallableQueryResultBinder(
         addLocalVariable(
             name = cursorVar,
             typeName = CURSOR,
-            assignExpr = XCodeBlock.of(
-                language = language,
-                format = "%M(%N, %L, %L, %L)",
-                RoomTypeNames.DB_UTIL.packageMember("query"),
-                dbProperty,
-                roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false",
-                "null"
-            )
+            assignExpr =
+                XCodeBlock.of(
+                    language = language,
+                    format = "%M(%N, %L, %L, %L)",
+                    RoomTypeNames.DB_UTIL.packageMember("query"),
+                    dbProperty,
+                    roomSQLiteQueryVar,
+                    if (shouldCopyCursor) "true" else "false",
+                    "null"
+                )
         )
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             add(adapterScope.generate())
             if (
                 !rxType.canBeNull &&
-                (language == CodeLanguage.JAVA ||
-                    (language == CodeLanguage.KOTLIN &&
-                        returnType.nullability == XNullability.NULLABLE))
+                    (language == CodeLanguage.JAVA ||
+                        (language == CodeLanguage.KOTLIN &&
+                            returnType.nullability == XNullability.NULLABLE))
             ) {
                 beginControlFlow("if (%L == null)", outVar).apply {
                     addStatement(
@@ -136,9 +141,7 @@ internal class RxCallableQueryResultBinder(
             transactionWrapper?.commitTransaction()
             addStatement("return %L", outVar)
         }
-        nextControlFlow("finally").apply {
-            addStatement("%L.close()", cursorVar)
-        }
+        nextControlFlow("finally").apply { addStatement("%L.close()", cursorVar) }
         endControlFlow()
         transactionWrapper?.endTransactionWithControlFlow()
     }
@@ -146,15 +149,16 @@ internal class RxCallableQueryResultBinder(
     private fun XTypeSpec.Builder.createFinalizeMethod(roomSQLiteQueryVar: String) {
         addFunction(
             XFunSpec.builder(
-                language = language,
-                name = "finalize",
-                visibility = VisibilityModifier.PROTECTED,
-                // To 'override' finalize in Kotlin one does not use the 'override' keyword, but in
-                // Java the @Override is needed
-                isOverride = language == CodeLanguage.JAVA
-            ).apply {
-                addStatement("%L.release()", roomSQLiteQueryVar)
-            }.build()
+                    language = language,
+                    name = "finalize",
+                    visibility = VisibilityModifier.PROTECTED,
+                    // To 'override' finalize in Kotlin one does not use the 'override' keyword, but
+                    // in
+                    // Java the @Override is needed
+                    isOverride = language == CodeLanguage.JAVA
+                )
+                .apply { addStatement("%L.release()", roomSQLiteQueryVar) }
+                .build()
         )
     }
 }

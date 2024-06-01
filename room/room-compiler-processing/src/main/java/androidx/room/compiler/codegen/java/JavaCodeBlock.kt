@@ -26,9 +26,7 @@ import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 
-internal class JavaCodeBlock(
-    internal val actual: JCodeBlock
-) : JavaLang(), XCodeBlock {
+internal class JavaCodeBlock(internal val actual: JCodeBlock) : JavaLang(), XCodeBlock {
 
     override fun toString() = actual.toString()
 
@@ -84,17 +82,11 @@ internal class JavaCodeBlock(
             actual.nextControlFlow(processedControlFlow, *processedArgs)
         }
 
-        override fun endControlFlow() = apply {
-            actual.endControlFlow()
-        }
+        override fun endControlFlow() = apply { actual.endControlFlow() }
 
-        override fun indent() = apply {
-            actual.indent()
-        }
+        override fun indent() = apply { actual.indent() }
 
-        override fun unindent() = apply {
-            actual.unindent()
-        }
+        override fun unindent() = apply { actual.unindent() }
 
         override fun build(): XCodeBlock {
             return JavaCodeBlock(actual.build())
@@ -103,7 +95,8 @@ internal class JavaCodeBlock(
         // Converts '%' place holders to '$' for JavaPoet
         private fun processFormatString(format: String): String {
             // Replace KPoet's member name placeholder for a JPoet literal for a XMemberName arg.
-            return format.replace("%M", "\$L")
+            return format
+                .replace("%M", "\$L")
                 // TODO(b/247241415): Very simple replace for now, but this will not work when
                 //  emitting modulo expressions!
                 .replace('%', '$')

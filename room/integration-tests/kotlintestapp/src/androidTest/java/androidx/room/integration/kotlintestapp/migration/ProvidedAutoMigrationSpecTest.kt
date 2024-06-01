@@ -36,78 +36,69 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test custom database migrations.
- */
+/** Test custom database migrations. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ProvidedAutoMigrationSpecTest {
     private val mProvidedSpec = ProvidedAutoMigrationDb.MyProvidedAutoMigration("Hi")
 
-    @JvmField
-    @Rule
-    var helperWithoutSpec: MigrationTestHelper
+    @JvmField @Rule var helperWithoutSpec: MigrationTestHelper
     var helperWithSpec: MigrationTestHelper
 
     init {
-        helperWithoutSpec = MigrationTestHelper(
-            InstrumentationRegistry.getInstrumentation(),
-            ProvidedAutoMigrationDb::class.java
-        )
+        helperWithoutSpec =
+            MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                ProvidedAutoMigrationDb::class.java
+            )
         val specs: MutableList<AutoMigrationSpec> = ArrayList()
         specs.add(mProvidedSpec)
-        helperWithSpec = MigrationTestHelper(
-            InstrumentationRegistry.getInstrumentation(),
-            ProvidedAutoMigrationDb::class.java,
-            specs,
-            FrameworkSQLiteOpenHelperFactory()
-        )
+        helperWithSpec =
+            MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                ProvidedAutoMigrationDb::class.java,
+                specs,
+                FrameworkSQLiteOpenHelperFactory()
+            )
     }
 
     @Database(
         version = 2,
         entities = [ProvidedAutoMigrationDb.Entity1::class, ProvidedAutoMigrationDb.Entity2::class],
-        autoMigrations = [AutoMigration(
-            from = 1,
-            to = 2,
-            spec = ProvidedAutoMigrationDb.MyProvidedAutoMigration::class
-        )],
+        autoMigrations =
+            [
+                AutoMigration(
+                    from = 1,
+                    to = 2,
+                    spec = ProvidedAutoMigrationDb.MyProvidedAutoMigration::class
+                )
+            ],
         exportSchema = true
     )
-
     abstract class ProvidedAutoMigrationDb : RoomDatabase() {
 
-        /**
-         * No change between versions.
-         */
+        /** No change between versions. */
         @Entity
         internal class Entity1 {
-            @PrimaryKey
-            var id = 0
+            @PrimaryKey var id = 0
             var name: String? = null
 
-            @ColumnInfo(defaultValue = "1")
-            var addedInV1 = 0
+            @ColumnInfo(defaultValue = "1") var addedInV1 = 0
 
             companion object {
                 const val TABLE_NAME = "Entity1"
             }
         }
 
-        /**
-         * A new table added.
-         */
+        /** A new table added. */
         @Entity
         internal class Entity2 {
-            @PrimaryKey
-            var id = 0
+            @PrimaryKey var id = 0
             var name: String? = null
 
-            @ColumnInfo(defaultValue = "1")
-            var addedInV1 = 0
+            @ColumnInfo(defaultValue = "1") var addedInV1 = 0
 
-            @ColumnInfo(defaultValue = "2")
-            var addedInV2 = 0
+            @ColumnInfo(defaultValue = "2") var addedInV2 = 0
 
             companion object {
                 const val TABLE_NAME = "Entity2"
@@ -118,6 +109,7 @@ class ProvidedAutoMigrationSpecTest {
         internal class MyProvidedAutoMigration(private val mPrefString: String) :
             AutoMigrationSpec {
             var mOnPostMigrateCalled = false
+
             override fun onPostMigrate(db: SupportSQLiteDatabase) {
                 mOnPostMigrateCalled = true
             }
@@ -136,27 +128,17 @@ class ProvidedAutoMigrationSpecTest {
     @Throws(IOException::class)
     fun testOnPostMigrate() {
         createFirstVersion()
-        helperWithSpec.runMigrationsAndValidate(
-            TEST_DB,
-            2,
-            true
-        )
+        helperWithSpec.runMigrationsAndValidate(TEST_DB, 2, true)
         MatcherAssert.assertThat(mProvidedSpec.mOnPostMigrateCalled, CoreMatchers.`is`(true))
     }
 
-    /**
-     * Verifies that the user defined migration is selected over using an autoMigration.
-     */
+    /** Verifies that the user defined migration is selected over using an autoMigration. */
     @Test
     @Throws(IOException::class)
     fun testNoSpecProvidedInConfig() {
         createFirstVersion()
         try {
-            helperWithoutSpec.runMigrationsAndValidate(
-                TEST_DB,
-                2,
-                true
-            )
+            helperWithoutSpec.runMigrationsAndValidate(TEST_DB, 2, true)
         } catch (exception: IllegalArgumentException) {
             MatcherAssert.assertThat(
                 exception.message,

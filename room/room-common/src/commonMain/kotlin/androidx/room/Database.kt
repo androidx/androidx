@@ -23,8 +23,7 @@ import kotlin.reflect.KClass
  *
  * The class should be an abstract class and extend [androidx.room.RoomDatabase].
  *
- * You can receive an implementation of the class via
- * [androidx.room.Room.databaseBuilder] or
+ * You can receive an implementation of the class via [androidx.room.Room.databaseBuilder] or
  * [androidx.room.Room.inMemoryDatabaseBuilder].
  *
  * ```
@@ -43,22 +42,21 @@ import kotlin.reflect.KClass
  * ```
  *
  * The example above defines a class that has 2 tables and 3 DAO classes that are used to access it.
- * There is no limit on the number of [Entity] or [Dao] classes but they must be unique
- * within the Database.
+ * There is no limit on the number of [Entity] or [Dao] classes but they must be unique within the
+ * Database.
  *
- * Instead of running queries on the database directly, you are highly recommended to create
- * [Dao] classes. Using Dao classes will allow you to abstract the database communication in
- * a more logical layer which will be much easier to mock in tests (compared to running direct
- * SQL queries). It also automatically does the conversion from `Cursor` to your application
- * data classes so you don't need to deal with lower level database APIs for most of your data
- * access.
+ * Instead of running queries on the database directly, you are highly recommended to create [Dao]
+ * classes. Using Dao classes will allow you to abstract the database communication in a more
+ * logical layer which will be much easier to mock in tests (compared to running direct SQL
+ * queries). It also automatically does the conversion from `Cursor` to your application data
+ * classes so you don't need to deal with lower level database APIs for most of your data access.
  *
- * Room also verifies all of your queries in [Dao] classes while the application is being
- * compiled so that if there is a problem in one of the queries, you will be notified instantly.
+ * Room also verifies all of your queries in [Dao] classes while the application is being compiled
+ * so that if there is a problem in one of the queries, you will be notified instantly.
  *
- * To automatically generate a migration between two versions of the database, assuming you have
- * the relevant schema files, you are recommended to use [AutoMigration] annotations. Note
- * that if an autoMigration is defined in a database, `exportSchema` must be `true`.
+ * To automatically generate a migration between two versions of the database, assuming you have the
+ * relevant schema files, you are recommended to use [AutoMigration] annotations. Note that if an
+ * autoMigration is defined in a database, `exportSchema` must be `true`.
  *
  * @see [Dao]
  * @see [Entity]
@@ -92,19 +90,19 @@ public annotation class Database(
     val version: Int,
 
     /**
-     * You can set the annotation processor argument (`room.schemaLocation`) to tell Room to
-     * export the database schema into a folder. Even though it is not mandatory, it is a good
-     * practice to have version history of your schema in your codebase and you should commit the
-     * schema files into your version control system (but don't ship them with your app!).
+     * You can set the annotation processor argument (`room.schemaLocation`) to tell Room to export
+     * the database schema into a folder. Even though it is not mandatory, it is a good practice to
+     * have version history of your schema in your codebase and you should commit the schema files
+     * into your version control system (but don't ship them with your app!).
      *
-     * When `room.schemaLocation` is set, Room will check this variable and if it is set to
-     * `true`, the database schema will be exported into the given folder.
+     * When `room.schemaLocation` is set, Room will check this variable and if it is set to `true`,
+     * the database schema will be exported into the given folder.
      *
-     * Value of `exportSchema` is `true` by default but you can disable it for databases when
-     * you don't want to keep history of versions (like an in-memory only database).
+     * Value of `exportSchema` is `true` by default but you can disable it for databases when you
+     * don't want to keep history of versions (like an in-memory only database).
      *
      * @return Whether the schema should be exported to the given folder when the
-     * `room.schemaLocation` argument is set. Defaults to `true`.
+     *   `room.schemaLocation` argument is set. Defaults to `true`.
      */
     val exportSchema: Boolean = true,
 

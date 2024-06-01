@@ -22,23 +22,20 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Represents a prepared SQLite state that can be re-used multiple times.
  *
- * This class is used by generated code. After it is used, `release` must be called so that
- * it can be used by other threads.
+ * This class is used by generated code. After it is used, `release` must be called so that it can
+ * be used by other threads.
  *
  * To avoid re-entry even within the same thread, this class allows only 1 time access to the shared
  * statement until it is released.
  *
- * @constructor Creates an SQLite prepared statement that can be re-used across threads. If it is
- * in use, it automatically creates a new one.
- *
+ * @constructor Creates an SQLite prepared statement that can be re-used across threads. If it is in
+ *   use, it automatically creates a new one.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 abstract class SharedSQLiteStatement(private val database: RoomDatabase) {
     private val lock = AtomicBoolean(false)
 
-    private val stmt: SupportSQLiteStatement by lazy {
-        createNewStatement()
-    }
+    private val stmt: SupportSQLiteStatement by lazy { createNewStatement() }
 
     /**
      * Create the query.
@@ -57,18 +54,17 @@ abstract class SharedSQLiteStatement(private val database: RoomDatabase) {
     }
 
     private fun getStmt(canUseCached: Boolean): SupportSQLiteStatement {
-        val stmt = if (canUseCached) {
-            stmt
-        } else {
-            // it is in use, create a one off statement
-            createNewStatement()
-        }
+        val stmt =
+            if (canUseCached) {
+                stmt
+            } else {
+                // it is in use, create a one off statement
+                createNewStatement()
+            }
         return stmt
     }
 
-    /**
-     * Call this to get the statement. Must call [.release] once done.
-     */
+    /** Call this to get the statement. Must call [.release] once done. */
     open fun acquire(): SupportSQLiteStatement {
         assertNotMainThread()
         return getStmt(lock.compareAndSet(false, true))

@@ -25,9 +25,7 @@ import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.NonExistLocation
 import javax.tools.Diagnostic
 
-internal class KspMessager(
-    private val logger: KSPLogger
-) : XMessager() {
+internal class KspMessager(private val logger: KSPLogger) : XMessager() {
     override fun onPrintMessage(
         kind: Diagnostic.Kind,
         msg: String,
@@ -42,15 +40,18 @@ internal class KspMessager(
 
         // In Javac, the Messager requires all preceding parameters to report an error.
         // In KSP, the KspLogger only needs the last so ignore the preceding parameters.
-        val nodes = sequence {
-            yield((annotationValue as? KspAnnotationValue)?.valueArgument)
-            yield((annotation as? KspAnnotation)?.ksAnnotated)
-            yield((element as? KspElement)?.declaration)
-        }.filterNotNull()
-        val ksNode = nodes.firstOrNull {
-            // pick first node with a location, if possible
-            it.location != NonExistLocation
-        } ?: nodes.firstOrNull() // fallback to the first non-null argument
+        val nodes =
+            sequence {
+                    yield((annotationValue as? KspAnnotationValue)?.valueArgument)
+                    yield((annotation as? KspAnnotation)?.ksAnnotated)
+                    yield((element as? KspElement)?.declaration)
+                }
+                .filterNotNull()
+        val ksNode =
+            nodes.firstOrNull {
+                // pick first node with a location, if possible
+                it.location != NonExistLocation
+            } ?: nodes.firstOrNull() // fallback to the first non-null argument
 
         // TODO: 10/8/21 Consider checking if the KspAnnotationValue is for an item in a value's
         //  list and adding that information to the error message if so (currently, we have to

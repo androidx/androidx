@@ -17,8 +17,9 @@
 package androidx.room.parser
 
 object ParserErrors {
-    val ANONYMOUS_BIND_ARGUMENT = "Room does not support ? as bind parameters. You must use" +
-        " named bind arguments (e..g :argName)"
+    val ANONYMOUS_BIND_ARGUMENT =
+        "Room does not support ? as bind parameters. You must use" +
+            " named bind arguments (e..g :argName)"
 
     val NOT_ONE_QUERY = "Must have exactly 1 query in the value of @Query or @DatabaseView"
 
@@ -27,7 +28,8 @@ object ParserErrors {
             QueryType.SUPPORTED.joinToString(", ") { it.name }
     }
 
-    fun cannotUseVariableIndices(name: String, position: Int) = "Cannot use variable indices." +
-        " Use named parameters instead (e.g. WHERE name LIKE :nameArg and lastName LIKE " +
-        ":lastName). Problem: $name at $position"
+    fun cannotUseVariableIndices(name: String, position: Int) =
+        "Cannot use variable indices." +
+            " Use named parameters instead (e.g. WHERE name LIKE :nameArg and lastName LIKE " +
+            ":lastName). Problem: $name at $position"
 }

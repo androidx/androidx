@@ -37,9 +37,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
-/**
- * An item store that contains a mock differ for multi-generational pagination
- */
+/** An item store that contains a mock differ for multi-generational pagination */
 class ItemStore(private val coroutineScope: CoroutineScope) {
     // We get a new generation each time list changes. This is used to await certain events
     // happening. Each generation have an id that maps to a paging generation.
@@ -49,26 +47,28 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
     val currentGenerationId
         get() = generation.value.id
 
-    private val asyncDiffer = AsyncPagingDataDiffer(
-        diffCallback = PagingEntity.DIFF_CALLBACK,
-        updateCallback = object : ListUpdateCallback {
-            override fun onInserted(position: Int, count: Int) {
-                onDataSetChanged(generation.value.id)
-            }
+    private val asyncDiffer =
+        AsyncPagingDataDiffer(
+            diffCallback = PagingEntity.DIFF_CALLBACK,
+            updateCallback =
+                object : ListUpdateCallback {
+                    override fun onInserted(position: Int, count: Int) {
+                        onDataSetChanged(generation.value.id)
+                    }
 
-            override fun onRemoved(position: Int, count: Int) {
-                onDataSetChanged(generation.value.id)
-            }
+                    override fun onRemoved(position: Int, count: Int) {
+                        onDataSetChanged(generation.value.id)
+                    }
 
-            override fun onMoved(fromPosition: Int, toPosition: Int) {
-                onDataSetChanged(generation.value.id)
-            }
+                    override fun onMoved(fromPosition: Int, toPosition: Int) {
+                        onDataSetChanged(generation.value.id)
+                    }
 
-            override fun onChanged(position: Int, count: Int, payload: Any?) {
-                onDataSetChanged(generation.value.id)
-            }
-        }
-    )
+                    override fun onChanged(position: Int, count: Int, payload: Any?) {
+                        onDataSetChanged(generation.value.id)
+                    }
+                }
+        )
 
     init {
         coroutineScope.launch {
@@ -78,24 +78,24 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
                 .filter { it is LoadState.NotLoading }
                 .collect {
                     val current = generation.value
-                    generation.value = current.copy(
-                        initialLoadCompleted = true,
-                    )
+                    generation.value =
+                        current.copy(
+                            initialLoadCompleted = true,
+                        )
                 }
         }
     }
 
     private fun incrementGeneration() {
         val current = generation.value
-        generation.value = current.copy(
-            initialLoadCompleted = false,
-            id = current.id + 1,
-        )
+        generation.value =
+            current.copy(
+                initialLoadCompleted = false,
+                id = current.id + 1,
+            )
     }
 
-    fun peekItems() = (0 until asyncDiffer.itemCount).map {
-        asyncDiffer.peek(it)
-    }
+    fun peekItems() = (0 until asyncDiffer.itemCount).map { asyncDiffer.peek(it) }
 
     fun get(index: Int): PagingEntity? {
         return asyncDiffer.getItem(index)
@@ -104,9 +104,8 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun awaitItem(index: Int, timeOutDuration: Long = 3): PagingEntity =
         withTestTimeout(timeOutDuration) {
-            generation.mapLatest { asyncDiffer.peek(index) }
-        .filterNotNull().first()
-    }
+            generation.mapLatest { asyncDiffer.peek(index) }.filterNotNull().first()
+        }
 
     suspend fun collectFrom(data: PagingData<PagingEntity>) {
         incrementGeneration()
@@ -120,10 +119,8 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
             yield()
             val curGen = generation.value
             if (curGen.id == id) {
-                generation.value = curGen.copy(
-                    initialLoadCompleted = true,
-                    changeCount = curGen.changeCount + 1
-                )
+                generation.value =
+                    curGen.copy(initialLoadCompleted = true, changeCount = curGen.changeCount + 1)
             }
         }
     }
@@ -137,26 +134,16 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
         }
 
     suspend fun awaitGeneration(id: Int) = withTestTimeout {
-        withContext(Dispatchers.Main) {
-            generation.filter { it.id == id }.first()
-        }
+        withContext(Dispatchers.Main) { generation.filter { it.id == id }.first() }
     }
 }
 
-/**
- * Holds some metadata about the backing paging list
- */
+/** Holds some metadata about the backing paging list */
 data class Generation(
-    /**
-     * Generation id, incremented each time data source is invalidated
-     */
+    /** Generation id, incremented each time data source is invalidated */
     val id: Int,
-    /**
-     * True when the data source completes its initial load
-     */
+    /** True when the data source completes its initial load */
     val initialLoadCompleted: Boolean = false,
-    /**
-     * Incremented each time we receive some update events.
-     */
+    /** Incremented each time we receive some update events. */
     val changeCount: Int = 0
 )

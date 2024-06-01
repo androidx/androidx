@@ -21,9 +21,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Connects the insert and upsert method, the database and the [InsertOrUpsertMethodAdapter].
- */
+/** Connects the insert and upsert method, the database and the [InsertOrUpsertMethodAdapter]. */
 abstract class InsertOrUpsertMethodBinder(val adapter: InsertOrUpsertMethodAdapter?) {
 
     /**

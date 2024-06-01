@@ -29,9 +29,9 @@ import kotlinx.atomicfu.locks.synchronized
  *
  * Locking is done via two levels:
  * 1. Thread locking within the same process is done via a [ReentrantLock] keyed by the given
- * `filename`.
+ *    `filename`.
  * 2. Multi-process locking is done via a [FileLock] whose lock file is based on the given
- * `filename`.
+ *    `filename`.
  *
  * @param filename The path to the file to protect.
  * @param useFileLock Whether multi-process lock will be done or not.
@@ -47,7 +47,7 @@ internal class ExclusiveLock(filename: String, useFileLock: Boolean) {
             try {
                 return block()
             } finally {
-               fileLock?.unlock()
+                fileLock?.unlock()
             }
         } finally {
             threadLock.unlock()
@@ -56,9 +56,12 @@ internal class ExclusiveLock(filename: String, useFileLock: Boolean) {
 
     companion object : SynchronizedObject() {
         private val threadLocksMap = mutableMapOf<String, ReentrantLock>()
-        private fun getThreadLock(key: String): ReentrantLock = synchronized(this) {
-            return threadLocksMap.getOrPut(key) { reentrantLock() }
-        }
+
+        private fun getThreadLock(key: String): ReentrantLock =
+            synchronized(this) {
+                return threadLocksMap.getOrPut(key) { reentrantLock() }
+            }
+
         private fun getFileLock(key: String) = FileLock(key)
     }
 }

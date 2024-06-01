@@ -40,91 +40,84 @@ class ArrayQueryResultAdapter(
             // Initialize _result to be returned, using the list result we have.
             val tmpArrayResult = scope.getTmpVar("_tmpArrayResult")
 
-            val assignCode = XCodeBlock.of(
-                language = language,
-                format = "%L",
-                listVarName
-            ).let {
-                when (language) {
-                    CodeLanguage.KOTLIN -> {
-                        if (componentTypeName.isPrimitive) {
-                            // If we have a primitive array like LongArray or ShortArray,
-                            // we use conversion functions like toLongArray() or toShortArray().
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L.%L",
-                                it,
-                                getToArrayFunction(componentTypeName)
-                            )
-                        } else {
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L.%L",
-                                it,
-                                "toTypedArray()"
-                            )
-                        }
-                    }
-                    CodeLanguage.JAVA -> {
-                        if (componentTypeName.isPrimitive) {
-                            // In Java, initializing an Array using a List is not
-                            // straightforward, and requires we create an empty array that will be
-                            // initialized using the list contents.
-                            addLocalVariable(
-                                name = tmpArrayResult,
-                                typeName = arrayTypeName,
-                                assignExpr = XCodeBlock.of(
+            val assignCode =
+                XCodeBlock.of(language = language, format = "%L", listVarName).let {
+                    when (language) {
+                        CodeLanguage.KOTLIN -> {
+                            if (componentTypeName.isPrimitive) {
+                                // If we have a primitive array like LongArray or ShortArray,
+                                // we use conversion functions like toLongArray() or toShortArray().
+                                XCodeBlock.of(
                                     language = language,
-                                    format = "new %T[%L.size()]",
-                                    componentTypeName,
-                                    listVarName
+                                    format = "%L.%L",
+                                    it,
+                                    getToArrayFunction(componentTypeName)
                                 )
-                            )
-                            // If the array is primitive, we have to loop over the list to copy
-                            // contents, as we cannot use toArray() on primitive array types.
-                            val indexVarName = scope.getTmpVar("_index")
-                            addLocalVariable(
-                                name = indexVarName,
-                                typeName = componentTypeName,
-                                isMutable = true,
-                                assignExpr = XCodeBlock.of(language, "0")
-                            )
-                            val itrVar = scope.getTmpVar("_listItem")
-                            beginForEachControlFlow(
-                                iteratorVarName = listVarName,
-                                typeName = componentTypeName,
-                                itemVarName = itrVar
-                            ).apply {
-                                addStatement(
-                                    "%L[%L] = %L",
-                                    tmpArrayResult,
-                                    indexVarName,
-                                    itrVar
+                            } else {
+                                XCodeBlock.of(
+                                    language = language,
+                                    format = "%L.%L",
+                                    it,
+                                    "toTypedArray()"
                                 )
-                                addStatement("%L++", indexVarName)
-                            }.endControlFlow()
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L",
-                                tmpArrayResult
-                            )
-                        } else {
-                            // If the array is not primitive, we use the List.toArray() utility.
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L.toArray(new %T[0])",
-                                listVarName,
-                                componentTypeName
-                            )
+                            }
+                        }
+                        CodeLanguage.JAVA -> {
+                            if (componentTypeName.isPrimitive) {
+                                // In Java, initializing an Array using a List is not
+                                // straightforward, and requires we create an empty array that will
+                                // be
+                                // initialized using the list contents.
+                                addLocalVariable(
+                                    name = tmpArrayResult,
+                                    typeName = arrayTypeName,
+                                    assignExpr =
+                                        XCodeBlock.of(
+                                            language = language,
+                                            format = "new %T[%L.size()]",
+                                            componentTypeName,
+                                            listVarName
+                                        )
+                                )
+                                // If the array is primitive, we have to loop over the list to copy
+                                // contents, as we cannot use toArray() on primitive array types.
+                                val indexVarName = scope.getTmpVar("_index")
+                                addLocalVariable(
+                                    name = indexVarName,
+                                    typeName = componentTypeName,
+                                    isMutable = true,
+                                    assignExpr = XCodeBlock.of(language, "0")
+                                )
+                                val itrVar = scope.getTmpVar("_listItem")
+                                beginForEachControlFlow(
+                                        iteratorVarName = listVarName,
+                                        typeName = componentTypeName,
+                                        itemVarName = itrVar
+                                    )
+                                    .apply {
+                                        addStatement(
+                                            "%L[%L] = %L",
+                                            tmpArrayResult,
+                                            indexVarName,
+                                            itrVar
+                                        )
+                                        addStatement("%L++", indexVarName)
+                                    }
+                                    .endControlFlow()
+                                XCodeBlock.of(language = language, format = "%L", tmpArrayResult)
+                            } else {
+                                // If the array is not primitive, we use the List.toArray() utility.
+                                XCodeBlock.of(
+                                    language = language,
+                                    format = "%L.toArray(new %T[0])",
+                                    listVarName,
+                                    componentTypeName
+                                )
+                            }
                         }
                     }
                 }
-            }
-            addLocalVariable(
-                name = outVarName,
-                typeName = arrayTypeName,
-                assignExpr = assignCode
-            )
+            addLocalVariable(name = outVarName, typeName = arrayTypeName, assignExpr = assignCode)
         }
     }
 

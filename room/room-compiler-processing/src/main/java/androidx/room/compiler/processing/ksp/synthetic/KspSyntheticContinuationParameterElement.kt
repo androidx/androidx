@@ -39,7 +39,8 @@ import com.google.devtools.ksp.symbol.Variance
 internal class KspSyntheticContinuationParameterElement(
     val env: KspProcessingEnv,
     override val enclosingElement: KspMethodElement
-) : XExecutableParameterElement,
+) :
+    XExecutableParameterElement,
     XEquality,
     XAnnotated by KspAnnotated.create(
         env = env,
@@ -59,33 +60,28 @@ internal class KspSyntheticContinuationParameterElement(
         // Kotlin 1.8.0 the param was named 'continuation'.
         var candidate = PARAM_NAME
         var suffix = 0
-        while (
-            enclosingElement.declaration.parameters.any { it.name?.asString() == candidate }
-        ) {
+        while (enclosingElement.declaration.parameters.any { it.name?.asString() == candidate }) {
             candidate = PARAM_NAME + "_" + suffix
-            suffix ++
+            suffix++
         }
         candidate
     }
 
     override val jvmName = name
 
-    override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(PARAM_NAME, enclosingElement)
-    }
+    override val equalityItems: Array<out Any?> by lazy { arrayOf(PARAM_NAME, enclosingElement) }
 
     override val hasDefaultValue: Boolean
         get() = false
 
-    override val type: KspType by lazy {
-        createAsMemberOf(closestMemberContainer.type)
-    }
+    override val type: KspType by lazy { createAsMemberOf(closestMemberContainer.type) }
 
     override val fallbackLocationText: String
         get() = "return type of ${enclosingElement.fallbackLocationText}"
 
     // Not applicable
-    override val docComment: String? get() = null
+    override val docComment: String?
+        get() = null
 
     override val closestMemberContainer: XMemberContainer by lazy {
         enclosingElement.closestMemberContainer
@@ -102,31 +98,30 @@ internal class KspSyntheticContinuationParameterElement(
     private fun createAsMemberOf(container: XType?): KspType {
         check(container is KspType?)
         val continuation = env.resolver.requireContinuationClass()
-        val asMember = enclosingElement.declaration.returnTypeAsMemberOf(
-            ksType = container?.ksType
-        )
-        val returnTypeRef = checkNotNull(enclosingElement.declaration.returnType) {
-            "cannot find return type reference for $this"
-        }
-        val returnTypeAsTypeArgument = env.resolver.getTypeArgument(
-            returnTypeRef.swapResolvedType(asMember),
-            // even though this will be CONTRAVARIANT when resolved to the JVM type, in Kotlin, it
-            // is still INVARIANT. (see [KSTypeVarianceResolver]
-            Variance.INVARIANT
-        )
-        val contType = continuation.asType(listOf(returnTypeAsTypeArgument))
-        return env.wrap(
-            ksType = contType,
-            allowPrimitives = false
-        ).copyWithScope(
-            KSTypeVarianceResolverScope.MethodParameter(
-                kspExecutableElement = enclosingElement,
-                parameterIndex = enclosingElement.parameters.size - 1,
-                annotated = enclosingElement.declaration,
-                container = container?.ksType?.declaration,
-                asMemberOf = container
+        val asMember = enclosingElement.declaration.returnTypeAsMemberOf(ksType = container?.ksType)
+        val returnTypeRef =
+            checkNotNull(enclosingElement.declaration.returnType) {
+                "cannot find return type reference for $this"
+            }
+        val returnTypeAsTypeArgument =
+            env.resolver.getTypeArgument(
+                returnTypeRef.swapResolvedType(asMember),
+                // even though this will be CONTRAVARIANT when resolved to the JVM type, in Kotlin,
+                // it
+                // is still INVARIANT. (see [KSTypeVarianceResolver]
+                Variance.INVARIANT
             )
-        )
+        val contType = continuation.asType(listOf(returnTypeAsTypeArgument))
+        return env.wrap(ksType = contType, allowPrimitives = false)
+            .copyWithScope(
+                KSTypeVarianceResolverScope.MethodParameter(
+                    kspExecutableElement = enclosingElement,
+                    parameterIndex = enclosingElement.parameters.size - 1,
+                    annotated = enclosingElement.declaration,
+                    container = container?.ksType?.declaration,
+                    asMemberOf = container
+                )
+            )
     }
 
     override fun kindName(): String {

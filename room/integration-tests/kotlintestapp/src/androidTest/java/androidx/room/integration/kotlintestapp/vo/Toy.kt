@@ -20,24 +20,20 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * The toys of a pet.
- */
+/** The toys of a pet. */
 @Entity(
     indices = [Index(value = ["mName"], unique = true), Index(value = ["mPetId"])],
-    foreignKeys = [ForeignKey(
-        entity = Pet::class,
-        parentColumns = ["mPetId"],
-        childColumns = ["mPetId"],
-        deferred = true
-    )]
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = Pet::class,
+                parentColumns = ["mPetId"],
+                childColumns = ["mPetId"],
+                deferred = true
+            )
+        ]
 )
-data class Toy(
-    @PrimaryKey(autoGenerate = true)
-    val mId: Int,
-    var mName: String?,
-    var mPetId: Int
-) {
+data class Toy(@PrimaryKey(autoGenerate = true) val mId: Int, var mName: String?, var mPetId: Int) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false

@@ -32,12 +32,15 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class OpenDelegateWriterTest {
     companion object {
-        private const val DATABASE_PREFIX = """
+        private const val DATABASE_PREFIX =
+            """
             package foo.bar;
             import androidx.annotation.NonNull;
             import androidx.room.*;
         """
-        private const val ENTITY_PREFIX = DATABASE_PREFIX + """
+        private const val ENTITY_PREFIX =
+            DATABASE_PREFIX +
+                """
             @Entity%s
             public class MyEntity {
         """
@@ -53,10 +56,10 @@ class OpenDelegateWriterTest {
                 String uuid;
                 String name;
                 int age;
-            """.trimIndent()
+            """
+                .trimIndent()
         ) { database, _ ->
-            val query = OpenDelegateWriter(database)
-                .createTableQuery(database.entities.first())
+            val query = OpenDelegateWriter(database).createTableQuery(database.entities.first())
             assertThat(
                 query,
                 `is`(
@@ -77,11 +80,11 @@ class OpenDelegateWriterTest {
                 @NonNull
                 String name;
                 int age;
-            """.trimIndent(),
+            """
+                .trimIndent(),
             attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
         ) { database, _ ->
-            val query = OpenDelegateWriter(database)
-                .createTableQuery(database.entities.first())
+            val query = OpenDelegateWriter(database).createTableQuery(database.entities.first())
             assertThat(
                 query,
                 `is`(
@@ -102,10 +105,10 @@ class OpenDelegateWriterTest {
                 $type uuid;
                 String name;
                 int age;
-                """.trimIndent()
+                """
+                    .trimIndent()
             ) { database, _ ->
-                val query = OpenDelegateWriter(database)
-                    .createTableQuery(database.entities.first())
+                val query = OpenDelegateWriter(database).createTableQuery(database.entities.first())
                 assertThat(
                     query,
                     `is`(
@@ -127,10 +130,10 @@ class OpenDelegateWriterTest {
                 $type uuid;
                 String name;
                 int age;
-                """.trimIndent()
+                """
+                    .trimIndent()
             ) { database, _ ->
-                val query = OpenDelegateWriter(database)
-                    .createTableQuery(database.entities.first())
+                val query = OpenDelegateWriter(database).createTableQuery(database.entities.first())
                 assertThat(
                     query,
                     `is`(
@@ -156,43 +159,47 @@ class OpenDelegateWriterTest {
         attributes: Map<String, String> = mapOf(),
         handler: (Database, XTestInvocation) -> Unit
     ) {
-        val attributesReplacement = if (attributes.isEmpty()) {
-            ""
-        } else {
-            "(" + attributes.entries.joinToString(",") { "${it.key} = ${it.value}" } + ")"
-        }
-        val entity = Source.java(
-            "foo.bar.MyEntity",
-            ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
-        )
+        val attributesReplacement =
+            if (attributes.isEmpty()) {
+                ""
+            } else {
+                "(" + attributes.entries.joinToString(",") { "${it.key} = ${it.value}" } + ")"
+            }
+        val entity =
+            Source.java(
+                "foo.bar.MyEntity",
+                ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
+            )
         verify(listOf(entity), "", handler)
     }
 
-    private fun singleView(
-        query: String,
-        handler: (Database, XTestInvocation) -> Unit
-    ) {
-        val entity = Source.java(
-            "foo.bar.MyEntity",
-            ENTITY_PREFIX.format("") + """
+    private fun singleView(query: String, handler: (Database, XTestInvocation) -> Unit) {
+        val entity =
+            Source.java(
+                "foo.bar.MyEntity",
+                ENTITY_PREFIX.format("") +
+                    """
                     @PrimaryKey
                     @NonNull
                     String uuid;
                     @NonNull
                     String name;
                     int age;
-            """ + ENTITY_SUFFIX
-        )
-        val view = Source.java(
-            "foo.bar.MyView",
-            DATABASE_PREFIX + """
+            """ +
+                    ENTITY_SUFFIX
+            )
+        val view =
+            Source.java(
+                "foo.bar.MyView",
+                DATABASE_PREFIX +
+                    """
                     @DatabaseView("$query")
                     public class MyView {
                         public String uuid;
                         public String name;
                     }
             """
-        )
+            )
         return verify(listOf(entity, view), "views = {MyView.class},", handler)
     }
 
@@ -201,23 +208,23 @@ class OpenDelegateWriterTest {
         databaseAttribute: String,
         handler: (Database, XTestInvocation) -> Unit
     ) {
-        val databaseCode = Source.java(
-            "foo.bar.MyDatabase",
-            """
+        val databaseCode =
+            Source.java(
+                "foo.bar.MyDatabase",
+                """
             package foo.bar;
             import androidx.room.*;
             @Database(entities = {MyEntity.class}, $databaseAttribute version = 3)
             abstract public class MyDatabase extends RoomDatabase {
             }
             """
-        )
-        runProcessorTest(
-            sources = sources + databaseCode
-        ) { invocation ->
-            val db = invocation.roundEnv
-                .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .first()
+            )
+        runProcessorTest(sources = sources + databaseCode) { invocation ->
+            val db =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .first()
             handler(DatabaseProcessor(invocation.context, db).process(), invocation)
         }
     }

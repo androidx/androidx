@@ -27,9 +27,10 @@ import org.junit.Test
 class FallbackLocationInformationTest {
     @Test
     fun errorMessageInClassFiles() {
-        val kotlinSource = Source.kotlin(
-            "KotlinSubject.kt",
-            """
+        val kotlinSource =
+            Source.kotlin(
+                "KotlinSubject.kt",
+                """
             package foo.bar
             class KotlinSubject(val constructorProp:Int, constructorArg:Int) {
                 var prop: String = ""
@@ -39,12 +40,14 @@ class FallbackLocationInformationTest {
                 fun method1(arg1: Int): String = ""
                 suspend fun suspendFun(arg1:Int): String = ""
             }
-            """.trimIndent()
-        )
-
-        val javaSource = Source.java(
-            "foo.bar.JavaSubject",
             """
+                    .trimIndent()
+            )
+
+        val javaSource =
+            Source.java(
+                "foo.bar.JavaSubject",
+                """
             package foo.bar;
             class JavaSubject {
                 String field1;
@@ -54,128 +57,76 @@ class FallbackLocationInformationTest {
                 // naming this arg0 because javac cannot read the real param name after compilation
                 void method1(int p0) {}
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         // add a placeholder to not run tests w/ javac since we depend on compiled kotlin
         // sources and javac fails to resolve metadata
         val placeholder = Source.kotlin("MyPlaceholder.kt", "")
         val dependency = compileFiles(listOf(kotlinSource, javaSource))
-        runProcessorTest(
-            sources = listOf(placeholder),
-            classpath = dependency
-        ) { invocation ->
+        runProcessorTest(sources = listOf(placeholder), classpath = dependency) { invocation ->
             val kotlinSubject = invocation.processingEnv.requireTypeElement("foo.bar.KotlinSubject")
-            assertThat(
-                kotlinSubject.getField("prop").fallbackLocationText
-            ).isEqualTo(
-                "prop in foo.bar.KotlinSubject"
-            )
+            assertThat(kotlinSubject.getField("prop").fallbackLocationText)
+                .isEqualTo("prop in foo.bar.KotlinSubject")
             kotlinSubject.getMethodByJvmName("method1").let { method ->
-                assertThat(
-                    method.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.KotlinSubject.method1(int)"
-                )
-                assertThat(
-                    method.parameters.first().fallbackLocationText
-                ).isEqualTo(
-                    "arg1 in foo.bar.KotlinSubject.method1(int)"
-                )
+                assertThat(method.fallbackLocationText)
+                    .isEqualTo("foo.bar.KotlinSubject.method1(int)")
+                assertThat(method.parameters.first().fallbackLocationText)
+                    .isEqualTo("arg1 in foo.bar.KotlinSubject.method1(int)")
             }
             kotlinSubject.getMethodByJvmName("suspendFun").let { suspendFun ->
-                assertThat(
-                    suspendFun.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.KotlinSubject.suspendFun(int)"
-                )
-                assertThat(
-                    suspendFun.parameters.last().fallbackLocationText
-                ).isEqualTo(
-                    "return type of foo.bar.KotlinSubject.suspendFun(int)"
-                )
+                assertThat(suspendFun.fallbackLocationText)
+                    .isEqualTo("foo.bar.KotlinSubject.suspendFun(int)")
+                assertThat(suspendFun.parameters.last().fallbackLocationText)
+                    .isEqualTo("return type of foo.bar.KotlinSubject.suspendFun(int)")
             }
 
-            assertThat(
-                kotlinSubject.getMethodByJvmName("getProp").fallbackLocationText
-            ).isEqualTo(
-                "foo.bar.KotlinSubject.getProp()"
-            )
+            assertThat(kotlinSubject.getMethodByJvmName("getProp").fallbackLocationText)
+                .isEqualTo("foo.bar.KotlinSubject.getProp()")
             kotlinSubject.getMethodByJvmName("setProp").let { propSetter ->
-                assertThat(
-                    propSetter.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.KotlinSubject.setProp(java.lang.String)"
-                )
-                assertThat(
-                    propSetter.parameters.first().fallbackLocationText
-                ).isEqualTo(
-                    "p0 in foo.bar.KotlinSubject.setProp(java.lang.String)"
-                )
+                assertThat(propSetter.fallbackLocationText)
+                    .isEqualTo("foo.bar.KotlinSubject.setProp(java.lang.String)")
+                assertThat(propSetter.parameters.first().fallbackLocationText)
+                    .isEqualTo("p0 in foo.bar.KotlinSubject.setProp(java.lang.String)")
             }
 
             kotlinSubject.getMethodByJvmName("setPropWithAccessors").let { propSetter ->
                 // javac does not know that this is synthetic setter
-                assertThat(
-                    propSetter.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.KotlinSubject.setPropWithAccessors(java.lang.String)"
-                )
-                assertThat(
-                    propSetter.parameters.first().fallbackLocationText
-                ).isEqualTo(
-                    "myValue in foo.bar.KotlinSubject.setPropWithAccessors(java.lang.String)"
-                )
+                assertThat(propSetter.fallbackLocationText)
+                    .isEqualTo("foo.bar.KotlinSubject.setPropWithAccessors(java.lang.String)")
+                assertThat(propSetter.parameters.first().fallbackLocationText)
+                    .isEqualTo(
+                        "myValue in foo.bar.KotlinSubject.setPropWithAccessors(java.lang.String)"
+                    )
             }
 
             kotlinSubject.getConstructors().single().let { constructor ->
-                assertThat(
-                    constructor.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.KotlinSubject.<init>(int, int)"
-                )
-                assertThat(
-                    constructor.parameters.first().fallbackLocationText
-                ).isEqualTo(
-                    "constructorProp in foo.bar.KotlinSubject.<init>" +
-                        "(int, int)"
-                )
+                assertThat(constructor.fallbackLocationText)
+                    .isEqualTo("foo.bar.KotlinSubject.<init>(int, int)")
+                assertThat(constructor.parameters.first().fallbackLocationText)
+                    .isEqualTo("constructorProp in foo.bar.KotlinSubject.<init>" + "(int, int)")
             }
 
             val javaSubject = invocation.processingEnv.requireTypeElement("foo.bar.JavaSubject")
-            assertThat(
-                javaSubject.fallbackLocationText
-            ).isEqualTo(
-                "foo.bar.JavaSubject"
-            )
-            val argName = if (invocation.isKsp) { // ¯\_(ツ)_/¯
-                "p0"
-            } else {
-                "arg0"
-            }
+            assertThat(javaSubject.fallbackLocationText).isEqualTo("foo.bar.JavaSubject")
+            val argName =
+                if (invocation.isKsp) { // ¯\_(ツ)_/¯
+                    "p0"
+                } else {
+                    "arg0"
+                }
             javaSubject.getConstructors().single().let { constructor ->
-                assertThat(
-                    constructor.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.JavaSubject.<init>(int)"
-                )
-                assertThat(
-                    constructor.parameters.single().fallbackLocationText
-                ).isEqualTo(
-                    "$argName in foo.bar.JavaSubject.<init>(int)"
-                )
+                assertThat(constructor.fallbackLocationText)
+                    .isEqualTo("foo.bar.JavaSubject.<init>(int)")
+                assertThat(constructor.parameters.single().fallbackLocationText)
+                    .isEqualTo("$argName in foo.bar.JavaSubject.<init>(int)")
             }
 
-            assertThat(
-                javaSubject.getField("field1").fallbackLocationText
-            ).isEqualTo(
-                "field1 in foo.bar.JavaSubject"
-            )
+            assertThat(javaSubject.getField("field1").fallbackLocationText)
+                .isEqualTo("field1 in foo.bar.JavaSubject")
             javaSubject.getMethodByJvmName("method1").let { method ->
-                assertThat(
-                    method.fallbackLocationText
-                ).isEqualTo(
-                    "foo.bar.JavaSubject.method1(int)"
-                )
+                assertThat(method.fallbackLocationText)
+                    .isEqualTo("foo.bar.JavaSubject.method1(int)")
             }
         }
     }

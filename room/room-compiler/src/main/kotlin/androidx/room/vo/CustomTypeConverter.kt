@@ -23,9 +23,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 
-/**
- * Generated when we parse a method annotated with TypeConverter.
- */
+/** Generated when we parse a method annotated with TypeConverter. */
 data class CustomTypeConverter(
     val enclosingClass: XTypeElement,
     val isEnclosingClassKotlinObject: Boolean,
@@ -39,8 +37,9 @@ data class CustomTypeConverter(
     val toTypeName: XTypeName by lazy { to.asTypeName() }
     val isStatic by lazy { method.isStatic() }
 
-    fun getMethodName(lang: CodeLanguage) = when (lang) {
-        CodeLanguage.JAVA -> method.jvmName
-        CodeLanguage.KOTLIN -> method.name
-    }
+    fun getMethodName(lang: CodeLanguage) =
+        when (lang) {
+            CodeLanguage.JAVA -> method.jvmName
+            CodeLanguage.KOTLIN -> method.name
+        }
 }

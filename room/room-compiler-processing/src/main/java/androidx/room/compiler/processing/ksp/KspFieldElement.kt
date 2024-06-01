@@ -30,7 +30,8 @@ import com.google.devtools.ksp.symbol.Modifier
 internal class KspFieldElement(
     env: KspProcessingEnv,
     override val declaration: KSPropertyDeclaration,
-) : KspElement(env, declaration),
+) :
+    KspElement(env, declaration),
     XFieldElement,
     XHasModifiers by KspHasModifiers.create(declaration),
     XAnnotated by KspAnnotated.create(env, declaration, NO_USE_SITE_OR_FIELD) {
@@ -39,17 +40,11 @@ internal class KspFieldElement(
         declaration.requireEnclosingMemberContainer(env)
     }
 
-    override val closestMemberContainer: KspMemberContainer by lazy {
-        enclosingElement
-    }
+    override val closestMemberContainer: KspMemberContainer by lazy { enclosingElement }
 
-    override val name: String by lazy {
-        declaration.simpleName.asString()
-    }
+    override val name: String by lazy { declaration.simpleName.asString() }
 
-    override val type: KspType by lazy {
-        createAsMemberOf(closestMemberContainer.type)
-    }
+    override val type: KspType by lazy { createAsMemberOf(closestMemberContainer.type) }
 
     override val jvmDescriptor: String
         get() = this.jvmDescriptor()
@@ -73,11 +68,12 @@ internal class KspFieldElement(
             // jvm fields cannot have accessors but KSP generates synthetic accessors for
             // them. We check for JVM field first before checking the getter
             declaration.hasJvmFieldAnnotation() ||
-            declaration.isPrivate() ||
-            // No accessors are needed for const properties:
-            // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
-            declaration.modifiers.contains(Modifier.CONST) ||
-            accessor.modifiers.contains(Modifier.PRIVATE)) {
+                declaration.isPrivate() ||
+                // No accessors are needed for const properties:
+                // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
+                declaration.modifiers.contains(Modifier.CONST) ||
+                accessor.modifiers.contains(Modifier.PRIVATE)
+        ) {
             null
         } else {
             KspSyntheticPropertyMethodElement.create(
@@ -100,14 +96,15 @@ internal class KspFieldElement(
     private fun createAsMemberOf(container: XType?): KspType {
         check(container is KspType?)
         return env.wrap(
-            originatingReference = declaration.type,
-            ksType = declaration.typeAsMemberOf(container?.ksType)
-        ).copyWithScope(
-            KSTypeVarianceResolverScope.PropertyType(
-                field = this,
-                asMemberOf = container,
+                originatingReference = declaration.type,
+                ksType = declaration.typeAsMemberOf(container?.ksType)
             )
-        )
+            .copyWithScope(
+                KSTypeVarianceResolverScope.PropertyType(
+                    field = this,
+                    asMemberOf = container,
+                )
+            )
     }
 
     companion object {

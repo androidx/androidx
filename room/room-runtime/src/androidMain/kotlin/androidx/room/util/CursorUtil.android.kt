@@ -29,37 +29,37 @@ import androidx.annotation.VisibleForTesting
 /**
  * Copies the given cursor into a in-memory cursor and then closes it.
  *
- *
- * This is useful for iterating over a cursor multiple times without the cost of JNI while
- * reading or IO while filling the window at the expense of memory consumption.
+ * This is useful for iterating over a cursor multiple times without the cost of JNI while reading
+ * or IO while filling the window at the expense of memory consumption.
  *
  * @param c the cursor to copy.
  * @return a new cursor containing the same data as the given cursor.
  */
-fun copyAndClose(c: Cursor): Cursor = c.useCursor { cursor ->
-    val matrixCursor = MatrixCursor(cursor.columnNames, cursor.count)
-    while (cursor.moveToNext()) {
-        val row = arrayOfNulls<Any>(cursor.columnCount)
-        for (i in 0 until c.columnCount) {
-            when (cursor.getType(i)) {
-                Cursor.FIELD_TYPE_NULL -> row[i] = null
-                Cursor.FIELD_TYPE_INTEGER -> row[i] = cursor.getLong(i)
-                Cursor.FIELD_TYPE_FLOAT -> row[i] = cursor.getDouble(i)
-                Cursor.FIELD_TYPE_STRING -> row[i] = cursor.getString(i)
-                Cursor.FIELD_TYPE_BLOB -> row[i] = cursor.getBlob(i)
-                else -> throw IllegalStateException()
+fun copyAndClose(c: Cursor): Cursor =
+    c.useCursor { cursor ->
+        val matrixCursor = MatrixCursor(cursor.columnNames, cursor.count)
+        while (cursor.moveToNext()) {
+            val row = arrayOfNulls<Any>(cursor.columnCount)
+            for (i in 0 until c.columnCount) {
+                when (cursor.getType(i)) {
+                    Cursor.FIELD_TYPE_NULL -> row[i] = null
+                    Cursor.FIELD_TYPE_INTEGER -> row[i] = cursor.getLong(i)
+                    Cursor.FIELD_TYPE_FLOAT -> row[i] = cursor.getDouble(i)
+                    Cursor.FIELD_TYPE_STRING -> row[i] = cursor.getString(i)
+                    Cursor.FIELD_TYPE_BLOB -> row[i] = cursor.getBlob(i)
+                    else -> throw IllegalStateException()
+                }
             }
+            matrixCursor.addRow(row)
         }
-        matrixCursor.addRow(row)
+        matrixCursor
     }
-    matrixCursor
-}
 
 /**
- * Patches [Cursor.getColumnIndex] to work around issues on older devices.
- * If the column is not found, it retries with the specified name surrounded by backticks.
+ * Patches [Cursor.getColumnIndex] to work around issues on older devices. If the column is not
+ * found, it retries with the specified name surrounded by backticks.
  *
- * @param c    The cursor.
+ * @param c The cursor.
  * @param name The name of the target column.
  * @return The index of the column, or -1 if not found.
  */
@@ -77,10 +77,10 @@ fun getColumnIndex(c: Cursor, name: String): Int {
 }
 
 /**
- * Patches [Cursor.getColumnIndexOrThrow] to work around issues on older devices.
- * If the column is not found, it retries with the specified name surrounded by backticks.
+ * Patches [Cursor.getColumnIndexOrThrow] to work around issues on older devices. If the column is
+ * not found, it retries with the specified name surrounded by backticks.
  *
- * @param c    The cursor.
+ * @param c The cursor.
  * @param name The name of the target column.
  * @return The index of the column.
  * @throws IllegalArgumentException if the column does not exist.
@@ -90,21 +90,22 @@ fun getColumnIndexOrThrow(c: Cursor, name: String): Int {
     if (index >= 0) {
         return index
     }
-    val availableColumns = try {
-        c.columnNames.joinToString()
-    } catch (e: Exception) {
-        Log.d("RoomCursorUtil", "Cannot collect column names for debug purposes", e)
-        "unknown"
-    }
+    val availableColumns =
+        try {
+            c.columnNames.joinToString()
+        } catch (e: Exception) {
+            Log.d("RoomCursorUtil", "Cannot collect column names for debug purposes", e)
+            "unknown"
+        }
     throw IllegalArgumentException(
         "column '$name' does not exist. Available columns: $availableColumns"
     )
 }
 
 /**
- * Finds a column by name by appending `.` in front of it and checking by suffix match.
- * Also checks for the version wrapped with `` (backticks).
- * workaround for b/157261134 for API levels 25 and below
+ * Finds a column by name by appending `.` in front of it and checking by suffix match. Also checks
+ * for the version wrapped with `` (backticks). workaround for b/157261134 for API levels 25 and
+ * below
  *
  * e.g. "foo" will match "any.foo" and "`any.foo`"
  */
@@ -146,17 +147,17 @@ inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
 }
 
 /**
- * Wraps the given cursor such that `getColumnIndex()` will utilize the provided
- * `mapping` when getting the index of a column in `columnNames`.
+ * Wraps the given cursor such that `getColumnIndex()` will utilize the provided `mapping` when
+ * getting the index of a column in `columnNames`.
  *
- * This is useful when the original cursor contains duplicate columns. Instead of letting the
- * cursor return the first matching column with a name, we can resolve the ambiguous column
- * indices and wrap the cursor such that for a set of desired column indices, the returned
- * value will be that from the pre-computation.
+ * This is useful when the original cursor contains duplicate columns. Instead of letting the cursor
+ * return the first matching column with a name, we can resolve the ambiguous column indices and
+ * wrap the cursor such that for a set of desired column indices, the returned value will be that
+ * from the pre-computation.
  *
  * @param cursor the cursor to wrap.
- * @param columnNames the column names whose index are known. The result column index of the
- * column name at i will be at `mapping[i]`.
+ * @param columnNames the column names whose index are known. The result column index of the column
+ *   name at i will be at `mapping[i]`.
  * @param mapping the cursor column indices of the columns at `columnNames`.
  * @return the wrapped Cursor.
  */

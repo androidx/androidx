@@ -67,21 +67,24 @@ class DatabaseWriterTest {
             var entityCount = 1
             var statementCount = 0
             while (statementCount < maxStatementCount) {
-                val entityValues = StringBuilder().apply {
-                    for (i in 1..valuesPerEntity) {
-                        append(
-                            """
+                val entityValues =
+                    StringBuilder().apply {
+                        for (i in 1..valuesPerEntity) {
+                            append(
+                                """
                     private String value$i;
                     public String getValue$i() { return this.value$i; }
                     public void setValue$i(String value) { this.value$i = value; }
 
                     """
-                        )
+                            )
+                        }
                     }
-                }
-                val entitySource = Source.java(
-                    qName = "foo.bar.Entity$entityCount",
-                    code = """
+                val entitySource =
+                    Source.java(
+                        qName = "foo.bar.Entity$entityCount",
+                        code =
+                            """
                     package foo.bar;
 
                     import androidx.room.*;
@@ -98,15 +101,17 @@ class DatabaseWriterTest {
                         $entityValues
                     }
                     """
-                )
+                    )
                 entitySources.add("Entity$entityCount" to entitySource)
                 statementCount += valuesPerEntity
                 entityCount++
             }
             val entityClasses = entitySources.joinToString { "${it.first}.class" }
-            val dbSource = Source.java(
-                qName = "foo.bar.TestDatabase",
-                code = """
+            val dbSource =
+                Source.java(
+                    qName = "foo.bar.TestDatabase",
+                    code =
+                        """
                     package foo.bar;
 
                     import androidx.room.*;
@@ -114,7 +119,7 @@ class DatabaseWriterTest {
                     @Database(entities = {$entityClasses}, version = 1)
                     public abstract class TestDatabase extends RoomDatabase {}
                     """
-            )
+                )
             singleDb(*(listOf(dbSource) + entitySources.map { it.second }).toTypedArray()) {
                 // no assertion, if compilation succeeded, it is good
             }
@@ -135,11 +140,19 @@ private fun singleDb(
     vararg inputs: Source,
     onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
-    val sources = listOf(
-        COMMON.USER, COMMON.USER_SUMMARY, COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA,
-        COMMON.PARENT, COMMON.CHILD1, COMMON.CHILD2, COMMON.INFO, COMMON.GUAVA_ROOM,
-        COMMON.LISTENABLE_FUTURE
-    ) + inputs
+    val sources =
+        listOf(
+            COMMON.USER,
+            COMMON.USER_SUMMARY,
+            COMMON.LIVE_DATA,
+            COMMON.COMPUTABLE_LIVE_DATA,
+            COMMON.PARENT,
+            COMMON.CHILD1,
+            COMMON.CHILD2,
+            COMMON.INFO,
+            COMMON.GUAVA_ROOM,
+            COMMON.LISTENABLE_FUTURE
+        ) + inputs
     runProcessorTest(
         sources = sources,
         options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),

@@ -16,17 +16,13 @@
 
 package androidx.room.compiler.processing
 
-/**
- * Utility class to change some behavior in tests, like adding more strict tests.
- */
+/** Utility class to change some behavior in tests, like adding more strict tests. */
 internal object XProcessingConfig {
     /**
-     * When true, we do more strict checks and fail instead of workarounds or fallback
-     * behaviors. Set to true in room's own tests.
+     * When true, we do more strict checks and fail instead of workarounds or fallback behaviors.
+     * Set to true in room's own tests.
      */
-    val STRICT_MODE by lazy {
-        System.getProperty("$PROP_PREFIX.strict").toBoolean()
-    }
+    val STRICT_MODE by lazy { System.getProperty("$PROP_PREFIX.strict").toBoolean() }
 
     private const val PROP_PREFIX = "androidx.room.compiler.processing"
 }

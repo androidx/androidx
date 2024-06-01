@@ -29,17 +29,9 @@ import kotlin.test.Test
 import org.junit.Before
 
 class MultiInstanceInvalidationTest {
-    @Entity
-    data class SampleEntity(
-        @PrimaryKey
-        val pk: Int
-    )
+    @Entity data class SampleEntity(@PrimaryKey val pk: Int)
 
-    @Database(
-        entities = [SampleEntity::class],
-        version = 1,
-        exportSchema = false
-    )
+    @Database(entities = [SampleEntity::class], version = 1, exportSchema = false)
     abstract class SampleDatabase : RoomDatabase()
 
     private lateinit var autoCloseDb: SampleDatabase
@@ -50,9 +42,7 @@ class MultiInstanceInvalidationTest {
     fun invalidateInAnotherInstanceAutoCloser() {
         val latch = CountDownLatch(1)
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val manager = context.getSystemService(
-            ActivityManager::class.java
-        )
+        val manager = context.getSystemService(ActivityManager::class.java)
         val autoCloseHelper = autoCloseDb.openHelper as AutoClosingRoomOpenHelper
         val autoCloser = autoCloseHelper.autoCloser
         autoCloseHelper.writableDatabase
@@ -78,13 +68,10 @@ class MultiInstanceInvalidationTest {
     @Before
     fun initDb() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        autoCloseDb = Room.databaseBuilder(
-            context,
-            SampleDatabase::class.java,
-            "MyDb"
-        )
-            .enableMultiInstanceInvalidation()
-            .setAutoCloseTimeout(200, TimeUnit.MILLISECONDS)
-            .build()
+        autoCloseDb =
+            Room.databaseBuilder(context, SampleDatabase::class.java, "MyDb")
+                .enableMultiInstanceInvalidation()
+                .setAutoCloseTimeout(200, TimeUnit.MILLISECONDS)
+                .build()
     }
 }

@@ -26,22 +26,16 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class MultiRoundProcessingTest(
-    private val testRunner: TestRunner
-) : MultiBackendTest() {
+class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBackendTest() {
     private fun generateCode(index: Int): JavaFile {
-        val typeSpec = TypeSpec.classBuilder(
-            ClassName.bestGuess("foo.bar.Baz$index")
-        ).build()
+        val typeSpec = TypeSpec.classBuilder(ClassName.bestGuess("foo.bar.Baz$index")).build()
         return JavaFile.builder("foo.bar", typeSpec).build()
     }
 
     @Test
     fun dontRequestAnotherRound() {
         var runCnt = 0
-        testRunner {
-            runCnt++
-        }
+        testRunner { runCnt++ }
         // only run 1 if a second round is not explicitly requested
         assertThat(runCnt).isEqualTo(1)
     }
@@ -55,19 +49,18 @@ class MultiRoundProcessingTest(
             runCnt++
         }
         testRunner(
-            handlers = listOf(
-                { invocation ->
-                    checkAndIncrementRunCount(0)
-                    invocation.processingEnv.filer.write(generateCode(0))
-                },
-                { invocation ->
-                    checkAndIncrementRunCount(1)
-                    invocation.processingEnv.filer.write(generateCode(1))
-                },
-                {
-                    checkAndIncrementRunCount(2)
-                }
-            )
+            handlers =
+                listOf(
+                    { invocation ->
+                        checkAndIncrementRunCount(0)
+                        invocation.processingEnv.filer.write(generateCode(0))
+                    },
+                    { invocation ->
+                        checkAndIncrementRunCount(1)
+                        invocation.processingEnv.filer.write(generateCode(1))
+                    },
+                    { checkAndIncrementRunCount(2) }
+                )
         )
         checkAndIncrementRunCount(3)
     }
@@ -78,53 +71,54 @@ class MultiRoundProcessingTest(
         var didRunFirstRoundAssertions = false
         var didRunSecondRoundAssertions = false
         testRunner(
-            handlers = listOf(
-                { invocation ->
-                    invocation.processingEnv.messager.printMessage(
-                        Diagnostic.Kind.NOTE,
-                        "note from 1"
-                    )
-                    invocation.processingEnv.messager.printMessage(
-                        Diagnostic.Kind.WARNING,
-                        "warning from 1"
-                    )
-                    invocation.processingEnv.filer.write(generateCode(0))
-                    invocation.assertCompilationResult {
-                        // can assert diagnostics from followup rounds
-                        hasWarning("warning from 1")
-                        hasWarning("warning from 2")
-                        hasError("error from 2")
-                        hasNote("note from 1")
-                        hasNote("note from 2")
-                        didRunFirstRoundAssertions = true
+            handlers =
+                listOf(
+                    { invocation ->
+                        invocation.processingEnv.messager.printMessage(
+                            Diagnostic.Kind.NOTE,
+                            "note from 1"
+                        )
+                        invocation.processingEnv.messager.printMessage(
+                            Diagnostic.Kind.WARNING,
+                            "warning from 1"
+                        )
+                        invocation.processingEnv.filer.write(generateCode(0))
+                        invocation.assertCompilationResult {
+                            // can assert diagnostics from followup rounds
+                            hasWarning("warning from 1")
+                            hasWarning("warning from 2")
+                            hasError("error from 2")
+                            hasNote("note from 1")
+                            hasNote("note from 2")
+                            didRunFirstRoundAssertions = true
+                        }
+                    },
+                    { invocation ->
+                        check(!didRunFirstRoundAssertions) {
+                            "shouldn't run assertions before all runs are completed"
+                        }
+                        invocation.processingEnv.messager.printMessage(
+                            Diagnostic.Kind.NOTE,
+                            "note from 2"
+                        )
+                        invocation.processingEnv.messager.printMessage(
+                            Diagnostic.Kind.WARNING,
+                            "warning from 2"
+                        )
+                        invocation.processingEnv.messager.printMessage(
+                            Diagnostic.Kind.ERROR,
+                            "error from 2"
+                        )
+                        invocation.assertCompilationResult {
+                            hasWarning("warning from 1")
+                            hasWarning("warning from 2")
+                            hasError("error from 2")
+                            hasNote("note from 1")
+                            hasNote("note from 2")
+                            didRunSecondRoundAssertions = true
+                        }
                     }
-                },
-                { invocation ->
-                    check(!didRunFirstRoundAssertions) {
-                        "shouldn't run assertions before all runs are completed"
-                    }
-                    invocation.processingEnv.messager.printMessage(
-                        Diagnostic.Kind.NOTE,
-                        "note from 2"
-                    )
-                    invocation.processingEnv.messager.printMessage(
-                        Diagnostic.Kind.WARNING,
-                        "warning from 2"
-                    )
-                    invocation.processingEnv.messager.printMessage(
-                        Diagnostic.Kind.ERROR,
-                        "error from 2"
-                    )
-                    invocation.assertCompilationResult {
-                        hasWarning("warning from 1")
-                        hasWarning("warning from 2")
-                        hasError("error from 2")
-                        hasNote("note from 1")
-                        hasNote("note from 2")
-                        didRunSecondRoundAssertions = true
-                    }
-                }
-            )
+                )
         )
         // just to make sure test didn't pass by failing to run assertions.
         assertThat(didRunFirstRoundAssertions).isTrue()
@@ -135,23 +129,19 @@ class MultiRoundProcessingTest(
     fun validateIfRequestedRoundIsRun() {
         val result = runCatching {
             testRunner(
-                handlers = listOf(
-                    {},
-                    {
-                        // this won't happen because no code is generated in the first run
-                    }
-                )
+                handlers =
+                    listOf(
+                        {},
+                        {
+                            // this won't happen because no code is generated in the first run
+                        }
+                    )
             )
         }
-        assertThat(
-            result.isFailure
-        ).isTrue()
-        assertThat(
-            result.exceptionOrNull()
-        ).hasMessageThat()
-            .contains(
-                "Test runner requested another round but that didn't happen"
-            )
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull())
+            .hasMessageThat()
+            .contains("Test runner requested another round but that didn't happen")
     }
 
     @Test
@@ -159,20 +149,18 @@ class MultiRoundProcessingTest(
         val result = runCatching {
             lateinit var previousInvocation: XTestInvocation
             testRunner(
-                handlers = listOf(
-                    { invocation1 ->
-                        invocation1.processingEnv.filer.write(generateCode(0))
-                        previousInvocation = invocation1
-                    },
-                    {
-                        previousInvocation.processingEnv.filer.write(generateCode(1))
-                    }
-                )
+                handlers =
+                    listOf(
+                        { invocation1 ->
+                            invocation1.processingEnv.filer.write(generateCode(0))
+                            previousInvocation = invocation1
+                        },
+                        { previousInvocation.processingEnv.filer.write(generateCode(1)) }
+                    )
             )
         }
-        assertThat(
-            result.exceptionOrNull()?.cause
-        ).hasMessageThat()
+        assertThat(result.exceptionOrNull()?.cause)
+            .hasMessageThat()
             .contains("Cannot use a test invocation after it is disposed")
     }
 
@@ -180,21 +168,20 @@ class MultiRoundProcessingTest(
     fun checkFailureFromAPreviousRoundIsNotMissed() {
         val result = runCatching {
             testRunner(
-                handlers = listOf(
-                    { invocation1 ->
-                        invocation1.processingEnv.filer.write(generateCode(0))
-                        // this will fail
-                        throw AssertionError("i failed")
-                    },
-                    {
-                        // this won't run
-                        throw AssertionError("this shouldn't run as prev one failed")
-                    }
-                )
+                handlers =
+                    listOf(
+                        { invocation1 ->
+                            invocation1.processingEnv.filer.write(generateCode(0))
+                            // this will fail
+                            throw AssertionError("i failed")
+                        },
+                        {
+                            // this won't run
+                            throw AssertionError("this shouldn't run as prev one failed")
+                        }
+                    )
             )
         }
-        assertThat(
-            result.exceptionOrNull()?.cause
-        ).hasMessageThat().contains("i failed")
+        assertThat(result.exceptionOrNull()?.cause).hasMessageThat().contains("i failed")
     }
 }

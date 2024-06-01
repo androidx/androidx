@@ -21,14 +21,10 @@ package androidx.room.migration.bundle
 import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmName
 
-/**
- * Placeholder for table names in queries.
- */
+/** Placeholder for table names in queries. */
 const val TABLE_NAME_PLACEHOLDER: String = "\${TABLE_NAME}"
 
-/**
- * Placeholder for view names in queries.
- */
+/** Placeholder for view names in queries. */
 const val VIEW_NAME_PLACEHOLDER: String = "\${VIEW_NAME}"
 
 fun replaceTableName(contents: String, tableName: String): String {

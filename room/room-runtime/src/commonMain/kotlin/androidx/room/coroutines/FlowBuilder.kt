@@ -44,11 +44,12 @@ fun <R> createFlow(
     coroutineScope {
         // Observer channel receives signals from the invalidation tracker to emit queries.
         val observerChannel = Channel<Unit>(Channel.CONFLATED)
-        val observer = object : InvalidationTracker.Observer(tableNames) {
-            override fun onInvalidated(tables: Set<String>) {
-                observerChannel.trySend(Unit)
+        val observer =
+            object : InvalidationTracker.Observer(tableNames) {
+                override fun onInvalidated(tables: Set<String>) {
+                    observerChannel.trySend(Unit)
+                }
             }
-        }
         observerChannel.trySend(Unit) // Initial signal to perform first query.
         val resultChannel = Channel<R>()
         launch(db.getCoroutineContext(inTransaction).minusKey(Job)) {
@@ -57,10 +58,11 @@ fun <R> createFlow(
                 // Iterate until cancelled, transforming observer signals to query results
                 // to be emitted to the flow.
                 for (signal in observerChannel) {
-                    val result = db.internalPerform(true, inTransaction) { connection ->
-                        val rawConnection = (connection as RawConnectionAccessor).rawConnection
-                        block.invoke(rawConnection)
-                    }
+                    val result =
+                        db.internalPerform(true, inTransaction) { connection ->
+                            val rawConnection = (connection as RawConnectionAccessor).rawConnection
+                            block.invoke(rawConnection)
+                        }
                     resultChannel.send(result)
                 }
             } finally {

@@ -20,7 +20,6 @@ package androidx.room
  * Repeatable annotation declaring the renamed tables in the new version of an auto migration.
  *
  * @see [AutoMigration]
- *
  */
 @Repeatable
 @Target(AnnotationTarget.CLASS)

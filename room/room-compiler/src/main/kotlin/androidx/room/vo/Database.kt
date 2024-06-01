@@ -29,9 +29,7 @@ import java.io.OutputStream
 import java.nio.file.Path
 import org.apache.commons.codec.digest.DigestUtils
 
-/**
- * Holds information about a class annotated with Database.
- */
+/** Holds information about a class annotated with Database. */
 data class Database(
     val element: XTypeElement,
     val type: XType,
@@ -48,22 +46,17 @@ data class Database(
     lateinit var autoMigrations: List<AutoMigration>
     val typeName: XClassName by lazy { element.asClassName() }
 
-    private val implClassName by lazy {
-        "${typeName.simpleNames.joinToString("_")}_Impl"
-    }
+    private val implClassName by lazy { "${typeName.simpleNames.joinToString("_")}_Impl" }
 
-    val implTypeName: XClassName by lazy {
-        XClassName.get(typeName.packageName, implClassName)
-    }
+    val implTypeName: XClassName by lazy { XClassName.get(typeName.packageName, implClassName) }
 
     val bundle by lazy {
         DatabaseBundle(
-            version, identityHash, entities.map(Entity::toBundle),
+            version,
+            identityHash,
+            entities.map(Entity::toBundle),
             views.map(DatabaseView::toBundle),
-            listOf(
-                RoomMasterTable.CREATE_QUERY,
-                RoomMasterTable.createInsertQuery(identityHash)
-            )
+            listOf(RoomMasterTable.CREATE_QUERY, RoomMasterTable.createInsertQuery(identityHash))
         )
     }
 
@@ -79,11 +72,9 @@ data class Database(
     }
 
     val legacyIdentityHash: String by lazy {
-        val entityDescriptions = entities
-            .sortedBy { it.tableName }
-            .map { it.createTableQuery }
-        val indexDescriptions = entities
-            .flatMap { entity ->
+        val entityDescriptions = entities.sortedBy { it.tableName }.map { it.createTableQuery }
+        val indexDescriptions =
+            entities.flatMap { entity ->
                 entity.indices.map { index ->
                     // For legacy purposes we need to remove the later added 'IF NOT EXISTS'
                     // part of the create statement, otherwise old valid legacy hashes stop
@@ -97,11 +88,10 @@ data class Database(
                     } + index.createQuery(entity.tableName).substringAfter("IF NOT EXISTS")
                 }
             }
-        val viewDescriptions = views
-            .sortedBy { it.viewName }
-            .map { it.viewName + it.query.original }
-        val input = (entityDescriptions + indexDescriptions + viewDescriptions)
-            .joinToString("¯\\_(ツ)_/¯")
+        val viewDescriptions =
+            views.sortedBy { it.viewName }.map { it.viewName + it.query.original }
+        val input =
+            (entityDescriptions + indexDescriptions + viewDescriptions).joinToString("¯\\_(ツ)_/¯")
         DigestUtils.md5Hex(input)
     }
 
@@ -109,15 +99,14 @@ data class Database(
     // otherwise it is not written.
     fun exportSchema(inputPath: Path, outputPath: Path) {
         val schemaBundle = SchemaBundle(SCHEMA_LATEST_FORMAT_VERSION, bundle)
-        val inputStream = try {
-            SchemaFileResolver.RESOLVER.readPath(inputPath)
-        } catch (e: IOException) {
-            null
-        }
-        if (inputStream != null) {
-            val existing = inputStream.use {
-                SchemaBundle.deserialize(it)
+        val inputStream =
+            try {
+                SchemaFileResolver.RESOLVER.readPath(inputPath)
+            } catch (e: IOException) {
+                null
             }
+        if (inputStream != null) {
+            val existing = inputStream.use { SchemaBundle.deserialize(it) }
             // If existing schema file is the same as the current schema then do not write the file
             // which helps the copy task configured by the Room Gradle Plugin skip execution due
             // to empty variant schema output directory.
@@ -125,11 +114,12 @@ data class Database(
                 return
             }
         }
-        val outputStream = try {
-            SchemaFileResolver.RESOLVER.writePath(outputPath)
-        } catch (e: IOException) {
-            throw IllegalStateException("Couldn't write schema file!", e)
-        }
+        val outputStream =
+            try {
+                SchemaFileResolver.RESOLVER.writePath(outputPath)
+            } catch (e: IOException) {
+                throw IllegalStateException("Couldn't write schema file!", e)
+            }
         SchemaBundle.serialize(schemaBundle, outputStream)
     }
 

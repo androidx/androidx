@@ -17,14 +17,23 @@
 package androidx.room.compiler.codegen
 
 typealias JCodeBlock = com.squareup.javapoet.CodeBlock
+
 typealias JCodeBlockBuilder = com.squareup.javapoet.CodeBlock.Builder
+
 typealias JAnnotationSpecBuilder = com.squareup.javapoet.AnnotationSpec.Builder
+
 typealias JTypeSpecBuilder = com.squareup.javapoet.TypeSpec.Builder
+
 typealias KCodeBlock = com.squareup.kotlinpoet.CodeBlock
+
 typealias KCodeBlockBuilder = com.squareup.kotlinpoet.CodeBlock.Builder
+
 typealias KAnnotationSpecBuilder = com.squareup.kotlinpoet.AnnotationSpec.Builder
+
 typealias KTypeSpecBuilder = com.squareup.kotlinpoet.TypeSpec.Builder
+
 typealias KMemberName = com.squareup.kotlinpoet.MemberName
+
 typealias JArrayTypeName = com.squareup.javapoet.ArrayTypeName
 
 // TODO(b/127483380): Recycle to room-compiler?

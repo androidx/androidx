@@ -37,17 +37,15 @@ public annotation class ColumnInfo(
     /**
      * The type affinity for the column, which will be used when constructing the database.
      *
-     * If it is not specified, the value defaults to [UNDEFINED] and Room resolves it based
-     * on the field's type and available TypeConverters.
+     * If it is not specified, the value defaults to [UNDEFINED] and Room resolves it based on the
+     * field's type and available TypeConverters.
      *
      * See [SQLite types documentation](https://www.sqlite.org/datatype3.html) for details.
      *
-     * @return The type affinity of the column. This is either [UNDEFINED], [TEXT],
-     * [INTEGER], [REAL], or [BLOB].
+     * @return The type affinity of the column. This is either [UNDEFINED], [TEXT], [INTEGER],
+     *   [REAL], or [BLOB].
      */
-    @Suppress("unused")
-    @get:SQLiteTypeAffinity
-    val typeAffinity: Int = UNDEFINED,
+    @Suppress("unused") @get:SQLiteTypeAffinity val typeAffinity: Int = UNDEFINED,
 
     /**
      * Convenience method to index the field.
@@ -61,14 +59,13 @@ public annotation class ColumnInfo(
     /**
      * The collation sequence for the column, which will be used when constructing the database.
      *
-     * The default value is [UNSPECIFIED]. In that case, Room does not add any
-     * collation sequence to the column, and SQLite treats it like [BINARY].
+     * The default value is [UNSPECIFIED]. In that case, Room does not add any collation sequence to
+     * the column, and SQLite treats it like [BINARY].
      *
-     * @return The collation sequence of the column. This is either [UNSPECIFIED],
-     * [BINARY], [NOCASE], [RTRIM], [LOCALIZED] or [UNICODE].
+     * @return The collation sequence of the column. This is either [UNSPECIFIED], [BINARY],
+     *   [NOCASE], [RTRIM], [LOCALIZED] or [UNICODE].
      */
-    @get:Collate
-    val collate: Int = UNSPECIFIED,
+    @get:Collate val collate: Int = UNSPECIFIED,
 
     /**
      * The default value for this column.
@@ -81,10 +78,10 @@ public annotation class ColumnInfo(
      * public flag: Int
      * ```
      *
-     * Note that the default value you specify here will _NOT_ be used if you simply
-     * insert the [Entity] with [Insert]. In that case, any value assigned in
-     * Java/Kotlin will be used. Use [Query] with an `INSERT` statement
-     * and skip this column there in order to use this default value.
+     * Note that the default value you specify here will _NOT_ be used if you simply insert the
+     * [Entity] with [Insert]. In that case, any value assigned in Java/Kotlin will be used. Use
+     * [Query] with an `INSERT` statement and skip this column there in order to use this default
+     * value.
      *
      * NULL, CURRENT_TIMESTAMP and other SQLite constant values are interpreted as such. If you want
      * to use them as strings for some reason, surround them with single-quotes.
@@ -109,9 +106,7 @@ public annotation class ColumnInfo(
      */
     val defaultValue: String = VALUE_UNSPECIFIED,
 ) {
-    /**
-     * The SQLite column type constants that can be used in [typeAffinity()]
-     */
+    /** The SQLite column type constants that can be used in [typeAffinity()] */
     @IntDef(UNDEFINED, TEXT, INTEGER, REAL, BLOB)
     @Retention(AnnotationRetention.BINARY)
     public annotation class SQLiteTypeAffinity
@@ -197,20 +192,16 @@ public annotation class ColumnInfo(
          *
          * @see collate()
          */
-        @RequiresApi(21)
-        public const val LOCALIZED: Int = 5
+        @RequiresApi(21) public const val LOCALIZED: Int = 5
 
         /**
          * Collation sequence that uses Unicode Collation Algorithm.
          *
          * @see collate()
          */
-        @RequiresApi(21)
-        public const val UNICODE: Int = 6
+        @RequiresApi(21) public const val UNICODE: Int = 6
 
-        /**
-         * A constant for [defaultValue()] that makes the column to have no default value.
-         */
+        /** A constant for [defaultValue()] that makes the column to have no default value. */
         public const val VALUE_UNSPECIFIED: String = "[value-unspecified]"
     }
 }

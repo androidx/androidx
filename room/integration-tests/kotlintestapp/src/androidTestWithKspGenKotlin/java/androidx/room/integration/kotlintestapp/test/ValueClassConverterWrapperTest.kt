@@ -46,45 +46,37 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ValueClassConverterWrapperTest {
 
-    @JvmInline
-    value class UserWithInt(val password: Int)
+    @JvmInline value class UserWithInt(val password: Int)
 
-    @JvmInline
-    value class UserWithString(val password: String)
+    @JvmInline value class UserWithString(val password: String)
 
-    @JvmInline
-    value class UserWithUUID(val password: UUID)
+    @JvmInline value class UserWithUUID(val password: UUID)
 
-    @JvmInline
-    value class UserWithByte(val password: Byte)
+    @JvmInline value class UserWithByte(val password: Byte)
 
-    @JvmInline
-    value class UserWithDate(val password: Date)
+    @JvmInline value class UserWithDate(val password: Date)
 
-    @JvmInline
-    value class UserWithGeneric<T>(val password: T)
+    @JvmInline value class UserWithGeneric<T>(val password: T)
 
     enum class Season {
-        WINTER, SUMMER, SPRING, FALL
+        WINTER,
+        SUMMER,
+        SPRING,
+        FALL
     }
 
-    @JvmInline
-    value class UserWithEnum(val password: Season)
+    @JvmInline value class UserWithEnum(val password: Season)
 
-    @JvmInline
-    value class UserWithStringInternal(internal val password: String)
+    @JvmInline value class UserWithStringInternal(internal val password: String)
 
-    @JvmInline
-    value class UserWithByteArray(val password: ByteArray)
+    @JvmInline value class UserWithByteArray(val password: ByteArray)
 
-    @JvmInline
-    value class NullableValue(val data: Int?)
+    @JvmInline value class NullableValue(val data: Int?)
 
     @Entity
     @TypeConverters(DateConverter::class, SchrodingerConverter::class)
     class UserInfo(
-        @PrimaryKey
-        val pk: Int,
+        @PrimaryKey val pk: Int,
         val userIntPwd: UserWithInt,
         val userStringPwd: UserWithString,
         val userUUIDPwd: UserWithUUID,
@@ -109,7 +101,7 @@ class ValueClassConverterWrapperTest {
                 userGenericPwd == otherEntity.userGenericPwd &&
                 userByteArrayPwd.password.contentEquals(otherEntity.userByteArrayPwd.password) &&
                 schrodingerUser.experiment.isCatAlive ==
-                otherEntity.schrodingerUser.experiment.isCatAlive
+                    otherEntity.schrodingerUser.experiment.isCatAlive
         }
 
         override fun hashCode(): Int {
@@ -119,8 +111,7 @@ class ValueClassConverterWrapperTest {
 
     @Entity
     data class UserInfoNullable(
-        @PrimaryKey
-        val pk: Int,
+        @PrimaryKey val pk: Int,
         val nullableUserIntPwd: UserWithInt?,
         val nullableData: NullableValue,
         val doubleNullableData: NullableValue?
@@ -128,17 +119,13 @@ class ValueClassConverterWrapperTest {
 
     @Dao
     interface SampleDao {
-        @Query("SELECT * FROM UserInfo")
-        fun getEntity(): UserInfo
+        @Query("SELECT * FROM UserInfo") fun getEntity(): UserInfo
 
-        @Query("SELECT * FROM UserInfoNullable")
-        fun getNullableEntity(): UserInfoNullable
+        @Query("SELECT * FROM UserInfoNullable") fun getNullableEntity(): UserInfoNullable
 
-        @Insert
-        fun insert(item: UserInfo)
+        @Insert fun insert(item: UserInfo)
 
-        @Insert
-        fun insertNullableEntity(item: UserInfoNullable)
+        @Insert fun insertNullableEntity(item: UserInfoNullable)
     }
 
     @Database(
@@ -165,19 +152,20 @@ class ValueClassConverterWrapperTest {
 
     @Test
     fun readAndWriteValueClassToDatabase() {
-        val customerInfo = UserInfo(
-            pk = pk,
-            userIntPwd = intPwd,
-            userStringPwd = stringPwd,
-            userUUIDPwd = uuidPwd,
-            userBytePwd = bytePwd,
-            userEnumPwd = enumPwd,
-            userDatePwd = datePwd,
-            userStringInternalPwd = internalPwd,
-            userGenericPwd = genericPwd,
-            userByteArrayPwd = byteArrayPwd,
-            schrodingerUser = shrodingerPwd
-        )
+        val customerInfo =
+            UserInfo(
+                pk = pk,
+                userIntPwd = intPwd,
+                userStringPwd = stringPwd,
+                userUUIDPwd = uuidPwd,
+                userBytePwd = bytePwd,
+                userEnumPwd = enumPwd,
+                userDatePwd = datePwd,
+                userStringInternalPwd = internalPwd,
+                userGenericPwd = genericPwd,
+                userByteArrayPwd = byteArrayPwd,
+                schrodingerUser = shrodingerPwd
+            )
 
         db.dao().insert(customerInfo)
 
@@ -188,12 +176,13 @@ class ValueClassConverterWrapperTest {
 
     @Test
     fun readAndWriteNullableValueClassToDatabase() {
-        val data = UserInfoNullable(
-            pk = 1,
-            nullableUserIntPwd = null,
-            nullableData = NullableValue(1),
-            null
-        )
+        val data =
+            UserInfoNullable(
+                pk = 1,
+                nullableUserIntPwd = null,
+                nullableData = NullableValue(1),
+                null
+            )
 
         db.dao().insertNullableEntity(data)
 
@@ -204,28 +193,28 @@ class ValueClassConverterWrapperTest {
 
     @Test
     fun invalidWriteNullableValueClassToDatabase() {
-        val data = UserInfoNullable(
-            pk = 1,
-            nullableUserIntPwd = null,
-            nullableData = NullableValue(null),
-            null
-        )
+        val data =
+            UserInfoNullable(
+                pk = 1,
+                nullableUserIntPwd = null,
+                nullableData = NullableValue(null),
+                null
+            )
 
-        assertThrows<IllegalStateException> {
-            db.dao().insertNullableEntity(data)
-        }.hasMessageThat().isEqualTo(
-            "Cannot bind NULLABLE value 'data' of inline class 'NullableValue' to " +
-                "a NOT NULL column."
-        )
+        assertThrows<IllegalStateException> { db.dao().insertNullableEntity(data) }
+            .hasMessageThat()
+            .isEqualTo(
+                "Cannot bind NULLABLE value 'data' of inline class 'NullableValue' to " +
+                    "a NOT NULL column."
+            )
     }
 
     @Before
     fun initDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        db = Room.inMemoryDatabaseBuilder(
-            context,
-            ValueClassConverterWrapperDatabase::class.java
-        ).build()
+        db =
+            Room.inMemoryDatabaseBuilder(context, ValueClassConverterWrapperDatabase::class.java)
+                .build()
     }
 
     @After

@@ -51,10 +51,11 @@ class BooksDaoTest : TestDatabaseTest() {
     fun addPublisherIdError() {
         // the following would cause Unique constraint fail and would not return -1
         // booksDao.addPublishers(TestUtil.PUBLISHER2)
-        val publisherList = buildList<Publisher> {
-            add(TestUtil.PUBLISHER)
-            add(TestUtil.PUBLISHER2)
-        }
+        val publisherList =
+            buildList<Publisher> {
+                add(TestUtil.PUBLISHER)
+                add(TestUtil.PUBLISHER2)
+            }
         val result = booksDao.addPublisherReturnArray(publisherList)
         assertEquals(result[1], 2)
     }
@@ -151,7 +152,8 @@ class BooksDaoTest : TestDatabaseTest() {
         val subscriber = TestSubscriber<Optional<Book>>()
         val flowable: Flowable<Optional<Book>> =
             booksDao.getBookOptionalFlowable(TestUtil.BOOK_1.bookId)
-        flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
+        flowable
+            .observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
             .subscribeWith(subscriber)
         drain()
         assertThat(subscriber.values().size, `is`(1))
@@ -163,7 +165,8 @@ class BooksDaoTest : TestDatabaseTest() {
         val subscriber = TestSubscriber<Optional<Book>>()
         val flowable: Flowable<Optional<Book>> =
             booksDao.getBookOptionalFlowable(TestUtil.BOOK_1.bookId)
-        flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
+        flowable
+            .observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
             .subscribeWith(subscriber)
         drain()
         assertThat(subscriber.values().size, `is`(1))
@@ -176,10 +179,8 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        val expected = BookWithPublisher(
-            TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
-            TestUtil.PUBLISHER
-        )
+        val expected =
+            BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title, TestUtil.PUBLISHER)
         val expectedList = ArrayList<BookWithPublisher>()
         expectedList.add(expected)
 
@@ -195,10 +196,8 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        val expected = BookWithPublisher(
-            TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title,
-            TestUtil.PUBLISHER
-        )
+        val expected =
+            BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title, TestUtil.PUBLISHER)
         val expectedList = ArrayList<BookWithPublisher>()
         expectedList.add(expected)
 
@@ -222,10 +221,7 @@ class BooksDaoTest : TestDatabaseTest() {
         assertNotNull(throwable)
         assertThat<Throwable>(
             throwable,
-            instanceOf<Throwable>(
-                SQLiteConstraintException::class
-                    .java
-            )
+            instanceOf<Throwable>(SQLiteConstraintException::class.java)
         )
     }
 
@@ -235,9 +231,8 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
-        val actualPublisherWithBooks = booksDao.getPublisherWithBooks(
-            TestUtil.PUBLISHER.publisherId
-        )
+        val actualPublisherWithBooks =
+            booksDao.getPublisherWithBooks(TestUtil.PUBLISHER.publisherId)
 
         assertThat(actualPublisherWithBooks.publisher, `is`<Publisher>(TestUtil.PUBLISHER))
         assertThat(actualPublisherWithBooks.books?.size, `is`(2))
@@ -250,19 +245,13 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
-        val actualPublisherWithBooks = booksDao.getPublisherWithBookSales(
-            TestUtil.PUBLISHER.publisherId
-        )
+        val actualPublisherWithBooks =
+            booksDao.getPublisherWithBookSales(TestUtil.PUBLISHER.publisherId)
 
         assertThat(actualPublisherWithBooks.publisher, `is`<Publisher>(TestUtil.PUBLISHER))
         assertThat(
             actualPublisherWithBooks.sales,
-            `is`(
-                listOf(
-                    TestUtil.BOOK_1.salesCnt,
-                    TestUtil.BOOK_2.salesCnt
-                )
-            )
+            `is`(listOf(TestUtil.BOOK_1.salesCnt, TestUtil.BOOK_2.salesCnt))
         )
     }
 
@@ -291,12 +280,10 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
         booksDao.addBooks(TestUtil.BOOK_2)
 
-        val books = database.booksDao().getBooksMultiLineQuery(
-            arrayListOf(
-                TestUtil.BOOK_1.bookId,
-                TestUtil.BOOK_2.bookId
-            )
-        )
+        val books =
+            database
+                .booksDao()
+                .getBooksMultiLineQuery(arrayListOf(TestUtil.BOOK_1.bookId, TestUtil.BOOK_2.bookId))
         assertThat(books, `is`(listOf(TestUtil.BOOK_2, TestUtil.BOOK_1)))
     }
 
@@ -313,20 +300,11 @@ class BooksDaoTest : TestDatabaseTest() {
             `is`(listOf(book1, book2, book3))
         )
 
-        assertThat(
-            booksDao.findByLanguages(setOf(Lang.TR)),
-            `is`(listOf(book1, book2))
-        )
+        assertThat(booksDao.findByLanguages(setOf(Lang.TR)), `is`(listOf(book1, book2)))
 
-        assertThat(
-            booksDao.findByLanguages(setOf(Lang.ES)),
-            `is`(listOf(book2))
-        )
+        assertThat(booksDao.findByLanguages(setOf(Lang.ES)), `is`(listOf(book2)))
 
-        assertThat(
-            booksDao.findByLanguages(setOf(Lang.EN)),
-            `is`(listOf(book3))
-        )
+        assertThat(booksDao.findByLanguages(setOf(Lang.EN)), `is`(listOf(book3)))
     }
 
     @Test
@@ -397,10 +375,7 @@ class BooksDaoTest : TestDatabaseTest() {
 
     @Test
     fun deleteBooksWithZeroSales() {
-        val books = listOf(
-            TestUtil.BOOK_1.copy(salesCnt = 0),
-            TestUtil.BOOK_2.copy(salesCnt = 0)
-        )
+        val books = listOf(TestUtil.BOOK_1.copy(salesCnt = 0), TestUtil.BOOK_2.copy(salesCnt = 0))
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(*books.toTypedArray())
 

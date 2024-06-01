@@ -56,8 +56,7 @@ class PrePackagedCopyOpenHelperTest {
         const val DB_VERSION = 0
     }
 
-    @get:Rule
-    val tempDirectory = TemporaryFolder()
+    @get:Rule val tempDirectory = TemporaryFolder()
 
     val context: Context = mock(Context::class.java)
     val assetManager: AssetManager = mock(AssetManager::class.java)
@@ -105,12 +104,8 @@ class PrePackagedCopyOpenHelperTest {
         writeDatabaseVersion(copyFile)
         setupMocks(tempDirectory.root, copyFile)
 
-        val t1 = thread(name = "DB Thread A") {
-            createOpenHelper(copyFile).writableDatabase
-        }
-        val t2 = thread(name = "DB Thread B") {
-            createOpenHelper(copyFile).writableDatabase
-        }
+        val t1 = thread(name = "DB Thread A") { createOpenHelper(copyFile).writableDatabase }
+        val t2 = thread(name = "DB Thread B") { createOpenHelper(copyFile).writableDatabase }
 
         t1.join()
         t2.join()
@@ -140,8 +135,7 @@ class PrePackagedCopyOpenHelperTest {
                 val exitCode = it.exitValue()
                 if (exitCode != 0) {
                     throw IllegalStateException(
-                        "Copy process exited with non-zero code. " +
-                            "Code: $exitCode"
+                        "Copy process exited with non-zero code. " + "Code: $exitCode"
                     )
                 }
             }
@@ -164,20 +158,22 @@ class PrePackagedCopyOpenHelperTest {
         }
 
         val exceptions = mutableListOf<Exception>()
-        val t1 = thread(name = "DB Thread A") {
-            try {
-                createOpenHelper(copyFile).writableDatabase
-            } catch (e: Exception) {
-                exceptions.add(e)
+        val t1 =
+            thread(name = "DB Thread A") {
+                try {
+                    createOpenHelper(copyFile).writableDatabase
+                } catch (e: Exception) {
+                    exceptions.add(e)
+                }
             }
-        }
-        val t2 = thread(name = "DB Thread B") {
-            try {
-                createOpenHelper(copyFile).writableDatabase
-            } catch (e: Exception) {
-                exceptions.add(e)
+        val t2 =
+            thread(name = "DB Thread B") {
+                try {
+                    createOpenHelper(copyFile).writableDatabase
+                } catch (e: Exception) {
+                    exceptions.add(e)
+                }
             }
-        }
 
         t1.join()
         t2.join()
@@ -213,6 +209,7 @@ class PrePackagedCopyOpenHelperTest {
             onAssetOpen()
             return@thenAnswer object : InputStream() {
                 val delegate by lazy { FileInputStream(copyFromFile) }
+
                 @SuppressLint("BanThreadSleep")
                 override fun read(): Int {
                     Thread.sleep(10) // simulate slow reading, as if this was a big file
@@ -223,14 +220,8 @@ class PrePackagedCopyOpenHelperTest {
     }
 
     internal fun createOpenHelper(copyFromAssetFile: File) =
-        PrePackagedCopyOpenHelper(
-            context,
-            copyFromAssetFile.name,
-            null,
-            null,
-            DB_VERSION,
-            delegate
-        ).apply { setDatabaseConfiguration(configuration) }
+        PrePackagedCopyOpenHelper(context, copyFromAssetFile.name, null, null, DB_VERSION, delegate)
+            .apply { setDatabaseConfiguration(configuration) }
 
     // Writes sqlite user database version in a file, located at offset 60.
     private fun writeDatabaseVersion(file: File) {
@@ -261,9 +252,10 @@ class PrePackagedCopyOpenHelperTest {
     // Spawns a new Java process to perform a copy using the open helper.
     @RequiresApi(Build.VERSION_CODES.O)
     private fun spawnCopyProcess(copyFromFile: File): Process {
-        val home = checkNotNull(System.getProperty("java.home")) {
-            "cannot read java.home from system properties."
-        }
+        val home =
+            checkNotNull(System.getProperty("java.home")) {
+                "cannot read java.home from system properties."
+            }
         val javaBin = home + File.separator + "bin" + File.separator + "java"
         val classpath = System.getProperty("java.class.path")
         val mainClass = RoomCopyTestProcess::class.java.canonicalName
@@ -283,9 +275,10 @@ class RoomCopyTestProcess {
         fun main(args: Array<String>) {
             val tmpDir = File(args[0])
             val copyFromFile = File(args[1])
-            val openHelper = PrePackagedCopyOpenHelperTest()
-                .apply { setupMocks(tmpDir, copyFromFile) }
-                .createOpenHelper(copyFromFile)
+            val openHelper =
+                PrePackagedCopyOpenHelperTest()
+                    .apply { setupMocks(tmpDir, copyFromFile) }
+                    .createOpenHelper(copyFromFile)
             openHelper.writableDatabase
         }
     }

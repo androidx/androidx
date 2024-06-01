@@ -24,9 +24,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
 class SourceSetTest {
-    @Rule
-    @JvmField
-    val tempFolder = TemporaryFolder()
+    @Rule @JvmField val tempFolder = TemporaryFolder()
 
     private val BY_ROUNDS_DIR = "byRounds"
     val SOURCE_DIR = "test"
@@ -52,12 +50,30 @@ class SourceSetTest {
             val round = i.toString()
 
             tempFolder.newFolder(BY_ROUNDS_DIR, round, SOURCE_DIR)
-            tempFolder.newFile(BY_ROUNDS_DIR + File.separator + round + File.separator +
-                    SOURCE_DIR + File.separator + SOURCE_FILE)
-            val sourceSet = SourceSet(tempFolder.root, listOf(
-                Source.java("$SOURCE_DIR.$SOURCE_CLASS", "public class A {}")))
-            val path = tempFolder.root.path + File.separator + BY_ROUNDS_DIR + File.separator +
-                    round + File.separator + SOURCE_DIR + File.separator + SOURCE_FILE
+            tempFolder.newFile(
+                BY_ROUNDS_DIR +
+                    File.separator +
+                    round +
+                    File.separator +
+                    SOURCE_DIR +
+                    File.separator +
+                    SOURCE_FILE
+            )
+            val sourceSet =
+                SourceSet(
+                    tempFolder.root,
+                    listOf(Source.java("$SOURCE_DIR.$SOURCE_CLASS", "public class A {}"))
+                )
+            val path =
+                tempFolder.root.path +
+                    File.separator +
+                    BY_ROUNDS_DIR +
+                    File.separator +
+                    round +
+                    File.separator +
+                    SOURCE_DIR +
+                    File.separator +
+                    SOURCE_FILE
 
             val f = sourceSet.findSourceFile(path)
             assertThat(f).isNotNull()

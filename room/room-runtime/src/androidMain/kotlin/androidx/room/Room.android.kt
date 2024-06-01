@@ -18,27 +18,23 @@ package androidx.room
 import android.content.Context
 import androidx.room.util.findAndInstantiateDatabaseImpl
 
-/**
- * Entry point for building and initializing a [RoomDatabase].
- */
+/** Entry point for building and initializing a [RoomDatabase]. */
 actual object Room {
 
     internal const val LOG_TAG = "ROOM"
 
-    /**
-     * The master table name where Room keeps its metadata information.
-     */
+    /** The master table name where Room keeps its metadata information. */
     actual const val MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME
 
     /**
      * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
-     * database disappears when the process is killed.
-     * Once a database is built, you should keep a reference to it and re-use it.
+     * database disappears when the process is killed. Once a database is built, you should keep a
+     * reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
-     * @param klass   The abstract class which is annotated with [Database] and extends
-     * [RoomDatabase].
-     * @param T     The type of the database class.
+     * @param klass The abstract class which is annotated with [Database] and extends
+     *   [RoomDatabase].
+     * @param T The type of the database class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
     @JvmStatic
@@ -51,13 +47,13 @@ actual object Room {
 
     /**
      * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
-     * database disappears when the process is killed.
-     * Once a database is built, you should keep a reference to it and re-use it.
+     * database disappears when the process is killed. Once a database is built, you should keep a
+     * reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
      * @param factory An optional lambda calling `initializeImpl()` on the database class which
-     * returns the generated database implementation. If not provided then reflection is used to
-     * find and instantiate the database implementation class.
+     *   returns the generated database implementation. If not provided then reflection is used to
+     *   find and instantiate the database implementation class.
      * @param T The type of the database class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
@@ -73,10 +69,10 @@ actual object Room {
      * should keep a reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
-     * @param klass   The abstract class which is annotated with [Database] and extends
-     * [RoomDatabase].
-     * @param name    The name of the database file.
-     * @param T     The type of the database class.
+     * @param klass The abstract class which is annotated with [Database] and extends
+     *   [RoomDatabase].
+     * @param name The name of the database file.
+     * @param T The type of the database class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
     @JvmStatic
@@ -103,10 +99,10 @@ actual object Room {
      * should keep a reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
-     * @param name    The name of the database file.
+     * @param name The name of the database file.
      * @param factory An optional lambda calling `initializeImpl()` on the database class which
-     * returns the generated database implementation. If not provided then reflection is used to
-     * find and instantiate the database implementation class.
+     *   returns the generated database implementation. If not provided then reflection is used to
+     *   find and instantiate the database implementation class.
      * @param T The type of the database class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */

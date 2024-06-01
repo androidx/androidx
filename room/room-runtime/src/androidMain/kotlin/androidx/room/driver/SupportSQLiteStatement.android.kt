@@ -57,16 +57,16 @@ sealed class SupportSQLiteStatement(
                 return false
             }
             return when (prefix.substring(0, 3).uppercase()) {
-                "SEL", "PRA", "WIT" -> true
+                "SEL",
+                "PRA",
+                "WIT" -> true
                 else -> false
             }
         }
     }
 
-    private class SupportAndroidSQLiteStatement(
-        db: SupportSQLiteDatabase,
-        sql: String
-    ) : SupportSQLiteStatement(db, sql) {
+    private class SupportAndroidSQLiteStatement(db: SupportSQLiteDatabase, sql: String) :
+        SupportSQLiteStatement(db, sql) {
 
         private var bindingTypes: IntArray = IntArray(0)
         private var longBindings: LongArray = LongArray(0)
@@ -219,32 +219,32 @@ sealed class SupportSQLiteStatement(
 
         private fun ensureCursor() {
             if (cursor == null) {
-                cursor = db.query(
-                    object : SupportSQLiteQuery {
-                        override val sql: String
-                            get() = this@SupportAndroidSQLiteStatement.sql
+                cursor =
+                    db.query(
+                        object : SupportSQLiteQuery {
+                            override val sql: String
+                                get() = this@SupportAndroidSQLiteStatement.sql
 
-                        override fun bindTo(statement: SupportSQLiteProgram) {
-                            for (index in 1 until bindingTypes.size) {
-                                when (bindingTypes[index]) {
-                                    COLUMN_TYPE_LONG ->
-                                        statement.bindLong(index, longBindings[index])
-                                    COLUMN_TYPE_DOUBLE ->
-                                        statement.bindDouble(index, doubleBindings[index])
-                                    COLUMN_TYPE_STRING ->
-                                        statement.bindString(index, stringBindings[index]!!)
-                                    COLUMN_TYPE_BLOB ->
-                                        statement.bindBlob(index, blobBindings[index]!!)
-                                    COLUMN_TYPE_NULL ->
-                                        statement.bindNull(index)
+                            override fun bindTo(statement: SupportSQLiteProgram) {
+                                for (index in 1 until bindingTypes.size) {
+                                    when (bindingTypes[index]) {
+                                        COLUMN_TYPE_LONG ->
+                                            statement.bindLong(index, longBindings[index])
+                                        COLUMN_TYPE_DOUBLE ->
+                                            statement.bindDouble(index, doubleBindings[index])
+                                        COLUMN_TYPE_STRING ->
+                                            statement.bindString(index, stringBindings[index]!!)
+                                        COLUMN_TYPE_BLOB ->
+                                            statement.bindBlob(index, blobBindings[index]!!)
+                                        COLUMN_TYPE_NULL -> statement.bindNull(index)
+                                    }
                                 }
                             }
-                        }
 
-                        override val argCount: Int
-                            get() = bindingTypes.size
-                    }
-                )
+                            override val argCount: Int
+                                get() = bindingTypes.size
+                        }
+                    )
             }
         }
 
@@ -267,10 +267,8 @@ sealed class SupportSQLiteStatement(
         }
     }
 
-    private class SupportOtherAndroidSQLiteStatement(
-        db: SupportSQLiteDatabase,
-        sql: String
-    ) : SupportSQLiteStatement(db, sql) {
+    private class SupportOtherAndroidSQLiteStatement(db: SupportSQLiteDatabase, sql: String) :
+        SupportSQLiteStatement(db, sql) {
 
         private val delegate: SupportStatement = db.compileStatement(sql)
 

@@ -23,11 +23,8 @@ package androidx.room.util
  * [androidx.room.RoomProcessor.methodParametersVisibleInClassFiles] check only. If you want to use
  * this class, consider expanding the implementation or use a different library.
  */
-data class SimpleJavaVersion(
-    val major: Int,
-    val minor: Int,
-    val update: Int? = null
-) : Comparable<SimpleJavaVersion> {
+data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = null) :
+    Comparable<SimpleJavaVersion> {
 
     override fun compareTo(other: SimpleJavaVersion): Int {
         return compareValuesBy(
@@ -36,7 +33,9 @@ data class SimpleJavaVersion(
             compareBy(SimpleJavaVersion::major)
                 .thenBy(SimpleJavaVersion::minor)
                 .thenBy(nullsFirst(), SimpleJavaVersion::update)
-        ) { it }
+        ) {
+            it
+        }
     }
 
     companion object {
@@ -114,8 +113,8 @@ data class SimpleJavaVersion(
 
         /**
          * Parses the Java version from the given string (e.g.,
-         * "1.8.0_202-release-1483-b39-5396753"), throwing [IllegalArgumentException] if it
-         * can't be parsed successfully.
+         * "1.8.0_202-release-1483-b39-5396753"), throwing [IllegalArgumentException] if it can't be
+         * parsed successfully.
          */
         fun parse(version: String): SimpleJavaVersion {
             return tryParse(version)

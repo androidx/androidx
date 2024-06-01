@@ -100,9 +100,7 @@ class DeferredBooksDaoTest : TestDatabaseTest() {
 
     @Test
     fun deleteUnsoldBooksSuspend() {
-        runBlocking {
-            assertThat(booksDao.deleteUnsoldBooksSuspend(), `is`(0))
-        }
+        runBlocking { assertThat(booksDao.deleteUnsoldBooksSuspend(), `is`(0)) }
     }
 
     @Test

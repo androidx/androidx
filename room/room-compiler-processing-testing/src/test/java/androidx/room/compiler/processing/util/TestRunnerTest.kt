@@ -48,79 +48,77 @@ import org.junit.Test
 class TestRunnerTest {
     @Test
     fun compileFilesForClasspath() {
-        val kotlinSource = Source.kotlin(
-            "Foo.kt",
-            """
+        val kotlinSource =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class KotlinClass1
             class KotlinClass2
-            """.trimIndent()
-        )
-        val javaSource = Source.java(
-            "foo.bar.JavaClass1",
             """
+                    .trimIndent()
+            )
+        val javaSource =
+            Source.java(
+                "foo.bar.JavaClass1",
+                """
             package foo.bar;
             public class JavaClass1 {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val kspProcessorProvider = object : SymbolProcessorProvider {
-            override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-                return SyntheticKspProcessor(
-                    environment,
-                    XProcessingEnvConfig.DEFAULT,
-                    listOf { invocation ->
-                        if (
-                            invocation.processingEnv.findTypeElement("gen.GeneratedKotlin")
-                            == null
-                        ) {
-                            invocation.processingEnv.filer.write(
-                                FileSpec.builder("gen", "KotlinGen")
-                                    .addType(
-                                        com.squareup.kotlinpoet.TypeSpec.classBuilder
-                                        ("GeneratedKotlin").build()
-                                    )
-                                    .build()
-                            )
+        val kspProcessorProvider =
+            object : SymbolProcessorProvider {
+                override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+                    return SyntheticKspProcessor(
+                        environment,
+                        XProcessingEnvConfig.DEFAULT,
+                        listOf { invocation ->
+                            if (
+                                invocation.processingEnv.findTypeElement("gen.GeneratedKotlin") ==
+                                    null
+                            ) {
+                                invocation.processingEnv.filer.write(
+                                    FileSpec.builder("gen", "KotlinGen")
+                                        .addType(
+                                            com.squareup.kotlinpoet.TypeSpec.classBuilder(
+                                                    "GeneratedKotlin"
+                                                )
+                                                .build()
+                                        )
+                                        .build()
+                                )
+                            }
                         }
-                    }
-                )
-            }
-        }
-
-        val javaProcessor = SyntheticJavacProcessor(
-            XProcessingEnvConfig.DEFAULT,
-            listOf { invocation ->
-                if (
-                    invocation.processingEnv.findTypeElement("gen.GeneratedJava")
-                    == null
-                ) {
-                    invocation.processingEnv.filer.write(
-                        JavaFile.builder(
-                            "gen",
-                            TypeSpec.classBuilder
-                            ("GeneratedJava").build()
-                        ).build()
                     )
                 }
             }
-        )
-        val classpaths = compile(
-            workingDir = Files.createTempDirectory("test-runner").toFile(),
-            arguments = TestCompilationArguments(
-                sources = listOf(kotlinSource, javaSource),
-                symbolProcessorProviders = listOf(
-                    kspProcessorProvider
-                ),
-                kaptProcessors = listOf(
-                    javaProcessor
-                )
+
+        val javaProcessor =
+            SyntheticJavacProcessor(
+                XProcessingEnvConfig.DEFAULT,
+                listOf { invocation ->
+                    if (invocation.processingEnv.findTypeElement("gen.GeneratedJava") == null) {
+                        invocation.processingEnv.filer.write(
+                            JavaFile.builder("gen", TypeSpec.classBuilder("GeneratedJava").build())
+                                .build()
+                        )
+                    }
+                }
             )
-        ).outputClasspath
-        val classLoader = URLClassLoader.newInstance(
-            classpaths.map {
-                it.toURI().toURL()
-            }.toTypedArray()
-        )
+        val classpaths =
+            compile(
+                    workingDir = Files.createTempDirectory("test-runner").toFile(),
+                    arguments =
+                        TestCompilationArguments(
+                            sources = listOf(kotlinSource, javaSource),
+                            symbolProcessorProviders = listOf(kspProcessorProvider),
+                            kaptProcessors = listOf(javaProcessor)
+                        )
+                )
+                .outputClasspath
+        val classLoader =
+            URLClassLoader.newInstance(classpaths.map { it.toURI().toURL() }.toTypedArray())
 
         // try loading generated classes. If any of them fails, it will throw and fail the test
         classLoader.loadClass("KotlinClass1")
@@ -130,50 +128,29 @@ class TestRunnerTest {
         classLoader.loadClass("gen.GeneratedJava")
     }
 
-    @Test
-    fun generatedBadCode_expected() = generatedBadCode(assertFailure = true)
+    @Test fun generatedBadCode_expected() = generatedBadCode(assertFailure = true)
 
     @Test(expected = AssertionError::class)
     fun generatedBadCode_unexpected() = generatedBadCode(assertFailure = false)
 
     @Test
     fun options() {
-        val testOptions = mapOf(
-            "a" to "b",
-            "c" to "d"
-        )
+        val testOptions = mapOf("a" to "b", "c" to "d")
         val handler: (XTestInvocation) -> Unit = {
             assertThat(it.processingEnv.options).containsAtLeastEntriesIn(testOptions)
         }
-        runJavaProcessorTest(
-            sources = emptyList(),
-            options = testOptions,
-            handler = handler
-        )
-        runKaptTest(
-            sources = emptyList(),
-            options = testOptions,
-            handler = handler
-        )
-        runKspTest(
-            sources = emptyList(),
-            options = testOptions,
-            handler = handler
-        )
+        runJavaProcessorTest(sources = emptyList(), options = testOptions, handler = handler)
+        runKaptTest(sources = emptyList(), options = testOptions, handler = handler)
+        runKspTest(sources = emptyList(), options = testOptions, handler = handler)
     }
 
     private fun generatedBadCode(assertFailure: Boolean) {
-        val badCode = TypeSpec.classBuilder("Foo").apply {
-            addStaticBlock(
-                CodeBlock.of("bad code")
-            )
-        }.build()
+        val badCode =
+            TypeSpec.classBuilder("Foo").apply { addStaticBlock(CodeBlock.of("bad code")) }.build()
         val badGeneratedFile = JavaFile.builder("foo", badCode).build()
         runProcessorTest {
             if (it.processingEnv.findTypeElement("foo.Foo") == null) {
-                it.processingEnv.filer.write(
-                    badGeneratedFile
-                )
+                it.processingEnv.filer.write(badGeneratedFile)
             }
             if (assertFailure) {
                 it.assertCompilationResult {
@@ -185,8 +162,7 @@ class TestRunnerTest {
         }
     }
 
-    @Test
-    fun reportedError_expected() = reportedError(assertFailure = true)
+    @Test fun reportedError_expected() = reportedError(assertFailure = true)
 
     @Test(expected = AssertionError::class)
     fun reportedError_unexpected() = reportedError(assertFailure = false)
@@ -198,43 +174,44 @@ class TestRunnerTest {
                 msg = "reported error"
             )
             if (assertFailure) {
-                it.assertCompilationResult {
-                    hasError("reported error")
-                }
+                it.assertCompilationResult { hasError("reported error") }
             }
         }
     }
 
     @Test
     fun accessGeneratedCode() {
-        val kotlinSource = Source.kotlin(
-            "KotlinSubject.kt",
-            """
+        val kotlinSource =
+            Source.kotlin(
+                "KotlinSubject.kt",
+                """
                 val x: ToBeGeneratedKotlin? = null
                 val y: ToBeGeneratedJava? = null
-            """.trimIndent()
-        )
-        val javaSource = Source.java(
-            "JavaSubject",
             """
+                    .trimIndent()
+            )
+        val javaSource =
+            Source.java(
+                "JavaSubject",
+                """
                 public class JavaSubject {
                     public static ToBeGeneratedKotlin x;
                     public static ToBeGeneratedJava y;
                 }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(kotlinSource, javaSource)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(kotlinSource, javaSource)) { invocation ->
             invocation.processingEnv.findTypeElement("ToBeGeneratedJava").let {
                 if (it == null) {
                     invocation.processingEnv.filer.write(
                         JavaFile.builder(
-                            "",
-                            TypeSpec.classBuilder("ToBeGeneratedJava").apply {
-                                addModifiers(Modifier.PUBLIC)
-                            }.build()
-                        ).build()
+                                "",
+                                TypeSpec.classBuilder("ToBeGeneratedJava")
+                                    .apply { addModifiers(Modifier.PUBLIC) }
+                                    .build()
+                            )
+                            .build()
                     )
                 }
             }
@@ -243,12 +220,11 @@ class TestRunnerTest {
                     invocation.processingEnv.filer.write(
                         FileSpec.builder("", "Foo")
                             .addType(
-                                com.squareup.kotlinpoet.TypeSpec.classBuilder(
-                                    "ToBeGeneratedKotlin"
-                                ).apply {
-                                    addModifiers(KModifier.PUBLIC)
-                                }.build()
-                            ).build()
+                                com.squareup.kotlinpoet.TypeSpec.classBuilder("ToBeGeneratedKotlin")
+                                    .apply { addModifiers(KModifier.PUBLIC) }
+                                    .build()
+                            )
+                            .build()
                     )
                 }
             }
@@ -257,89 +233,68 @@ class TestRunnerTest {
 
     @Test
     fun syntacticErrorsAreVisibleInTheErrorMessage_java() {
-        val src = Source.java(
-            "test.Foo",
-            """
+        val src =
+            Source.java(
+                "test.Foo",
+                """
             package test;
             // static here is invalid, causes a Java syntax error
             public static class Foo {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         val errorMessage = "modifier static not allowed here"
         val javapResult = runCatching {
-            runJavaProcessorTest(
-                sources = listOf(src),
-                classpath = emptyList()
-            ) {}
+            runJavaProcessorTest(sources = listOf(src), classpath = emptyList()) {}
         }
-        assertThat(javapResult.exceptionOrNull()).hasMessageThat()
-            .contains(errorMessage)
+        assertThat(javapResult.exceptionOrNull()).hasMessageThat().contains(errorMessage)
 
-        val kaptResult = runCatching {
-            runKaptTest(
-                sources = listOf(src)
-            ) {}
-        }
-        assertThat(kaptResult.exceptionOrNull()).hasMessageThat()
-            .contains(errorMessage)
+        val kaptResult = runCatching { runKaptTest(sources = listOf(src)) {} }
+        assertThat(kaptResult.exceptionOrNull()).hasMessageThat().contains(errorMessage)
 
         if (CompilationTestCapabilities.canTestWithKsp) {
-            val kspResult = runCatching {
-                runKspTest(
-                    sources = listOf(src)
-                ) {}
-            }
-            assertThat(kspResult.exceptionOrNull()).hasMessageThat()
-                .contains(errorMessage)
+            val kspResult = runCatching { runKspTest(sources = listOf(src)) {} }
+            assertThat(kspResult.exceptionOrNull()).hasMessageThat().contains(errorMessage)
         }
     }
 
     @Test
     fun syntacticErrorsAreVisibleInTheErrorMessage_kotlin() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             package foo;
             bad code
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         val errorMessage = "Expecting a top level declaration"
-        val kaptResult = runCatching {
-            runKaptTest(
-                sources = listOf(src)
-            ) {}
-        }
-        assertThat(kaptResult.exceptionOrNull()).hasMessageThat()
-            .contains(errorMessage)
+        val kaptResult = runCatching { runKaptTest(sources = listOf(src)) {} }
+        assertThat(kaptResult.exceptionOrNull()).hasMessageThat().contains(errorMessage)
 
         if (CompilationTestCapabilities.canTestWithKsp) {
-            val kspResult = runCatching {
-                runKspTest(
-                    sources = listOf(src)
-                ) {}
-            }
-            assertThat(kspResult.exceptionOrNull()).hasMessageThat()
-                .contains(errorMessage)
+            val kspResult = runCatching { runKspTest(sources = listOf(src)) {} }
+            assertThat(kspResult.exceptionOrNull()).hasMessageThat().contains(errorMessage)
         }
     }
 
     @Test
     fun javacArguments() {
-        val src = Source.java(
-            "Foo",
-            """
+        val src =
+            Source.java(
+                "Foo",
+                """
             public class Foo {
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
             sources = listOf(src),
             javacArguments = listOf("-Werror"),
         ) { invocation ->
-            invocation.processingEnv.messager.printMessage(
-                Diagnostic.Kind.WARNING,
-                "some warning"
-            )
+            invocation.processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, "some warning")
             invocation.assertCompilationResult {
                 if (invocation.isKsp) {
                     // warning happens during ksp but Werror is only passed into javac so this
@@ -353,21 +308,20 @@ class TestRunnerTest {
 
     @Test
     fun kotlincArguments() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(
             sources = listOf(src),
             kotlincArguments = listOf("-Werror"),
             javacArguments = listOf("-Werror") // needed for kapt as it uses javac,
         ) { invocation ->
-            invocation.processingEnv.messager.printMessage(
-                Diagnostic.Kind.WARNING,
-                "some warning"
-            )
+            invocation.processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, "some warning")
             invocation.assertCompilationResult {
                 // either kapt or ksp, compilation should still fail due to the warning printed
                 // by the processor
@@ -378,106 +332,91 @@ class TestRunnerTest {
 
     @Test
     fun correctErrorTypes() {
-        val subjectSrc = Source.kotlin(
-            "Foo.kt",
-            """
+        val subjectSrc =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo {
                 val errorField : DoesNotExist = TODO()
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        runKaptTest(
-            sources = listOf(subjectSrc)
-        ) { invocation ->
-            val field = invocation.processingEnv.requireTypeElement("Foo")
-                .getDeclaredFields()
-                .single()
-            assertThat(field.type.typeName.toString())
-                .isEqualTo("error.NonExistentClass")
-            invocation.assertCompilationResult {
-                this.hasErrorContaining("Unresolved reference")
-            }
+        runKaptTest(sources = listOf(subjectSrc)) { invocation ->
+            val field =
+                invocation.processingEnv.requireTypeElement("Foo").getDeclaredFields().single()
+            assertThat(field.type.typeName.toString()).isEqualTo("error.NonExistentClass")
+            invocation.assertCompilationResult { this.hasErrorContaining("Unresolved reference") }
         }
 
         runKaptTest(
             sources = listOf(subjectSrc),
-            kotlincArguments = listOf(
-                "-P",
-                "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true"
-            )
+            kotlincArguments =
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
         ) { invocation ->
-            val field = invocation.processingEnv.requireTypeElement("Foo")
-                .getDeclaredFields()
-                .single()
-            assertThat(field.type.typeName.toString())
-                .isEqualTo("DoesNotExist")
-            invocation.assertCompilationResult {
-                this.hasErrorContaining("Unresolved reference")
-            }
+            val field =
+                invocation.processingEnv.requireTypeElement("Foo").getDeclaredFields().single()
+            assertThat(field.type.typeName.toString()).isEqualTo("DoesNotExist")
+            invocation.assertCompilationResult { this.hasErrorContaining("Unresolved reference") }
         }
     }
+
     @Test
     fun testPluginOptions() {
         KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
-        ).let { options ->
-            assertThat(options).containsExactly("correctErrorTypes", "true")
-        }
+                "org.jetbrains.kotlin.kapt3",
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
+            )
+            .let { options -> assertThat(options).containsExactly("correctErrorTypes", "true") }
 
         // zero args
-        KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            emptyList()
-        ).let { options ->
+        KaptCompilationStep.getPluginOptions("org.jetbrains.kotlin.kapt3", emptyList()).let {
+            options ->
             assertThat(options).isEmpty()
         }
 
         // odd number of args
         KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true", "-verbose")
-        ).let { options ->
-            assertThat(options).containsExactly("correctErrorTypes", "true")
-        }
+                "org.jetbrains.kotlin.kapt3",
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true", "-verbose")
+            )
+            .let { options -> assertThat(options).containsExactly("correctErrorTypes", "true") }
 
         // illegal format (missing "=")
         KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
-        ).let { options ->
-            assertThat(options).isEmpty()
-        }
+                "org.jetbrains.kotlin.kapt3",
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
+            )
+            .let { options -> assertThat(options).isEmpty() }
 
         // illegal format (missing "-P")
         KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            listOf("plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
-        ).let { options ->
-            assertThat(options).isEmpty()
-        }
+                "org.jetbrains.kotlin.kapt3",
+                listOf("plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
+            )
+            .let { options -> assertThat(options).isEmpty() }
 
         // illegal format (wrong plugin id)
         KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            listOf("-P", "plugin:abc:correctErrorTypes=true")
-        ).let { options ->
-            assertThat(options).isEmpty()
-        }
+                "org.jetbrains.kotlin.kapt3",
+                listOf("-P", "plugin:abc:correctErrorTypes=true")
+            )
+            .let { options -> assertThat(options).isEmpty() }
 
         KaptCompilationStep.getPluginOptions(
-            "org.jetbrains.kotlin.kapt3",
-            listOf(
-                "-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true",
-                "-P", "plugin:org.jetbrains.kotlin.kapt3:sources=build/kapt/sources"
+                "org.jetbrains.kotlin.kapt3",
+                listOf(
+                    "-P",
+                    "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true",
+                    "-P",
+                    "plugin:org.jetbrains.kotlin.kapt3:sources=build/kapt/sources"
+                )
             )
-        ).let { options ->
-            assertThat(options).containsExactly(
-                "correctErrorTypes", "true",
-                "sources", "build/kapt/sources"
-            )
-        }
+            .let { options ->
+                assertThat(options)
+                    .containsExactly("correctErrorTypes", "true", "sources", "build/kapt/sources")
+            }
     }
 
     @Test
@@ -485,31 +424,28 @@ class TestRunnerTest {
         runProcessorTest { invocation ->
             if (invocation.processingEnv.findTypeElement("Subject") == null) {
                 invocation.processingEnv.filer.write(
-                    JavaFile.builder(
-                        "",
-                        TypeSpec.classBuilder("Subject").build()
-                    ).build()
+                    JavaFile.builder("", TypeSpec.classBuilder("Subject").build()).build()
                 )
             }
             invocation.assertCompilationResult {
-                generatedSourceFileWithPath("Subject.java").contains(
-                    "class Subject"
-                )
+                generatedSourceFileWithPath("Subject.java").contains("class Subject")
             }
         }
     }
 
     @Test
     fun actualProcessors() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             annotation class Annotated
 
             @Annotated
             class Foo
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         class TestStep : XProcessingStep {
             var rounds = 0
 
@@ -523,12 +459,14 @@ class TestRunnerTest {
                 isLastRound: Boolean
             ): Set<XElement> {
                 if (rounds == 0) {
-                    val javaFile = JavaFile.builder(
-                        "",
-                        TypeSpec.classBuilder("GenClass")
-                            .addAnnotation(ClassName.get("", "Annotated"))
+                    val javaFile =
+                        JavaFile.builder(
+                                "",
+                                TypeSpec.classBuilder("GenClass")
+                                    .addAnnotation(ClassName.get("", "Annotated"))
+                                    .build()
+                            )
                             .build()
-                    ).build()
                     env.filer.write(javaFile)
                 }
                 rounds++
@@ -536,9 +474,10 @@ class TestRunnerTest {
             }
         }
         val javacStep = TestStep()
-        val testJavacProcessor = object : JavacBasicAnnotationProcessor() {
-            override fun processingSteps() = listOf(javacStep)
-        }
+        val testJavacProcessor =
+            object : JavacBasicAnnotationProcessor() {
+                override fun processingSteps() = listOf(javacStep)
+            }
         val kspStep = TestStep()
         val testKspProcessorProvider = SymbolProcessorProvider { environment ->
             object : KspBasicAnnotationProcessor(environment) {

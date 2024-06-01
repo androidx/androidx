@@ -45,20 +45,20 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 
 /**
- * This test is a bit special because it uses an already generated and frozen in time Room
- * processor generated code (pre-KMP). It helps us validate *new* runtime keeps working with
- * *old* gen code.
+ * This test is a bit special because it uses an already generated and frozen in time Room processor
+ * generated code (pre-KMP). It helps us validate *new* runtime keeps working with *old* gen code.
  */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class PreKmpJavaCodeGenTest {
 
     @get:Rule
-    val helper: MigrationTestHelper = MigrationTestHelper(
-        instrumentation = InstrumentationRegistry.getInstrumentation(),
-        databaseClass = PreKmpDatabase::class.java,
-        specs = listOf(PreKmpDatabase.MigrationSpec1To2())
-    )
+    val helper: MigrationTestHelper =
+        MigrationTestHelper(
+            instrumentation = InstrumentationRegistry.getInstrumentation(),
+            databaseClass = PreKmpDatabase::class.java,
+            specs = listOf(PreKmpDatabase.MigrationSpec1To2())
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -66,21 +66,23 @@ class PreKmpJavaCodeGenTest {
 
     @BeforeTest
     fun setup() {
-        db = Room.inMemoryDatabaseBuilder(context, PreKmpDatabase::class.java)
-            .addAutoMigrationSpec(PreKmpDatabase.MigrationSpec1To2())
-            .addTypeConverter(PreKmpDatabase.TheConverter())
-            .build()
+        db =
+            Room.inMemoryDatabaseBuilder(context, PreKmpDatabase::class.java)
+                .addAutoMigrationSpec(PreKmpDatabase.MigrationSpec1To2())
+                .addTypeConverter(PreKmpDatabase.TheConverter())
+                .build()
     }
 
     @Test
     fun simple() {
-        db.getTheDao().insert(
-            PreKmpDatabase.TheEntity(
-                id = 2,
-                text = "ok",
-                custom = PreKmpDatabase.CustomData(byteArrayOf())
+        db.getTheDao()
+            .insert(
+                PreKmpDatabase.TheEntity(
+                    id = 2,
+                    text = "ok",
+                    custom = PreKmpDatabase.CustomData(byteArrayOf())
+                )
             )
-        )
         assertThat(db.getTheDao().query().size).isEqualTo(1)
     }
 
@@ -119,28 +121,23 @@ abstract class PreKmpDatabase : RoomDatabase() {
     data class TheEntity(
         @PrimaryKey val id: Long,
         val text: String,
-        @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-        val custom: CustomData
+        @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val custom: CustomData
     )
 
     class CustomData(val blob: ByteArray)
 
     @Dao
     interface TheDao {
-        @Insert
-        fun insert(it: TheEntity)
+        @Insert fun insert(it: TheEntity)
 
-        @Query("SELECT * FROM TheEntity")
-        fun query(): List<TheEntity>
+        @Query("SELECT * FROM TheEntity") fun query(): List<TheEntity>
     }
 
     @ProvidedTypeConverter
     class TheConverter {
-        @TypeConverter
-        fun toCustomData(bytes: ByteArray) = CustomData(bytes)
+        @TypeConverter fun toCustomData(bytes: ByteArray) = CustomData(bytes)
 
-        @TypeConverter
-        fun fromCustomData(data: CustomData) = data.blob
+        @TypeConverter fun fromCustomData(data: CustomData) = data.blob
     }
 
     @ProvidedAutoMigrationSpec
@@ -148,11 +145,12 @@ abstract class PreKmpDatabase : RoomDatabase() {
     class MigrationSpec1To2 : AutoMigrationSpec {
         override fun onPostMigrate(db: SupportSQLiteDatabase) {
             db.query(
-                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'room_master_table'"
-            ).useCursor {
-                assertThat(it.moveToNext())
-                assertThat(it.getInt(0)).isEqualTo(1)
-            }
+                    "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'room_master_table'"
+                )
+                .useCursor {
+                    assertThat(it.moveToNext())
+                    assertThat(it.getInt(0)).isEqualTo(1)
+                }
         }
     }
 }

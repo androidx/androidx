@@ -21,19 +21,19 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.XTestInvocation
 
 /**
- * Turns a database processing step to an invocation handler where it will be automatically
- * invoked as if it is running as part of a processor.
+ * Turns a database processing step to an invocation handler where it will be automatically invoked
+ * as if it is running as part of a processor.
  */
 fun XProcessingStep.asTestInvocationHandler(
     delegate: (XTestInvocation) -> Unit
 ): (XTestInvocation) -> Unit = { invocation ->
-    val elementsByAnnotation = annotations().associateWith {
-        invocation.roundEnv.getElementsAnnotatedWith(it).filterIsInstance<XTypeElement>().toSet()
-    }
-    this.process(
-        env = invocation.processingEnv,
-        elementsByAnnotation = elementsByAnnotation,
-        false
-    )
+    val elementsByAnnotation =
+        annotations().associateWith {
+            invocation.roundEnv
+                .getElementsAnnotatedWith(it)
+                .filterIsInstance<XTypeElement>()
+                .toSet()
+        }
+    this.process(env = invocation.processingEnv, elementsByAnnotation = elementsByAnnotation, false)
     delegate(invocation)
 }
