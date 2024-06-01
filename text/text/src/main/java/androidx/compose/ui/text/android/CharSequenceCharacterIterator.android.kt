@@ -23,11 +23,11 @@ import java.text.CharacterIterator
  * Note: This file is copied from
  * [CharSequenceCharacterIterator.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/CharSequenceCharacterIterator.java).
  *
- * @constructor Constructs the iterator given a CharSequence and a range.  The position of the
- * iterator index is set to the beginning of the range.
  * @param charSequence The given char sequence.
  * @param start The index of the beginning of the range.
  * @param end The index of the end of the range.
+ * @constructor Constructs the iterator given a CharSequence and a range. The position of the
+ *   iterator index is set to the beginning of the range.
  */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 internal class CharSequenceCharacterIterator(
@@ -38,11 +38,10 @@ internal class CharSequenceCharacterIterator(
     private var index: Int = start
 
     /**
-     * Sets the position to getBeginIndex() and returns the character at that
-     * position.
+     * Sets the position to getBeginIndex() and returns the character at that position.
      *
-     * @return the first character in the text, or [java.text.CharacterIterator.DONE] if
-     * the text is empty
+     * @return the first character in the text, or [java.text.CharacterIterator.DONE] if the text is
+     *   empty
      * @see getBeginIndex
      */
     override fun first(): Char {
@@ -51,11 +50,11 @@ internal class CharSequenceCharacterIterator(
     }
 
     /**
-     * Sets the position to getEndIndex()-1 (getEndIndex() if the text is empty)
-     * and returns the character at that position.
+     * Sets the position to getEndIndex()-1 (getEndIndex() if the text is empty) and returns the
+     * character at that position.
      *
-     * @return the last character in the text, or [java.text.CharacterIterator.DONE] if the
-     * text is empty
+     * @return the last character in the text, or [java.text.CharacterIterator.DONE] if the text is
+     *   empty
      * @see CharSequenceCharacterIterator.getEndIndex
      */
     override fun last(): Char {
@@ -71,9 +70,8 @@ internal class CharSequenceCharacterIterator(
     /**
      * Gets the character at the current position (as returned by getIndex()).
      *
-     * @return the character at the current position or [java.text.CharacterIterator.DONE]
-     * if the current
-     * position is off the end of the text.
+     * @return the character at the current position or [java.text.CharacterIterator.DONE] if the
+     *   current position is off the end of the text.
      * @see CharSequenceCharacterIterator.getIndex
      */
     override fun current(): Char {
@@ -81,14 +79,12 @@ internal class CharSequenceCharacterIterator(
     }
 
     /**
-     * Increments the iterator's index by one and returns the character
-     * at the new index.  If the resulting index is greater or equal
-     * to getEndIndex(), the current index is reset to getEndIndex() and
-     * a value of [java.text.CharacterIterator.DONE] is returned.
+     * Increments the iterator's index by one and returns the character at the new index. If the
+     * resulting index is greater or equal to getEndIndex(), the current index is reset to
+     * getEndIndex() and a value of [java.text.CharacterIterator.DONE] is returned.
      *
-     * @return the character at the new position or [java.text.CharacterIterator.DONE] if
-     * the new
-     * position is off the end of the text range.
+     * @return the character at the new position or [java.text.CharacterIterator.DONE] if the new
+     *   position is off the end of the text range.
      */
     override fun next(): Char {
         index++
@@ -101,14 +97,12 @@ internal class CharSequenceCharacterIterator(
     }
 
     /**
-     * Decrements the iterator's index by one and returns the character
-     * at the new index. If the current index is getBeginIndex(), the index
-     * remains at getBeginIndex() and a value of [java.text.CharacterIterator.DONE] is
-     * returned.
+     * Decrements the iterator's index by one and returns the character at the new index. If the
+     * current index is getBeginIndex(), the index remains at getBeginIndex() and a value of
+     * [java.text.CharacterIterator.DONE] is returned.
      *
-     * @return the character at the new position or [java.text.CharacterIterator.DONE] if
-     * the current
-     * position is equal to getBeginIndex().
+     * @return the character at the new position or [java.text.CharacterIterator.DONE] if the
+     *   current position is equal to getBeginIndex().
      */
     override fun previous(): Char {
         return if (index <= start) {
@@ -120,15 +114,12 @@ internal class CharSequenceCharacterIterator(
     }
 
     /**
-     * Sets the position to the specified position in the text and returns that
-     * character.
+     * Sets the position to the specified position in the text and returns that character.
      *
-     * @param position the position within the text.  Valid values range from
-     * getBeginIndex() to getEndIndex().  An IllegalArgumentException is thrown
-     * if an invalid value is supplied.
-     * @return the character at the specified position or
-     * [java.text.CharacterIterator.DONE] if the specified
-     * position is equal to getEndIndex()
+     * @param position the position within the text. Valid values range from getBeginIndex() to
+     *   getEndIndex(). An IllegalArgumentException is thrown if an invalid value is supplied.
+     * @return the character at the specified position or [java.text.CharacterIterator.DONE] if the
+     *   specified position is equal to getEndIndex()
      */
     override fun setIndex(position: Int): Char {
         return if (position in start..end) {
@@ -149,8 +140,8 @@ internal class CharSequenceCharacterIterator(
     }
 
     /**
-     * Returns the end index of the text.  This index is the index of the first
-     * character following the end of the text.
+     * Returns the end index of the text. This index is the index of the first character following
+     * the end of the text.
      *
      * @return the index after the last character in the text
      */

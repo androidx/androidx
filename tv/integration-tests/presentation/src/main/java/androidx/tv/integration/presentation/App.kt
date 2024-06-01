@@ -42,13 +42,11 @@ import androidx.tv.material3.ModalNavigationDrawer
 val pageColor = Color(0xff18171a)
 
 enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
-    Home("Home",
+    Home(
+        "Home",
         {
             TvLazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .focusRequester(Home.fr)
-                    .background(pageColor)
+                modifier = Modifier.fillMaxSize().focusRequester(Home.fr).background(pageColor)
             ) {
                 item {
                     FeaturedCarousel()
@@ -60,33 +58,23 @@ enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
                             title = movieCollection.label,
                             items = movieCollection.items,
                             drawItem = { movie, _, modifier ->
-                                ImageCard(
-                                    movie,
-                                    aspectRatio = 2f / 3,
-                                    modifier = modifier
-                                )
+                                ImageCard(movie, aspectRatio = 2f / 3, modifier = modifier)
                             }
                         )
                         AppSpacer(height = 35.dp)
                     }
                 }
             }
-        }),
-    Shows("Shows", {
-        TvLazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(pageColor)
-        ) {
-            item {
-                ShowsGrid(
-                    Modifier.focusRequester(
-                        Shows.fr
-                    )
-                )
+        }
+    ),
+    Shows(
+        "Shows",
+        {
+            TvLazyColumn(modifier = Modifier.fillMaxSize().background(pageColor)) {
+                item { ShowsGrid(Modifier.focusRequester(Shows.fr)) }
             }
         }
-    });
+    );
 
     val fr: FocusRequester = FocusRequester()
 }
@@ -96,37 +84,30 @@ enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
 fun App() {
     val tabs = remember { Tabs.values() }
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val activeTab = remember(selectedTabIndex) {
-        tabs[selectedTabIndex]
-    }
+    val activeTab = remember(selectedTabIndex) { tabs[selectedTabIndex] }
 
-    val tabRow = @Composable {
-        AppTabRow(
-            tabs = tabs.map { it.displayName },
-            selectedTabIndex = selectedTabIndex,
-            onSelectedTabIndexChange = { selectedTabIndex = it },
-            modifier = Modifier
-                .zIndex(100f)
-                .onKeyEvent {
-                    if (it.key.nativeKeyCode == Key.DirectionDown.nativeKeyCode) {
-                        activeTab.fr.requestFocus()
-                        true
-                    } else
-                        false
-                }
-        )
-    }
+    val tabRow =
+        @Composable {
+            AppTabRow(
+                tabs = tabs.map { it.displayName },
+                selectedTabIndex = selectedTabIndex,
+                onSelectedTabIndexChange = { selectedTabIndex = it },
+                modifier =
+                    Modifier.zIndex(100f).onKeyEvent {
+                        if (it.key.nativeKeyCode == Key.DirectionDown.nativeKeyCode) {
+                            activeTab.fr.requestFocus()
+                            true
+                        } else false
+                    }
+            )
+        }
 
-    val activePage: MutableState<(@Composable () -> Unit)> = remember(selectedTabIndex) {
-        mutableStateOf(activeTab.action)
-    }
+    val activePage: MutableState<(@Composable () -> Unit)> =
+        remember(selectedTabIndex) { mutableStateOf(activeTab.action) }
 
     ModalNavigationDrawer(
         drawerContent = {
-            Sidebar(
-                selectedIndex = selectedTabIndex,
-                onIndexChange = { selectedTabIndex = it }
-            )
+            Sidebar(selectedIndex = selectedTabIndex, onIndexChange = { selectedTabIndex = it })
         }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {

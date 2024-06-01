@@ -40,17 +40,17 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyGridPrefetcherTest(
-    orientation: Orientation
-) : BaseLazyGridTestWithOrientation(orientation) {
+class LazyGridPrefetcherTest(orientation: Orientation) :
+    BaseLazyGridTestWithOrientation(orientation) {
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(
-            Orientation.Vertical,
-            Orientation.Horizontal,
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                Orientation.Vertical,
+                Orientation.Horizontal,
+            )
     }
 
     val itemsSizePx = 30
@@ -62,79 +62,56 @@ class LazyGridPrefetcherTest(
     fun notPrefetchingForwardInitially() {
         composeGrid()
 
-        rule.onNodeWithTag("4")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("4").assertDoesNotExist()
     }
 
     @Test
     fun notPrefetchingBackwardInitially() {
         composeGrid(firstItem = 4)
 
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardAfterSmallScroll() {
         composeGrid()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(4)
         waitForPrefetch(5)
 
-        rule.onNodeWithTag("4")
-            .assertExists()
-        rule.onNodeWithTag("5")
-            .assertExists()
-        rule.onNodeWithTag("6")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("4").assertExists()
+        rule.onNodeWithTag("5").assertExists()
+        rule.onNodeWithTag("6").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingBackwardAfterSmallScroll() {
         composeGrid(firstItem = 4, itemOffset = 10)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(-5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(-5f) } }
 
         waitForPrefetch(2)
         waitForPrefetch(3)
 
-        rule.onNodeWithTag("2")
-            .assertExists()
-        rule.onNodeWithTag("3")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2").assertExists()
+        rule.onNodeWithTag("3").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardAndBackward() {
         composeGrid(firstItem = 2)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(6)
         waitForPrefetch(7)
 
-        rule.onNodeWithTag("6")
-            .assertExists()
-        rule.onNodeWithTag("7")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("6").assertExists()
+        rule.onNodeWithTag("7").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
 
         rule.runOnIdle {
             runBlocking {
@@ -146,23 +123,16 @@ class LazyGridPrefetcherTest(
         waitForPrefetch(0)
         waitForPrefetch(1)
 
-        rule.onNodeWithTag("0")
-            .assertExists()
-        rule.onNodeWithTag("1")
-            .assertExists()
-        rule.onNodeWithTag("6")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("0").assertExists()
+        rule.onNodeWithTag("1").assertExists()
+        rule.onNodeWithTag("6").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardTwice() {
         composeGrid()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(4)
 
@@ -175,23 +145,16 @@ class LazyGridPrefetcherTest(
 
         waitForPrefetch(6)
 
-        rule.onNodeWithTag("4")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("6")
-            .assertExists()
-        rule.onNodeWithTag("8")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("4").assertIsDisplayed()
+        rule.onNodeWithTag("6").assertExists()
+        rule.onNodeWithTag("8").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingBackwardTwice() {
         composeGrid(firstItem = 8)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(-5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(-5f) } }
 
         waitForPrefetch(4)
 
@@ -204,37 +167,25 @@ class LazyGridPrefetcherTest(
 
         waitForPrefetch(2)
 
-        rule.onNodeWithTag("4")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("6")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("2")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("4").assertIsDisplayed()
+        rule.onNodeWithTag("6").assertIsDisplayed()
+        rule.onNodeWithTag("2").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
     }
 
     @Test
     fun prefetchingForwardAndBackwardReverseLayout() {
         composeGrid(firstItem = 2, reverseLayout = true)
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(6)
         waitForPrefetch(7)
 
-        rule.onNodeWithTag("6")
-            .assertExists()
-        rule.onNodeWithTag("7")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
-        rule.onNodeWithTag("1")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("6").assertExists()
+        rule.onNodeWithTag("7").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
+        rule.onNodeWithTag("1").assertDoesNotExist()
 
         rule.runOnIdle {
             runBlocking {
@@ -246,14 +197,10 @@ class LazyGridPrefetcherTest(
         waitForPrefetch(0)
         waitForPrefetch(1)
 
-        rule.onNodeWithTag("0")
-            .assertExists()
-        rule.onNodeWithTag("1")
-            .assertExists()
-        rule.onNodeWithTag("6")
-            .assertDoesNotExist()
-        rule.onNodeWithTag("7")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("0").assertExists()
+        rule.onNodeWithTag("1").assertExists()
+        rule.onNodeWithTag("6").assertDoesNotExist()
+        rule.onNodeWithTag("7").assertDoesNotExist()
     }
 
     @Test
@@ -265,40 +212,24 @@ class LazyGridPrefetcherTest(
             contentPadding = PaddingValues(mainAxis = halfItemSize)
         )
 
-        rule.onNodeWithTag("2")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("4")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("6")
-            .assertIsDisplayed()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
-        rule.onNodeWithTag("8")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        rule.onNodeWithTag("4").assertIsDisplayed()
+        rule.onNodeWithTag("6").assertIsDisplayed()
+        rule.onNodeWithTag("0").assertDoesNotExist()
+        rule.onNodeWithTag("8").assertDoesNotExist()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(5f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
 
         waitForPrefetch(6)
 
-        rule.onNodeWithTag("8")
-            .assertExists()
-        rule.onNodeWithTag("0")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("8").assertExists()
+        rule.onNodeWithTag("0").assertDoesNotExist()
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollBy(-2f)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollBy(-2f) } }
 
         waitForPrefetch(0)
 
-        rule.onNodeWithTag("0")
-            .assertExists()
+        rule.onNodeWithTag("0").assertExists()
     }
 
     @Test
@@ -307,47 +238,43 @@ class LazyGridPrefetcherTest(
         lateinit var remeasure: Remeasurement
         rule.setContent {
             SubcomposeLayout(
-                modifier = object : RemeasurementModifier {
-                    override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
-                        remeasure = remeasurement
-                    }
-                }
-            ) { constraints ->
-                val placeable = if (emit) {
-                    subcompose(Unit) {
-                        state = rememberTvLazyGridState()
-                        LazyGrid(
-                            2,
-                            Modifier.mainAxisSize(itemsSizeDp * 1.5f),
-                            state,
-                        ) {
-                            items(1000) {
-                                Spacer(
-                                    Modifier.mainAxisSize(itemsSizeDp)
-                                )
-                            }
+                modifier =
+                    object : RemeasurementModifier {
+                        override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                            remeasure = remeasurement
                         }
-                    }.first().measure(constraints)
-                } else {
-                    null
-                }
-                layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeable?.place(0, 0)
-                }
+                    }
+            ) { constraints ->
+                val placeable =
+                    if (emit) {
+                        subcompose(Unit) {
+                                state = rememberTvLazyGridState()
+                                LazyGrid(
+                                    2,
+                                    Modifier.mainAxisSize(itemsSizeDp * 1.5f),
+                                    state,
+                                ) {
+                                    items(1000) { Spacer(Modifier.mainAxisSize(itemsSizeDp)) }
+                                }
+                            }
+                            .first()
+                            .measure(constraints)
+                    } else {
+                        null
+                    }
+                layout(constraints.maxWidth, constraints.maxHeight) { placeable?.place(0, 0) }
             }
         }
 
         rule.runOnIdle {
             // this will schedule the prefetching
-            runBlocking(AutoTestFrameClock()) {
-                state.scrollBy(itemsSizePx.toFloat())
-            }
+            runBlocking(AutoTestFrameClock()) { state.scrollBy(itemsSizePx.toFloat()) }
             // then we synchronously dispose LazyColumn
             emit = false
             remeasure.forceRemeasure()
         }
 
-        rule.runOnIdle { }
+        rule.runOnIdle {}
     }
 
     @Test
@@ -379,15 +306,11 @@ class LazyGridPrefetcherTest(
             }
         }
 
-        rule.runOnIdle {
-            assertThat(activeNodes).doesNotContain(6)
-        }
+        rule.runOnIdle { assertThat(activeNodes).doesNotContain(6) }
     }
 
     private fun waitForPrefetch(index: Int) {
-        rule.waitUntil {
-            activeNodes.contains(index) && activeMeasuredNodes.contains(index)
-        }
+        rule.waitUntil { activeNodes.contains(index) && activeMeasuredNodes.contains(index) }
     }
 
     private val activeNodes = mutableSetOf<Int>()
@@ -400,10 +323,11 @@ class LazyGridPrefetcherTest(
         contentPadding: PaddingValues = PaddingValues(0.dp)
     ) {
         rule.setContent {
-            state = rememberTvLazyGridState(
-                initialFirstVisibleItemIndex = firstItem,
-                initialFirstVisibleItemScrollOffset = itemOffset
-            )
+            state =
+                rememberTvLazyGridState(
+                    initialFirstVisibleItemIndex = firstItem,
+                    initialFirstVisibleItemScrollOffset = itemOffset
+                )
             LazyGrid(
                 2,
                 Modifier.mainAxisSize(itemsSizeDp * 1.5f),
@@ -420,16 +344,13 @@ class LazyGridPrefetcherTest(
                         }
                     }
                     Spacer(
-                        Modifier
-                            .mainAxisSize(itemsSizeDp)
-                            .testTag("$it")
-                            .layout { measurable, constraints ->
-                                val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
-                                layout(placeable.width, placeable.height) {
-                                    placeable.place(0, 0)
-                                }
-                            }
+                        Modifier.mainAxisSize(itemsSizeDp).testTag("$it").layout {
+                            measurable,
+                            constraints ->
+                            val placeable = measurable.measure(constraints)
+                            activeMeasuredNodes.add(it)
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
                     )
                 }
             }

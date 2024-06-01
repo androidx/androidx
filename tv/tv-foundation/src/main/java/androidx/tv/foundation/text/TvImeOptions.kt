@@ -20,25 +20,24 @@ import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.tv.foundation.ExperimentalTvFoundationApi
 
 /**
- *  Additional IME configuration options supported for TV.
+ * Additional IME configuration options supported for TV.
  *
- *  It is not guaranteed if IME will comply with the options provided here.
+ * It is not guaranteed if IME will comply with the options provided here.
  *
- *  @param horizontalAlignment defines the horizontal alignment [TvKeyboardAlignment] option for
- *  keyboard.
+ * @param horizontalAlignment defines the horizontal alignment [TvKeyboardAlignment] option for
+ *   keyboard.
  */
 @ExperimentalTvFoundationApi
-fun PlatformImeOptions(
-    horizontalAlignment: TvKeyboardAlignment
-) = PlatformImeOptions(horizontalAlignment.option)
+fun PlatformImeOptions(horizontalAlignment: TvKeyboardAlignment) =
+    PlatformImeOptions(horizontalAlignment.option)
 
 /**
- *  Adds the keyboard alignment option to the private IME configuration options.
+ * Adds the keyboard alignment option to the private IME configuration options.
  *
- *  It is not guaranteed if IME will comply with the options provided here.
+ * It is not guaranteed if IME will comply with the options provided here.
  *
- *  @param horizontalAlignment defines the horizontal alignment [TvKeyboardAlignment] option for
- *  keyboard.
+ * @param horizontalAlignment defines the horizontal alignment [TvKeyboardAlignment] option for
+ *   keyboard.
  */
 @ExperimentalTvFoundationApi
 fun PlatformImeOptions.keyboardAlignment(

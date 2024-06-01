@@ -21,16 +21,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.TargetTracking
 
 /**
- * A transition that tracks which targets are applied to it.
- * It will assume any target that it applies to will have differences
- * between the start and end state, regardless of the differences
- * that actually exist. In other words, it doesn't actually check
- * any size or position differences or any other property of the view.
- * It just records the difference.
+ * A transition that tracks which targets are applied to it. It will assume any target that it
+ * applies to will have differences between the start and end state, regardless of the differences
+ * that actually exist. In other words, it doesn't actually check any size or position differences
+ * or any other property of the view. It just records the difference.
  *
- *
- * Both start and end value Views are recorded, but no actual animation
- * is created.
+ * Both start and end value Views are recorded, but no actual animation is created.
  */
 class TrackingTransition : Transition(), TargetTracking {
     override val enteringTargets = mutableListOf<View>()
@@ -53,17 +49,18 @@ class TrackingTransition : Transition(), TargetTracking {
         sceneRoot: ViewGroup,
         startValues: TransitionValues?,
         endValues: TransitionValues?
-    ) = null.also {
-        if (startValues != null) {
-            exitingTargets.add(startValues.view)
+    ) =
+        null.also {
+            if (startValues != null) {
+                exitingTargets.add(startValues.view)
+            }
+            if (endValues != null) {
+                enteringTargets.add(endValues.view)
+            }
+            if (epicenter != null) {
+                capturedEpicenter.set(Rect(epicenter))
+            }
         }
-        if (endValues != null) {
-            enteringTargets.add(endValues.view)
-        }
-        if (epicenter != null) {
-            capturedEpicenter.set(Rect(epicenter))
-        }
-    }
 
     override fun clearTargets() {
         enteringTargets.clear()

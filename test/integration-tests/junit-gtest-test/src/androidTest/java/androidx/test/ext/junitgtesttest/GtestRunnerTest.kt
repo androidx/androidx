@@ -31,15 +31,13 @@ import org.junit.runner.notification.RunNotifier
  *
  * These specific tests would be more appropriate to put in junit-gtest itself, and have an
  * integration test app run the tests more like an actual app consuming the library would (basically
- * the [NativeTests] class), but due to b/236913987 it is currently difficult or impossible to
- * make the test libraries ('apptest') available to the tests without including them in the release
- * AAR.
+ * the [NativeTests] class), but due to b/236913987 it is currently difficult or impossible to make
+ * the test libraries ('apptest') available to the tests without including them in the release AAR.
  */
 class GtestRunnerTest {
     private val runListener = CountingRunListener()
-    private val runNotifier = RunNotifier().apply {
-        addListener(runListener)
-    }
+    private val runNotifier = RunNotifier().apply { addListener(runListener) }
+
     companion object {
         private val runner = GtestRunner(NativeTests::class.java)
     }
@@ -49,36 +47,40 @@ class GtestRunnerTest {
         runner.run(runNotifier)
         assertThat(runListener.failures).hasSize(2)
         val adderFailure = runListener.failures[0]
-        assertThat(adderFailure.message.normalizeWhitespace()).contains(
-            """
+        assertThat(adderFailure.message.normalizeWhitespace())
+            .contains(
+                """
                 Expected equality of these values:
                 42
                 add(42, 1)
                 Which is: 43
-            """.normalizeWhitespace()
-        )
+            """
+                    .normalizeWhitespace()
+            )
 
         val uncaughtExceptionFailure = runListener.failures[1]
-        assertThat(uncaughtExceptionFailure.message.normalizeWhitespace()).contains(
-            """
+        assertThat(uncaughtExceptionFailure.message.normalizeWhitespace())
+            .contains(
+                """
                 unknown file:-1
                 Unknown C++ exception thrown in the test body.
-            """.normalizeWhitespace()
-        )
+            """
+                    .normalizeWhitespace()
+            )
     }
 
     @Test
     fun reportsAllResults() {
         runner.run(runNotifier)
-        assertThat(runListener.descriptions.map { it.displayName }).isEqualTo(
-            listOf(
-                "adder_pass(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
-                "foo_fail(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
-                "JUnitNotifyingListener_handles_null_file_names(androidx.test.ext.junitgtesttest." +
-                    "GtestRunnerTest\$NativeTests)"
+        assertThat(runListener.descriptions.map { it.displayName })
+            .isEqualTo(
+                listOf(
+                    "adder_pass(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
+                    "foo_fail(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
+                    "JUnitNotifyingListener_handles_null_file_names(androidx.test.ext.junitgtesttest." +
+                        "GtestRunnerTest\$NativeTests)"
+                )
             )
-
-        )
     }
 
     fun String.normalizeWhitespace(): String {
@@ -88,6 +90,7 @@ class GtestRunnerTest {
     class CountingRunListener : RunListener() {
         val failures = mutableListOf<Failure>()
         val descriptions = mutableListOf<Description>()
+
         override fun testFailure(failure: Failure) {
             failures.add(failure)
         }
@@ -97,7 +100,5 @@ class GtestRunnerTest {
         }
     }
 
-    @RunWith(GtestRunner::class)
-    @TargetLibrary(libraryName = "apptest")
-    class NativeTests
+    @RunWith(GtestRunner::class) @TargetLibrary(libraryName = "apptest") class NativeTests
 }

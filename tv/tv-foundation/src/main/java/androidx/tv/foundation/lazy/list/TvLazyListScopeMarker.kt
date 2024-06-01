@@ -16,8 +16,5 @@
 
 package androidx.tv.foundation.lazy.list
 
-/**
- * DSL marker used to distinguish between lazy layout scope and the item scope.
- */
-@DslMarker
-annotation class TvLazyListScopeMarker
+/** DSL marker used to distinguish between lazy layout scope and the item scope. */
+@DslMarker annotation class TvLazyListScopeMarker

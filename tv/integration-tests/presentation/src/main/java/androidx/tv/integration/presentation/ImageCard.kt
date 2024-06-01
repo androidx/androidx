@@ -52,33 +52,29 @@ fun ImageCard(
     customCardWidth: Dp? = null,
     modifier: Modifier = Modifier,
 ) {
-    val aspect = if (aspectRatio == 16f / 9)
-        "orientation/vod_art_16x9"
-    else
-        "orientation/vod_art_2x3"
+    val aspect =
+        if (aspectRatio == 16f / 9) "orientation/vod_art_16x9" else "orientation/vod_art_2x3"
     val scaleMax = if (aspectRatio == 16f / 9) 1.1f else 1.025f
     val cardWidth = customCardWidth ?: if (aspectRatio == 16f / 9) 200.dp else 172.dp
 
     var isFocused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(12.dp)
-    val borderColor by animateColorAsState(
-        targetValue = if (isFocused) Color.White.copy(alpha = 0.8f) else Color.Transparent
-    )
+    val borderColor by
+        animateColorAsState(
+            targetValue = if (isFocused) Color.White.copy(alpha = 0.8f) else Color.Transparent
+        )
     val scale by animateFloatAsState(targetValue = if (isFocused) scaleMax else 1f)
 
-    Column(
-        modifier = Modifier
-            .width(cardWidth)
-            .scale(scale)
-    ) {
+    Column(modifier = Modifier.width(cardWidth).scale(scale)) {
         Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(aspectRatio)
-                .border(2.dp, borderColor, shape)
-                .clip(shape)
-                .onFocusChanged { isFocused = it.isFocused }
-                .focusable()
+            modifier =
+                modifier
+                    .fillMaxWidth()
+                    .aspectRatio(aspectRatio)
+                    .border(2.dp, borderColor, shape)
+                    .clip(shape)
+                    .onFocusChanged { isFocused = it.isFocused }
+                    .focusable()
         ) {
             AppAsyncImage(imageUrl = getMovieImageUrl(movie, aspect = aspect))
         }

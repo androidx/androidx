@@ -46,8 +46,7 @@ import org.junit.Rule
 
 open class BaseLazyGridTestWithOrientation(private val orientation: Orientation) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical
@@ -91,11 +90,12 @@ open class BaseLazyGridTestWithOrientation(private val orientation: Orientation)
         }
 
     fun SemanticsNodeInteraction.assertStartPositionIsAlmost(expected: Dp) {
-        val position = if (vertical) {
-            getUnclippedBoundsInRoot().top
-        } else {
-            getUnclippedBoundsInRoot().left
-        }
+        val position =
+            if (vertical) {
+                getUnclippedBoundsInRoot().top
+            } else {
+                getUnclippedBoundsInRoot().left
+            }
         position.assertIsEqualTo(expected, tolerance = 1.dp)
     }
 
@@ -113,36 +113,35 @@ open class BaseLazyGridTestWithOrientation(private val orientation: Orientation)
             assertTopPositionInRootIsEqualTo(expectedStart)
         }
 
-    fun PaddingValues(
-        mainAxis: Dp = 0.dp,
-        crossAxis: Dp = 0.dp
-    ) = PaddingValues(
-        beforeContent = mainAxis,
-        afterContent = mainAxis,
-        beforeContentCrossAxis = crossAxis,
-        afterContentCrossAxis = crossAxis
-    )
+    fun PaddingValues(mainAxis: Dp = 0.dp, crossAxis: Dp = 0.dp) =
+        PaddingValues(
+            beforeContent = mainAxis,
+            afterContent = mainAxis,
+            beforeContentCrossAxis = crossAxis,
+            afterContentCrossAxis = crossAxis
+        )
 
     fun PaddingValues(
         beforeContent: Dp = 0.dp,
         afterContent: Dp = 0.dp,
         beforeContentCrossAxis: Dp = 0.dp,
         afterContentCrossAxis: Dp = 0.dp,
-    ) = if (vertical) {
-        PaddingValues(
-            start = beforeContentCrossAxis,
-            top = beforeContent,
-            end = afterContentCrossAxis,
-            bottom = afterContent
-        )
-    } else {
-        PaddingValues(
-            start = beforeContent,
-            top = beforeContentCrossAxis,
-            end = afterContent,
-            bottom = afterContentCrossAxis
-        )
-    }
+    ) =
+        if (vertical) {
+            PaddingValues(
+                start = beforeContentCrossAxis,
+                top = beforeContent,
+                end = afterContentCrossAxis,
+                bottom = afterContent
+            )
+        } else {
+            PaddingValues(
+                start = beforeContent,
+                top = beforeContentCrossAxis,
+                end = afterContent,
+                bottom = afterContentCrossAxis
+            )
+        }
 
     fun TvLazyGridState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main) {
@@ -151,9 +150,7 @@ open class BaseLazyGridTestWithOrientation(private val orientation: Orientation)
     }
 
     fun TvLazyGridState.scrollTo(index: Int) {
-        runBlocking(Dispatchers.Main) {
-            scrollToItem(index)
-        }
+        runBlocking(Dispatchers.Main) { scrollToItem(index) }
     }
 
     fun ComposeContentTestRule.keyPress(numberOfPresses: Int = 1) {
@@ -174,17 +171,18 @@ open class BaseLazyGridTestWithOrientation(private val orientation: Orientation)
         crossAxisSpacedBy: Dp = 0.dp,
         mainAxisSpacedBy: Dp = 0.dp,
         content: TvLazyGridScope.() -> Unit
-    ) = LazyGrid(
-        TvGridCells.Fixed(cells),
-        modifier,
-        state,
-        contentPadding,
-        reverseLayout,
-        userScrollEnabled,
-        crossAxisSpacedBy,
-        mainAxisSpacedBy,
-        content
-    )
+    ) =
+        LazyGrid(
+            TvGridCells.Fixed(cells),
+            modifier,
+            state,
+            contentPadding,
+            reverseLayout,
+            userScrollEnabled,
+            crossAxisSpacedBy,
+            mainAxisSpacedBy,
+            content
+        )
 
     @Composable
     fun LazyGrid(
@@ -199,15 +197,17 @@ open class BaseLazyGridTestWithOrientation(private val orientation: Orientation)
         content: TvLazyGridScope.() -> Unit
     ) {
         if (vertical) {
-            val verticalArrangement = when {
-                mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
-                !reverseLayout -> Arrangement.Top
-                else -> Arrangement.Bottom
-            }
-            val horizontalArrangement = when {
-                crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
-                else -> Arrangement.Start
-            }
+            val verticalArrangement =
+                when {
+                    mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
+                    !reverseLayout -> Arrangement.Top
+                    else -> Arrangement.Bottom
+                }
+            val horizontalArrangement =
+                when {
+                    crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
+                    else -> Arrangement.Start
+                }
             TvLazyVerticalGrid(
                 columns = cells,
                 modifier = modifier,
@@ -221,15 +221,17 @@ open class BaseLazyGridTestWithOrientation(private val orientation: Orientation)
                 content = content
             )
         } else {
-            val horizontalArrangement = when {
-                mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
-                !reverseLayout -> Arrangement.Start
-                else -> Arrangement.End
-            }
-            val verticalArrangement = when {
-                crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
-                else -> Arrangement.Top
-            }
+            val horizontalArrangement =
+                when {
+                    mainAxisSpacedBy != 0.dp -> Arrangement.spacedBy(mainAxisSpacedBy)
+                    !reverseLayout -> Arrangement.Start
+                    else -> Arrangement.End
+                }
+            val verticalArrangement =
+                when {
+                    crossAxisSpacedBy != 0.dp -> Arrangement.spacedBy(crossAxisSpacedBy)
+                    else -> Arrangement.Top
+                }
             TvLazyHorizontalGrid(
                 rows = cells,
                 modifier = modifier,

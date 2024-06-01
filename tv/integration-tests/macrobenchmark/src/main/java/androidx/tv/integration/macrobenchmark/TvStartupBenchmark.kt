@@ -26,17 +26,17 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class TvStartupBenchmark {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureRepeated(
-        packageName = "androidx.tv.integration.macrobenchmark.target",
-        metrics = listOf(StartupTimingMetric()),
-        iterations = 1,
-        startupMode = StartupMode.COLD
-    ) {
-        pressHome()
-        startActivityAndWait()
-    }
+    fun startup() =
+        benchmarkRule.measureRepeated(
+            packageName = "androidx.tv.integration.macrobenchmark.target",
+            metrics = listOf(StartupTimingMetric()),
+            iterations = 1,
+            startupMode = StartupMode.COLD
+        ) {
+            pressHome()
+            startActivityAndWait()
+        }
 }

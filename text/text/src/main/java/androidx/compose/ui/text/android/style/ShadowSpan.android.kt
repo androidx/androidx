@@ -18,10 +18,7 @@ package androidx.compose.ui.text.android.style
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 
-/**
- * A span which applies a shadow effect to the covered text.
- *
- */
+/** A span which applies a shadow effect to the covered text. */
 internal class ShadowSpan(
     val color: Int,
     val offsetX: Float,

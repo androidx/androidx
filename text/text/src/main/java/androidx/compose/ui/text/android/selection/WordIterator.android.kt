@@ -28,9 +28,10 @@ import kotlin.math.min
  *
  * Note: This file is copied from
  * [WordIterator.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/method/WordIterator.java)
+ *
+ * @param locale The locale to be used for analyzing the text. Caches [CharSequence] for performance
+ *   reasons.
  * @constructor Constructs a new WordIterator for the specified locale.
- * @param locale The locale to be used for analyzing the text.
- * Caches [CharSequence] for performance reasons.
  */
 internal class WordIterator(
     private val charSequence: CharSequence,
@@ -43,12 +44,8 @@ internal class WordIterator(
     private val iterator: BreakIterator
 
     init {
-        require(start in 0..charSequence.length) {
-            "input start index is outside the CharSequence"
-        }
-        require(end in 0..charSequence.length) {
-            "input end index is outside the CharSequence"
-        }
+        require(start in 0..charSequence.length) { "input start index is outside the CharSequence" }
+        require(end in 0..charSequence.length) { "input end index is outside the CharSequence" }
         iterator = BreakIterator.getWordInstance(locale)
         this.start = max(0, start - WINDOW_WIDTH)
         this.end = min(charSequence.length, end + WINDOW_WIDTH)
@@ -56,8 +53,8 @@ internal class WordIterator(
     }
 
     /**
-     * Returns the position of next boundary after the given offset. Returns
-     * `BreakIterator.DONE` if there is no boundary after the given offset.
+     * Returns the position of next boundary after the given offset. Returns `BreakIterator.DONE` if
+     * there is no boundary after the given offset.
      *
      * @param offset the given start position to search from.
      * @return the position of the last boundary preceding the given offset.
@@ -68,8 +65,8 @@ internal class WordIterator(
     }
 
     /**
-     * Returns the position of boundary preceding the given offset or
-     * `BreakIterator.DONE` if the given offset specifies the starting position.
+     * Returns the position of boundary preceding the given offset or `BreakIterator.DONE` if the
+     * given offset specifies the starting position.
      *
      * @param offset the given start position to search from.
      * @return the position of the last boundary preceding the given offset.
@@ -80,14 +77,13 @@ internal class WordIterator(
     }
 
     /**
-     * If the `offset` is within a word or on a word boundary that can only be
-     * considered the start of a word (e.g. _word where "_" is any character that would not
-     * be considered part of the word) then this returns the index of the first character of
-     * that word.
+     * If the `offset` is within a word or on a word boundary that can only be considered the start
+     * of a word (e.g. _word where "_" is any character that would not be considered part of the
+     * word) then this returns the index of the first character of that word.
      *
-     * If the offset is on a word boundary that can be considered the start and end of a
-     * word, e.g. AABB (where AA and BB are both words) and the offset is the boundary
-     * between AA and BB, this would return the start of the previous word, AA.
+     * If the offset is on a word boundary that can be considered the start and end of a word, e.g.
+     * AABB (where AA and BB are both words) and the offset is the boundary between AA and BB, this
+     * would return the start of the previous word, AA.
      *
      * Returns BreakIterator.DONE if there is no previous boundary.
      *
@@ -98,14 +94,13 @@ internal class WordIterator(
     }
 
     /**
-     * If the `offset` is within a word or on a word boundary that can only be
-     * considered the end of a word (e.g. word_ where "_" is any character that would not
-     * be considered part of the word) then this returns the index of the last character
-     * plus one of that word.
+     * If the `offset` is within a word or on a word boundary that can only be considered the end of
+     * a word (e.g. word_ where "_" is any character that would not be considered part of the word)
+     * then this returns the index of the last character plus one of that word.
      *
-     * If the offset is on a word boundary that can be considered the start and end of a
-     * word, e.g. AABB (where AA and BB are both words) and the offset is the boundary
-     * between AA and BB, this would return the end of the next word, BB.
+     * If the offset is on a word boundary that can be considered the start and end of a word, e.g.
+     * AABB (where AA and BB are both words) and the offset is the boundary between AA and BB, this
+     * would return the end of the next word, BB.
      *
      * Returns BreakIterator.DONE if there is no next boundary.
      *
@@ -116,9 +111,8 @@ internal class WordIterator(
     }
 
     /**
-     * If `offset` is within a group of punctuation as defined
-     * by [isPunctuation], returns the index of the first character
-     * of that group, otherwise returns BreakIterator.DONE.
+     * If `offset` is within a group of punctuation as defined by [isPunctuation], returns the index
+     * of the first character of that group, otherwise returns BreakIterator.DONE.
      *
      * @param offset the offset to search from.
      */
@@ -133,9 +127,8 @@ internal class WordIterator(
     }
 
     /**
-     * If `offset` is within a group of punctuation as defined
-     * by [isPunctuation], returns the index of the last character
-     * of that group plus one, otherwise returns BreakIterator.DONE.
+     * If `offset` is within a group of punctuation as defined by [isPunctuation], returns the index
+     * of the last character of that group plus one, otherwise returns BreakIterator.DONE.
      *
      * @param offset the offset to search from.
      */
@@ -150,8 +143,8 @@ internal class WordIterator(
     }
 
     /**
-     * Indicates if the provided offset is after a punctuation character
-     * as defined by [isPunctuation].
+     * Indicates if the provided offset is after a punctuation character as defined by
+     * [isPunctuation].
      *
      * @param offset the offset to check from.
      * @return Whether the offset is after a punctuation character.
@@ -165,8 +158,7 @@ internal class WordIterator(
     }
 
     /**
-     * Indicates if the provided offset is at a punctuation character
-     * as defined by [isPunctuation].
+     * Indicates if the provided offset is at a punctuation character as defined by [isPunctuation].
      *
      * @param offset the offset to check from.
      * @return Whether the offset is at a punctuation character.
@@ -180,16 +172,14 @@ internal class WordIterator(
     }
 
     /**
-     * If the `offset` is within a word or on a word boundary that can only be
-     * considered the start of a word (e.g. _word where "_" is any character that would not
-     * be considered part of the word) then this returns the index of the first character of
-     * that word.
+     * If the `offset` is within a word or on a word boundary that can only be considered the start
+     * of a word (e.g. _word where "_" is any character that would not be considered part of the
+     * word) then this returns the index of the first character of that word.
      *
-     * If the offset is on a word boundary that can be considered the start and end of a
-     * word, e.g. AABB (where AA and BB are both words) and the offset is the boundary
-     * between AA and BB, and getPrevWordBeginningOnTwoWordsBoundary is true then this would
-     * return the start of the previous word, AA. Otherwise it would return the current offset,
-     * the start of BB.
+     * If the offset is on a word boundary that can be considered the start and end of a word, e.g.
+     * AABB (where AA and BB are both words) and the offset is the boundary between AA and BB, and
+     * getPrevWordBeginningOnTwoWordsBoundary is true then this would return the start of the
+     * previous word, AA. Otherwise it would return the current offset, the start of BB.
      *
      * Returns BreakIterator.DONE if there is no previous boundary.
      *
@@ -198,8 +188,9 @@ internal class WordIterator(
     private fun getBeginning(offset: Int, getPrevWordBeginningOnTwoWordsBoundary: Boolean): Int {
         checkOffsetIsValid(offset)
         if (isOnLetterOrDigit(offset)) {
-            return if (iterator.isBoundary(offset) &&
-                (!isAfterLetterOrDigit(offset) || !getPrevWordBeginningOnTwoWordsBoundary)
+            return if (
+                iterator.isBoundary(offset) &&
+                    (!isAfterLetterOrDigit(offset) || !getPrevWordBeginningOnTwoWordsBoundary)
             ) {
                 offset
             } else {
@@ -214,16 +205,14 @@ internal class WordIterator(
     }
 
     /**
-     * If the `offset` is within a word or on a word boundary that can only be
-     * considered the end of a word (e.g. word_ where "_" is any character that would not be
-     * considered part of the word) then this returns the index of the last character plus one
-     * of that word.
+     * If the `offset` is within a word or on a word boundary that can only be considered the end of
+     * a word (e.g. word_ where "_" is any character that would not be considered part of the word)
+     * then this returns the index of the last character plus one of that word.
      *
-     * If the offset is on a word boundary that can be considered the start and end of a
-     * word, e.g. AABB (where AA and BB are both words) and the offset is the boundary
-     * between AA and BB, and getNextWordEndOnTwoWordBoundary is true then this would return
-     * the end of the next word, BB. Otherwise it would return the current offset, the end
-     * of AA.
+     * If the offset is on a word boundary that can be considered the start and end of a word, e.g.
+     * AABB (where AA and BB are both words) and the offset is the boundary between AA and BB, and
+     * getNextWordEndOnTwoWordBoundary is true then this would return the end of the next word, BB.
+     * Otherwise it would return the current offset, the end of AA.
      *
      * Returns BreakIterator.DONE if there is no next boundary.
      *
@@ -232,8 +221,9 @@ internal class WordIterator(
     private fun getEnd(offset: Int, getNextWordEndOnTwoWordBoundary: Boolean): Int {
         checkOffsetIsValid(offset)
         if (isAfterLetterOrDigit(offset)) {
-            return if (iterator.isBoundary(offset) &&
-                (!isOnLetterOrDigit(offset) || !getNextWordEndOnTwoWordBoundary)
+            return if (
+                iterator.isBoundary(offset) &&
+                    (!isOnLetterOrDigit(offset) || !getNextWordEndOnTwoWordBoundary)
             ) {
                 offset
             } else {
@@ -271,9 +261,7 @@ internal class WordIterator(
         return false
     }
 
-    /**
-     * Check if the given offset is in the given range.
-     */
+    /** Check if the given offset is in the given range. */
     private fun checkOffsetIsValid(offset: Int) {
         require(offset in start..end) {
             ("Invalid offset: $offset. Valid range is [$start , $end]")

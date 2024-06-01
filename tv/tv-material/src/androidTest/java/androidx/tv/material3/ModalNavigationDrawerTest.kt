@@ -76,8 +76,7 @@ import org.junit.Test
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 class ModalNavigationDrawerTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun modalNavigationDrawer_initialStateClosed_closedStateComposableDisplayed() {
@@ -87,7 +86,9 @@ class ModalNavigationDrawerTest {
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                 }
-            ) { Box(Modifier.size(200.dp)) }
+            ) {
+                Box(Modifier.size(200.dp))
+            }
         }
 
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
@@ -100,7 +101,10 @@ class ModalNavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Open) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }) { BasicText("other content") }
+                }
+            ) {
+                BasicText("other content")
+            }
         }
 
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
@@ -120,14 +124,15 @@ class ModalNavigationDrawerTest {
                         modifier = Modifier.focusable(),
                         text = if (it == DrawerValue.Open) "Opened" else "Closed"
                     )
-                }) { BasicText("other content") }
+                }
+            ) {
+                BasicText("other content")
+            }
         }
 
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
 
-        rule.runOnIdle {
-            drawerFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { drawerFocusRequester.requestFocus() }
 
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
     }
@@ -141,25 +146,22 @@ class ModalNavigationDrawerTest {
             val navigationDrawerValue = remember { DrawerState(DrawerValue.Closed) }
             Row {
                 ModalNavigationDrawer(
-                    modifier = Modifier
-                        .focusRequester(drawerFocusRequester)
-                        .focusable(false),
+                    modifier = Modifier.focusRequester(drawerFocusRequester).focusable(false),
                     drawerState = navigationDrawerValue,
                     drawerContent = {
                         BasicText(
                             modifier = Modifier.focusable(),
                             text = if (it == DrawerValue.Open) "Opened" else "Closed"
                         )
-                    }) {
+                    }
+                ) {
                     Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
                         BasicText("Button")
                     }
                 }
             }
         }
-        rule.runOnIdle {
-            drawerFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { drawerFocusRequester.requestFocus() }
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
         rule.onRoot().performKeyInput { pressKey(Key.DirectionRight) }
 
@@ -180,29 +182,28 @@ class ModalNavigationDrawerTest {
                         var isFocused by remember { mutableStateOf(false) }
                         BasicText(
                             text = if (it == DrawerValue.Open) "Opened" else "Closed",
-                            modifier = Modifier
-                                .onFocusChanged { focusState ->
-                                    isFocused = focusState.isFocused
-                                }
-                                .background(if (isFocused) Color.Green else Color.Yellow)
-                                .focusable()
-                                .testTag("drawerItem")
+                            modifier =
+                                Modifier.onFocusChanged { focusState ->
+                                        isFocused = focusState.isFocused
+                                    }
+                                    .background(if (isFocused) Color.Green else Color.Yellow)
+                                    .focusable()
+                                    .testTag("drawerItem")
                         )
-                    }) {
+                    }
+                ) {
                     Box(
-                        modifier = Modifier
-                            .padding(start = 100.dp)
-                            .focusRequester(buttonFocusRequester)
-                            .focusable()
+                        modifier =
+                            Modifier.padding(start = 100.dp)
+                                .focusRequester(buttonFocusRequester)
+                                .focusable()
                     ) {
                         BasicText("Button")
                     }
                 }
             }
         }
-        rule.runOnIdle {
-            buttonFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { buttonFocusRequester.requestFocus() }
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
         rule.onRoot().performKeyInput { pressKey(Key.DirectionLeft) }
         rule.waitForIdle()
@@ -226,10 +227,9 @@ class ModalNavigationDrawerTest {
                             Box(Modifier.width(closedDrawerContentWidth * 10))
                         }
                     }
-                ) { Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .testTag(contentWidthBoxTag)) }
+                ) {
+                    Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
+                }
             }
         }
 
@@ -251,10 +251,9 @@ class ModalNavigationDrawerTest {
                             Box(Modifier.width(openDrawerContentWidth * 10))
                         }
                     }
-                ) { Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .testTag(contentWidthBoxTag)) }
+                ) {
+                    Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
+                }
             }
         }
 
@@ -270,17 +269,13 @@ class ModalNavigationDrawerTest {
                 ModalNavigationDrawer(
                     drawerState = remember { DrawerState(DrawerValue.Closed) },
                     drawerContent = {
-                        Box(
-                            Modifier
-                                .testTag(drawerContentBoxTag)
-                                .border(2.dp, Color.Red)) {
+                        Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
                     }
-                ) { Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .testTag(contentWidthBoxTag)) }
+                ) {
+                    Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
+                }
             }
         }
 
@@ -299,17 +294,13 @@ class ModalNavigationDrawerTest {
                 ModalNavigationDrawer(
                     drawerState = drawerState!!,
                     drawerContent = {
-                        Box(
-                            Modifier
-                                .testTag(drawerContentBoxTag)
-                                .border(2.dp, Color.Red)) {
+                        Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
                     }
-                ) { Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .testTag(contentWidthBoxTag)) }
+                ) {
+                    Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
+                }
             }
         }
 
@@ -328,12 +319,7 @@ class ModalNavigationDrawerTest {
     fun modalNavigationDrawer_parentContainerGainsFocus_onBackPress() {
         val drawerFocusRequester = FocusRequester()
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .testTag("box-container")
-                    .fillMaxSize()
-                    .focusable()
-            ) {
+            Box(modifier = Modifier.testTag("box-container").fillMaxSize().focusable()) {
                 ModalNavigationDrawer(
                     modifier = Modifier.focusRequester(drawerFocusRequester),
                     drawerState = remember { DrawerState(DrawerValue.Closed) },
@@ -351,9 +337,7 @@ class ModalNavigationDrawerTest {
 
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
 
-        rule.runOnIdle {
-            drawerFocusRequester.requestFocus()
-        }
+        rule.runOnIdle { drawerFocusRequester.requestFocus() }
 
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
         rule.onNodeWithTag("box-container").assertIsNotFocused()
@@ -378,7 +362,9 @@ class ModalNavigationDrawerTest {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                 },
                 scrimBrush = SolidColor(scrimColor)
-            ) { Box(Modifier.fillMaxSize().background(backgroundContentColor)) }
+            ) {
+                Box(Modifier.fillMaxSize().background(backgroundContentColor))
+            }
         }
 
         // the image should show only scrim color and no background content color
@@ -397,10 +383,10 @@ class ModalNavigationDrawerTest {
                 }
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundContentColor)
-                        .testTag("background")
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .background(backgroundContentColor)
+                            .testTag("background")
                 ) {
                     Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
                         BasicText("Button")
@@ -423,10 +409,10 @@ class ModalNavigationDrawerTest {
                 }
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundContentColor)
-                        .testTag("background")
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .background(backgroundContentColor)
+                            .testTag("background")
                 ) {
                     Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
                         BasicText("Button")
@@ -440,14 +426,17 @@ class ModalNavigationDrawerTest {
     }
 
     private fun SemanticsNodeInteractionCollection.assertAnyAreDisplayed() {
-        val result = (0 until fetchSemanticsNodes().size).map { get(it) }.any {
-            try {
-                it.assertIsDisplayed()
-                true
-            } catch (e: AssertionError) {
-                false
-            }
-        }
+        val result =
+            (0 until fetchSemanticsNodes().size)
+                .map { get(it) }
+                .any {
+                    try {
+                        it.assertIsDisplayed()
+                        true
+                    } catch (e: AssertionError) {
+                        false
+                    }
+                }
 
         if (!result) throw AssertionError("Assert failed: None of the components are displayed!")
     }
@@ -455,20 +444,19 @@ class ModalNavigationDrawerTest {
     private fun SemanticsNodeInteraction.assertRightPositionInRootIsEqualTo(
         expectedRight: Dp
     ): SemanticsNodeInteraction {
-        return withUnclippedBoundsInRoot {
-            it.right.assertIsEqualTo(expectedRight, "right")
-        }
+        return withUnclippedBoundsInRoot { it.right.assertIsEqualTo(expectedRight, "right") }
     }
 
     private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
         assertion: (DpRect) -> Unit
     ): SemanticsNodeInteraction {
         val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
-        val bounds = with(node.layoutInfo.density) {
-            node.unclippedBoundsInRoot.let {
-                DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+        val bounds =
+            with(node.layoutInfo.density) {
+                node.unclippedBoundsInRoot.let {
+                    DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+                }
             }
-        }
         assertion.invoke(bounds)
         return this
     }

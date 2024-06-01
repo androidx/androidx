@@ -62,9 +62,7 @@ fun SimpleCarousel() {
     @Composable
     fun Modifier.onFirstGainingVisibility(onGainingVisibility: () -> Unit): Modifier {
         var isVisible by remember { mutableStateOf(false) }
-        LaunchedEffect(isVisible) {
-            if (isVisible) onGainingVisibility()
-        }
+        LaunchedEffect(isVisible) { if (isVisible) onGainingVisibility() }
 
         return onPlaced { isVisible = true }
     }
@@ -72,33 +70,33 @@ fun SimpleCarousel() {
     @Composable
     fun Modifier.requestFocusOnFirstGainingVisibility(): Modifier {
         val focusRequester = remember { FocusRequester() }
-        return focusRequester(focusRequester)
-            .onFirstGainingVisibility { focusRequester.requestFocus() }
+        return focusRequester(focusRequester).onFirstGainingVisibility {
+            focusRequester.requestFocus()
+        }
     }
 
-    val backgrounds = listOf(
-        Color.Red.copy(alpha = 0.3f),
-        Color.Yellow.copy(alpha = 0.3f),
-        Color.Green.copy(alpha = 0.3f)
-    )
+    val backgrounds =
+        listOf(
+            Color.Red.copy(alpha = 0.3f),
+            Color.Yellow.copy(alpha = 0.3f),
+            Color.Green.copy(alpha = 0.3f)
+        )
 
     var carouselFocused by remember { mutableStateOf(false) }
     Carousel(
         itemCount = backgrounds.size,
-        modifier = Modifier
-            .height(300.dp)
-            .fillMaxWidth()
-            .onFocusChanged { carouselFocused = it.isFocused },
-        contentTransformEndToStart =
-        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
-        contentTransformStartToEnd =
-        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        modifier =
+            Modifier.height(300.dp).fillMaxWidth().onFocusChanged {
+                carouselFocused = it.isFocused
+            },
+        contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
         Box(
-            modifier = Modifier
-                .background(backgrounds[itemIndex])
-                .border(2.dp, Color.White.copy(alpha = 0.5f))
-                .fillMaxSize()
+            modifier =
+                Modifier.background(backgrounds[itemIndex])
+                    .border(2.dp, Color.White.copy(alpha = 0.5f))
+                    .fillMaxSize()
         ) {
             var buttonFocused by remember { mutableStateOf(false) }
             val buttonModifier =
@@ -109,23 +107,24 @@ fun SimpleCarousel() {
                 }
 
             Button(
-                onClick = { },
-                modifier = buttonModifier
-                    .onFocusChanged { buttonFocused = it.isFocused }
-                    .padding(40.dp)
-                    .border(
-                        width = 2.dp,
-                        color = if (buttonFocused) Color.Red else Color.Transparent,
-                        shape = RoundedCornerShape(50)
-                    )
-                    // Duration of animation here should be less than or equal to carousel's
-                    // contentTransform duration to ensure the item below does not disappear
-                    // abruptly.
-                    .animateEnterExit(
-                        enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
-                        exit = slideOutHorizontally(animationSpec = tween(1000))
-                    )
-                    .padding(vertical = 2.dp, horizontal = 5.dp)
+                onClick = {},
+                modifier =
+                    buttonModifier
+                        .onFocusChanged { buttonFocused = it.isFocused }
+                        .padding(40.dp)
+                        .border(
+                            width = 2.dp,
+                            color = if (buttonFocused) Color.Red else Color.Transparent,
+                            shape = RoundedCornerShape(50)
+                        )
+                        // Duration of animation here should be less than or equal to carousel's
+                        // contentTransform duration to ensure the item below does not disappear
+                        // abruptly.
+                        .animateEnterExit(
+                            enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                            exit = slideOutHorizontally(animationSpec = tween(1000))
+                        )
+                        .padding(vertical = 2.dp, horizontal = 5.dp)
             ) {
                 Text(text = "Play")
             }
@@ -137,70 +136,65 @@ fun SimpleCarousel() {
 @Sampled
 @Composable
 fun CarouselIndicatorWithRectangleShape() {
-    val backgrounds = listOf(
-        Color.Red.copy(alpha = 0.3f),
-        Color.Yellow.copy(alpha = 0.3f),
-        Color.Green.copy(alpha = 0.3f)
-    )
+    val backgrounds =
+        listOf(
+            Color.Red.copy(alpha = 0.3f),
+            Color.Yellow.copy(alpha = 0.3f),
+            Color.Green.copy(alpha = 0.3f)
+        )
     val carouselState = rememberCarouselState()
 
     Carousel(
         itemCount = backgrounds.size,
-        modifier = Modifier
-            .height(300.dp)
-            .fillMaxWidth(),
+        modifier = Modifier.height(300.dp).fillMaxWidth(),
         carouselState = carouselState,
         carouselIndicator = {
             CarouselDefaults.IndicatorRow(
                 itemCount = backgrounds.size,
                 activeItemIndex = carouselState.activeItemIndex,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 indicator = { isActive ->
                     val activeColor = Color.Red
                     val inactiveColor = activeColor.copy(alpha = 0.5f)
                     Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                color = if (isActive) activeColor else inactiveColor,
-                                shape = RectangleShape,
-                            ),
+                        modifier =
+                            Modifier.size(8.dp)
+                                .background(
+                                    color = if (isActive) activeColor else inactiveColor,
+                                    shape = RectangleShape,
+                                ),
                     )
                 }
             )
         },
-        contentTransformEndToStart =
-        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
-        contentTransformStartToEnd =
-        fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
+        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
     ) { itemIndex ->
         Box(
-            modifier = Modifier
-                .background(backgrounds[itemIndex])
-                .border(2.dp, Color.White.copy(alpha = 0.5f))
-                .fillMaxSize()
+            modifier =
+                Modifier.background(backgrounds[itemIndex])
+                    .border(2.dp, Color.White.copy(alpha = 0.5f))
+                    .fillMaxSize()
         ) {
             var isFocused by remember { mutableStateOf(false) }
             Button(
-                onClick = { },
-                modifier = Modifier
-                    .onFocusChanged { isFocused = it.isFocused }
-                    // Duration of animation here should be less than or equal to carousel's
-                    // contentTransform duration to ensure the item below does not disappear
-                    // abruptly.
-                    .animateEnterExit(
-                        enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
-                        exit = slideOutHorizontally(animationSpec = tween(1000))
-                    )
-                    .padding(40.dp)
-                    .border(
-                        width = 2.dp,
-                        color = if (isFocused) Color.Red else Color.Transparent,
-                        shape = RoundedCornerShape(50)
-                    )
-                    .padding(vertical = 2.dp, horizontal = 5.dp)
+                onClick = {},
+                modifier =
+                    Modifier.onFocusChanged { isFocused = it.isFocused }
+                        // Duration of animation here should be less than or equal to carousel's
+                        // contentTransform duration to ensure the item below does not disappear
+                        // abruptly.
+                        .animateEnterExit(
+                            enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
+                            exit = slideOutHorizontally(animationSpec = tween(1000))
+                        )
+                        .padding(40.dp)
+                        .border(
+                            width = 2.dp,
+                            color = if (isFocused) Color.Red else Color.Transparent,
+                            shape = RoundedCornerShape(50)
+                        )
+                        .padding(vertical = 2.dp, horizontal = 5.dp)
             ) {
                 Text(text = "Play")
             }

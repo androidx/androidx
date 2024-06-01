@@ -23,5 +23,5 @@ import androidx.tv.material3.Checkbox
 @Sampled
 @Composable
 fun CheckboxSample() {
-    Checkbox(checked = true, onCheckedChange = { })
+    Checkbox(checked = true, onCheckedChange = {})
 }

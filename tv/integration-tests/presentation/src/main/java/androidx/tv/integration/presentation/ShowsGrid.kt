@@ -44,34 +44,26 @@ import androidx.tv.material3.Text
 @Composable
 fun ShowsGrid(modifier: Modifier = Modifier) {
     var keyword by remember { mutableStateOf("") }
-    val movies by remember(keyword) {
-        mutableStateOf(allMovies.filter { movie -> movie.name.contains(keyword) })
-    }
+    val movies by
+        remember(keyword) {
+            mutableStateOf(allMovies.filter { movie -> movie.name.contains(keyword) })
+        }
     Column(
-        modifier = Modifier
-            .height(520.dp)
-            .padding(top = 70.dp),
+        modifier = Modifier.height(520.dp).padding(top = 70.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 58.dp)
-                .fillMaxWidth()
-        ) {
+        Box(modifier = Modifier.padding(horizontal = 58.dp).fillMaxWidth()) {
             OutlinedTextField(
                 value = keyword,
                 onValueChange = { keyword = it },
-                placeholder = {
-                    Text(text = "Search", color = Color.White)
-                },
-                modifier = modifier
-                    .fillMaxWidth()
-                    .align(Alignment.Center),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.5f)
-                )
+                placeholder = { Text(text = "Search", color = Color.White) },
+                modifier = modifier.fillMaxWidth().align(Alignment.Center),
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.5f)
+                    )
             )
         }
 
@@ -92,9 +84,7 @@ fun ShowsGrid(modifier: Modifier = Modifier) {
             rows = TvGridCells.Fixed(3),
             contentPadding = PaddingValues(horizontal = 58.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .bringIntoViewIfChildrenAreFocused(),
+            modifier = Modifier.fillMaxSize().bringIntoViewIfChildrenAreFocused(),
         ) {
             items(movies.size) {
                 val movie = movies[it]

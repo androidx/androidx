@@ -28,62 +28,35 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.tokens.Elevation
 
-/**
- * Contains the default values used by list items.
- */
+/** Contains the default values used by list items. */
 object ListItemDefaults {
-    /**
-     * The default Icon size used by [ListItem].
-     */
+    /** The default Icon size used by [ListItem]. */
     val IconSize = 32.dp
 
-    /**
-     * The Icon size used by [DenseListItem].
-     */
+    /** The Icon size used by [DenseListItem]. */
     val IconSizeDense = 20.dp
 
-    /**
-     * The default elevation used by [ListItem].
-     */
+    /** The default elevation used by [ListItem]. */
     val TonalElevation = Elevation.Level0
 
-    /**
-     * The default shape for a [ListItem].
-     */
+    /** The default shape for a [ListItem]. */
     private val ListItemShape = RoundedCornerShape(8.dp)
 
-    /**
-     * The default border applied to [ListItem] in focused disabled state.
-     */
+    /** The default border applied to [ListItem] in focused disabled state. */
     private val FocusedDisabledBorder
         @ReadOnlyComposable
-        @Composable get() = Border(
-            border = BorderStroke(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.border
-            )
-        )
+        @Composable
+        get() =
+            Border(border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.border))
 
-    /**
-     * The default opacity for the [ListItem] container color in selected state.
-     */
+    /** The default opacity for the [ListItem] container color in selected state. */
     private const val SelectedContainerColorOpacity = 0.4f
 
-    /**
-     * The default content padding [PaddingValues] used by [ListItem]
-     */
-    internal val ContentPadding = PaddingValues(
-        horizontal = 16.dp,
-        vertical = 12.dp
-    )
+    /** The default content padding [PaddingValues] used by [ListItem] */
+    internal val ContentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
 
-    /**
-     * The default content padding [PaddingValues] used by [DenseListItem]
-     */
-    internal val ContentPaddingDense = PaddingValues(
-        horizontal = 12.dp,
-        vertical = 10.dp
-    )
+    /** The default content padding [PaddingValues] used by [DenseListItem] */
+    internal val ContentPaddingDense = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
 
     internal const val LeadingContentOpacity = 0.8f
     internal const val OverlineContentOpacity = 0.6f
@@ -110,11 +83,9 @@ object ListItemDefaults {
      * @param pressedShape the shape used when the ListItem is enabled and pressed
      * @param selectedShape the shape used when the ListItem is enabled and selected
      * @param disabledShape the shape used when the ListItem is not enabled
-     * @param focusedSelectedShape the shape used when the ListItem is enabled, focused and
-     * selected
+     * @param focusedSelectedShape the shape used when the ListItem is enabled, focused and selected
      * @param focusedDisabledShape the shape used when the ListItem is not enabled and focused
-     * @param pressedSelectedShape the shape used when the ListItem is enabled, pressed and
-     * selected
+     * @param pressedSelectedShape the shape used when the ListItem is enabled, pressed and selected
      */
     @ReadOnlyComposable
     @Composable
@@ -127,16 +98,17 @@ object ListItemDefaults {
         focusedSelectedShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape,
         pressedSelectedShape: Shape = shape
-    ) = ListItemShape(
-        shape = shape,
-        focusedShape = focusedShape,
-        pressedShape = pressedShape,
-        selectedShape = selectedShape,
-        disabledShape = disabledShape,
-        focusedSelectedShape = focusedSelectedShape,
-        focusedDisabledShape = focusedDisabledShape,
-        pressedSelectedShape = pressedSelectedShape
-    )
+    ) =
+        ListItemShape(
+            shape = shape,
+            focusedShape = focusedShape,
+            pressedShape = pressedShape,
+            selectedShape = selectedShape,
+            disabledShape = disabledShape,
+            focusedSelectedShape = focusedSelectedShape,
+            focusedDisabledShape = focusedDisabledShape,
+            pressedSelectedShape = pressedSelectedShape
+        )
 
     /**
      * Creates a [ListItemColors] that represents the default container & content colors used in a
@@ -145,24 +117,24 @@ object ListItemDefaults {
      * @param containerColor the default container color used when the ListItem is enabled
      * @param contentColor the default content color used when the ListItem is enabled
      * @param focusedContainerColor the container color used when the ListItem is enabled and
-     * focused
+     *   focused
      * @param focusedContentColor the content color used when the ListItem is enabled and focused
      * @param pressedContainerColor the container color used when the ListItem is enabled and
-     * pressed
+     *   pressed
      * @param pressedContentColor the content color used when the ListItem is enabled and pressed
      * @param selectedContainerColor the container color used when the ListItem is enabled and
-     * selected
+     *   selected
      * @param selectedContentColor the content color used when the ListItem is enabled and selected
      * @param disabledContainerColor the container color used when the ListItem is not enabled
      * @param disabledContentColor the content color used when the ListItem is not enabled
      * @param focusedSelectedContainerColor the container color used when the ListItem is enabled,
-     * focused and selected
+     *   focused and selected
      * @param focusedSelectedContentColor the content color used when the ListItem is enabled,
-     * focused and selected
+     *   focused and selected
      * @param pressedSelectedContainerColor the container color used when the ListItem is enabled,
-     * pressed and selected
+     *   pressed and selected
      * @param pressedSelectedContentColor the content color used when the ListItem is enabled,
-     * pressed and selected
+     *   pressed and selected
      */
     @ReadOnlyComposable
     @Composable
@@ -173,8 +145,10 @@ object ListItemDefaults {
         focusedContentColor: Color = contentColorFor(focusedContainerColor),
         pressedContainerColor: Color = focusedContainerColor,
         pressedContentColor: Color = contentColorFor(focusedContainerColor),
-        selectedContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer
-            .copy(alpha = SelectedContainerColorOpacity),
+        selectedContainerColor: Color =
+            MaterialTheme.colorScheme.secondaryContainer.copy(
+                alpha = SelectedContainerColorOpacity
+            ),
         selectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
         disabledContainerColor: Color = Color.Transparent,
         disabledContentColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -182,28 +156,29 @@ object ListItemDefaults {
         focusedSelectedContentColor: Color = focusedContentColor,
         pressedSelectedContainerColor: Color = pressedContainerColor,
         pressedSelectedContentColor: Color = pressedContentColor
-    ) = ListItemColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        focusedContainerColor = focusedContainerColor,
-        focusedContentColor = focusedContentColor,
-        pressedContainerColor = pressedContainerColor,
-        pressedContentColor = pressedContentColor,
-        selectedContainerColor = selectedContainerColor,
-        selectedContentColor = selectedContentColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-        focusedSelectedContainerColor = focusedSelectedContainerColor,
-        focusedSelectedContentColor = focusedSelectedContentColor,
-        pressedSelectedContainerColor = pressedSelectedContainerColor,
-        pressedSelectedContentColor = pressedSelectedContentColor
-    )
+    ) =
+        ListItemColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = focusedContainerColor,
+            focusedContentColor = focusedContentColor,
+            pressedContainerColor = pressedContainerColor,
+            pressedContentColor = pressedContentColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            focusedSelectedContainerColor = focusedSelectedContainerColor,
+            focusedSelectedContentColor = focusedSelectedContentColor,
+            pressedSelectedContainerColor = pressedSelectedContainerColor,
+            pressedSelectedContentColor = pressedSelectedContentColor
+        )
 
     /**
-     * Creates a [ListItemScale] that represents the default scales used in a ListItem.
-     * scales are used to modify the size of a composable in different [Interaction] states
-     * e.g. 1f (original) in default state, 1.2f (scaled up) in focused state, 0.8f (scaled down)
-     * in pressed state, etc.
+     * Creates a [ListItemScale] that represents the default scales used in a ListItem. scales are
+     * used to modify the size of a composable in different [Interaction] states e.g. 1f (original)
+     * in default state, 1.2f (scaled up) in focused state, 0.8f (scaled down) in pressed state,
+     * etc.
      *
      * @param scale the scale used when the ListItem is enabled.
      * @param focusedScale the scale used when the ListItem is enabled and focused.
@@ -211,11 +186,10 @@ object ListItemDefaults {
      * @param selectedScale the scale used when the ListItem is enabled and selected.
      * @param disabledScale the scale used when the ListItem is not enabled.
      * @param focusedSelectedScale the scale used when the ListItem is enabled, focused and
-     * selected.
-     * @param focusedDisabledScale the scale used when the ListItem is not enabled and
-     * focused.
+     *   selected.
+     * @param focusedDisabledScale the scale used when the ListItem is not enabled and focused.
      * @param pressedSelectedScale the scale used when the ListItem is enabled, pressed and
-     * selected.
+     *   selected.
      */
     fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
@@ -226,16 +200,17 @@ object ListItemDefaults {
         @FloatRange(from = 0.0) focusedSelectedScale: Float = focusedScale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale
-    ) = ListItemScale(
-        scale = scale,
-        focusedScale = focusedScale,
-        pressedScale = pressedScale,
-        selectedScale = selectedScale,
-        disabledScale = disabledScale,
-        focusedSelectedScale = focusedSelectedScale,
-        focusedDisabledScale = focusedDisabledScale,
-        pressedSelectedScale = pressedSelectedScale
-    )
+    ) =
+        ListItemScale(
+            scale = scale,
+            focusedScale = focusedScale,
+            pressedScale = pressedScale,
+            selectedScale = selectedScale,
+            disabledScale = disabledScale,
+            focusedSelectedScale = focusedSelectedScale,
+            focusedDisabledScale = focusedDisabledScale,
+            pressedSelectedScale = pressedSelectedScale
+        )
 
     /**
      * Creates a [ListItemBorder] that represents the default [Border]s applied on a ListItem in
@@ -247,10 +222,10 @@ object ListItemDefaults {
      * @param selectedBorder the [Border] used when the ListItem is enabled and selected
      * @param disabledBorder the [Border] used when the ListItem is not enabled
      * @param focusedSelectedBorder the [Border] used when the ListItem is enabled, focused and
-     * selected
+     *   selected
      * @param focusedDisabledBorder the [Border] used when the ListItem is not enabled and focused
      * @param pressedSelectedBorder the [Border] used when the ListItem is enabled, pressed and
-     * selected
+     *   selected
      */
     @ReadOnlyComposable
     @Composable
@@ -263,16 +238,17 @@ object ListItemDefaults {
         focusedSelectedBorder: Border = focusedBorder,
         focusedDisabledBorder: Border = FocusedDisabledBorder,
         pressedSelectedBorder: Border = border
-    ) = ListItemBorder(
-        border = border,
-        focusedBorder = focusedBorder,
-        pressedBorder = pressedBorder,
-        selectedBorder = selectedBorder,
-        disabledBorder = disabledBorder,
-        focusedSelectedBorder = focusedSelectedBorder,
-        focusedDisabledBorder = focusedDisabledBorder,
-        pressedSelectedBorder = pressedSelectedBorder
-    )
+    ) =
+        ListItemBorder(
+            border = border,
+            focusedBorder = focusedBorder,
+            pressedBorder = pressedBorder,
+            selectedBorder = selectedBorder,
+            disabledBorder = disabledBorder,
+            focusedSelectedBorder = focusedSelectedBorder,
+            focusedDisabledBorder = focusedDisabledBorder,
+            pressedSelectedBorder = pressedSelectedBorder
+        )
 
     /**
      * Creates a [ListItemGlow] that represents the default [Glow]s used in a ListItem.
@@ -281,8 +257,10 @@ object ListItemDefaults {
      * @param focusedGlow the [Glow] used when the ListItem is enabled and focused.
      * @param pressedGlow the [Glow] used when the ListItem is enabled and pressed.
      * @param selectedGlow the [Glow] used when the ListItem is enabled and selected.
-     * @param focusedSelectedGlow the [Glow] used when the ListItem is enabled, focused and selected.
-     * @param pressedSelectedGlow the [Glow] used when the ListItem is enabled, pressed and selected.
+     * @param focusedSelectedGlow the [Glow] used when the ListItem is enabled, focused and
+     *   selected.
+     * @param pressedSelectedGlow the [Glow] used when the ListItem is enabled, pressed and
+     *   selected.
      */
     fun glow(
         glow: Glow = Glow.None,
@@ -291,12 +269,13 @@ object ListItemDefaults {
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
         pressedSelectedGlow: Glow = glow
-    ) = ListItemGlow(
-        glow = glow,
-        focusedGlow = focusedGlow,
-        pressedGlow = pressedGlow,
-        selectedGlow = selectedGlow,
-        focusedSelectedGlow = focusedSelectedGlow,
-        pressedSelectedGlow = pressedSelectedGlow
-    )
+    ) =
+        ListItemGlow(
+            glow = glow,
+            focusedGlow = focusedGlow,
+            pressedGlow = pressedGlow,
+            selectedGlow = selectedGlow,
+            focusedSelectedGlow = focusedSelectedGlow,
+            pressedSelectedGlow = pressedSelectedGlow
+        )
 }

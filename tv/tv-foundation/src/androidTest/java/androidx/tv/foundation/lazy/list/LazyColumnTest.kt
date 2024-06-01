@@ -76,8 +76,7 @@ import org.junit.runner.RunWith
 class LazyColumnTest {
     private val LazyListTag = "LazyListTag"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun compositionsAreDisposed_whenDataIsChanged() {
@@ -96,9 +95,7 @@ class LazyColumnTest {
                 items(if (!part2) data1 else data2) {
                     DisposableEffect(NeverEqualObject) {
                         composed++
-                        onDispose {
-                            disposals++
-                        }
+                        onDispose { disposals++ }
                     }
 
                     Box(Modifier.height(50.dp).focusable())
@@ -107,8 +104,7 @@ class LazyColumnTest {
         }
 
         rule.runOnIdle {
-            assertWithMessage("Not all items were composed")
-                .that(composed).isEqualTo(data1.size)
+            assertWithMessage("Not all items were composed").that(composed).isEqualTo(data1.size)
             composed = 0
 
             part2 = true
@@ -116,13 +112,17 @@ class LazyColumnTest {
 
         rule.runOnIdle {
             assertWithMessage(
-                "No additional items were composed after data change, something didn't work"
-            ).that(composed).isEqualTo(data2.size)
+                    "No additional items were composed after data change, something didn't work"
+                )
+                .that(composed)
+                .isEqualTo(data2.size)
 
             // We may need to modify this test once we prefetch/cache items outside the viewport
             assertWithMessage(
-                "Not enough compositions were disposed after scrolling, compositions were leaked"
-            ).that(disposals).isEqualTo(data1.size)
+                    "Not enough compositions were disposed after scrolling, compositions were leaked"
+                )
+                .that(disposals)
+                .isEqualTo(data1.size)
         }
     }
 
@@ -156,17 +156,21 @@ class LazyColumnTest {
 
         rule.runOnIdle {
             assertWithMessage("First item was incorrectly immediately disposed")
-                .that(disposeCalledOnFirstItem).isFalse()
+                .that(disposeCalledOnFirstItem)
+                .isFalse()
             assertWithMessage("Second item was incorrectly immediately disposed")
-                .that(disposeCalledOnFirstItem).isFalse()
+                .that(disposeCalledOnFirstItem)
+                .isFalse()
             emitLazyList = false
         }
 
         rule.runOnIdle {
             assertWithMessage("First item was not correctly disposed")
-                .that(disposeCalledOnFirstItem).isTrue()
+                .that(disposeCalledOnFirstItem)
+                .isTrue()
             assertWithMessage("Second item was not correctly disposed")
-                .that(disposeCalledOnSecondItem).isTrue()
+                .that(disposeCalledOnSecondItem)
+                .isTrue()
         }
     }
 
@@ -176,9 +180,7 @@ class LazyColumnTest {
         val tag = "List"
         rule.setContentWithTestViewConfiguration {
             TvLazyColumn(Modifier.testTag(tag)) {
-                items((0 until itemCount).toList()) {
-                    BasicText("$it")
-                }
+                items((0 until itemCount).toList()) { BasicText("$it") }
             }
         }
 
@@ -219,33 +221,20 @@ class LazyColumnTest {
         rule.runOnIdle {
             composedIndexes.clear()
             count = 10
-            runBlocking(AutoTestFrameClock()) {
-                state.scrollToItem(50)
-            }
-            composedIndexes.forEach {
-                assertThat(it).isLessThan(count)
-            }
+            runBlocking(AutoTestFrameClock()) { state.scrollToItem(50) }
+            composedIndexes.forEach { assertThat(it).isLessThan(count) }
             assertThat(state.firstVisibleItemIndex).isEqualTo(9)
         }
     }
 
     @Test
     fun changingDataTest() {
-        val dataLists = listOf(
-            (1..3).toList(),
-            (4..8).toList(),
-            (3..4).toList()
-        )
+        val dataLists = listOf((1..3).toList(), (4..8).toList(), (3..4).toList())
         var dataModel by mutableStateOf(dataLists[0])
         val tag = "List"
         rule.setContentWithTestViewConfiguration {
-            TvLazyColumn(
-                Modifier.testTag(tag),
-                pivotOffsets = PivotOffsets(parentFraction = 0f)
-            ) {
-                items(dataModel) {
-                    BasicText("$it")
-                }
+            TvLazyColumn(Modifier.testTag(tag), pivotOffsets = PivotOffsets(parentFraction = 0f)) {
+                items(dataModel) { BasicText("$it") }
             }
         }
 
@@ -283,14 +272,11 @@ class LazyColumnTest {
             }
         }
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertIsDisplayed()
+        rule.onNodeWithTag(firstItemTag).assertIsDisplayed()
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertIsDisplayed()
+        rule.onNodeWithTag(secondItemTag).assertIsDisplayed()
 
-        val lazyColumnBounds = rule.onNodeWithTag(LazyListTag)
-            .getUnclippedBoundsInRoot()
+        val lazyColumnBounds = rule.onNodeWithTag(LazyListTag).getUnclippedBoundsInRoot()
 
         with(rule.density) {
             // Verify the width of the column
@@ -303,33 +289,27 @@ class LazyColumnTest {
     fun lazyColumnAlignmentCenterHorizontally() {
         prepareLazyColumnsItemsAlignment(Alignment.CenterHorizontally)
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertPositionInRootIsEqualTo(25.dp, 0.dp)
+        rule.onNodeWithTag(firstItemTag).assertPositionInRootIsEqualTo(25.dp, 0.dp)
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertPositionInRootIsEqualTo(15.dp, 50.dp)
+        rule.onNodeWithTag(secondItemTag).assertPositionInRootIsEqualTo(15.dp, 50.dp)
     }
 
     @Test
     fun lazyColumnAlignmentStart() {
         prepareLazyColumnsItemsAlignment(Alignment.Start)
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertPositionInRootIsEqualTo(0.dp, 0.dp)
+        rule.onNodeWithTag(firstItemTag).assertPositionInRootIsEqualTo(0.dp, 0.dp)
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertPositionInRootIsEqualTo(0.dp, 50.dp)
+        rule.onNodeWithTag(secondItemTag).assertPositionInRootIsEqualTo(0.dp, 50.dp)
     }
 
     @Test
     fun lazyColumnAlignmentEnd() {
         prepareLazyColumnsItemsAlignment(Alignment.End)
 
-        rule.onNodeWithTag(firstItemTag)
-            .assertPositionInRootIsEqualTo(50.dp, 0.dp)
+        rule.onNodeWithTag(firstItemTag).assertPositionInRootIsEqualTo(50.dp, 0.dp)
 
-        rule.onNodeWithTag(secondItemTag)
-            .assertPositionInRootIsEqualTo(30.dp, 50.dp)
+        rule.onNodeWithTag(secondItemTag).assertPositionInRootIsEqualTo(30.dp, 50.dp)
     }
 
     @FlakyTest(bugId = 259297305)
@@ -340,25 +320,16 @@ class LazyColumnTest {
         val itemSize = with(rule.density) { 15.toDp() }
 
         rule.setContentWithTestViewConfiguration {
-            TvLazyColumn {
-                items(items) { item ->
-                    Spacer(Modifier.size(itemSize).testTag(item))
-                }
-            }
+            TvLazyColumn { items(items) { item -> Spacer(Modifier.size(itemSize).testTag(item)) } }
         }
 
-        rule.runOnIdle {
-            items.removeLast()
-        }
+        rule.runOnIdle { items.removeLast() }
 
-        rule.onNodeWithTag("1")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("1").assertIsDisplayed()
 
-        rule.onNodeWithTag("2")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("2").assertIsDisplayed()
 
-        rule.onNodeWithTag("3")
-            .assertIsNotPlaced()
+        rule.onNodeWithTag("3").assertIsNotPlaced()
     }
 
     @Test
@@ -382,11 +353,7 @@ class LazyColumnTest {
             outerState.value++
         }
 
-        rule.runOnIdle {
-            assertThat(recompositions).isEqualTo(
-                listOf(0 to 0, 1 to 1)
-            )
-        }
+        rule.runOnIdle { assertThat(recompositions).isEqualTo(listOf(0 to 0, 1 to 1)) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -396,8 +363,7 @@ class LazyColumnTest {
         rule.setContentWithTestViewConfiguration {
             state = rememberTvLazyListState()
             TvLazyColumn(
-                Modifier
-                    .requiredSize(10.dp)
+                Modifier.requiredSize(10.dp)
                     .testTag(LazyListTag)
                     .graphicsLayer()
                     .background(Color.Blue),
@@ -408,8 +374,7 @@ class LazyColumnTest {
                     val size = if (it == 0) 5.dp else 100.dp
                     val color = if (it == 0) Color.Red else Color.Transparent
                     Box(
-                        Modifier
-                            .fillMaxWidth()
+                        Modifier.fillMaxWidth()
                             .height(size)
                             .background(color)
                             .testTag("$it")
@@ -429,11 +394,7 @@ class LazyColumnTest {
         }
 
         // and verify there is no Red item displayed
-        rule.onNodeWithTag(LazyListTag)
-            .captureToImage()
-            .assertPixels {
-                Color.Blue
-            }
+        rule.onNodeWithTag(LazyListTag).captureToImage().assertPixels { Color.Blue }
     }
 
     @Test
@@ -446,33 +407,20 @@ class LazyColumnTest {
                 state = state,
                 pivotOffsets = PivotOffsets(parentFraction = 0f)
             ) {
-                items(100) {
-                    LazyRowWrapped {
-                        BasicText("$it", Modifier.size(21.dp))
-                    }
-                }
+                items(100) { LazyRowWrapped { BasicText("$it", Modifier.size(21.dp)) } }
             }
         }
 
         (1..10).forEach { item ->
-            rule.runOnIdle {
-                runBlocking {
-                    state.scrollToItem(item)
-                }
-            }
+            rule.runOnIdle { runBlocking { state.scrollToItem(item) } }
 
-            rule.onNodeWithText("$item")
-                .assertIsDisplayed()
+            rule.onNodeWithText("$item").assertIsDisplayed()
         }
     }
 
     @Composable
     private fun LazyRowWrapped(content: @Composable () -> Unit) {
-        TvLazyRow {
-            items(count = 1) {
-                content()
-            }
-        }
+        TvLazyRow { items(count = 1) { content() } }
     }
 }
 

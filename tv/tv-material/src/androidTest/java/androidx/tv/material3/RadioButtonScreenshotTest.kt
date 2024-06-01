@@ -47,11 +47,9 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalTestApi::class, ExperimentalTvMaterial3Api::class)
 class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
     private val wrap = Modifier.wrapContentSize(Alignment.TopStart)
     private val wrapperTestTag = "radioButtonWrapper"
@@ -59,9 +57,7 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun radioButton_selected() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = true, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = true, onClick = {}) }
         }
         assertSelectableAgainstGolden("radioButton_${scheme.name}_selected")
     }
@@ -69,9 +65,7 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun radioButton_notSelected() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = false, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
         }
         assertSelectableAgainstGolden("radioButton_${scheme.name}_notSelected")
     }
@@ -79,13 +73,9 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun radioButton_hovered() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) {
-                RadioButton(selected = false, onClick = {})
-            }
+            Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
         }
-        rule.onNodeWithTag(wrapperTestTag).performMouseInput {
-            enter(center)
-        }
+        rule.onNodeWithTag(wrapperTestTag).performMouseInput { enter(center) }
 
         assertSelectableAgainstGolden("radioButton_${scheme.name}_hovered")
     }
@@ -101,8 +91,7 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 RadioButton(
                     selected = false,
                     onClick = {},
-                    modifier = Modifier
-                        .focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester)
                 )
             }
         }
@@ -137,7 +126,8 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     private fun assertSelectableAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(wrapperTestTag)
+        rule
+            .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -148,10 +138,11 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     class ColorSchemeWrapper constructor(val name: String, val colorScheme: ColorScheme) {

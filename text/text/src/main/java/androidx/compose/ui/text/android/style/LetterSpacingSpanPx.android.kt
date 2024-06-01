@@ -4,9 +4,7 @@ import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 import androidx.annotation.Px
 
-/**
- * Span that sets the letter spacing as [letterSpacing], in the unit of pixel.
- */
+/** Span that sets the letter spacing as [letterSpacing], in the unit of pixel. */
 internal class LetterSpacingSpanPx(@Px val letterSpacing: Float) : MetricAffectingSpan() {
     private fun TextPaint.updatePaint() {
         // In framework, 1em letterSpacing equals to textSize * textScaleX pixels.

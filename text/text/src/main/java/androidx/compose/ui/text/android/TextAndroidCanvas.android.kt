@@ -43,9 +43,7 @@ import androidx.annotation.RequiresApi
  */
 @Suppress("DEPRECATION")
 internal class TextAndroidCanvas : Canvas() {
-    /**
-     * Original canvas object to which this class delegates its method calls
-     */
+    /** Original canvas object to which this class delegates its method calls */
     private lateinit var nativeCanvas: Canvas
 
     fun setCanvas(canvas: Canvas) {
@@ -94,6 +92,7 @@ internal class TextAndroidCanvas : Canvas() {
     override fun getDensity(): Int {
         return nativeCanvas.density
     }
+
     override fun setDensity(density: Int) {
         nativeCanvas.density = density
     }

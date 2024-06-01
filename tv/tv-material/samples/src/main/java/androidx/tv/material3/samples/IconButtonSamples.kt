@@ -37,9 +37,6 @@ fun IconButtonSample() {
 @Composable
 fun OutlinedIconButtonSample() {
     OutlinedIconButton(onClick = { /* doSomething() */ }) {
-        Icon(
-            Icons.Outlined.FavoriteBorder,
-            contentDescription = "Localized description"
-        )
+        Icon(Icons.Outlined.FavoriteBorder, contentDescription = "Localized description")
     }
 }

@@ -36,33 +36,31 @@ internal class LazyLayoutAnimateItemModifierNode(
 ) : Modifier.Node() {
 
     /**
-     * Returns true when the placement animation is currently in progress so the parent
-     * should continue composing this item.
+     * Returns true when the placement animation is currently in progress so the parent should
+     * continue composing this item.
      */
     var isAnimationInProgress by mutableStateOf(false)
         private set
 
     /**
-     * This property is managed by the animation manager and is not directly used by this class.
-     * It represents the last known offset of this item in the lazy layout coordinate space.
-     * It will be updated on every scroll and is allowing the manager to track when the item
-     * position changes not because of the scroll event in order to start the animation.
-     * When there is an active animation it represents the final/target offset.
+     * This property is managed by the animation manager and is not directly used by this class. It
+     * represents the last known offset of this item in the lazy layout coordinate space. It will be
+     * updated on every scroll and is allowing the manager to track when the item position changes
+     * not because of the scroll event in order to start the animation. When there is an active
+     * animation it represents the final/target offset.
      */
     var rawOffset: IntOffset = NotInitialized
 
     private val placementDeltaAnimation = Animatable(IntOffset.Zero, IntOffset.VectorConverter)
 
     /**
-     * Current delta to apply for a placement offset. Updates every animation frame.
-     * The settled value is [IntOffset.Zero] so the animation is always targeting this value.
+     * Current delta to apply for a placement offset. Updates every animation frame. The settled
+     * value is [IntOffset.Zero] so the animation is always targeting this value.
      */
     var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
 
-    /**
-     * Cancels the ongoing animation if there is one.
-     */
+    /** Cancels the ongoing animation if there is one. */
     fun cancelAnimation() {
         if (isAnimationInProgress) {
             coroutineScope.launch {
@@ -79,25 +77,24 @@ internal class LazyLayoutAnimateItemModifierNode(
      */
     var lookaheadOffset: IntOffset = NotInitialized
 
-    /**
-     * Animate the placement by the given [delta] offset.
-     */
+    /** Animate the placement by the given [delta] offset. */
     fun animatePlacementDelta(delta: IntOffset) {
         val totalDelta = placementDelta - delta
         placementDelta = totalDelta
         isAnimationInProgress = true
         coroutineScope.launch {
             try {
-                val spec = if (placementDeltaAnimation.isRunning) {
-                    // when interrupted, use the default spring, unless the spec is a spring.
-                    if (placementAnimationSpec is SpringSpec<IntOffset>) {
-                        placementAnimationSpec
+                val spec =
+                    if (placementDeltaAnimation.isRunning) {
+                        // when interrupted, use the default spring, unless the spec is a spring.
+                        if (placementAnimationSpec is SpringSpec<IntOffset>) {
+                            placementAnimationSpec
+                        } else {
+                            InterruptionSpec
+                        }
                     } else {
-                        InterruptionSpec
+                        placementAnimationSpec
                     }
-                } else {
-                    placementAnimationSpec
-                }
                 if (!placementDeltaAnimation.isRunning) {
                     // if not running we can snap to the initial value and animate to zero
                     placementDeltaAnimation.snapTo(totalDelta)
@@ -131,10 +128,9 @@ internal class LazyLayoutAnimateItemModifierNode(
     }
 }
 
-/**
- * We switch to this spec when a duration based animation is being interrupted.
- */
-private val InterruptionSpec = spring(
-    stiffness = Spring.StiffnessMediumLow,
-    visibilityThreshold = IntOffset.VisibilityThreshold
-)
+/** We switch to this spec when a duration based animation is being interrupted. */
+private val InterruptionSpec =
+    spring(
+        stiffness = Spring.StiffnessMediumLow,
+        visibilityThreshold = IntOffset.VisibilityThreshold
+    )

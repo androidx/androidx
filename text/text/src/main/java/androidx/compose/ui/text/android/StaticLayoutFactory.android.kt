@@ -41,15 +41,14 @@ private const val TAG = "StaticLayoutFactory"
 @InternalPlatformTextApi
 object StaticLayoutFactory {
 
-    private val delegate: StaticLayoutFactoryImpl = if (Build.VERSION.SDK_INT >= 23) {
-        StaticLayoutFactory23()
-    } else {
-        StaticLayoutFactoryDefault()
-    }
+    private val delegate: StaticLayoutFactoryImpl =
+        if (Build.VERSION.SDK_INT >= 23) {
+            StaticLayoutFactory23()
+        } else {
+            StaticLayoutFactoryDefault()
+        }
 
-    /**
-     * Builder class for StaticLayout.
-     */
+    /** Builder class for StaticLayout. */
     fun create(
         text: CharSequence,
         paint: TextPaint,
@@ -58,24 +57,18 @@ object StaticLayoutFactory {
         end: Int = text.length,
         textDir: TextDirectionHeuristic = LayoutCompat.DEFAULT_TEXT_DIRECTION_HEURISTIC,
         alignment: Alignment = LayoutCompat.DEFAULT_LAYOUT_ALIGNMENT,
-        @IntRange(from = 0)
-        maxLines: Int = LayoutCompat.DEFAULT_MAX_LINES,
+        @IntRange(from = 0) maxLines: Int = LayoutCompat.DEFAULT_MAX_LINES,
         ellipsize: TruncateAt? = null,
-        @IntRange(from = 0)
-        ellipsizedWidth: Int = width,
+        @IntRange(from = 0) ellipsizedWidth: Int = width,
         @FloatRange(from = 0.0)
         lineSpacingMultiplier: Float = LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER,
         lineSpacingExtra: Float = LayoutCompat.DEFAULT_LINESPACING_EXTRA,
-        @JustificationMode
-        justificationMode: Int = LayoutCompat.DEFAULT_JUSTIFICATION_MODE,
+        @JustificationMode justificationMode: Int = LayoutCompat.DEFAULT_JUSTIFICATION_MODE,
         includePadding: Boolean = LayoutCompat.DEFAULT_INCLUDE_PADDING,
         useFallbackLineSpacing: Boolean = LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING,
-        @BreakStrategy
-        breakStrategy: Int = LayoutCompat.DEFAULT_BREAK_STRATEGY,
-        @LineBreakStyle
-        lineBreakStyle: Int = LayoutCompat.DEFAULT_LINE_BREAK_STYLE,
-        @LineBreakWordStyle
-        lineBreakWordStyle: Int = LayoutCompat.DEFAULT_LINE_BREAK_WORD_STYLE,
+        @BreakStrategy breakStrategy: Int = LayoutCompat.DEFAULT_BREAK_STRATEGY,
+        @LineBreakStyle lineBreakStyle: Int = LayoutCompat.DEFAULT_LINE_BREAK_STYLE,
+        @LineBreakWordStyle lineBreakWordStyle: Int = LayoutCompat.DEFAULT_LINE_BREAK_WORD_STYLE,
         @HyphenationFrequency
         hyphenationFrequency: Int = LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY,
         leftIndents: IntArray? = null,
@@ -113,7 +106,7 @@ object StaticLayoutFactory {
      *
      * @param layout StaticLayout instance
      * @param useFallbackLineSpacing fallbackLineSpacing configuration passed while creating the
-     * StaticLayout.
+     *   StaticLayout.
      */
     fun isFallbackLineSpacingEnabled(
         layout: StaticLayout,
@@ -197,7 +190,8 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
                         params.lineBreakWordStyle
                     )
                 }
-            }.build()
+            }
+            .build()
     }
 
     override fun isFallbackLineSpacingEnabled(
@@ -263,21 +257,23 @@ private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
             isInitialized = true
             try {
                 staticLayoutConstructor =
-                    StaticLayout::class.java.getConstructor(
-                        CharSequence::class.java,
-                        Int::class.javaPrimitiveType, /* start */
-                        Int::class.javaPrimitiveType, /* end */
-                        TextPaint::class.java,
-                        Int::class.javaPrimitiveType, /* width */
-                        Alignment::class.java,
-                        TextDirectionHeuristic::class.java,
-                        Float::class.javaPrimitiveType, /* lineSpacingMultiplier */
-                        Float::class.javaPrimitiveType, /* lineSpacingExtra */
-                        Boolean::class.javaPrimitiveType, /* includePadding */
-                        TruncateAt::class.java,
-                        Int::class.javaPrimitiveType, /* ellipsizeWidth */
-                        Int::class.javaPrimitiveType /* maxLines */
-                    )
+                    StaticLayout::class
+                        .java
+                        .getConstructor(
+                            CharSequence::class.java,
+                            Int::class.javaPrimitiveType, /* start */
+                            Int::class.javaPrimitiveType, /* end */
+                            TextPaint::class.java,
+                            Int::class.javaPrimitiveType, /* width */
+                            Alignment::class.java,
+                            TextDirectionHeuristic::class.java,
+                            Float::class.javaPrimitiveType, /* lineSpacingMultiplier */
+                            Float::class.javaPrimitiveType, /* lineSpacingExtra */
+                            Boolean::class.javaPrimitiveType, /* includePadding */
+                            TruncateAt::class.java,
+                            Int::class.javaPrimitiveType, /* ellipsizeWidth */
+                            Int::class.javaPrimitiveType /* maxLines */
+                        )
             } catch (e: NoSuchMethodException) {
                 staticLayoutConstructor = null
                 Log.e(TAG, "unable to collect necessary constructor.")
@@ -291,37 +287,38 @@ private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
     override fun create(params: StaticLayoutParams): StaticLayout {
         // On API 21 to 23, try to call the StaticLayoutConstructor which supports the
         // textDir and maxLines.
-        val result = getStaticLayoutConstructor()?.let {
-            try {
-                it.newInstance(
-                    params.text,
-                    params.start,
-                    params.end,
-                    params.paint,
-                    params.width,
-                    params.alignment,
-                    params.textDir,
-                    params.lineSpacingMultiplier,
-                    params.lineSpacingExtra,
-                    params.includePadding,
-                    params.ellipsize,
-                    params.ellipsizedWidth,
-                    params.maxLines
-                )
-            } catch (e: IllegalAccessException) {
-                staticLayoutConstructor = null
-                Log.e(TAG, "unable to call constructor")
-                null
-            } catch (e: InstantiationException) {
-                staticLayoutConstructor = null
-                Log.e(TAG, "unable to call constructor")
-                null
-            } catch (e: InvocationTargetException) {
-                staticLayoutConstructor = null
-                Log.e(TAG, "unable to call constructor")
-                null
+        val result =
+            getStaticLayoutConstructor()?.let {
+                try {
+                    it.newInstance(
+                        params.text,
+                        params.start,
+                        params.end,
+                        params.paint,
+                        params.width,
+                        params.alignment,
+                        params.textDir,
+                        params.lineSpacingMultiplier,
+                        params.lineSpacingExtra,
+                        params.includePadding,
+                        params.ellipsize,
+                        params.ellipsizedWidth,
+                        params.maxLines
+                    )
+                } catch (e: IllegalAccessException) {
+                    staticLayoutConstructor = null
+                    Log.e(TAG, "unable to call constructor")
+                    null
+                } catch (e: InstantiationException) {
+                    staticLayoutConstructor = null
+                    Log.e(TAG, "unable to call constructor")
+                    null
+                } catch (e: InvocationTargetException) {
+                    staticLayoutConstructor = null
+                    Log.e(TAG, "unable to call constructor")
+                    null
+                }
             }
-        }
 
         if (result != null) return result
 

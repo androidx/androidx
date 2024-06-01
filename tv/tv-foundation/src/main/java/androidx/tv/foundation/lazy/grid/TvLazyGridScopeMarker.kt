@@ -16,8 +16,5 @@
 
 package androidx.tv.foundation.lazy.grid
 
-/**
- * DSL marker used to distinguish between lazy grid dsl scope and the item content scope.
- */
-@DslMarker
-annotation class TvLazyGridScopeMarker
+/** DSL marker used to distinguish between lazy grid dsl scope and the item content scope. */
+@DslMarker annotation class TvLazyGridScopeMarker

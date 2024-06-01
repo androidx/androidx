@@ -67,16 +67,14 @@ internal fun TextPaint.getCharSequenceBounds(
 /**
  * For use only in getCharSequenceBounds.
  *
- * Afaik the coordinate space of StaticLayout always start from 0,0, regardless of
- * LTR, RTL or BiDi.
- *
+ * Afaik the coordinate space of StaticLayout always start from 0,0, regardless of LTR, RTL or BiDi.
  * - Every string is calculated on its own, and their coordinate space will start from 0,0
- *   - assume the rect horizontal coordinates are [0, 20], [0, 40]
- *     - this should return [0, 20 + 40] = [0, 60]
- *     - left stays the same, right adds the *width*.
- *   - assume the rect vertical coordinates are [10, 20], [0, 30]
- *     - this should return [0, 30].
- *     - the min of top (0), and max of bottom (30).
+ *     - assume the rect horizontal coordinates are [0, 20], [0, 40]
+ *         - this should return [0, 20 + 40] = [0, 60]
+ *         - left stays the same, right adds the *width*.
+ *     - assume the rect vertical coordinates are [10, 20], [0, 30]
+ *         - this should return [0, 30].
+ *         - the min of top (0), and max of bottom (30).
  */
 private fun Rect.extendWith(rect: Rect) {
     // this.left stays the same

@@ -20,8 +20,8 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 /**
- * Iterates through a [List] using the index and calls [action] for each item.
- * This does not allocate an iterator like [Iterable.forEach].
+ * Iterates through a [List] using the index and calls [action] for each item. This does not
+ * allocate an iterator like [Iterable.forEach].
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -38,8 +38,8 @@ internal inline fun <T> List<T>.fastForEach(action: (T) -> Unit) {
 }
 
 /**
- * Applies the given [transform] function to each element of the original collection
- * and appends the results to the given [destination].
+ * Applies the given [transform] function to each element of the original collection and appends the
+ * results to the given [destination].
  *
  * **Do not use for collections that come from public APIs**, since they may not support random
  * access in an efficient way, and this method may actually be a lot slower. Only use for
@@ -52,15 +52,13 @@ internal inline fun <T, R, C : MutableCollection<in R>> List<T>.fastMapTo(
     transform: (T) -> R
 ): C {
     contract { callsInPlace(transform) }
-    fastForEach { item ->
-        destination.add(transform(item))
-    }
+    fastForEach { item -> destination.add(transform(item)) }
     return destination
 }
 
 /**
- * Returns a list containing the results of applying the given [transform] function
- * to each pair of two adjacent elements in this collection.
+ * Returns a list containing the results of applying the given [transform] function to each pair of
+ * two adjacent elements in this collection.
  *
  * The returned list is empty if this collection contains less than two elements.
  *

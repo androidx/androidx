@@ -56,8 +56,9 @@ internal class IndentationFixSpan : LeadingMarginSpan {
         if (layout != null && paint != null) {
             val lineIndex = layout.getLineForOffset(start)
             if (lineIndex == layout.lineCount - 1 && layout.isLineEllipsized(lineIndex)) {
-                val padding = layout.getEllipsizedLeftPadding(lineIndex, paint) +
-                    layout.getEllipsizedRightPadding(lineIndex, paint)
+                val padding =
+                    layout.getEllipsizedLeftPadding(lineIndex, paint) +
+                        layout.getEllipsizedRightPadding(lineIndex, paint)
                 if (padding != 0f) {
                     canvas!!.translate(padding, 0f)
                 }
@@ -77,9 +78,10 @@ internal class IndentationFixSpan : LeadingMarginSpan {
  */
 internal fun Layout.getEllipsizedLeftPadding(lineIndex: Int, paint: Paint = this.paint): Float {
     val lineLeft = getLineLeft(lineIndex)
-    if (isLineEllipsized(lineIndex) &&
-        getParagraphDirection(lineIndex) == Layout.DIR_LEFT_TO_RIGHT &&
-        lineLeft < 0
+    if (
+        isLineEllipsized(lineIndex) &&
+            getParagraphDirection(lineIndex) == Layout.DIR_LEFT_TO_RIGHT &&
+            lineLeft < 0
     ) {
         val ellipsisIndex = getLineStart(lineIndex) + getEllipsisStart(lineIndex)
         val horizontal = getPrimaryHorizontal(ellipsisIndex)
@@ -107,9 +109,10 @@ internal fun Layout.getEllipsizedLeftPadding(lineIndex: Int, paint: Paint = this
  * Used to correct the RTL line with the line position calculation error.
  */
 internal fun Layout.getEllipsizedRightPadding(lineIndex: Int, paint: Paint = this.paint): Float {
-    if (isLineEllipsized(lineIndex) &&
-        getParagraphDirection(lineIndex) == Layout.DIR_RIGHT_TO_LEFT &&
-        width < getLineRight(lineIndex)
+    if (
+        isLineEllipsized(lineIndex) &&
+            getParagraphDirection(lineIndex) == Layout.DIR_RIGHT_TO_LEFT &&
+            width < getLineRight(lineIndex)
     ) {
         val ellipsisIndex = getLineStart(lineIndex) + getEllipsisStart(lineIndex)
         val horizontal = getPrimaryHorizontal(ellipsisIndex)

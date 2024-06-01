@@ -50,16 +50,14 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalTvMaterial3Api::class)
 class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
-    val wrapperModifier = Modifier
-        .testTag(DenseListItemWrapperTag)
-        .background(scheme.colorScheme.surface)
-        .padding(20.dp)
+    val wrapperModifier =
+        Modifier.testTag(DenseListItemWrapperTag)
+            .background(scheme.colorScheme.surface)
+            .padding(20.dp)
 
     @Test
     fun denseListItem_customColor() {
@@ -124,10 +122,7 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun denseListItem_twoLine() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Column(
-                modifier = wrapperModifier,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
+            Column(modifier = wrapperModifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 DenseListItem(
                     selected = false,
                     onClick = {},
@@ -149,10 +144,7 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun denseListItem_twoLine_withIcon() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Column(
-                modifier = wrapperModifier,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
+            Column(modifier = wrapperModifier, verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 DenseListItem(
                     selected = false,
                     onClick = {},
@@ -245,7 +237,8 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.onNodeWithTag(DenseListItemWrapperTag)
+        rule
+            .onNodeWithTag(DenseListItemWrapperTag)
             .onChild()
             .performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
@@ -296,7 +289,8 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.onNodeWithTag(DenseListItemWrapperTag)
+        rule
+            .onNodeWithTag(DenseListItemWrapperTag)
             .onChild()
             .performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
@@ -345,7 +339,8 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        rule.onNodeWithTag(DenseListItemWrapperTag)
+        rule
+            .onNodeWithTag(DenseListItemWrapperTag)
             .onChild()
             .performSemanticsAction(SemanticsActions.RequestFocus)
         rule.waitForIdle()
@@ -385,7 +380,8 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(DenseListItemWrapperTag)
+        rule
+            .onNodeWithTag(DenseListItemWrapperTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -397,10 +393,11 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
         @OptIn(ExperimentalTvMaterial3Api::class)
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            ColorSchemeWrapper("lightTheme", lightColorScheme()),
-            ColorSchemeWrapper("darkTheme", darkColorScheme()),
-        )
+        fun parameters() =
+            arrayOf(
+                ColorSchemeWrapper("lightTheme", lightColorScheme()),
+                ColorSchemeWrapper("darkTheme", darkColorScheme()),
+            )
     }
 
     @OptIn(ExperimentalTvMaterial3Api::class)

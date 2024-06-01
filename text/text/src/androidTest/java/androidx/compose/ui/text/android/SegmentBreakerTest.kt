@@ -32,7 +32,6 @@ import org.junit.runner.RunWith
 
 /**
  * In this test cases, use following notations:
- *
  * - L1-LF shows an example strong LTR character.
  * - R1-RF shows an example strong RTL character
  */
@@ -41,28 +40,23 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SegmentBreakerTest {
 
-    private val sampleTypeface = ResourcesCompat.getFont(
-        InstrumentationRegistry.getInstrumentation().targetContext,
-        R.font.sample_font
-    )
+    private val sampleTypeface =
+        ResourcesCompat.getFont(
+            InstrumentationRegistry.getInstrumentation().targetContext,
+            R.font.sample_font
+        )
 
     private val LTR = TextDirectionHeuristics.LTR
     private val RTL = TextDirectionHeuristics.RTL
 
-    private fun getLayout(
-        text: String,
-        dir: TextDirectionHeuristic
-    ): LayoutHelper {
-        val paint = TextPaint().apply {
-            textSize = 10f
-            typeface = sampleTypeface
-        }
-        val layout = StaticLayoutFactory.create(
-            text = text,
-            paint = paint,
-            width = 50,
-            textDir = dir
-        )
+    private fun getLayout(text: String, dir: TextDirectionHeuristic): LayoutHelper {
+        val paint =
+            TextPaint().apply {
+                textSize = 10f
+                typeface = sampleTypeface
+            }
+        val layout =
+            StaticLayoutFactory.create(text = text, paint = paint, width = 50, textDir = dir)
         return LayoutHelper(layout)
     }
 

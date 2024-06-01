@@ -54,12 +54,16 @@ class TracingReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent == null || intent.action !in listOf(
-                ACTION_ENABLE_TRACING,
-                ACTION_ENABLE_TRACING_COLD_START,
-                ACTION_DISABLE_TRACING_COLD_START
-            )
-        ) return
+        if (
+            intent == null ||
+                intent.action !in
+                    listOf(
+                        ACTION_ENABLE_TRACING,
+                        ACTION_ENABLE_TRACING_COLD_START,
+                        ACTION_DISABLE_TRACING_COLD_START
+                    )
+        )
+            return
 
         // Path to the provided library binary file (optional). If not provided, local library files
         // will be used if present.
@@ -68,17 +72,18 @@ class TracingReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         executor.execute {
             try {
-                val response = when (intent.action) {
-                    ACTION_ENABLE_TRACING -> enableTracingImmediate(srcPath, context)
-                    ACTION_ENABLE_TRACING_COLD_START ->
-                        enableTracingColdStart(
-                            context,
-                            srcPath,
-                            intent.extras?.getString(KEY_PERSISTENT).toBoolean()
-                        )
-                    ACTION_DISABLE_TRACING_COLD_START -> disableTracingColdStart(context)
-                    else -> throw IllegalStateException() // supported actions checked earlier
-                }
+                val response =
+                    when (intent.action) {
+                        ACTION_ENABLE_TRACING -> enableTracingImmediate(srcPath, context)
+                        ACTION_ENABLE_TRACING_COLD_START ->
+                            enableTracingColdStart(
+                                context,
+                                srcPath,
+                                intent.extras?.getString(KEY_PERSISTENT).toBoolean()
+                            )
+                        ACTION_DISABLE_TRACING_COLD_START -> disableTracingColdStart(context)
+                        else -> throw IllegalStateException() // supported actions checked earlier
+                    }
 
                 pendingResult.setResult(response.resultCode, response.toJsonString(), null)
             } finally {
@@ -87,9 +92,7 @@ class TracingReceiver : BroadcastReceiver() {
         }
     }
 
-    /**
-     * Enables Perfetto SDK tracing in the app
-     */
+    /** Enables Perfetto SDK tracing in the app */
     private fun enableTracingImmediate(srcPath: String?, context: Context?): Response =
         when {
             Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
@@ -127,29 +130,33 @@ class TracingReceiver : BroadcastReceiver() {
         context: Context?,
         srcPath: String?,
         isPersistent: Boolean
-    ): Response = enableTracingImmediate(srcPath, context).also {
-        if (it.resultCode == RESULT_CODE_SUCCESS) {
-            val config = StartupTracingConfig(libFilePath = srcPath, isPersistent = isPersistent)
-            if (context == null) return Response(
-                RESULT_CODE_ERROR_OTHER,
-                "Cannot set up cold start tracing without a Context instance."
-            )
-            config.store(context)
+    ): Response =
+        enableTracingImmediate(srcPath, context).also {
+            if (it.resultCode == RESULT_CODE_SUCCESS) {
+                val config =
+                    StartupTracingConfig(libFilePath = srcPath, isPersistent = isPersistent)
+                if (context == null)
+                    return Response(
+                        RESULT_CODE_ERROR_OTHER,
+                        "Cannot set up cold start tracing without a Context instance."
+                    )
+                config.store(context)
+            }
         }
-    }
 
-    private fun disableTracingColdStart(context: Context?): Response = when {
-        context != null -> {
-            StartupTracingConfigStore.clear(context)
-            Response(RESULT_CODE_SUCCESS)
+    private fun disableTracingColdStart(context: Context?): Response =
+        when {
+            context != null -> {
+                StartupTracingConfigStore.clear(context)
+                Response(RESULT_CODE_SUCCESS)
+            }
+            else ->
+                Response(
+                    RESULT_CODE_ERROR_OTHER,
+                    "Cannot ensure we can disable cold start tracing without access to an app Context" +
+                        " instance"
+                )
         }
-        else ->
-            Response(
-                RESULT_CODE_ERROR_OTHER,
-                "Cannot ensure we can disable cold start tracing without access to an app Context" +
-                    " instance"
-            )
-    }
 
     private fun Response.toJsonString(): String {
         val output = StringWriter()

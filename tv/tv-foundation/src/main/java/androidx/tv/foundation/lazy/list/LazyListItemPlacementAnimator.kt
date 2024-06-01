@@ -24,7 +24,8 @@ import androidx.tv.foundation.lazy.grid.LazyLayoutAnimateItemModifierNode
 import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 
 /**
- * Handles the item placement animations when it is set via [TvLazyListItemScope.animateItemPlacement].
+ * Handles the item placement animations when it is set via
+ * [TvLazyListItemScope.animateItemPlacement].
  *
  * This class is responsible for detecting when item position changed, figuring our start/end
  * offsets and starting the animations.
@@ -76,11 +77,12 @@ internal class LazyListItemPlacementAnimator {
         val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
 
         // the consumed scroll is considered as a delta we don't need to animate
-        val scrollOffset = if (isVertical) {
-            IntOffset(0, consumedScroll)
-        } else {
-            IntOffset(consumedScroll, 0)
-        }
+        val scrollOffset =
+            if (isVertical) {
+                IntOffset(0, consumedScroll)
+            } else {
+                IntOffset(consumedScroll, 0)
+            }
 
         // Only setup animations when we have access to target value in the current pass, which
         // means lookahead pass, or regular pass when not in a lookahead scope.
@@ -111,7 +113,8 @@ internal class LazyListItemPlacementAnimator {
                 } else {
                     if (shouldSetupAnimation) {
                         item.forEachNode { _, node ->
-                            if (node.rawOffset != LazyLayoutAnimateItemModifierNode.NotInitialized
+                            if (
+                                node.rawOffset != LazyLayoutAnimateItemModifierNode.NotInitialized
                             ) {
                                 node.rawOffset += scrollOffset
                             }
@@ -210,8 +213,8 @@ internal class LazyListItemPlacementAnimator {
     }
 
     /**
-     * Should be called when the animations are not needed for the next positions change,
-     * for example when we snap to a new position.
+     * Should be called when the animations are not needed for the next positions change, for
+     * example when we snap to a new position.
      */
     fun reset() {
         activeKeys.clear()
@@ -219,22 +222,19 @@ internal class LazyListItemPlacementAnimator {
         firstVisibleIndex = -1
     }
 
-    private fun initializeNode(
-        item: LazyListMeasuredItem,
-        mainAxisOffset: Int
-    ) {
+    private fun initializeNode(item: LazyListMeasuredItem, mainAxisOffset: Int) {
         val firstPlaceableOffset = item.getOffset(0)
 
-        val targetFirstPlaceableOffset = if (item.isVertical) {
-            firstPlaceableOffset.copy(y = mainAxisOffset)
-        } else {
-            firstPlaceableOffset.copy(x = mainAxisOffset)
-        }
+        val targetFirstPlaceableOffset =
+            if (item.isVertical) {
+                firstPlaceableOffset.copy(y = mainAxisOffset)
+            } else {
+                firstPlaceableOffset.copy(x = mainAxisOffset)
+            }
 
         // initialize offsets
         item.forEachNode { placeableIndex, node ->
-            val diffToFirstPlaceableOffset =
-                item.getOffset(placeableIndex) - firstPlaceableOffset
+            val diffToFirstPlaceableOffset = item.getOffset(placeableIndex) - firstPlaceableOffset
             node.rawOffset = targetFirstPlaceableOffset + diffToFirstPlaceableOffset
         }
     }
@@ -243,8 +243,9 @@ internal class LazyListItemPlacementAnimator {
         item.forEachNode { placeableIndex, node ->
             val newTarget = item.getOffset(placeableIndex)
             val currentTarget = node.rawOffset
-            if (currentTarget != LazyLayoutAnimateItemModifierNode.NotInitialized &&
-                currentTarget != newTarget
+            if (
+                currentTarget != LazyLayoutAnimateItemModifierNode.NotInitialized &&
+                    currentTarget != newTarget
             ) {
                 node.animatePlacementDelta(newTarget - currentTarget)
             }
@@ -252,19 +253,20 @@ internal class LazyListItemPlacementAnimator {
         }
     }
 
-    private val Any?.node get() = this as? LazyLayoutAnimateItemModifierNode
+    private val Any?.node
+        get() = this as? LazyLayoutAnimateItemModifierNode
 
     private val LazyListMeasuredItem.hasAnimations: Boolean
         get() {
-            forEachNode { _, _ -> return true }
+            forEachNode { _, _ ->
+                return true
+            }
             return false
         }
 
     private inline fun LazyListMeasuredItem.forEachNode(
         block: (placeableIndex: Int, node: LazyLayoutAnimateItemModifierNode) -> Unit
     ) {
-        repeat(placeablesCount) { index ->
-            getParentData(index).node?.let { block(index, it) }
-        }
+        repeat(placeablesCount) { index -> getParentData(index).node?.let { block(index, it) } }
     }
 }

@@ -43,174 +43,157 @@ import androidx.tv.material3.Text
 import kotlin.time.Duration.Companion.microseconds
 import kotlinx.coroutines.delay
 
-/**
- * Tab row with a Pill indicator
- */
+/** Tab row with a Pill indicator */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun PillIndicatorTabRow() {
-  val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
-  var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
-  TabRow(
-    selectedTabIndex = selectedTabIndex,
-    modifier = Modifier.focusRestorer()
-  ) {
-    tabs.forEachIndexed { index, tab ->
-      key(index) {
-        Tab(
-          selected = index == selectedTabIndex,
-          onFocus = { selectedTabIndex = index },
-        ) {
-          Text(
-            text = tab,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-          )
+    TabRow(selectedTabIndex = selectedTabIndex, modifier = Modifier.focusRestorer()) {
+        tabs.forEachIndexed { index, tab ->
+            key(index) {
+                Tab(
+                    selected = index == selectedTabIndex,
+                    onFocus = { selectedTabIndex = index },
+                ) {
+                    Text(
+                        text = tab,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                }
+            }
         }
-      }
     }
-  }
 }
 
-/**
- * Tab row with an Underlined indicator
- */
+/** Tab row with an Underlined indicator */
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun UnderlinedIndicatorTabRow() {
-  val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
-  var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
-  TabRow(
-    selectedTabIndex = selectedTabIndex,
-    indicator = { tabPositions, doesTabRowHaveFocus ->
-      TabRowDefaults.UnderlinedIndicator(
-        currentTabPosition = tabPositions[selectedTabIndex],
-        doesTabRowHaveFocus = doesTabRowHaveFocus,
-      )
-    },
-    modifier = Modifier.focusRestorer()
-  ) {
-    tabs.forEachIndexed { index, tab ->
-      key(index) {
-        Tab(
-          selected = index == selectedTabIndex,
-          onFocus = { selectedTabIndex = index },
-          colors = TabDefaults.underlinedIndicatorTabColors(),
-        ) {
-          Text(
-            text = tab,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-          )
+    TabRow(
+        selectedTabIndex = selectedTabIndex,
+        indicator = { tabPositions, doesTabRowHaveFocus ->
+            TabRowDefaults.UnderlinedIndicator(
+                currentTabPosition = tabPositions[selectedTabIndex],
+                doesTabRowHaveFocus = doesTabRowHaveFocus,
+            )
+        },
+        modifier = Modifier.focusRestorer()
+    ) {
+        tabs.forEachIndexed { index, tab ->
+            key(index) {
+                Tab(
+                    selected = index == selectedTabIndex,
+                    onFocus = { selectedTabIndex = index },
+                    colors = TabDefaults.underlinedIndicatorTabColors(),
+                ) {
+                    Text(
+                        text = tab,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                }
+            }
         }
-      }
     }
-  }
 }
 
-/**
- * Tab row with delay between tab changes
- */
+/** Tab row with delay between tab changes */
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun TabRowWithDebounce() {
-  val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
-  var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Tab 1", "Tab 2", "Tab 3")
+    var selectedTabIndex by remember { mutableStateOf(0) }
 
-  // This index will be used to show a panel
-  var tabPanelIndex by remember { mutableStateOf(selectedTabIndex) }
+    // This index will be used to show a panel
+    var tabPanelIndex by remember { mutableStateOf(selectedTabIndex) }
 
-  // Change the tab-panel only after some delay
-  LaunchedEffect(selectedTabIndex) {
-    delay(250.microseconds)
-    tabPanelIndex = selectedTabIndex
-  }
-
-  TabRow(
-    selectedTabIndex = selectedTabIndex,
-    modifier = Modifier.focusRestorer()
-  ) {
-    tabs.forEachIndexed { index, tab ->
-      key(index) {
-        Tab(
-          selected = index == selectedTabIndex,
-          onFocus = { selectedTabIndex = index },
-        ) {
-          Text(
-            text = tab,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-          )
-        }
-      }
+    // Change the tab-panel only after some delay
+    LaunchedEffect(selectedTabIndex) {
+        delay(250.microseconds)
+        tabPanelIndex = selectedTabIndex
     }
-  }
+
+    TabRow(selectedTabIndex = selectedTabIndex, modifier = Modifier.focusRestorer()) {
+        tabs.forEachIndexed { index, tab ->
+            key(index) {
+                Tab(
+                    selected = index == selectedTabIndex,
+                    onFocus = { selectedTabIndex = index },
+                ) {
+                    Text(
+                        text = tab,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                }
+            }
+        }
+    }
 }
 
-/**
- * Tab changes onClick instead of onFocus
- */
+/** Tab changes onClick instead of onFocus */
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun OnClickNavigation() {
-  val bgColors = listOf(
-    Color(0x6a, 0x16, 0x16),
-    Color(0x6a, 0x40, 0x16),
-    Color(0x6a, 0x6a, 0x16),
-    Color(0x40, 0x6a, 0x16),
-  )
-
-  var focusedTabIndex by remember { mutableStateOf(0) }
-  var activeTabIndex by remember { mutableStateOf(focusedTabIndex) }
-
-  Box(
-    modifier = Modifier
-      .fillMaxSize()
-      .background(bgColors[activeTabIndex])
-  ) {
-    TabRow(
-      selectedTabIndex = focusedTabIndex,
-      indicator = { tabPositions, doesTabRowHaveFocus ->
-        // FocusedTab's indicator
-        TabRowDefaults.PillIndicator(
-          currentTabPosition = tabPositions[focusedTabIndex],
-          activeColor = Color.Blue.copy(alpha = 0.4f),
-          inactiveColor = Color.Transparent,
-          doesTabRowHaveFocus = doesTabRowHaveFocus,
+    val bgColors =
+        listOf(
+            Color(0x6a, 0x16, 0x16),
+            Color(0x6a, 0x40, 0x16),
+            Color(0x6a, 0x6a, 0x16),
+            Color(0x40, 0x6a, 0x16),
         )
 
-        // SelectedTab's indicator
-        TabRowDefaults.PillIndicator(
-          currentTabPosition = tabPositions[activeTabIndex],
-          doesTabRowHaveFocus = doesTabRowHaveFocus,
-        )
-      },
-      modifier = Modifier.focusRestorer()
-    ) {
-      repeat(bgColors.size) {
-        key(it) {
-          Tab(
-            selected = activeTabIndex == it,
-            onFocus = { focusedTabIndex = it },
-            onClick = {
-              focusedTabIndex = it
-              activeTabIndex = it
+    var focusedTabIndex by remember { mutableStateOf(0) }
+    var activeTabIndex by remember { mutableStateOf(focusedTabIndex) }
+
+    Box(modifier = Modifier.fillMaxSize().background(bgColors[activeTabIndex])) {
+        TabRow(
+            selectedTabIndex = focusedTabIndex,
+            indicator = { tabPositions, doesTabRowHaveFocus ->
+                // FocusedTab's indicator
+                TabRowDefaults.PillIndicator(
+                    currentTabPosition = tabPositions[focusedTabIndex],
+                    activeColor = Color.Blue.copy(alpha = 0.4f),
+                    inactiveColor = Color.Transparent,
+                    doesTabRowHaveFocus = doesTabRowHaveFocus,
+                )
+
+                // SelectedTab's indicator
+                TabRowDefaults.PillIndicator(
+                    currentTabPosition = tabPositions[activeTabIndex],
+                    doesTabRowHaveFocus = doesTabRowHaveFocus,
+                )
+            },
+            modifier = Modifier.focusRestorer()
+        ) {
+            repeat(bgColors.size) {
+                key(it) {
+                    Tab(
+                        selected = activeTabIndex == it,
+                        onFocus = { focusedTabIndex = it },
+                        onClick = {
+                            focusedTabIndex = it
+                            activeTabIndex = it
+                        }
+                    ) {
+                        Text(
+                            text = "Tab ${it + 1}",
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                        )
+                    }
+                }
             }
-          ) {
-            Text(
-              text = "Tab ${it + 1}",
-              fontSize = 12.sp,
-              modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-            )
-          }
         }
-      }
     }
-  }
 }

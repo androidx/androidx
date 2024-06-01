@@ -45,11 +45,7 @@ internal class TvLazyListIntervalContent(
     ) {
         intervals.addInterval(
             count,
-            TvLazyListInterval(
-                key = key,
-                type = contentType,
-                item = itemContent
-            )
+            TvLazyListInterval(key = key, type = contentType, item = itemContent)
         )
     }
 
@@ -75,9 +71,7 @@ internal class TvLazyListIntervalContent(
         contentType: Any?,
         content: @Composable TvLazyListItemScope.() -> Unit
     ) {
-        val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also {
-            _headerIndexes = it
-        }
+        val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also { _headerIndexes = it }
         headersIndexes.add(intervals.size)
 
         item(key, contentType, content)
