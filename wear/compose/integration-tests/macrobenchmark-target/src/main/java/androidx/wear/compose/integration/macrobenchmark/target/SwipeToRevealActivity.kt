@@ -47,30 +47,32 @@ class SwipeToRevealActivity : ComponentActivity() {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 val revealState = rememberRevealState()
                 SwipeToRevealChip(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics { contentDescription = CONTENT_DESCRIPTION },
+                    modifier =
+                        Modifier.fillMaxWidth().semantics {
+                            contentDescription = CONTENT_DESCRIPTION
+                        },
                     revealState = revealState,
                     primaryAction = {
-                        SwipeToRevealPrimaryAction(revealState = revealState,
+                        SwipeToRevealPrimaryAction(
+                            revealState = revealState,
                             icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
                             label = { Text("Delete") },
-                            onClick = { })
+                            onClick = {}
+                        )
                     },
                     secondaryAction = {
-                        SwipeToRevealSecondaryAction(revealState = revealState, onClick = { }) {
+                        SwipeToRevealSecondaryAction(revealState = revealState, onClick = {}) {
                             Icon(SwipeToRevealDefaults.MoreOptions, "More Options")
                         }
                     },
-                    onFullSwipe = { }
+                    onFullSwipe = {}
                 ) {
-                    Chip(modifier = Modifier.fillMaxWidth(),
-                        onClick = { },
+                    Chip(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {},
                         colors = ChipDefaults.primaryChipColors(),
                         border = ChipDefaults.outlinedChipBorder(),
-                        label = {
-                            Text("SwipeToReveal Chip", maxLines = 3)
-                        }
+                        label = { Text("SwipeToReveal Chip", maxLines = 3) }
                     )
                 }
             }

@@ -25,6 +25,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * [WearDevices.SQUARE].
  *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIconPreview
+ *
  * @see WearDevices.SMALL_ROUND
  * @see WearDevices.LARGE_ROUND
  * @see WearDevices.SQUARE

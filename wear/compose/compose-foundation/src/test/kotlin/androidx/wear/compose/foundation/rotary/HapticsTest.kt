@@ -44,10 +44,7 @@ class ThrottleLatestTest {
 
     @Before
     fun before() {
-        testChannel = Channel(
-            capacity = 10,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
+        testChannel = Channel(capacity = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     }
 
     @Test

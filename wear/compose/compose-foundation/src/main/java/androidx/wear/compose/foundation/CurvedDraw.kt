@@ -41,33 +41,35 @@ public fun CurvedModifier.background(
  * Specifies a radial gradient background for a curved element.
  *
  * Example usage:
+ *
  * @sample androidx.wear.compose.foundation.samples.CurvedBackground
  *
- * @param colorStops Colors and their offset in the gradient area.
- * Note that the offsets should be in ascending order. 0 means the outer curve and
- * 1 means the inner curve of the curved element.
+ * @param colorStops Colors and their offset in the gradient area. Note that the offsets should be
+ *   in ascending order. 0 means the outer curve and 1 means the inner curve of the curved element.
  * @param cap How to start and end the background.
  */
 public fun CurvedModifier.radialGradientBackground(
     vararg colorStops: Pair<Float, Color>,
     cap: StrokeCap = StrokeCap.Butt
-) = background(cap) { layoutInfo ->
-    val radiusRatio = layoutInfo.innerRadius / layoutInfo.outerRadius
-    @Suppress("ListIterator")
-    Brush.radialGradient(
-        *(colorStops.map { (step, color) ->
-            1f - step * (1f - radiusRatio) to color
-        }.reversed().toTypedArray()),
-        center = layoutInfo.centerOffset,
-        radius = layoutInfo.outerRadius
-    )
-}
+) =
+    background(cap) { layoutInfo ->
+        val radiusRatio = layoutInfo.innerRadius / layoutInfo.outerRadius
+        @Suppress("ListIterator")
+        Brush.radialGradient(
+            *(colorStops
+                .map { (step, color) -> 1f - step * (1f - radiusRatio) to color }
+                .reversed()
+                .toTypedArray()),
+            center = layoutInfo.centerOffset,
+            radius = layoutInfo.outerRadius
+        )
+    }
 
 /**
  * Specifies a radial gradient background for a curved element.
  *
- * @param colors Colors in the gradient area. Gradient goes from the outer curve to the
- * inner curve of the curved element.
+ * @param colors Colors in the gradient area. Gradient goes from the outer curve to the inner curve
+ *   of the curved element.
  * @param cap How to start and end the background.
  */
 public fun CurvedModifier.radialGradientBackground(
@@ -79,24 +81,28 @@ public fun CurvedModifier.radialGradientBackground(
  * Specifies a sweep gradient background for a curved element.
  *
  * Example usage:
+ *
  * @sample androidx.wear.compose.foundation.samples.CurvedBackground
  *
- * @param colorStops Colors and their offset in the gradient area.
- * Note that the offsets should be in ascending order. 0 means where the curved element starts
- * laying out, 1 means the end
+ * @param colorStops Colors and their offset in the gradient area. Note that the offsets should be
+ *   in ascending order. 0 means where the curved element starts laying out, 1 means the end
  * @param cap How to start and end the background.
  */
 public fun CurvedModifier.angularGradientBackground(
     vararg colorStops: Pair<Float, Color>,
     cap: StrokeCap = StrokeCap.Butt
-) = background(cap) { layoutInfo ->
-    @Suppress("ListIterator")
-    val actualStops = colorStops.map { (step, color) ->
-        (layoutInfo.startAngleRadians + layoutInfo.sweepRadians * step) /
-            (2 * PI).toFloat() to color
-    }.sortedBy { it.first }
-    Brush.sweepGradient(*(actualStops.toTypedArray()))
-}
+) =
+    background(cap) { layoutInfo ->
+        @Suppress("ListIterator")
+        val actualStops =
+            colorStops
+                .map { (step, color) ->
+                    (layoutInfo.startAngleRadians + layoutInfo.sweepRadians * step) /
+                        (2 * PI).toFloat() to color
+                }
+                .sortedBy { it.first }
+        Brush.sweepGradient(*(actualStops.toTypedArray()))
+    }
 
 /**
  * Specifies a sweep gradient background for a curved element.
@@ -110,9 +116,7 @@ public fun CurvedModifier.angularGradientBackground(
 ) = angularGradientBackground(*colorsToColorStops(colors), cap = cap)
 
 private fun colorsToColorStops(colors: List<Color>): Array<Pair<Float, Color>> =
-    Array(colors.size) {
-        it.toFloat() / (colors.size - 1) to colors[it]
-    }
+    Array(colors.size) { it.toFloat() / (colors.size - 1) to colors[it] }
 
 internal fun CurvedModifier.background(
     cap: StrokeCap = StrokeCap.Butt,
@@ -163,26 +167,21 @@ internal class DrawWrapper(
         /* We want the background to fill the space that our parent assigned us (outerLayoutInfo),
          * as opposed to the size of or wrapped child (layoutInfo).
          */
-        outerLayoutInfo = CurvedLayoutInfo(
-            sweepRadians = parentSweepRadians,
-            outerRadius = parentOuterRadius,
-            thickness = parentThickness,
-            centerOffset = centerOffset,
-            measureRadius = parentOuterRadius - parentThickness / 2f,
-            startAngleRadians = parentStartAngleRadians
-        )
-        return wrapped.angularPosition(
-            parentStartAngleRadians,
-            parentSweepRadians,
-            centerOffset
-        )
+        outerLayoutInfo =
+            CurvedLayoutInfo(
+                sweepRadians = parentSweepRadians,
+                outerRadius = parentOuterRadius,
+                thickness = parentThickness,
+                centerOffset = centerOffset,
+                measureRadius = parentOuterRadius - parentThickness / 2f,
+                startAngleRadians = parentStartAngleRadians
+            )
+        return wrapped.angularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
     }
 
     override fun DrawScope.draw() {
         if (drawBefore) customDraw(outerLayoutInfo)
-        with(wrapped) {
-            draw()
-        }
+        with(wrapped) { draw() }
         if (!drawBefore) customDraw(outerLayoutInfo)
     }
 }

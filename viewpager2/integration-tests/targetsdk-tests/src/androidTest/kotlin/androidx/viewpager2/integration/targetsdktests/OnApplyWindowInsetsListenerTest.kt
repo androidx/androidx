@@ -53,10 +53,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
 
-    data class TestConfig(
-        val applyFix: Boolean,
-        val pagesConsumeInsets: Boolean
-    )
+    data class TestConfig(val applyFix: Boolean, val pagesConsumeInsets: Boolean)
 
     companion object {
         private const val numPages = 3
@@ -71,24 +68,24 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         @Suppress("SameParameterValue")
         private fun field(name: String): Field {
             // Need to use double reflection for API 28
-            val getDeclaredField = Class::class.java
-                .getDeclaredMethod("getDeclaredField", String::class.java)
+            val getDeclaredField =
+                Class::class.java.getDeclaredMethod("getDeclaredField", String::class.java)
             return getDeclaredField.invoke(WindowInsets::class.java, name) as Field
         }
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<TestConfig>().apply {
-            for (applyFix in listOf(true, false)) {
-                for (pagesConsumeInsets in listOf(true, false)) {
-                    add(TestConfig(applyFix, pagesConsumeInsets))
+        fun params() =
+            mutableListOf<TestConfig>().apply {
+                for (applyFix in listOf(true, false)) {
+                    for (pagesConsumeInsets in listOf(true, false)) {
+                        add(TestConfig(applyFix, pagesConsumeInsets))
+                    }
                 }
             }
-        }
     }
 
-    @get:Rule
-    val activityTestRule = ActivityScenarioRule(FragmentActivity::class.java)
+    @get:Rule val activityTestRule = ActivityScenarioRule(FragmentActivity::class.java)
 
     private val fragments = Array<InsetsRecordingFragment?>(3) { null }
     private lateinit var viewRoot: ViewGroup
@@ -105,30 +102,29 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         Assume.assumeTrue(Build.VERSION.SDK_INT != 34)
         setupTest(config.applyFix, config.pagesConsumeInsets)
         runTest()
-        checkResult(
-            hasAppliedFix = config.applyFix,
-            pagesConsumeInsets = config.pagesConsumeInsets
-        )
+        checkResult(hasAppliedFix = config.applyFix, pagesConsumeInsets = config.pagesConsumeInsets)
     }
 
     private fun setupTest(applyFix: Boolean, consumeInsetsInPages: Boolean) {
         // Setup the test
         activityTestRule.scenario.onActivity {
-            viewRoot = LinearLayout(it).apply {
-                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                orientation = LinearLayout.VERTICAL
-            }
-
-            viewPager = ViewPager2(it).apply {
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f)
-                orientation = ORIENTATION_HORIZONTAL
-                offscreenPageLimit = numPages
-                adapter = FragmentAdapter(it, consumeInsetsInPages)
-                if (applyFix) {
-                    WindowInsetsApplier.install(this)
+            viewRoot =
+                LinearLayout(it).apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    orientation = LinearLayout.VERTICAL
                 }
-                viewRoot.addView(this)
-            }
+
+            viewPager =
+                ViewPager2(it).apply {
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f)
+                    orientation = ORIENTATION_HORIZONTAL
+                    offscreenPageLimit = numPages
+                    adapter = FragmentAdapter(it, consumeInsetsInPages)
+                    if (applyFix) {
+                        WindowInsetsApplier.install(this)
+                    }
+                    viewRoot.addView(this)
+                }
 
             InsetsRecordingView(it, siblingInsets, false).apply {
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 20)
@@ -152,13 +148,11 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         }
     }
 
-    private fun checkResult(
-        hasAppliedFix: Boolean,
-        pagesConsumeInsets: Boolean
-    ) {
+    private fun checkResult(hasAppliedFix: Boolean, pagesConsumeInsets: Boolean) {
         val appInfo = InstrumentationRegistry.getInstrumentation().targetContext.applicationInfo
-        val frameworkIsFixed = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
-            appInfo.targetSdkVersion >= Build.VERSION_CODES.R
+        val frameworkIsFixed =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                appInfo.targetSdkVersion >= Build.VERSION_CODES.R
 
         // Check expected results for pages
         fragments.forEachIndexed { i, fragment ->
@@ -278,8 +272,7 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
                 // Record a copy, in case they get modified down the line
                 recordedInsets.add(WindowInsetsCompat(insets))
                 if (consumeInsets) {
-                    @Suppress("DEPRECATION")
-                    insets.consumeSystemWindowInsets()
+                    @Suppress("DEPRECATION") insets.consumeSystemWindowInsets()
                 } else {
                     insets
                 }

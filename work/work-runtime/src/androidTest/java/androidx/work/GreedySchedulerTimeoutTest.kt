@@ -41,16 +41,18 @@ import org.junit.runner.RunWith
 class GreedySchedulerTimeoutTest {
     val workerFactory = TrackingWorkerFactory()
     private val runnableScheduler = ManualDefaultRunnableScheduler()
-    val configuration = Configuration.Builder()
-        .setRunnableScheduler(runnableScheduler)
-        .setWorkerFactory(workerFactory)
-        .setTaskExecutor(Executors.newSingleThreadExecutor())
-        .build()
+    val configuration =
+        Configuration.Builder()
+            .setRunnableScheduler(runnableScheduler)
+            .setWorkerFactory(workerFactory)
+            .setTaskExecutor(Executors.newSingleThreadExecutor())
+            .build()
     val env = TestEnv(configuration)
-    val trackers = Trackers(
-        context = env.context,
-        taskExecutor = env.taskExecutor,
-    )
+    val trackers =
+        Trackers(
+            context = env.context,
+            taskExecutor = env.taskExecutor,
+        )
     val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
 
     init {

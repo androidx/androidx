@@ -35,10 +35,12 @@ import org.jetbrains.uast.UClass
 
 class SpecifyJobSchedulerIdRangeIssueDetector : Detector(), SourceCodeScanner {
     companion object {
-        val ISSUE = Issue.create(
-            id = "SpecifyJobSchedulerIdRange",
-            briefDescription = "Specify a range of JobScheduler ids",
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "SpecifyJobSchedulerIdRange",
+                briefDescription = "Specify a range of JobScheduler ids",
+                explanation =
+                    """
                 When using `JobScheduler` APIs directly, `WorkManager` requires that developers \
                 specify a range of `JobScheduler` ids that are safe for `WorkManager` to use \
                 so the `id`s do not collide. \
@@ -46,19 +48,21 @@ class SpecifyJobSchedulerIdRangeIssueDetector : Detector(), SourceCodeScanner {
                 For more information look at \
                 `androidx.work.Configuration.Builder.setJobSchedulerJobIdRange(int, int)`.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                SpecifyJobSchedulerIdRangeIssueDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(
+                        SpecifyJobSchedulerIdRangeIssueDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE)
+                    )
             )
-        )
 
-        private val WELL_KNOWN_JOB_SERVICES = listOf(
-            "android.app.job.JobService",
-            "androidx.work.impl.background.systemjob.SystemJobService"
-        )
+        private val WELL_KNOWN_JOB_SERVICES =
+            listOf(
+                "android.app.job.JobService",
+                "androidx.work.impl.background.systemjob.SystemJobService"
+            )
     }
 
     override fun getApplicableMethodNames(): List<String> {

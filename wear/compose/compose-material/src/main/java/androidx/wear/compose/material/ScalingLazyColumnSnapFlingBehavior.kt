@@ -41,51 +41,56 @@ internal class ScalingLazyColumnSnapFlingBehavior(
 ) : FlingBehavior {
 
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        val animationState = AnimationState(
-            initialValue = 0f,
-            initialVelocity = initialVelocity,
-        )
+        val animationState =
+            AnimationState(
+                initialValue = 0f,
+                initialVelocity = initialVelocity,
+            )
 
         var lastValue = 0f
         val visibleItemsInfo = state.layoutInfo.visibleItemsInfo
         val isAFling = abs(initialVelocity) > 1f && visibleItemsInfo.size > 1
-        val finalTarget = if (isAFling) {
-            // Target we will land on given initialVelocity & decay
-            val decayTarget = decay.calculateTargetValue(0f, initialVelocity)
-            var endOfListReached = false
+        val finalTarget =
+            if (isAFling) {
+                // Target we will land on given initialVelocity & decay
+                val decayTarget = decay.calculateTargetValue(0f, initialVelocity)
+                var endOfListReached = false
 
-            animationState.animateDecay(decay) {
-                val delta = value - lastValue
-                val consumed = scrollBy(delta)
-                lastValue = value
+                animationState.animateDecay(decay) {
+                    val delta = value - lastValue
+                    val consumed = scrollBy(delta)
+                    lastValue = value
 
-                // When we are "slow" enough, switch from decay to the final snap.
-                if (abs(velocity) < SNAP_SPEED_THRESHOLD) cancelAnimation()
+                    // When we are "slow" enough, switch from decay to the final snap.
+                    if (abs(velocity) < SNAP_SPEED_THRESHOLD) cancelAnimation()
 
-                // If we can't consume the scroll, also stop.
-                if (abs(delta - consumed) > 0.1f) {
-                    endOfListReached = true
-                    cancelAnimation()
+                    // If we can't consume the scroll, also stop.
+                    if (abs(delta - consumed) > 0.1f) {
+                        endOfListReached = true
+                        cancelAnimation()
+                    }
                 }
-            }
 
-            if (endOfListReached) {
-                // We couldn't scroll as much as we wanted, likely we reached the end of the list,
-                // Snap to the current item and finish.
-                scrollBy((snapOffset - state.centerItemScrollOffset).toFloat())
-                return animationState.velocity
+                if (endOfListReached) {
+                    // We couldn't scroll as much as we wanted, likely we reached the end of the
+                    // list,
+                    // Snap to the current item and finish.
+                    scrollBy((snapOffset - state.centerItemScrollOffset).toFloat())
+                    return animationState.velocity
+                } else {
+                    // Now that scrolling slowed down, adjust the animation to land in the item
+                    // closest
+                    // to the original target. Note that the target may be off-screen, in that case
+                    // we
+                    // will land on the last visible item in that direction.
+                    (state.layoutInfo.visibleItemsInfo
+                        .fastMap { animationState.value + it.unadjustedOffset + snapOffset }
+                        .fastMinByOrNull { abs(it - decayTarget) } ?: decayTarget)
+                }
             } else {
-                // Now that scrolling slowed down, adjust the animation to land in the item closest
-                // to the original target. Note that the target may be off-screen, in that case we
-                // will land on the last visible item in that direction.
-                (state.layoutInfo.visibleItemsInfo
-                    .fastMap { animationState.value + it.unadjustedOffset + snapOffset }
-                    .fastMinByOrNull { abs(it - decayTarget) } ?: decayTarget)
+                // Not a fling, just snap to the current item.
+                (snapOffset - state.centerItemScrollOffset).toFloat()
             }
-        } else {
-            // Not a fling, just snap to the current item.
-            (snapOffset - state.centerItemScrollOffset).toFloat()
-        }
 
         // We have a velocity (animationState.velocity), and a target (finalTarget),
         // Construct a cubic bezier with the given initial velocity, and ending at 0 speed,
@@ -102,10 +107,12 @@ internal class ScalingLazyColumnSnapFlingBehavior(
             val initialInertia = 0.5f
 
             // Compute how much time we want to spend on the final snap, depending on the speed
-            val finalSnapDuration = lerp(
-                FINAL_SNAP_DURATION_MIN, FINAL_SNAP_DURATION_MAX,
-                abs(initialSpeed) / SNAP_SPEED_THRESHOLD
-            )
+            val finalSnapDuration =
+                lerp(
+                    FINAL_SNAP_DURATION_MIN,
+                    FINAL_SNAP_DURATION_MAX,
+                    abs(initialSpeed) / SNAP_SPEED_THRESHOLD
+                )
 
             // Initial control point. Has slope (velocity) adjustedSpeed and magnitude (inertia)
             // initialInertia
@@ -113,13 +120,15 @@ internal class ScalingLazyColumnSnapFlingBehavior(
             val easingX0 = initialInertia / sqrt(1f + adjustedSpeed * adjustedSpeed)
             val easingY0 = easingX0 * adjustedSpeed
 
-            // Final control point. Has slope 0, unless that will make us accelerate then decelerate,
+            // Final control point. Has slope 0, unless that will make us accelerate then
+            // decelerate,
             // in that case we set the slope to 1.
             val easingX1 = 0.8f
             val easingY1 = if (easingX0 > easingY0) 0.8f else 1f
 
             animationState.animateTo(
-                finalTarget, tween(
+                finalTarget,
+                tween(
                     (finalSnapDuration * 1000).roundToInt(),
                     easing = CubicBezierEasing(easingX0, easingY0, easingX1, easingY1)
                 )

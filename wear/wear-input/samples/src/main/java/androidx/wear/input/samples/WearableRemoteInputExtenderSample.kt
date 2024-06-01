@@ -28,5 +28,6 @@ internal fun extenderSample() {
         .wearableExtender {
             setEmojisAllowed(false)
             setInputActionType(EditorInfo.IME_ACTION_GO)
-        }.build()
+        }
+        .build()
 }

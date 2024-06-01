@@ -36,10 +36,9 @@ import androidx.work.testing.WorkManagerTestInitHelper.ExecutorsMode
 import java.util.UUID
 
 /**
- * A test scheduler that schedules unconstrained, non-timed workers. It intentionally does
- * not acquire any WakeLocks, instead trying to brute-force them as time allows before the process
- * gets killed.
- *
+ * A test scheduler that schedules unconstrained, non-timed workers. It intentionally does not
+ * acquire any WakeLocks, instead trying to brute-force them as time allows before the process gets
+ * killed.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestScheduler(
@@ -49,8 +48,7 @@ class TestScheduler(
     runnableScheduler: RunnableScheduler,
     private val executorsMode: ExecutorsMode
 ) : Scheduler, TestDriver {
-    @GuardedBy("lock")
-    private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
+    @GuardedBy("lock") private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
     private val lock = Any()
     private val startStopTokens = StartStopTokens()
     private val delayedWorkTracker = DelayedWorkTracker(this, runnableScheduler, clock)
@@ -58,9 +56,7 @@ class TestScheduler(
     override fun hasLimitedSchedulingSlots() = true
 
     override fun schedule(vararg workSpecs: WorkSpec) {
-        require(
-            clock.currentTimeMillis() != 0L
-        ) { "WorkManager's Clock must not start at 0" }
+        require(clock.currentTimeMillis() != 0L) { "WorkManager's Clock must not start at 0" }
 
         if (workSpecs.isEmpty()) {
             return
@@ -94,8 +90,8 @@ class TestScheduler(
     }
 
     /**
-     * Tells the [TestScheduler] to pretend that all constraints on the [Worker] with
-     * the given `workSpecId` are met.
+     * Tells the [TestScheduler] to pretend that all constraints on the [Worker] with the given
+     * `workSpecId` are met.
      *
      * @param workSpecId The [Worker]'s id
      * @throws IllegalArgumentException if `workSpecId` is not enqueued
@@ -113,16 +109,16 @@ class TestScheduler(
     }
 
     /**
-     * Tells the [TestScheduler] to pretend that the initial delay on the [Worker] with
-     * the given `workSpecId` are met.
+     * Tells the [TestScheduler] to pretend that the initial delay on the [Worker] with the given
+     * `workSpecId` are met.
      *
      * @param workSpecId The [Worker]'s id
      * @throws IllegalArgumentException if `workSpecId` is not enqueued
      */
     override fun setInitialDelayMet(workSpecId: UUID) {
         check(executorsMode != ExecutorsMode.USE_TIME_BASED_SCHEDULING) {
-                "Can't use setInitialDelayMet() when WorkManagerTestInitHelper is configured with" +
-                    "time-based scheduling"
+            "Can't use setInitialDelayMet() when WorkManagerTestInitHelper is configured with" +
+                "time-based scheduling"
         }
 
         val id = workSpecId.toString()
@@ -137,16 +133,16 @@ class TestScheduler(
     }
 
     /**
-     * Tells the [TestScheduler] to pretend that the periodic delay on the [Worker] with
-     * the given `workSpecId` are met.
+     * Tells the [TestScheduler] to pretend that the periodic delay on the [Worker] with the given
+     * `workSpecId` are met.
      *
      * @param workSpecId The [Worker]'s id
      * @throws IllegalArgumentException if `workSpecId` is not enqueued
      */
     override fun setPeriodDelayMet(workSpecId: UUID) {
         check(executorsMode != ExecutorsMode.USE_TIME_BASED_SCHEDULING) {
-                "Can't use setPeriodDelayMet() when WorkManagerTestInitHelper is configured with " +
-                    "time-based scheduling"
+            "Can't use setPeriodDelayMet() when WorkManagerTestInitHelper is configured with " +
+                "time-based scheduling"
         }
         val id = workSpecId.toString()
         val spec = loadSpec(id)
@@ -185,17 +181,19 @@ class TestScheduler(
         spec: WorkSpec,
         generationalId: WorkGenerationalId
     ): StartStopToken {
-        val token = synchronized(lock) {
-            delayedWorkTracker.unschedule(spec.id)
-            pendingWorkStates.remove(generationalId.workSpecId)
-            startStopTokens.tokenFor(generationalId)
-        }
+        val token =
+            synchronized(lock) {
+                delayedWorkTracker.unschedule(spec.id)
+                pendingWorkStates.remove(generationalId.workSpecId)
+                startStopTokens.tokenFor(generationalId)
+            }
         return token
     }
 
     private fun loadSpec(id: String): WorkSpec {
-        val workSpec = workDatabase.workSpecDao().getWorkSpec(id)
-            ?: throw IllegalArgumentException("Work with id $id is not enqueued!")
+        val workSpec =
+            workDatabase.workSpecDao().getWorkSpec(id)
+                ?: throw IllegalArgumentException("Work with id $id is not enqueued!")
         return workSpec
     }
 
@@ -234,11 +232,13 @@ internal data class InternalWorkState(
     val isScheduled: Boolean = false,
 )
 
-private val WorkSpec.isNextScheduleOverridden get() = nextScheduleTimeOverride != Long.MAX_VALUE
+private val WorkSpec.isNextScheduleOverridden
+    get() = nextScheduleTimeOverride != Long.MAX_VALUE
 
-private val WorkSpec.isFirstPeriodicRun get() =
-    periodCount == 0 && runAttemptCount == 0 && !isNextScheduleOverridden
-        // Overrides are treated as continuing periods, not first runs.
+private val WorkSpec.isFirstPeriodicRun
+    get() = periodCount == 0 && runAttemptCount == 0 && !isNextScheduleOverridden
+
+// Overrides are treated as continuing periods, not first runs.
 
 private fun WorkDatabase.rewindNextRunTimeToNow(id: String, clock: Clock): WorkSpec {
     // We need to pass check that mWorkSpec.calculateNextRunTime() < now
@@ -246,8 +246,9 @@ private fun WorkDatabase.rewindNextRunTimeToNow(id: String, clock: Clock): WorkS
     // we don't reuse available internalWorkState.mWorkSpec, because it
     // is not update with period_count and last_enqueue_time
     val dao: WorkSpecDao = workSpecDao()
-    val workSpec: WorkSpec = dao.getWorkSpec(id)
-        ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
+    val workSpec: WorkSpec =
+        dao.getWorkSpec(id)
+            ?: throw IllegalStateException("WorkSpec is already deleted from WM's db")
     val now = clock.currentTimeMillis()
     val timeOffset = workSpec.calculateNextRunTime() - now
     if (timeOffset > 0) {

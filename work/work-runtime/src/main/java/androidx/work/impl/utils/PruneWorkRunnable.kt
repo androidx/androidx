@@ -21,7 +21,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.launchOperation
 
 /**
- * Prunes work in the background.  Pruned work meets the following criteria:
+ * Prunes work in the background. Pruned work meets the following criteria:
  * - Is finished (succeeded, failed, or cancelled)
  * - Has zero unfinished dependents
  */

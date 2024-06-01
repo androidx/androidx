@@ -41,8 +41,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * CompositionLocal for global reduce-motion setting, which turns off animations and
- * screen movements. To use, call LocalReduceMotion.current.enabled(), which returns a Boolean.
+ * CompositionLocal for global reduce-motion setting, which turns off animations and screen
+ * movements. To use, call LocalReduceMotion.current.enabled(), which returns a Boolean.
  */
 @get:ExperimentalWearFoundationApi
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -61,24 +61,26 @@ val LocalReduceMotion: ProvidableCompositionLocal<ReduceMotion> = staticComposit
  * Defaults to [Color.Black] if not explicitly set.
  */
 val LocalSwipeToDismissBackgroundScrimColor: ProvidableCompositionLocal<Color> =
-    compositionLocalOf { Color.Black }
+    compositionLocalOf {
+        Color.Black
+    }
 
 /**
  * CompositionLocal containing the content scrim color of [BasicSwipeToDismissBox].
  *
  * Defaults to [Color.Black] if not explicitly set.
  */
-val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Color> =
-    compositionLocalOf { Color.Black }
+val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Color> = compositionLocalOf {
+    Color.Black
+}
 
 /**
- * ReduceMotion provides a means for callers to determine whether an app should turn off
- * animations and screen movement.
+ * ReduceMotion provides a means for callers to determine whether an app should turn off animations
+ * and screen movement.
  */
 @ExperimentalWearFoundationApi
 fun interface ReduceMotion {
-    @Composable
-    fun enabled(): Boolean
+    @Composable fun enabled(): Boolean
 }
 
 private val reduceMotionCache = AtomicReference<StateFlow<Boolean>>()
@@ -92,44 +94,41 @@ private fun getReduceMotionFlowFor(applicationContext: Context): StateFlow<Boole
     val coroutineScope = rememberCoroutineScope()
 
     return reduceMotionCache.updateAndGet {
-        it ?: callbackFlow {
-            val contentObserver =
-                object : ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
-                    override fun deliverSelfNotifications(): Boolean {
-                        // Returning true to receive change notification so that
-                        // the flow sends new value after it is initialized.
-                        return true
+        it
+            ?: callbackFlow {
+                    val contentObserver =
+                        object :
+                            ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
+                            override fun deliverSelfNotifications(): Boolean {
+                                // Returning true to receive change notification so that
+                                // the flow sends new value after it is initialized.
+                                return true
+                            }
+
+                            override fun onChange(selfChange: Boolean, uri: Uri?) {
+                                super.onChange(selfChange, uri)
+                                trySend(getReducedMotionSettingValue(resolver))
+                            }
+                        }
+
+                    coroutineScope.launch {
+                        resolver.registerContentObserver(reduceMotionUri, false, contentObserver)
+                        // Force send value when flow is initialized
+                        resolver.notifyChange(reduceMotionUri, contentObserver)
                     }
 
-                    override fun onChange(selfChange: Boolean, uri: Uri?) {
-                        super.onChange(selfChange, uri)
-                        trySend(getReducedMotionSettingValue(resolver))
-                    }
+                    awaitClose { resolver.unregisterContentObserver(contentObserver) }
                 }
-
-            coroutineScope.launch {
-                resolver.registerContentObserver(reduceMotionUri, false, contentObserver)
-                // Force send value when flow is initialized
-                resolver.notifyChange(reduceMotionUri, contentObserver)
-            }
-
-            awaitClose {
-                resolver.unregisterContentObserver(contentObserver)
-            }
-        }.stateIn(
-            MainScope(),
-            SharingStarted.WhileSubscribed(5000),
-            getReducedMotionSettingValue(resolver)
-        )
+                .stateIn(
+                    MainScope(),
+                    SharingStarted.WhileSubscribed(5000),
+                    getReducedMotionSettingValue(resolver)
+                )
     }
 }
 
 private fun getReducedMotionSettingValue(resolver: ContentResolver): Boolean {
-    return Settings.Global.getInt(
-        resolver,
-        REDUCE_MOTION,
-        REDUCE_MOTION_DEFAULT
-    ) == 1
+    return Settings.Global.getInt(resolver, REDUCE_MOTION, REDUCE_MOTION_DEFAULT) == 1
 }
 
 // See framework's Settings.Global.Wearable#REDUCE_MOTION.

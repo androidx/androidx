@@ -20,9 +20,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
-/**
- * The Data Access Object for [WorkName]s.
- */
+/** The Data Access Object for [WorkName]s. */
 @Dao
 interface WorkNameDao {
     /**
@@ -30,8 +28,7 @@ interface WorkNameDao {
      *
      * @param workName The [WorkName] to insert
      */
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(workName: WorkName)
+    @Insert(onConflict = OnConflictStrategy.IGNORE) fun insert(workName: WorkName)
 
     /**
      * Retrieves all [WorkSpec] ids in the given named graph.

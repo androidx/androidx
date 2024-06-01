@@ -43,20 +43,22 @@ import org.junit.runner.RunWith
 class ContentUriTriggerWorkersTest {
     val testLimit = 4
     val context = ApplicationProvider.getApplicationContext<Context>()
-    val configuration = Configuration.Builder()
-        .setMaxSchedulerLimit(MIN_SCHEDULER_LIMIT)
-        .setContentUriTriggerWorkersLimit(testLimit)
-        .build()
+    val configuration =
+        Configuration.Builder()
+            .setMaxSchedulerLimit(MIN_SCHEDULER_LIMIT)
+            .setContentUriTriggerWorkersLimit(testLimit)
+            .build()
     val executor = Executors.newSingleThreadExecutor()
     val taskExecutor = WorkManagerTaskExecutor(executor)
     internal val testScheduler = TestScheduler()
-    val workManager = WorkManagerImpl(
-        context = context,
-        configuration = configuration,
-        workTaskExecutor = taskExecutor,
-        workDatabase = WorkDatabase.create(context, executor, configuration.clock, true),
-        schedulersCreator = schedulers(testScheduler)
-    )
+    val workManager =
+        WorkManagerImpl(
+            context = context,
+            configuration = configuration,
+            workTaskExecutor = taskExecutor,
+            workDatabase = WorkDatabase.create(context, executor, configuration.clock, true),
+            schedulersCreator = schedulers(testScheduler)
+        )
 
     @Test
     fun maxSchedulerLimitNotApplicable() {
@@ -68,8 +70,10 @@ class ContentUriTriggerWorkersTest {
         // not scheduled in scheduler, because it is goes over limit
         assertThat(testScheduler.mutableIds.size).isEqualTo(MIN_SCHEDULER_LIMIT)
         val triggers = setOf(ContentUriTrigger(EXTERNAL_CONTENT_URI, false))
-        val requestWithUris = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(contentUriTriggers = triggers)).build()
+        val requestWithUris =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setConstraints(Constraints(contentUriTriggers = triggers))
+                .build()
         workManager.enqueue(requestWithUris).result.get()
         assertThat(testScheduler.mutableIds.last()).isEqualTo(requestWithUris.stringId)
     }
@@ -78,12 +82,16 @@ class ContentUriTriggerWorkersTest {
     fun contentUriTriggerWorkersLimitApplicable() {
         val triggers = setOf(ContentUriTrigger(EXTERNAL_CONTENT_URI, false))
         repeat(testLimit) {
-            val requestWithUris = OneTimeWorkRequest.Builder(TestWorker::class.java)
-                .setConstraints(Constraints(contentUriTriggers = triggers)).build()
+            val requestWithUris =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(contentUriTriggers = triggers))
+                    .build()
             workManager.enqueue(requestWithUris).result.get()
         }
-        val requestWithUris = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(contentUriTriggers = triggers)).build()
+        val requestWithUris =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setConstraints(Constraints(contentUriTriggers = triggers))
+                .build()
         try {
             workManager.enqueue(requestWithUris).result.get()
             throw AssertionError("workManager.enqueue expected to fail")
@@ -101,8 +109,7 @@ internal class TestScheduler : Scheduler {
         mutableIds.addAll(workSpecs.map { it.id })
     }
 
-    override fun cancel(workSpecId: String) {
-    }
+    override fun cancel(workSpecId: String) {}
 
     override fun hasLimitedSchedulingSlots() = true
 }

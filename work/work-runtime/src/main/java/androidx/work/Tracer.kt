@@ -18,9 +18,7 @@ package androidx.work
 
 import androidx.annotation.RestrictTo
 
-/**
- * Sets up trace spans when a {@link WorkRequest} is setup for execution by [WorkManager].
- */
+/** Sets up trace spans when a {@link WorkRequest} is setup for execution by [WorkManager]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Tracer {
 

@@ -21,31 +21,30 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 
-/**
- * Database entity that defines a dependency between two [WorkSpec]s.
- *
- */
+/** Database entity that defines a dependency between two [WorkSpec]s. */
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = WorkSpec::class,
-        parentColumns = ["id"],
-        childColumns = ["work_spec_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-    ), ForeignKey(
-        entity = WorkSpec::class,
-        parentColumns = ["id"],
-        childColumns = ["prerequisite_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-    )],
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = WorkSpec::class,
+                parentColumns = ["id"],
+                childColumns = ["work_spec_id"],
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE
+            ),
+            ForeignKey(
+                entity = WorkSpec::class,
+                parentColumns = ["id"],
+                childColumns = ["prerequisite_id"],
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE
+            )
+        ],
     primaryKeys = ["work_spec_id", "prerequisite_id"],
     indices = [Index(value = ["work_spec_id"]), Index(value = ["prerequisite_id"])]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Dependency(
-    @ColumnInfo(name = "work_spec_id")
-    val workSpecId: String,
-    @ColumnInfo(name = "prerequisite_id")
-    val prerequisiteId: String
+    @ColumnInfo(name = "work_spec_id") val workSpecId: String,
+    @ColumnInfo(name = "prerequisite_id") val prerequisiteId: String
 )

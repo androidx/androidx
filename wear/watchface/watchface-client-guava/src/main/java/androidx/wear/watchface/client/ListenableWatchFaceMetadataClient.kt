@@ -55,7 +55,7 @@ public class ListenableWatchFaceMetadataClient private constructor() {
 
         /**
          * Constructs a [WatchFaceMetadataClient] for fetching metadata for the specified resource
-         * only watch face runtime.  A resource only watch face runtime, is a special kind of watch
+         * only watch face runtime. A resource only watch face runtime, is a special kind of watch
          * face that is the runtime for a watch face defined by another package that contains only
          * resources and no executable code.
          *

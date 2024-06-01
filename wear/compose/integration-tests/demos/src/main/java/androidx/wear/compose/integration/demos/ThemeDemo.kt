@@ -36,52 +36,24 @@ import androidx.wear.compose.material.Text
 @Composable
 fun ThemeFonts() {
     ScalingLazyColumn {
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.display1, description = "display1")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.display2, description = "display2")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.display3, description = "display3")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.title1, description = "title1")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.title2, description = "title2")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.title3, description = "title3")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.body1, description = "body1")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.body2, description = "body2")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.button, description = "button")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.caption1, description = "caption1")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.caption2, description = "caption2")
-        }
-        item {
-            ThemeFontRow(style = MaterialTheme.typography.caption3, description = "caption3")
-        }
+        item { ThemeFontRow(style = MaterialTheme.typography.display1, description = "display1") }
+        item { ThemeFontRow(style = MaterialTheme.typography.display2, description = "display2") }
+        item { ThemeFontRow(style = MaterialTheme.typography.display3, description = "display3") }
+        item { ThemeFontRow(style = MaterialTheme.typography.title1, description = "title1") }
+        item { ThemeFontRow(style = MaterialTheme.typography.title2, description = "title2") }
+        item { ThemeFontRow(style = MaterialTheme.typography.title3, description = "title3") }
+        item { ThemeFontRow(style = MaterialTheme.typography.body1, description = "body1") }
+        item { ThemeFontRow(style = MaterialTheme.typography.body2, description = "body2") }
+        item { ThemeFontRow(style = MaterialTheme.typography.button, description = "button") }
+        item { ThemeFontRow(style = MaterialTheme.typography.caption1, description = "caption1") }
+        item { ThemeFontRow(style = MaterialTheme.typography.caption2, description = "caption2") }
+        item { ThemeFontRow(style = MaterialTheme.typography.caption3, description = "caption3") }
     }
 }
 
 @Composable
 fun ThemeFontRow(style: TextStyle, description: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentWidth(align = Alignment.CenterHorizontally)
-    ) {
+    Row(modifier = Modifier.fillMaxWidth().wrapContentWidth(align = Alignment.CenterHorizontally)) {
         Text(text = description, style = style)
     }
 }
@@ -164,12 +136,12 @@ fun ThemeColorRow(
     foregroundColorName: String
 ) {
     Row(
-        modifier = Modifier
-            .padding(vertical = 2.dp)
-            .background(color = backgroundColor)
-            .fillMaxWidth()
-            .wrapContentWidth(align = Alignment.CenterHorizontally)
-            .border(width = 1.dp, color = MaterialTheme.colors.onBackground)
+        modifier =
+            Modifier.padding(vertical = 2.dp)
+                .background(color = backgroundColor)
+                .fillMaxWidth()
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
+                .border(width = 1.dp, color = MaterialTheme.colors.onBackground)
     ) {
         Text(
             text = "foreground=$foregroundColorName background=$backgroundColorName",

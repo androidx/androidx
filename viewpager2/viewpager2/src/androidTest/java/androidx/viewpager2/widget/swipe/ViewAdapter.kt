@@ -34,5 +34,6 @@ open class ViewAdapter(private val items: List<String>) : RecyclerView.Adapter<V
 
     /** easy way of dynamically overriding [getItemId] */
     var positionToItemId: (Int) -> Long = { position -> super.getItemId(position) }
+
     override fun getItemId(position: Int): Long = positionToItemId(position)
 }

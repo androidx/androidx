@@ -30,9 +30,10 @@ class ListenableFutureTest {
     @Test
     fun testFailure() {
         val executor = Executors.newSingleThreadExecutor()
-        val future = executor.executeAsync<Unit>("testFailure") {
-            throw IllegalStateException("And I'm tripping and falling")
-        }
+        val future =
+            executor.executeAsync<Unit>("testFailure") {
+                throw IllegalStateException("And I'm tripping and falling")
+            }
         try {
             future.get()
             throw AssertionError("It should fail")
@@ -52,9 +53,7 @@ class ListenableFutureTest {
     fun testCancellation() {
         val executor = ManualExecutor()
         var wasCalled = false
-        val future = executor.executeAsync("testCancellation") {
-            wasCalled = true
-        }
+        val future = executor.executeAsync("testCancellation") { wasCalled = true }
         future.cancel(true)
         executor.drain()
         assertThat(wasCalled).isFalse()

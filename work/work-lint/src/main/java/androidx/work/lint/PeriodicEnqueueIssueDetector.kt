@@ -31,33 +31,35 @@ import org.jetbrains.uast.UCallExpression
 
 class PeriodicEnqueueIssueDetector : Detector(), SourceCodeScanner {
     companion object {
-        val ISSUE = Issue.create(
-            id = "BadPeriodicWorkRequestEnqueue",
-            briefDescription = "Use `enqueueUniquePeriodicWork()` instead of `enqueue()`",
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "BadPeriodicWorkRequestEnqueue",
+                briefDescription = "Use `enqueueUniquePeriodicWork()` instead of `enqueue()`",
+                explanation =
+                    """
                 When using `enqueue()` for `PeriodicWorkRequest`s, you might end up enqueuing
                 duplicate requests unintentionally. You should be using
                 `enqueueUniquePeriodicWork` with an `ExistingPeriodicWorkPolicy.KEEP` instead.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                PeriodicEnqueueIssueDetector::class.java, Scope.JAVA_FILE_SCOPE
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(PeriodicEnqueueIssueDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 
     override fun getApplicableMethodNames(): List<String>? = listOf("enqueue")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (context.evaluator.isMemberInClass(method, "androidx.work.WorkManager")) {
-            val periodic = node.valueArguments.filter { argument ->
-                val type = argument.getExpressionType()?.canonicalText
-                type == "androidx.work.PeriodicWorkRequest" ||
-                    type == "java.util.List<? extends androidx.work.PeriodicWorkRequest>" ||
-                    type == "java.util.List<? extends androidx.work.WorkRequest>"
-            }
+            val periodic =
+                node.valueArguments.filter { argument ->
+                    val type = argument.getExpressionType()?.canonicalText
+                    type == "androidx.work.PeriodicWorkRequest" ||
+                        type == "java.util.List<? extends androidx.work.PeriodicWorkRequest>" ||
+                        type == "java.util.List<? extends androidx.work.WorkRequest>"
+                }
             if (periodic.isNotEmpty()) {
                 context.report(
                     ISSUE,

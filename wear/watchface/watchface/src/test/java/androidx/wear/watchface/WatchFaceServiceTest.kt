@@ -3024,7 +3024,7 @@ public class WatchFaceServiceTest {
     public fun updateComplicationData_interactive_loadsAsync() {
         initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
         interactiveWatchFaceInstance.setWatchUiState(
-            WatchUiState(/* inAmbientMode = */ false, /* interruptionFilter= */ 0)
+            WatchUiState(/* inAmbientMode= */ false, /* interruptionFilter= */ 0)
         )
         val data =
             WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
@@ -3043,7 +3043,7 @@ public class WatchFaceServiceTest {
     public fun updateComplicationData_interactive_loadsSync() {
         initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
         interactiveWatchFaceInstance.setWatchUiState(
-            WatchUiState(/* inAmbientMode = */ true, /* interruptionFilter= */ 0)
+            WatchUiState(/* inAmbientMode= */ true, /* interruptionFilter= */ 0)
         )
         val data =
             WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
@@ -6339,26 +6339,30 @@ public class WatchFaceServiceTest {
 
         // In initEngine we fill initial complication data using
         // setComplicationViaWallpaperCommand, that's why lastComplications initially is not empty
-        assertThat(engineWrapper.complicationsFlow.value).containsAtLeast(
-            leftComplication1.id, leftComplication1.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsAtLeast(
+                leftComplication1.id,
+                leftComplication1.complicationData.toApiComplicationData()
+            )
 
         // Check merges are working as expected.
         engineWrapper.setComplicationDataList(listOf(rightComplication1))
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
-            leftComplication1.id,
-            leftComplication1.complicationData.toApiComplicationData(),
-            rightComplication1.id,
-            rightComplication1.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsExactly(
+                leftComplication1.id,
+                leftComplication1.complicationData.toApiComplicationData(),
+                rightComplication1.id,
+                rightComplication1.complicationData.toApiComplicationData()
+            )
 
         engineWrapper.setComplicationDataList(listOf(leftComplication2))
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
-            leftComplication2.id,
-            leftComplication2.complicationData.toApiComplicationData(),
-            rightComplication1.id,
-            rightComplication1.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsExactly(
+                leftComplication2.id,
+                leftComplication2.complicationData.toApiComplicationData(),
+                rightComplication1.id,
+                rightComplication1.complicationData.toApiComplicationData()
+            )
     }
 
     @Test
@@ -6379,21 +6383,23 @@ public class WatchFaceServiceTest {
             )
         )
 
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
-            leftComplication2.id,
-            leftComplication2.complicationData.toApiComplicationData(),
-            rightComplication2.id,
-            rightComplication2.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsExactly(
+                leftComplication2.id,
+                leftComplication2.complicationData.toApiComplicationData(),
+                rightComplication2.id,
+                rightComplication2.complicationData.toApiComplicationData()
+            )
 
         engineWrapper.onEditSessionFinished()
 
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
-            leftComplication1.id,
-            leftComplication1.complicationData.toApiComplicationData(),
-            rightComplication1.id,
-            rightComplication1.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsExactly(
+                leftComplication1.id,
+                leftComplication1.complicationData.toApiComplicationData(),
+                rightComplication1.id,
+                rightComplication1.complicationData.toApiComplicationData()
+            )
     }
 
     @Test
@@ -6415,21 +6421,23 @@ public class WatchFaceServiceTest {
         // This should not change the value of the complicationsFlow
         engineWrapper.setComplicationDataList(listOf(rightComplication1))
 
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
-            leftComplication2.id,
-            leftComplication2.complicationData.toApiComplicationData(),
-            rightComplication2.id,
-            rightComplication2.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsExactly(
+                leftComplication2.id,
+                leftComplication2.complicationData.toApiComplicationData(),
+                rightComplication2.id,
+                rightComplication2.complicationData.toApiComplicationData()
+            )
 
         engineWrapper.onEditSessionFinished()
 
-        assertThat(engineWrapper.complicationsFlow.value).containsExactly(
-            leftComplication1.id,
-            leftComplication1.complicationData.toApiComplicationData(),
-            rightComplication1.id,
-            rightComplication1.complicationData.toApiComplicationData()
-        )
+        assertThat(engineWrapper.complicationsFlow.value)
+            .containsExactly(
+                leftComplication1.id,
+                leftComplication1.complicationData.toApiComplicationData(),
+                rightComplication1.id,
+                rightComplication1.complicationData.toApiComplicationData()
+            )
     }
 
     @Test

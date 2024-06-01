@@ -44,45 +44,19 @@ fun ToggleButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader { Text("Checkbox") }
-        }
-        item {
-            DemoToggleCheckbox(enabled = true, initiallyChecked = true)
-        }
-        item {
-            DemoToggleCheckbox(enabled = true, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Disabled Checkbox") }
-        }
-        item {
-            DemoToggleCheckbox(enabled = false, initiallyChecked = true)
-        }
-        item {
-            DemoToggleCheckbox(enabled = false, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Switch") }
-        }
-        item {
-            DemoToggleSwitch(enabled = true, initiallyChecked = true)
-        }
-        item {
-            DemoToggleSwitch(enabled = true, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Disabled Switch") }
-        }
-        item {
-            DemoToggleSwitch(enabled = false, initiallyChecked = true)
-        }
-        item {
-            DemoToggleSwitch(enabled = false, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Icon") }
-        }
+        item { ListHeader { Text("Checkbox") } }
+        item { DemoToggleCheckbox(enabled = true, initiallyChecked = true) }
+        item { DemoToggleCheckbox(enabled = true, initiallyChecked = false) }
+        item { ListHeader { Text("Disabled Checkbox") } }
+        item { DemoToggleCheckbox(enabled = false, initiallyChecked = true) }
+        item { DemoToggleCheckbox(enabled = false, initiallyChecked = false) }
+        item { ListHeader { Text("Switch") } }
+        item { DemoToggleSwitch(enabled = true, initiallyChecked = true) }
+        item { DemoToggleSwitch(enabled = true, initiallyChecked = false) }
+        item { ListHeader { Text("Disabled Switch") } }
+        item { DemoToggleSwitch(enabled = false, initiallyChecked = true) }
+        item { DemoToggleSwitch(enabled = false, initiallyChecked = false) }
+        item { ListHeader { Text("Icon") } }
         item {
             DemoToggleCheckbox(
                 enabled = true,
@@ -102,9 +76,7 @@ fun ToggleButtonDemo() {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
-        item {
-            ListHeader { Text("Multi-line") }
-        }
+        item { ListHeader { Text("Multi-line") } }
         item {
             DemoToggleCheckbox(
                 enabled = true,

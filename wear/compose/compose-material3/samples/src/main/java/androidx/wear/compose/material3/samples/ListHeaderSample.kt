@@ -28,17 +28,13 @@ import androidx.wear.compose.material3.Text
 @Sampled
 @Composable
 fun ListHeaderSample() {
-    ListHeader {
-        Text("Header")
-    }
+    ListHeader { Text("Header") }
 }
 
 @Sampled
 @Composable
 fun ListSubheaderSample() {
-    ListSubheader {
-        Text("Subheader")
-    }
+    ListSubheader { Text("Subheader") }
 }
 
 @Sampled

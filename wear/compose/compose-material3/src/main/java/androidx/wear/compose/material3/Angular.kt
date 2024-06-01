@@ -18,12 +18,8 @@ package androidx.wear.compose.material3
 
 import kotlin.math.PI
 
-/**
- * Converts the angle measured in degrees to an equivalent angle measured in radians.
- */
+/** Converts the angle measured in degrees to an equivalent angle measured in radians. */
 internal fun Float.toRadians() = this * PI.toFloat() / 180f
 
-/**
- * Converts the angle measured in radians to an equivalent angle measured in degrees.
- */
+/** Converts the angle measured in radians to an equivalent angle measured in degrees. */
 internal fun Float.toDegrees() = this * 180f / PI.toFloat()

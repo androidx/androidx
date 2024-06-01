@@ -245,8 +245,7 @@ class TestStatefulXmlWatchFaceService(
 @MediumTest
 public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
-    @get:Rule
-    val mocks = MockitoJUnit.rule()
+    @get:Rule val mocks = MockitoJUnit.rule()
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
     @Mock private lateinit var surface: Surface
@@ -504,11 +503,10 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
 
         runBlocking {
             val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
-            val factory = watchFaceImpl
-                .complicationSlotsManager
-                .complicationSlots[10]!!
-                .canvasComplicationFactory as
-                    TestStatefulXmlWatchFaceService.TestCanvasComplicationFactory
+            val factory =
+                watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
+                    .canvasComplicationFactory
+                    as TestStatefulXmlWatchFaceService.TestCanvasComplicationFactory
 
             // Assert the extra was passed to the TestCanvasComplicationFactory.
             assertThat(factory.extra.value).isEqualTo(123)

@@ -39,7 +39,8 @@ import org.junit.Test
  */
 abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(clazz: Class<T>) :
     BaseTest<T>(clazz) {
-    override val layoutId get() = R.id.viewPager
+    override val layoutId
+        get() = R.id.viewPager
 
     @Ignore("b/276935528")
     @Test
@@ -109,12 +110,7 @@ abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(claz
 
     private fun verifyPage(page: Int) {
         verifyCurrentPage(
-            hasDescendant(
-                allOf(
-                    withId(R.id.textViewItemText),
-                    withText("item#$page")
-                )
-            )
+            hasDescendant(allOf(withId(R.id.textViewItemText), withText("item#$page")))
         )
     }
 

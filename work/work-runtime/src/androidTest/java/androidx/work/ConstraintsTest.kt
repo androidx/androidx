@@ -34,14 +34,13 @@ class ConstraintsTest {
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun testThrowIfNetworkSpecifierUsed() {
-        val request = NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .setNetworkSpecifier(
-                WifiNetworkSpecifier.Builder()
-                    .setBand(ScanResult.WIFI_BAND_5_GHZ)
-                    .build()
-            )
-            .build()
+        val request =
+            NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .setNetworkSpecifier(
+                    WifiNetworkSpecifier.Builder().setBand(ScanResult.WIFI_BAND_5_GHZ).build()
+                )
+                .build()
 
         val builder = Constraints.Builder()
         try {
@@ -61,25 +60,29 @@ class ConstraintsTest {
     @SdkSuppress(minSdkVersion = 21)
     @Test
     fun testEqualityWithNetworkRequest() {
-        val request1 = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .build()
+        val request1 =
+            NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
 
-        val constraints1 = Constraints.Builder()
-            .setRequiresCharging(true)
-            .setRequiredNetworkRequest(request1, NetworkType.UNMETERED)
-            .build()
+        val constraints1 =
+            Constraints.Builder()
+                .setRequiresCharging(true)
+                .setRequiredNetworkRequest(request1, NetworkType.UNMETERED)
+                .build()
 
-        val request2 = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .build()
+        val request2 =
+            NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
 
-        val constraints2 = Constraints.Builder()
-            .setRequiresCharging(true)
-            .setRequiredNetworkRequest(request2, NetworkType.UNMETERED)
-            .build()
+        val constraints2 =
+            Constraints.Builder()
+                .setRequiresCharging(true)
+                .setRequiredNetworkRequest(request2, NetworkType.UNMETERED)
+                .build()
 
         val constraints3 = Constraints(requiresCharging = true)
 

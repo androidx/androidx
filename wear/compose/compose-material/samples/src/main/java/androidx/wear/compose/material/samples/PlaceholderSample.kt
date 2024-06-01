@@ -49,8 +49,8 @@ import androidx.wear.compose.material.rememberPlaceholderState
 import kotlinx.coroutines.delay
 
 /**
- * This sample applies placeholders directly over the content that is waiting to be loaded.
- * This approach is suitable for situations where the developer is confident that the stadium shaped
+ * This sample applies placeholders directly over the content that is waiting to be loaded. This
+ * approach is suitable for situations where the developer is confident that the stadium shaped
  * placeholder will cover the content in the period between when it is loaded and when the
  * placeholder visual effects will have finished.
  */
@@ -72,36 +72,29 @@ fun ChipWithIconAndLabelAndPlaceholders() {
                 text = labelText,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .placeholder(chipPlaceholderState)
+                modifier = Modifier.fillMaxWidth().placeholder(chipPlaceholderState)
             )
         },
         icon = {
-            Box(
-                modifier = Modifier
-                    .size(ChipDefaults.IconSize)
-                    .placeholder(chipPlaceholderState)
-            ) {
+            Box(modifier = Modifier.size(ChipDefaults.IconSize).placeholder(chipPlaceholderState)) {
                 if (iconResource != null) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                         contentDescription = "airplane",
-                        modifier = Modifier
-                            .wrapContentSize(align = Alignment.Center)
-                            .size(ChipDefaults.IconSize)
-                            .fillMaxSize(),
+                        modifier =
+                            Modifier.wrapContentSize(align = Alignment.Center)
+                                .size(ChipDefaults.IconSize)
+                                .fillMaxSize(),
                     )
                 }
             }
         },
-        colors = PlaceholderDefaults.placeholderChipColors(
-            originalChipColors = ChipDefaults.primaryChipColors(),
-            placeholderState = chipPlaceholderState
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .placeholderShimmer(chipPlaceholderState)
+        colors =
+            PlaceholderDefaults.placeholderChipColors(
+                originalChipColors = ChipDefaults.primaryChipColors(),
+                placeholderState = chipPlaceholderState
+            ),
+        modifier = Modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState)
     )
     // Simulate content loading completing in stages
     LaunchedEffect(Unit) {
@@ -110,10 +103,8 @@ fun ChipWithIconAndLabelAndPlaceholders() {
         delay(1000)
         labelText = "A label"
     }
-    if (! chipPlaceholderState.isShowContent) {
-        LaunchedEffect(chipPlaceholderState) {
-            chipPlaceholderState.startPlaceholderAnimation()
-        }
+    if (!chipPlaceholderState.isShowContent) {
+        LaunchedEffect(chipPlaceholderState) { chipPlaceholderState.startPlaceholderAnimation() }
     }
 }
 
@@ -140,9 +131,7 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
         labelText.isNotEmpty() && secondaryLabelText.isNotEmpty() && iconResource != null
     }
     Box {
-        if (chipPlaceholderState.isShowContent ||
-            chipPlaceholderState.isWipeOff
-        ) {
+        if (chipPlaceholderState.isShowContent || chipPlaceholderState.isWipeOff) {
             Chip(
                 onClick = { /* Do something */ },
                 enabled = true,
@@ -151,8 +140,7 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                         text = labelText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     )
                 },
                 secondaryLabel = {
@@ -160,20 +148,17 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                         text = secondaryLabelText,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     )
                 },
                 icon = {
                     if (iconResource != null) {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.ic_airplanemode_active_24px
-                            ),
+                            painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                             contentDescription = "airplane",
-                            modifier = Modifier
-                                .wrapContentSize(align = Alignment.Center)
-                                .size(ChipDefaults.IconSize)
+                            modifier =
+                                Modifier.wrapContentSize(align = Alignment.Center)
+                                    .size(ChipDefaults.IconSize)
                         )
                     }
                 },
@@ -181,33 +166,32 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        if (! chipPlaceholderState.isShowContent) {
+        if (!chipPlaceholderState.isShowContent) {
             Chip(
                 onClick = { /* Do something */ },
                 enabled = true,
                 label = {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(16.dp)
-                            .padding(top = 1.dp, bottom = 1.dp)
-                            .placeholder(placeholderState = chipPlaceholderState)
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .height(16.dp)
+                                .padding(top = 1.dp, bottom = 1.dp)
+                                .placeholder(placeholderState = chipPlaceholderState)
                     )
                 },
                 secondaryLabel = {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(16.dp)
-                            .padding(top = 1.dp, bottom = 1.dp)
-                            .placeholder(placeholderState = chipPlaceholderState)
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .height(16.dp)
+                                .padding(top = 1.dp, bottom = 1.dp)
+                                .placeholder(placeholderState = chipPlaceholderState)
                     )
                 },
                 icon = {
                     Box(
-                        modifier = Modifier
-                            .size(ChipDefaults.IconSize)
-                            .placeholder(chipPlaceholderState)
+                        modifier =
+                            Modifier.size(ChipDefaults.IconSize).placeholder(chipPlaceholderState)
                     )
                     // Simulate the icon becoming ready after a period of time
                     LaunchedEffect(Unit) {
@@ -215,12 +199,11 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
                         iconResource = R.drawable.ic_airplanemode_active_24px
                     }
                 },
-                colors = PlaceholderDefaults.placeholderChipColors(
-                    placeholderState = chipPlaceholderState
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .placeholderShimmer(chipPlaceholderState)
+                colors =
+                    PlaceholderDefaults.placeholderChipColors(
+                        placeholderState = chipPlaceholderState
+                    ),
+                modifier = Modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState)
             )
         }
     }
@@ -231,18 +214,16 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
         delay(500)
         labelText = "A label"
     }
-    if (! chipPlaceholderState.isShowContent) {
-        LaunchedEffect(chipPlaceholderState) {
-            chipPlaceholderState.startPlaceholderAnimation()
-        }
+    if (!chipPlaceholderState.isShowContent) {
+        LaunchedEffect(chipPlaceholderState) { chipPlaceholderState.startPlaceholderAnimation() }
     }
 }
 
 /**
  * This sample applies a placeholder and placeholderShimmer directly over a single composable.
  *
- * Note that the modifier ordering is important, the placeholderShimmer must be before
- * the placeholder in the modifier chain - otherwise the shimmer will be drawn underneath the
+ * Note that the modifier ordering is important, the placeholderShimmer must be before the
+ * placeholder in the modifier chain - otherwise the shimmer will be drawn underneath the
  * placeholder and will not be visible.
  */
 @OptIn(ExperimentalWearMaterialApi::class)
@@ -250,18 +231,16 @@ fun ChipWithIconAndLabelsAndOverlaidPlaceholder() {
 @Composable
 fun TextPlaceholder() {
     var labelText by remember { mutableStateOf("") }
-    val chipPlaceholderState = rememberPlaceholderState {
-        labelText.isNotEmpty()
-    }
+    val chipPlaceholderState = rememberPlaceholderState { labelText.isNotEmpty() }
 
     Text(
         text = labelText,
         overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
-        modifier = Modifier
-            .width(90.dp)
-            .placeholderShimmer(chipPlaceholderState)
-            .placeholder(chipPlaceholderState)
+        modifier =
+            Modifier.width(90.dp)
+                .placeholderShimmer(chipPlaceholderState)
+                .placeholder(chipPlaceholderState)
     )
 
     // Simulate content loading
@@ -269,9 +248,7 @@ fun TextPlaceholder() {
         delay(3000)
         labelText = "A label"
     }
-    if (! chipPlaceholderState.isShowContent) {
-        LaunchedEffect(chipPlaceholderState) {
-            chipPlaceholderState.startPlaceholderAnimation()
-        }
+    if (!chipPlaceholderState.isShowContent) {
+        LaunchedEffect(chipPlaceholderState) { chipPlaceholderState.startPlaceholderAnimation() }
     }
 }

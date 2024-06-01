@@ -38,8 +38,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @RequiresApi(Build.VERSION_CODES.O)
 class CurvedTextTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val testText = "TestText"
 
@@ -51,9 +50,7 @@ class CurvedTextTest {
                     curvedText(
                         text = testText,
                         color = Color.Red,
-                        style = CurvedTextStyle(
-                            color = Color.Blue
-                        )
+                        style = CurvedTextStyle(color = Color.Blue)
                     )
                 }
             }
@@ -70,12 +67,7 @@ class CurvedTextTest {
             CompositionLocalProvider(LocalContentColor provides Color.Yellow) {
                 CurvedLayout {
                     curvedRow {
-                        curvedText(
-                            text = testText,
-                            style = CurvedTextStyle(
-                                color = Color.Blue
-                            )
-                        )
+                        curvedText(text = testText, style = CurvedTextStyle(color = Color.Blue))
                     }
                 }
             }
@@ -100,7 +92,9 @@ class CurvedTextTest {
             }
         }
 
-        rule.onNodeWithContentDescription(testText).captureToImage()
+        rule
+            .onNodeWithContentDescription(testText)
+            .captureToImage()
             .assertContainsColor(Color.Yellow)
     }
 }

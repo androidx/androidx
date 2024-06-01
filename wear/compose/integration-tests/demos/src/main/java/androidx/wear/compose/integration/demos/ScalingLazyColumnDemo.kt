@@ -42,30 +42,29 @@ import kotlin.math.roundToInt
 @Composable
 fun GuideLines() {
     Canvas(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         onDraw = {
             for (i in 1..9) {
                 drawLine(
-                    Color.Magenta, Offset(0f, (size.height / 10f) * i),
+                    Color.Magenta,
+                    Offset(0f, (size.height / 10f) * i),
                     Offset(size.width - 1, (size.height / 10f) * i)
                 )
             }
-        })
+        }
+    )
 }
 
 @Composable
 fun ScalingLazyColumnDetail() {
     val state = rememberScalingLazyListState()
     val applicationContext = LocalContext.current
-    val screenHeightPx = with(LocalDensity.current) {
-        Dp(applicationContext.resources.configuration.screenHeightDp.toFloat()).roundToPx()
-    }
+    val screenHeightPx =
+        with(LocalDensity.current) {
+            Dp(applicationContext.resources.configuration.screenHeightDp.toFloat()).roundToPx()
+        }
     val halfScreenHeightPx = screenHeightPx / 2f
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = state
-    ) {
+    ScalingLazyColumn(modifier = Modifier.fillMaxWidth(), state = state) {
         item {
             Text(
                 text = "Screen height: ${screenHeightPx}px",
@@ -103,15 +102,8 @@ fun ScalingLazyColumnDetail() {
 @Composable
 fun ScalingLazyColumnMixedTypes() {
     ScalingLazyColumn {
-        item {
-            ListHeader { Text("Activity") }
-        }
-        item {
-            Text(
-                text = "2 hours of listening 400mb of 2.8gb",
-                textAlign = TextAlign.Center
-            )
-        }
+        item { ListHeader { Text("Activity") } }
+        item { Text(text = "2 hours of listening 400mb of 2.8gb", textAlign = TextAlign.Center) }
         item {
             DemoIconChip(
                 style = ChipStyle.Secondary,
@@ -151,9 +143,7 @@ fun ScalingLazyColumnMixedTypes() {
                 DemoImage(resourceId = R.drawable.ic_maps_icon)
             }
         }
-        item {
-            ListHeader { Text("Activity") }
-        }
+        item { ListHeader { Text("Activity") } }
         item {
             AppCard(
                 onClick = {},
@@ -169,20 +159,16 @@ fun ScalingLazyColumnMixedTypes() {
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
-                            "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem " +
-                            "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-                            "tempor incididunt ut labore et dolore magna aliqua."
+                        text =
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+                                "eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem " +
+                                "ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
+                                "tempor incididunt ut labore et dolore magna aliqua."
                     )
                 }
             }
         }
-        item {
-            Text(
-                text = "2 hours of listening 400mb of 2.8gb",
-                textAlign = TextAlign.Center
-            )
-        }
+        item { Text(text = "2 hours of listening 400mb of 2.8gb", textAlign = TextAlign.Center) }
         item {
             AppCard(
                 onClick = {},
@@ -196,9 +182,7 @@ fun ScalingLazyColumnMixedTypes() {
                 title = { Text("AppCard") },
                 time = { Text("now") },
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text("Some body content")
-                }
+                Column(modifier = Modifier.fillMaxWidth()) { Text("Some body content") }
             }
         }
     }

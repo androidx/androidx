@@ -50,10 +50,8 @@ import kotlinx.coroutines.launch
 
 sealed class ConstraintsState {
     object ConstraintsMet : ConstraintsState()
-    data class ConstraintsNotMet(
-        @StopReason
-        val reason: Int
-    ) : ConstraintsState()
+
+    data class ConstraintsNotMet(@StopReason val reason: Int) : ConstraintsState()
 }
 
 fun WorkConstraintsTracker.listen(
@@ -72,12 +70,8 @@ fun interface OnConstraintsStateChangedListener {
     fun onConstraintsStateChanged(workSpec: WorkSpec, state: ConstraintsState)
 }
 
-class WorkConstraintsTracker(
-    private val controllers: List<ConstraintController>
-) {
-    /**
-     * @param trackers Constraints trackers
-     */
+class WorkConstraintsTracker(private val controllers: List<ConstraintController>) {
+    /** @param trackers Constraints trackers */
     constructor(
         trackers: Trackers,
     ) : this(
@@ -89,26 +83,29 @@ class WorkConstraintsTracker(
             NetworkUnmeteredController(trackers.networkStateTracker),
             NetworkNotRoamingController(trackers.networkStateTracker),
             NetworkMeteredController(trackers.networkStateTracker),
-            if (Build.VERSION.SDK_INT >= 28)
-                NetworkRequestConstraintController(trackers.context) else null,
+            if (Build.VERSION.SDK_INT >= 28) NetworkRequestConstraintController(trackers.context)
+            else null,
         )
     )
 
     fun track(spec: WorkSpec): Flow<ConstraintsState> {
         val flows = controllers.filter { it.hasConstraint(spec) }.map { it.track(spec.constraints) }
         return combine(flows) { states ->
-            states.firstOrNull { it != ConstraintsMet } ?: ConstraintsMet
-        }.distinctUntilChanged()
+                states.firstOrNull { it != ConstraintsMet } ?: ConstraintsMet
+            }
+            .distinctUntilChanged()
     }
 
     fun areAllConstraintsMet(workSpec: WorkSpec): Boolean {
         val controllers = controllers.filter { it.isCurrentlyConstrained(workSpec) }
 
         if (controllers.isNotEmpty()) {
-            Logger.get().debug(
-                TAG, "Work ${workSpec.id} constrained by " +
-                    controllers.joinToString { it.javaClass.simpleName }
-            )
+            Logger.get()
+                .debug(
+                    TAG,
+                    "Work ${workSpec.id} constrained by " +
+                        controllers.joinToString { it.javaClass.simpleName }
+                )
         }
         return controllers.isEmpty()
     }
@@ -117,9 +114,7 @@ class WorkConstraintsTracker(
 private val TAG = Logger.tagWithPrefix("WorkConstraintsTracker")
 
 @RequiresApi(28)
-fun NetworkRequestConstraintController(
-    context: Context
-): NetworkRequestConstraintController {
+fun NetworkRequestConstraintController(context: Context): NetworkRequestConstraintController {
     val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     return NetworkRequestConstraintController(manager)
 }
@@ -151,42 +146,41 @@ class NetworkRequestConstraintController(
         // worker at all, if there is no available network.
         val job = launch {
             delay(timeoutMs)
-            Logger.get().debug(
-                TAG, "NetworkRequestConstraintController didn't receive " +
-                    "neither  onCapabilitiesChanged/onLost callback, sending " +
-                    "`ConstraintsNotMet` after $timeoutMs ms"
-            )
+            Logger.get()
+                .debug(
+                    TAG,
+                    "NetworkRequestConstraintController didn't receive " +
+                        "neither  onCapabilitiesChanged/onLost callback, sending " +
+                        "`ConstraintsNotMet` after $timeoutMs ms"
+                )
             trySend(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
         }
 
-        val networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                job.cancel()
-                Logger.get().debug(
-                    TAG, "NetworkRequestConstraintController onCapabilitiesChanged callback"
-                )
-                trySend(ConstraintsMet)
-            }
+        val networkCallback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    networkCapabilities: NetworkCapabilities
+                ) {
+                    job.cancel()
+                    Logger.get()
+                        .debug(
+                            TAG,
+                            "NetworkRequestConstraintController onCapabilitiesChanged callback"
+                        )
+                    trySend(ConstraintsMet)
+                }
 
-            override fun onLost(network: Network) {
-                job.cancel()
-                Logger.get().debug(
-                    TAG, "NetworkRequestConstraintController onLost callback"
-                )
-                trySend(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
+                override fun onLost(network: Network) {
+                    job.cancel()
+                    Logger.get().debug(TAG, "NetworkRequestConstraintController onLost callback")
+                    trySend(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY))
+                }
             }
-        }
-        Logger.get().debug(
-            TAG, "NetworkRequestConstraintController register callback"
-        )
+        Logger.get().debug(TAG, "NetworkRequestConstraintController register callback")
         connManager.registerNetworkCallback(networkRequest, networkCallback)
         awaitClose {
-            Logger.get().debug(
-                TAG, "NetworkRequestConstraintController unregister callback"
-            )
+            Logger.get().debug(TAG, "NetworkRequestConstraintController unregister callback")
             connManager.unregisterNetworkCallback(networkCallback)
         }
     }

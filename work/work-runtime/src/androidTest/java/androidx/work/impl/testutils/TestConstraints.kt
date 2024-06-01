@@ -59,7 +59,9 @@ class TestConstraintController(
 ) : BaseConstraintController<Boolean>(tracker) {
     // using obscure stop reason for test purposes
     override val reason = STOP_REASON_PREEMPT
+
     override fun hasConstraint(workSpec: WorkSpec) = workSpec.id in constrainedIds
+
     override fun isConstrained(value: Boolean) = !value
 }
 

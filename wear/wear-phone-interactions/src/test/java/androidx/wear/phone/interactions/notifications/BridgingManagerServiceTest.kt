@@ -31,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowBinder
 import org.robolectric.shadows.ShadowPackageManager
 
-/** Unit tests for [BridgingManagerService] and [BridgingManagerServiceImpl] classes.  */
+/** Unit tests for [BridgingManagerService] and [BridgingManagerServiceImpl] classes. */
 @RunWith(WearPhoneInteractionsTestRunner::class)
 @DoNotInstrument // Needed because it is defined in the "android" package.
 class BridgingManagerServiceTest {
@@ -73,9 +73,8 @@ class BridgingManagerServiceTest {
         val bridgingManagerService =
             BridgingManagerService(context, testBridgingConfigurationHandler)
         val intent = Intent(BridgingManager.ACTION_BIND_BRIDGING_MANAGER)
-        val bridgingConfig = BridgingConfig.Builder(
-            context /* packageName = PACKAGE_NAME */, false
-        ).build()
+        val bridgingConfig =
+            BridgingConfig.Builder(context /* packageName = PACKAGE_NAME */, false).build()
 
         val binder = bridgingManagerService.onBind(intent)
 
@@ -83,9 +82,7 @@ class BridgingManagerServiceTest {
         val bridgingManagerServiceImpl = IBridgingManagerService.Stub.asInterface(binder)
         assertThat(bridgingManagerServiceImpl).isNotNull()
 
-        assertThrows(
-            IllegalArgumentException::class.java
-        ) {
+        assertThrows(IllegalArgumentException::class.java) {
             bridgingManagerServiceImpl.setBridgingConfig(bridgingConfig.toBundle(context))
         }
     }

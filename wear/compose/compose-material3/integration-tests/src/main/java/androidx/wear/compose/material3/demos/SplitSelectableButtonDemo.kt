@@ -44,33 +44,21 @@ fun SplitSelectableButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        item { ListHeader { Text("Split Selectable Button") } }
         item {
-            ListHeader { Text("Split Selectable Button") }
+            DemoSplitSelectableButton(enabled = true, (selectedRadioIndex == 0)) {
+                selectedRadioIndex = 0
+            }
         }
         item {
-            DemoSplitSelectableButton(
-                enabled = true,
-                (selectedRadioIndex == 0)
-            ) { selectedRadioIndex = 0 }
+            DemoSplitSelectableButton(enabled = true, (selectedRadioIndex == 1)) {
+                selectedRadioIndex = 1
+            }
         }
-        item {
-            DemoSplitSelectableButton(
-                enabled = true,
-                (selectedRadioIndex == 1)
-            ) { selectedRadioIndex = 1 }
-        }
-        item {
-            ListHeader { Text("Disabled Radio Button") }
-        }
-        item {
-            DemoSplitSelectableButton(enabled = false, selected = true)
-        }
-        item {
-            DemoSplitSelectableButton(enabled = false, selected = false)
-        }
-        item {
-            ListHeader { Text("Multi-line") }
-        }
+        item { ListHeader { Text("Disabled Radio Button") } }
+        item { DemoSplitSelectableButton(enabled = false, selected = true) }
+        item { DemoSplitSelectableButton(enabled = false, selected = false) }
+        item { ListHeader { Text("Multi-line") } }
         item {
             DemoSplitSelectableButton(
                 enabled = true,
@@ -117,17 +105,18 @@ private fun DemoSplitSelectableButton(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        secondaryLabel = secondary?.let {
-            {
-                Text(
-                    secondary,
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2,
-                    textAlign = TextAlign.Start,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        },
+        secondaryLabel =
+            secondary?.let {
+                {
+                    Text(
+                        secondary,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 2,
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            },
         selected = selected,
         onSelectionClick = onSelected,
         onContainerClick = {
@@ -136,9 +125,7 @@ private fun DemoSplitSelectableButton(
         },
         enabled = enabled,
         selectionControl = {
-            RadioButton(modifier = Modifier.semantics {
-                contentDescription = primary
-            })
+            RadioButton(modifier = Modifier.semantics { contentDescription = primary })
         }
     )
 }

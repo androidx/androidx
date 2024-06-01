@@ -125,9 +125,9 @@ private class TestAsyncListenableWatchFaceRuntimeService(
         getUiThreadHandler().post {
             future.set(
                 WatchFace(
-                    WatchFaceType.DIGITAL,
-                    FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
-                )
+                        WatchFaceType.DIGITAL,
+                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
+                    )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
         }
@@ -183,9 +183,9 @@ private class TestAsyncListenableStatefulWatchFaceRuntimeService(
         getUiThreadHandler().post {
             future.set(
                 WatchFace(
-                    WatchFaceType.DIGITAL,
-                    FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
-                )
+                        WatchFaceType.DIGITAL,
+                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
+                    )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
         }

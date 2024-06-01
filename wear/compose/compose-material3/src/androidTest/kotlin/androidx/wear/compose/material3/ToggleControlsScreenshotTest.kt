@@ -44,133 +44,118 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ToggleControlsScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
-    fun checkbox_checked_enabled() =
-        verifyScreenshot {
+    fun checkbox_checked_enabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = true, isEnabled = true)) {
+            Checkbox(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun checkbox_unchecked_enabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = false, isEnabled = true)) {
+            Checkbox(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun checkbox_checked_disabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = true, isEnabled = false)) {
+            Checkbox(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun checkbox_unchecked_disabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = false, isEnabled = false)) {
+            Checkbox(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun switch_checked_enabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = true, isEnabled = true)) {
+            Switch(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun switch_unchecked_enabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = false, isEnabled = true)) {
+            Switch(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun switch_checked_disabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = true, isEnabled = false)) {
+            Switch(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun switch_unchecked_disabled() = verifyScreenshot {
+        with(ToggleControlScope(isChecked = false, isEnabled = false)) {
+            Switch(modifier = testBackgroundModifier())
+        }
+    }
+
+    @Test
+    fun switch_rtl_checked_enabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             with(ToggleControlScope(isChecked = true, isEnabled = true)) {
-                Checkbox(modifier = testBackgroundModifier())
-            }
-        }
-
-    @Test
-    fun checkbox_unchecked_enabled() =
-        verifyScreenshot {
-            with(ToggleControlScope(isChecked = false, isEnabled = true)) {
-                Checkbox(modifier = testBackgroundModifier())
-            }
-        }
-
-    @Test
-    fun checkbox_checked_disabled() =
-        verifyScreenshot {
-            with(ToggleControlScope(isChecked = true, isEnabled = false)) {
-                Checkbox(modifier = testBackgroundModifier())
-            }
-        }
-
-    @Test
-    fun checkbox_unchecked_disabled() =
-        verifyScreenshot {
-            with(ToggleControlScope(isChecked = false, isEnabled = false)) {
-                Checkbox(modifier = testBackgroundModifier())
-            }
-        }
-
-    @Test
-    fun switch_checked_enabled() =
-        verifyScreenshot {
-            with(ToggleControlScope(isChecked = true, isEnabled = true)) {
                 Switch(modifier = testBackgroundModifier())
             }
         }
+    }
 
     @Test
-    fun switch_unchecked_enabled() =
-        verifyScreenshot {
+    fun switch_rtl_unchecked_enabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             with(ToggleControlScope(isChecked = false, isEnabled = true)) {
                 Switch(modifier = testBackgroundModifier())
             }
         }
+    }
 
     @Test
-    fun switch_checked_disabled() =
-        verifyScreenshot {
+    fun switch_rtl_checked_disabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             with(ToggleControlScope(isChecked = true, isEnabled = false)) {
                 Switch(modifier = testBackgroundModifier())
             }
         }
+    }
 
     @Test
-    fun switch_unchecked_disabled() =
-        verifyScreenshot {
+    fun switch_rtl_unchecked_disabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             with(ToggleControlScope(isChecked = false, isEnabled = false)) {
                 Switch(modifier = testBackgroundModifier())
             }
         }
-
-    @Test
-    fun switch_rtl_checked_enabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                with(ToggleControlScope(isChecked = true, isEnabled = true)) {
-                    Switch(modifier = testBackgroundModifier())
-                }
-            }
-        }
-
-    @Test
-    fun switch_rtl_unchecked_enabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                with(ToggleControlScope(isChecked = false, isEnabled = true)) {
-                    Switch(modifier = testBackgroundModifier())
-                }
-            }
-        }
-
-    @Test
-    fun switch_rtl_checked_disabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                with(ToggleControlScope(isChecked = true, isEnabled = false)) {
-                    Switch(modifier = testBackgroundModifier())
-                }
-            }
-        }
-
-    @Test
-    fun switch_rtl_unchecked_disabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                with(ToggleControlScope(isChecked = false, isEnabled = false)) {
-                    Switch(modifier = testBackgroundModifier())
-                }
-            }
-        }
+    }
 
     private fun verifyScreenshot(
         threshold: Double = 0.98,
         content: @Composable BoxScope.() -> Unit
     ) {
         rule.setContentWithTheme(composable = content)
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName, MSSIMMatcher(threshold))
     }
 
     @Composable
     private fun testBackgroundModifier(): Modifier =
-        Modifier
-            .testTag(TEST_TAG)
+        Modifier.testTag(TEST_TAG)
             .background(
                 MaterialTheme.colorScheme.primary
                     .copy(alpha = 0.5f)

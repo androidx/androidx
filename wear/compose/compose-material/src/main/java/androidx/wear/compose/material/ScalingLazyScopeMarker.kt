@@ -16,10 +16,9 @@
 
 package androidx.wear.compose.material
 
-/**
- * DSL marker used to distinguish between lazy layout scope and the item scope.
- */
-@Deprecated("Was moved to androidx.wear.compose.foundation.lazy package. " +
-    "Please use it instead")
+/** DSL marker used to distinguish between lazy layout scope and the item scope. */
+@Deprecated(
+    "Was moved to androidx.wear.compose.foundation.lazy package. " + "Please use it instead"
+)
 @DslMarker
 annotation class ScalingLazyScopeMarker

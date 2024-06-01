@@ -51,20 +51,20 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TextTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    private val ExpectedTextStyle = TextStyle(
-        color = Color.Red,
-        fontSize = 32.sp,
-        fontStyle = FontStyle.Italic,
-        fontWeight = FontWeight.Normal,
-        fontFamily = FontFamily.Default,
-        letterSpacing = 1.sp,
-        textDecoration = TextDecoration.Underline,
-        textAlign = TextAlign.End,
-        lineHeight = 10.sp,
-    )
+    private val ExpectedTextStyle =
+        TextStyle(
+            color = Color.Red,
+            fontSize = 32.sp,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight.Normal,
+            fontFamily = FontFamily.Default,
+            letterSpacing = 1.sp,
+            textDecoration = TextDecoration.Underline,
+            textAlign = TextAlign.End,
+            lineHeight = 10.sp,
+        )
     private val TestText = "TestText"
 
     @Test
@@ -91,9 +91,7 @@ class TextTest {
                     AnnotatedString(TestText),
                     minLines = 1,
                     maxLines = 3,
-                    onTextLayout = {
-                        size1 = it.size.height
-                    },
+                    onTextLayout = { size1 = it.size.height },
                     style = ExpectedTextStyle
                 )
 
@@ -101,17 +99,13 @@ class TextTest {
                     AnnotatedString(TestText),
                     minLines = 2,
                     maxLines = 3,
-                    onTextLayout = {
-                        size2 = it.size.height
-                    },
+                    onTextLayout = { size2 = it.size.height },
                     style = ExpectedTextStyle
                 )
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(size2).isGreaterThan(size1)
-        }
+        rule.runOnIdle { Truth.assertThat(size2).isGreaterThan(size1) }
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -140,20 +134,12 @@ class TextTest {
 
     @Test
     fun colorParameterOverridesStyleColor() {
-        verifyTextColor(
-            Color.Red,
-            ExpectedTextStyle,
-            Color.Red
-        )
+        verifyTextColor(Color.Red, ExpectedTextStyle, Color.Red)
     }
 
     @Test
     fun styleColorOverridesUnspecifiedColor() {
-        verifyTextColor(
-            Color.Unspecified,
-            ExpectedTextStyle,
-            ExpectedTextStyle.color
-        )
+        verifyTextColor(Color.Unspecified, ExpectedTextStyle, ExpectedTextStyle.color)
     }
 
     @Test
@@ -233,31 +219,21 @@ class TextTest {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    private fun verifyTextColor(
-        color: Color,
-        style: TextStyle,
-        expectedColor: Color
-    ) {
+    private fun verifyTextColor(color: Color, style: TextStyle, expectedColor: Color) {
         var textColor: Color? = null
         rule.setContent {
             TextWithDefaults(
                 AnnotatedString(TestText),
                 color = color,
                 modifier = Modifier.testTag(TEST_TAG),
-                onTextLayout = {
-                    textColor = it.layoutInput.style.color
-                },
+                onTextLayout = { textColor = it.layoutInput.style.color },
                 style = style
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedColor, 0.1f)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor, 0.1f)
 
-        rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
-        }
+        rule.runOnIdle { Truth.assertThat(textColor).isEqualTo(expectedColor) }
     }
 }
 

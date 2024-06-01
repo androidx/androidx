@@ -55,24 +55,24 @@ import androidx.wear.compose.material.VignettePosition
 
 /**
  * [Dialog] displays a full-screen dialog, layered over any other content. It takes a single slot,
- * which is expected to be an opinionated Wear dialog content, such as [Alert]
- * or [Confirmation].
+ * which is expected to be an opinionated Wear dialog content, such as [Alert] or [Confirmation].
  *
- * The dialog supports swipe-to-dismiss and reveals the parent content in the background
- * during the swipe gesture.
+ * The dialog supports swipe-to-dismiss and reveals the parent content in the background during the
+ * swipe gesture.
  *
  * Example of content using [Dialog] to trigger an alert dialog using [Alert]:
+ *
  * @sample androidx.wear.compose.material.samples.AlertDialogSample
  *
- * Example of content using [Dialog] to trigger a confirmation dialog using
- * [Confirmation]:
+ * Example of content using [Dialog] to trigger a confirmation dialog using [Confirmation]:
+ *
  * @sample androidx.wear.compose.material.samples.ConfirmationDialogSample
-
- * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger
- * an 'intro' animation and display the [Dialog]. Subsequently, setting to false triggers
- * an 'outro' animation, then [Dialog] calls [onDismissRequest] and hides itself.
- * @param onDismissRequest Executes when the user dismisses the dialog.
- * Must remove the dialog from the composition.
+ *
+ * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger an
+ *   'intro' animation and display the [Dialog]. Subsequently, setting to false triggers an 'outro'
+ *   animation, then [Dialog] calls [onDismissRequest] and hides itself.
+ * @param onDismissRequest Executes when the user dismisses the dialog. Must remove the dialog from
+ *   the composition.
  * @param modifier Modifier to be applied to the dialog.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed.
  * @param properties Typically platform specific properties to further configure the dialog.
@@ -99,24 +99,24 @@ public fun Dialog(
 
 /**
  * [Dialog] displays a full-screen dialog, layered over any other content. It takes a single slot,
- * which is expected to be an opinionated Wear dialog content, such as [Alert]
- * or [Confirmation].
+ * which is expected to be an opinionated Wear dialog content, such as [Alert] or [Confirmation].
  *
- * The dialog supports swipe-to-dismiss and reveals the parent content in the background
- * during the swipe gesture.
+ * The dialog supports swipe-to-dismiss and reveals the parent content in the background during the
+ * swipe gesture.
  *
  * Example of content using [Dialog] to trigger an alert dialog using [Alert]:
+ *
  * @sample androidx.wear.compose.material.samples.AlertDialogSample
  *
- * Example of content using [Dialog] to trigger a confirmation dialog using
- * [Confirmation]:
+ * Example of content using [Dialog] to trigger a confirmation dialog using [Confirmation]:
+ *
  * @sample androidx.wear.compose.material.samples.ConfirmationDialogSample
-
- * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger
- * an 'intro' animation and display the [Dialog]. Subsequently, setting to false triggers
- * an 'outro' animation, then [Dialog] calls [onDismissRequest] and hides itself.
- * @param onDismissRequest Executes when the user dismisses the dialog.
- * Must remove the dialog from the composition.
+ *
+ * @param showDialog Controls whether to display the [Dialog]. Set to true initially to trigger an
+ *   'intro' animation and display the [Dialog]. Subsequently, setting to false triggers an 'outro'
+ *   animation, then [Dialog] calls [onDismissRequest] and hides itself.
+ * @param onDismissRequest Executes when the user dismisses the dialog. Must remove the dialog from
+ *   the composition.
  * @param modifier Modifier to be applied to the dialog.
  * @param scrollState The scroll state for the dialog so that the scroll position can be displayed.
  * @param properties Typically platform specific properties to further configure the dialog.
@@ -126,7 +126,8 @@ public fun Dialog(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState from " +
-        "wear.compose.foundation.lazy package", level = DeprecationLevel.HIDDEN
+        "wear.compose.foundation.lazy package",
+    level = DeprecationLevel.HIDDEN
 )
 @Composable
 public fun Dialog(
@@ -149,8 +150,8 @@ public fun Dialog(
 }
 
 /**
- * A Dialog composable which was created for sharing code between 2 versions
- * of public [Dialog]s - with ScalingLazyListState from material and another from foundation.lazy
+ * A Dialog composable which was created for sharing code between 2 versions of public [Dialog]s -
+ * with ScalingLazyListState from material and another from foundation.lazy
  */
 @Composable
 private fun Dialog(
@@ -167,16 +168,13 @@ private fun Dialog(
     }
     val transition = rememberTransition(transitionState)
 
-    var pendingOnDismissCall by remember {
-        mutableStateOf(false)
-    }
+    var pendingOnDismissCall by remember { mutableStateOf(false) }
 
     if (showDialog || transition.currentState == DialogVisibility.Display) {
         Dialog(
             onDismissRequest = onDismissRequest,
             properties = properties,
         ) {
-
             val backgroundScrimAlpha by animateBackgroundScrimAlpha(transition)
             val contentAlpha by animateContentAlpha(transition)
             val scale by animateDialogScale(transition)
@@ -184,14 +182,16 @@ private fun Dialog(
                 vignette = {
                     AnimatedVisibility(
                         visible = transition.targetState == DialogVisibility.Display,
-                        enter = fadeIn(
-                            animationSpec =
-                            TweenSpec(durationMillis = CASUAL, easing = STANDARD_IN)
-                        ),
-                        exit = fadeOut(
-                            animationSpec =
-                            TweenSpec(durationMillis = CASUAL, easing = STANDARD_OUT)
-                        ),
+                        enter =
+                            fadeIn(
+                                animationSpec =
+                                    TweenSpec(durationMillis = CASUAL, easing = STANDARD_IN)
+                            ),
+                        exit =
+                            fadeOut(
+                                animationSpec =
+                                    TweenSpec(durationMillis = CASUAL, easing = STANDARD_OUT)
+                            ),
                     ) {
                         Vignette(vignettePosition = VignettePosition.TopAndBottom)
                     }
@@ -200,11 +200,12 @@ private fun Dialog(
             ) {
                 SwipeToDismissBox(
                     state = rememberSwipeToDismissBoxState(),
-                    modifier = Modifier.graphicsLayer(
-                        alpha = backgroundScrimAlpha,
-                        scaleX = scale,
-                        scaleY = scale,
-                    ),
+                    modifier =
+                        Modifier.graphicsLayer(
+                            alpha = backgroundScrimAlpha,
+                            scaleX = scale,
+                            scaleY = scale,
+                        ),
                     onDismissed = {
                         onDismissRequest()
                         // Reset state for the next time this dialog is shown.
@@ -213,10 +214,10 @@ private fun Dialog(
                 ) { isBackground ->
                     if (!isBackground) {
                         Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .graphicsLayer(alpha = contentAlpha)
-                                .background(MaterialTheme.colors.background)
+                            modifier =
+                                Modifier.matchParentSize()
+                                    .graphicsLayer(alpha = contentAlpha)
+                                    .background(MaterialTheme.colors.background)
                         ) {
                             content()
                             positionIndicator()
@@ -236,9 +237,10 @@ private fun Dialog(
             }
 
             LaunchedEffect(transitionState.currentState) {
-                if (pendingOnDismissCall &&
-                    transitionState.currentState == DialogVisibility.Hide &&
-                    transitionState.isIdle
+                if (
+                    pendingOnDismissCall &&
+                        transitionState.currentState == DialogVisibility.Hide &&
+                        transitionState.isIdle
                 ) {
                     // After the outro animation, leave the dialog & reset alpha/scale transitions.
                     onDismissRequest()
@@ -250,79 +252,73 @@ private fun Dialog(
 }
 
 @Composable
-private fun animateBackgroundScrimAlpha(
-    transition: Transition<DialogVisibility>
-) = transition.animateFloat(
-    transitionSpec = {
-        when (transition.targetState) {
-            DialogVisibility.Display -> tween(
-                durationMillis = (RAPID / 0.9f).toInt(),
-                easing = STANDARD_OUT
-            )
-
-            DialogVisibility.Hide -> keyframes {
-                // Outro
-                durationMillis = QUICK + RAPID
-                1f at 0
-                0.9f at RAPID using STANDARD_IN
-                0.0f at RAPID + QUICK
+private fun animateBackgroundScrimAlpha(transition: Transition<DialogVisibility>) =
+    transition.animateFloat(
+        transitionSpec = {
+            when (transition.targetState) {
+                DialogVisibility.Display ->
+                    tween(durationMillis = (RAPID / 0.9f).toInt(), easing = STANDARD_OUT)
+                DialogVisibility.Hide ->
+                    keyframes {
+                        // Outro
+                        durationMillis = QUICK + RAPID
+                        1f at 0
+                        0.9f at RAPID using STANDARD_IN
+                        0.0f at RAPID + QUICK
+                    }
             }
+        },
+        label = "background-scrim-alpha"
+    ) { stage ->
+        when (stage) {
+            DialogVisibility.Hide -> 0f
+            DialogVisibility.Display -> 1f
         }
-    },
-    label = "background-scrim-alpha"
-) { stage ->
-    when (stage) {
-        DialogVisibility.Hide -> 0f
-        DialogVisibility.Display -> 1f
     }
-}
 
 @Composable
-private fun animateContentAlpha(
-    transition: Transition<DialogVisibility>
-) = transition.animateFloat(
-    transitionSpec = {
-        when (transition.targetState) {
-            DialogVisibility.Display -> keyframes {
-                // Intro
-                durationMillis = QUICK + RAPID
-                0.0f at 0
-                0.1f at RAPID using STANDARD_IN
-                1f at RAPID + QUICK
+private fun animateContentAlpha(transition: Transition<DialogVisibility>) =
+    transition.animateFloat(
+        transitionSpec = {
+            when (transition.targetState) {
+                DialogVisibility.Display ->
+                    keyframes {
+                        // Intro
+                        durationMillis = QUICK + RAPID
+                        0.0f at 0
+                        0.1f at RAPID using STANDARD_IN
+                        1f at RAPID + QUICK
+                    }
+                DialogVisibility.Hide ->
+                    tween(durationMillis = (RAPID / 0.9f).toInt(), easing = STANDARD_OUT)
             }
-
-            DialogVisibility.Hide -> tween(
-                durationMillis = (RAPID / 0.9f).toInt(),
-                easing = STANDARD_OUT
-            )
+        },
+        label = "content-alpha"
+    ) { stage ->
+        when (stage) {
+            DialogVisibility.Hide -> 0f
+            DialogVisibility.Display -> 1f
         }
-    },
-    label = "content-alpha"
-) { stage ->
-    when (stage) {
-        DialogVisibility.Hide -> 0f
-        DialogVisibility.Display -> 1f
     }
-}
 
 @Composable
-private fun animateDialogScale(
-    transition: Transition<DialogVisibility>
-) = transition.animateFloat(
-    transitionSpec = {
-        when (transition.targetState) {
-            DialogVisibility.Display -> tween(durationMillis = CASUAL, easing = STANDARD_IN)
-            DialogVisibility.Hide -> tween(durationMillis = CASUAL, easing = STANDARD_OUT)
+private fun animateDialogScale(transition: Transition<DialogVisibility>) =
+    transition.animateFloat(
+        transitionSpec = {
+            when (transition.targetState) {
+                DialogVisibility.Display -> tween(durationMillis = CASUAL, easing = STANDARD_IN)
+                DialogVisibility.Hide -> tween(durationMillis = CASUAL, easing = STANDARD_OUT)
+            }
+        },
+        label = "scale"
+    ) { stage ->
+        when (stage) {
+            DialogVisibility.Hide -> 1.25f
+            DialogVisibility.Display -> 1.0f
         }
-    },
-    label = "scale"
-) { stage ->
-    when (stage) {
-        DialogVisibility.Hide -> 1.25f
-        DialogVisibility.Display -> 1.0f
     }
-}
 
 private enum class DialogVisibility {
-    Hide, Display;
+    Hide,
+    Display
 }

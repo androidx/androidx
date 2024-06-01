@@ -22,16 +22,15 @@ import androidx.work.loge
 
 /**
  * Runs worker exception handler and catches any [Throwable] thrown.
- * @receiver The worker exception handler
+ *
  * @param info The info about the exception
  * @param tag Tag used for logging [Throwable] thrown from the handler
+ * @receiver The worker exception handler
  */
 fun Consumer<WorkerExceptionInfo>.safeAccept(info: WorkerExceptionInfo, tag: String) {
     try {
         accept(info)
     } catch (throwable: Throwable) {
-        loge(tag, throwable) {
-            "Exception handler threw an exception"
-        }
+        loge(tag, throwable) { "Exception handler threw an exception" }
     }
 }

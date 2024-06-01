@@ -48,9 +48,8 @@ class ControlledWorkerWrapperTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val taskExecutor = ManualTaskExecutor()
     private val backgroundExecutor = ManualExecutor()
-    private val workDatabase = WorkDatabase.create(
-        context, taskExecutor.serialTaskExecutor, SystemClock(), true
-    )
+    private val workDatabase =
+        WorkDatabase.create(context, taskExecutor.serialTaskExecutor, SystemClock(), true)
 
     @Test
     fun testInterruptionsBefore() {
@@ -60,8 +59,8 @@ class ControlledWorkerWrapperTest {
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
         val future = workerWrapper.launch()
 
-        while (taskExecutor.serialTaskExecutor.hasPendingTask() ||
-            backgroundExecutor.hasPendingTask()
+        while (
+            taskExecutor.serialTaskExecutor.hasPendingTask() || backgroundExecutor.hasPendingTask()
         ) {
             taskExecutor.serialTaskExecutor.drain()
             backgroundExecutor.drain()
@@ -75,9 +74,10 @@ class ControlledWorkerWrapperTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.R) // getForegroundInfoAsync isn't called on S
     fun testInterruptionsBetweenGetForegroundInfoAsyncAndStartWork() {
-        val work = OneTimeWorkRequest.Builder(TestWrapperWorker::class.java)
-            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-            .build()
+        val work =
+            OneTimeWorkRequest.Builder(TestWrapperWorker::class.java)
+                .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+                .build()
         workDatabase.workSpecDao().insertWorkSpec(work.workSpec)
         lateinit var worker: TestWrapperWorker
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
@@ -86,10 +86,7 @@ class ControlledWorkerWrapperTest {
         assertThat(worker.getForegroundInfoAsyncWasCalled).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
         worker.foregroundInfoCompleter.set(
-            ForegroundInfo(
-                0,
-                NotificationCompat.Builder(context, "test").build()
-            )
+            ForegroundInfo(0, NotificationCompat.Builder(context, "test").build())
         )
         workerWrapper.interrupt(0)
         drainAll()
@@ -100,8 +97,8 @@ class ControlledWorkerWrapperTest {
     private fun drainAll() {
         while (
             taskExecutor.serialTaskExecutor.hasPendingTask() ||
-            backgroundExecutor.hasPendingTask() ||
-            taskExecutor.mainExecutor.hasPendingTask()
+                backgroundExecutor.hasPendingTask() ||
+                taskExecutor.mainExecutor.hasPendingTask()
         ) {
             taskExecutor.serialTaskExecutor.drain()
             backgroundExecutor.drain()
@@ -113,39 +110,44 @@ class ControlledWorkerWrapperTest {
         id: String,
         workerInterceptor: (TestWrapperWorker) -> Unit
     ): WorkerWrapper {
-        val config = Configuration.Builder()
-            .setExecutor(backgroundExecutor)
-            .setWorkerFactory(object : WorkerFactory() {
-                override fun createWorker(
-                    appContext: Context,
-                    workerClassName: String,
-                    workerParameters: WorkerParameters
-                ): ListenableWorker {
-                    val worker = TestWrapperWorker(
-                        appContext, workerParameters,
-                    )
-                    workerInterceptor(worker)
-                    return worker
-                }
-            }).build()
+        val config =
+            Configuration.Builder()
+                .setExecutor(backgroundExecutor)
+                .setWorkerFactory(
+                    object : WorkerFactory() {
+                        override fun createWorker(
+                            appContext: Context,
+                            workerClassName: String,
+                            workerParameters: WorkerParameters
+                        ): ListenableWorker {
+                            val worker =
+                                TestWrapperWorker(
+                                    appContext,
+                                    workerParameters,
+                                )
+                            workerInterceptor(worker)
+                            return worker
+                        }
+                    }
+                )
+                .build()
         return WorkerWrapper.Builder(
-            context,
-            config,
-            taskExecutor,
-            NoOpForegroundProcessor,
-            workDatabase,
-            workDatabase.workSpecDao().getWorkSpec(id)!!,
-            emptyList()
-        ).build()
+                context,
+                config,
+                taskExecutor,
+                NoOpForegroundProcessor,
+                workDatabase,
+                workDatabase.workSpecDao().getWorkSpec(id)!!,
+                emptyList()
+            )
+            .build()
     }
 }
 
 internal class TestWrapperWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-) : ListenableWorker(
-    appContext, workerParams
-) {
+) : ListenableWorker(appContext, workerParams) {
     var getForegroundInfoAsyncWasCalled = false
     var startWorkWasCalled = false
     lateinit var foregroundInfoCompleter: Completer<ForegroundInfo>
@@ -165,8 +167,7 @@ internal class TestWrapperWorker(
 }
 
 object NoOpForegroundProcessor : ForegroundProcessor {
-    override fun startForeground(workSpecId: String, foregroundInfo: ForegroundInfo) {
-    }
+    override fun startForeground(workSpecId: String, foregroundInfo: ForegroundInfo) {}
 }
 
 class ManualExecutor : Executor {

@@ -209,7 +209,7 @@ public interface EditorSession : AutoCloseable {
      * editor session has ended.
      *
      * @param slotIdToComplicationData The complications you wish to set. Any slots not covered by
-     * this map will be unchanged.
+     *   this map will be unchanged.
      */
     public fun setOverrideComplications(slotIdToComplicationData: Map<Int, ComplicationData>) {
         // We expect this to be overridden.
@@ -710,8 +710,7 @@ internal constructor(
                             // Coerce to a Map<Int, ComplicationData> omitting null values.
                             // If mapNotNullValues existed we would use it here.
                         )
-                        ?.mapValues { it.value.await() ?: EmptyComplicationData() }
-                        ?: emptyMap()
+                        ?.mapValues { it.value.await() ?: EmptyComplicationData() } ?: emptyMap()
                 deferredComplicationPreviewDataAvailable.complete(Unit)
             } finally {
                 complicationDataSourceInfoRetriever.close()
@@ -1162,7 +1161,8 @@ internal class ComplicationDataSourceChooserResult(
  */
 internal class ComplicationDataSourceChooserContract :
     ActivityResultContract<
-        ComplicationDataSourceChooserRequest, ComplicationDataSourceChooserResult?
+        ComplicationDataSourceChooserRequest,
+        ComplicationDataSourceChooserResult?
     >() {
 
     internal companion object {
@@ -1212,8 +1212,7 @@ internal class ComplicationDataSourceChooserContract :
             val extras =
                 intent.extras?.let { extras ->
                     Bundle(extras).apply { remove(EXTRA_PROVIDER_INFO) }
-                }
-                    ?: Bundle.EMPTY
+                } ?: Bundle.EMPTY
             ComplicationDataSourceChooserResult(
                 it.getParcelableExtra<
                         android.support.wearable.complications.ComplicationProviderInfo

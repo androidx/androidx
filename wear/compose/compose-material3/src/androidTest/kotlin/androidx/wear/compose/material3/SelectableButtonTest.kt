@@ -56,15 +56,12 @@ import org.junit.Rule
 import org.junit.Test
 
 class SelectableButtonTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun selectable_button_supports_testtag() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -73,9 +70,7 @@ class SelectableButtonTest {
     @Test
     fun split_selectable_button_supports_testtag() {
         rule.setContentWithTheme {
-            SplitSelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitSelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -84,41 +79,28 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_has_role_radiobutton() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.RadioButton
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
     }
 
     @Test
     fun selectable_button_samples_build() {
-        rule.setContentWithTheme {
-            SelectableButtonSample()
-        }
+        rule.setContentWithTheme { SelectableButtonSample() }
     }
 
     @Test
     fun split_selectable_button_samples_build() {
-        rule.setContentWithTheme {
-            SplitSelectableButtonSample()
-        }
+        rule.setContentWithTheme { SplitSelectableButtonSample() }
     }
 
     @Test
     fun selectable_button_has_clickaction_when_enabled() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -127,10 +109,7 @@ class SelectableButtonTest {
     @Test
     fun split_selectable_button_has_clickaction_when_enabled() {
         rule.setContentWithTheme {
-            SplitSelectableButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitSelectableButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
@@ -139,10 +118,7 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_has_clickaction_when_disabled() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -163,9 +139,7 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_is_selectable() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNode(isSelectable()).assertExists()
@@ -174,9 +148,7 @@ class SelectableButtonTest {
     @Test
     fun split_selectable_button_is_selectable() {
         rule.setContentWithTheme {
-            SplitSelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitSelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNode(isSelectable()).assertExists()
@@ -185,9 +157,7 @@ class SelectableButtonTest {
     @Test
     fun split_selectable_button_is_clickable() {
         rule.setContentWithTheme {
-            SplitSelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitSelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
     }
@@ -195,10 +165,7 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_is_correctly_enabled() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -207,10 +174,7 @@ class SelectableButtonTest {
     @Test
     fun split_selectable_button_is_correctly_enabled() {
         rule.setContentWithTheme {
-            SplitSelectableButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitSelectableButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -219,10 +183,7 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_is_correctly_disabled() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
@@ -243,10 +204,7 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_is_correctly_selected() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                selected = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(selected = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsSelected()
@@ -267,10 +225,7 @@ class SelectableButtonTest {
     @Test
     fun selectable_button_is_correctly_unselected() {
         rule.setContentWithTheme {
-            SelectableButtonWithDefaults(
-                selected = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SelectableButtonWithDefaults(selected = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotSelected()
@@ -300,11 +255,7 @@ class SelectableButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected().performClick().assertIsSelected()
     }
 
     @Test
@@ -397,11 +348,7 @@ class SelectableButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsNotSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected().performClick().assertIsNotSelected()
     }
 
     @Test
@@ -428,40 +375,27 @@ class SelectableButtonTest {
     fun can_override_role() {
         rule.setContentWithTheme {
             SelectableButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .semantics {
-                        role = Role.Button
-                    }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Button }
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Button
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
     fun split_button_clickable_has_role_button() {
         rule.setContentWithTheme {
-            SplitSelectableButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitSelectableButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG))
         }
 
         // NB The toggle control (Checkbox or Switch) provides its own role,
         // but the main clickable section is a Button.
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Button
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(0)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
@@ -472,9 +406,7 @@ class SelectableButtonTest {
             SelectableButtonWithDefaults(
                 selected = true,
                 onSelected = {},
-                label = {
-                    Text(text = textContent)
-                }
+                label = { Text(text = textContent) }
             )
         }
 
@@ -489,9 +421,7 @@ class SelectableButtonTest {
             SplitSelectableButtonWithDefaults(
                 selected = true,
                 onSelected = {},
-                label = {
-                    Text(text = textContent)
-                }
+                label = { Text(text = textContent) }
             )
         }
 
@@ -502,60 +432,58 @@ class SelectableButtonTest {
     fun selectable_button_hasAdjustableHeight() {
         val minHeight: Dp = 53.dp
 
-        rule.setContentWithThemeForSizeAssertions {
-            SelectableButtonWithDefaults(
-                label = {
-                    Text(
-                        text = "RadioButton text spanning over multiple lines of text " +
-                            "to test height is adjustable. This should exceed the minimum height" +
-                            " for the RadioButton."
-                    )
-                },
-                secondaryLabel = {
-                    Text(
-                        text = "Secondary label with text."
-                    )
-                }
-            )
-        }.assertHeightIsAtLeast(minHeight)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                SelectableButtonWithDefaults(
+                    label = {
+                        Text(
+                            text =
+                                "RadioButton text spanning over multiple lines of text " +
+                                    "to test height is adjustable. This should exceed the minimum height" +
+                                    " for the RadioButton."
+                        )
+                    },
+                    secondaryLabel = { Text(text = "Secondary label with text.") }
+                )
+            }
+            .assertHeightIsAtLeast(minHeight)
     }
 
     @Test
     fun split_selectable_button_hasAdjustableHeight() {
         val minHeight: Dp = 53.dp
 
-        rule.setContentWithThemeForSizeAssertions {
-            SplitSelectableButtonWithDefaults(
-                label = {
-                    Text(
-                        text = "Primary label with 3 lines of text."
-                    )
-                },
-                secondaryLabel = {
-                    Text(
-                        text = "SplitRadioButton text spanning over multiple lines of text " +
-                            "to test height is adjustable. This should exceed the minimum height" +
-                            " for the SplitRadioButton."
-                    )
-                }
-            )
-        }.assertHeightIsAtLeast(minHeight)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                SplitSelectableButtonWithDefaults(
+                    label = { Text(text = "Primary label with 3 lines of text.") },
+                    secondaryLabel = {
+                        Text(
+                            text =
+                                "SplitRadioButton text spanning over multiple lines of text " +
+                                    "to test height is adjustable. This should exceed the minimum height" +
+                                    " for the SplitRadioButton."
+                        )
+                    }
+                )
+            }
+            .assertHeightIsAtLeast(minHeight)
     }
 
     @Test
     fun selectable_button_height_defaults_52dp() {
-        rule.setContentWithThemeForSizeAssertions {
-            SelectableButtonWithDefaults(
-                secondaryLabel = { Text("Secondary label") }
-            )
-        }.assertHeightIsEqualTo(52.dp)
+        rule
+            .setContentWithThemeForSizeAssertions {
+                SelectableButtonWithDefaults(secondaryLabel = { Text("Secondary label") })
+            }
+            .assertHeightIsEqualTo(52.dp)
     }
 
     @Test
     fun split_selectable_button_height_defaults_52dp() {
-        rule.setContentWithThemeForSizeAssertions {
-            SplitSelectableButtonWithDefaults()
-        }.assertHeightIsEqualTo(52.dp)
+        rule
+            .setContentWithThemeForSizeAssertions { SplitSelectableButtonWithDefaults() }
+            .assertHeightIsEqualTo(52.dp)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -603,19 +531,18 @@ class SelectableButtonTest {
         rule.setContentWithTheme {
             SelectableButtonWithDefaults(
                 selected = selected,
-                colors = SelectableButtonDefaults.selectableButtonColors(
-                    selectedContainerColor = SELECTED_COLOR,
-                    unselectedContainerColor = UNSELECTED_COLOR
-                ),
+                colors =
+                    SelectableButtonDefaults.selectableButtonColors(
+                        selectedContainerColor = SELECTED_COLOR,
+                        unselectedContainerColor = UNSELECTED_COLOR
+                    ),
                 onSelected = {},
                 enabled = enabled,
                 modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedColor)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -627,19 +554,18 @@ class SelectableButtonTest {
         rule.setContentWithTheme {
             SplitSelectableButtonWithDefaults(
                 selected = selected,
-                colors = SelectableButtonDefaults.splitSelectableButtonColors(
-                    selectedContainerColor = SELECTED_COLOR,
-                    unselectedContainerColor = UNSELECTED_COLOR
-                ),
+                colors =
+                    SelectableButtonDefaults.splitSelectableButtonColors(
+                        selectedContainerColor = SELECTED_COLOR,
+                        unselectedContainerColor = UNSELECTED_COLOR
+                    ),
                 onSelected = {},
                 enabled = enabled,
                 modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedColor)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
     }
 }
 
@@ -650,9 +576,7 @@ private fun SelectableButtonWithDefaults(
     enabled: Boolean = true,
     colors: SelectableButtonColors = SelectableButtonDefaults.selectableButtonColors(),
     onSelected: () -> Unit = {},
-    label: @Composable RowScope.() -> Unit = {
-        Text("Primary")
-    },
+    label: @Composable RowScope.() -> Unit = { Text("Primary") },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     selectionControl: @Composable SelectionControlScope.() -> Unit = { RadioButton() }
@@ -677,22 +601,21 @@ private fun SplitSelectableButtonWithDefaults(
     colors: SplitSelectableButtonColors = SelectableButtonDefaults.splitSelectableButtonColors(),
     onSelected: () -> Unit = {},
     onClick: () -> Unit = {},
-    label: @Composable RowScope.() -> Unit = {
-        Text("Primary")
-    },
+    label: @Composable RowScope.() -> Unit = { Text("Primary") },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     selectionControl: @Composable SelectionControlScope.() -> Unit = { RadioButton() }
-) = SplitSelectableButton(
-    modifier = modifier,
-    colors = colors,
-    selected = selected,
-    enabled = enabled,
-    onSelectionClick = onSelected,
-    label = label,
-    secondaryLabel = secondaryLabel,
-    onContainerClick = onClick,
-    selectionControl = selectionControl,
-)
+) =
+    SplitSelectableButton(
+        modifier = modifier,
+        colors = colors,
+        selected = selected,
+        enabled = enabled,
+        onSelectionClick = onSelected,
+        label = label,
+        secondaryLabel = secondaryLabel,
+        onContainerClick = onClick,
+        selectionControl = selectionControl,
+    )
 
 private val SELECTED_COLOR = Color(0xFFA020F0)
 private val UNSELECTED_COLOR = Color(0xFFFFA500)

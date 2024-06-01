@@ -36,39 +36,24 @@ import org.junit.Rule
 import org.junit.Test
 
 class CurvedBoxTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun first_item_covered_by_second() {
         rule.setContent {
-            CurvedLayout(
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
+            CurvedLayout(modifier = Modifier.testTag(TEST_TAG)) {
                 curvedBox {
-                    curvedComposable {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(Color.Red)
-                        )
-                    }
+                    curvedComposable { Box(modifier = Modifier.size(40.dp).background(Color.Red)) }
 
                     curvedComposable {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(Color.Green)
-                        )
+                        Box(modifier = Modifier.size(40.dp).background(Color.Green))
                     }
                 }
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertDoesNotContainColor(Color.Red)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Red)
     }
 
     @Test
@@ -197,20 +182,14 @@ class CurvedBoxTest {
         val bigSpy = CapturedInfo()
         // We have a big box and a small box with the specified alignment
         rule.setContent {
-            CurvedLayout(
-                modifier = Modifier.onGloballyPositioned { rowCoords = it }
-            ) {
-                curvedBox(
-                    radialAlignment = radialAlignment,
-                    angularAlignment = angularAlignment
-                ) {
+            CurvedLayout(modifier = Modifier.onGloballyPositioned { rowCoords = it }) {
+                curvedBox(radialAlignment = radialAlignment, angularAlignment = angularAlignment) {
                     curvedComposable(
                         modifier = CurvedModifier.spy(bigSpy),
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(45.dp)
-                                .onGloballyPositioned { bigBoxCoords = it }
+                            modifier =
+                                Modifier.size(45.dp).onGloballyPositioned { bigBoxCoords = it }
                         )
                     }
 
@@ -218,9 +197,8 @@ class CurvedBoxTest {
                         modifier = CurvedModifier.spy(smallSpy),
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(30.dp)
-                                .onGloballyPositioned { smallBoxCoords = it }
+                            modifier =
+                                Modifier.size(30.dp).onGloballyPositioned { smallBoxCoords = it }
                         )
                     }
                 }
@@ -228,18 +206,12 @@ class CurvedBoxTest {
         }
 
         rule.runOnIdle {
-            val bigBoxDimensions = RadialDimensions(
-                absoluteClockwise = true,
-                rowCoords!!,
-                bigBoxCoords!!
-            )
+            val bigBoxDimensions =
+                RadialDimensions(absoluteClockwise = true, rowCoords!!, bigBoxCoords!!)
             checkSpy(bigBoxDimensions, bigSpy)
 
-            val smallBoxDimensions = RadialDimensions(
-                absoluteClockwise = true,
-                rowCoords!!,
-                smallBoxCoords!!
-            )
+            val smallBoxDimensions =
+                RadialDimensions(absoluteClockwise = true, rowCoords!!, smallBoxCoords!!)
             checkSpy(smallBoxDimensions, smallSpy)
 
             Assert.assertTrue(bigBoxDimensions.sweep > smallBoxDimensions.sweep)

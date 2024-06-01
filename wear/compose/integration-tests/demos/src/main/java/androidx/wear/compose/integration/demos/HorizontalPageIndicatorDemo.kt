@@ -56,17 +56,21 @@ import androidx.wear.compose.material.Text
 fun CustomizedHorizontalPageIndicator() {
     val maxPages = 6
     var selectedPage by remember { mutableIntStateOf(0) }
-    val animatedSelectedPage by animateFloatAsState(
-        targetValue = selectedPage.toFloat(),
-        animationSpec = TweenSpec(durationMillis = 500), label = "page-indicator"
-    )
+    val animatedSelectedPage by
+        animateFloatAsState(
+            targetValue = selectedPage.toFloat(),
+            animationSpec = TweenSpec(durationMillis = 500),
+            label = "page-indicator"
+        )
 
     val pageIndicatorState: PageIndicatorState = remember {
         object : PageIndicatorState {
             override val pageOffset: Float
                 get() = animatedSelectedPage - selectedPage
+
             override val selectedPage: Int
                 get() = selectedPage
+
             override val pageCount: Int
                 get() = maxPages
         }
@@ -98,18 +102,22 @@ fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
     val pagerState = rememberPagerState { pagesCount }
     var background by remember { mutableStateOf(Color.Black) }
     var selectedPage by remember { mutableIntStateOf(0) }
-    val animatedSelectedPage by animateFloatAsState(
-        targetValue = pagerState.targetPage.toFloat(), label = "page-indicator",
-    ) {
-        selectedPage = it.toInt()
-    }
+    val animatedSelectedPage by
+        animateFloatAsState(
+            targetValue = pagerState.targetPage.toFloat(),
+            label = "page-indicator",
+        ) {
+            selectedPage = it.toInt()
+        }
 
     val pageIndicatorState: PageIndicatorState = remember {
         object : PageIndicatorState {
             override val pageOffset: Float
                 get() = animatedSelectedPage - selectedPage
+
             override val selectedPage: Int
                 get() = selectedPage
+
             override val pageCount: Int
                 get() = pagesCount
         }
@@ -126,13 +134,8 @@ fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
                 )
         ) { page ->
             val scrollState = rememberScalingLazyListState()
-            ScalingLazyColumn(
-                state = scrollState,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    ListHeader { Text("Page $page") }
-                }
+            ScalingLazyColumn(state = scrollState, modifier = Modifier.fillMaxWidth()) {
+                item { ListHeader { Text("Page $page") } }
                 items(4) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -143,9 +146,7 @@ fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
                                 background =
                                     if (background == Color.Black) Color.DarkGray else Color.Black
                             },
-                            label = {
-                                Text(text = "Click", color = Color.Black)
-                            },
+                            label = { Text(text = "Click", color = Color.Black) },
                             enabled = !pagerState.isScrollInProgress
                         )
                     }

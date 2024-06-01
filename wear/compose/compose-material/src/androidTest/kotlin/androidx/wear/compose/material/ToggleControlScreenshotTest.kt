@@ -45,132 +45,117 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ToggleControlScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
-    fun checkbox_checked_enabled() =
-        verifyScreenshot {
-            Checkbox(checked = true, enabled = true, modifier = testBackgroundModifier())
-        }
+    fun checkbox_checked_enabled() = verifyScreenshot {
+        Checkbox(checked = true, enabled = true, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun checkbox_unchecked_enabled() =
-        verifyScreenshot {
-            Checkbox(checked = false, enabled = true, modifier = testBackgroundModifier())
-        }
+    fun checkbox_unchecked_enabled() = verifyScreenshot {
+        Checkbox(checked = false, enabled = true, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun checkbox_checked_disabled() =
-        verifyScreenshot {
-            Checkbox(checked = true, enabled = false, modifier = testBackgroundModifier())
-        }
+    fun checkbox_checked_disabled() = verifyScreenshot {
+        Checkbox(checked = true, enabled = false, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun checkbox_unchecked_disabled() =
-        verifyScreenshot {
-            Checkbox(checked = false, enabled = false, modifier = testBackgroundModifier())
-        }
+    fun checkbox_unchecked_disabled() = verifyScreenshot {
+        Checkbox(checked = false, enabled = false, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun switch_checked_enabled() =
-        verifyScreenshot {
+    fun switch_checked_enabled() = verifyScreenshot {
+        Switch(checked = true, enabled = true, modifier = testBackgroundModifier())
+    }
+
+    @Test
+    fun switch_unchecked_enabled() = verifyScreenshot {
+        Switch(checked = false, enabled = true, modifier = testBackgroundModifier())
+    }
+
+    @Test
+    fun switch_checked_disabled() = verifyScreenshot {
+        Switch(checked = true, enabled = false, modifier = testBackgroundModifier())
+    }
+
+    @Test
+    fun switch_unchecked_disabled() = verifyScreenshot {
+        Switch(checked = false, enabled = false, modifier = testBackgroundModifier())
+    }
+
+    @Test
+    fun switch_rtl_checked_enabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             Switch(checked = true, enabled = true, modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun switch_unchecked_enabled() =
-        verifyScreenshot {
+    fun switch_rtl_unchecked_enabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             Switch(checked = false, enabled = true, modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun switch_checked_disabled() =
-        verifyScreenshot {
+    fun switch_rtl_checked_disabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             Switch(checked = true, enabled = false, modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun switch_unchecked_disabled() =
-        verifyScreenshot {
+    fun switch_rtl_unchecked_disabled() = verifyScreenshot {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             Switch(checked = false, enabled = false, modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun switch_rtl_checked_enabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Switch(checked = true, enabled = true, modifier = testBackgroundModifier())
-            }
-        }
+    fun radiobutton_checked_enabled() = verifyScreenshot {
+        RadioButton(selected = true, enabled = true, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun switch_rtl_unchecked_enabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Switch(checked = false, enabled = true, modifier = testBackgroundModifier())
-            }
-        }
+    fun radiobutton_unchecked_enabled() = verifyScreenshot {
+        RadioButton(selected = false, enabled = true, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun switch_rtl_checked_disabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Switch(checked = true, enabled = false, modifier = testBackgroundModifier())
-            }
-        }
+    fun radiobutton_checked_disabled() = verifyScreenshot {
+        RadioButton(selected = true, enabled = false, modifier = testBackgroundModifier())
+    }
 
     @Test
-    fun switch_rtl_unchecked_disabled() =
-        verifyScreenshot {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                Switch(checked = false, enabled = false, modifier = testBackgroundModifier())
-            }
-        }
-
-    @Test
-    fun radiobutton_checked_enabled() =
-        verifyScreenshot {
-            RadioButton(selected = true, enabled = true, modifier = testBackgroundModifier())
-        }
-
-    @Test
-    fun radiobutton_unchecked_enabled() =
-        verifyScreenshot {
-            RadioButton(selected = false, enabled = true, modifier = testBackgroundModifier())
-        }
-
-    @Test
-    fun radiobutton_checked_disabled() =
-        verifyScreenshot {
-            RadioButton(selected = true, enabled = false, modifier = testBackgroundModifier())
-        }
-
-    @Test
-    fun radiobutton_unchecked_disabled() =
-        verifyScreenshot {
-            RadioButton(selected = false, enabled = false, modifier = testBackgroundModifier())
-        }
+    fun radiobutton_unchecked_disabled() = verifyScreenshot {
+        RadioButton(selected = false, enabled = false, modifier = testBackgroundModifier())
+    }
 
     private fun verifyScreenshot(
         threshold: Double = 0.98,
         content: @Composable BoxScope.() -> Unit
     ) {
         rule.setContentWithTheme(composable = content)
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName, MSSIMMatcher(threshold))
     }
+
     @Composable
     private fun testBackgroundModifier(): Modifier =
-        Modifier.testTag(TEST_TAG).background(
-            MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                .compositeOver(MaterialTheme.colors.surface)
-        )
+        Modifier.testTag(TEST_TAG)
+            .background(
+                MaterialTheme.colors.primary
+                    .copy(alpha = 0.5f)
+                    .compositeOver(MaterialTheme.colors.surface)
+            )
 }

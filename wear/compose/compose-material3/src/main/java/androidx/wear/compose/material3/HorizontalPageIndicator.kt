@@ -60,42 +60,40 @@ import androidx.wear.compose.materialcore.isRoundDevice
 import kotlin.math.roundToInt
 
 /**
- * Horizontal page indicator for use with [HorizontalPager], representing
- * the currently active page and the total number of pages.
- * Pages are indicated as a Circle shape.
- * The indicator shows up to six pages individually -
- * if there are more than six pages, [HorizontalPageIndicator] shows a
+ * Horizontal page indicator for use with [HorizontalPager], representing the currently active page
+ * and the total number of pages. Pages are indicated as a Circle shape. The indicator shows up to
+ * six pages individually - if there are more than six pages, [HorizontalPageIndicator] shows a
  * half-size indicator to the left or right to indicate that more are available.
  *
- * Here's how different positions 0..10 might be visually represented:
- * "X" is selected item, "O" and "o" full and half size items respectively.
+ * Here's how different positions 0..10 might be visually represented: "X" is selected item, "O" and
+ * "o" full and half size items respectively.
  *
- * O X O O O o - 2nd position out of 10. There are no more items on the left but more on the right
- * o O O O X o - current page could be 6, 7 or 8 out of 10, as there are more possible items
- * on the left and on the right
- * o O O O X O - current page is 9 out of 10, as there're no more items on the right
+ * O X O O O o - 2nd position out of 10. There are no more items on the left but more on the right o
+ * O O O X o - current page could be 6, 7 or 8 out of 10, as there are more possible items on the
+ * left and on the right o O O O X O - current page is 9 out of 10, as there're no more items on the
+ * right
  *
- * [HorizontalPageIndicator] can be linear or curved, depending on the screen shape
- * of the device - for circular screens it will be curved,
- * whilst for square screens it will be linear.
+ * [HorizontalPageIndicator] can be linear or curved, depending on the screen shape of the device -
+ * for circular screens it will be curved, whilst for square screens it will be linear.
  *
  * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
  *
  * Example usage with HorizontalPager:
+ *
  * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
  *
  * @param pageCount Total number of pages
  * @param currentPage The currently selected page index
- * @param currentPageOffsetFraction The offset fraction of the currently selected page.
- * Represents the offset as a fraction of the transition from the selected page to the next or
- * previous page. Can be positive or negative.
+ * @param currentPageOffsetFraction The offset fraction of the currently selected page. Represents
+ *   the offset as a fraction of the transition from the selected page to the next or previous page.
+ *   Can be positive or negative.
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]
  * @param selectedColor The color of the selected [HorizontalPageIndicator] item
- * @param unselectedColor The color of unselected [HorizontalPageIndicator] items.
- * Defaults to [selectedColor] with 30% alpha
+ * @param unselectedColor The color of unselected [HorizontalPageIndicator] items. Defaults to
+ *   [selectedColor] with 30% alpha
  * @param indicatorSize The size of each [HorizontalPageIndicator] item in [Dp]
  * @param spacing The spacing between indicator items in [Dp]
- **/
+ */
 @Composable
 public fun HorizontalPageIndicator(
     pageCount: Int,
@@ -115,12 +113,8 @@ public fun HorizontalPageIndicator(
     val offset = currentPageOffsetWithFraction - selectedPage
 
     val pagesOnScreen = Integer.min(MaxNumberOfIndicators, pageCount)
-    val pagesState = remember(pageCount) {
-        PagesState(
-            totalPages = pageCount,
-            pagesOnScreen = pagesOnScreen
-        )
-    }
+    val pagesState =
+        remember(pageCount) { PagesState(totalPages = pageCount, pagesOnScreen = pagesOnScreen) }
     pagesState.recalculateState(selectedPage, offset)
 
     val leftSpacerSize = (indicatorSize + spacing) * pagesState.leftSpacerSizeRatio
@@ -130,11 +124,11 @@ public fun HorizontalPageIndicator(
         var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
         val boundsSize: Density.() -> IntSize = {
-
-            val size = IntSize(
-                width = ((indicatorSize + spacing).toPx() * pagesOnScreen).roundToInt(),
-                height = (indicatorSize * 2).toPx().roundToInt().coerceAtLeast(0)
-            )
+            val size =
+                IntSize(
+                    width = ((indicatorSize + spacing).toPx() * pagesOnScreen).roundToInt(),
+                    height = (indicatorSize * 2).toPx().roundToInt().coerceAtLeast(0)
+                )
             size
         }
 
@@ -153,8 +147,8 @@ public fun HorizontalPageIndicator(
             offset = boundsOffset,
             size = boundsSize,
             modifier = modifier,
-            onSizeChanged = { containerSize = it }) {
-
+            onSizeChanged = { containerSize = it }
+        ) {
             CurvedPageIndicator(
                 visibleDotIndex = pagesState.visibleDotIndex,
                 pagesOnScreen = pagesOnScreen,
@@ -207,9 +201,7 @@ public fun HorizontalPageIndicator(
     }
 }
 
-/**
- * Contains the default values used by [HorizontalPageIndicator]
- */
+/** Contains the default values used by [HorizontalPageIndicator] */
 internal object PageIndicatorDefaults {
 
     val MaxNumberOfIndicators = 6
@@ -226,8 +218,7 @@ private fun LinearPageIndicator(
     spacerRight: @Composable () -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
     ) {
         Row(
             modifier = modifier.align(Alignment.BottomCenter),
@@ -244,9 +235,7 @@ private fun LinearPageIndicator(
                     indicator(visibleDotIndex)
                     indicator(visibleDotIndex + 1)
                 }
-                Box {
-                    selectedIndicator()
-                }
+                Box { selectedIndicator() }
             }
             for (page in visibleDotIndex + 2..pagesOnScreen) {
                 indicator(page)
@@ -266,8 +255,8 @@ private fun LinearSelectedIndicator(
     val horizontalPadding = spacing / 2
     val isRtl = isLayoutDirectionRtl()
     Spacer(
-        modifier = Modifier
-            .drawWithCache {
+        modifier =
+            Modifier.drawWithCache {
                 // Adding 2px to fully cover edges of non-selected indicators
                 val strokeWidth = indicatorSize.toPx() + 2
                 val startX = horizontalPadding.toPx() + strokeWidth / 2
@@ -281,15 +270,18 @@ private fun LinearSelectedIndicator(
                 // otherwise on APIs <= 26 line will not be drawn
                 val additionalPixel = if (isRtl) -1 else 1
 
-                val start = Offset(
-                    startX + drawWidth * (if (isRtl) startSpacerWeight else endSpacerWeight) +
-                        additionalPixel,
-                    this.size.height / 2
-                )
-                val end = Offset(
-                    endX - drawWidth * (if (isRtl) endSpacerWeight else startSpacerWeight),
-                    this.size.height / 2
-                )
+                val start =
+                    Offset(
+                        startX +
+                            drawWidth * (if (isRtl) startSpacerWeight else endSpacerWeight) +
+                            additionalPixel,
+                        this.size.height / 2
+                    )
+                val end =
+                    Offset(
+                        endX - drawWidth * (if (isRtl) endSpacerWeight else startSpacerWeight),
+                        this.size.height / 2
+                    )
                 onDrawBehind {
                     drawLine(
                         color = selectedColor,
@@ -312,10 +304,8 @@ private fun LinearIndicator(
     spacing: Dp,
 ) {
     Spacer(
-        modifier = Modifier
-            .padding(horizontal = spacing / 2)
-            .size(indicatorSize)
-            .drawWithCache {
+        modifier =
+            Modifier.padding(horizontal = spacing / 2).size(indicatorSize).drawWithCache {
                 val strokeWidth = indicatorSize.toPx() * pagesState.sizeRatio(page)
                 val start = Offset(strokeWidth / 2 + 1, this.size.height / 2)
                 val end = Offset(strokeWidth / 2, this.size.height / 2)
@@ -393,17 +383,16 @@ private fun CurvedScope.curvedSelectedIndicator(
     // Add 0.5dp to cover the sweepDegrees of unselected indicators
     curvedRow(CurvedModifier.angularSizeDp(spacing + indicatorSize + 0.5.dp)) {
         if (endSpacerWeight > 0f) {
-            curvedRow(CurvedModifier.weight(endSpacerWeight)) { }
+            curvedRow(CurvedModifier.weight(endSpacerWeight)) {}
         }
         curvedRow(
-            CurvedModifier
-                .background(selectedColor, cap = StrokeCap.Round)
+            CurvedModifier.background(selectedColor, cap = StrokeCap.Round)
                 .weight(blurbWeight)
                 // Adding 0.3dp to fully cover edges of non-selected indicators
                 .radialSize(indicatorSize + 0.3.dp)
-        ) { }
+        ) {}
         if (startSpacerWeight > 0f) {
-            curvedRow(CurvedModifier.weight(startSpacerWeight)) { }
+            curvedRow(CurvedModifier.weight(startSpacerWeight)) {}
         }
     }
 }
@@ -422,14 +411,13 @@ private fun CurvedScope.curvedIndicator(
             // Values below 0.2f also give some artifacts b/291753164
             .size(0.2f, size * pagesState.sizeRatio(page))
             .background(
-                color = unselectedColor.copy(
-                    alpha = unselectedColor.alpha * pagesState.alpha(page)
-                ),
+                color =
+                    unselectedColor.copy(alpha = unselectedColor.alpha * pagesState.alpha(page)),
                 cap = StrokeCap.Round
             )
-    ) { }
+    ) {}
 }
 
 private fun CurvedScope.curvedSpacer(size: Dp) {
-    curvedBox(CurvedModifier.angularSizeDp(size).radialSize(0.dp)) { }
+    curvedBox(CurvedModifier.angularSizeDp(size).radialSize(0.dp)) {}
 }

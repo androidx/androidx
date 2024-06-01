@@ -25,57 +25,44 @@ import androidx.work.WorkInfo.State
 import java.util.UUID
 
 /**
- * Information about a particular [WorkRequest] containing the id of the WorkRequest, its
- * current [State], output, tags, and run attempt count.  Note that output is only available
- * for the terminal states ([State.SUCCEEDED] and [State.FAILED]).
+ * Information about a particular [WorkRequest] containing the id of the WorkRequest, its current
+ * [State], output, tags, and run attempt count. Note that output is only available for the terminal
+ * states ([State.SUCCEEDED] and [State.FAILED]).
  */
-class WorkInfo @JvmOverloads constructor(
-    /**
-     * The identifier of the [WorkRequest].
-     */
+class WorkInfo
+@JvmOverloads
+constructor(
+    /** The identifier of the [WorkRequest]. */
     val id: UUID,
-    /**
-     * The current [State] of the [WorkRequest].
-     */
+    /** The current [State] of the [WorkRequest]. */
     val state: State,
-    /**
-     * The [Set] of tags associated with the [WorkRequest].
-     */
+    /** The [Set] of tags associated with the [WorkRequest]. */
     val tags: Set<String>,
     /**
-     * The output [Data] for the [WorkRequest]. If the WorkRequest is unfinished,
-     * this is always [Data.EMPTY].
+     * The output [Data] for the [WorkRequest]. If the WorkRequest is unfinished, this is always
+     * [Data.EMPTY].
      */
     val outputData: Data = Data.EMPTY,
-    /**
-     * The progress [Data] associated with the [WorkRequest].
-     */
+    /** The progress [Data] associated with the [WorkRequest]. */
     val progress: Data = Data.EMPTY,
     /**
-     * The run attempt count of the [WorkRequest].  Note that for
-     * [PeriodicWorkRequest]s, the run attempt count gets reset between successful runs.
+     * The run attempt count of the [WorkRequest]. Note that for [PeriodicWorkRequest]s, the run
+     * attempt count gets reset between successful runs.
      */
-    @get:IntRange(from = 0)
-    val runAttemptCount: Int = 0,
+    @get:IntRange(from = 0) val runAttemptCount: Int = 0,
 
     /**
      * The latest generation of this Worker.
      *
-     *
-     * A work has multiple generations, if it was updated via
-     * [WorkManager.updateWork] or
-     * [WorkManager.enqueueUniquePeriodicWork] using
-     * [ExistingPeriodicWorkPolicy.UPDATE].
-     *
+     * A work has multiple generations, if it was updated via [WorkManager.updateWork] or
+     * [WorkManager.enqueueUniquePeriodicWork] using [ExistingPeriodicWorkPolicy.UPDATE].
      *
      * If this worker is currently running, it can possibly be of an older generation rather than
      * returned by this function if an update has happened during an execution of this worker.
      */
     val generation: Int = 0,
 
-    /**
-     * [Constraints] of this worker.
-     */
+    /** [Constraints] of this worker. */
     val constraints: Constraints = Constraints.NONE,
 
     /** The initial delay for this work set in the [WorkRequest] */
@@ -92,12 +79,12 @@ class WorkInfo @JvmOverloads constructor(
      * The earliest time this work is eligible to run next, if this work is [State.ENQUEUED].
      *
      * This is the earliest [System.currentTimeMillis] time that WorkManager would consider running
-     * this work, regardless of any other system. It only represents the time that the
-     * initialDelay, periodic configuration, and backoff criteria are considered to be met.
+     * this work, regardless of any other system. It only represents the time that the initialDelay,
+     * periodic configuration, and backoff criteria are considered to be met.
      *
-     * Work will almost never run at this time in the real world. This method is intended for use
-     * in scheduling tests or to check set schedules in app. Work run times are dependent on
-     * many factors like the underlying system scheduler, doze and power saving modes of the OS, and
+     * Work will almost never run at this time in the real world. This method is intended for use in
+     * scheduling tests or to check set schedules in app. Work run times are dependent on many
+     * factors like the underlying system scheduler, doze and power saving modes of the OS, and
      * meeting any configured constraints. This is expected and is not considered a bug.
      *
      * The returned value may be in the past if the work was not able to run at that time. It will
@@ -106,26 +93,24 @@ class WorkInfo @JvmOverloads constructor(
      * Defaults to [Long.MAX_VALUE] for all other states, including if the work is currently
      * [State.RUNNING] or [State.BLOCKED] on prerequisite work.
      *
-     * Even if this value is set, the work may not be registered with the system scheduler if
-     * there are limited scheduling slots or other factors.
+     * Even if this value is set, the work may not be registered with the system scheduler if there
+     * are limited scheduling slots or other factors.
      */
     val nextScheduleTimeMillis: Long = Long.MAX_VALUE,
 
     /**
      * The reason why this worker was stopped on the previous run attempt.
      *
-     * For a worker being stopped, at first it should have attempted to run, i.e. its state
-     * should be == RUNNING and then [ListenableWorker.onStopped] should have been called,
-     * resulting in this worker's state going back [WorkInfo.State.ENQUEUED]. In this situation
+     * For a worker being stopped, at first it should have attempted to run, i.e. its state should
+     * be == RUNNING and then [ListenableWorker.onStopped] should have been called, resulting in
+     * this worker's state going back [WorkInfo.State.ENQUEUED]. In this situation
      * (`runAttemptCount > 0` and `state == ENQUEUED`) this `stopReason` property could be checked
      * to see for additional information. Please note, that this state (`runAttemptCount > 0` and
-     * `state == ENQUEUED`) can happen not only because a worker was stopped, but also when
-     * a worker returns `ListenableWorker.Result.retry()`. In this situation this property will
-     * return [STOP_REASON_NOT_STOPPED].
+     * `state == ENQUEUED`) can happen not only because a worker was stopped, but also when a worker
+     * returns `ListenableWorker.Result.retry()`. In this situation this property will return
+     * [STOP_REASON_NOT_STOPPED].
      */
-    @StopReason
-    @get:RequiresApi(31)
-    val stopReason: Int = STOP_REASON_NOT_STOPPED
+    @StopReason @get:RequiresApi(31) val stopReason: Int = STOP_REASON_NOT_STOPPED
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -170,9 +155,7 @@ class WorkInfo @JvmOverloads constructor(
             "stopReason=$stopReason")
     }
 
-    /**
-     * The current lifecycle state of a [WorkRequest].
-     */
+    /** The current lifecycle state of a [WorkRequest]. */
     enum class State {
         /**
          * Used to indicate that the [WorkRequest] is enqueued and eligible to run when its
@@ -180,39 +163,37 @@ class WorkInfo @JvmOverloads constructor(
          */
         ENQUEUED,
 
-        /**
-         * Used to indicate that the [WorkRequest] is currently being executed.
-         */
+        /** Used to indicate that the [WorkRequest] is currently being executed. */
         RUNNING,
 
         /**
-         * Used to indicate that the [WorkRequest] has completed in a successful state.  Note
-         * that [PeriodicWorkRequest]s will never enter this state (they will simply go back
-         * to [.ENQUEUED] and be eligible to run again).
+         * Used to indicate that the [WorkRequest] has completed in a successful state. Note that
+         * [PeriodicWorkRequest]s will never enter this state (they will simply go back to
+         * [.ENQUEUED] and be eligible to run again).
          */
         SUCCEEDED,
 
         /**
-         * Used to indicate that the [WorkRequest] has completed in a failure state.  All
-         * dependent work will also be marked as `#FAILED` and will never run.
+         * Used to indicate that the [WorkRequest] has completed in a failure state. All dependent
+         * work will also be marked as `#FAILED` and will never run.
          */
         FAILED,
 
         /**
-         * Used to indicate that the [WorkRequest] is currently blocked because its
-         * prerequisites haven't finished successfully.
+         * Used to indicate that the [WorkRequest] is currently blocked because its prerequisites
+         * haven't finished successfully.
          */
         BLOCKED,
 
         /**
-         * Used to indicate that the [WorkRequest] has been cancelled and will not execute.
-         * All dependent work will also be marked as `#CANCELLED` and will not run.
+         * Used to indicate that the [WorkRequest] has been cancelled and will not execute. All
+         * dependent work will also be marked as `#CANCELLED` and will not run.
          */
         CANCELLED;
 
         /**
-         * Returns `true` if this State is considered finished:
-         * [.SUCCEEDED], [.FAILED], and * [.CANCELLED]
+         * Returns `true` if this State is considered finished: [.SUCCEEDED], [.FAILED],
+         * and * [.CANCELLED]
          */
         val isFinished: Boolean
             get() = this == SUCCEEDED || this == FAILED || this == CANCELLED
@@ -251,41 +232,39 @@ class WorkInfo @JvmOverloads constructor(
 
     companion object {
         /**
-         * Additional stop reason, that is returned from [WorkInfo.stopReason] in cases when
-         * a worker in question wasn't stopped. E.g. when a worker was just enqueued, but didn't
-         * run yet.
+         * Additional stop reason, that is returned from [WorkInfo.stopReason] in cases when a
+         * worker in question wasn't stopped. E.g. when a worker was just enqueued, but didn't run
+         * yet.
          */
         const val STOP_REASON_NOT_STOPPED = -256
 
         /**
-         * Stop reason that is used in cases when worker did stop, but the reason for
-         * this is unknown. For example, when the app abruptly stopped due to a crash or when a
-         * device suddenly ran out of the battery.
+         * Stop reason that is used in cases when worker did stop, but the reason for this is
+         * unknown. For example, when the app abruptly stopped due to a crash or when a device
+         * suddenly ran out of the battery.
          */
         const val STOP_REASON_UNKNOWN = -512
 
         /**
          * The worker was cancelled directly by the app, either by calling cancel methods, e.g.
-         * [WorkManager.cancelUniqueWork], or enqueueing uniquely named worker with
-         * with a policy that cancels an existing worker, e.g. [ExistingWorkPolicy.REPLACE].
+         * [WorkManager.cancelUniqueWork], or enqueueing uniquely named worker with a policy that
+         * cancels an existing worker, e.g. [ExistingWorkPolicy.REPLACE].
          */
         const val STOP_REASON_CANCELLED_BY_APP = 1
 
-        /**
-         * The job was stopped to run a higher priority job of the app.
-         */
+        /** The job was stopped to run a higher priority job of the app. */
         const val STOP_REASON_PREEMPT = 2
 
         /**
-         * The worker used up its maximum execution time and timed out. Each individual worker
-         * has a maximum execution time limit, regardless of how much total quota the app has.
-         * See the note on [JobScheduler] for the execution time limits.
+         * The worker used up its maximum execution time and timed out. Each individual worker has a
+         * maximum execution time limit, regardless of how much total quota the app has. See the
+         * note on [JobScheduler] for the execution time limits.
          */
         const val STOP_REASON_TIMEOUT = 3
 
         /**
-         * The device state (eg. Doze, battery saver, memory usage, etc) requires
-         * WorkManager to stop this worker.
+         * The device state (eg. Doze, battery saver, memory usage, etc) requires WorkManager to
+         * stop this worker.
          */
         const val STOP_REASON_DEVICE_STATE = 4
 
@@ -303,25 +282,19 @@ class WorkInfo @JvmOverloads constructor(
          */
         const val STOP_REASON_CONSTRAINT_CHARGING = 6
 
-        /**
-         * The requested connectivity constraint is no longer satisfied.
-         */
+        /** The requested connectivity constraint is no longer satisfied. */
         const val STOP_REASON_CONSTRAINT_CONNECTIVITY = 7
 
-        /**
-         * The requested idle constraint is no longer satisfied.
-         */
+        /** The requested idle constraint is no longer satisfied. */
         const val STOP_REASON_CONSTRAINT_DEVICE_IDLE = 8
 
-        /**
-         * The requested storage-not-low constraint is no longer satisfied.
-         */
+        /** The requested storage-not-low constraint is no longer satisfied. */
         const val STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW = 9
 
         /**
          * The app has consumed all of its current quota. Each app is assigned a quota of how much
-         * it can run workers within a certain time frame.
-         * The quota is informed, in part, by app standby buckets.
+         * it can run workers within a certain time frame. The quota is informed, in part, by app
+         * standby buckets.
          *
          * @see android.app.job.JobParameters.STOP_REASON_QUOTA
          */

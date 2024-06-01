@@ -35,17 +35,21 @@ class MutableCollectionViewActivity : MutableCollectionBaseActivity() {
         val items = items // avoids resolving the ViewModel multiple times
         val clickRegistry: ClickRegistry by viewModels()
         return object : RecyclerView.Adapter<PageViewHolder>() {
-            override fun onCreateViewHolder(parent: ViewGroup, type: Int) = PageViewHolder(parent)
-            override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
-                val itemId = holder.itemId
-                val clickHandler = { clickRegistry.registerClick(itemId) }
-                val clickCountProvider = { clickRegistry.getClickCount(itemId) }
-                holder.bind(items.getItemById(itemId), clickHandler, clickCountProvider)
-            }
+                override fun onCreateViewHolder(parent: ViewGroup, type: Int) =
+                    PageViewHolder(parent)
 
-            override fun getItemCount(): Int = items.size
-            override fun getItemId(position: Int): Long = items.itemId(position)
-        }.apply { setHasStableIds(true) }
+                override fun onBindViewHolder(holder: PageViewHolder, position: Int) {
+                    val itemId = holder.itemId
+                    val clickHandler = { clickRegistry.registerClick(itemId) }
+                    val clickCountProvider = { clickRegistry.getClickCount(itemId) }
+                    holder.bind(items.getItemById(itemId), clickHandler, clickCountProvider)
+                }
+
+                override fun getItemCount(): Int = items.size
+
+                override fun getItemId(position: Int): Long = items.itemId(position)
+            }
+            .apply { setHasStableIds(true) }
     }
 }
 
@@ -69,11 +73,11 @@ class PageViewHolder(parent: ViewGroup) :
     }
 }
 
-/**
- * Stores click counts for items. Items are identified by an id.
- */
+/** Stores click counts for items. Items are identified by an id. */
 class ClickRegistry : ViewModel() {
     private val clickCount = mutableMapOf<Long, Int>()
+
     fun getClickCount(itemId: Long): Int = clickCount[itemId] ?: 0
+
     fun registerClick(itemId: Long) = clickCount.set(itemId, 1 + getClickCount(itemId))
 }

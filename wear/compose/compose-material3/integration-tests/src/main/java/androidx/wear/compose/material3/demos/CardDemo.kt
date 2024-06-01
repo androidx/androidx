@@ -87,10 +87,8 @@ private fun AppCardWithImageDemo() {
     ) {
         Spacer(Modifier.height(6.dp))
         Image(
-            modifier = Modifier
-                .padding(end = 28.dp)
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(16.dp)),
+            modifier =
+                Modifier.padding(end = 28.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(16.dp)),
             painter = painterResource(id = R.drawable.card_background),
             contentScale = ContentScale.Crop,
             contentDescription = null

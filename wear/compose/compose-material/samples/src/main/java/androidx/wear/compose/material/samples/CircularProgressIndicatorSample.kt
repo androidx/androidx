@@ -47,10 +47,11 @@ public fun IndeterminateCircularProgressIndicator() {
 @Composable
 public fun CircularProgressIndicatorWithAnimation() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(
@@ -59,9 +60,7 @@ public fun CircularProgressIndicatorWithAnimation() {
         Spacer(Modifier.requiredHeight(10.dp))
         CompactChip(
             modifier = Modifier.width(90.dp),
-            onClick = {
-                if (progress < 1f) progress += 0.1f
-            },
+            onClick = { if (progress < 1f) progress += 0.1f },
             label = { Text("Increase") }
         )
     }

@@ -33,15 +33,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for Wear Compose PickerGroup.
- */
+/** Benchmark for Wear Compose PickerGroup. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PickerGroupBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val pickerGroupCaseFactory = { PickerGroupTestCase() }
 
@@ -94,8 +91,6 @@ internal class PickerGroupTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

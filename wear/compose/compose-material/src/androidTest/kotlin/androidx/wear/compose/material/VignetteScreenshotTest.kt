@@ -45,14 +45,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class VignetteScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     private val screenSize = 340.dp
 
@@ -86,15 +83,10 @@ class VignetteScreenshotTest {
         }
     }
 
-    @Test
-    fun vignette_square_top() = verifyScreenshot {
-        sampleVignette(VignettePosition.Top)
-    }
+    @Test fun vignette_square_top() = verifyScreenshot { sampleVignette(VignettePosition.Top) }
 
     @Test
-    fun vignette_square_bottom() = verifyScreenshot {
-        sampleVignette(VignettePosition.Bottom)
-    }
+    fun vignette_square_bottom() = verifyScreenshot { sampleVignette(VignettePosition.Bottom) }
 
     @Test
     fun vignette_square_top_and_bottom() = verifyScreenshot {
@@ -110,22 +102,15 @@ class VignetteScreenshotTest {
             vignette = { Vignette(vignettePosition = vignettePosition) },
             modifier = Modifier.testTag(TEST_TAG)
         ) {
-            Box(
-                modifier = modifier,
-                contentAlignment = Alignment.Center
-            ) {
-            }
+            Box(modifier = modifier, contentAlignment = Alignment.Center) {}
         }
     }
 
-    private fun verifyScreenshot(
-        content: @Composable () -> Unit
-    ) {
-        rule.setContentWithTheme {
-            content()
-        }
+    private fun verifyScreenshot(content: @Composable () -> Unit) {
+        rule.setContentWithTheme { content() }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

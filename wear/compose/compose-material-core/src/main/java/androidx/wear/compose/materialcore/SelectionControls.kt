@@ -61,17 +61,16 @@ import kotlin.math.sin
  * [Checkbox] provides an animated checkbox for use in material APIs.
  *
  * @param checked Boolean flag indicating whether this checkbox is currently checked.
- * @param modifier Modifier to be applied to the checkbox.
- * This can be used to provide a content description for accessibility.
+ * @param modifier Modifier to be applied to the checkbox. This can be used to provide a content
+ *   description for accessibility.
  * @param boxColor Composable lambda from which the box color will be obtained.
  * @param checkmarkColor Composable lambda from which the check mark color will be obtained.
- * @param enabled Boolean flag indicating the enabled state of the [Checkbox] (affects
- * the color).
+ * @param enabled Boolean flag indicating the enabled state of the [Checkbox] (affects the color).
  * @param onCheckedChange Callback to be invoked when Checkbox is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state.
+ *   passive and relies entirely on a higher-level component to control the state.
  * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the Checkbox.
+ *   representing the stream of [Interaction]s for the "toggleable" tap area - can be used to
+ *   customise the appearance / behavior of the Checkbox.
  * @param progressAnimationSpec Animation spec to animate the progress.
  * @param drawBox Draws the checkbox.
  * @param width Width of the checkbox.
@@ -96,9 +95,12 @@ fun Checkbox(
 ) {
     val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState, label = "checkboxTransition")
-    val progress = animateProgress(
-        transition = transition, label = "Checkbox", animationSpec = progressAnimationSpec
-    )
+    val progress =
+        animateProgress(
+            transition = transition,
+            label = "Checkbox",
+            animationSpec = progressAnimationSpec
+        )
     val isRtl = isLayoutDirectionRtl()
     val startXOffset = if (isRtl) 0.dp else width - height
 
@@ -110,57 +112,54 @@ fun Checkbox(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
-        modifier = modifier
-            .semantics {
-                this.role = Role.Checkbox
-            }
-            .maybeToggleable(
-                onCheckedChange,
-                enabled,
-                checked,
-                interactionSource,
-                ripple,
-                width,
-                height
-            )
-            .drawWithCache
-            {
-                onDrawWithContent {
-                    drawBox(this, boxColorState.value, progress.value, isRtl)
-                    animateTick(
-                        enabled = enabled,
-                        checked = checked,
-                        tickColor = checkmarkColorState.value,
-                        tickProgress = progress.value,
-                        startXOffset = startXOffset
-                    )
+        modifier =
+            modifier
+                .semantics { this.role = Role.Checkbox }
+                .maybeToggleable(
+                    onCheckedChange,
+                    enabled,
+                    checked,
+                    interactionSource,
+                    ripple,
+                    width,
+                    height
+                )
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawBox(this, boxColorState.value, progress.value, isRtl)
+                        animateTick(
+                            enabled = enabled,
+                            checked = checked,
+                            tickColor = checkmarkColorState.value,
+                            tickProgress = progress.value,
+                            startXOffset = startXOffset
+                        )
+                    }
                 }
-            }
     )
 }
 
 /**
  * [Switch] provides an animated switch for use in material APIs.
  *
- * @param modifier Modifier to be applied to the switch.
- * This can be used to provide a content description for accessibility.
+ * @param modifier Modifier to be applied to the switch. This can be used to provide a content
+ *   description for accessibility.
  * @param checked Boolean flag indicating whether this switch is currently toggled on.
- * @param enabled Boolean flag indicating the enabled state of the [Switch] (affects
- * the color).
+ * @param enabled Boolean flag indicating the enabled state of the [Switch] (affects the color).
  * @param onCheckedChange Callback to be invoked when Switch is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state.
+ *   passive and relies entirely on a higher-level component to control the state.
  * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the Switch.
+ *   representing the stream of [Interaction]s for the "toggleable" tap area - can be used to
+ *   customise the appearance / behavior of the Switch.
  * @param trackFillColor Composable lambda from which the fill color of the track will be obtained.
- * @param trackStrokeColor Composable lambda from which the stroke color of the track will be obtained.
+ * @param trackStrokeColor Composable lambda from which the stroke color of the track will be
+ *   obtained.
  * @param thumbColor Composable lambda from which the thumb color will be obtained.
  * @param thumbIconColor Composable lambda from which the icon color will be obtained.
  * @param trackWidth Width of the track.
  * @param trackHeight Height of the track.
- * @param drawThumb Lambda function to draw the thumb of the switch.
- * The lambda is invoked with trackFillColor as the icon color, along with the thumbColor,
- * and the progress.
+ * @param drawThumb Lambda function to draw the thumb of the switch. The lambda is invoked with
+ *   trackFillColor as the icon color, along with the thumbColor, and the progress.
  * @param progressAnimationSpec Animation spec to animate the progress.
  * @param width Width of the switch.
  * @param height Height of the switch.
@@ -190,11 +189,7 @@ fun Switch(
     val transition = updateTransition(targetState, label = "switchTransition")
     val isRtl = isLayoutDirectionRtl()
 
-    val thumbProgress = animateProgress(
-        transition,
-        "Switch",
-        progressAnimationSpec
-    )
+    val thumbProgress = animateProgress(transition, "Switch", progressAnimationSpec)
 
     val thumbBackgroundColor = thumbColor(enabled, checked)
     val iconColor = thumbIconColor(enabled, checked)
@@ -204,56 +199,56 @@ fun Switch(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
-        modifier = modifier
-            .semantics {
-                this.role = Role.Switch
-            }
-            .maybeToggleable(
-                onCheckedChange,
-                enabled,
-                checked,
-                interactionSource,
-                ripple,
-                width,
-                height
-            )
-            .drawWithCache
-            {
-                onDrawWithContent {
-                    drawTrack(
-                        fillColor = trackBackgroundFillColor.value,
-                        strokeColor = trackBackgroundStrokeColor.value,
-                        trackWidthPx = trackWidth.toPx(),
-                        trackHeightPx = trackHeight.toPx()
-                    )
+        modifier =
+            modifier
+                .semantics { this.role = Role.Switch }
+                .maybeToggleable(
+                    onCheckedChange,
+                    enabled,
+                    checked,
+                    interactionSource,
+                    ripple,
+                    width,
+                    height
+                )
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawTrack(
+                            fillColor = trackBackgroundFillColor.value,
+                            strokeColor = trackBackgroundStrokeColor.value,
+                            trackWidthPx = trackWidth.toPx(),
+                            trackHeightPx = trackHeight.toPx()
+                        )
 
-                    // Draw the thumb of the switch.
-                    drawThumb(
-                        this,
-                        thumbBackgroundColor.value,
-                        thumbProgress.value,
-                        iconColor.value,
-                        isRtl
-                    )
+                        // Draw the thumb of the switch.
+                        drawThumb(
+                            this,
+                            thumbBackgroundColor.value,
+                            thumbProgress.value,
+                            iconColor.value,
+                            isRtl
+                        )
+                    }
                 }
-            })
+    )
 }
 
 /**
  * [RadioButton] provides an animated radio button for use in material APIs.
  *
- * @param modifier Modifier to be applied to the radio button. This can be used to provide a
- * content description for accessibility.
+ * @param modifier Modifier to be applied to the radio button. This can be used to provide a content
+ *   description for accessibility.
  * @param selected Boolean flag indicating whether this radio button is currently toggled on.
- * @param enabled Boolean flag indicating the enabled state of the [RadioButton] (affects
- * the color).
- * @param ringColor Composable lambda from which the ring color of the radio button will be obtained.
+ * @param enabled Boolean flag indicating the enabled state of the [RadioButton] (affects the
+ *   color).
+ * @param ringColor Composable lambda from which the ring color of the radio button will be
+ *   obtained.
  * @param dotColor Composable lambda from which the dot color of the radio button will be obtained.
- * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state.
+ * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is passive
+ *   and relies entirely on a higher-level component to control the state.
  * @param interactionSource When also providing [onClick], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the RadioButton.
+ *   representing the stream of [Interaction]s for the "toggleable" tap area - can be used to
+ *   customise the appearance / behavior of the RadioButton.
  * @param dotRadiusProgressDuration Duration of the dot radius progress animation.
  * @param dotAlphaProgressDuration Duration of the dot alpha progress animation.
  * @param dotAlphaProgressDelay Delay for the dot alpha progress animation.
@@ -287,60 +282,65 @@ fun RadioButton(
     val radioRingColor = ringColor(enabled, selected)
     val radioDotColor = dotColor(enabled, selected)
 
-    val dotRadiusProgress = animateProgress(
-        transition = transition,
-        label = "dot-radius",
-        animationSpec = tween(dotRadiusProgressDuration(selected), 0, easing)
-    )
+    val dotRadiusProgress =
+        animateProgress(
+            transition = transition,
+            label = "dot-radius",
+            animationSpec = tween(dotRadiusProgressDuration(selected), 0, easing)
+        )
     // Animation of the dot alpha only happens when toggling On to Off.
     val dotAlphaProgress =
         if (targetState == SelectionStage.Unchecked)
             animateProgress(
                 transition = transition,
                 label = "dot-alpha",
-                animationSpec = tween(
-                    dotAlphaProgressDuration,
-                    dotAlphaProgressDelay,
-                    easing
-                )
+                animationSpec = tween(dotAlphaProgressDuration, dotAlphaProgressDelay, easing)
             )
-        else
-            null
+        else null
 
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         // NB We must set the semantic role to Role.RadioButton in the parent Button,
         // not here in the selection control - see b/330869742
-        modifier = modifier
-            .maybeSelectable(
-                onClick, enabled, selected, interactionSource, ripple, width, height
-            )
-            .drawWithCache
-            {
-                // Aligning the radio to the end.
-                val startXOffsetPx = if (isRtl) -(width - height).toPx() / 2 else
-                    (width - height).toPx() / 2
-                // Outer circle has a constant radius.
-                onDrawWithContent {
-                    val circleCenter = Offset(center.x + startXOffsetPx, center.y)
-                    drawCircle(
-                        radius = RADIO_CIRCLE_RADIUS.toPx(),
-                        color = radioRingColor.value,
-                        center = circleCenter,
-                        style = Stroke(RADIO_CIRCLE_STROKE.toPx()),
-                    )
-                    // Inner dot radius expands/shrinks.
-                    drawCircle(
-                        radius = dotRadiusProgress.value * RADIO_DOT_RADIUS.toPx(),
-                        color = radioDotColor.value.copy(
-                            alpha = (dotAlphaProgress?.value ?: 1f) * radioDotColor.value.alpha
-                        ),
-                        center = circleCenter,
-                        style = Fill,
-                    )
+        modifier =
+            modifier
+                .maybeSelectable(
+                    onClick,
+                    enabled,
+                    selected,
+                    interactionSource,
+                    ripple,
+                    width,
+                    height
+                )
+                .drawWithCache {
+                    // Aligning the radio to the end.
+                    val startXOffsetPx =
+                        if (isRtl) -(width - height).toPx() / 2 else (width - height).toPx() / 2
+                    // Outer circle has a constant radius.
+                    onDrawWithContent {
+                        val circleCenter = Offset(center.x + startXOffsetPx, center.y)
+                        drawCircle(
+                            radius = RADIO_CIRCLE_RADIUS.toPx(),
+                            color = radioRingColor.value,
+                            center = circleCenter,
+                            style = Stroke(RADIO_CIRCLE_STROKE.toPx()),
+                        )
+                        // Inner dot radius expands/shrinks.
+                        drawCircle(
+                            radius = dotRadiusProgress.value * RADIO_DOT_RADIUS.toPx(),
+                            color =
+                                radioDotColor.value.copy(
+                                    alpha =
+                                        (dotAlphaProgress?.value ?: 1f) * radioDotColor.value.alpha
+                                ),
+                            center = circleCenter,
+                            style = Fill,
+                        )
+                    }
                 }
-            })
+    )
 }
 
 /**
@@ -350,8 +350,10 @@ fun RadioButton(
  * @param checked Boolean flag checking if the selection control is checked [SelectionStage].
  * @param checkedColor Color for selection control when [enabled] = true and [checked] = true.
  * @param uncheckedColor Color for selection control when [enabled] = true and [checked] = false.
- * @param disabledCheckedColor Color for selection control when [enabled] = false and [checked] = true.
- * @param disabledUncheckedColor Color for selection control when [enabled] = false and [checked] = false.
+ * @param disabledCheckedColor Color for selection control when [enabled] = false and [checked] =
+ *   true.
+ * @param disabledUncheckedColor Color for selection control when [enabled] = false and [checked] =
+ *   false.
  * @param animationSpec AnimationSpec for the color transition animations.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -364,18 +366,21 @@ fun animateSelectionColor(
     disabledCheckedColor: Color,
     disabledUncheckedColor: Color,
     animationSpec: AnimationSpec<Color>
-): State<Color> = animateColorAsState(
-    targetValue = if (enabled) {
-        if (checked) checkedColor else uncheckedColor
-    } else {
-        if (checked) disabledCheckedColor else disabledUncheckedColor
-    },
-    animationSpec = animationSpec
-)
+): State<Color> =
+    animateColorAsState(
+        targetValue =
+            if (enabled) {
+                if (checked) checkedColor else uncheckedColor
+            } else {
+                if (checked) disabledCheckedColor else disabledUncheckedColor
+            },
+        animationSpec = animationSpec
+    )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 enum class SelectionStage {
-    Unchecked, Checked
+    Unchecked,
+    Checked
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -422,16 +427,13 @@ private fun animateProgress(
     transition: Transition<SelectionStage>,
     label: String,
     animationSpec: TweenSpec<Float>,
-) = transition.animateFloat(
-    transitionSpec = {
-        animationSpec
-    }, label = label
-) {
-    when (it) {
-        SelectionStage.Unchecked -> 0f
-        SelectionStage.Checked -> 1f
+) =
+    transition.animateFloat(transitionSpec = { animationSpec }, label = label) {
+        when (it) {
+            SelectionStage.Unchecked -> 0f
+            SelectionStage.Checked -> 1f
+        }
     }
-}
 
 private fun Modifier.maybeToggleable(
     onCheckedChange: ((Boolean) -> Unit)?,
@@ -442,9 +444,8 @@ private fun Modifier.maybeToggleable(
     canvasWidth: Dp,
     canvasHeight: Dp
 ): Modifier {
-    val standardModifier = this
-        .wrapContentSize(Alignment.CenterEnd)
-        .requiredSize(canvasWidth, canvasHeight)
+    val standardModifier =
+        this.wrapContentSize(Alignment.CenterEnd).requiredSize(canvasWidth, canvasHeight)
 
     return if (onCheckedChange == null) {
         standardModifier
@@ -470,9 +471,8 @@ private fun Modifier.maybeSelectable(
     canvasWidth: Dp,
     canvasHeight: Dp
 ): Modifier {
-    val standardModifier = this
-        .wrapContentSize(Alignment.Center)
-        .requiredSize(canvasWidth, canvasHeight)
+    val standardModifier =
+        this.wrapContentSize(Alignment.Center).requiredSize(canvasWidth, canvasHeight)
 
     return if (onClick == null) {
         standardModifier
@@ -523,16 +523,16 @@ private fun DrawScope.drawTick(
         // Move back to the start of the stick (without drawing)
         path.moveTo(stickStart.rotate(angleRadians, center))
         path.lineTo(
-            Offset(stickStart.x + tickStickProgress, stickStart.y - tickStickProgress).rotate(
-                angleRadians,
-                center
-            )
+            Offset(stickStart.x + tickStickProgress, stickStart.y - tickStickProgress)
+                .rotate(angleRadians, center)
         )
     }
     // Use StrokeCap.Butt because Square adds an extension on the end of each line.
     drawPath(
-        path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt), blendMode =
-        if (enabled) DefaultBlendMode else BlendMode.Hardlight
+        path,
+        tickColor,
+        style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt),
+        blendMode = if (enabled) DefaultBlendMode else BlendMode.Hardlight
     )
 }
 
@@ -559,10 +559,11 @@ private fun DrawScope.drawTrack(
         drawPath(
             path = path,
             color = fillColor,
-            style = Stroke(
-                width = trackHeightPx - 2 * SWITCH_TRACK_BORDER.toPx(),
-                cap = StrokeCap.Round
-            )
+            style =
+                Stroke(
+                    width = trackHeightPx - 2 * SWITCH_TRACK_BORDER.toPx(),
+                    cap = StrokeCap.Round
+                )
         )
     }
 }
@@ -598,8 +599,10 @@ private fun DrawScope.eraseTick(
     }
 
     drawPath(
-        path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt), blendMode =
-        if (enabled) DefaultBlendMode else BlendMode.Hardlight
+        path,
+        tickColor,
+        style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt),
+        blendMode = if (enabled) DefaultBlendMode else BlendMode.Hardlight
     )
 }
 
@@ -626,8 +629,7 @@ private fun Offset.rotate90() = Offset(-y, x)
 
 // This is duplicated from wear.compose.foundation/geometry.kt
 // Any changes should be replicated there.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Float.toRadians() = this * PI.toFloat() / 180f
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun Float.toRadians() = this * PI.toFloat() / 180f
 
 private val TICK_BASE_LENGTH = 4.dp
 private val TICK_STICK_LENGTH = 8.dp

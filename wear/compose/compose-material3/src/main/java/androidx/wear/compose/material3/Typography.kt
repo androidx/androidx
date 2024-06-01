@@ -29,59 +29,49 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
 /**
  * Class holding typography definitions as defined by the Wear Material typography specification.
  *
- * The text styles in this typography are scaled according to the user's preferred font size in
- * the system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on
- * screen space, because they are already sufficiently accessible.
- * Here is an example of fixing the font size for DisplayLarge:
+ * The text styles in this typography are scaled according to the user's preferred font size in the
+ * system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on screen
+ * space, because they are already sufficiently accessible. Here is an example of fixing the font
+ * size for DisplayLarge:
+ *
  * @sample androidx.wear.compose.material3.samples.FixedFontSize
  *
- * TODO(b/273526150) Review documentation for typography, add examples for each size.
- *
- * @property displayLarge DisplayLarge is the largest headline. Displays are the largest text
- * on the screen, reserved for short, important text or numerals.
- *
- * @property displayMedium DisplayMedium is the second largest headline. Displays are the
- * largest text on the screen, reserved for short, important text or numerals.
- *
- * @property displaySmall DisplaySmall is the smallest headline. Displays are the largest
- * text on the screen, reserved for short, important text or numerals.
- *
+ * @property displayLarge DisplayLarge is the largest headline. Displays are the largest text on the
+ *   screen, reserved for short, important text or numerals.
+ * @property displayMedium DisplayMedium is the second largest headline. Displays are the largest
+ *   text on the screen, reserved for short, important text or numerals.
+ * @property displaySmall DisplaySmall is the smallest headline. Displays are the largest text on
+ *   the screen, reserved for short, important text or numerals.
  * @property titleLarge TitleLarge is the largest title. Titles are smaller than Displays. They are
- * typically reserved for medium-emphasis text that is shorter in length.
- *
+ *   typically reserved for medium-emphasis text that is shorter in length.
  * @property titleMedium TitleMedium is the medium title. Titles are smaller than Displays. They are
- * typically reserved for medium-emphasis text that is shorter in length.
- *
+ *   typically reserved for medium-emphasis text that is shorter in length.
  * @property titleSmall TitleSmall is the smallest title. Titles are smaller than Displays. They are
- * typically reserved for medium-emphasis text that is shorter in length.
- *
+ *   typically reserved for medium-emphasis text that is shorter in length.
  * @property labelLarge LabelLarge is the largest label. They are used for displaying prominent
- * texts like label on title buttons.
- *
+ *   texts like label on title buttons.
  * @property labelMedium LabelMedium is the medium label. They are used for displaying texts like
- * primary label on buttons.
- *
+ *   primary label on buttons.
  * @property labelSmall LabelSmall is the small label. They are used for displaying texts like
- * secondary label on buttons, labels on compact buttons.
- *
+ *   secondary label on buttons, labels on compact buttons.
  * @property bodyLarge BodyLarge is the largest body. Body texts are typically used for long-form
- * writing as it works well for small text sizes. For longer sections of text, a serif or
- * sans serif typeface is recommended.
- *
+ *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
+ *   serif typeface is recommended.
  * @property bodyMedium BodyMedium is second largest body. Body texts are typically used for
- * long-form writing as it works well for small text sizes. For longer sections of text, a serif
- * or sans serif typeface is recommended.
- *
+ *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
+ *   or sans serif typeface is recommended.
  * @property bodySmall BodySmall is third largest body. Body texts are typically used for long-form
- * writing as it works well for small text sizes. For longer sections of text, a serif or sans serif
- * typeface is recommended.
- *
+ *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
+ *   serif typeface is recommended.
  * @property bodyExtraSmall BodyExtraSmall is the smallest body. Body texts are typically used for
- * long-form writing as it works well for small text sizes. For longer sections of text, a serif
- * or sans serif typeface is recommended.
+ *   long-form writing as it works well for small text sizes. For longer sections of text, a serif
+ *   or sans serif typeface is recommended.
+ *
+ * TODO(b/273526150) Review documentation for typography, add examples for each size.
  */
 @Immutable
- class Typography internal constructor(
+class Typography
+internal constructor(
     val displayLarge: TextStyle,
     val displayMedium: TextStyle,
     val displaySmall: TextStyle,
@@ -96,7 +86,7 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
     val bodySmall: TextStyle,
     val bodyExtraSmall: TextStyle
 ) {
-    constructor (
+    constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
         displayLarge: TextStyle = TypographyTokens.DisplayLarge,
         displayMedium: TextStyle = TypographyTokens.DisplayMedium,
@@ -127,9 +117,7 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
         bodyExtraSmall = bodyExtraSmall.withDefaultFontFamily(defaultFontFamily)
     )
 
-    /**
-     * Returns a copy of this Typography, optionally overriding some of the values.
-     */
+    /** Returns a copy of this Typography, optionally overriding some of the values. */
     fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
@@ -144,21 +132,22 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
         bodyMedium: TextStyle = this.bodyMedium,
         bodySmall: TextStyle = this.bodySmall,
         bodyExtraSmall: TextStyle = this.bodyExtraSmall
-    ): Typography = Typography(
-        displayLarge,
-        displayMedium,
-        displaySmall,
-        titleLarge,
-        titleMedium,
-        titleSmall,
-        labelLarge,
-        labelMedium,
-        labelSmall,
-        bodyLarge,
-        bodyMedium,
-        bodySmall,
-        bodyExtraSmall
-    )
+    ): Typography =
+        Typography(
+            displayLarge,
+            displayMedium,
+            displaySmall,
+            titleLarge,
+            titleMedium,
+            titleSmall,
+            labelLarge,
+            labelMedium,
+            labelSmall,
+            bodyLarge,
+            bodyMedium,
+            bodySmall,
+            bodyExtraSmall
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -208,8 +197,8 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
 }
 
 /**
- * @return [this] if there is a [FontFamily] defined, otherwise copies [this] with [default] as
- * the [FontFamily].
+ * @return [this] if there is a [FontFamily] defined, otherwise copies [this] with [default] as the
+ *   [FontFamily].
  */
 private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
@@ -217,24 +206,20 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
 
 private const val DefaultIncludeFontPadding = false
 
-internal val DefaultLineHeightStyle = LineHeightStyle(
-    alignment = LineHeightStyle.Alignment.Center,
-    trim = LineHeightStyle.Trim.None,
-)
+internal val DefaultLineHeightStyle =
+    LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Center,
+        trim = LineHeightStyle.Trim.None,
+    )
 
-/**
- * Returns theme default [TextStyle] with default [PlatformTextStyle].
- */
-internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = PlatformTextStyle(
-        includeFontPadding = DefaultIncludeFontPadding
-    ),
-    lineHeightStyle = DefaultLineHeightStyle,
-)
+/** Returns theme default [TextStyle] with default [PlatformTextStyle]. */
+internal val DefaultTextStyle =
+    TextStyle.Default.copy(
+        platformStyle = PlatformTextStyle(includeFontPadding = DefaultIncludeFontPadding),
+        lineHeightStyle = DefaultLineHeightStyle,
+    )
 
-/**
- * Helper function for typography tokens.
- */
+/** Helper function for typography tokens. */
 internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
         TypographyKeyTokens.DisplayLarge -> displayLarge
@@ -254,20 +239,18 @@ internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
 }
 
 /**
- * Converts the [TypographyKeyTokens] to the local text style provided by the theme.
- * The text style refers to the [LocalTypography].
+ * Converts the [TypographyKeyTokens] to the local text style provided by the theme. The text style
+ * refers to the [LocalTypography].
  */
 internal val TypographyKeyTokens.value: TextStyle
-    @Composable
-    @ReadOnlyComposable
-    get() = MaterialTheme.typography.fromToken(this)
+    @Composable @ReadOnlyComposable get() = MaterialTheme.typography.fromToken(this)
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
  * by the Wear Material spec. You can read the values in it when creating custom components that
  * want to use Wear Material types, as well as override the values when you want to re-style a part
- * of your hierarchy. Material components related to text such as Button will use this Ambient
- * to set values with which to style children text components.
+ * of your hierarchy. Material components related to text such as Button will use this Ambient to
+ * set values with which to style children text components.
  *
  * To access values within this ambient, use [MaterialTheme.typography].
  */

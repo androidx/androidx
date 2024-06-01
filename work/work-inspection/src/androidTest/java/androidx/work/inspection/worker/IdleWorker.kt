@@ -23,16 +23,11 @@ import kotlin.time.Duration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
-class IdleWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+class IdleWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
 
     @OptIn(kotlin.time.ExperimentalTime::class)
     override fun doWork(): Result {
-        runBlocking {
-            delay(Duration.INFINITE)
-        }
+        runBlocking { delay(Duration.INFINITE) }
         return Result.success()
     }
 }

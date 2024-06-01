@@ -44,18 +44,17 @@ import androidx.compose.ui.unit.Dp
  * [RoundButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
  * For more information, see the
- * [Buttons](https://developer.android.com/training/wearables/components/buttons)
- * guide.
+ * [Buttons](https://developer.android.com/training/wearables/components/buttons) guide.
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
- * @param enabled Controls the enabled state of the button. When `false`, this button will not
- * be clickable.
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not be
+ *   clickable.
  * @param backgroundColor Resolves the background for this button in different states.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this button. You can use this to change the button's appearance
- * or preview the button in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
+ *   preview the button in different states. Note that if `null` is provided, interactions will
+ *   still happen internally.
  * @param shape Defines the button's shape.
  * @param border Resolves the border for this button in different states.
  * @param buttonSize The default size of the button unless overridden by Modifier.size.
@@ -79,24 +78,22 @@ fun RoundButton(
     val borderStroke = border(enabled)
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
-            .semantics { role = Role.Button }
-            .size(buttonSize)
-            .clip(shape) // Clip for the touch area (e.g. for Ripple).
-            .clickable(
-                onClick = onClick,
-                enabled = enabled,
-                interactionSource = interactionSource,
-                indication = ripple,
-            )
-            .then(
-                if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
-                else Modifier
-            )
-            .background(
-                color = backgroundColor(enabled),
-                shape = shape
-            ),
+        modifier =
+            modifier
+                .semantics { role = Role.Button }
+                .size(buttonSize)
+                .clip(shape) // Clip for the touch area (e.g. for Ripple).
+                .clickable(
+                    onClick = onClick,
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    indication = ripple,
+                )
+                .then(
+                    if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
+                    else Modifier
+                )
+                .background(color = backgroundColor(enabled), shape = shape),
         content = content
     )
 }

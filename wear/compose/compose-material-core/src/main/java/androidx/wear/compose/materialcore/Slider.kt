@@ -42,16 +42,16 @@ public fun InlineSliderButton(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .width(buttonControlSize)
-            .fillMaxHeight()
-            .repeatableClickable(
-                enabled = enabled,
-                onClick = onClick,
-                interactionSource = null,
-                indication = LocalIndication.current
-            )
-            .then(modifier),
+        modifier =
+            Modifier.width(buttonControlSize)
+                .fillMaxHeight()
+                .repeatableClickable(
+                    enabled = enabled,
+                    onClick = onClick,
+                    interactionSource = null,
+                    indication = LocalIndication.current
+                )
+                .then(modifier),
         contentAlignment = contentAlignment
     ) {
         content()

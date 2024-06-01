@@ -50,18 +50,16 @@ import org.junit.runner.RunWith
 class HostFragmentBackStackTest : BaseTest() {
     @Test
     fun test_sameFragment_multipleBackStackEntries() {
-        @Suppress("DEPRECATION")
-        FragmentManager.enableDebugLogging(true)
+        @Suppress("DEPRECATION") FragmentManager.enableDebugLogging(true)
         val containerId = View.generateViewId()
         setUpTest(ORIENTATION_HORIZONTAL).apply {
-            val container: ViewGroup = FrameLayout(activity).apply {
-                id = containerId
-                layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                setBackgroundColor(Color.WHITE)
-            }
-            runOnUiThreadSync {
-                activity.setContentView(container)
-            }
+            val container: ViewGroup =
+                FrameLayout(activity).apply {
+                    id = containerId
+                    layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    setBackgroundColor(Color.WHITE)
+                }
+            runOnUiThreadSync { activity.setContentView(container) }
 
             val viewPagerFragment = runOnUiThreadSync { ViewPagerFragment() }
             val blankFragment = runOnUiThreadSync { Fragment() }
@@ -69,17 +67,21 @@ class HostFragmentBackStackTest : BaseTest() {
             fun setActiveFragment(f: Fragment, targetPage: Int? = null) {
                 // set new active fragment
                 runOnUiThreadSync {
-                    activity.supportFragmentManager.beginTransaction().replace(container.id, f)
-                        .addToBackStack(null).commit()
+                    activity.supportFragmentManager
+                        .beginTransaction()
+                        .replace(container.id, f)
+                        .addToBackStack(null)
+                        .commit()
                 }
 
                 // wait for view hierarchy to be updated
                 PollingCheck.waitFor(2000) {
-                    val expectedCount: Int = when (f) {
-                        viewPagerFragment -> 1
-                        blankFragment -> 0
-                        else -> throw IllegalArgumentException()
-                    }
+                    val expectedCount: Int =
+                        when (f) {
+                            viewPagerFragment -> 1
+                            blankFragment -> 0
+                            else -> throw IllegalArgumentException()
+                        }
                     container.childCount == expectedCount
                 }
 
@@ -95,9 +97,12 @@ class HostFragmentBackStackTest : BaseTest() {
             setCurrentPage(targetPage) // ViewPagerFragment#1, page#1
 
             // verify that f0 and f1 are both in the Fragment manager
-            viewPagerFragment.childFragmentManager.fragments.filter { it is PageFragment }
+            viewPagerFragment.childFragmentManager.fragments
+                .filter { it is PageFragment }
                 .map { it as Fragment }
-                .sortedBy { it.tag }.toList().let { fragments: List<Fragment> ->
+                .sortedBy { it.tag }
+                .toList()
+                .let { fragments: List<Fragment> ->
                     assertThat(fragments.size, equalTo(2))
                     assertThat(fragments[0].tag, equalTo("f0"))
                     assertThat(fragments[1].tag, equalTo("f1"))
@@ -116,9 +121,12 @@ class HostFragmentBackStackTest : BaseTest() {
             assertBasicState(targetPage)
 
             // verify that gc still happened (f0 removed)
-            viewPagerFragment.childFragmentManager.fragments.filter { it is PageFragment }
+            viewPagerFragment.childFragmentManager.fragments
+                .filter { it is PageFragment }
                 .map { it as Fragment }
-                .sortedBy { it.tag }.toList().let { fragments: List<Fragment> ->
+                .sortedBy { it.tag }
+                .toList()
+                .let { fragments: List<Fragment> ->
                     assertThat(fragments.size, equalTo(1))
                     assertThat(fragments[0].tag, equalTo("f1"))
                     assertThat(fragments[0].isResumed, equalTo(true))
@@ -133,12 +141,15 @@ class HostFragmentBackStackTest : BaseTest() {
 
     private val gracePeriodMs: Long
         get() {
-            val result: Long = FragmentStateAdapter::class.java.declaredFields
-                .first { it.name == "GRACE_WINDOW_TIME_MS" }
-                .let {
-                    it.isAccessible = true
-                    it.get(null) as Long
-                }
+            val result: Long =
+                FragmentStateAdapter::class
+                    .java
+                    .declaredFields
+                    .first { it.name == "GRACE_WINDOW_TIME_MS" }
+                    .let {
+                        it.isAccessible = true
+                        it.get(null) as Long
+                    }
             assertThat(result, isBetweenInIn<Long>(500, 50_000))
             return result
         }
@@ -158,8 +169,9 @@ class HostFragmentBackStackTest : BaseTest() {
 
         override fun onDestroyView() {
             /**
-             * Too late {@link FragmentStateAdapter#saveState} already happened, but effective
-             * at reproducing the issue (scenario from b/139095195), so keeping for now.
+             * Too late {@link FragmentStateAdapter#saveState} already happened, but effective at
+             * reproducing the issue (scenario from b/139095195), so keeping for now.
+             *
              * TODO: create a different bug reproduction scenario.
              */
             (view as ViewPager2).adapter = null

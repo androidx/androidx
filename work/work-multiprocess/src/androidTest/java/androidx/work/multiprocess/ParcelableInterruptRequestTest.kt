@@ -32,10 +32,11 @@ class ParcelableInterruptRequestTest {
     @Test
     fun testInterruptRequest() {
         val request = ParcelableInterruptRequest("id1", STOP_REASON_CONSTRAINT_CHARGING)
-        val parcelled = ParcelConverters.unmarshall(
-            ParcelConverters.marshall(request),
-            ParcelableInterruptRequest.CREATOR
-        )
+        val parcelled =
+            ParcelConverters.unmarshall(
+                ParcelConverters.marshall(request),
+                ParcelableInterruptRequest.CREATOR
+            )
         Truth.assertThat(parcelled).isEqualTo(request)
     }
 }

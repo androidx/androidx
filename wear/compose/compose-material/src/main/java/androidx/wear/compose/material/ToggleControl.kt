@@ -38,25 +38,25 @@ import androidx.compose.ui.util.lerp
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
- * [Checkbox] provides an animated checkbox for use as a toggle control in
- * [ToggleChip] or [SplitToggleChip].
+ * [Checkbox] provides an animated checkbox for use as a toggle control in [ToggleChip] or
+ * [SplitToggleChip].
  *
  * Example of a [SplitToggleChip] with [Checkbox] toggle control:
+ *
  * @sample androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
  *
  * @param checked Boolean flag indicating whether this checkbox is currently checked.
- * @param modifier Modifier to be applied to the checkbox. This can be used to provide a
- * content description for accessibility.
+ * @param modifier Modifier to be applied to the checkbox. This can be used to provide a content
+ *   description for accessibility.
  * @param colors [CheckboxColors] from which the box and checkmark colors will be obtained.
- * @param enabled Boolean flag indicating the enabled state of the [Checkbox] (affects
- * the color).
+ * @param enabled Boolean flag indicating the enabled state of the [Checkbox] (affects the color).
  * @param onCheckedChange Callback to be invoked when Checkbox is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state
- * (such as [ToggleChip] or [SplitToggleChip]).
+ *   passive and relies entirely on a higher-level component to control the state (such as
+ *   [ToggleChip] or [SplitToggleChip]).
  * @param interactionSource When also providing [onCheckedChange], an optional hoisted
- * [MutableInteractionSource] for observing and emitting [Interaction]s for this checkbox.
- * You can use this to change the checkbox's appearance or preview the checkbox in different states.
- * Note that if `null` is provided, interactions will still happen internally.
+ *   [MutableInteractionSource] for observing and emitting [Interaction]s for this checkbox. You can
+ *   use this to change the checkbox's appearance or preview the checkbox in different states. Note
+ *   that if `null` is provided, interactions will still happen internally.
  */
 @Composable
 public fun Checkbox(
@@ -66,51 +66,46 @@ public fun Checkbox(
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-) = androidx.wear.compose.materialcore.Checkbox(
-    checked = checked,
-    modifier = modifier,
-    boxColor = { isEnabled, isChecked ->
-        colors.boxColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    checkmarkColor = { isEnabled, isChecked ->
-        colors.checkmarkColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    enabled = enabled,
-    onCheckedChange = onCheckedChange,
-    interactionSource = interactionSource,
-    drawBox = { drawScope, color, _, _ -> drawScope.drawBox(color) },
-    progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
-    width = WIDTH,
-    height = HEIGHT,
-    ripple = rippleOrFallbackImplementation()
-)
+) =
+    androidx.wear.compose.materialcore.Checkbox(
+        checked = checked,
+        modifier = modifier,
+        boxColor = { isEnabled, isChecked ->
+            colors.boxColor(enabled = isEnabled, checked = isChecked)
+        },
+        checkmarkColor = { isEnabled, isChecked ->
+            colors.checkmarkColor(enabled = isEnabled, checked = isChecked)
+        },
+        enabled = enabled,
+        onCheckedChange = onCheckedChange,
+        interactionSource = interactionSource,
+        drawBox = { drawScope, color, _, _ -> drawScope.drawBox(color) },
+        progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
+        width = WIDTH,
+        height = HEIGHT,
+        ripple = rippleOrFallbackImplementation()
+    )
 
 /**
- * [Switch] provides an animated switch for use as a toggle control in
- * [ToggleChip] or [SplitToggleChip].
+ * [Switch] provides an animated switch for use as a toggle control in [ToggleChip] or
+ * [SplitToggleChip].
  *
  * Example of a [ToggleChip] with [Switch] toggle control:
+ *
  * @sample androidx.wear.compose.material.samples.ToggleChipWithSwitch
  *
  * @param checked Boolean flag indicating whether this switch is currently toggled on.
- * @param modifier Modifier to be applied to the switch. This can be used to provide a
- * content description for accessibility.
+ * @param modifier Modifier to be applied to the switch. This can be used to provide a content
+ *   description for accessibility.
  * @param colors [SwitchColors] from which the colors of the thumb and track will be obtained.
- * @param enabled Boolean flag indicating the enabled state of the [Switch] (affects
- * the color).
+ * @param enabled Boolean flag indicating the enabled state of the [Switch] (affects the color).
  * @param onCheckedChange Callback to be invoked when Switch is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state
- * (such as [ToggleChip] or [SplitToggleChip]).
+ *   passive and relies entirely on a higher-level component to control the state (such as
+ *   [ToggleChip] or [SplitToggleChip]).
  * @param interactionSource When also providing [onCheckedChange], an optional hoisted
- * [MutableInteractionSource] for observing and emitting [Interaction]s for this switch.
- * You can use this to change the switch's appearance or preview the switch in different states.
- * Note that if `null` is provided, interactions will still happen internally.
+ *   [MutableInteractionSource] for observing and emitting [Interaction]s for this switch. You can
+ *   use this to change the switch's appearance or preview the switch in different states. Note that
+ *   if `null` is provided, interactions will still happen internally.
  */
 @Composable
 public fun Switch(
@@ -120,67 +115,57 @@ public fun Switch(
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-) = androidx.wear.compose.materialcore.Switch(
-    modifier = modifier,
-    checked = checked,
-    enabled = enabled,
-    onCheckedChange = onCheckedChange,
-    interactionSource = interactionSource,
-    trackFillColor = { isEnabled, isChecked ->
-        colors.trackColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    trackStrokeColor = { isEnabled, isChecked ->
-        colors.trackColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    thumbColor = { isEnabled, isChecked ->
-        colors.thumbColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    thumbIconColor = { isEnabled, isChecked ->
-        colors.thumbColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    trackWidth = SWITCH_TRACK_LENGTH,
-    trackHeight = SWITCH_TRACK_HEIGHT,
-    drawThumb = { drawScope, color, progress, _, isRtl ->
-        drawScope.drawThumb(color = color, progress = progress, isRtl = isRtl)
-    },
-    progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
-    width = WIDTH,
-    height = HEIGHT,
-    ripple = rippleOrFallbackImplementation()
-)
+) =
+    androidx.wear.compose.materialcore.Switch(
+        modifier = modifier,
+        checked = checked,
+        enabled = enabled,
+        onCheckedChange = onCheckedChange,
+        interactionSource = interactionSource,
+        trackFillColor = { isEnabled, isChecked ->
+            colors.trackColor(enabled = isEnabled, checked = isChecked)
+        },
+        trackStrokeColor = { isEnabled, isChecked ->
+            colors.trackColor(enabled = isEnabled, checked = isChecked)
+        },
+        thumbColor = { isEnabled, isChecked ->
+            colors.thumbColor(enabled = isEnabled, checked = isChecked)
+        },
+        thumbIconColor = { isEnabled, isChecked ->
+            colors.thumbColor(enabled = isEnabled, checked = isChecked)
+        },
+        trackWidth = SWITCH_TRACK_LENGTH,
+        trackHeight = SWITCH_TRACK_HEIGHT,
+        drawThumb = { drawScope, color, progress, _, isRtl ->
+            drawScope.drawThumb(color = color, progress = progress, isRtl = isRtl)
+        },
+        progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
+        width = WIDTH,
+        height = HEIGHT,
+        ripple = rippleOrFallbackImplementation()
+    )
 
 /**
- * [RadioButton] provides an animated radio button for use as a toggle control in
- * [ToggleChip] or [SplitToggleChip].
+ * [RadioButton] provides an animated radio button for use as a toggle control in [ToggleChip] or
+ * [SplitToggleChip].
  *
  * Example of a [ToggleChip] with [RadioButton] toggle control:
+ *
  * @sample androidx.wear.compose.material.samples.SelectableChipWithRadioButton
  *
  * @param selected Boolean flag indicating whether this radio button is currently toggled on.
- * @param modifier Modifier to be applied to the radio button. This can be used to provide a
- * content description for accessibility.
+ * @param modifier Modifier to be applied to the radio button. This can be used to provide a content
+ *   description for accessibility.
  * @param colors [ToggleChipColors] from which the toggleControlColors will be obtained.
- * @param enabled Boolean flag indicating the enabled state of the [RadioButton] (affects
- * the color).
- * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state
- * (such as [ToggleChip] or [SplitToggleChip]).
+ * @param enabled Boolean flag indicating the enabled state of the [RadioButton] (affects the
+ *   color).
+ * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is passive
+ *   and relies entirely on a higher-level component to control the state (such as [ToggleChip] or
+ *   [SplitToggleChip]).
  * @param interactionSource When also providing [onClick], an optional hoisted
- * [MutableInteractionSource] for observing and emitting [Interaction]s for this radio button.
- * You can use this to change the radio button's appearance or preview the radio button in
- * different states. Note that if `null` is provided, interactions will still happen internally.
+ *   [MutableInteractionSource] for observing and emitting [Interaction]s for this radio button. You
+ *   can use this to change the radio button's appearance or preview the radio button in different
+ *   states. Note that if `null` is provided, interactions will still happen internally.
  */
 @Composable
 public fun RadioButton(
@@ -190,36 +175,29 @@ public fun RadioButton(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
-) = androidx.wear.compose.materialcore.RadioButton(
-    modifier = modifier,
-    selected = selected,
-    enabled = enabled,
-    ringColor = { isEnabled, isSelected ->
-        colors.ringColor(
-            enabled = isEnabled,
-            selected = isSelected
-        )
-    },
-    dotColor = { isEnabled, isSelected ->
-        colors.dotColor(
-            enabled = isEnabled,
-            selected = isSelected
-        )
-    },
-    onClick = onClick,
-    interactionSource = interactionSource,
-    dotRadiusProgressDuration = { isSelected -> if (isSelected) QUICK else RAPID },
-    dotAlphaProgressDuration = RAPID,
-    dotAlphaProgressDelay = FLASH,
-    easing = STANDARD_IN,
-    width = WIDTH,
-    height = HEIGHT,
-    ripple = rippleOrFallbackImplementation()
-)
+) =
+    androidx.wear.compose.materialcore.RadioButton(
+        modifier = modifier,
+        selected = selected,
+        enabled = enabled,
+        ringColor = { isEnabled, isSelected ->
+            colors.ringColor(enabled = isEnabled, selected = isSelected)
+        },
+        dotColor = { isEnabled, isSelected ->
+            colors.dotColor(enabled = isEnabled, selected = isSelected)
+        },
+        onClick = onClick,
+        interactionSource = interactionSource,
+        dotRadiusProgressDuration = { isSelected -> if (isSelected) QUICK else RAPID },
+        dotAlphaProgressDuration = RAPID,
+        dotAlphaProgressDelay = FLASH,
+        easing = STANDARD_IN,
+        width = WIDTH,
+        height = HEIGHT,
+        ripple = rippleOrFallbackImplementation()
+    )
 
-/**
- * Represents the content colors used in [Checkbox] in different states.
- */
+/** Represents the content colors used in [Checkbox] in different states. */
 @Stable
 public interface CheckboxColors {
     /**
@@ -229,8 +207,7 @@ public interface CheckboxColors {
      * @param enabled Whether the [Checkbox] is enabled
      * @param checked Whether the [Checkbox] is currently checked or unchecked
      */
-    @Composable
-    public fun boxColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun boxColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the checkmark color for this [Checkbox], depending on the [enabled] and [checked]
@@ -239,13 +216,10 @@ public interface CheckboxColors {
      * @param enabled Whether the [Checkbox] is enabled
      * @param checked Whether the [Checkbox] is currently checked or unchecked
      */
-    @Composable
-    public fun checkmarkColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun checkmarkColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
-/**
- * Represents the content colors used in [Switch] in different states.
- */
+/** Represents the content colors used in [Switch] in different states. */
 @Stable
 public interface SwitchColors {
     /**
@@ -255,8 +229,7 @@ public interface SwitchColors {
      * @param enabled Whether the [Switch] is enabled
      * @param checked Whether the [Switch] is currently checked or unchecked
      */
-    @Composable
-    public fun thumbColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun thumbColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the track color for this [Switch], depending on the [enabled] and [checked]
@@ -265,58 +238,53 @@ public interface SwitchColors {
      * @param enabled Whether the [Switch] is enabled
      * @param checked Whether the [Switch] is currently checked or unchecked
      */
-    @Composable
-    public fun trackColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun trackColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
-/**
- * Represents the content colors used in [RadioButton] in different states.
- */
+/** Represents the content colors used in [RadioButton] in different states. */
 @Stable
 public interface RadioButtonColors {
     /**
-     * Represents the outer ring color for this [RadioButton], depending on
-     * the [enabled] and [selected] properties.
+     * Represents the outer ring color for this [RadioButton], depending on the [enabled] and
+     * [selected] properties.
      *
      * @param enabled Whether the [RadioButton] is enabled
      * @param selected Whether the [RadioButton] is currently selected or unselected
      */
-    @Composable
-    public fun ringColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable public fun ringColor(enabled: Boolean, selected: Boolean): State<Color>
 
     /**
-     * Represents the inner dot color for this [RadioButton], depending on
-     * the [enabled] and [selected] properties.
+     * Represents the inner dot color for this [RadioButton], depending on the [enabled] and
+     * [selected] properties.
      *
      * @param enabled Whether the [RadioButton] is enabled
      * @param selected Whether the [RadioButton] is currently selected or unselected
      */
-    @Composable
-    public fun dotColor(enabled: Boolean, selected: Boolean): State<Color>
+    @Composable public fun dotColor(enabled: Boolean, selected: Boolean): State<Color>
 }
 
-/**
- * Contains the default values used by [Checkbox].
- */
+/** Contains the default values used by [Checkbox]. */
 public object CheckboxDefaults {
     /**
      * Creates a [CheckboxColors] for use in a [Checkbox].
      *
      * @param checkedBoxColor The box color of this [Checkbox] when enabled and checked.
      * @param uncheckedBoxColor The box color of this [Checkbox] when enabled and unchecked.
-     * @param checkedCheckmarkColor The check mark color of this [Checkbox] when enabled
-     * and checked.
-     * @param uncheckedCheckmarkColor The check mark color of this [Checkbox] when enabled
-     * and unchecked.
+     * @param checkedCheckmarkColor The check mark color of this [Checkbox] when enabled and
+     *   checked.
+     * @param uncheckedCheckmarkColor The check mark color of this [Checkbox] when enabled and
+     *   unchecked.
      */
     @Composable
     public fun colors(
         checkedBoxColor: Color = MaterialTheme.colors.secondary,
         checkedCheckmarkColor: Color = checkedBoxColor,
-        uncheckedBoxColor: Color = contentColorFor(
-            MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                .compositeOver(MaterialTheme.colors.surface)
-        ),
+        uncheckedBoxColor: Color =
+            contentColorFor(
+                MaterialTheme.colors.primary
+                    .copy(alpha = 0.5f)
+                    .compositeOver(MaterialTheme.colors.surface)
+            ),
         uncheckedCheckmarkColor: Color = uncheckedBoxColor,
     ): CheckboxColors {
         return DefaultCheckboxColors(
@@ -324,21 +292,15 @@ public object CheckboxDefaults {
             checkedCheckmarkColor = checkedCheckmarkColor,
             uncheckedBoxColor = uncheckedBoxColor,
             uncheckedCheckmarkColor = uncheckedCheckmarkColor,
-            disabledCheckedBoxColor =
-            checkedBoxColor.toDisabledColor(),
-            disabledCheckedCheckmarkColor =
-            checkedCheckmarkColor.toDisabledColor(),
-            disabledUncheckedBoxColor =
-            uncheckedBoxColor.toDisabledColor(),
-            disabledUncheckedCheckmarkColor =
-            uncheckedCheckmarkColor.toDisabledColor(),
+            disabledCheckedBoxColor = checkedBoxColor.toDisabledColor(),
+            disabledCheckedCheckmarkColor = checkedCheckmarkColor.toDisabledColor(),
+            disabledUncheckedBoxColor = uncheckedBoxColor.toDisabledColor(),
+            disabledUncheckedCheckmarkColor = uncheckedCheckmarkColor.toDisabledColor(),
         )
     }
 }
 
-/**
- * Contains the default values used by [Switch].
- */
+/** Contains the default values used by [Switch]. */
 public object SwitchDefaults {
     /**
      * Creates a [SwitchColors] for use in a [Switch].
@@ -362,46 +324,51 @@ public object SwitchDefaults {
             uncheckedThumbColor = uncheckedThumbColor,
             uncheckedTrackColor = uncheckedTrackColor,
             disabledCheckedThumbColor = checkedThumbColor.toDisabledColor(),
-            disabledCheckedTrackColor = checkedTrackColor.toDisabledColor(
-                disabledContentAlpha = checkedTrackColor.alpha * ContentAlpha.disabled),
+            disabledCheckedTrackColor =
+                checkedTrackColor.toDisabledColor(
+                    disabledContentAlpha = checkedTrackColor.alpha * ContentAlpha.disabled
+                ),
             disabledUncheckedThumbColor =
-            uncheckedThumbColor.toDisabledColor(
-                disabledContentAlpha = uncheckedThumbColor.alpha * ContentAlpha.disabled),
+                uncheckedThumbColor.toDisabledColor(
+                    disabledContentAlpha = uncheckedThumbColor.alpha * ContentAlpha.disabled
+                ),
             disabledUncheckedTrackColor =
-            uncheckedTrackColor.toDisabledColor(
-                disabledContentAlpha = uncheckedTrackColor.alpha * ContentAlpha.disabled),
+                uncheckedTrackColor.toDisabledColor(
+                    disabledContentAlpha = uncheckedTrackColor.alpha * ContentAlpha.disabled
+                ),
         )
     }
 }
 
-/**
- * Contains the default values used by [RadioButton].
- */
+/** Contains the default values used by [RadioButton]. */
 public object RadioButtonDefaults {
     /**
      * Creates a [RadioButtonColors] for use in a [RadioButton].
      *
-     * @param selectedRingColor The outer ring color of this [RadioButton] when enabled
-     * and selected.
-     * @param selectedDotColor The inner dot color of this [RadioButton] when enabled
-     * and selected.
-     * @param unselectedRingColor The outer ring color of this [RadioButton] when enabled
-     * and unselected.
-     * @param unselectedDotColor The inner dot color of this [RadioButton] when enabled
-     * and unselected.
+     * @param selectedRingColor The outer ring color of this [RadioButton] when enabled and
+     *   selected.
+     * @param selectedDotColor The inner dot color of this [RadioButton] when enabled and selected.
+     * @param unselectedRingColor The outer ring color of this [RadioButton] when enabled and
+     *   unselected.
+     * @param unselectedDotColor The inner dot color of this [RadioButton] when enabled and
+     *   unselected.
      */
     @Composable
     public fun colors(
         selectedRingColor: Color = MaterialTheme.colors.secondary,
         selectedDotColor: Color = MaterialTheme.colors.secondary,
-        unselectedRingColor: Color = contentColorFor(
-            MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                .compositeOver(MaterialTheme.colors.surface)
-        ),
-        unselectedDotColor: Color = contentColorFor(
-            MaterialTheme.colors.primary.copy(alpha = 0.5f)
-                .compositeOver(MaterialTheme.colors.surface)
-        ),
+        unselectedRingColor: Color =
+            contentColorFor(
+                MaterialTheme.colors.primary
+                    .copy(alpha = 0.5f)
+                    .compositeOver(MaterialTheme.colors.surface)
+            ),
+        unselectedDotColor: Color =
+            contentColorFor(
+                MaterialTheme.colors.primary
+                    .copy(alpha = 0.5f)
+                    .compositeOver(MaterialTheme.colors.surface)
+            ),
     ): RadioButtonColors {
         return DefaultRadioButtonColors(
             selectedRingColor = selectedRingColor,
@@ -431,11 +398,7 @@ private fun DrawScope.drawBox(color: Color) {
     )
 }
 
-private fun DrawScope.drawThumb(
-    color: Color,
-    progress: Float,
-    isRtl: Boolean
-) {
+private fun DrawScope.drawThumb(color: Color, progress: Float, isRtl: Boolean) {
 
     val switchThumbRadiusPx = SWITCH_THUMB_RADIUS.toPx()
     val switchTrackLengthPx = SWITCH_TRACK_LENGTH.toPx()
@@ -455,9 +418,7 @@ private fun DrawScope.drawThumb(
     )
 }
 
-/**
- * Default [CheckboxColors] implementation.
- */
+/** Default [CheckboxColors] implementation. */
 @Immutable
 private class DefaultCheckboxColors(
     private val checkedBoxColor: Color,
@@ -525,9 +486,7 @@ private class DefaultCheckboxColors(
     }
 }
 
-/**
- * Default [SwitchColors] implementation.
- */
+/** Default [SwitchColors] implementation. */
 @Immutable
 private class DefaultSwitchColors(
     private val checkedThumbColor: Color,
@@ -595,9 +554,7 @@ private class DefaultSwitchColors(
     }
 }
 
-/**
- * Default [SwitchColors] implementation.
- */
+/** Default [SwitchColors] implementation. */
 @Immutable
 private class DefaultRadioButtonColors(
     private val selectedRingColor: Color,

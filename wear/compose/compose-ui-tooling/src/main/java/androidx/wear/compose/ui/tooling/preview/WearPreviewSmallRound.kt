@@ -24,6 +24,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * round Wear device ([WearDevices.SMALL_ROUND]).
  *
  * @sample androidx.wear.compose.material.samples.ButtonWithIconPreview
+ *
  * @see [WearDevices.SMALL_ROUND]
  */
 @Preview(

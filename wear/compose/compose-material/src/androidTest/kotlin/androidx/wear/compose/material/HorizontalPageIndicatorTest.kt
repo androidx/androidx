@@ -35,8 +35,7 @@ import org.junit.Test
 
 @RequiresApi(Build.VERSION_CODES.O)
 class HorizontalPageIndicatorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     public fun supports_testtag_circular() {
@@ -102,10 +101,8 @@ class HorizontalPageIndicatorTest {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     indicatorStyle = PageIndicatorStyle.Curved,
-                    pageIndicatorState = pageIndicatorState(
-                        pageOffset = 0f,
-                        selectedPage = 1,
-                        pageCount = 9),
+                    pageIndicatorState =
+                        pageIndicatorState(pageOffset = 0f, selectedPage = 1, pageCount = 9),
                     indicatorSize = indicatorSize,
                     spacing = spacing
                 )
@@ -127,10 +124,12 @@ class HorizontalPageIndicatorTest {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
                     indicatorStyle = PageIndicatorStyle.Curved,
-                    pageIndicatorState = pageIndicatorState(
-                        pageOffset = 0f,
-                        selectedPage = 1,
-                        pageCount = pagesCount),
+                    pageIndicatorState =
+                        pageIndicatorState(
+                            pageOffset = 0f,
+                            selectedPage = 1,
+                            pageCount = pagesCount
+                        ),
                     indicatorSize = indicatorSize,
                     spacing = spacing
                 )
@@ -157,11 +156,15 @@ class HorizontalPageIndicatorTest {
 
         // A selected dot with specified color should be visible on the screen, which is apprx 1.3%
         // (1.3% per dot, 1 dot in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(selectedColor, 1.2f..1.5f)
         // Unselected dots should also be visible on the screen, and should take around 4%
         // (1.3% per dot, 3 dots total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 3.8f..4.5f)
     }
 
@@ -180,12 +183,13 @@ class HorizontalPageIndicatorTest {
         rule.waitForIdle()
 
         // Selected color was blended in between of 2 dots, which made it a different color
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertDoesNotContainColor(selectedColor)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(selectedColor)
         // Unselected dots ( which doesn't participate in color merge)
         // should also be visible on the screen, and should take around 2.7%
         // (1.3% per dot, 2 dots in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 2.5f..3f)
     }
 
@@ -206,11 +210,15 @@ class HorizontalPageIndicatorTest {
 
         // A selected item with specified color should be visible on the screen, which is
         // apprx 1.8% (1.8% per item, 1 item in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(selectedColor, 1.6f..1.9f)
         // Unselected item should also be visible on the screen, and should take around 5.8%
         // (1.8% per item, 3 items in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 5f..6f)
     }
 
@@ -218,17 +226,16 @@ class HorizontalPageIndicatorTest {
         val selectedColor = Color.Yellow
         val unselectedColor = Color.Red
 
-        fun pageIndicatorState(
-            pageOffset: Float = 0f,
-            selectedPage: Int = 1,
-            pageCount: Int = 4
-        ) = object : PageIndicatorState {
-            override val pageOffset: Float
-                get() = pageOffset
-            override val selectedPage: Int
-                get() = selectedPage
-            override val pageCount: Int
-                get() = pageCount
-        }
+        fun pageIndicatorState(pageOffset: Float = 0f, selectedPage: Int = 1, pageCount: Int = 4) =
+            object : PageIndicatorState {
+                override val pageOffset: Float
+                    get() = pageOffset
+
+                override val selectedPage: Int
+                    get() = selectedPage
+
+                override val pageCount: Int
+                    get() = pageCount
+            }
     }
 }

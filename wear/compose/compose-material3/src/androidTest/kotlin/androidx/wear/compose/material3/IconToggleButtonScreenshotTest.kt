@@ -38,49 +38,51 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class IconToggleButtonScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
-    fun iconToggleButtonEnabledAndChecked() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        content = { sampleIconToggleButton() }
-    )
+    fun iconToggleButtonEnabledAndChecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = { sampleIconToggleButton() }
+        )
 
     @Test
-    fun iconToggleButtonEnabledAndUnchecked() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        content = { sampleIconToggleButton(checked = false) }
-    )
+    fun iconToggleButtonEnabledAndUnchecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = { sampleIconToggleButton(checked = false) }
+        )
 
     @Test
-    fun iconToggleButtonDisabledAndChecked() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        content = { sampleIconToggleButton(enabled = false) }
-    )
+    fun iconToggleButtonDisabledAndChecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = { sampleIconToggleButton(enabled = false) }
+        )
 
     @Test
-    fun iconToggleButtonDisabledAndUnchecked() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        content = { sampleIconToggleButton(enabled = false, checked = false) }
-    )
+    fun iconToggleButtonDisabledAndUnchecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = { sampleIconToggleButton(enabled = false, checked = false) }
+        )
 
     @Test
-    fun iconToggleButtonWithOffset() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) }
-    )
+    fun iconToggleButtonWithOffset() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) }
+        )
 
     @Composable
     private fun sampleIconToggleButton(
@@ -94,10 +96,7 @@ class IconToggleButtonScreenshotTest {
             enabled = enabled,
             modifier = modifier.testTag(TEST_TAG)
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Star,
-                contentDescription = "Favourite"
-            )
+            Icon(imageVector = Icons.Outlined.Star, contentDescription = "Favourite")
         }
     }
 }

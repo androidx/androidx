@@ -205,12 +205,13 @@ fun DialogGrantPermission() {
             icon = {
                 DemoIcon(resourceId = R.drawable.ic_baseline_error_24, contentDescription = "Error")
             },
-            title = { Text(
-                text = "You need to grant location permission to use this app",
-                textAlign = TextAlign.Center
-            ) },
-            contentPadding =
-                PaddingValues(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 16.dp),
+            title = {
+                Text(
+                    text = "You need to grant location permission to use this app",
+                    textAlign = TextAlign.Center
+                )
+            },
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 16.dp),
         ) {
             item {
                 Chip(
@@ -245,8 +246,10 @@ fun DialogLongChips() {
             contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 36.dp, bottom = 52.dp),
             scrollState = scrollState,
             title = {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     Text(text = "Title that is quite long", textAlign = TextAlign.Center)
                 }
             },
@@ -273,7 +276,8 @@ fun DialogLongChips() {
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_clear_24px,
-                            contentDescription = "Cross")
+                            contentDescription = "Cross"
+                        )
                     },
                     label = { Text("Keep \"while app is in use\"") },
                     onClick = { showDialog = false },
@@ -298,13 +302,11 @@ fun DialogSuccessConfirmation() {
                 DemoIcon(
                     resourceId = R.drawable.ic_check_48px,
                     size = 48.dp,
-                    contentDescription = "Tick")
+                    contentDescription = "Tick"
+                )
             },
         ) {
-            Text(
-                text = "Success",
-                textAlign = TextAlign.Center
-            )
+            Text(text = "Success", textAlign = TextAlign.Center)
         }
     }
 }

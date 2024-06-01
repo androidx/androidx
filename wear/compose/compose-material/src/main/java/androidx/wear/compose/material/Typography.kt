@@ -26,53 +26,44 @@ import androidx.compose.ui.unit.sp
 /**
  * Class holding typography definitions as defined by the Wear Material typography specification.
  *
- * The text styles in this typography are scaled according to the user's preferred font size in
- * the system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on
- * screen space, because they are already sufficiently accessible.
- * Here is an example of fixing the font size for Display1:
+ * The text styles in this typography are scaled according to the user's preferred font size in the
+ * system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on screen
+ * space, because they are already sufficiently accessible. Here is an example of fixing the font
+ * size for Display1:
+ *
  * @sample androidx.wear.compose.material.samples.FixedFontSize
  *
  * @property display1 Display1 is the largest headline. Displays are the largest text on the screen,
- * reserved for short, important text or numerals.
- *
+ *   reserved for short, important text or numerals.
  * @property display2 Display2 is the second largest headline. Displays are the largest text on the
- * screen, reserved for short, important text or numerals.
- *
+ *   screen, reserved for short, important text or numerals.
  * @property display3 Display3 is the third largest headline. Displays are the largest text on the
- * screen, reserved for short, important text or numerals.
- *
+ *   screen, reserved for short, important text or numerals.
  * @property title1 Title1 is the largest title. Titles are smaller than Displays. They are
- * typically reserved for medium-emphasis text that is shorter in length.
- *
- * @property title2 Title2 is the medium title. Titles are smaller than Displays. They are
- * typically reserved for medium-emphasis text that is shorter in length.
- *
+ *   typically reserved for medium-emphasis text that is shorter in length.
+ * @property title2 Title2 is the medium title. Titles are smaller than Displays. They are typically
+ *   reserved for medium-emphasis text that is shorter in length.
  * @property title3 Title3 is the smallest title. Titles are smaller than Displays. They are
- * typically reserved for medium-emphasis text that is shorter in length.
- *
+ *   typically reserved for medium-emphasis text that is shorter in length.
  * @property body1 Body1 is the largest body. Body texts are typically used for long-form writing as
- * it works well for small text sizes. For longer sections of text, a serif or sans serif typeface
- * is recommended.
- *
+ *   it works well for small text sizes. For longer sections of text, a serif or sans serif typeface
+ *   is recommended.
  * @property body2 Body2 is the smallest body. Body texts are typically used for long-form writing
- * as it works well for small text sizes. For longer sections of text, a serif or sans serif
- * typeface is recommended.
- *
+ *   as it works well for small text sizes. For longer sections of text, a serif or sans serif
+ *   typeface is recommended.
  * @property button Button text is a call to action used in different types of buttons (such as
- * text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is typically
- * sans serif, using all caps text.
- *
+ *   text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is typically
+ *   sans serif, using all caps text.
  * @property caption1 Caption1 is the largest caption. Caption texts are the smallest font sizes.
- * They are used on secondary content.
- *
+ *   They are used on secondary content.
  * @property caption2 Caption2 is the second largest caption. Caption texts are the smallest font
- * sizes. They are used on secondary content.
- *
+ *   sizes. They are used on secondary content.
  * @property caption3 Caption3 is an exceptional small font size which is used for the extra
- * long-form writing like legal texts.
+ *   long-form writing like legal texts.
  */
 @Immutable
-public class Typography internal constructor(
+public class Typography
+internal constructor(
     public val display1: TextStyle,
     public val display2: TextStyle,
     public val display3: TextStyle,
@@ -86,80 +77,92 @@ public class Typography internal constructor(
     public val caption2: TextStyle,
     public val caption3: TextStyle,
 ) {
-    public constructor (
+    public constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
-        display1: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 40.sp,
-            lineHeight = 46.sp,
-            letterSpacing = 0.5.sp
-        ),
-        display2: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 34.sp,
-            lineHeight = 40.sp,
-            letterSpacing = 1.sp
-        ),
-        display3: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 30.sp,
-            lineHeight = 36.sp,
-            letterSpacing = 0.8.sp,
-        ),
-        title1: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 24.sp,
-            lineHeight = 28.sp,
-            letterSpacing = 0.2.sp
-        ),
-        title2: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            lineHeight = 24.sp,
-            letterSpacing = 0.2.sp
-        ),
-        title3: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            lineHeight = 20.sp,
-            letterSpacing = 0.2.sp
-        ),
-        body1: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            lineHeight = 20.sp,
-            letterSpacing = 0.18.sp
-        ),
-        body2: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.2.sp
-        ),
-        button: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Bold,
-            fontSize = 15.sp,
-            lineHeight = 19.sp,
-            letterSpacing = 0.38.sp
-        ),
-        caption1: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.1.sp
-        ),
-        caption2: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp,
-            lineHeight = 16.sp,
-            letterSpacing = 0.1.sp
-        ),
-        caption3: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 10.sp,
-            lineHeight = 14.sp,
-            letterSpacing = 0.1.sp
-        )
+        display1: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 40.sp,
+                lineHeight = 46.sp,
+                letterSpacing = 0.5.sp
+            ),
+        display2: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 34.sp,
+                lineHeight = 40.sp,
+                letterSpacing = 1.sp
+            ),
+        display3: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 30.sp,
+                lineHeight = 36.sp,
+                letterSpacing = 0.8.sp,
+            ),
+        title1: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 24.sp,
+                lineHeight = 28.sp,
+                letterSpacing = 0.2.sp
+            ),
+        title2: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
+                lineHeight = 24.sp,
+                letterSpacing = 0.2.sp
+            ),
+        title3: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                letterSpacing = 0.2.sp
+            ),
+        body1: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                lineHeight = 20.sp,
+                letterSpacing = 0.18.sp
+            ),
+        body2: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Normal,
+                fontSize = 14.sp,
+                lineHeight = 18.sp,
+                letterSpacing = 0.2.sp
+            ),
+        button: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                lineHeight = 19.sp,
+                letterSpacing = 0.38.sp
+            ),
+        caption1: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                lineHeight = 18.sp,
+                letterSpacing = 0.1.sp
+            ),
+        caption2: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                letterSpacing = 0.1.sp
+            ),
+        caption3: TextStyle =
+            DefaultTextStyle.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 10.sp,
+                lineHeight = 14.sp,
+                letterSpacing = 0.1.sp
+            )
     ) : this(
         display1 = display1.withDefaultFontFamily(defaultFontFamily),
         display2 = display2.withDefaultFontFamily(defaultFontFamily),
@@ -175,9 +178,7 @@ public class Typography internal constructor(
         caption3 = caption3.withDefaultFontFamily(defaultFontFamily),
     )
 
-    /**
-     * Returns a copy of this Typography, optionally overriding some of the values.
-     */
+    /** Returns a copy of this Typography, optionally overriding some of the values. */
     public fun copy(
         display1: TextStyle = this.display1,
         display2: TextStyle = this.display2,
@@ -191,20 +192,21 @@ public class Typography internal constructor(
         caption1: TextStyle = this.caption1,
         caption2: TextStyle = this.caption2,
         caption3: TextStyle = this.caption3,
-    ): Typography = Typography(
-        display1,
-        display2,
-        display3,
-        title1,
-        title2,
-        title3,
-        body1,
-        body2,
-        button,
-        caption1,
-        caption2,
-        caption3,
-    )
+    ): Typography =
+        Typography(
+            display1,
+            display2,
+            display3,
+            title1,
+            title2,
+            title3,
+            body1,
+            body2,
+            button,
+            caption1,
+            caption2,
+            caption3,
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -250,8 +252,8 @@ public class Typography internal constructor(
 }
 
 /**
- * @return [this] if there is a [FontFamily] defined, otherwise copies [this] with [default] as
- * the [FontFamily].
+ * @return [this] if there is a [FontFamily] defined, otherwise copies [this] with [default] as the
+ *   [FontFamily].
  */
 private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
@@ -259,18 +261,17 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
 
 private const val DefaultIncludeFontPadding = false
 
-internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = PlatformTextStyle(
-        includeFontPadding = DefaultIncludeFontPadding
+internal val DefaultTextStyle =
+    TextStyle.Default.copy(
+        platformStyle = PlatformTextStyle(includeFontPadding = DefaultIncludeFontPadding)
     )
-)
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described
  * by the Wear Material spec. You can read the values in it when creating custom components that
  * want to use Wear Material types, as well as override the values when you want to re-style a part
- * of your hierarchy. Material components related to text such as [Button] will use this Ambient
- * to set values with which to style children text components.
+ * of your hierarchy. Material components related to text such as [Button] will use this Ambient to
+ * set values with which to style children text components.
  *
  * To access values within this ambient, use [MaterialTheme.typography].
  */

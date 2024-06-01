@@ -65,9 +65,7 @@ import kotlin.math.abs
 import kotlin.math.round
 import org.junit.Assert
 
-/**
- * Constant to emulate very big but finite constraints
- */
+/** Constant to emulate very big but finite constraints */
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
 
@@ -77,11 +75,7 @@ fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
     composable: @Composable BoxScope.() -> Unit
 ) {
-    setContent {
-        MaterialTheme {
-            Box(modifier = modifier, content = composable)
-        }
-    }
+    setContent { MaterialTheme { Box(modifier = modifier, content = composable) } }
 }
 
 fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
@@ -94,10 +88,8 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
         MaterialTheme {
             Box {
                 Box(
-                    Modifier.sizeIn(
-                        maxWidth = parentMaxWidth,
-                        maxHeight = parentMaxHeight
-                    ).testTag("containerForSizeAssertion")
+                    Modifier.sizeIn(maxWidth = parentMaxWidth, maxHeight = parentMaxHeight)
+                        .testTag("containerForSizeAssertion")
                 ) {
                     content()
                 }
@@ -110,10 +102,11 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
 
 fun ComposeContentTestRule.textStyleOf(text: String): TextStyle {
     val textLayoutResults = mutableListOf<TextLayoutResult>()
-    onNodeWithText(text, useUnmergedTree = true)
-        .performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
-            it(textLayoutResults)
-        }
+    onNodeWithText(text, useUnmergedTree = true).performSemanticsAction(
+        SemanticsActions.GetTextLayoutResult
+    ) {
+        it(textLayoutResults)
+    }
     return textLayoutResults[0].layoutInput.style
 }
 
@@ -129,7 +122,8 @@ fun assertTextTypographyEquals(expectedStyle: TextStyle, actualStyle: TextStyle)
 fun TestImage(iconLabel: String = "TestIcon", modifier: Modifier = Modifier) {
     val testImage = Icons.Outlined.Add
     Image(
-        testImage, iconLabel,
+        testImage,
+        iconLabel,
         modifier = modifier.fillMaxSize().testTag(iconLabel),
         contentScale = ContentScale.Fit,
         alignment = Alignment.Center
@@ -140,15 +134,15 @@ fun TestImage(iconLabel: String = "TestIcon", modifier: Modifier = Modifier) {
 fun TestIcon(modifier: Modifier = Modifier, iconLabel: String = "TestIcon") {
     val testImage = Icons.Outlined.Add
     Icon(
-        imageVector = testImage, contentDescription = iconLabel,
-        modifier = modifier
-            .testTag(iconLabel)
+        imageVector = testImage,
+        contentDescription = iconLabel,
+        modifier = modifier.testTag(iconLabel)
     )
 }
 
 /**
- * assertContainsColor - uses a threshold on an ImageBitmap's color distribution
- * to check that a UI element is predominantly the expected color.
+ * assertContainsColor - uses a threshold on an ImageBitmap's color distribution to check that a UI
+ * element is predominantly the expected color.
  */
 fun ImageBitmap.assertContainsColor(expectedColor: Color, minPercent: Float = 50.0f) {
     val histogram = histogram()
@@ -164,9 +158,7 @@ fun ImageBitmap.assertContainsColor(expectedColor: Color, minPercent: Float = 50
     }
 }
 
-/**
- * Checks that [expectedColor]  is in the percentage [range] of an [ImageBitmap] color histogram
- */
+/** Checks that [expectedColor] is in the percentage [range] of an [ImageBitmap] color histogram */
 fun ImageBitmap.assertColorInPercentageRange(
     expectedColor: Color,
     range: ClosedFloatingPointRange<Float> = 50.0f..100.0f
@@ -186,9 +178,7 @@ fun ImageBitmap.assertColorInPercentageRange(
     }
 }
 
-/**
- * Checks whether [expectedColor] does not exist in current [ImageBitmap]
- */
+/** Checks whether [expectedColor] does not exist in current [ImageBitmap] */
 fun ImageBitmap.assertDoesNotContainColor(expectedColor: Color) {
     val histogram = histogram()
     if (histogram.containsKey(expectedColor)) {
@@ -197,10 +187,9 @@ fun ImageBitmap.assertDoesNotContainColor(expectedColor: Color) {
 }
 
 /**
- * printHistogramToLog - utility for writing an ImageBitmap's color distribution to debug log.
- * The histogram can be extracted using adb logcat, for example:
- *   adb logcat | grep Histogram
- * This can be useful when debugging a captured image from a compose UI element.
+ * printHistogramToLog - utility for writing an ImageBitmap's color distribution to debug log. The
+ * histogram can be extracted using adb logcat, for example: adb logcat | grep Histogram This can be
+ * useful when debugging a captured image from a compose UI element.
  */
 @kotlin.ExperimentalUnsignedTypes
 fun ImageBitmap.printHistogramToLog(expectedColor: Color): ImageBitmap {
@@ -226,14 +215,10 @@ internal fun ComposeContentTestRule.verifyScreenshot(
     content: @Composable () -> Unit
 ) {
     setContentWithTheme {
-        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-            content()
-        }
+        CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
     }
 
-    onNodeWithTag(testTag)
-        .captureToImage()
-        .assertAgainstGolden(screenshotRule, methodName)
+    onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, methodName)
 }
 
 /**
@@ -254,11 +239,12 @@ private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
     assertion: (DpRect) -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
-    val bounds = with(node.root!!.density) {
-        node.unclippedBoundsInRoot.let {
-            DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+    val bounds =
+        with(node.root!!.density) {
+            node.unclippedBoundsInRoot.let {
+                DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp())
+            }
         }
-    }
     assertion.invoke(bounds)
     return this
 }
@@ -273,9 +259,9 @@ private val SemanticsNode.unclippedBoundsInRoot: Rect
     }
 
 /**
- * Returns if this value is equal to the [reference], within a given [tolerance]. If the
- * reference value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this
- * only returns true if this value is exactly the same (tolerance is disregarded).
+ * Returns if this value is equal to the [reference], within a given [tolerance]. If the reference
+ * value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this only returns
+ * true if this value is exactly the same (tolerance is disregarded).
  */
 private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
     return when {
@@ -296,15 +282,12 @@ private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
  * @param expected The expected value to which this one should be equal to.
  * @param subject Used in the error message to identify which item this assertion failed on.
  * @param tolerance The tolerance within which the values should be treated as equal.
- *
  * @throws AssertionError if comparison fails.
  */
 private fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = Dp(.5f)) {
     if (!isWithinTolerance(expected, tolerance)) {
         // Comparison failed, report the error in DPs
-        throw AssertionError(
-            "Actual $subject is $this, expected $expected (tolerance: $tolerance)"
-        )
+        throw AssertionError("Actual $subject is $this, expected $expected (tolerance: $tolerance)")
     }
 }
 
@@ -320,26 +303,21 @@ private fun ImageBitmap.histogram(): MutableMap<Color, Long> {
     return histogram
 }
 
-@kotlin.ExperimentalUnsignedTypes
-private fun Color.toHexString() =
-    this.value.toString(16)
+@kotlin.ExperimentalUnsignedTypes private fun Color.toHexString() = this.value.toString(16)
 
 /**
- * writeToDevice - utility for writing an image bitmap to storage on the emulated device.
- * The image can be extract using adb pull, for example:
- * adb pull
- *   /storage/emulated/0/Android/data/androidx.wear.compose.test/cache/screenshots/mytest.png
- *   /usr/local/username/Desktop/mytest.png
+ * writeToDevice - utility for writing an image bitmap to storage on the emulated device. The image
+ * can be extract using adb pull, for example: adb pull
+ * /storage/emulated/0/Android/data/androidx.wear.compose.test/cache/screenshots/mytest.png
+ * /usr/local/username/Desktop/mytest.png
  */
 fun ImageBitmap.writeToDevice(testName: String) {
     this.asAndroidBitmap().writeToDevice(testName)
 }
 
 private val deviceOutputDirectory
-    get() = File(
-        InstrumentationRegistry.getInstrumentation().context.externalCacheDir,
-        "screenshots"
-    )
+    get() =
+        File(InstrumentationRegistry.getInstrumentation().context.externalCacheDir, "screenshots")
 
 private fun Bitmap.writeToDevice(testName: String): File {
     return writeToDevice(testName) {
@@ -347,10 +325,7 @@ private fun Bitmap.writeToDevice(testName: String): File {
     }
 }
 
-private fun writeToDevice(
-    testName: String,
-    writeAction: (FileOutputStream) -> Unit
-): File {
+private fun writeToDevice(testName: String, writeAction: (FileOutputStream) -> Unit): File {
     if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
         throw IOException("Could not create folder $deviceOutputDirectory")
     }
@@ -358,13 +333,12 @@ private fun writeToDevice(
     val file = File(deviceOutputDirectory, "$testName.png")
     Log.d("Screenshot", "File path is ${file.absolutePath}")
     try {
-        FileOutputStream(file).use {
-            writeAction(it)
-        }
+        FileOutputStream(file).use { writeAction(it) }
     } catch (e: Exception) {
         throw IOException(
             "Could not write file to storage (path: ${file.absolutePath}). " +
-                " Stacktrace: " + e.stackTrace
+                " Stacktrace: " +
+                e.stackTrace
         )
     }
     return file

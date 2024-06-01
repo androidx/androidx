@@ -83,10 +83,13 @@ public class DefaultTileClientTest {
         Shadows.shadowOf(appContext as Application)
             .setComponentNameAndServiceForBindService(TILE_PROVIDER, fakeTileService.asBinder())
 
-        clientUnderTest = DefaultTileClient(
-            appContext, TILE_PROVIDER,
-            fakeCoroutineScope, fakeCoroutineDispatcher
-        )
+        clientUnderTest =
+            DefaultTileClient(
+                appContext,
+                TILE_PROVIDER,
+                fakeCoroutineScope,
+                fakeCoroutineDispatcher
+            )
     }
 
     @After
@@ -95,18 +98,19 @@ public class DefaultTileClientTest {
     }
 
     @Test
-    public fun getTileContents_canGetTileContents(): Unit = fakeCoroutineScope.runTest {
-        val expectedTile = TileBuilders.Tile.Builder().setResourcesVersion("5").build()
-        fakeTileService.returnTile = expectedTile.toProto().toByteArray()
+    public fun getTileContents_canGetTileContents(): Unit =
+        fakeCoroutineScope.runTest {
+            val expectedTile = TileBuilders.Tile.Builder().setResourcesVersion("5").build()
+            fakeTileService.returnTile = expectedTile.toProto().toByteArray()
 
-        val result = async {
-            clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build()).await()
+            val result = async {
+                clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build()).await()
+            }
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+            // We don't override #equals; check the proto forms for equality instead.
+            assertThat(result.await().toProto()).isEqualTo(expectedTile.toProto())
         }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-        // We don't override #equals; check the proto forms for equality instead.
-        assertThat(result.await().toProto()).isEqualTo(expectedTile.toProto())
-    }
 
     @Test
     public fun getTileContents_failsIfUnparsableResult(): Unit =
@@ -114,33 +118,39 @@ public class DefaultTileClientTest {
             // Put some random payload in and see if it breaks.
             fakeTileService.returnTile = byteArrayOf(127)
 
-            val result = async(Job()) {
-                clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build()).await()
-            }
+            val result =
+                async(Job()) {
+                    clientUnderTest
+                        .requestTile(RequestBuilders.TileRequest.Builder().build())
+                        .await()
+                }
             Shadows.shadowOf(Looper.getMainLooper()).idle()
 
             assertThat(result.isCompleted).isTrue()
-            assertThat(result.getCompletionExceptionOrNull()).isInstanceOf(
-                InvalidProtocolBufferException::class.java
-            )
+            assertThat(result.getCompletionExceptionOrNull())
+                .isInstanceOf(InvalidProtocolBufferException::class.java)
         }
 
     @Test
-    public fun getTileContents_failsIfVersionMismatch(): Unit = fakeCoroutineScope.runTest {
-        // Put some random payload in and see if it breaks.
-        val expectedTile = TileProto.Tile.newBuilder().setResourcesVersion("5").build()
-        fakeTileService.returnTile = expectedTile.toByteArray()
-        fakeTileService.returnTileVersion = -1
+    public fun getTileContents_failsIfVersionMismatch(): Unit =
+        fakeCoroutineScope.runTest {
+            // Put some random payload in and see if it breaks.
+            val expectedTile = TileProto.Tile.newBuilder().setResourcesVersion("5").build()
+            fakeTileService.returnTile = expectedTile.toByteArray()
+            fakeTileService.returnTileVersion = -1
 
-        val result = async(Job()) {
-            clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build()).await()
+            val result =
+                async(Job()) {
+                    clientUnderTest
+                        .requestTile(RequestBuilders.TileRequest.Builder().build())
+                        .await()
+                }
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+            assertThat(result.isCompleted).isTrue()
+            assertThat(result.getCompletionExceptionOrNull())
+                .isInstanceOf(IllegalArgumentException::class.java)
         }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(result.isCompleted).isTrue()
-        assertThat(result.getCompletionExceptionOrNull())
-            .isInstanceOf(IllegalArgumentException::class.java)
-    }
 
     @Test
     public fun getTileContents_failsOnTimeout(): Unit = runTest {
@@ -149,15 +159,13 @@ public class DefaultTileClientTest {
         fakeTileService.shouldReturnTile = false
 
         val stdDispatcher = StandardTestDispatcher(testScheduler)
-        clientUnderTest = DefaultTileClient(
-            appContext, TILE_PROVIDER,
-            this, stdDispatcher
-        )
+        clientUnderTest = DefaultTileClient(appContext, TILE_PROVIDER, this, stdDispatcher)
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
-        val result = async(stdDispatcher + Job()) {
-            clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build()).await()
-        }
+        val result =
+            async(stdDispatcher + Job()) {
+                clientUnderTest.requestTile(RequestBuilders.TileRequest.Builder().build()).await()
+            }
         stdDispatcher.scheduler.runCurrent()
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
 
@@ -176,79 +184,79 @@ public class DefaultTileClientTest {
     }
 
     @Test
-    public fun getResources_canGetResources(): Unit = fakeCoroutineScope.runTest {
-        val expectedResources = ResourceBuilders.Resources.Builder()
-            .setVersion("5")
-            .build()
-        fakeTileService.returnResources = expectedResources.toProto().toByteArray()
+    public fun getResources_canGetResources(): Unit =
+        fakeCoroutineScope.runTest {
+            val expectedResources = ResourceBuilders.Resources.Builder().setVersion("5").build()
+            fakeTileService.returnResources = expectedResources.toProto().toByteArray()
 
-        val result = async {
-            clientUnderTest.requestTileResourcesAsync(
-                RequestBuilders.ResourcesRequest.Builder().build()
-            ).await()
+            val result = async {
+                clientUnderTest
+                    .requestTileResourcesAsync(RequestBuilders.ResourcesRequest.Builder().build())
+                    .await()
+            }
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+            assertThat(result.await().toProto()).isEqualTo(expectedResources.toProto())
         }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(result.await().toProto()).isEqualTo(expectedResources.toProto())
-    }
 
     @Test
-    public fun getResources_failsIfUnparsableResult(): Unit = fakeCoroutineScope.runTest {
-        fakeTileService.returnResources = byteArrayOf(127)
+    public fun getResources_failsIfUnparsableResult(): Unit =
+        fakeCoroutineScope.runTest {
+            fakeTileService.returnResources = byteArrayOf(127)
 
-        val result = async(Job()) {
-            clientUnderTest.requestTileResourcesAsync(
-                RequestBuilders.ResourcesRequest.Builder().build()
-            ).await()
+            val result =
+                async(Job()) {
+                    clientUnderTest
+                        .requestTileResourcesAsync(
+                            RequestBuilders.ResourcesRequest.Builder().build()
+                        )
+                        .await()
+                }
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+            assertThat(result.isCompleted).isTrue()
+            assertThat(result.getCompletionExceptionOrNull())
+                .isInstanceOf(InvalidProtocolBufferException::class.java)
         }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(result.isCompleted).isTrue()
-        assertThat(result.getCompletionExceptionOrNull()).isInstanceOf(
-            InvalidProtocolBufferException::class.java
-        )
-    }
 
     @Test
-    public fun getResources_failsIfVersionMismatch(): Unit = fakeCoroutineScope.runTest {
-        val expectedResources = ResourceBuilders.Resources.Builder()
-            .setVersion("5")
-            .build()
-        fakeTileService.returnResources = expectedResources.toProto().toByteArray()
-        fakeTileService.returnResourcesVersion = -2
+    public fun getResources_failsIfVersionMismatch(): Unit =
+        fakeCoroutineScope.runTest {
+            val expectedResources = ResourceBuilders.Resources.Builder().setVersion("5").build()
+            fakeTileService.returnResources = expectedResources.toProto().toByteArray()
+            fakeTileService.returnResourcesVersion = -2
 
-        val result = async(Job()) {
-            clientUnderTest.requestTileResourcesAsync(
-                RequestBuilders.ResourcesRequest.Builder().build()
-            ).await()
+            val result =
+                async(Job()) {
+                    clientUnderTest
+                        .requestTileResourcesAsync(
+                            RequestBuilders.ResourcesRequest.Builder().build()
+                        )
+                        .await()
+                }
+            Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+            assertThat(result.isCompleted).isTrue()
+            assertThat(result.getCompletionExceptionOrNull())
+                .isInstanceOf(IllegalArgumentException::class.java)
         }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(result.isCompleted).isTrue()
-        assertThat(result.getCompletionExceptionOrNull())
-            .isInstanceOf(IllegalArgumentException::class.java)
-    }
 
     @Test
     public fun getResources_failsOnTimeout(): Unit = runTest {
-        val expectedResources = ResourceBuilders.Resources.Builder()
-            .setVersion("5")
-            .build()
+        val expectedResources = ResourceBuilders.Resources.Builder().setVersion("5").build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
         fakeTileService.shouldReturnResources = false
 
         val stdDispatcher = StandardTestDispatcher(testScheduler)
-        clientUnderTest = DefaultTileClient(
-            appContext, TILE_PROVIDER,
-            this, stdDispatcher
-        )
+        clientUnderTest = DefaultTileClient(appContext, TILE_PROVIDER, this, stdDispatcher)
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
-        val result = async(stdDispatcher + Job()) {
-            clientUnderTest.requestTileResourcesAsync(
-                RequestBuilders.ResourcesRequest.Builder().build()
-            ).await()
-        }
+        val result =
+            async(stdDispatcher + Job()) {
+                clientUnderTest
+                    .requestTileResourcesAsync(RequestBuilders.ResourcesRequest.Builder().build())
+                    .await()
+            }
         stdDispatcher.scheduler.runCurrent()
         Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
 
@@ -267,52 +275,48 @@ public class DefaultTileClientTest {
     }
 
     @Test
-    public fun onTileAdd_callsThrough(): Unit = fakeCoroutineScope.runTest {
-        val job = launch {
-            clientUnderTest.sendOnTileAddedEvent().await()
+    public fun onTileAdd_callsThrough(): Unit =
+        fakeCoroutineScope.runTest {
+            val job = launch { clientUnderTest.sendOnTileAddedEvent().await() }
+
+            Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+            job.join()
+
+            assertThat(fakeTileService.onTileAddCalled).isTrue()
         }
-
-        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
-        job.join()
-
-        assertThat(fakeTileService.onTileAddCalled).isTrue()
-    }
 
     @Test
-    public fun onTileRemove_callsThrough(): Unit = fakeCoroutineScope.runTest {
-        val job = launch {
-            clientUnderTest.sendOnTileRemovedEvent().await()
+    public fun onTileRemove_callsThrough(): Unit =
+        fakeCoroutineScope.runTest {
+            val job = launch { clientUnderTest.sendOnTileRemovedEvent().await() }
+
+            Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+            job.join()
+
+            assertThat(fakeTileService.onTileRemoveCalled).isTrue()
         }
-
-        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
-        job.join()
-
-        assertThat(fakeTileService.onTileRemoveCalled).isTrue()
-    }
 
     @Test
-    public fun onTileEnter_callsThrough(): Unit = fakeCoroutineScope.runTest {
-        val job = launch {
-            clientUnderTest.sendOnTileEnterEvent().await()
+    public fun onTileEnter_callsThrough(): Unit =
+        fakeCoroutineScope.runTest {
+            val job = launch { clientUnderTest.sendOnTileEnterEvent().await() }
+
+            Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+            job.join()
+
+            assertThat(fakeTileService.onTileEnterCalled).isTrue()
         }
-
-        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
-        job.join()
-
-        assertThat(fakeTileService.onTileEnterCalled).isTrue()
-    }
 
     @Test
-    public fun onTileLeave_callsThrough(): Unit = fakeCoroutineScope.runTest {
-        val job = launch {
-            clientUnderTest.sendOnTileLeaveEvent().await()
+    public fun onTileLeave_callsThrough(): Unit =
+        fakeCoroutineScope.runTest {
+            val job = launch { clientUnderTest.sendOnTileLeaveEvent().await() }
+
+            Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
+            job.join()
+
+            assertThat(fakeTileService.onTileLeaveCalled).isTrue()
         }
-
-        Shadows.shadowOf(Looper.getMainLooper()).idle() // Ensure it actually binds...
-        job.join()
-
-        assertThat(fakeTileService.onTileLeaveCalled).isTrue()
-    }
 
     private class FakeTileService : TileProvider.Stub() {
         var shouldReturnTile = true

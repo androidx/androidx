@@ -22,7 +22,9 @@ import androidx.work.impl.StartStopToken
 import androidx.work.impl.WorkLauncher
 import java.util.concurrent.TimeUnit
 
-internal class TimeLimiter @JvmOverloads constructor(
+internal class TimeLimiter
+@JvmOverloads
+constructor(
     private val runnableScheduler: RunnableScheduler,
     private val launcher: WorkLauncher,
     private val timeoutMs: Long = TimeUnit.MINUTES.toMillis(90),
@@ -31,9 +33,7 @@ internal class TimeLimiter @JvmOverloads constructor(
     private val tracked = mutableMapOf<StartStopToken, Runnable>()
 
     fun track(token: StartStopToken) {
-        val stopRunnable = Runnable {
-            launcher.stopWork(token, WorkInfo.STOP_REASON_TIMEOUT)
-        }
+        val stopRunnable = Runnable { launcher.stopWork(token, WorkInfo.STOP_REASON_TIMEOUT) }
         synchronized(lock) { tracked.put(token, stopRunnable) }
         runnableScheduler.scheduleWithDelay(timeoutMs, stopRunnable)
     }

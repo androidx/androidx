@@ -41,7 +41,8 @@ import org.junit.runners.Parameterized
 // 4) Run profileparser for each of wear.compose.material, wear.compose.foundation and
 //    wear.compose.navigation. From <workspace>/frameworks/support:
 //    /usr/bin/java -jar
-//      ../../out/androidx/wear/compose/integration-tests/profileparser/build/libs/profileparser-all.jar
+//
+// ../../out/androidx/wear/compose/integration-tests/profileparser/build/libs/profileparser-all.jar
 //      <input-generated-file eg ./wear/compose/BaselineProfile_profile-baseline-prof.txt>
 //      <library-name e.g. androidx/wear/compose/material>
 //      <output-file eg ./wear/compose/compose-material/src/main/baseline-prof.txt>
@@ -49,8 +50,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 29)
 class BaselineProfile {
 
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     private val ALERT_DIALOG = "alert-dialog"
     private val BUTTONS = "buttons"

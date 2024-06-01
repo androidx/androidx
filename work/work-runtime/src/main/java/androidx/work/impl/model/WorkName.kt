@@ -21,25 +21,23 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 
-/**
- * Database entity that defines a mapping from a name to a [WorkSpec] id.
- *
- */
+/** Database entity that defines a mapping from a name to a [WorkSpec] id. */
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = WorkSpec::class,
-        parentColumns = ["id"],
-        childColumns = ["work_spec_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-    )],
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = WorkSpec::class,
+                parentColumns = ["id"],
+                childColumns = ["work_spec_id"],
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE
+            )
+        ],
     primaryKeys = ["name", "work_spec_id"],
     indices = [Index(value = ["work_spec_id"])]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class WorkName(
-    @ColumnInfo(name = "name")
-    val name: String,
-    @ColumnInfo(name = "work_spec_id")
-    val workSpecId: String
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "work_spec_id") val workSpecId: String
 )

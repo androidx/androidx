@@ -21,9 +21,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @JvmDefaultWithCompatibility
-/**
- * A Data Access Object for [SystemIdInfo].
- */
+/** A Data Access Object for [SystemIdInfo]. */
 @Dao
 interface SystemIdInfoDao {
     /**
@@ -62,9 +60,6 @@ interface SystemIdInfoDao {
     fun removeSystemIdInfo(id: WorkGenerationalId) =
         removeSystemIdInfo(id.workSpecId, id.generation)
 
-    /**
-     * @return The [List] of [WorkSpec] ids.
-     */
-    @Query("SELECT DISTINCT work_spec_id FROM SystemIdInfo")
-    fun getWorkSpecIds(): List<String>
+    /** @return The [List] of [WorkSpec] ids. */
+    @Query("SELECT DISTINCT work_spec_id FROM SystemIdInfo") fun getWorkSpecIds(): List<String>
 }

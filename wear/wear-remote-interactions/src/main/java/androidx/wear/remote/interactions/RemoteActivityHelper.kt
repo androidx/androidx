@@ -43,9 +43,7 @@ import kotlinx.coroutines.flow.flowOf
 /**
  * Support for opening android intents on other devices.
  *
- *
  * The following example opens play store for the given app on another device:
- *
  * ```
  * val remoteActivityHelper = RemoteActivityHelper(context, executor)
  *
@@ -57,23 +55,24 @@ import kotlinx.coroutines.flow.flowOf
  *     nodeId)
  * ```
  *
- * [startRemoteActivity] returns a [ListenableFuture], which is completed after the intent has
- * been sent or failed if there was an issue with sending the intent.
+ * [startRemoteActivity] returns a [ListenableFuture], which is completed after the intent has been
+ * sent or failed if there was an issue with sending the intent.
  *
  * nodeId is the opaque string that represents a
- * [node](https://developers.google.com/android/reference/com/google/android/gms/wearable/Node)
- * in the Android Wear network. For the given device, it can obtained by `NodeClient.getLocalNode()`
+ * [node](https://developers.google.com/android/reference/com/google/android/gms/wearable/Node) in
+ * the Android Wear network. For the given device, it can obtained by `NodeClient.getLocalNode()`
  * and the list of nodes to which this device is currently connected can be obtained by
  * `NodeClient.getConnectedNodes()`. More information about this can be found
  * [here](https://developers.google.com/android/reference/com/google/android/gms/wearable/NodeClient).
  *
  * @param context The [Context] of the application for sending the intent.
- * @param executor [Executor] used for getting data to be passed in remote intent. If not
- * specified, default will be `Executors.newSingleThreadExecutor()`.
+ * @param executor [Executor] used for getting data to be passed in remote intent. If not specified,
+ *   default will be `Executors.newSingleThreadExecutor()`.
  */
 /* ktlint-enable max-line-length */
 public class RemoteActivityHelper
-    @JvmOverloads constructor(
+@JvmOverloads
+constructor(
     private val context: Context,
     private val executor: Executor = Executors.newSingleThreadExecutor()
 ) {
@@ -88,9 +87,9 @@ public class RemoteActivityHelper
         /**
          * The remote auth's availability is unknown.
          *
-         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability states. To preserve
-         * compatibility with existing devices behavior, try [startRemoteActivity] and handle
-         * error codes accordingly.
+         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability
+         * states. To preserve compatibility with existing devices behavior, try
+         * [startRemoteActivity] and handle error codes accordingly.
          */
         public const val STATUS_UNAVAILABLE = 1
 
@@ -121,7 +120,7 @@ public class RemoteActivityHelper
          */
         public const val RESULT_OK: Int = 0
 
-        /** Result code passed to [ResultReceiver.send] when a remote intent failed to send.  */
+        /** Result code passed to [ResultReceiver.send] when a remote intent failed to send. */
         public const val RESULT_FAILED: Int = 1
 
         internal const val DEFAULT_PACKAGE = "com.google.android.wearable.app"
@@ -144,8 +143,7 @@ public class RemoteActivityHelper
          * @return The node id, or null if none was set.
          */
         @JvmStatic
-        public fun getTargetNodeId(intent: Intent): String? =
-            intent.getStringExtra(EXTRA_NODE_ID)
+        public fun getTargetNodeId(intent: Intent): String? = intent.getStringExtra(EXTRA_NODE_ID)
 
         /**
          * Returns the [android.os.ResultReceiver] extra of remote intent.
@@ -158,7 +156,7 @@ public class RemoteActivityHelper
         internal fun getRemoteIntentResultReceiver(intent: Intent): ResultReceiver? =
             intent.getParcelableExtra(EXTRA_RESULT_RECEIVER)
 
-        /** Re-package a result receiver as a vanilla version for cross-process sending  */
+        /** Re-package a result receiver as a vanilla version for cross-process sending */
         @JvmStatic
         internal fun getResultReceiverForSending(receiver: ResultReceiver): ResultReceiver {
             val parcel = Parcel.obtain()
@@ -170,48 +168,50 @@ public class RemoteActivityHelper
         }
     }
 
-    /**
-     * Used for testing only, so we can set mock NodeClient.
-     */
-    @VisibleForTesting
-    internal var nodeClient: NodeClient = Wearable.getNodeClient(context)
+    /** Used for testing only, so we can set mock NodeClient. */
+    @VisibleForTesting internal var nodeClient: NodeClient = Wearable.getNodeClient(context)
 
     /** Used for testing only, so we can mock wear sdk dependency. */
-    @VisibleForTesting internal var remoteInteractionsManager: IRemoteInteractionsManager = RemoteInteractionsManagerCompat(context)
+    @VisibleForTesting
+    internal var remoteInteractionsManager: IRemoteInteractionsManager =
+        RemoteInteractionsManagerCompat(context)
 
     /**
      * Status of whether [RemoteActivityHelper] can [startRemoteActivity], if known.
      *
      * In scenarios of restricted connection or temporary disconnection with a paired device,
-     * [startRemoteActivity] will not be available. Please check [availabilityStatus] before calling [startRemoteActivity] to
-     * provide better experience for the user.
+     * [startRemoteActivity] will not be available. Please check [availabilityStatus] before calling
+     * [startRemoteActivity] to provide better experience for the user.
      *
-     * Wear devices start to support determining the availability status from Wear Sdk WEAR_TIRAMISU_4.
-     * On older wear devices, it will always return [STATUS_UNKNOWN].
-     * On phone devices, it will always return [STATUS_UNKNOWN].
+     * Wear devices start to support determining the availability status from Wear Sdk
+     * WEAR_TIRAMISU_4. On older wear devices, it will always return [STATUS_UNKNOWN]. On phone
+     * devices, it will always return [STATUS_UNKNOWN].
      *
      * @sample androidx.wear.remote.interactions.samples.RemoteActivityAvailabilitySample
      *
      * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
      *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
      */
-    public val availabilityStatus: Flow<Int> get() {
-        if (!isCurrentDeviceAWatch(context)) {
-            // Currently, we do not support knowing the startRemoteActivity's availability on a non-watch device.
-            return flowOf(STATUS_UNKNOWN)
-        }
-        if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
-            return flowOf(STATUS_UNKNOWN)
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            // This should never be reached as the check above wouldn't pass below T.
-            // `Consumer<Int>` requires min API 25 but library min API is 23, this hints to lint that the code below
-            // only executes on T+.
-            return flowOf(STATUS_UNKNOWN)
-        }
+    public val availabilityStatus: Flow<Int>
+        get() {
+            if (!isCurrentDeviceAWatch(context)) {
+                // Currently, we do not support knowing the startRemoteActivity's availability on a
+                // non-watch device.
+                return flowOf(STATUS_UNKNOWN)
+            }
+            if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
+                return flowOf(STATUS_UNKNOWN)
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                // This should never be reached as the check above wouldn't pass below T.
+                // `Consumer<Int>` requires min API 25 but library min API is 23, this hints to lint
+                // that the code below
+                // only executes on T+.
+                return flowOf(STATUS_UNKNOWN)
+            }
 
-        return getRemoteActivityHelperStatusInternal()
-    }
+            return getRemoteActivityHelperStatusInternal()
+        }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun getRemoteActivityHelperStatusInternal(): Flow<Int> {
@@ -226,29 +226,30 @@ public class RemoteActivityHelper
 
             remoteInteractionsManager.registerRemoteActivityHelperStatusListener(executor, callback)
 
-            awaitClose { remoteInteractionsManager.unregisterRemoteActivityHelperStatusListener(callback) }
+            awaitClose {
+                remoteInteractionsManager.unregisterRemoteActivityHelperStatusListener(callback)
+            }
         }
     }
 
     /**
-     * Start an activity on another device. This api currently supports sending intents with
-     * action set to [android.content.Intent.ACTION_VIEW], a data uri populated using
+     * Start an activity on another device. This api currently supports sending intents with action
+     * set to [android.content.Intent.ACTION_VIEW], a data uri populated using
      * [android.content.Intent.setData], and with the category
-     * [android.content.Intent.CATEGORY_BROWSABLE] present. If the current device is a watch,
-     * the activity will start on the companion phone device. Otherwise, the activity will
-     * start on all connected watch devices.
+     * [android.content.Intent.CATEGORY_BROWSABLE] present. If the current device is a watch, the
+     * activity will start on the companion phone device. Otherwise, the activity will start on all
+     * connected watch devices.
      *
-     * @param targetIntent   The intent to open on the remote device. Action must be set to
-     *                       [android.content.Intent.ACTION_VIEW], a data uri must be populated
-     *                       using [android.content.Intent.setData], and the category
-     *                       [android.content.Intent.CATEGORY_BROWSABLE] must be present.
-     * @param targetNodeId   Wear OS node id for the device where the activity should be
-     *                       started. If null, and the current device is a watch, the
-     *                       activity will start on the companion phone device. Otherwise,
-     *                       the activity will start on all connected watch devices.
-     * @return The [ListenableFuture] which resolves if starting activity was successful or
-     * throws [Exception] if any errors happens. If there's a problem with starting remote
-     * activity, [RemoteIntentException] will be thrown.
+     * @param targetIntent The intent to open on the remote device. Action must be set to
+     *   [android.content.Intent.ACTION_VIEW], a data uri must be populated using
+     *   [android.content.Intent.setData], and the category
+     *   [android.content.Intent.CATEGORY_BROWSABLE] must be present.
+     * @param targetNodeId Wear OS node id for the device where the activity should be started. If
+     *   null, and the current device is a watch, the activity will start on the companion phone
+     *   device. Otherwise, the activity will start on all connected watch devices.
+     * @return The [ListenableFuture] which resolves if starting activity was successful or throws
+     *   [Exception] if any errors happens. If there's a problem with starting remote activity,
+     *   [RemoteIntentException] will be thrown.
      */
     @JvmOverloads
     public fun startRemoteActivity(
@@ -268,7 +269,10 @@ public class RemoteActivityHelper
             }
 
             startCreatingIntentForRemoteActivity(
-                targetIntent, targetNodeId, it, nodeClient,
+                targetIntent,
+                targetNodeId,
+                it,
+                nodeClient,
                 object : Callback {
                     override fun intentCreated(intent: Intent) {
                         context.sendBroadcast(intent)
@@ -302,10 +306,9 @@ public class RemoteActivityHelper
         }
 
         if (nodeId != null) {
-            nodeClient.getCompanionPackageForNode(nodeId)
-                .addOnSuccessListener(
-                    executor
-                ) { taskPackageName ->
+            nodeClient
+                .getCompanionPackageForNode(nodeId)
+                .addOnSuccessListener(executor) { taskPackageName ->
                     val packageName = taskPackageName ?: DEFAULT_PACKAGE
 
                     if (packageName.isEmpty()) {
@@ -320,35 +323,37 @@ public class RemoteActivityHelper
                             )
                         )
                     }
-                }.addOnFailureListener(executor) { callback.onFailure(it) }
+                }
+                .addOnFailureListener(executor) { callback.onFailure(it) }
             return
         }
 
-        nodeClient.connectedNodes.addOnSuccessListener(
-            executor
-        ) { connectedNodes ->
-            if (connectedNodes.size == 0) {
-                callback.onFailure(NotFoundException("No devices connected"))
-            } else {
-                val resultReceiver = RemoteIntentResultReceiver(completer, connectedNodes.size)
-                for (node in connectedNodes) {
-                    nodeClient.getCompanionPackageForNode(node.id).addOnSuccessListener(
-                        executor
-                    ) { taskPackageName ->
-                        val packageName = taskPackageName ?: DEFAULT_PACKAGE
-                        callback.intentCreated(
-                            createIntent(intent, resultReceiver, node.id, packageName)
-                        )
-                    }.addOnFailureListener(executor) { callback.onFailure(it) }
+        nodeClient.connectedNodes
+            .addOnSuccessListener(executor) { connectedNodes ->
+                if (connectedNodes.size == 0) {
+                    callback.onFailure(NotFoundException("No devices connected"))
+                } else {
+                    val resultReceiver = RemoteIntentResultReceiver(completer, connectedNodes.size)
+                    for (node in connectedNodes) {
+                        nodeClient
+                            .getCompanionPackageForNode(node.id)
+                            .addOnSuccessListener(executor) { taskPackageName ->
+                                val packageName = taskPackageName ?: DEFAULT_PACKAGE
+                                callback.intentCreated(
+                                    createIntent(intent, resultReceiver, node.id, packageName)
+                                )
+                            }
+                            .addOnFailureListener(executor) { callback.onFailure(it) }
+                    }
                 }
             }
-        }.addOnFailureListener(executor) { callback.onFailure(it) }
+            .addOnFailureListener(executor) { callback.onFailure(it) }
     }
 
     /**
-     * Creates [android.content.Intent] with action specifying remote intent. If any of
-     * additional extras are specified, they will be added to it. If specified, [ResultReceiver]
-     * will be re-packed to be parcelable. If specified, packageName will be set.
+     * Creates [android.content.Intent] with action specifying remote intent. If any of additional
+     * extras are specified, they will be added to it. If specified, [ResultReceiver] will be
+     * re-packed to be parcelable. If specified, packageName will be set.
      */
     @VisibleForTesting
     internal fun createIntent(
@@ -371,9 +376,7 @@ public class RemoteActivityHelper
         return remoteIntent
     }
 
-    /**
-     * Result code passed to [ResultReceiver.send] for the status of remote intent.
-     */
+    /** Result code passed to [ResultReceiver.send] for the status of remote intent. */
     @IntDef(RESULT_OK, RESULT_FAILED)
     @Retention(AnnotationRetention.SOURCE)
     internal annotation class SendResult
@@ -382,6 +385,7 @@ public class RemoteActivityHelper
 
     private interface Callback {
         fun intentCreated(intent: Intent)
+
         fun onFailure(exception: Exception)
     }
 

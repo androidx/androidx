@@ -37,21 +37,14 @@ import androidx.wear.compose.material3.ToggleButton
 fun ToggleButtonWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
     ToggleButton(
-        label = {
-            Text("Checkbox", maxLines = 3, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Checkbox", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         secondaryLabel = {
             Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
         toggleControl = { Checkbox() },
         onCheckedChange = { checked = it },
-        icon = {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite icon"
-            )
-        },
+        icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite icon") },
         enabled = true,
     )
 }
@@ -61,21 +54,14 @@ fun ToggleButtonWithCheckbox() {
 fun ToggleButtonWithSwitch() {
     var checked by remember { mutableStateOf(true) }
     ToggleButton(
-        label = {
-            Text("Switch", maxLines = 3, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Switch", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         secondaryLabel = {
             Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
         toggleControl = { Switch() },
         onCheckedChange = { checked = it },
-        icon = {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite icon"
-            )
-        },
+        icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite icon") },
         enabled = true,
     )
 }
@@ -85,9 +71,7 @@ fun ToggleButtonWithSwitch() {
 fun SplitToggleButtonWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
     SplitToggleButton(
-        label = {
-            Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         checked = checked,
         toggleControl = { Checkbox() },
         onCheckedChange = { checked = it },
@@ -103,9 +87,7 @@ fun SplitToggleButtonWithCheckbox() {
 fun SplitToggleButtonWithSwitch() {
     var checked by remember { mutableStateOf(true) }
     SplitToggleButton(
-        label = {
-            Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis) },
         checked = checked,
         toggleControl = { Switch() },
         onCheckedChange = { checked = it },

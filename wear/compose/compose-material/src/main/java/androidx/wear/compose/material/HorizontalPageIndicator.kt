@@ -56,41 +56,38 @@ import java.lang.Integer.min
 import kotlin.math.roundToInt
 
 /**
- * A horizontal indicator for a Pager, representing
- * the currently active page and total pages drawn using a [Shape]. It shows up to 6 pages
- * on the screen and doesn't represent the exact page index if there are more than 6 pages.
- * Instead of showing the exact position, [HorizontalPageIndicator] shows a half-size indicator
- * on the left or on the right if there are more pages.
+ * A horizontal indicator for a Pager, representing the currently active page and total pages drawn
+ * using a [Shape]. It shows up to 6 pages on the screen and doesn't represent the exact page index
+ * if there are more than 6 pages. Instead of showing the exact position, [HorizontalPageIndicator]
+ * shows a half-size indicator on the left or on the right if there are more pages.
  *
- * Here's how different positions 0..10 might be visually represented:
- * "X" is selected item, "O" and "o" full and half size items respectively.
+ * Here's how different positions 0..10 might be visually represented: "X" is selected item, "O" and
+ * "o" full and half size items respectively.
  *
- * O X O O O o - 2nd position out of 10. There are no more items on the left but more on the right
- * o O O O X o - might be 6, 7 or 8 out of 10, as there are more possible items
- * on the left and on the right
- * o O O O X O - is 9 out of 10, as there're no more items on the right
+ * O X O O O o - 2nd position out of 10. There are no more items on the left but more on the right o
+ * O O O X o - might be 6, 7 or 8 out of 10, as there are more possible items on the left and on the
+ * right o O O O X O - is 9 out of 10, as there're no more items on the right
  *
- * [HorizontalPageIndicator] may be linear or curved, depending on [indicatorStyle]. By default
- * it depends on the screen shape of the device - for circular screens it will be curved,
- * whilst for square screens it will be linear.
+ * [HorizontalPageIndicator] may be linear or curved, depending on [indicatorStyle]. By default it
+ * depends on the screen shape of the device - for circular screens it will be curved, whilst for
+ * square screens it will be linear.
  *
- * This component also allows customising the [indicatorShape], which defines how the
- * indicator is visually represented.
+ * This component also allows customising the [indicatorShape], which defines how the indicator is
+ * visually represented.
  *
  * @sample androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
  *
- * @param pageIndicatorState The state object of a [HorizontalPageIndicator] to be used to
- * observe the Pager's state.
+ * @param pageIndicatorState The state object of a [HorizontalPageIndicator] to be used to observe
+ *   the Pager's state.
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]
- * @param indicatorStyle The style of [HorizontalPageIndicator] - may be linear or curved.
- * By default determined by the screen shape.
+ * @param indicatorStyle The style of [HorizontalPageIndicator] - may be linear or curved. By
+ *   default determined by the screen shape.
  * @param selectedColor The color of the selected [HorizontalPageIndicator] item
- * @param unselectedColor The color of unselected [HorizontalPageIndicator] items.
- * Defaults to [selectedColor] with 30% alpha
+ * @param unselectedColor The color of unselected [HorizontalPageIndicator] items. Defaults to
+ *   [selectedColor] with 30% alpha
  * @param indicatorSize The size of each [HorizontalPageIndicator] item in [Dp]
  * @param spacing The spacing between indicator items in [Dp]
- * @param indicatorShape The shape of each [HorizontalPageIndicator] item.
- * Defaults to [CircleShape]
+ * @param indicatorShape The shape of each [HorizontalPageIndicator] item. Defaults to [CircleShape]
  */
 @Composable
 public fun HorizontalPageIndicator(
@@ -118,56 +115,50 @@ public fun HorizontalPageIndicator(
     val spacerDefaultSize = (indicatorSize + spacing).value
 
     val pagesOnScreen = min(MaxNumberOfIndicators, pageIndicatorState.pageCount)
-    val pagesState = remember(pageIndicatorState.pageCount) {
-        PagesState(
-            totalPages = pageIndicatorState.pageCount,
-            pagesOnScreen = pagesOnScreen
-        )
-    }
+    val pagesState =
+        remember(pageIndicatorState.pageCount) {
+            PagesState(totalPages = pageIndicatorState.pageCount, pagesOnScreen = pagesOnScreen)
+        }
     pagesState.recalculateState(normalizedSelectedPage, normalizedOffset)
 
     val indicatorFactory: @Composable (Int) -> Unit = { page ->
         // An external box with a fixed indicatorSize - let us remain the same size for
         // an indicator even if it's shrinked for smooth animations
-        Box(
-            modifier = Modifier
-                .padding(horizontal = horizontalPadding)
-                .size(indicatorSize)
-        ) {
+        Box(modifier = Modifier.padding(horizontal = horizontalPadding).size(indicatorSize)) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center)
-                    .scale(pagesState.sizeRatio(page))
-                    .clip(indicatorShape)
-                    .alpha(pagesState.alpha(page))
-                    // Interpolation between unselected and selected colors depending
-                    // on selectedPageRatio
-                    .background(
-                        lerp(
-                            unselectedColor, selectedColor,
-                            pagesState.calculateSelectedRatio(page, normalizedOffset)
+                modifier =
+                    Modifier.fillMaxSize()
+                        .align(Alignment.Center)
+                        .scale(pagesState.sizeRatio(page))
+                        .clip(indicatorShape)
+                        .alpha(pagesState.alpha(page))
+                        // Interpolation between unselected and selected colors depending
+                        // on selectedPageRatio
+                        .background(
+                            lerp(
+                                unselectedColor,
+                                selectedColor,
+                                pagesState.calculateSelectedRatio(page, normalizedOffset)
+                            )
                         )
-                    )
             )
         }
     }
 
-    val spacerLeft = @Composable {
-        Spacer(
-            Modifier
-                .width((pagesState.leftSpacerSizeRatio * spacerDefaultSize).dp)
-                .height(indicatorSize)
-        )
-    }
-    val spacerRight = @Composable {
-        Spacer(
-            Modifier
-                .width((pagesState.rightSpacerSizeRatio * spacerDefaultSize).dp)
-                .height(indicatorSize)
-
-        )
-    }
+    val spacerLeft =
+        @Composable {
+            Spacer(
+                Modifier.width((pagesState.leftSpacerSizeRatio * spacerDefaultSize).dp)
+                    .height(indicatorSize)
+            )
+        }
+    val spacerRight =
+        @Composable {
+            Spacer(
+                Modifier.width((pagesState.rightSpacerSizeRatio * spacerDefaultSize).dp)
+                    .height(indicatorSize)
+            )
+        }
 
     when (indicatorStyle) {
         PageIndicatorStyle.Linear -> {
@@ -183,11 +174,11 @@ public fun HorizontalPageIndicator(
             var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
             val boundsSize: Density.() -> IntSize = {
-
-                val size = IntSize(
-                    width = ((indicatorSize + spacing).toPx() * pagesOnScreen).roundToInt(),
-                    height = (indicatorSize * 2).toPx().roundToInt().coerceAtLeast(0)
-                )
+                val size =
+                    IntSize(
+                        width = ((indicatorSize + spacing).toPx() * pagesOnScreen).roundToInt(),
+                        height = (indicatorSize * 2).toPx().roundToInt().coerceAtLeast(0)
+                    )
                 size
             }
 
@@ -206,8 +197,8 @@ public fun HorizontalPageIndicator(
                 offset = boundsOffset,
                 size = boundsSize,
                 modifier = modifier,
-                onSizeChanged = { containerSize = it }) {
-
+                onSizeChanged = { containerSize = it }
+            ) {
                 CurvedPageIndicator(
                     pagesOnScreen = pagesOnScreen,
                     indicatorFactory = indicatorFactory,
@@ -219,44 +210,33 @@ public fun HorizontalPageIndicator(
     }
 }
 
-/**
- * The style of [HorizontalPageIndicator]. May be Curved or Linear
- */
+/** The style of [HorizontalPageIndicator]. May be Curved or Linear */
 @kotlin.jvm.JvmInline
 public value class PageIndicatorStyle internal constructor(internal val value: Int) {
     companion object {
-        /**
-         * Curved style of [HorizontalPageIndicator]
-         */
+        /** Curved style of [HorizontalPageIndicator] */
         public val Curved = PageIndicatorStyle(0)
 
-        /**
-         * Linear style of [HorizontalPageIndicator]
-         */
+        /** Linear style of [HorizontalPageIndicator] */
         public val Linear = PageIndicatorStyle(1)
     }
 }
 
-/**
- * Contains the default values used by [HorizontalPageIndicator]
- */
+/** Contains the default values used by [HorizontalPageIndicator] */
 public object PageIndicatorDefaults {
 
     /**
-     * Default style of [HorizontalPageIndicator]. Depending on shape of device, it returns either Curved
-     * or Linear style.
+     * Default style of [HorizontalPageIndicator]. Depending on shape of device, it returns either
+     * Curved or Linear style.
      */
     @Composable
     public fun style(): PageIndicatorStyle =
-        if (isRoundDevice()) PageIndicatorStyle.Curved
-        else PageIndicatorStyle.Linear
+        if (isRoundDevice()) PageIndicatorStyle.Curved else PageIndicatorStyle.Linear
 
     internal val MaxNumberOfIndicators = 6
 }
 
-/**
- * An interface for connection between Pager and [HorizontalPageIndicator].
- */
+/** An interface for connection between Pager and [HorizontalPageIndicator]. */
 public interface PageIndicatorState {
     /**
      * The current offset from the start of [selectedPage], as a ratio of the page width.
@@ -265,14 +245,10 @@ public interface PageIndicatorState {
      */
     public val pageOffset: Float
 
-    /**
-     * The currently selected page index
-     */
+    /** The currently selected page index */
     public val selectedPage: Int
 
-    /**
-     * Total number of pages
-     */
+    /** Total number of pages */
     public val pageCount: Int
 }
 
@@ -283,7 +259,6 @@ private fun LinearPageIndicator(
     indicatorFactory: @Composable (Int) -> Unit,
     spacerLeft: @Composable () -> Unit,
     spacerRight: @Composable () -> Unit
-
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -315,16 +290,10 @@ private fun CurvedPageIndicator(
         angularDirection = CurvedDirection.Angular.Reversed
     ) {
         // drawing 1 extra spacer for transition
-        curvedComposable {
-            spacerLeft()
-        }
+        curvedComposable { spacerLeft() }
         for (page in 0..pagesOnScreen) {
-            curvedComposable {
-                indicatorFactory(page)
-            }
+            curvedComposable { indicatorFactory(page) }
         }
-        curvedComposable {
-            spacerRight()
-        }
+        curvedComposable { spacerRight() }
     }
 }

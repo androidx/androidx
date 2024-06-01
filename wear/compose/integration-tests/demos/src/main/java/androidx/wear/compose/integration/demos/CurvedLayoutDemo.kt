@@ -64,22 +64,15 @@ import androidx.wear.compose.material.curvedText
 @Composable
 fun CurvedWorldDemo() {
     CurvedLayout(modifier = Modifier.fillMaxSize()) {
-        curvedComposable {
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .background(Color.Red)
-            )
-        }
+        curvedComposable { Box(modifier = Modifier.size(20.dp).background(Color.Red)) }
         curvedComposable {
             Column(
-                modifier = Modifier
-                    .background(Color.Gray)
-                    .padding(3.dp),
+                modifier = Modifier.background(Color.Gray).padding(3.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "A", color = Color.Black,
+                    text = "A",
+                    color = Color.Black,
                     fontSize = 16.sp,
                     modifier = Modifier.background(Color.Blue)
                 )
@@ -99,13 +92,7 @@ fun CurvedWorldDemo() {
                 }
             }
         }
-        curvedComposable {
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .background(Color.Red)
-            )
-        }
+        curvedComposable { Box(modifier = Modifier.size(20.dp).background(Color.Red)) }
     }
     CurvedLayout(
         anchor = 90F,
@@ -156,35 +143,19 @@ fun CurvedWorldDemo() {
 
 private fun CurvedScope.SeparatorBlock() {
     curvedComposable(radialAlignment = CurvedAlignment.Radial.Outer) {
-        Box(
-            modifier = Modifier
-                .size(10.dp, 40.dp)
-                .background(Color.Gray)
-        )
+        Box(modifier = Modifier.size(10.dp, 40.dp).background(Color.Gray))
     }
 }
 
 private fun CurvedScope.RgbBlocks() {
     curvedComposable(radialAlignment = CurvedAlignment.Radial.Outer) {
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .background(Color.Red)
-        )
+        Box(modifier = Modifier.size(20.dp).background(Color.Red))
     }
     curvedComposable(radialAlignment = CurvedAlignment.Radial.Center) {
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .background(Color.Green)
-        )
+        Box(modifier = Modifier.size(20.dp).background(Color.Green))
     }
     curvedComposable(radialAlignment = CurvedAlignment.Radial.Inner) {
-        Box(
-            modifier = Modifier
-                .size(20.dp)
-                .background(Color.Blue)
-        )
+        Box(modifier = Modifier.size(20.dp).background(Color.Blue))
     }
 }
 
@@ -196,19 +167,12 @@ fun CurvedRowAlignmentDemo() {
         SeparatorBlock()
         (0..10).forEach {
             curvedComposable(radialAlignment = CurvedAlignment.Radial.Custom(it / 10.0f)) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .background(Color.White)
-                )
+                Box(modifier = Modifier.size(10.dp).background(Color.White))
             }
         }
         SeparatorBlock()
     }
-    CurvedLayout(
-        anchor = 90f,
-        angularDirection = CurvedDirection.Angular.Reversed
-    ) {
+    CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.Reversed) {
         SeparatorBlock()
         RgbBlocks()
         SeparatorBlock()
@@ -221,18 +185,14 @@ fun BasicCurvedTextDemo() {
         SeparatorBlock()
         basicCurvedText(
             "Curved Text",
-            CurvedTextStyle(
-                fontSize = 18.sp
-            ),
+            CurvedTextStyle(fontSize = 18.sp),
             // TODO: Re-add when we implement alignment modifiers.
             // modifier = Modifier.radialAlignment(RadialAlignment.Outer)
         )
         SeparatorBlock()
         basicCurvedText(
             "And More",
-            CurvedTextStyle(
-                fontSize = 24.sp
-            ),
+            CurvedTextStyle(fontSize = 24.sp),
             angularDirection = CurvedDirection.Angular.Reversed,
             modifier = CurvedModifier.padding(angular = 5.dp),
             // TODO: Re-add when we implement alignment modifiers.
@@ -251,9 +211,7 @@ fun CurvedEllipsis() {
                 modifier = CurvedModifier.weight(1f),
                 overflow = TextOverflow.Ellipsis
             )
-            curvedText(
-                "10:00"
-            )
+            curvedText("10:00")
         }
     }
 }
@@ -261,9 +219,7 @@ fun CurvedEllipsis() {
 @Composable
 fun CurvedLayoutDirection() {
     var layoutDirection by remember { mutableStateOf(false) }
-    val actualLayoutDirection =
-        if (layoutDirection) LayoutDirection.Rtl
-        else LayoutDirection.Ltr
+    val actualLayoutDirection = if (layoutDirection) LayoutDirection.Rtl else LayoutDirection.Ltr
     CompositionLocalProvider(LocalLayoutDirection provides actualLayoutDirection) {
         Box {
             Row(modifier = Modifier.align(Alignment.Center)) {
@@ -271,29 +227,24 @@ fun CurvedLayoutDirection() {
                 ToggleButton(
                     checked = layoutDirection,
                     onCheckedChange = { layoutDirection = !layoutDirection }
-                ) { Text(if (layoutDirection) "Rtl" else "Ltr") }
+                ) {
+                    Text(if (layoutDirection) "Rtl" else "Ltr")
+                }
             }
             repeat(2) { topDown ->
                 CurvedLayout(
                     anchor = listOf(270f, 90f)[topDown],
-                    angularDirection = listOf(
-                        CurvedDirection.Angular.Normal,
-                        CurvedDirection.Angular.Reversed
-                    )[topDown]
+                    angularDirection =
+                        listOf(CurvedDirection.Angular.Normal, CurvedDirection.Angular.Reversed)[
+                            topDown]
                 ) {
                     curvedRow(CurvedModifier.background(Color.White)) {
                         basicCurvedText(
                             "Before",
-                            CurvedTextStyle(
-                                fontSize = 24.sp
-                            ),
+                            CurvedTextStyle(fontSize = 24.sp),
                             modifier = CurvedModifier.padding(angular = 5.dp),
                         )
-                        curvedColumn {
-                            repeat(3) {
-                                basicCurvedText("#$it")
-                            }
-                        }
+                        curvedColumn { repeat(3) { basicCurvedText("#$it") } }
                         curvedRow {
                             curvedComposable {
                                 Text(
@@ -326,36 +277,18 @@ fun CurvedBoxDemo() {
             angularAlignment = CurvedAlignment.Angular.End
         ) {
             curvedComposable {
-                Box(
-                    modifier = Modifier
-                        .width(60.dp)
-                        .height(40.dp)
-                        .background(Color.Green)
-                )
+                Box(modifier = Modifier.width(60.dp).height(40.dp).background(Color.Green))
             }
-            curvedComposable {
-                WhiteCircle()
-            }
+            curvedComposable { WhiteCircle() }
         }
     }
     CurvedLayout(
         modifier = Modifier.fillMaxSize(),
         anchor = 180f,
     ) {
-        curvedBox(
-            modifier = CurvedModifier
-                .background(Color.Red)
-        ) {
-            curvedComposable {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .background(Color.Green)
-                )
-            }
-            curvedComposable {
-                WhiteCircle()
-            }
+        curvedBox(modifier = CurvedModifier.background(Color.Red)) {
+            curvedComposable { Box(modifier = Modifier.size(60.dp).background(Color.Green)) }
+            curvedComposable { WhiteCircle() }
         }
     }
     CurvedLayout(modifier = Modifier.fillMaxSize()) {
@@ -365,26 +298,14 @@ fun CurvedBoxDemo() {
             angularAlignment = CurvedAlignment.Angular.Start
         ) {
             curvedComposable {
-                Box(
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(60.dp)
-                        .background(Color.Green)
-                )
+                Box(modifier = Modifier.width(40.dp).height(60.dp).background(Color.Green))
             }
-            curvedComposable {
-                WhiteCircle()
-            }
+            curvedComposable { WhiteCircle() }
         }
     }
 }
 
 @Composable
 private fun WhiteCircle() {
-    Box(
-        modifier = Modifier
-            .size(30.dp)
-            .clip(CircleShape)
-            .background(Color.White)
-    )
+    Box(modifier = Modifier.size(30.dp).clip(CircleShape).background(Color.White))
 }

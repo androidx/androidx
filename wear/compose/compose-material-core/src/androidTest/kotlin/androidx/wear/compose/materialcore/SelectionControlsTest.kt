@@ -61,8 +61,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class SelectionControlsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // Checkbox colors
     private val boxColorChecked = Color.Green
@@ -105,9 +104,7 @@ class SelectionControlsTest {
     @Test
     fun checkbox_supports_testtag() {
         rule.setContent {
-            CheckboxWithDefaults(
-                checked = true, modifier = Modifier.testTag(TEST_TAG)
-            )
+            CheckboxWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -118,29 +115,32 @@ class SelectionControlsTest {
         val width = 32.dp
         val height = 26.dp
 
-        rule.setContentForSizeAssertions {
-            CheckboxWithDefaults(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG),
-                width = width,
-                height = height
-            )
-        }.assertHeightIsEqualTo(height).assertWidthIsEqualTo(width)
+        rule
+            .setContentForSizeAssertions {
+                CheckboxWithDefaults(
+                    checked = true,
+                    modifier = Modifier.testTag(TEST_TAG),
+                    width = width,
+                    height = height
+                )
+            }
+            .assertHeightIsEqualTo(height)
+            .assertWidthIsEqualTo(width)
     }
 
     @Test
     fun checkbox_has_role_checkbox_when_oncheckedchange_defined() {
         rule.setContent {
             CheckboxWithDefaults(
-                checked = true, onCheckedChange = {}, modifier = Modifier.testTag(TEST_TAG)
+                checked = true,
+                onCheckedChange = {},
+                modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).assert(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.Role, Role.Checkbox
-            )
-        )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
     }
 
     @Test
@@ -149,26 +149,22 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .semantics {
-                        role = Role.Image
-                    }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image }
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).assert(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.Role, Role.Image
-            )
-        )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
     }
 
     @Test
     fun checkbox_has_no_clickaction_by_default() {
         rule.setContent {
             CheckboxWithDefaults(
-                checked = true, enabled = true, modifier = Modifier.testTag(TEST_TAG)
+                checked = true,
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
@@ -207,7 +203,9 @@ class SelectionControlsTest {
     fun checkbox_is_correctly_enabled() {
         rule.setContent {
             CheckboxWithDefaults(
-                checked = true, enabled = true, modifier = Modifier.testTag(TEST_TAG)
+                checked = true,
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
@@ -234,7 +232,9 @@ class SelectionControlsTest {
         // This test only applies when onCheckedChange is defined.
         rule.setContent {
             CheckboxWithDefaults(
-                checked = true, onCheckedChange = {}, modifier = Modifier.testTag(TEST_TAG)
+                checked = true,
+                onCheckedChange = {},
+                modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
@@ -246,7 +246,9 @@ class SelectionControlsTest {
         // This test only applies when onCheckedChange is defined.
         rule.setContent {
             CheckboxWithDefaults(
-                checked = false, onCheckedChange = {}, modifier = Modifier.testTag(TEST_TAG)
+                checked = false,
+                onCheckedChange = {},
+                modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
@@ -265,8 +267,7 @@ class SelectionControlsTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).assertIsOff().performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -281,8 +282,7 @@ class SelectionControlsTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -313,10 +313,7 @@ class SelectionControlsTest {
         val checkboxImage = rule.onNodeWithTag(TEST_TAG).captureToImage()
         checkboxImage.assertContainsColor(boxColorDisabledChecked)
         checkboxImage.assertContainsColor(
-            hardLightBlend(
-                boxColorDisabledChecked,
-                boxColorDisabledChecked
-            )
+            hardLightBlend(boxColorDisabledChecked, boxColorDisabledChecked)
         )
     }
 
@@ -333,10 +330,7 @@ class SelectionControlsTest {
     @Test
     fun switch_supports_testtag() {
         rule.setContent {
-            SwitchWithDefaults(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SwitchWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -352,13 +346,9 @@ class SelectionControlsTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Switch
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
     }
 
     @Test
@@ -367,21 +357,13 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .semantics {
-                        role = Role.Image
-                    }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image }
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Image
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
     }
 
     @Test
@@ -492,11 +474,7 @@ class SelectionControlsTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -511,11 +489,7 @@ class SelectionControlsTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOn()
-            .performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
     @Test
@@ -523,14 +497,17 @@ class SelectionControlsTest {
         val width = 34.dp
         val height = 26.dp
 
-        rule.setContentForSizeAssertions {
-            CheckboxWithDefaults(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG),
-                width = width,
-                height = height
-            )
-        }.assertHeightIsEqualTo(height).assertWidthIsEqualTo(width)
+        rule
+            .setContentForSizeAssertions {
+                CheckboxWithDefaults(
+                    checked = true,
+                    modifier = Modifier.testTag(TEST_TAG),
+                    width = width,
+                    height = height
+                )
+            }
+            .assertHeightIsEqualTo(height)
+            .assertWidthIsEqualTo(width)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -588,10 +565,7 @@ class SelectionControlsTest {
     @Test
     fun radiobutton_supports_testtag() {
         rule.setContent {
-            RadioButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-                selected = true
-            )
+            RadioButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG), selected = true)
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -602,14 +576,17 @@ class SelectionControlsTest {
         val width = 30.dp
         val height = 26.dp
 
-        rule.setContentForSizeAssertions {
-            RadioButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-                selected = true,
-                width = width,
-                height = height
-            )
-        }.assertHeightIsEqualTo(height).assertWidthIsEqualTo(width)
+        rule
+            .setContentForSizeAssertions {
+                RadioButtonWithDefaults(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    selected = true,
+                    width = width,
+                    height = height
+                )
+            }
+            .assertHeightIsEqualTo(height)
+            .assertWidthIsEqualTo(width)
     }
 
     @Test
@@ -622,36 +599,24 @@ class SelectionControlsTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.RadioButton
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
     }
 
     @Test
     fun radiobutton_can_override_role() {
         rule.setContent {
             RadioButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .semantics {
-                        role = Role.Image
-                    },
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image },
                 selected = true,
                 onClick = {}
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Image
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
     }
 
     @Test
@@ -764,11 +729,7 @@ class SelectionControlsTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected().performClick().assertIsSelected()
     }
 
     @Test
@@ -784,11 +745,7 @@ class SelectionControlsTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsSelected()
-            .performClick()
-            .assertIsNotSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsSelected().performClick().assertIsNotSelected()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -838,15 +795,23 @@ class SelectionControlsTest {
         boxColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Blue, Color.Red, Color.Green, Color.Gray
+                    isEnabled,
+                    isChecked,
+                    Color.Blue,
+                    Color.Red,
+                    Color.Green,
+                    Color.Gray
                 )
             },
         checkmarkColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Cyan, Color.Magenta, Color.White, Color.Yellow
+                    isEnabled,
+                    isChecked,
+                    Color.Cyan,
+                    Color.Magenta,
+                    Color.White,
+                    Color.Yellow
                 )
             },
         enabled: Boolean = true,
@@ -855,21 +820,21 @@ class SelectionControlsTest {
         drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _, _ -> },
         width: Dp = 24.dp,
         height: Dp = 24.dp
-    ) = Checkbox(
-        checked = checked,
-        modifier = modifier,
-        boxColor = boxColor,
-        checkmarkColor = checkmarkColor,
-        enabled = enabled,
-        onCheckedChange = onCheckedChange,
-        interactionSource = interactionSource,
-        drawBox = drawBox,
-        progressAnimationSpec =
-        tween(200, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
-        width = width,
-        height = height,
-        ripple = EmptyIndication
-    )
+    ) =
+        Checkbox(
+            checked = checked,
+            modifier = modifier,
+            boxColor = boxColor,
+            checkmarkColor = checkmarkColor,
+            enabled = enabled,
+            onCheckedChange = onCheckedChange,
+            interactionSource = interactionSource,
+            drawBox = drawBox,
+            progressAnimationSpec = tween(200, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+            width = width,
+            height = height,
+            ripple = EmptyIndication
+        )
 
     @Composable
     private fun SwitchWithDefaults(
@@ -881,29 +846,45 @@ class SelectionControlsTest {
         trackFillColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Blue, Color.Red, Color.Green, Color.Gray
+                    isEnabled,
+                    isChecked,
+                    Color.Blue,
+                    Color.Red,
+                    Color.Green,
+                    Color.Gray
                 )
             },
         trackStrokeColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Blue, Color.Red, Color.Green, Color.Gray
+                    isEnabled,
+                    isChecked,
+                    Color.Blue,
+                    Color.Red,
+                    Color.Green,
+                    Color.Gray
                 )
             },
         thumbColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Cyan, Color.Magenta, Color.White, Color.Yellow
+                    isEnabled,
+                    isChecked,
+                    Color.Cyan,
+                    Color.Magenta,
+                    Color.White,
+                    Color.Yellow
                 )
             },
         thumbIconColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Cyan, Color.Magenta, Color.White, Color.Yellow
+                    isEnabled,
+                    isChecked,
+                    Color.Cyan,
+                    Color.Magenta,
+                    Color.White,
+                    Color.Yellow
                 )
             },
         trackWidth: Dp = 32.dp,
@@ -911,25 +892,25 @@ class SelectionControlsTest {
         drawThumb: FunctionDrawThumb = FunctionDrawThumb { _, _, _, _, _ -> },
         width: Dp = 32.dp,
         height: Dp = 24.dp
-    ) = Switch(
-        checked = checked,
-        modifier = modifier,
-        enabled = enabled,
-        onCheckedChange = onCheckedChange,
-        interactionSource = interactionSource,
-        trackFillColor = trackFillColor,
-        trackStrokeColor = trackStrokeColor,
-        thumbColor = thumbColor,
-        thumbIconColor = thumbIconColor,
-        trackWidth = trackWidth,
-        trackHeight = trackHeight,
-        drawThumb = drawThumb,
-        progressAnimationSpec =
-        tween(150, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
-        width = width,
-        height = height,
-        ripple = EmptyIndication
-    )
+    ) =
+        Switch(
+            checked = checked,
+            modifier = modifier,
+            enabled = enabled,
+            onCheckedChange = onCheckedChange,
+            interactionSource = interactionSource,
+            trackFillColor = trackFillColor,
+            trackStrokeColor = trackStrokeColor,
+            thumbColor = thumbColor,
+            thumbIconColor = thumbIconColor,
+            trackWidth = trackWidth,
+            trackHeight = trackHeight,
+            drawThumb = drawThumb,
+            progressAnimationSpec = tween(150, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+            width = width,
+            height = height,
+            ripple = EmptyIndication
+        )
 
     @Composable
     private fun RadioButtonWithDefaults(
@@ -939,47 +920,58 @@ class SelectionControlsTest {
         ringColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Blue, Color.Red, Color.Green, Color.Gray
+                    isEnabled,
+                    isChecked,
+                    Color.Blue,
+                    Color.Red,
+                    Color.Green,
+                    Color.Gray
                 )
             },
         dotColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
-                    isEnabled, isChecked,
-                    Color.Blue, Color.Red, Color.Green, Color.Gray
+                    isEnabled,
+                    isChecked,
+                    Color.Blue,
+                    Color.Red,
+                    Color.Green,
+                    Color.Gray
                 )
             },
         onClick: (() -> Unit)? = null,
         interactionSource: MutableInteractionSource? = null,
         dotRadiusProgressDuration: FunctionDotRadiusProgressDuration =
-            FunctionDotRadiusProgressDuration { _ -> 200 },
+            FunctionDotRadiusProgressDuration { _ ->
+                200
+            },
         dotAlphaProgressDuration: Int = 200,
         dotAlphaProgressDelay: Int = 100,
-        progressAnimationEasing: CubicBezierEasing =
-            CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f),
+        progressAnimationEasing: CubicBezierEasing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f),
         width: Dp = 32.dp,
         height: Dp = 24.dp
-    ) = RadioButton(
-        modifier = modifier,
-        selected = selected,
-        enabled = enabled,
-        ringColor = ringColor,
-        dotColor = dotColor,
-        onClick = onClick,
-        interactionSource = interactionSource,
-        dotRadiusProgressDuration = dotRadiusProgressDuration,
-        dotAlphaProgressDuration = dotAlphaProgressDuration,
-        dotAlphaProgressDelay = dotAlphaProgressDelay,
-        easing = progressAnimationEasing,
-        width = width,
-        height = height,
-        ripple = EmptyIndication
-    )
+    ) =
+        RadioButton(
+            modifier = modifier,
+            selected = selected,
+            enabled = enabled,
+            ringColor = ringColor,
+            dotColor = dotColor,
+            onClick = onClick,
+            interactionSource = interactionSource,
+            dotRadiusProgressDuration = dotRadiusProgressDuration,
+            dotAlphaProgressDuration = dotAlphaProgressDuration,
+            dotAlphaProgressDelay = dotAlphaProgressDelay,
+            easing = progressAnimationEasing,
+            width = width,
+            height = height,
+            ripple = EmptyIndication
+        )
 
     private fun setupCheckBoxWithCustomColors(checked: Boolean, enabled: Boolean) {
         rule.setContent {
-            CheckboxWithDefaults(checked = checked,
+            CheckboxWithDefaults(
+                checked = checked,
                 enabled = enabled,
                 modifier = Modifier.testTag(TEST_TAG),
                 boxColor = { enabled, checked ->
@@ -1002,9 +994,8 @@ class SelectionControlsTest {
                         disabledUncheckedColor = checkmarkColorDisabledUnchecked
                     )
                 },
-                drawBox = { drawScope, color, _, _ ->
-                    drawScope.drawRoundRect(color)
-                })
+                drawBox = { drawScope, color, _, _ -> drawScope.drawRoundRect(color) }
+            )
         }
     }
 
@@ -1125,11 +1116,12 @@ class SelectionControlsTest {
         uncheckedColor: Color,
         disabledCheckedColor: Color,
         disabledUncheckedColor: Color
-    ) = animateColorAsState(
-        if (enabled) {
-            if (checked) checkedColor else uncheckedColor
-        } else {
-            if (checked) disabledCheckedColor else disabledUncheckedColor
-        }
-    )
+    ) =
+        animateColorAsState(
+            if (enabled) {
+                if (checked) checkedColor else uncheckedColor
+            } else {
+                if (checked) disabledCheckedColor else disabledUncheckedColor
+            }
+        )
 }

@@ -30,34 +30,32 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
  * components, communicate state, and express brand.
  *
- * The shape scale defines the style of container, offering a range of
- * curved shapes (mostly polygonal). The default [Shapes] theme for Material3 is rounded rectangles,
- * with various degrees of corner roundness:
- *
+ * The shape scale defines the style of container, offering a range of curved shapes (mostly
+ * polygonal). The default [Shapes] theme for Material3 is rounded rectangles, with various degrees
+ * of corner roundness:
  * - Extra Small
  * - Small
  * - Medium
  * - Large
  * - Extra Large
  *
- * You can customize the shape system for all components in the [MaterialTheme] or you can do it
- * on a per component basis by overriding the shape parameter for that
- * component. For example, by default, buttons use the shape style "large". If your product requires
- * a smaller amount of roundness, you can override the shape parameter with a different shape
- * value like [Shapes.small].
+ * You can customize the shape system for all components in the [MaterialTheme] or you can do it on
+ * a per component basis by overriding the shape parameter for that component. For example, by
+ * default, buttons use the shape style "large". If your product requires a smaller amount of
+ * roundness, you can override the shape parameter with a different shape value like [Shapes.small].
+ *
+ * @param extraSmall By default, provides [ShapeDefaults.ExtraSmall], a [RoundedCornerShape] with
+ *   4dp [CornerSize] (used by bundled Cards).
+ * @param small By default, provides [ShapeDefaults.Small], a [RoundedCornerShape] with 8dp
+ *   [CornerSize].
+ * @param medium By default, provides [ShapeDefaults.Medium], a [RoundedCornerShape] with 16dp
+ *   [CornerSize] (used by shape-shifting Buttons and rounded rectangle buttons).
+ * @param large By default, provides [ShapeDefaults.Large], a [RoundedCornerShape] with 24dp
+ *   [CornerSize] (used by Cards).
+ * @param extraLarge By default, provides [ShapeDefaults.ExtraLarge], a [RoundedCornerShape] with
+ *   32dp [CornerSize].
  *
  * TODO(b/273226734) Review documentation with references to components that use the shape themes.
- *
- * @param extraSmall By default, provides [ShapeDefaults.ExtraSmall], a [RoundedCornerShape]
- * with 4dp [CornerSize] (used by bundled Cards).
- * @param small By default, provides [ShapeDefaults.Small], a [RoundedCornerShape]
- * with 8dp [CornerSize].
- * @param medium By default, provides [ShapeDefaults.Medium], a [RoundedCornerShape] with
- * 16dp [CornerSize] (used by shape-shifting Buttons and rounded rectangle buttons).
- * @param large By default, provides [ShapeDefaults.Large], a [RoundedCornerShape]
- * with 24dp [CornerSize] (used by Cards).
- * @param extraLarge By default, provides [ShapeDefaults.ExtraLarge], a
- * [RoundedCornerShape] with 32dp [CornerSize].
  */
 @Immutable
 class Shapes(
@@ -74,13 +72,14 @@ class Shapes(
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
         extraLarge: CornerBasedShape = this.extraLarge,
-    ): Shapes = Shapes(
-        extraSmall = extraSmall,
-        small = small,
-        medium = medium,
-        large = large,
-        extraLarge = extraLarge,
-    )
+    ): Shapes =
+        Shapes(
+            extraSmall = extraSmall,
+            small = small,
+            medium = medium,
+            large = large,
+            extraLarge = extraLarge,
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -112,9 +111,7 @@ class Shapes(
     }
 }
 
-/**
- * Contains the default values used by [Shapes]
- */
+/** Contains the default values used by [Shapes] */
 object ShapeDefaults {
 
     /** Extra small sized corner shape */
@@ -135,8 +132,7 @@ object ShapeDefaults {
 
 /**
  * Helper function for component shape tokens. Here is an example on how to use component color
- * tokens:
- * ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
+ * tokens: ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
  */
 internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
     return when (value) {
@@ -151,13 +147,11 @@ internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
 }
 
 /**
- * Converts a shape token key to the local shape provided by the theme
- * The shape references the [LocalShapes].
+ * Converts a shape token key to the local shape provided by the theme The shape references the
+ * [LocalShapes].
  */
 internal val ShapeKeyTokens.value: Shape
-    @Composable
-    @ReadOnlyComposable
-    get() = MaterialTheme.shapes.fromToken(this)
+    @Composable @ReadOnlyComposable get() = MaterialTheme.shapes.fromToken(this)
 
 /** CompositionLocal used to specify the default shapes for the surfaces. */
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

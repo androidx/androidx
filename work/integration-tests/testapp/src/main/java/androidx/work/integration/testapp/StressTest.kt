@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:JvmName("StressTest")
+
 package androidx.work.integration.testapp
 
 import android.util.Log
@@ -26,24 +27,17 @@ import androidx.work.WorkManager
 fun queueLotsOfWorkers(workManager: WorkManager) {
     for (i in 1..1000) {
         Log.i("TestWM", "Queueing $i worker")
-        val constraint = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        val constraint = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
         val uniqueName = "Worker-$i"
 
-        val worker = OneTimeWorkRequestBuilder<TestWorker>()
-            .setConstraints(constraint)
-            .build()
+        val worker = OneTimeWorkRequestBuilder<TestWorker>().setConstraints(constraint).build()
 
-        val worker2 = OneTimeWorkRequestBuilder<TestWorker>()
-            .setConstraints(constraint)
-            .build()
+        val worker2 = OneTimeWorkRequestBuilder<TestWorker>().setConstraints(constraint).build()
 
-        val worker3 = OneTimeWorkRequestBuilder<TestWorker>()
-            .setConstraints(constraint)
-            .build()
+        val worker3 = OneTimeWorkRequestBuilder<TestWorker>().setConstraints(constraint).build()
 
-        workManager.beginUniqueWork(uniqueName, ExistingWorkPolicy.KEEP, worker)
+        workManager
+            .beginUniqueWork(uniqueName, ExistingWorkPolicy.KEEP, worker)
             .then(worker2)
             .then(worker3)
             .enqueue()

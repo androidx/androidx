@@ -25,8 +25,8 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
 
 // TODO: Provide references to the Wear material design specs.
 /**
- * MaterialTheme defines the styling principles from the WearOS Material design specification
- * which extends the Material design specification.
+ * MaterialTheme defines the styling principles from the WearOS Material design specification which
+ * extends the Material design specification.
  *
  * Wear Material components from package/sub-packages in [androidx.wear.compose.material] use values
  * provided here when retrieving default values.
@@ -38,17 +38,16 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
  * and shapes defined in the [Wear Shape scheme](https://).
  *
  * All values may be set by providing this component with the [colors][Colors],
- * [typography][Typography], and [shapes][Shapes] attributes. Use this to configure the
- * overall theme of elements within this MaterialTheme.
+ * [typography][Typography], and [shapes][Shapes] attributes. Use this to configure the overall
+ * theme of elements within this MaterialTheme.
  *
  * Any values that are not set will inherit the current value from the theme, falling back to the
- * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the
- * top of your application, and then separate MaterialTheme(s) for different screens / parts of
- * your UI, overriding only the parts of the theme definition that need to change.
+ * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the top of
+ * your application, and then separate MaterialTheme(s) for different screens / parts of your UI,
+ * overriding only the parts of the theme definition that need to change.
  *
  * For more information, see the
- * [Theming](https://developer.android.com/training/wearables/components/theme)
- * guide.
+ * [Theming](https://developer.android.com/training/wearables/components/theme) guide.
  *
  * @param colors A complete definition of the Wear Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
@@ -83,17 +82,11 @@ public fun MaterialTheme(
 
 public object MaterialTheme {
     public val colors: Colors
-        @ReadOnlyComposable
-        @Composable
-        get() = LocalColors.current
+        @ReadOnlyComposable @Composable get() = LocalColors.current
 
     public val typography: Typography
-        @ReadOnlyComposable
-        @Composable
-        get() = LocalTypography.current
+        @ReadOnlyComposable @Composable get() = LocalTypography.current
 
     public val shapes: Shapes
-        @ReadOnlyComposable
-        @Composable
-        get() = LocalShapes.current
+        @ReadOnlyComposable @Composable get() = LocalShapes.current
 }

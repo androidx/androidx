@@ -44,7 +44,9 @@ fun StepperDemo() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = 2
-    ) { Text("Value: $value") }
+    ) {
+        Text("Value: $value")
+    }
 }
 
 @Composable
@@ -56,7 +58,9 @@ fun StepperWithIntegerDemo() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         valueProgression = 1..10
-    ) { Text("Value: $value") }
+    ) {
+        Text("Value: $value")
+    }
 }
 
 @Composable
@@ -79,21 +83,19 @@ fun StepperWithScrollBarDemo() {
             label = { Text("Volume : $valueState") },
             icon = {
                 Icon(
-                    painter = painterResource(
-                        id = if (valueState > 0)
-                            R.drawable.ic_volume_up_24px
-                        else R.drawable.ic_volume_off_24px
-                    ),
+                    painter =
+                        painterResource(
+                            id =
+                                if (valueState > 0) R.drawable.ic_volume_up_24px
+                                else R.drawable.ic_volume_off_24px
+                        ),
                     contentDescription = null,
                 )
             }
         )
     }
 
-    PositionIndicator(
-        value = { valueState },
-        range = range
-    )
+    PositionIndicator(value = { valueState }, range = range)
 }
 
 @Composable
@@ -113,8 +115,5 @@ fun StepperWithCustomColors() {
         Text("Volume : $valueState")
     }
 
-    PositionIndicator(
-        value = { valueState },
-        range = range
-    )
+    PositionIndicator(value = { valueState }, range = range)
 }

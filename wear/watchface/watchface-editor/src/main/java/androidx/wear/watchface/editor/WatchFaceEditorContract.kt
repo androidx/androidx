@@ -202,8 +202,7 @@ constructor(
                         ComponentName(watchfacePackageName, WATCHFACE_CONTROL_SERVICE),
                         PackageManager.GET_META_DATA
                     )
-                    .metaData
-                    ?: return false
+                    .metaData ?: return false
             return metaData.getInt(ANDROIDX_WATCHFACE_API_VERSION) >= 4
         }
     }

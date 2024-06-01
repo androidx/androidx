@@ -201,9 +201,10 @@ internal class InteractiveInstanceManager {
 
             // Note prior to android U, auxiliaryComponentPackageName may be non null for regular
             // watch faces.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                engine.resourceOnlyWatchFacePackageName !=
-                    value.params.auxiliaryComponentPackageName
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                    engine.resourceOnlyWatchFacePackageName !=
+                        value.params.auxiliaryComponentPackageName
             ) {
                 val message =
                     "Existing instance has the resourceOnlyWatchFacePackageName of " +

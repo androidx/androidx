@@ -39,14 +39,8 @@ fun SettingsDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item {
-            ListHeader(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Settings")
-            }
-        }
-       // Connectivity
+        item { ListHeader(modifier = Modifier.fillMaxWidth()) { Text("Settings") } }
+        // Connectivity
         item {
             SettingsChip(
                 painterResourceId = R.drawable.ic_settings_connectivity,
@@ -55,17 +49,11 @@ fun SettingsDemo() {
         }
         // Display
         item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_brightness,
-                text = "Display"
-            )
+            SettingsChip(painterResourceId = R.drawable.ic_settings_brightness, text = "Display")
         }
         // Gestures
         item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_gestures,
-                text = "Gestures"
-            )
+            SettingsChip(painterResourceId = R.drawable.ic_settings_gestures, text = "Gestures")
         }
         // Apps & Notifications
         item {
@@ -75,39 +63,18 @@ fun SettingsDemo() {
             )
         }
         // Google
-        item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_googleg,
-                text = "Google"
-            )
-        }
+        item { SettingsChip(painterResourceId = R.drawable.ic_settings_googleg, text = "Google") }
         // Sound
-        item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_sound,
-                text = "Sound"
-            )
-        }
+        item { SettingsChip(painterResourceId = R.drawable.ic_settings_sound, text = "Sound") }
         // Vibration
         item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_vibration,
-                text = "Vibration"
-            )
+            SettingsChip(painterResourceId = R.drawable.ic_settings_vibration, text = "Vibration")
         }
         // Battery
-        item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_battery,
-                text = "Battery"
-            )
-        }
+        item { SettingsChip(painterResourceId = R.drawable.ic_settings_battery, text = "Battery") }
         // General
         item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_watch_device,
-                text = "General"
-            )
+            SettingsChip(painterResourceId = R.drawable.ic_settings_watch_device, text = "General")
         }
         // Health Profile
         item {
@@ -118,10 +85,7 @@ fun SettingsDemo() {
         }
         // Location
         item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_location,
-                text = "Location"
-            )
+            SettingsChip(painterResourceId = R.drawable.ic_settings_location, text = "Location")
         }
         // Safety and Emergency
         item {
@@ -139,36 +103,20 @@ fun SettingsDemo() {
         }
         // Security
         item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_security,
-                text = "Security"
-            )
+            SettingsChip(painterResourceId = R.drawable.ic_settings_security, text = "Security")
         }
         // System
-        item {
-            SettingsChip(
-                painterResourceId = R.drawable.ic_settings_system,
-                text = "System"
-            )
-        }
+        item { SettingsChip(painterResourceId = R.drawable.ic_settings_system, text = "System") }
     }
 }
 
 @Composable
-private fun SettingsChip(
-    painterResourceId: Int,
-    text: String
-) {
+private fun SettingsChip(painterResourceId: Int, text: String) {
     Button(
         onClick = { /* */ },
         modifier = Modifier.fillMaxSize(),
         colors = ButtonDefaults.filledTonalButtonColors(),
-        icon = {
-            Icon(
-                painter = painterResource(painterResourceId),
-                contentDescription = text
-            )
-        },
+        icon = { Icon(painter = painterResource(painterResourceId), contentDescription = text) },
         label = { Text(text) }
     )
 }

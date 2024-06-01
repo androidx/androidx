@@ -34,6 +34,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
  *     return TilePreviewData { request -> myTile(request) }
  * }
  * ```
+ *
  * or:
  * ```kotlin
  * @Preview
@@ -48,7 +49,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * * No network access
  * * No file access
  * * Some [Context] APIs may not be fully available, such as launching activities or retrieving
- * services
+ *   services
  *
  * For more information, see
  * https://developer.android.com/jetpack/compose/tooling/previews#preview-limitations
@@ -58,21 +59,18 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * preview.
  *
  * @param name Display name of this preview allowing to identify it in the panel.
- * @param group Group name for this @[Preview]. This allows grouping them in the UI and
- * displaying only one or more of them.
+ * @param group Group name for this @[Preview]. This allows grouping them in the UI and displaying
+ *   only one or more of them.
  * @param locale Current user preference for the locale, corresponding to
- * [locale](https://d.android.com/guide/topics/resources/providing-resources.html#LocaleQualifier)
- * resource qualifier. By default, the `default` folder will be used.
+ *   [locale](https://d.android.com/guide/topics/resources/providing-resources.html#LocaleQualifier)
+ *   resource qualifier. By default, the `default` folder will be used.
  * @param device Device identifier indicating the device to use in the preview. For example
- * "id:wearos_small_round".See the available devices in [WearDevices].
+ *   "id:wearos_small_round".See the available devices in [WearDevices].
  * @param fontScale User preference for the linear scaling factor for fonts, relative to the base
- * density scaling.
+ *   density scaling.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.FUNCTION
-)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Repeatable
 @MustBeDocumented
 annotation class Preview(

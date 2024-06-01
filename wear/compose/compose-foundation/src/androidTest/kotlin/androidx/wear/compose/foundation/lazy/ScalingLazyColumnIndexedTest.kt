@@ -36,8 +36,7 @@ import org.junit.Test
 
 class ScalingLazyColumnIndexedTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun scalingLazyColumnShowsIndexedItems() {
@@ -50,21 +49,19 @@ class ScalingLazyColumnIndexedTest {
 
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                    .also { state = it },
+                state =
+                    rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.height(viewPortHeight),
                 verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(
-                    edgeScale = 1.0f,
-                    // Create some extra composables to check that extraPadding works.
-                    viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() }
-                )
+                scalingParams =
+                    ScalingLazyColumnDefaults.scalingParams(
+                        edgeScale = 1.0f,
+                        // Create some extra composables to check that extraPadding works.
+                        viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() }
+                    )
             ) {
                 itemsIndexed(items) { index, item ->
-                    Spacer(
-                        Modifier.height(itemHeight).width(itemWidth)
-                            .testTag("$index-$item")
-                    )
+                    Spacer(Modifier.height(itemHeight).width(itemWidth).testTag("$index-$item"))
                 }
             }
         }
@@ -72,20 +69,16 @@ class ScalingLazyColumnIndexedTest {
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
         // Fully visible
-        rule.onNodeWithTag("0-1")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("0-1").assertIsDisplayed()
 
         // Partially visible
-        rule.onNodeWithTag("1-2")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("1-2").assertIsDisplayed()
 
         // Will have been composed but should not be visible
-        rule.onNodeWithTag("2-3")
-            .assertIsNotDisplayed()
+        rule.onNodeWithTag("2-3").assertIsNotDisplayed()
 
         // Should not have been composed
-        rule.onNodeWithTag("3-4")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("3-4").assertDoesNotExist()
     }
 
     @Test
@@ -95,27 +88,23 @@ class ScalingLazyColumnIndexedTest {
 
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                    .also { state = it },
+                state =
+                    rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.height(200.dp),
                 autoCentering = null,
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
             ) {
                 itemsIndexed(items) { index, item ->
-                    BasicText(
-                        "${index}x$item", Modifier.requiredHeight(100.dp)
-                    )
+                    BasicText("${index}x$item", Modifier.requiredHeight(100.dp))
                 }
             }
         }
 
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
-        rule.onNodeWithText("0x0")
-            .assertTopPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithText("0x0").assertTopPositionInRootIsEqualTo(0.dp)
 
-        rule.onNodeWithText("1x1")
-            .assertTopPositionInRootIsEqualTo(104.dp)
+        rule.onNodeWithText("1x1").assertTopPositionInRootIsEqualTo(104.dp)
     }
 
     @Test
@@ -127,8 +116,8 @@ class ScalingLazyColumnIndexedTest {
         val gapBetweenItems = 2.dp
         rule.setContent {
             ScalingLazyColumn(
-                state = rememberScalingLazyListState(initialCenterItemIndex = 0)
-                    .also { state = it },
+                state =
+                    rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.height(viewPortHeight),
                 autoCentering = AutoCenteringParams(itemIndex = 0),
                 verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
@@ -136,9 +125,7 @@ class ScalingLazyColumnIndexedTest {
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
             ) {
                 itemsIndexed(items) { index, item ->
-                    BasicText(
-                        "${index}x$item", Modifier.requiredHeight(itemHeight)
-                    )
+                    BasicText("${index}x$item", Modifier.requiredHeight(itemHeight))
                 }
             }
         }
@@ -147,11 +134,11 @@ class ScalingLazyColumnIndexedTest {
         rule.waitUntil { state.initialized.value }
         // Check that first item is in the center of the viewport
         val firstItemStart = viewPortHeight / 2f - itemHeight / 2f
-        rule.onNodeWithText("0x0")
-            .assertTopPositionInRootIsEqualTo(firstItemStart)
+        rule.onNodeWithText("0x0").assertTopPositionInRootIsEqualTo(firstItemStart)
 
         // And that the second item is item height + gap between items below it
-        rule.onNodeWithText("1x1")
+        rule
+            .onNodeWithText("1x1")
             .assertTopPositionInRootIsEqualTo(firstItemStart + itemHeight + gapBetweenItems)
     }
 }

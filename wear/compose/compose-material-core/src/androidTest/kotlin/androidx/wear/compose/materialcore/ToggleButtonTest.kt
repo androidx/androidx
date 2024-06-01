@@ -74,8 +74,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class ToggleButtonTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     /* Round Toggle buttons */
     @Test
@@ -92,10 +91,7 @@ class ToggleButtonTest {
     @Test
     fun round_toggle_button_is_toggleable() {
         rule.setContent {
-            RoundToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            RoundToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNode(isToggleable()).assertExists()
@@ -104,10 +100,7 @@ class ToggleButtonTest {
     @Test
     fun round_toggle_button_has_click_action_when_enabled() {
         rule.setContent {
-            RoundToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            RoundToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -116,10 +109,7 @@ class ToggleButtonTest {
     @Test
     fun round_toggle_button_has_click_action_when_disabled() {
         rule.setContent {
-            RoundToggleButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            RoundToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -128,10 +118,7 @@ class ToggleButtonTest {
     @Test
     fun round_toggle_button_is_correctly_enabled() {
         rule.setContent {
-            RoundToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            RoundToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -140,10 +127,7 @@ class ToggleButtonTest {
     @Test
     fun round_toggle_button_is_correctly_disabled() {
         rule.setContent {
-            RoundToggleButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            RoundToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
@@ -189,9 +173,7 @@ class ToggleButtonTest {
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            Assert.assertEquals(true, clicked)
-        }
+        rule.runOnIdle { Assert.assertEquals(true, clicked) }
     }
 
     @Test
@@ -207,11 +189,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -227,11 +205,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOn()
-            .performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
     @Test
@@ -248,26 +222,16 @@ class ToggleButtonTest {
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            Assert.assertEquals(false, clicked)
-        }
+        rule.runOnIdle { Assert.assertEquals(false, clicked) }
     }
 
     @Test
     fun round_toggle_button_has_role_checkbox() {
-        rule.setContent {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
     }
 
     @Test
@@ -275,7 +239,7 @@ class ToggleButtonTest {
         rule.isShape(CircleShape, LayoutDirection.Ltr) {
             RoundToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-            ) { }
+            ) {}
         }
 
     @Test
@@ -283,28 +247,20 @@ class ToggleButtonTest {
         rule.isShape(CircleShape, LayoutDirection.Rtl) {
             RoundToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-            ) { }
+            ) {}
         }
 
     @Test
     fun extra_small_round_toggle_button_meets_accessibility_tapSize() {
         verifyTapSize(48.dp) {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(32.dp)
-            )
+            RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).size(32.dp))
         }
     }
 
     @Test
     fun extra_small_round_toggle_button_has_correct_visible_size() {
         verifyVisibleSize(32.dp) {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .requiredSize(32.dp)
-            )
+            RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).requiredSize(32.dp))
         }
     }
 
@@ -312,11 +268,7 @@ class ToggleButtonTest {
     fun default_round_toggle_button_has_correct_tapSize() {
         // Tap size for Button should be 52.dp.
         verifyTapSize(52.dp) {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(52.dp)
-            )
+            RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).size(52.dp))
         }
     }
 
@@ -324,11 +276,7 @@ class ToggleButtonTest {
     fun default_round_toggle_button_has_correct_visible_size() {
         // Tap size for Button should be 52.dp.
         verifyVisibleSize(52.dp) {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(52.dp)
-            )
+            RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG).size(52.dp))
         }
     }
 
@@ -337,10 +285,7 @@ class ToggleButtonTest {
         val shape = CutCornerShape(4.dp)
 
         rule.isShape(shape, LayoutDirection.Ltr) {
-            RoundToggleButtonWithDefaults(
-                shape = shape,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) { }
+            RoundToggleButtonWithDefaults(shape = shape, modifier = Modifier.testTag(TEST_TAG)) {}
         }
     }
 
@@ -424,11 +369,7 @@ class ToggleButtonTest {
     /* Toggle button */
     @Test
     fun toggle_button_supports_testTag() {
-        rule.setContent {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { ToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -436,10 +377,7 @@ class ToggleButtonTest {
     @Test
     fun toggle_button_has_click_action_when_enabled() {
         rule.setContent {
-            ToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            ToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -448,10 +386,7 @@ class ToggleButtonTest {
     @Test
     fun toggle_button_has_click_action_when_disabled() {
         rule.setContent {
-            ToggleButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            ToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -459,11 +394,7 @@ class ToggleButtonTest {
 
     @Test
     fun toggle_button_is_toggleable() {
-        rule.setContent {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { ToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNode(isToggleable()).assertExists()
     }
@@ -484,10 +415,7 @@ class ToggleButtonTest {
     @Test
     fun toggle_button_is_correctly_disabled() {
         rule.setContent {
-            ToggleButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            ToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
@@ -496,10 +424,7 @@ class ToggleButtonTest {
     @Test
     fun toggle_button_is_correctly_enabled() {
         rule.setContent {
-            ToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            ToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -508,10 +433,7 @@ class ToggleButtonTest {
     @Test
     fun toggle_button_is_on_when_checked() {
         rule.setContent {
-            ToggleButtonWithDefaults(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            ToggleButtonWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOn()
@@ -520,10 +442,7 @@ class ToggleButtonTest {
     @Test
     fun toggle_button_is_off_when_unchecked() {
         rule.setContent {
-            ToggleButtonWithDefaults(
-                checked = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            ToggleButtonWithDefaults(checked = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOff()
@@ -555,11 +474,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -574,11 +489,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOn()
-            .performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
     @Test
@@ -595,11 +506,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsNotSelected()
-            .performClick()
-            .assertIsSelected()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected().performClick().assertIsSelected()
     }
 
     @Test
@@ -614,11 +521,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOff()
-            .performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsOff().performClick().assertIsOff()
     }
 
     @Test
@@ -629,9 +532,7 @@ class ToggleButtonTest {
             ToggleButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = {
-                    TestText(text = textContent)
-                }
+                label = { TestText(text = textContent) }
             )
         }
 
@@ -678,11 +579,7 @@ class ToggleButtonTest {
 
     @Test
     fun split_button_supports_testTag() {
-        rule.setContent {
-            SplitToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -690,10 +587,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_has_click_action_when_enabled() {
         rule.setContent {
-            SplitToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
@@ -702,10 +596,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_has_click_action_when_disabled() {
         rule.setContent {
-            SplitToggleButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
@@ -713,32 +604,21 @@ class ToggleButtonTest {
 
     @Test
     fun split_button_is_toggleable() {
-        rule.setContent {
-            SplitToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNode(isToggleable()).assertExists()
     }
 
     @Test
     fun split_button_is_clickable() {
-        rule.setContent {
-            SplitToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertHasClickAction()
     }
 
     @Test
     fun split_button_is_correctly_enabled() {
         rule.setContent {
-            SplitToggleButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitToggleButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -747,10 +627,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_correctly_disabled() {
         rule.setContent {
-            SplitToggleButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitToggleButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(0).assertIsNotEnabled()
@@ -759,10 +636,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_off_when_unchecked() {
         rule.setContent {
-            SplitToggleButtonWithDefaults(
-                checked = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitToggleButtonWithDefaults(checked = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOff()
@@ -771,10 +645,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_is_on_when_checked() {
         rule.setContent {
-            SplitToggleButtonWithDefaults(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SplitToggleButtonWithDefaults(checked = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOn()
@@ -792,12 +663,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .onChildAt(1)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOff().performClick().assertIsOn()
     }
 
     @Test
@@ -812,12 +678,7 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .onChildAt(1)
-            .assertIsOn()
-            .performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOn().performClick().assertIsOff()
     }
 
     @Test
@@ -832,29 +693,17 @@ class ToggleButtonTest {
             )
         }
 
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .onChildAt(1)
-            .assertIsOff()
-            .performClick()
-            .assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOff().performClick().assertIsOff()
     }
 
     @Test
     fun split_button_clickable_has_role_button() {
-        rule.setContent {
-            SplitToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { SplitToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(0)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Button
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .onChildAt(0)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
@@ -865,9 +714,7 @@ class ToggleButtonTest {
             SplitToggleButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = {
-                    TestText(text = textContent)
-                }
+                label = { TestText(text = textContent) }
             )
         }
 
@@ -937,9 +784,7 @@ class ToggleButtonTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedColor)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -968,9 +813,7 @@ class ToggleButtonTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedColor)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedColor)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -986,18 +829,11 @@ class ToggleButtonTest {
     ) {
         val testBackground = Color.White
         val expectedColor = { color: Color ->
-            if (color != Color.Transparent)
-                color.compositeOver(testBackground)
-            else
-                testBackground
+            if (color != Color.Transparent) color.compositeOver(testBackground) else testBackground
         }
 
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(testBackground)
-            ) {
+            Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
                 val actualBorderColor = borderColor(enabled, checked).value
                 val border = BorderStroke(2.dp, actualBorderColor)
                 RoundToggleButtonWithDefaults(
@@ -1006,43 +842,33 @@ class ToggleButtonTest {
                     enabled = enabled,
                     checked = checked,
                     modifier = Modifier.testTag(TEST_TAG)
-                ) {
-                }
+                ) {}
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(expectedColor(expectedBackgroundColor), backgroundThreshold)
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(expectedColor(expectedBorderColor), borderThreshold)
     }
 
-    private fun verifyTapSize(
-        expected: Dp,
-        content: @Composable () -> Unit
-    ) {
-        rule.setContent {
-            content()
-        }
+    private fun verifyTapSize(expected: Dp, content: @Composable () -> Unit) {
+        rule.setContent { content() }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .assertTouchHeightIsEqualTo(expected)
             .assertTouchWidthIsEqualTo(expected)
     }
 
-    private fun verifyVisibleSize(
-        expected: Dp,
-        content: @Composable () -> Unit
-    ) {
-        rule.setContent {
-            content()
-        }
+    private fun verifyVisibleSize(expected: Dp, content: @Composable () -> Unit) {
+        rule.setContent { content() }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertHeightIsEqualTo(expected)
-            .assertWidthIsEqualTo(expected)
+        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(expected).assertWidthIsEqualTo(expected)
     }
 }
 
@@ -1052,16 +878,14 @@ private fun RoundToggleButtonWithDefaults(
     checked: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
     enabled: Boolean = true,
-    backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
-        { _, _ -> rememberUpdatedState(DEFAULT_SHAPE_COLOR) },
-    border: @Composable (enabled: Boolean, checked: Boolean) -> BorderStroke? =
-        { _, _ -> null },
+    backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> = { _, _ ->
+        rememberUpdatedState(DEFAULT_SHAPE_COLOR)
+    },
+    border: @Composable (enabled: Boolean, checked: Boolean) -> BorderStroke? = { _, _ -> null },
     toggleButtonSize: Dp = 52.dp,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
-    content: @Composable BoxScope.() -> Unit = {
-        TestText(text = "Label")
-    }
+    content: @Composable BoxScope.() -> Unit = { TestText(text = "Label") }
 ) {
     ToggleButton(
         checked = checked,
@@ -1083,11 +907,7 @@ private fun ToggleButtonWithDefaults(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
-    label: @Composable RowScope.() -> Unit = {
-        TestText(
-            text = "Label"
-        )
-    },
+    label: @Composable RowScope.() -> Unit = { TestText(text = "Label") },
     toggleControl: (@Composable () -> Unit)? = { TestImage() },
     selectionControl: (@Composable () -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
@@ -1097,47 +917,45 @@ private fun ToggleButtonWithDefaults(
     },
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-    contentPadding: PaddingValues = PaddingValues(
-        start = CHIP_HORIZONTAL_PADDING,
-        top = CHIP_VERTICAL_PADDING,
-        end = CHIP_HORIZONTAL_PADDING,
-        bottom = CHIP_VERTICAL_PADDING
-    ),
+    contentPadding: PaddingValues =
+        PaddingValues(
+            start = CHIP_HORIZONTAL_PADDING,
+            top = CHIP_VERTICAL_PADDING,
+            end = CHIP_HORIZONTAL_PADDING,
+            bottom = CHIP_VERTICAL_PADDING
+        ),
     shape: Shape = CHIP_SHAPE,
     selectionControlWidth: Dp = 24.dp,
     selectionControlHeight: Dp = 24.dp
-) = ToggleButton(
-    checked = checked,
-    onCheckedChange = onCheckedChange,
-    label = label,
-    toggleControl = toggleControl,
-    selectionControl = selectionControl,
-    modifier = modifier,
-    icon = icon,
-    secondaryLabel = secondaryLabel,
-    background = background,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    contentPadding = contentPadding,
-    shape = shape,
-    toggleControlWidth = selectionControlWidth,
-    toggleControlHeight = selectionControlHeight,
-    labelSpacerSize = 0.dp,
-    toggleControlSpacing = 6.dp,
-    iconSpacing = 6.dp,
-    ripple = EmptyIndication,
-)
+) =
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        label = label,
+        toggleControl = toggleControl,
+        selectionControl = selectionControl,
+        modifier = modifier,
+        icon = icon,
+        secondaryLabel = secondaryLabel,
+        background = background,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        contentPadding = contentPadding,
+        shape = shape,
+        toggleControlWidth = selectionControlWidth,
+        toggleControlHeight = selectionControlHeight,
+        labelSpacerSize = 0.dp,
+        toggleControlSpacing = 6.dp,
+        iconSpacing = 6.dp,
+        ripple = EmptyIndication,
+    )
 
 @Composable
 private fun SplitToggleButtonWithDefaults(
     modifier: Modifier = Modifier,
     checked: Boolean = true,
     onCheckedChange: (Boolean) -> Unit = {},
-    label: @Composable RowScope.() -> Unit = {
-        TestText(
-            text = "Primary label"
-        )
-    },
+    label: @Composable RowScope.() -> Unit = { TestText(text = "Primary label") },
     onClick: () -> Unit = {},
     toggleControl: (@Composable BoxScope.() -> Unit)? = { TestImage() },
     selectionControl: (@Composable BoxScope.() -> Unit)? = null,
@@ -1152,32 +970,34 @@ private fun SplitToggleButtonWithDefaults(
     enabled: Boolean = true,
     checkedInteractionSource: MutableInteractionSource? = null,
     clickInteractionSource: MutableInteractionSource? = null,
-    contentPadding: PaddingValues = PaddingValues(
-        start = CHIP_HORIZONTAL_PADDING,
-        top = CHIP_VERTICAL_PADDING,
-        end = CHIP_HORIZONTAL_PADDING,
-        bottom = CHIP_VERTICAL_PADDING
-    ),
+    contentPadding: PaddingValues =
+        PaddingValues(
+            start = CHIP_HORIZONTAL_PADDING,
+            top = CHIP_VERTICAL_PADDING,
+            end = CHIP_HORIZONTAL_PADDING,
+            bottom = CHIP_VERTICAL_PADDING
+        ),
     shape: Shape = CHIP_SHAPE
-) = SplitToggleButton(
-    checked = checked,
-    onCheckedChange = onCheckedChange,
-    label = label,
-    onClick = onClick,
-    toggleControl = toggleControl,
-    selectionControl = selectionControl,
-    modifier = modifier,
-    secondaryLabel = secondaryLabel,
-    backgroundColor = backgroundColor,
-    splitBackgroundColor = splitBackgroundColor,
-    enabled = enabled,
-    checkedInteractionSource = checkedInteractionSource,
-    clickInteractionSource = clickInteractionSource,
-    contentPadding = contentPadding,
-    shape = shape,
-    labelSpacerSize = 0.dp,
-    ripple = EmptyIndication,
-)
+) =
+    SplitToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        label = label,
+        onClick = onClick,
+        toggleControl = toggleControl,
+        selectionControl = selectionControl,
+        modifier = modifier,
+        secondaryLabel = secondaryLabel,
+        backgroundColor = backgroundColor,
+        splitBackgroundColor = splitBackgroundColor,
+        enabled = enabled,
+        checkedInteractionSource = checkedInteractionSource,
+        clickInteractionSource = clickInteractionSource,
+        contentPadding = contentPadding,
+        shape = shape,
+        labelSpacerSize = 0.dp,
+        ripple = EmptyIndication,
+    )
 
 private val CHIP_HORIZONTAL_PADDING = 14.dp
 private val CHIP_VERTICAL_PADDING = 6.dp

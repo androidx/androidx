@@ -19,16 +19,10 @@ package androidx.work
 import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 
-/**
- * A simple [Executor].
- *
- */
+/** A simple [Executor]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class DirectExecutor : Executor {
-    /**
-     * Inlined by old LF.await() implementation, so mustn't be removed.
-     * See aosp/2960744
-     */
+    /** Inlined by old LF.await() implementation, so mustn't be removed. See aosp/2960744 */
     INSTANCE;
 
     override fun execute(command: Runnable) {

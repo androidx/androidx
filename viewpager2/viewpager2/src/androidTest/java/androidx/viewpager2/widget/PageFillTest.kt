@@ -32,8 +32,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Checks the mechanism enforcing that page width/height are 100%/100%.
- * This assumption is used in a number of places in code.
+ * Checks the mechanism enforcing that page width/height are 100%/100%. This assumption is used in a
+ * number of places in code.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -54,18 +54,19 @@ class PageFillTest : BaseTest() {
     }
 
     private fun test_pageFillEnforced(layoutParams: LayoutParams) {
-        val fixedViewSizeAdapter = object : RecyclerView.Adapter<ViewHolder>() {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-                return object : ViewHolder(
-                    View(parent.context).apply {
-                        this.layoutParams = layoutParams
-                    }
-                ) {}
-            }
+        val fixedViewSizeAdapter =
+            object : RecyclerView.Adapter<ViewHolder>() {
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+                    return object :
+                        ViewHolder(
+                            View(parent.context).apply { this.layoutParams = layoutParams }
+                        ) {}
+                }
 
-            override fun getItemCount(): Int = 1
-            override fun onBindViewHolder(holder: ViewHolder, position: Int) {}
-        }
+                override fun getItemCount(): Int = 1
+
+                override fun onBindViewHolder(holder: ViewHolder, position: Int) {}
+            }
 
         setUpTest(ORIENTATION_HORIZONTAL).apply {
             runOnUiThreadSync {
@@ -76,9 +77,7 @@ class PageFillTest : BaseTest() {
                 } catch (e: IllegalStateException) {
                     assertThat(
                         e.message,
-                        containsString(
-                            "Pages must fill the whole ViewPager2 (use match_parent)"
-                        )
+                        containsString("Pages must fill the whole ViewPager2 (use match_parent)")
                     )
                 }
             }

@@ -1088,9 +1088,8 @@ internal constructor(
     private fun setTimelineData(data: ComplicationData, instant: Instant) {
         lastComplicationUpdate = instant
         timelineComplicationData = data
-        timelineEntries = data.asWireComplicationData()
-            .timelineEntries
-            ?.mapTo(ArrayList<ApiTimelineEntry>()) {
+        timelineEntries =
+            data.asWireComplicationData().timelineEntries?.mapTo(ArrayList<ApiTimelineEntry>()) {
                 ApiTimelineEntry(
                     it.timelineStartEpochSecond,
                     it.timelineEndEpochSecond,

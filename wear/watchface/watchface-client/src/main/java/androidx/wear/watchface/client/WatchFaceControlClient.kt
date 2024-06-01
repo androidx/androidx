@@ -100,7 +100,7 @@ public interface WatchFaceControlClient : AutoCloseable {
          *   control service to bind to.
          * @param resourceOnlyWatchFacePackageName The name of the package from which to load the
          *   resource only watch face. This is exposed to the runtime via
-         *   [WatchFaceService.resourceOnlyWatchFacePackageName].  Note only one watch face
+         *   [WatchFaceService.resourceOnlyWatchFacePackageName]. Note only one watch face
          *   definition per resource only watch face package is supported.
          * @return The [WatchFaceControlClient] if there is one.
          * @throws [ServiceNotBoundException] if the watch face control service can not be bound or

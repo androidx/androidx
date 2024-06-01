@@ -36,9 +36,7 @@ class ScrollActivity : Activity() {
         recycler.adapter = adapter
     }
 
-    private fun entries(size: Int) = List(size) {
-        Entry("Item $it")
-    }
+    private fun entries(size: Int) = List(size) { Entry("Item $it") }
 }
 
 data class Entry(val contents: String)

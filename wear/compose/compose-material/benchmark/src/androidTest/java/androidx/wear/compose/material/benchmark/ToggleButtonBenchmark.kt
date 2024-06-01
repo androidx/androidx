@@ -34,15 +34,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for Wear Compose ToggleButton.
- */
+/** Benchmark for Wear Compose ToggleButton. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ToggleButtonBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val caseFactory = { ToggleButtonTestCase() }
 
@@ -86,14 +83,11 @@ internal class ToggleButtonTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        ToggleButton(checked = true, onCheckedChange = {}) {
-        }
+        ToggleButton(checked = true, onCheckedChange = {}) {}
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

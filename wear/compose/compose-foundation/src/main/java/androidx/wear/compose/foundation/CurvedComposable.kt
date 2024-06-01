@@ -38,17 +38,17 @@ import kotlin.math.sqrt
  * @param modifier The [CurvedModifier] to apply to this curved composable.
  * @param radialAlignment How to align this component if it's thinner than the container.
  * @param content The composable(s) that will be wrapped and laid out as part of the parent
- * container. This has a [BoxScope], since it's wrapped inside a Box.
+ *   container. This has a [BoxScope], since it's wrapped inside a Box.
  */
 public fun CurvedScope.curvedComposable(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
     content: @Composable BoxScope.() -> Unit
-) = add(CurvedComposableChild(
-    curvedLayoutDirection.absoluteClockwise(),
-    radialAlignment,
-    content
-), modifier)
+) =
+    add(
+        CurvedComposableChild(curvedLayoutDirection.absoluteClockwise(), radialAlignment, content),
+        modifier
+    )
 
 internal class CurvedComposableChild(
     val clockwise: Boolean,
@@ -63,9 +63,7 @@ internal class CurvedComposableChild(
         Box(content = content)
     }
 
-    override fun CurvedMeasureScope.initializeMeasure(
-        measurables: Iterator<Measurable>
-    ) {
+    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
         // TODO: check that we actually match adding a parent data modifier to the Box in
         // composeIfNeeded and verifying this measurable has it?
         placeable = measurables.next().measure(Constraints())
@@ -85,10 +83,11 @@ internal class CurvedComposableChild(
         val parentInnerRadius = parentOuterRadius - parentThickness
 
         // We know where we want it and the radial alignment, so we can compute it's positioning now
-        val (myInnerRadius, myOuterRadius) = computeAnnulusRadii(
-            lerp(parentOuterRadius, parentInnerRadius, radialAlignment.ratio),
-            radialAlignment.ratio
-        )
+        val (myInnerRadius, myOuterRadius) =
+            computeAnnulusRadii(
+                lerp(parentOuterRadius, parentInnerRadius, radialAlignment.ratio),
+                radialAlignment.ratio
+            )
 
         val sweepRadians = 2f * asin(placeable.width / 2f / myInnerRadius)
         return PartialLayoutInfo(
@@ -105,9 +104,7 @@ internal class CurvedComposableChild(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
         centerOffset: Offset
-    ): Float = parentStartAngleRadians.also {
-        this.parentSweepRadians = parentSweepRadians
-    }
+    ): Float = parentStartAngleRadians.also { this.parentSweepRadians = parentSweepRadians }
 
     override fun (Placeable.PlacementScope).placeIfNeeded() =
         place(placeable, layoutInfo!!, parentSweepRadians, clockwise)
@@ -116,12 +113,11 @@ internal class CurvedComposableChild(
      * Compute the inner and outer radii of the annulus sector required to fit the given box.
      *
      * @param targetRadius The distance we want, from the center of the circle the annulus is part
-     * of, to a point on the side of the box (which point is determined with the radiusAlpha
-     * parameter.)
+     *   of, to a point on the side of the box (which point is determined with the radiusAlpha
+     *   parameter.)
      * @param radiusAlpha Which point on the side of the box we are measuring the radius to. 0 means
-     * radius is to the outer point in the box, 1 means that it's to the inner point.
-     * (And interpolation in-between)
-     *
+     *   radius is to the outer point in the box, 1 means that it's to the inner point. (And
+     *   interpolation in-between)
      */
     private fun computeAnnulusRadii(targetRadius: Float, radiusAlpha: Float): Pair<Float, Float> {
         // The top side of the triangles we use, squared.
@@ -133,8 +129,8 @@ internal class CurvedComposableChild(
 
         // Move to the top/bottom of the child box, then project back
         val outerRadius = sqrt(topSquared + pow2(radiusInBox + radiusAlpha * placeable.height))
-        val innerRadius = sqrt(topSquared +
-            pow2(radiusInBox - (1 - radiusAlpha) * placeable.height))
+        val innerRadius =
+            sqrt(topSquared + pow2(radiusInBox - (1 - radiusAlpha) * placeable.height))
 
         return innerRadius to outerRadius
     }
@@ -151,9 +147,8 @@ internal fun (Placeable.PlacementScope).place(
         val radiusToTopLeft = outerRadius
 
         // Distance from the center of the CurvedRow to the top center of the component.
-        val radiusToTopCenter = sqrt(
-            (pow2(radiusToTopLeft) - pow2(placeable.width / 2f)).coerceAtLeast(0f)
-        )
+        val radiusToTopCenter =
+            sqrt((pow2(radiusToTopLeft) - pow2(placeable.width / 2f)).coerceAtLeast(0f))
 
         // To position this child, we move its center rotating it around the CurvedRow's center.
         val radiusToCenter = radiusToTopCenter - placeable.height / 2f

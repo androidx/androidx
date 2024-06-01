@@ -38,14 +38,15 @@ internal fun <T : IInterface> execute(
     dispatcher: RemoteDispatcher<T>,
 ): ListenableFuture<ByteArray> {
     return launchFuture(executor.asCoroutineDispatcher() + Job(), launchUndispatched = false) {
-        val worker = try {
-            iInterface.await()
-        } catch (throwable: Throwable) {
-            if (throwable !is CancellationException) {
-                Logger.get().error(TAG, "Unable to bind to service", throwable)
+        val worker =
+            try {
+                iInterface.await()
+            } catch (throwable: Throwable) {
+                if (throwable !is CancellationException) {
+                    Logger.get().error(TAG, "Unable to bind to service", throwable)
+                }
+                throw throwable
             }
-            throw throwable
-        }
         execute(worker, dispatcher)
     }
 }
@@ -63,13 +64,16 @@ internal suspend fun <T : IInterface> execute(
             }
             deathRecipient = localRecipient
             binder.linkToDeath(localRecipient, 0)
-            dispatcher.execute(iInterface, object : IWorkManagerImplCallback.Stub() {
+            dispatcher.execute(
+                iInterface,
+                object : IWorkManagerImplCallback.Stub() {
 
-                override fun onSuccess(response: ByteArray) = continuation.resume(response)
+                    override fun onSuccess(response: ByteArray) = continuation.resume(response)
 
-                override fun onFailure(error: String?) =
-                    continuation.resumeWithException(RuntimeException(error))
-            })
+                    override fun onFailure(error: String?) =
+                        continuation.resumeWithException(RuntimeException(error))
+                }
+            )
         }
     } catch (throwable: Throwable) {
         if (throwable !is CancellationException) {

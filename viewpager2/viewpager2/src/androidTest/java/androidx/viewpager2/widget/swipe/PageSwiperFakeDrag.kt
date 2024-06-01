@@ -36,7 +36,8 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         private const val COOL_DOWN_TIME_MS = 100L
     }
 
-    private val needsRtlModifier get() = viewPager.isHorizontal && viewPager.isRtl
+    private val needsRtlModifier
+        get() = viewPager.isHorizontal && viewPager.isRtl
 
     var isInterrupted: Boolean = false
         private set
@@ -68,16 +69,16 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         val rtlModifier = if (needsRtlModifier) -1 else 1
         val steps = max(1, (duration / FRAME_LENGTH_MS.toFloat()).roundToInt())
         val distancePx = pageSize() * -relativeDragDistance * rtlModifier
-        val deltas = List(steps) { i ->
-            val currDistance = interpolator.getInterpolation((i + 1f) / steps) * distancePx
-            val prevDistance = interpolator.getInterpolation((i + 0f) / steps) * distancePx
-            currDistance - prevDistance
-        }
+        val deltas =
+            List(steps) { i ->
+                val currDistance = interpolator.getInterpolation((i + 1f) / steps) * distancePx
+                val prevDistance = interpolator.getInterpolation((i + 0f) / steps) * distancePx
+                currDistance - prevDistance
+            }
 
         if (isInterrupted) {
             throw IllegalStateException(
-                "${javaClass.simpleName} was not reset after it was " +
-                    "interrupted"
+                "${javaClass.simpleName} was not reset after it was " + "interrupted"
             )
         }
 
@@ -102,7 +103,9 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         private val suppressFling: Boolean
     ) : Runnable {
         private var nextStep = 0
-        private val stepsLeft get() = nextStep < deltas.size
+        private val stepsLeft
+            get() = nextStep < deltas.size
+
         // If suppressFling, end with cool down period to make sure VelocityTracker has 0 velocity
         private var coolingDown = false
         private var coolDownStart = 0L

@@ -43,17 +43,9 @@ fun TimeTextClockOnly() {
 fun TimeTextWithLeadingText() {
     val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
     TimeText(
-        startLinearContent = {
-            Text(
-                text = "ETA 12:48",
-                style = textStyle
-            )
-        },
+        startLinearContent = { Text(text = "ETA 12:48", style = textStyle) },
         startCurvedContent = {
-            basicCurvedText(
-                text = "ETA 12:48",
-                style = CurvedTextStyle(textStyle)
-            )
+            basicCurvedText(text = "ETA 12:48", style = CurvedTextStyle(textStyle))
         }
     )
 }
@@ -63,44 +55,36 @@ fun TimeTextWithShadow() {
     val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
     val radiusCoeff = 0.8f
     val linearGradientHeight = 30.dp
-    val timeTextModifier = if (LocalConfiguration.current.isScreenRound) {
-        Modifier.drawBehind {
-            drawRect(
-                Brush
-                    .radialGradient(
+    val timeTextModifier =
+        if (LocalConfiguration.current.isScreenRound) {
+            Modifier.drawBehind {
+                drawRect(
+                    Brush.radialGradient(
                         0.8f to Color.Transparent,
                         1.0f to Color.Black,
                         center = Offset(size.width / 2, size.height * radiusCoeff),
                         radius = size.height * radiusCoeff
                     )
-            )
-        }
-    } else {
-        Modifier.drawBehind {
-            drawRect(
-                Brush.linearGradient(
-                    colors = listOf(Color.Black, Color.Transparent),
-                    start = Offset(x = size.width / 2, y = 0f),
-                    end = Offset(x = size.width / 2, y = linearGradientHeight.toPx())
                 )
-            )
+            }
+        } else {
+            Modifier.drawBehind {
+                drawRect(
+                    Brush.linearGradient(
+                        colors = listOf(Color.Black, Color.Transparent),
+                        start = Offset(x = size.width / 2, y = 0f),
+                        end = Offset(x = size.width / 2, y = linearGradientHeight.toPx())
+                    )
+                )
+            }
         }
-    }
 
     Box(modifier = Modifier.background(Color.Red)) {
         TimeText(
             modifier = timeTextModifier,
-            startLinearContent = {
-                Text(
-                    text = "ETA 12:48",
-                    style = textStyle
-                )
-            },
+            startLinearContent = { Text(text = "ETA 12:48", style = textStyle) },
             startCurvedContent = {
-                basicCurvedText(
-                    text = "ETA 12:48",
-                    style = CurvedTextStyle(textStyle)
-                )
+                basicCurvedText(text = "ETA 12:48", style = CurvedTextStyle(textStyle))
             }
         )
     }
@@ -109,8 +93,9 @@ fun TimeTextWithShadow() {
 @Composable
 fun TimeTextWithLocalisedFormat() {
     TimeText(
-        timeSource = TimeTextDefaults.timeSource(
-            DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy.MM.dd HH:mm")
-        )
+        timeSource =
+            TimeTextDefaults.timeSource(
+                DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy.MM.dd HH:mm")
+            )
     )
 }

@@ -65,9 +65,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
     fun test_modifyDataSet_batchedChanges() {
         test_modifyDataSet { actions ->
             val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
-            test.runOnUiThreadSync {
-                actions.forEach { it.perform(adapter) }
-            }
+            test.runOnUiThreadSync { actions.forEach { it.perform(adapter) } }
             layoutChangedLatch.await(1, SECONDS)
         }
     }
@@ -77,9 +75,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
         test_modifyDataSet { actions ->
             actions.forEach {
                 val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
-                test.runOnUiThreadSync {
-                    it.perform(adapter)
-                }
+                test.runOnUiThreadSync { it.perform(adapter) }
                 layoutChangedLatch.await(1, SECONDS)
             }
         }
@@ -95,9 +91,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
 
         // Let animations run
         val animationLatch = CountDownLatch(1)
-        test.viewPager.recyclerView.itemAnimator!!.isRunning {
-            animationLatch.countDown()
-        }
+        test.viewPager.recyclerView.itemAnimator!!.isRunning { animationLatch.countDown() }
         animationLatch.await(1, SECONDS)
 
         // Wait until VP2 has stabilized
@@ -118,27 +112,21 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
             action(adapter)
         }
 
-        data class Insert(val at: Int, val item: String) : Action({
-            it.insert(at, item)
-        })
-        data class InsertRange(val at: Int, val items: List<String>) : Action({
-            it.insertRange(at, items)
-        })
-        data class Move(val from: Int, val to: Int) : Action({
-            it.move(from, to)
-        })
-        data class Remove(val at: Int, val useDataSetChanged: Boolean = false) : Action({
-            it.remove(at, useDataSetChanged)
-        })
-        data class RemoveRange(val at: Int, val count: Int) : Action({
-            it.removeRange(at, count)
-        })
-        data class RemoveMultiple(val indices: List<Int>) : Action({
-            it.removeMultiple(indices)
-        })
-        data class ReplaceWith(val newItems: List<String>) : Action({
-            it.setItems(newItems)
-        })
+        data class Insert(val at: Int, val item: String) : Action({ it.insert(at, item) })
+
+        data class InsertRange(val at: Int, val items: List<String>) :
+            Action({ it.insertRange(at, items) })
+
+        data class Move(val from: Int, val to: Int) : Action({ it.move(from, to) })
+
+        data class Remove(val at: Int, val useDataSetChanged: Boolean = false) :
+            Action({ it.remove(at, useDataSetChanged) })
+
+        data class RemoveRange(val at: Int, val count: Int) : Action({ it.removeRange(at, count) })
+
+        data class RemoveMultiple(val indices: List<Int>) : Action({ it.removeMultiple(indices) })
+
+        data class ReplaceWith(val newItems: List<String>) : Action({ it.setItems(newItems) })
     }
 
     class ModifiableViewAdapter(private val dataSet: MutableList<String>) : ViewAdapter(dataSet) {
@@ -176,17 +164,13 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
         }
 
         fun removeRange(index: Int, itemCount: Int) {
-            repeat(itemCount) {
-                dataSet.removeAt(index)
-            }
+            repeat(itemCount) { dataSet.removeAt(index) }
             notifyItemRangeRemoved(index, itemCount)
         }
 
         fun removeMultiple(indices: List<Int>) {
             val list = indices.sortedDescending()
-            list.forEach {
-                dataSet.removeAt(it)
-            }
+            list.forEach { dataSet.removeAt(it) }
             notifyDataSetChanged()
         }
 
@@ -347,35 +331,37 @@ private fun createTestSet(): List<TestConfig> {
         // "Trivial" cases from random tests
         TestConfig(
             startAt = 1,
-            actions = listOf(
-                Remove(at = 0),
-                Remove(at = 5),
-                Remove(at = 1),
-                Insert(at = 2, item = "-1"),
-                Insert(at = 6, item = "-2"),
-                Insert(at = 7, item = "-3"),
-                Move(from = 5, to = 2),
-                Insert(at = 9, item = "-4"),
-                Insert(at = 1, item = "-5"),
-                Move(from = 4, to = 9)
-            ),
+            actions =
+                listOf(
+                    Remove(at = 0),
+                    Remove(at = 5),
+                    Remove(at = 1),
+                    Insert(at = 2, item = "-1"),
+                    Insert(at = 6, item = "-2"),
+                    Insert(at = 7, item = "-3"),
+                    Move(from = 5, to = 2),
+                    Insert(at = 9, item = "-4"),
+                    Insert(at = 1, item = "-5"),
+                    Move(from = 4, to = 9)
+                ),
             expectedFinalCurrentItem = 0,
             expectedFinalPageText = "1"
         ),
         TestConfig(
             startAt = 6,
-            actions = listOf(
-                Remove(at = 1),
-                Remove(at = 2),
-                Insert(at = 0, item = "-1"),
-                Move(from = 2, to = 7),
-                Move(from = 8, to = 6),
-                Remove(at = 1),
-                Move(from = 1, to = 0),
-                Insert(at = 3, item = "-2"),
-                Move(from = 3, to = 3),
-                Remove(at = 3)
-            ),
+            actions =
+                listOf(
+                    Remove(at = 1),
+                    Remove(at = 2),
+                    Insert(at = 0, item = "-1"),
+                    Move(from = 2, to = 7),
+                    Move(from = 8, to = 6),
+                    Remove(at = 1),
+                    Move(from = 1, to = 0),
+                    Insert(at = 3, item = "-2"),
+                    Move(from = 3, to = 3),
+                    Remove(at = 3)
+                ),
             expectedFinalCurrentItem = 3,
             expectedFinalPageText = "6"
         ),
@@ -383,18 +369,19 @@ private fun createTestSet(): List<TestConfig> {
         // "Non-trivial" cases from random tests
         TestConfig(
             startAt = 2,
-            actions = listOf(
-                Insert(at = 0, item = "-1"),
-                Insert(at = 9, item = "-2"),
-                Remove(at = 6),
-                Move(from = 0, to = 6),
-                Remove(at = 9),
-                Remove(at = 1),
-                Remove(at = 8),
-                Insert(at = 0, item = "-3"),
-                Move(from = 3, to = 8),
-                Remove(at = 2)
-            ),
+            actions =
+                listOf(
+                    Insert(at = 0, item = "-1"),
+                    Insert(at = 9, item = "-2"),
+                    Remove(at = 6),
+                    Move(from = 0, to = 6),
+                    Remove(at = 9),
+                    Remove(at = 1),
+                    Remove(at = 8),
+                    Insert(at = 0, item = "-3"),
+                    Move(from = 3, to = 8),
+                    Remove(at = 2)
+                ),
             expectedFinalCurrentItem = 2,
             expectedFinalPageText = "4"
         )

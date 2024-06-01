@@ -34,8 +34,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SelectableButtonBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val selectableButtonTestCaseFactory = {
         SelectableButtonTestCase(SelectableButtonType.SelectableButton)
@@ -56,9 +55,8 @@ class SelectableButtonBenchmark {
     }
 }
 
-internal class SelectableButtonTestCase(
-    private val type: SelectableButtonType
-) : LayeredComposeTestCase() {
+internal class SelectableButtonTestCase(private val type: SelectableButtonType) :
+    LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         if (type == SelectableButtonType.SelectableButton) {
@@ -69,7 +67,8 @@ internal class SelectableButtonTestCase(
             SplitSelectableButton(
                 selected = true,
                 onSelectionClick = { /* do something */ },
-                onContainerClick = { /* do something */ }) {
+                onContainerClick = { /* do something */ }
+            ) {
                 Text(text = "SplitSelectableButton")
             }
         }
@@ -77,12 +76,11 @@ internal class SelectableButtonTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class SelectableButtonType {
-    SelectableButton, SplitSelectableButton
+    SelectableButton,
+    SplitSelectableButton
 }

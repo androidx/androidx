@@ -36,59 +36,54 @@ import org.junit.runner.RunWith
 class WearableRemoteInputExtenderTest {
     @Test
     fun testDisallowEmoji() {
-        val remoteInput = RemoteInput.Builder("resultKey")
-            .wearableExtender {
-                setEmojisAllowed(false)
-            }.build()
+        val remoteInput =
+            RemoteInput.Builder("resultKey").wearableExtender { setEmojisAllowed(false) }.build()
 
-        assertTrue(
-            remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI)
-        )
+        assertTrue(remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI))
         // Test that input action type is not set.
         assertEquals(
-            -1, remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+            -1,
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
         )
     }
 
     @Test
     fun testSetEmojisAllowed() {
-        val remoteInput: RemoteInput = RemoteInput.Builder("resultKey")
-            .wearableExtender {
-                setEmojisAllowed(true)
-            }.build()
+        val remoteInput: RemoteInput =
+            RemoteInput.Builder("resultKey").wearableExtender { setEmojisAllowed(true) }.build()
 
-        assertFalse(
-            remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI)
-        )
+        assertFalse(remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI))
         // Test that input action type is not set.
         assertEquals(
-            -1, remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+            -1,
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
         )
     }
 
     @Test
     fun testSetEmojisAllowed_notSet() {
-        val remoteInput: RemoteInput = RemoteInput.Builder("resultKey")
-            .wearableExtender {
-                // empty
-            }.build()
+        val remoteInput: RemoteInput =
+            RemoteInput.Builder("resultKey")
+                .wearableExtender {
+                    // empty
+                }
+                .build()
 
-        assertFalse(
-            remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI)
-        )
+        assertFalse(remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI))
         // Test that input action type is not set.
         assertEquals(
-            -1, remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
+            -1,
+            remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE, -1)
         )
     }
 
     @Test
     fun testSetInputActionType() {
         for ((ime, iat) in imeToActionTypeMap) {
-            val remoteInput = RemoteInput.Builder("resultKey")
-                .wearableExtender {
-                    setInputActionType(ime)
-                }.build()
+            val remoteInput =
+                RemoteInput.Builder("resultKey")
+                    .wearableExtender { setInputActionType(ime) }
+                    .build()
 
             assertEquals(
                 iat,
@@ -104,15 +99,15 @@ class WearableRemoteInputExtenderTest {
 
     @Test
     fun testDisallowEmoji_SetInputActionType() {
-        val remoteInput = RemoteInput.Builder("resultKey")
-            .wearableExtender {
-                setEmojisAllowed(false)
-                setInputActionType(IME_ACTION_GO)
-            }.build()
+        val remoteInput =
+            RemoteInput.Builder("resultKey")
+                .wearableExtender {
+                    setEmojisAllowed(false)
+                    setInputActionType(IME_ACTION_GO)
+                }
+                .build()
 
-        assertTrue(
-            remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI)
-        )
+        assertTrue(remoteInput.extras.getBoolean(WearableRemoteInputExtender.EXTRA_DISALLOW_EMOJI))
         assertEquals(
             INPUT_ACTION_TYPE_GO,
             remoteInput.extras.getInt(WearableRemoteInputExtender.EXTRA_INPUT_ACTION_TYPE)
@@ -120,12 +115,13 @@ class WearableRemoteInputExtenderTest {
     }
 
     companion object {
-        val imeToActionTypeMap = hashMapOf(
-            IME_ACTION_SEND to INPUT_ACTION_TYPE_SEND,
-            IME_ACTION_SEARCH to INPUT_ACTION_TYPE_SEARCH,
-            IME_ACTION_DONE to INPUT_ACTION_TYPE_DONE,
-            IME_ACTION_GO to INPUT_ACTION_TYPE_GO,
-            IME_ACTION_NEXT to INPUT_ACTION_TYPE_SEND // other value
-        )
+        val imeToActionTypeMap =
+            hashMapOf(
+                IME_ACTION_SEND to INPUT_ACTION_TYPE_SEND,
+                IME_ACTION_SEARCH to INPUT_ACTION_TYPE_SEARCH,
+                IME_ACTION_DONE to INPUT_ACTION_TYPE_DONE,
+                IME_ACTION_GO to INPUT_ACTION_TYPE_GO,
+                IME_ACTION_NEXT to INPUT_ACTION_TYPE_SEND // other value
+            )
     }
 }

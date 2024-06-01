@@ -32,31 +32,24 @@ import androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companio
 import androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.KEY_RESPONSE_URL
 import java.security.SecureRandom
 
-/**
- * Interface for specifying how the service handles the remote auth requests.
- */
+/** Interface for specifying how the service handles the remote auth requests. */
 public interface RemoteAuthRequestHandler {
 
     /**
-     * Whether the auth service is enabled, return false would give an early out by sending the
-     * 3p app a response with error code of ERROR_UNSUPPORTED
+     * Whether the auth service is enabled, return false would give an early out by sending the 3p
+     * app a response with error code of ERROR_UNSUPPORTED
      */
     public fun isAuthSupported(): Boolean
 
     /**
-     * Handle the auth request by sending it to the phone.
-     * Typically, if the paired phone is not connected, send a response with error code of
-     * [RemoteAuthClient.ERROR_PHONE_UNAVAILABLE]; otherwise listening for the response from the
-     * phone and send it back to the 3p app.
+     * Handle the auth request by sending it to the phone. Typically, if the paired phone is not
+     * connected, send a response with error code of [RemoteAuthClient.ERROR_PHONE_UNAVAILABLE];
+     * otherwise listening for the response from the phone and send it back to the 3p app.
      *
      * [RemoteAuthService.sendResponseToCallback] is provided for sending response back to the
      * callback provided by the 3p app.
-     *
      */
-    public fun sendAuthRequest(
-        request: OAuthRequest,
-        packageNameAndRequestId: Pair<String, Int>
-    )
+    public fun sendAuthRequest(request: OAuthRequest, packageNameAndRequestId: Pair<String, Int>)
 }
 
 /*
@@ -82,11 +75,10 @@ public abstract class RemoteAuthService : Service() {
     public companion object {
         @JvmStatic
         private val callbacksByPackageNameAndRequestID:
-            MutableMap<Pair<String, Int>, IAuthenticationRequestCallback> = HashMap()
+            MutableMap<Pair<String, Int>, IAuthenticationRequestCallback> =
+            HashMap()
 
-        /**
-         * To be called by the child class to invoke the callback with Response
-         */
+        /** To be called by the child class to invoke the callback with Response */
         @SuppressLint("DocumentExceptions")
         @JvmStatic
         public fun sendResponseToCallback(
@@ -103,9 +95,10 @@ public abstract class RemoteAuthService : Service() {
             }
         }
 
-        internal fun getCallback(packageNameAndRequestId: Pair<String, Int>):
-            IAuthenticationRequestCallback? =
-                callbacksByPackageNameAndRequestID[packageNameAndRequestId]
+        internal fun getCallback(
+            packageNameAndRequestId: Pair<String, Int>
+        ): IAuthenticationRequestCallback? =
+            callbacksByPackageNameAndRequestID[packageNameAndRequestId]
 
         internal fun buildBundleFromResponse(response: OAuthResponse, packageName: String): Bundle =
             Bundle().apply {
@@ -126,9 +119,7 @@ public abstract class RemoteAuthService : Service() {
         remoteAuthRequestHandler: RemoteAuthRequestHandler
     ): IBinder = RemoteAuthServiceBinder(this, remoteAuthRequestHandler)
 
-    /**
-     * Implementation of [Service.onUnbind]
-     */
+    /** Implementation of [Service.onUnbind] */
     public override fun onUnbind(intent: Intent): Boolean {
         callbacksByPackageNameAndRequestID.clear()
         return super.onUnbind(intent)
@@ -142,11 +133,9 @@ public abstract class RemoteAuthService : Service() {
     protected open fun verifyPackageName(context: Context, requestPackageName: String?): Boolean {
         val packagesForUID: Array<String>? =
             context.packageManager.getPackagesForUid(Binder.getCallingUid())
-        return !(
-            requestPackageName.isNullOrEmpty() ||
-                packagesForUID.isNullOrEmpty() ||
-                !(packagesForUID.contains(requestPackageName))
-            )
+        return !(requestPackageName.isNullOrEmpty() ||
+            packagesForUID.isNullOrEmpty() ||
+            !(packagesForUID.contains(requestPackageName)))
     }
 
     internal inner class RemoteAuthServiceBinder(
@@ -156,9 +145,7 @@ public abstract class RemoteAuthService : Service() {
 
         override fun getApiVersion(): Int = IAuthenticationRequestService.API_VERSION
 
-        /**
-         * @throws SecurityException
-         */
+        /** @throws SecurityException */
         @Suppress("DEPRECATION")
         override fun openUrl(
             request: Bundle,

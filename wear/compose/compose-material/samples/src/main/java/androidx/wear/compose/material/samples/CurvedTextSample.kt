@@ -87,13 +87,10 @@ fun CurvedTextProviderDemo() {
         }
     }
 
-    ProvideTextStyle(value = TextStyle(
-        color = Color.Green,
-        background = Color.White,
-        fontWeight = FontWeight.Bold
-    )) {
-        CurvedLayout(anchor = 90f) {
-            curvedText("Green On White")
-        }
+    ProvideTextStyle(
+        value =
+            TextStyle(color = Color.Green, background = Color.White, fontWeight = FontWeight.Bold)
+    ) {
+        CurvedLayout(anchor = 90f) { curvedText("Green On White") }
     }
 }

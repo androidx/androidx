@@ -46,79 +46,45 @@ fun IconButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Icon button")
-            }
-        }
+        item { ListHeader { Text("Icon button") } }
         item {
             Row {
                 IconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
-                    StandardIcon(ButtonDefaults.IconSize)
-                }
+                IconButton(onClick = {}, enabled = false) { StandardIcon(ButtonDefaults.IconSize) }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled Tonal")
-            }
-        }
+        item { ListHeader { Text("Filled Tonal") } }
         item {
             Row {
                 FilledTonalIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                FilledTonalIconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
+                FilledTonalIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled")
-            }
-        }
+        item { ListHeader { Text("Filled") } }
         item {
             Row {
                 FilledIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                FilledIconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
+                FilledIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Outlined")
-            }
-        }
+        item { ListHeader { Text("Outlined") } }
         item {
             Row {
                 OutlinedIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                OutlinedIconButton(
-                    onClick = { },
-                    enabled = false
-                ) {
+                OutlinedIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Sizes")
-            }
-        }
+        item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${IconButtonDefaults.LargeButtonSize.value.toInt()}dp")
@@ -154,7 +120,8 @@ fun IconButtonDemo() {
 private fun IconButtonWithSize(size: Dp) {
     FilledTonalIconButton(
         modifier = Modifier.touchTargetAwareSize(size),
-        onClick = { /* Do something */ }) {
+        onClick = { /* Do something */ }
+    ) {
         StandardIcon(IconButtonDefaults.iconSizeFor(size))
     }
 }

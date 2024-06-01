@@ -31,17 +31,11 @@ import java.util.Base64
  */
 /* ktlint-enable max-line-length */
 @RequiresApi(Build.VERSION_CODES.O)
-public class CodeChallenge constructor(
-    codeVerifier: CodeVerifier
-) {
-    /**
-     * The challenge value.
-     */
+public class CodeChallenge constructor(codeVerifier: CodeVerifier) {
+    /** The challenge value. */
     public val value: String
 
-    /**
-     * Computes the code challenge value using the specified verifier with SHA-256.
-     */
+    /** Computes the code challenge value using the specified verifier with SHA-256. */
     init {
         val md = MessageDigest.getInstance("SHA-256")
         val hash: ByteArray = md.digest(codeVerifier.getValueBytes())

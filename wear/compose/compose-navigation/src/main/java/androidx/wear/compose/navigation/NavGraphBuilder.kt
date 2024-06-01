@@ -42,12 +42,8 @@ public fun NavGraphBuilder.composable(
     addDestination(
         WearNavigator.Destination(provider[WearNavigator::class], content).apply {
             this.route = route
-            arguments.forEach { (argumentName, argument) ->
-                addArgument(argumentName, argument)
-            }
-            deepLinks.forEach { deepLink ->
-                addDeepLink(deepLink)
-            }
+            arguments.forEach { (argumentName, argument) -> addArgument(argumentName, argument) }
+            deepLinks.forEach { deepLink -> addDeepLink(deepLink) }
         }
     )
 }

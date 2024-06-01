@@ -34,13 +34,9 @@ import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-/**
- * TypeConverters for WorkManager enums and classes.
- */
+/** TypeConverters for WorkManager enums and classes. */
 object WorkTypeConverters {
-    /**
-     * Integer identifiers that map to [WorkInfo.State].
-     */
+    /** Integer identifiers that map to [WorkInfo.State]. */
     object StateIds {
         const val ENQUEUED = 0
         const val RUNNING = 1
@@ -51,17 +47,13 @@ object WorkTypeConverters {
         const val COMPLETED_STATES = "($SUCCEEDED, $FAILED, $CANCELLED)"
     }
 
-    /**
-     * Integer identifiers that map to [BackoffPolicy].
-     */
+    /** Integer identifiers that map to [BackoffPolicy]. */
     private object BackoffPolicyIds {
         const val EXPONENTIAL = 0
         const val LINEAR = 1
     }
 
-    /**
-     * Integer identifiers that map to [NetworkType].
-     */
+    /** Integer identifiers that map to [NetworkType]. */
     private object NetworkTypeIds {
         const val NOT_REQUIRED = 0
         const val CONNECTED = 1
@@ -71,9 +63,7 @@ object WorkTypeConverters {
         const val TEMPORARILY_UNMETERED = 5
     }
 
-    /**
-     * Integer identifiers that map to [OutOfQuotaPolicy].
-     */
+    /** Integer identifiers that map to [OutOfQuotaPolicy]. */
     private object OutOfPolicyIds {
         const val RUN_AS_NON_EXPEDITED_WORK_REQUEST = 0
         const val DROP_WORK_REQUEST = 1
@@ -167,8 +157,7 @@ object WorkTypeConverters {
             else -> {
                 if (Build.VERSION.SDK_INT >= 30 && networkType == NetworkType.TEMPORARILY_UNMETERED)
                     NetworkTypeIds.TEMPORARILY_UNMETERED
-                else
-                    throw IllegalArgumentException("Could not convert $networkType to int")
+                else throw IllegalArgumentException("Could not convert $networkType to int")
             }
         }
     }
@@ -231,6 +220,7 @@ object WorkTypeConverters {
 
     /**
      * Converts a set of [Constraints.ContentUriTrigger]s to byte array representation
+     *
      * @param triggers the list of [Constraints.ContentUriTrigger]s to convert
      * @return corresponding byte array representation
      */
@@ -255,6 +245,7 @@ object WorkTypeConverters {
 
     /**
      * Converts a byte array to set of [ContentUriTrigger]s
+     *
      * @param bytes byte array representation to convert
      * @return set of [ContentUriTrigger]
      */

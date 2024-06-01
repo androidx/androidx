@@ -24,10 +24,9 @@ import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.wear.utils.WearTypeHelper
 
-/**
- * The OAuth request to be sent to the server to start the OAuth 2 authentication flow.
- */
-public class OAuthRequest internal constructor(
+/** The OAuth request to be sent to the server to start the OAuth 2 authentication flow. */
+public class OAuthRequest
+internal constructor(
     /** The package name of the app sending the auth request. */
     public val packageName: String,
 
@@ -35,7 +34,6 @@ public class OAuthRequest internal constructor(
      * The Url of the auth request.
      *
      * The request is expected to create a URL with the following format:
-     *
      * ```
      *     https://authorization-server.com/auth?client_id=XXXXX
      *     &redirect_uri=https://wear.googleapis.com/3p_auth/mypackagename
@@ -48,16 +46,16 @@ public class OAuthRequest internal constructor(
 ) {
     public companion object {
         /**
-         * The default google-specific custom URL to route the response from the auth
-         * server back to the 1P companion app, which then forwards it to the 3P app that made
-         * the request on the wear device.
+         * The default google-specific custom URL to route the response from the auth server back to
+         * the 1P companion app, which then forwards it to the 3P app that made the request on the
+         * wear device.
          */
         public const val WEAR_REDIRECT_URL_PREFIX: String = "https://wear.googleapis.com/3p_auth/"
 
         /**
          * The default google-specific custom URL in China to route the response from the auth
-         * server back to the 1P companion app, which then forwards it to the 3P app that made
-         * the request on the wear device.
+         * server back to the 1P companion app, which then forwards it to the 3P app that made the
+         * request on the wear device.
          */
         public const val WEAR_REDIRECT_URL_PREFIX_CN: String =
             "https://wear.googleapis-cn.com/3p_auth/"
@@ -78,54 +76,45 @@ public class OAuthRequest internal constructor(
         private val packageName: String = context.packageName
 
         /**
-         * Set the url of the auth provider site.
-         * Appending query parameters in this uri is optional, it is recommended to let the
-         * builder append query parameters automatically through the use of setters (no setter is
-         * required for the builder to append the redirect_uri).
+         * Set the url of the auth provider site. Appending query parameters in this uri is
+         * optional, it is recommended to let the builder append query parameters automatically
+         * through the use of setters (no setter is required for the builder to append the
+         * redirect_uri).
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun setAuthProviderUrl(authProviderUrl: Uri): Builder =
-            this.apply {
-                this.authProviderUrl = authProviderUrl
-            }
+            this.apply { this.authProviderUrl = authProviderUrl }
 
         /**
-         * Set the code challenge for authentication with PKCE (proof key for code exchange).
-         * With this setter called, the builder appends the "code_challenge",
-         * "code_challenge_method" and "response_type" queries to the requestUrl.
+         * Set the code challenge for authentication with PKCE (proof key for code exchange). With
+         * this setter called, the builder appends the "code_challenge", "code_challenge_method" and
+         * "response_type" queries to the requestUrl.
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun setCodeChallenge(codeChallenge: CodeChallenge): Builder =
-            this.apply {
-                this.codeChallenge = codeChallenge
-            }
+            this.apply { this.codeChallenge = codeChallenge }
 
         /**
-         * Set the client id of this OAuth request.
-         * With this setter called. the builder appends the "client_id" to the requestUrl.
+         * Set the client id of this OAuth request. With this setter called. the builder appends the
+         * "client_id" to the requestUrl.
          */
         @SuppressLint("MissingGetterMatchingBuilder")
-        public fun setClientId(clientId: String): Builder =
-            this.apply {
-                this.clientId = clientId
-            }
+        public fun setClientId(clientId: String): Builder = this.apply { this.clientId = clientId }
 
         /**
-         * Set the redirect url the companion app registered to, so that the response will be
-         * routed from the auth server back to the companion.
+         * Set the redirect url the companion app registered to, so that the response will be routed
+         * from the auth server back to the companion.
          *
          * Calling this method is optional. If the redirect URL is not specified, it will be
-         * automatically set to [WEAR_REDIRECT_URL_PREFIX] or [WEAR_REDIRECT_URL_PREFIX_CN] for
-         * rest of the world or China, respectively.
+         * automatically set to [WEAR_REDIRECT_URL_PREFIX] or [WEAR_REDIRECT_URL_PREFIX_CN] for rest
+         * of the world or China, respectively.
          *
-         * Note, the app package name should NOT be included here, it will be appended to the end
-         * of redirect_uri automatically in [Builder.build].
+         * Note, the app package name should NOT be included here, it will be appended to the end of
+         * redirect_uri automatically in [Builder.build].
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public fun setRedirectUrl(redirectUrl: Uri): Builder =
-            this.apply {
-                this.redirectUrl = redirectUrl
-            }
+            this.apply { this.redirectUrl = redirectUrl }
 
         @RequiresApi(Build.VERSION_CODES.O)
         internal fun composeRequestUrl(): Uri {
@@ -134,41 +123,35 @@ public class OAuthRequest internal constructor(
             }
             val requestUriBuilder = authProviderUrl!!.buildUpon()
 
-            clientId?.let {
-                appendQueryParameter(requestUriBuilder, "client_id", clientId!!)
-            }
+            clientId?.let { appendQueryParameter(requestUriBuilder, "client_id", clientId!!) }
 
             /**
-             * Set the request url by redirecting the auth provider URL with the WearOS auth
-             * site [WEAR_REDIRECT_URL_PREFIX].
-             * The receiving app's package name is also required as the 3rd path component in the
-             * redirect_uri, this allows Wear to ensure other apps cannot reuse your redirect_uri
-             * to receive responses.
+             * Set the request url by redirecting the auth provider URL with the WearOS auth site
+             * [WEAR_REDIRECT_URL_PREFIX]. The receiving app's package name is also required as the
+             * 3rd path component in the redirect_uri, this allows Wear to ensure other apps cannot
+             * reuse your redirect_uri to receive responses.
              */
             appendQueryParameter(
                 requestUriBuilder,
                 REDIRECT_URI_KEY,
                 Uri.withAppendedPath(
-                    if (redirectUrl == null) {
-                        if (WearTypeHelper.isChinaBuild(context)) {
-                            Uri.parse(WEAR_REDIRECT_URL_PREFIX_CN)
+                        if (redirectUrl == null) {
+                            if (WearTypeHelper.isChinaBuild(context)) {
+                                Uri.parse(WEAR_REDIRECT_URL_PREFIX_CN)
+                            } else {
+                                Uri.parse(WEAR_REDIRECT_URL_PREFIX)
+                            }
                         } else {
-                            Uri.parse(WEAR_REDIRECT_URL_PREFIX)
-                        }
-                    } else {
-                        redirectUrl
-                    },
-                    packageName
-                ).toString()
+                            redirectUrl
+                        },
+                        packageName
+                    )
+                    .toString()
             )
 
             codeChallenge?.let {
                 appendQueryParameter(requestUriBuilder, "response_type", "code")
-                appendQueryParameter(
-                    requestUriBuilder,
-                    "code_challenge",
-                    it.value
-                )
+                appendQueryParameter(requestUriBuilder, "code_challenge", it.value)
                 appendQueryParameter(requestUriBuilder, "code_challenge_method", "S256")
             }
 
@@ -239,8 +222,9 @@ public class OAuthRequest internal constructor(
      */
     public val redirectUrl: String = requestUrl.getQueryParameter(REDIRECT_URI_KEY) ?: ""
 
-    internal fun toBundle(): Bundle = Bundle().apply {
-        putParcelable(RemoteAuthClient.KEY_REQUEST_URL, requestUrl)
-        putString(RemoteAuthClient.KEY_PACKAGE_NAME, packageName)
-    }
+    internal fun toBundle(): Bundle =
+        Bundle().apply {
+            putParcelable(RemoteAuthClient.KEY_REQUEST_URL, requestUrl)
+            putString(RemoteAuthClient.KEY_PACKAGE_NAME, packageName)
+        }
 }

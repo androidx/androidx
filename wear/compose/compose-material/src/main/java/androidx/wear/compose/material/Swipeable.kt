@@ -70,15 +70,15 @@ import kotlinx.coroutines.launch
 /**
  * State of the [swipeable] modifier.
  *
- * This contains necessary information about any ongoing swipe or animation and provides methods
- * to change the state either immediately or by starting an animation. To create and remember a
+ * This contains necessary information about any ongoing swipe or animation and provides methods to
+ * change the state either immediately or by starting an animation. To create and remember a
  * [SwipeableState] with the default animation clock, use [rememberSwipeableState].
  *
  * @param initialValue The initial value of the state.
  * @param animationSpec The default animation that will be used to animate to a new state.
- * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
- * If the state change is accepted, the offset is optionally be reset to the initial value.
- * and offset is reset.
+ * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change. If
+ *   the state change is accepted, the offset is optionally be reset to the initial value. and
+ *   offset is reset.
  */
 @Stable
 @ExperimentalWearMaterialApi
@@ -98,9 +98,7 @@ open class SwipeableState<T>(
     var currentValue: T by mutableStateOf(initialValue)
         private set
 
-    /**
-     * Whether the state is currently animating.
-     */
+    /** Whether the state is currently animating. */
     @ExperimentalWearMaterialApi
     var isAnimationRunning: Boolean by mutableStateOf(false)
         private set
@@ -108,17 +106,17 @@ open class SwipeableState<T>(
     /**
      * The current position (in pixels) of the [swipeable].
      *
-     * You should use this state to offset your content accordingly. The recommended way is to
-     * use `Modifier.offsetPx`. This includes the resistance by default, if resistance is enabled.
+     * You should use this state to offset your content accordingly. The recommended way is to use
+     * `Modifier.offsetPx`. This includes the resistance by default, if resistance is enabled.
      */
     @ExperimentalWearMaterialApi
-    val offset: State<Float> get() = offsetState
+    val offset: State<Float>
+        get() = offsetState
 
-    /**
-     * The amount by which the [swipeable] has been swiped past its bounds.
-     */
+    /** The amount by which the [swipeable] has been swiped past its bounds. */
     @ExperimentalWearMaterialApi
-    val overflow: State<Float> get() = overflowState
+    val overflow: State<Float>
+        get() = overflowState
 
     private val offsetState = mutableFloatStateOf(0f)
     private val overflowState = mutableFloatStateOf(0f)
@@ -135,9 +133,7 @@ open class SwipeableState<T>(
     internal var anchors by mutableStateOf(emptyMap<Float, T>())
 
     private val latestNonEmptyAnchorsFlow: Flow<Map<Float, T>> =
-        snapshotFlow { anchors }
-            .filter { it.isNotEmpty() }
-            .take(1)
+        snapshotFlow { anchors }.filter { it.isNotEmpty() }.take(1)
 
     internal var minBound = Float.NEGATIVE_INFINITY
     internal var maxBound = Float.POSITIVE_INFINITY
@@ -146,28 +142,21 @@ open class SwipeableState<T>(
         if (anchors.isEmpty()) {
             // need to do initial synchronization synchronously :(
             val offset = newAnchors.getOffset(currentValue)
-            requireNotNull(offset) {
-                "The initial value must have an associated anchor."
-            }
+            requireNotNull(offset) { "The initial value must have an associated anchor." }
             offsetState.floatValue = offset
             absoluteOffset.floatValue = offset
             initialOffset = offset
         }
     }
 
-    internal suspend fun processNewAnchors(
-        oldAnchors: Map<Float, T>,
-        newAnchors: Map<Float, T>
-    ) {
+    internal suspend fun processNewAnchors(oldAnchors: Map<Float, T>, newAnchors: Map<Float, T>) {
         if (oldAnchors.isEmpty()) {
             // If this is the first time that we receive anchors, then we need to initialise
             // the state so we snap to the offset associated to the initial value.
             minBound = newAnchors.keys.minOrNull()!!
             maxBound = newAnchors.keys.maxOrNull()!!
             val initialOffset = newAnchors.getOffset(currentValue)
-            requireNotNull(initialOffset) {
-                "The initial value must have an associated anchor."
-            }
+            requireNotNull(initialOffset) { "The initial value must have an associated anchor." }
             snapInternalToOffset(initialOffset)
         } else if (newAnchors != oldAnchors) {
             // If we have received new anchors, then the offset of the current value might
@@ -178,19 +167,20 @@ open class SwipeableState<T>(
             maxBound = Float.POSITIVE_INFINITY
             val animationTargetValue = animationTarget.value
             // if we're in the animation already, let's find it a new home
-            val targetOffset = if (animationTargetValue != null) {
-                // first, try to map old state to the new state
-                val oldState = oldAnchors[animationTargetValue]
-                val newState = newAnchors.getOffset(oldState)
-                // return new state if exists, or find the closes one among new anchors
-                newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
-            } else {
-                // we're not animating, proceed by finding the new anchors for an old value
-                val actualOldValue = oldAnchors[offset.value]
-                val value = if (actualOldValue == currentValue) currentValue else actualOldValue
-                newAnchors.getOffset(value) ?: newAnchors
-                    .keys.minByOrNull { abs(it - offset.value) }!!
-            }
+            val targetOffset =
+                if (animationTargetValue != null) {
+                    // first, try to map old state to the new state
+                    val oldState = oldAnchors[animationTargetValue]
+                    val newState = newAnchors.getOffset(oldState)
+                    // return new state if exists, or find the closes one among new anchors
+                    newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
+                } else {
+                    // we're not animating, proceed by finding the new anchors for an old value
+                    val actualOldValue = oldAnchors[offset.value]
+                    val value = if (actualOldValue == currentValue) currentValue else actualOldValue
+                    newAnchors.getOffset(value)
+                        ?: newAnchors.keys.minByOrNull { abs(it - offset.value) }!!
+                }
             try {
                 animateInternalToOffset(targetOffset, animationSpec)
             } catch (c: CancellationException) {
@@ -221,9 +211,7 @@ open class SwipeableState<T>(
     }
 
     private suspend fun snapInternalToOffset(target: Float) {
-        draggableState.drag {
-            dragBy(target - absoluteOffset.floatValue)
-        }
+        draggableState.drag { dragBy(target - absoluteOffset.floatValue) }
     }
 
     private suspend fun animateInternalToOffset(target: Float, spec: AnimationSpec<Float>) {
@@ -254,14 +242,16 @@ open class SwipeableState<T>(
     val targetValue: T
         get() {
             // TODO(calintat): Track current velocity (b/149549482) and use that here.
-            val target = animationTarget.value ?: computeTarget(
-                offset = offset.value,
-                lastValue = anchors.getOffset(currentValue) ?: offset.value,
-                anchors = anchors.keys,
-                thresholds = thresholds,
-                velocity = 0f,
-                velocityThreshold = Float.POSITIVE_INFINITY
-            )
+            val target =
+                animationTarget.value
+                    ?: computeTarget(
+                        offset = offset.value,
+                        lastValue = anchors.getOffset(currentValue) ?: offset.value,
+                        anchors = anchors.keys,
+                        thresholds = thresholds,
+                        velocity = 0f,
+                        velocityThreshold = Float.POSITIVE_INFINITY
+                    )
             return anchors[target] ?: currentValue
         }
 
@@ -322,9 +312,7 @@ open class SwipeableState<T>(
     suspend fun snapTo(targetValue: T) {
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val targetOffset = anchors.getOffset(targetValue)
-            requireNotNull(targetOffset) {
-                "The target value must have an associated anchor."
-            }
+            requireNotNull(targetOffset) { "The target value must have an associated anchor." }
             snapInternalToOffset(targetOffset)
             currentValue = targetValue
         }
@@ -341,16 +329,17 @@ open class SwipeableState<T>(
         latestNonEmptyAnchorsFlow.collect { anchors ->
             try {
                 val targetOffset = anchors.getOffset(targetValue)
-                requireNotNull(targetOffset) {
-                    "The target value must have an associated anchor."
-                }
+                requireNotNull(targetOffset) { "The target value must have an associated anchor." }
                 animateInternalToOffset(targetOffset, anim)
             } finally {
                 val endOffset = absoluteOffset.floatValue
-                val endValue = anchors
-                    // fighting rounding error once again, anchor should be as close as 0.5 pixels
-                    .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
-                    .values.firstOrNull() ?: currentValue
+                val endValue =
+                    anchors
+                        // fighting rounding error once again, anchor should be as close as 0.5
+                        // pixels
+                        .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
+                        .values
+                        .firstOrNull() ?: currentValue
                 currentValue = endValue
             }
         }
@@ -361,26 +350,26 @@ open class SwipeableState<T>(
      * [velocity]. Fling with settling [swipeable] will always consume all the velocity provided
      * since it will settle at the anchor.
      *
-     * In general cases, [swipeable] flings by itself when being swiped. This method is to be
-     * used for nested scroll logic that wraps the [swipeable]. In nested scroll developer may
-     * want to trigger settling fling when the child scroll container reaches the bound.
+     * In general cases, [swipeable] flings by itself when being swiped. This method is to be used
+     * for nested scroll logic that wraps the [swipeable]. In nested scroll developer may want to
+     * trigger settling fling when the child scroll container reaches the bound.
      *
      * @param velocity velocity to fling and settle with
-     *
      * @return the reason fling ended
      */
     @ExperimentalWearMaterialApi
     suspend fun performFling(velocity: Float) {
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val lastAnchor = anchors.getOffset(currentValue)!!
-            val targetValue = computeTarget(
-                offset = offset.value,
-                lastValue = lastAnchor,
-                anchors = anchors.keys,
-                thresholds = thresholds,
-                velocity = velocity,
-                velocityThreshold = velocityThreshold
-            )
+            val targetValue =
+                computeTarget(
+                    offset = offset.value,
+                    lastValue = lastAnchor,
+                    anchors = anchors.keys,
+                    thresholds = thresholds,
+                    velocity = velocity,
+                    velocityThreshold = velocityThreshold
+                )
             val targetState = anchors[targetValue]
             if (targetState != null && confirmStateChange(targetState)) animateTo(targetState)
             // If the user vetoed the state change, rollback to the previous state.
@@ -392,16 +381,15 @@ open class SwipeableState<T>(
      * Force [swipeable] to consume drag delta provided from outside of the regular [swipeable]
      * gesture flow.
      *
-     * Note: This method performs generic drag and it won't settle to any particular anchor,
-     * leaving swipeable in between anchors. When done dragging, [performFling] must be
-     * called as well to ensure swipeable will settle at the anchor.
+     * Note: This method performs generic drag and it won't settle to any particular anchor, leaving
+     * swipeable in between anchors. When done dragging, [performFling] must be called as well to
+     * ensure swipeable will settle at the anchor.
      *
-     * In general cases, [swipeable] drags by itself when being swiped. This method is to be
-     * used for nested scroll logic that wraps the [swipeable]. In nested scroll developer may
-     * want to force drag when the child scroll container reaches the bound.
+     * In general cases, [swipeable] drags by itself when being swiped. This method is to be used
+     * for nested scroll logic that wraps the [swipeable]. In nested scroll developer may want to
+     * force drag when the child scroll container reaches the bound.
      *
      * @param delta delta in pixels to drag by
-     *
      * @return the amount of [delta] consumed
      */
     internal fun performDrag(delta: Float): Float {
@@ -415,18 +403,15 @@ open class SwipeableState<T>(
     }
 
     companion object {
-        /**
-         * The default [Saver] implementation for [SwipeableState].
-         */
+        /** The default [Saver] implementation for [SwipeableState]. */
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (T) -> Boolean,
-        ) = Saver<SwipeableState<T>, T>(
-            save = { it.currentValue },
-            restore = {
-                SwipeableState(it, animationSpec, confirmStateChange)
-            }
-        )
+        ) =
+            Saver<SwipeableState<T>, T>(
+                save = { it.currentValue },
+                restore = { SwipeableState(it, animationSpec, confirmStateChange) }
+            )
     }
 }
 
@@ -437,16 +422,15 @@ open class SwipeableState<T>(
  *
  * @param from The state corresponding to the anchor we are moving away from.
  * @param to The state corresponding to the anchor we are moving towards.
- * @param fraction The fraction that the current position represents between [from] and [to].
- * Must be between `0` and `1`.
+ * @param fraction The fraction that the current position represents between [from] and [to]. Must
+ *   be between `0` and `1`.
  */
 @Immutable
 @ExperimentalWearMaterialApi
 class SwipeProgress<T>(
     val from: T,
     val to: T,
-    @FloatRange(from = 0.0, to = 1.0)
-    val fraction: Float
+    @FloatRange(from = 0.0, to = 1.0) val fraction: Float
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -486,10 +470,11 @@ fun <T : Any> rememberSwipeableState(
     confirmStateChange: (newValue: T) -> Boolean = { true },
 ): SwipeableState<T> {
     return rememberSaveable(
-        saver = SwipeableState.Saver(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange,
-        )
+        saver =
+            SwipeableState.Saver(
+                animationSpec = animationSpec,
+                confirmStateChange = confirmStateChange,
+            )
     ) {
         SwipeableState(
             initialValue = initialValue,
@@ -504,14 +489,14 @@ fun <T : Any> rememberSwipeableState(
 /**
  * Enable swipe gestures between a set of predefined states.
  *
- * To use this, you must provide a map of anchors (in pixels) to states (of type [T]).
- * Note that this map cannot be empty and cannot have two anchors mapped to the same state.
+ * To use this, you must provide a map of anchors (in pixels) to states (of type [T]). Note that
+ * this map cannot be empty and cannot have two anchors mapped to the same state.
  *
  * When a swipe is detected, the offset of the [SwipeableState] will be updated with the swipe
  * delta. You should use this offset to move your content accordingly (see `Modifier.offsetPx`).
  * When the swipe ends, the offset will be animated to one of the anchors and when that anchor is
- * reached, the value of the [SwipeableState] will also be updated to the state corresponding to
- * the new anchor. The target anchor is calculated based on the provided positional [thresholds].
+ * reached, the value of the [SwipeableState] will also be updated to the state corresponding to the
+ * new anchor. The target anchor is calculated based on the provided positional [thresholds].
  *
  * Swiping is constrained between the minimum and maximum anchors. If the user attempts to swipe
  * past these bounds, a resistance effect will be applied by default. The amount of resistance at
@@ -523,18 +508,18 @@ fun <T : Any> rememberSwipeableState(
  * @param state The state of the [swipeable].
  * @param anchors Pairs of anchors and states, used to map anchors to states and vice versa.
  * @param thresholds Specifies where the thresholds between the states are. The thresholds will be
- * used to determine which state to animate to when swiping stops. This is represented as a lambda
- * that takes two states and returns the threshold between them in the form of a [ThresholdConfig].
- * Note that the order of the states corresponds to the swipe direction.
+ *   used to determine which state to animate to when swiping stops. This is represented as a lambda
+ *   that takes two states and returns the threshold between them in the form of a
+ *   [ThresholdConfig]. Note that the order of the states corresponds to the swipe direction.
  * @param orientation The orientation in which the [swipeable] can be swiped.
  * @param enabled Whether this [swipeable] is enabled and should react to the user's input.
- * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom
- * swipe will behave like bottom to top, and a left to right swipe will behave like right to left.
- * @param interactionSource Optional [MutableInteractionSource] that will passed on to
- * the internal [Modifier.draggable].
+ * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom swipe
+ *   will behave like bottom to top, and a left to right swipe will behave like right to left.
+ * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
+ *   [Modifier.draggable].
  * @param resistance Controls how much resistance will be applied when swiping past the bounds.
- * @param velocityThreshold The threshold (in dp per second) that the end velocity has to exceed
- * in order to animate to the next state, even if the positional [thresholds] have not been reached.
+ * @param velocityThreshold The threshold (in dp per second) that the end velocity has to exceed in
+ *   order to animate to the next state, even if the positional [thresholds] have not been reached.
  */
 @ExperimentalWearMaterialApi
 fun <T> Modifier.swipeable(
@@ -547,86 +532,96 @@ fun <T> Modifier.swipeable(
     thresholds: (from: T, to: T) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.5f) },
     resistance: ResistanceConfig? = resistanceConfig(anchors.keys),
     velocityThreshold: Dp = VelocityThreshold
-) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "swipeable"
-        properties["state"] = state
-        properties["anchors"] = anchors
-        properties["orientation"] = orientation
-        properties["enabled"] = enabled
-        properties["reverseDirection"] = reverseDirection
-        properties["interactionSource"] = interactionSource
-        properties["thresholds"] = thresholds
-        properties["resistance"] = resistance
-        properties["velocityThreshold"] = velocityThreshold
-    }
-) {
-    require(anchors.isNotEmpty()) {
-        "You must have at least one anchor."
-    }
-    require(anchors.values.distinct().count() == anchors.size) {
-        "You cannot have two anchors mapped to the same state."
-    }
-    val density = LocalDensity.current
-    state.ensureInit(anchors)
-    LaunchedEffect(anchors, state) {
-        val oldAnchors = state.anchors
-        state.anchors = anchors
-        state.resistance = resistance
-        state.thresholds = { a, b ->
-            val from = anchors.getValue(a)
-            val to = anchors.getValue(b)
-            with(thresholds(from, to)) { density.computeThreshold(a, b) }
+) =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "swipeable"
+                properties["state"] = state
+                properties["anchors"] = anchors
+                properties["orientation"] = orientation
+                properties["enabled"] = enabled
+                properties["reverseDirection"] = reverseDirection
+                properties["interactionSource"] = interactionSource
+                properties["thresholds"] = thresholds
+                properties["resistance"] = resistance
+                properties["velocityThreshold"] = velocityThreshold
+            }
+    ) {
+        require(anchors.isNotEmpty()) { "You must have at least one anchor." }
+        require(anchors.values.distinct().count() == anchors.size) {
+            "You cannot have two anchors mapped to the same state."
         }
-        with(density) {
-            state.velocityThreshold = velocityThreshold.toPx()
+        val density = LocalDensity.current
+        state.ensureInit(anchors)
+        LaunchedEffect(anchors, state) {
+            val oldAnchors = state.anchors
+            state.anchors = anchors
+            state.resistance = resistance
+            state.thresholds = { a, b ->
+                val from = anchors.getValue(a)
+                val to = anchors.getValue(b)
+                with(thresholds(from, to)) { density.computeThreshold(a, b) }
+            }
+            with(density) { state.velocityThreshold = velocityThreshold.toPx() }
+            state.processNewAnchors(oldAnchors, anchors)
         }
-        state.processNewAnchors(oldAnchors, anchors)
-    }
 
-    // Swipeables publish scroll range semantics so they look like they can scroll between values
-    // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
-    // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
-    // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
-    // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements proper
-    // nested scrolling, and the two swipeable implementations are merged, this fake scrolling stuff
-    // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works very
-    // differently than the wear gesture so we don't need this workaround to support it.
-    // TODO(b/201009199): Modifier.swipeable should coordinate with the nested scrolling system.
-    val semantics = if (!enabled) Modifier else Modifier.semantics {
-        // Set a fake scroll range axis so that the AndroidComposeView can correctly report whether
-        // scrolling is supported via canScroll{Horizontally,Vertically}.
-        val range = ScrollAxisRange(
-            value = {
-                // Avoid dividing by 0.
-                if (state.minBound == state.maxBound) {
-                    0f
-                } else {
-                    val clampedOffset = state.offset.value.coerceIn(state.minBound, state.maxBound)
-                    // [0f, 1f] representing the fraction between the swipe bounds.
-                    // Return the remaining fraction available to swipe.
-                    (state.maxBound - clampedOffset) / (state.maxBound - state.minBound)
+        // Swipeables publish scroll range semantics so they look like they can scroll between
+        // values
+        // of 0 and 1, inclusive, so that AndroidComposeView can report a value from its canScroll
+        // methods that correctly tells the system's ScrollDismissLayout whether it should intercept
+        // touch values (see b/199908428). This logic is *not* duplicated in the non-Wear swipeable
+        // because it's a bit of a hack to fix navigation in WearOS. Once swipeable implements
+        // proper
+        // nested scrolling, and the two swipeable implementations are merged, this fake scrolling
+        // stuff
+        // should be gone anyway. Also note that the regular Android swipe-to-go-back gesture works
+        // very
+        // differently than the wear gesture so we don't need this workaround to support it.
+        // TODO(b/201009199): Modifier.swipeable should coordinate with the nested scrolling system.
+        val semantics =
+            if (!enabled) Modifier
+            else
+                Modifier.semantics {
+                    // Set a fake scroll range axis so that the AndroidComposeView can correctly
+                    // report whether
+                    // scrolling is supported via canScroll{Horizontally,Vertically}.
+                    val range =
+                        ScrollAxisRange(
+                            value = {
+                                // Avoid dividing by 0.
+                                if (state.minBound == state.maxBound) {
+                                    0f
+                                } else {
+                                    val clampedOffset =
+                                        state.offset.value.coerceIn(state.minBound, state.maxBound)
+                                    // [0f, 1f] representing the fraction between the swipe bounds.
+                                    // Return the remaining fraction available to swipe.
+                                    (state.maxBound - clampedOffset) /
+                                        (state.maxBound - state.minBound)
+                                }
+                            },
+                            maxValue = { 1f },
+                            reverseScrolling = reverseDirection
+                        )
+                    when (orientation) {
+                        Orientation.Horizontal -> horizontalScrollAxisRange = range
+                        Orientation.Vertical -> verticalScrollAxisRange = range
+                    }
                 }
-            },
-            maxValue = { 1f },
-            reverseScrolling = reverseDirection
-        )
-        when (orientation) {
-            Orientation.Horizontal -> horizontalScrollAxisRange = range
-            Orientation.Vertical -> verticalScrollAxisRange = range
-        }
-    }
 
-    Modifier.then(semantics).draggable(
-        orientation = orientation,
-        enabled = enabled,
-        reverseDirection = reverseDirection,
-        interactionSource = interactionSource,
-        startDragImmediately = state.isAnimationRunning,
-        onDragStopped = { velocity -> launch { state.performFling(velocity) } },
-        state = state.draggableState
-    )
-}
+        Modifier.then(semantics)
+            .draggable(
+                orientation = orientation,
+                enabled = enabled,
+                reverseDirection = reverseDirection,
+                interactionSource = interactionSource,
+                startDragImmediately = state.isAnimationRunning,
+                onDragStopped = { velocity -> launch { state.performFling(velocity) } },
+                state = state.draggableState
+            )
+    }
 
 /**
  * Interface to compute a threshold between two anchors/states in a [swipeable].
@@ -636,9 +631,7 @@ fun <T> Modifier.swipeable(
 @Stable
 @ExperimentalWearMaterialApi
 interface ThresholdConfig {
-    /**
-     * Compute the value of the threshold (in pixels), once the values of the anchors are known.
-     */
+    /** Compute the value of the threshold (in pixels), once the values of the anchors are known. */
     fun Density.computeThreshold(fromValue: Float, toValue: Float): Float
 }
 
@@ -662,10 +655,8 @@ data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
  */
 @Immutable
 @ExperimentalWearMaterialApi
-data class FractionalThreshold(
-    @FloatRange(from = 0.0, to = 1.0)
-    private val fraction: Float
-) : ThresholdConfig {
+data class FractionalThreshold(@FloatRange(from = 0.0, to = 1.0) private val fraction: Float) :
+    ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
         return lerp(fromValue, toValue, fraction)
     }
@@ -675,33 +666,30 @@ data class FractionalThreshold(
  * Specifies how resistance is calculated in [swipeable].
  *
  * There are two things needed to calculate resistance: the resistance basis determines how much
- * overflow will be consumed to achieve maximum resistance, and the resistance factor determines
- * the amount of resistance (the larger the resistance factor, the stronger the resistance).
+ * overflow will be consumed to achieve maximum resistance, and the resistance factor determines the
+ * amount of resistance (the larger the resistance factor, the stronger the resistance).
  *
- * The resistance basis is usually either the size of the component which [swipeable] is applied
- * to, or the distance between the minimum and maximum anchors. For a constructor in which the
+ * The resistance basis is usually either the size of the component which [swipeable] is applied to,
+ * or the distance between the minimum and maximum anchors. For a constructor in which the
  * resistance basis defaults to the latter, consider using [resistanceConfig].
  *
  * You may specify different resistance factors for each bound. Consider using one of the default
- * resistance factors in [SwipeableDefaults]: `StandardResistanceFactor` to convey that the user
- * has run out of things to see, and `StiffResistanceFactor` to convey that the user cannot swipe
- * this right now. Also, you can set either factor to 0 to disable resistance at that bound.
+ * resistance factors in [SwipeableDefaults]: `StandardResistanceFactor` to convey that the user has
+ * run out of things to see, and `StiffResistanceFactor` to convey that the user cannot swipe this
+ * right now. Also, you can set either factor to 0 to disable resistance at that bound.
  *
  * @param basis Specifies the maximum amount of overflow that will be consumed. Must be positive.
- * @param factorAtMin The factor by which to scale the resistance at the minimum bound.
- * Must not be negative.
- * @param factorAtMax The factor by which to scale the resistance at the maximum bound.
- * Must not be negative.
+ * @param factorAtMin The factor by which to scale the resistance at the minimum bound. Must not be
+ *   negative.
+ * @param factorAtMax The factor by which to scale the resistance at the maximum bound. Must not be
+ *   negative.
  */
 @Immutable
 @ExperimentalWearMaterialApi
 class ResistanceConfig(
-    @FloatRange(from = 0.0, fromInclusive = false)
-    val basis: Float,
-    @FloatRange(from = 0.0)
-    val factorAtMin: Float = StandardResistanceFactor,
-    @FloatRange(from = 0.0)
-    val factorAtMax: Float = StandardResistanceFactor
+    @FloatRange(from = 0.0, fromInclusive = false) val basis: Float,
+    @FloatRange(from = 0.0) val factorAtMin: Float = StandardResistanceFactor,
+    @FloatRange(from = 0.0) val factorAtMax: Float = StandardResistanceFactor
 ) {
     fun computeResistance(overflow: Float): Float {
         val factor = if (overflow < 0) factorAtMin else factorAtMax
@@ -734,17 +722,14 @@ class ResistanceConfig(
 }
 
 /**
- *  Given an offset x and a set of anchors, return a list of anchors:
- *   1. [ ] if the set of anchors is empty,
- *   2. [ x ] if x is equal to one of the anchors,
- *   3. [ min ] if min is the minimum anchor and x < min,
- *   4. [ max ] if max is the maximum anchor and x > max, or
- *   5. [ a , b ] if a and b are anchors such that a < x < b and b - a is minimal.
+ * Given an offset x and a set of anchors, return a list of anchors:
+ * 1. [ ] if the set of anchors is empty,
+ * 2. [ x ] if x is equal to one of the anchors,
+ * 3. [ min ] if min is the minimum anchor and x < min,
+ * 4. [ max ] if max is the maximum anchor and x > max, or
+ * 5. [ a , b ] if a and b are anchors such that a < x < b and b - a is minimal.
  */
-private fun findBounds(
-    offset: Float,
-    anchors: Set<Float>
-): List<Float> {
+private fun findBounds(offset: Float, anchors: Set<Float>): List<Float> {
     // Find the anchors the target lies between with a little bit of rounding error.
     val a = anchors.filter { it <= offset + 0.001 }.fastMaxBy { it }
     val b = anchors.filter { it >= offset - 0.001 }.fastMinByOrNull { it }
@@ -805,36 +790,26 @@ private fun <T> Map<Float, T>.getOffset(state: T): Float? {
     return entries.firstOrNull { it.value == state }?.key
 }
 
-/**
- * Contains useful defaults for [swipeable] and [SwipeableState].
- */
+/** Contains useful defaults for [swipeable] and [SwipeableState]. */
 @ExperimentalWearMaterialApi
 object SwipeableDefaults {
-    /**
-     * The default animation used by [SwipeableState].
-     */
+    /** The default animation used by [SwipeableState]. */
     val AnimationSpec = SpringSpec<Float>()
 
-    /**
-     * The default velocity threshold (1.8 dp per millisecond) used by [swipeable].
-     */
+    /** The default velocity threshold (1.8 dp per millisecond) used by [swipeable]. */
     val VelocityThreshold = 125.dp
 
-    /**
-     * A stiff resistance factor which indicates that swiping isn't available right now.
-     */
+    /** A stiff resistance factor which indicates that swiping isn't available right now. */
     const val StiffResistanceFactor = 20f
 
-    /**
-     * A standard resistance factor which indicates that the user has run out of things to see.
-     */
+    /** A standard resistance factor which indicates that the user has run out of things to see. */
     const val StandardResistanceFactor = 10f
 
     /**
      * The default resistance config used by [swipeable].
      *
-     * This returns `null` if there is one anchor. If there are at least two anchors, it returns
-     * a [ResistanceConfig] with the resistance basis equal to the distance between the two bounds.
+     * This returns `null` if there is one anchor. If there are at least two anchors, it returns a
+     * [ResistanceConfig] with the resistance basis equal to the distance between the two bounds.
      */
     fun resistanceConfig(
         anchors: Set<Float>,

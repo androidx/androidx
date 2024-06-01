@@ -23,19 +23,13 @@ import org.junit.Test
 
 class CurvedTestTagTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun curvedBox_supports_testTag() {
         rule.setContent {
             CurvedLayout {
-                curvedBox(
-                    modifier = CurvedModifier
-                        .testTag(TEST_TAG)
-                ) {
-                    curvedComposable {}
-                }
+                curvedBox(modifier = CurvedModifier.testTag(TEST_TAG)) { curvedComposable {} }
             }
         }
 
@@ -47,12 +41,7 @@ class CurvedTestTagTest {
     fun curvedRow_supports_testTag() {
         rule.setContent {
             CurvedLayout {
-                curvedRow(
-                    modifier = CurvedModifier
-                        .testTag(TEST_TAG)
-                ) {
-                    curvedComposable {}
-                }
+                curvedRow(modifier = CurvedModifier.testTag(TEST_TAG)) { curvedComposable {} }
             }
         }
 
@@ -64,12 +53,7 @@ class CurvedTestTagTest {
     fun curvedColumn_supports_testTag() {
         rule.setContent {
             CurvedLayout {
-                curvedColumn(
-                    modifier = CurvedModifier
-                        .testTag(TEST_TAG)
-                ) {
-                    curvedComposable {}
-                }
+                curvedColumn(modifier = CurvedModifier.testTag(TEST_TAG)) { curvedComposable {} }
             }
         }
 
@@ -80,12 +64,7 @@ class CurvedTestTagTest {
     @Test
     fun curvedComposable_supports_testTag() {
         rule.setContent {
-            CurvedLayout {
-                curvedComposable(
-                    modifier = CurvedModifier
-                        .testTag(TEST_TAG)
-                ) {}
-            }
+            CurvedLayout { curvedComposable(modifier = CurvedModifier.testTag(TEST_TAG)) {} }
         }
 
         rule.waitForIdle()

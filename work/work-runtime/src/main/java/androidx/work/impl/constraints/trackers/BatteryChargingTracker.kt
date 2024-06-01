@@ -26,23 +26,21 @@ import androidx.annotation.RestrictTo
 import androidx.work.Logger
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
-/**
- * Tracks whether or not the device's battery is charging.
- */
+/** Tracks whether or not the device's battery is charging. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
     override fun readSystemState(): Boolean {
-            // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
-            // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
-            val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-            val intent = appContext.registerReceiver(null, intentFilter)
-            if (intent == null) {
-                Logger.get().error(TAG, "getInitialState - null intent received")
-                return false
-            }
-            return isBatteryChangedIntentCharging(intent)
+        // {@link ACTION_CHARGING} and {@link ACTION_DISCHARGING} are not sticky broadcasts, so
+        // we use {@link ACTION_BATTERY_CHANGED} on all APIs to get the initial state.
+        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        val intent = appContext.registerReceiver(null, intentFilter)
+        if (intent == null) {
+            Logger.get().error(TAG, "getInitialState - null intent received")
+            return false
+        }
+        return isBatteryChangedIntentCharging(intent)
     }
 
     override val intentFilter: IntentFilter

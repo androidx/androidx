@@ -146,8 +146,7 @@ internal class InteractiveWatchFaceImpl(
                 "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
             ) { watchFaceImpl ->
                 watchFaceImpl.previewReferenceInstant.toEpochMilli()
-            }
-                ?: 0
+            } ?: 0
         }
 
     override fun setWatchUiState(watchUiState: WatchUiState): Unit =
@@ -301,8 +300,7 @@ internal class InteractiveWatchFaceImpl(
                 "InteractiveWatchFaceImpl.getComplicationIdAt"
             ) {
                 it.complicationSlotsManager.getComplicationSlotAt(xPos, yPos)?.id?.toLong()
-            }
-                ?: Long.MIN_VALUE
+            } ?: Long.MIN_VALUE
         }
 
     override fun getUserStyleFlavors() =
@@ -318,19 +316,18 @@ internal class InteractiveWatchFaceImpl(
 
     override fun overrideComplicationData(
         complicationDatumWireFormats: List<IdAndComplicationDataWireFormat>
-    ): Unit = aidlMethod(TAG, "overrideComplicationData") {
-        engine?.overrideComplicationsForEditing(
-            complicationDatumWireFormats.associateBy(
-                { it.id },
-                { it.complicationData.toApiComplicationData() }
+    ): Unit =
+        aidlMethod(TAG, "overrideComplicationData") {
+            engine?.overrideComplicationsForEditing(
+                complicationDatumWireFormats.associateBy(
+                    { it.id },
+                    { it.complicationData.toApiComplicationData() }
+                )
             )
-        )
-    }
+        }
 
     override fun clearComplicationDataOverride(): Unit =
-        aidlMethod(TAG, "overrideComplicationData") {
-            engine?.onEditSessionFinished()
-        }
+        aidlMethod(TAG, "overrideComplicationData") { engine?.onEditSessionFinished() }
 
     override fun pauseAnimation(binder: IBinder): Unit =
         aidlMethod(TAG, "pauseAnimation") { engine?.pauseAnimation(binder) }

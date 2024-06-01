@@ -46,21 +46,15 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalWearMaterialApi::class, ExperimentalWearFoundationApi::class)
 class SwipeToRevealScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun swipeToRevealCard_singleAction() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             swipeToRevealCard(
                 revealState = rememberRevealState(initialValue = RevealValue.Revealing),
                 secondaryAction = null
@@ -70,10 +64,7 @@ class SwipeToRevealScreenshotTest {
 
     @Test
     fun swipeToRevealChip_singleAction() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             swipeToRevealChip(
                 revealState = rememberRevealState(initialValue = RevealValue.Revealing),
                 secondaryAction = null
@@ -83,10 +74,7 @@ class SwipeToRevealScreenshotTest {
 
     @Test
     fun swipeToRevealCard_twoActions() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             swipeToRevealCard(
                 revealState = rememberRevealState(initialValue = RevealValue.Revealing)
             )
@@ -95,10 +83,7 @@ class SwipeToRevealScreenshotTest {
 
     @Test
     fun swipeToRevealChip_twoActions() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             swipeToRevealChip(
                 revealState = rememberRevealState(initialValue = RevealValue.Revealing)
             )
@@ -107,10 +92,7 @@ class SwipeToRevealScreenshotTest {
 
     @Test
     fun swipeToRevealChip_undoPrimaryAction() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             swipeToRevealChip(
                 revealState = rememberRevealState(initialValue = RevealValue.Revealed)
             )
@@ -119,10 +101,7 @@ class SwipeToRevealScreenshotTest {
 
     @Test
     fun swipeToRevealCard_undoPrimaryAction() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             swipeToRevealCard(
                 revealState = rememberRevealState(initialValue = RevealValue.Revealed)
             )
@@ -131,33 +110,23 @@ class SwipeToRevealScreenshotTest {
 
     @Test
     fun swipeToRevealChip_undoSecondaryAction() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             val revealState = rememberRevealState()
             val coroutineScope = rememberCoroutineScope()
             coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
             revealState.lastActionType = RevealActionType.SecondaryAction
-            swipeToRevealChip(
-                revealState = revealState
-            )
+            swipeToRevealChip(revealState = revealState)
         }
     }
 
     @Test
     fun swipeToRevealCard_undoSecondaryAction() {
-        rule.verifyScreenshot(
-            screenshotRule = screenshotRule,
-            methodName = testName.methodName
-        ) {
+        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
             val revealState = rememberRevealState()
             val coroutineScope = rememberCoroutineScope()
             coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
             revealState.lastActionType = RevealActionType.SecondaryAction
-            swipeToRevealCard(
-                revealState = revealState
-            )
+            swipeToRevealCard(revealState = revealState)
         }
     }
 

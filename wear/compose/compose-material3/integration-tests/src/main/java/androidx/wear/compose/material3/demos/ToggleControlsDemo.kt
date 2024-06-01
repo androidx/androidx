@@ -38,55 +38,31 @@ import androidx.wear.compose.material3.ToggleButton
 @Composable
 fun CheckboxDemos() {
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader { Text(text = "Checkbox") }
-        }
-        item {
-            CheckboxDemo(initialChecked = false, enabled = true)
-        }
-        item {
-            CheckboxDemo(initialChecked = true, enabled = true)
-        }
-        item {
-            ListHeader { Text(text = "Disabled Checkbox") }
-        }
-        item {
-            CheckboxDemo(initialChecked = false, enabled = false)
-        }
-        item {
-            CheckboxDemo(initialChecked = true, enabled = false)
-        }
+        item { ListHeader { Text(text = "Checkbox") } }
+        item { CheckboxDemo(initialChecked = false, enabled = true) }
+        item { CheckboxDemo(initialChecked = true, enabled = true) }
+        item { ListHeader { Text(text = "Disabled Checkbox") } }
+        item { CheckboxDemo(initialChecked = false, enabled = false) }
+        item { CheckboxDemo(initialChecked = true, enabled = false) }
     }
 }
 
 @Composable
 fun SwitchDemos() {
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader { Text(text = "Switch") }
-        }
-        item {
-            SwitchDemo(initialChecked = false, enabled = true)
-        }
-        item {
-            SwitchDemo(initialChecked = true, enabled = true)
-        }
-        item {
-            ListHeader { Text(text = "Disabled Switch") }
-        }
-        item {
-            SwitchDemo(initialChecked = false, enabled = false)
-        }
-        item {
-            SwitchDemo(initialChecked = true, enabled = false)
-        }
-        item {
-            ListHeader { Text(text = "RTL Switch") }
-        }
+        item { ListHeader { Text(text = "Switch") } }
+        item { SwitchDemo(initialChecked = false, enabled = true) }
+        item { SwitchDemo(initialChecked = true, enabled = true) }
+        item { ListHeader { Text(text = "Disabled Switch") } }
+        item { SwitchDemo(initialChecked = false, enabled = false) }
+        item { SwitchDemo(initialChecked = true, enabled = false) }
+        item { ListHeader { Text(text = "RTL Switch") } }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 SwitchDemo(initialChecked = false, enabled = true)
@@ -104,9 +80,7 @@ fun SwitchDemos() {
 private fun CheckboxDemo(initialChecked: Boolean, enabled: Boolean) {
     var checked by remember { mutableStateOf(initialChecked) }
     ToggleButton(
-        label = {
-            Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis) },
         checked = checked,
         toggleControl = { Checkbox() },
         onCheckedChange = { checked = it },
@@ -118,9 +92,7 @@ private fun CheckboxDemo(initialChecked: Boolean, enabled: Boolean) {
 private fun SwitchDemo(initialChecked: Boolean, enabled: Boolean) {
     var checked by remember { mutableStateOf(initialChecked) }
     ToggleButton(
-        label = {
-            Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
+        label = { Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis) },
         checked = checked,
         toggleControl = { Switch() },
         onCheckedChange = { checked = it },

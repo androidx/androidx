@@ -129,49 +129,54 @@ class EditTextFocusTest : BaseTest() {
 
     /**
      * Creates an adapter with EditText elements reproducing b/139432498
+     *
      * @param wrapEditTextInViewGroup if false, [EditText] is the page root
      */
-    private fun createEditTextAdapter(pageCount: Int, wrapEditTextInViewGroup: Boolean):
-        RecyclerView.Adapter<RecyclerView.ViewHolder> {
-            return object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                override fun getItemCount(): Int = pageCount
+    private fun createEditTextAdapter(
+        pageCount: Int,
+        wrapEditTextInViewGroup: Boolean
+    ): RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        return object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun getItemCount(): Int = pageCount
 
-                override fun onCreateViewHolder(
-                    parent: ViewGroup,
-                    viewType: Int
-                ): RecyclerView.ViewHolder {
-                    val editText = EditText(parent.context).apply {
+            override fun onCreateViewHolder(
+                parent: ViewGroup,
+                viewType: Int
+            ): RecyclerView.ViewHolder {
+                val editText =
+                    EditText(parent.context).apply {
                         layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                         gravity = Gravity.CENTER_VERTICAL or Gravity.END
                         inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
                         setBackgroundColor(Color.WHITE)
                         setTextColor(Color.DKGRAY)
                     }
-                    val pageView = pageForEditText(editText, wrapEditTextInViewGroup)
-                    return object : RecyclerView.ViewHolder(pageView) {}
-                }
+                val pageView = pageForEditText(editText, wrapEditTextInViewGroup)
+                return object : RecyclerView.ViewHolder(pageView) {}
+            }
 
-                override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                    editTextForPage(holder.itemView).text =
-                        SpannableStringBuilder("position=$position")
-                }
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                editTextForPage(holder.itemView).text = SpannableStringBuilder("position=$position")
             }
         }
-
-    private fun editTextForPage(page: View): EditText = page.let {
-        when (it) {
-            is EditText -> it
-            is ViewGroup -> it.getChildAt(0) as EditText
-            else -> throw IllegalArgumentException()
-        }
     }
+
+    private fun editTextForPage(page: View): EditText =
+        page.let {
+            when (it) {
+                is EditText -> it
+                is ViewGroup -> it.getChildAt(0) as EditText
+                else -> throw IllegalArgumentException()
+            }
+        }
 
     private fun pageForEditText(editText: EditText, wrapInViewGroup: Boolean): View =
         when (wrapInViewGroup) {
             false -> editText
-            true -> FrameLayout(editText.context).apply {
-                layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                addView(editText)
-            }
+            true ->
+                FrameLayout(editText.context).apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    addView(editText)
+                }
         }
 }

@@ -19,16 +19,20 @@ package androidx.work
 /**
  * Annotation indicating experimental API for new WorkManager's Configuration APIs.
  *
- * These APIs allow fine grained tuning WorkManager's behavior. However, full effects of these
- * flags on OS health and WorkManager's throughput aren't fully known and currently are being
- * explored. After the research either the best default value for a flag will be chosen and then
- * associated API will be removed or the guidance on how to choose a value depending on app's
- * specifics will developed and then associated API will be promoted to stable.
+ * These APIs allow fine grained tuning WorkManager's behavior. However, full effects of these flags
+ * on OS health and WorkManager's throughput aren't fully known and currently are being explored.
+ * After the research either the best default value for a flag will be chosen and then associated
+ * API will be removed or the guidance on how to choose a value depending on app's specifics will
+ * developed and then associated API will be promoted to stable.
  *
  * As a result these APIs annotated with `ExperimentalConfigurationApi` requires opt-in
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY,
-    AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.CLASS)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.CLASS
+)
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)
 annotation class ExperimentalConfigurationApi

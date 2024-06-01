@@ -41,8 +41,8 @@ public sealed interface CurvedModifier {
         CurvedModifierImpl(elements() + other.elements())
 
     /**
-     * The companion object `CurvedModifier` is the empty, default, or starter [CurvedModifier]
-     * that contains no Elements.
+     * The companion object `CurvedModifier` is the empty, default, or starter [CurvedModifier] that
+     * contains no Elements.
      */
     companion object : CurvedModifier {
         override fun toString() = "CurvedModifier"
@@ -54,9 +54,7 @@ internal fun CurvedModifier.elements() =
 
 internal open class CurvedModifierImpl(internal val elements: List<Element>) : CurvedModifier
 
-/**
- * A single element contained within a [CurvedModifier] chain.
- */
+/** A single element contained within a [CurvedModifier] chain. */
 internal fun interface Element {
     abstract fun wrap(child: CurvedChild): CurvedChild
 }
@@ -69,26 +67,21 @@ internal fun interface Element {
 internal infix fun CurvedModifier.then(other: Element): CurvedModifier =
     CurvedModifierImpl(elements() + other)
 
-/**
- * Create a chain of CurvedChild, one for each modifier, wrapping each other.
- */
-internal fun CurvedModifier.wrap(child: CurvedChild) = elements().foldRight(child) { elem, acc ->
-    elem.wrap(acc)
-}
+/** Create a chain of CurvedChild, one for each modifier, wrapping each other. */
+internal fun CurvedModifier.wrap(child: CurvedChild) =
+    elements().foldRight(child) { elem, acc -> elem.wrap(acc) }
 
 /**
- * Base class to implement a CurvedChild in a chain.
- * Forwards all calls to the wrapped CurvedChild.
+ * Base class to implement a CurvedChild in a chain. Forwards all calls to the wrapped CurvedChild.
  */
 internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChild() {
     @Composable
-    override fun SubComposition() { wrapped.SubComposition() }
-
-    override fun CurvedMeasureScope.initializeMeasure(
-        measurables: Iterator<Measurable>
-    ) = with(wrapped) {
-        initializeMeasure(measurables)
+    override fun SubComposition() {
+        wrapped.SubComposition()
     }
+
+    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) =
+        with(wrapped) { initializeMeasure(measurables) }
 
     override fun computeParentData(): Any? = wrapped.computeParentData()
 
@@ -97,20 +90,17 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
     override fun doRadialPosition(
         parentOuterRadius: Float,
         parentThickness: Float,
-    ) = wrapped.radialPosition(
-        parentOuterRadius,
-        parentThickness,
-    )
+    ) =
+        wrapped.radialPosition(
+            parentOuterRadius,
+            parentThickness,
+        )
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
         centerOffset: Offset
-    ) = wrapped.angularPosition(
-        parentStartAngleRadians,
-        parentSweepRadians,
-        centerOffset
-    )
+    ) = wrapped.angularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
 
     override fun (Placeable.PlacementScope).placeIfNeeded() = with(wrapped) { placeIfNeeded() }
 

@@ -16,8 +16,8 @@
 package androidx.work
 
 /**
- * An enumeration of the conflict resolution policies available to unique
- * [PeriodicWorkRequest]s in case of a collision.
+ * An enumeration of the conflict resolution policies available to unique [PeriodicWorkRequest]s in
+ * case of a collision.
  */
 enum class ExistingPeriodicWorkPolicy {
     /**
@@ -25,13 +25,14 @@ enum class ExistingPeriodicWorkPolicy {
      * it. Then, insert the newly-specified work.
      */
     @Deprecated(
-        message = "Deprecated in favor of the UPDATE policy. UPDATE policy has " +
-            "very similar behavior: next run of the worker with the same unique name, " +
-            "going to have new specification. However, UPDATE has better defaults: " +
-            "unlike REPLACE policy UPDATE won't cancel the worker if it is currently running and " +
-            "new worker specification will be used only on the next run. " +
-            "Also it preserves original enqueue time, so unlike REPLACE period isn't reset. " +
-            "If you want to preserve previous behavior, CANCEL_AND_REENQUEUE should be used.",
+        message =
+            "Deprecated in favor of the UPDATE policy. UPDATE policy has " +
+                "very similar behavior: next run of the worker with the same unique name, " +
+                "going to have new specification. However, UPDATE has better defaults: " +
+                "unlike REPLACE policy UPDATE won't cancel the worker if it is currently running and " +
+                "new worker specification will be used only on the next run. " +
+                "Also it preserves original enqueue time, so unlike REPLACE period isn't reset. " +
+                "If you want to preserve previous behavior, CANCEL_AND_REENQUEUE should be used.",
         replaceWith = ReplaceWith("UPDATE"),
     )
     REPLACE,
@@ -43,21 +44,19 @@ enum class ExistingPeriodicWorkPolicy {
     KEEP,
 
     /**
-     * If there is existing pending (uncompleted) work with the same unique name,
-     * it will be updated with the new specification. Otherwise, new work with the given name will be
-     * enqueued.
+     * If there is existing pending (uncompleted) work with the same unique name, it will be updated
+     * with the new specification. Otherwise, new work with the given name will be enqueued.
      *
-     * It preserves enqueue time, e.g. if a work was run 3 hours ago and had 8 hours long
-     * period, after the update it would be still eligible for run in 5 hours, assuming
-     * that periodicity wasn't updated.
+     * It preserves enqueue time, e.g. if a work was run 3 hours ago and had 8 hours long period,
+     * after the update it would be still eligible for run in 5 hours, assuming that periodicity
+     * wasn't updated.
      *
-     * If the work being updated is currently running, the current run won't
-     * be interrupted and will continue to rely on previous state of the request, e.g. using
-     * old constraints, tags etc. However, on the next iteration of periodic worker,
-     * the new worker specification will be used.
+     * If the work being updated is currently running, the current run won't be interrupted and will
+     * continue to rely on previous state of the request, e.g. using old constraints, tags etc.
+     * However, on the next iteration of periodic worker, the new worker specification will be used.
      *
-     * If the work was previously cancelled (via [WorkManager.cancelWorkById] or similar),
-     * it will be deleted and then the newly-specified work will be enqueued.
+     * If the work was previously cancelled (via [WorkManager.cancelWorkById] or similar), it will
+     * be deleted and then the newly-specified work will be enqueued.
      */
     UPDATE,
 
@@ -66,8 +65,8 @@ enum class ExistingPeriodicWorkPolicy {
      * it. Then, insert the newly-specified work.
      *
      * It is identical for `REPLACE`. But for readability reasons it is better to use
-     * `CANCEL_AND_REENQUEUE`, because for a reader the difference between `REPLACE` vs `UPDATED`
-     * is unclear.
+     * `CANCEL_AND_REENQUEUE`, because for a reader the difference between `REPLACE` vs `UPDATED` is
+     * unclear.
      */
     CANCEL_AND_REENQUEUE,
 }

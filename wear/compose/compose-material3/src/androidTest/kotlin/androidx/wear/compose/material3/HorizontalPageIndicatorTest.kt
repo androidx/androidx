@@ -36,8 +36,7 @@ import org.junit.Test
 
 @RequiresApi(Build.VERSION_CODES.O)
 class HorizontalPageIndicatorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     public fun supports_testtag_circular() {
@@ -145,11 +144,7 @@ class HorizontalPageIndicatorTest {
     private fun position_is_selected(isRound: Boolean) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-                Box(
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .size(150.dp)
-                ) {
+                Box(modifier = Modifier.testTag(TEST_TAG).size(150.dp)) {
                     HorizontalPageIndicator(
                         pageCount = PAGE_COUNT,
                         currentPage = SELECTED_PAGE_INDEX,
@@ -165,22 +160,22 @@ class HorizontalPageIndicatorTest {
 
         // A selected dot with specified color should be visible on the screen, which is apprx 1.3%
         // (1.3% per dot, 1 dot in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(selectedColor, 1.2f..1.5f)
         // Unselected dots should also be visible on the screen, and should take around 4%
         // (1.3% per dot, 3 dots total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 3.8f..4.5f)
     }
 
     private fun in_between_positions(isRound: Boolean) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-                Box(
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .size(150.dp)
-                ) {
+                Box(modifier = Modifier.testTag(TEST_TAG).size(150.dp)) {
                     HorizontalPageIndicator(
                         pageCount = PAGE_COUNT,
                         currentPage = SELECTED_PAGE_INDEX,
@@ -196,12 +191,16 @@ class HorizontalPageIndicatorTest {
 
         // Selected color should occupy 2 dots with space in between, which
         // approximately equals to 3.5%
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(selectedColor, 3f..4f)
         // Unselected dots ( which doesn't participate in color merge)
         // should also be visible on the screen, and should take around 2.7%
         // (1.3% per dot, 2 dots in total)
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(unselectedColor, 2.5f..3f)
     }
 

@@ -25,6 +25,7 @@ class TouchConsumingTextView(context: Context, attrs: AttributeSet?, defStyleAtt
     AppCompatTextView(context, attrs, defStyleAttr) {
 
     constructor(context: Context) : this(context, null, 0)
+
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     var consumeTouches = false

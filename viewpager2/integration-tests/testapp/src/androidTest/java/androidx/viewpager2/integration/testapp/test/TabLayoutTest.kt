@@ -40,7 +40,9 @@ class TabLayoutTest : BaseTest<CardViewTabLayoutActivity>(CardViewTabLayoutActiv
     private val nineOfHeartsPage = "9\n♥"
     private val tenOfHeartsPage = "10\n♥"
 
-    override val layoutId get() = R.id.view_pager
+    override val layoutId
+        get() = R.id.view_pager
+
     @Ignore("b/276935528")
     @Test
     fun testTabLayoutIntegration() {

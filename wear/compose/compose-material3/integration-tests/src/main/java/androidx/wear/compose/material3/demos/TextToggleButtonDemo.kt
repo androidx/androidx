@@ -45,11 +45,7 @@ fun TextToggleButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Text Toggle Button", textAlign = TextAlign.Center)
-            }
-        }
+        item { ListHeader { Text("Text Toggle Button", textAlign = TextAlign.Center) } }
         item {
             Row {
                 TextToggleButtonSample() // Enabled and checked
@@ -64,11 +60,7 @@ fun TextToggleButtonDemo() {
                 TextToggleButtonsDemo(enabled = false, initialChecked = false)
             }
         }
-        item {
-            ListHeader {
-                Text("Sizes")
-            }
-        }
+        item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${TextButtonDefaults.LargeButtonSize.value.toInt()}dp")
@@ -114,8 +106,6 @@ private fun TextToggleButtonsDemo(
         modifier = Modifier.touchTargetAwareSize(size),
         onCheckedChange = { checked = !checked },
     ) {
-        Text(
-            text = if (checked) "On" else "Off"
-        )
+        Text(text = if (checked) "On" else "Off")
     }
 }

@@ -86,19 +86,17 @@ class TestWorkerBuilderTest {
     @Test
     @SmallTest
     fun testBuilder() {
-        val request = OneTimeWorkRequestBuilder<TestWorker>()
-            .addTag("test")
-            .build()
+        val request = OneTimeWorkRequestBuilder<TestWorker>().addTag("test").build()
 
         val contentUris = arrayOf(Uri.parse("android.test://1"))
         val authorities = arrayOf("android.test")
 
-        val builder = TestListenableWorkerBuilder.from(context, request)
-            .setRunAttemptCount(2)
+        val builder = TestListenableWorkerBuilder.from(context, request).setRunAttemptCount(2)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            builder.setTriggeredContentAuthorities(authorities.toList())
-            .setTriggeredContentUris(contentUris.toList())
+            builder
+                .setTriggeredContentAuthorities(authorities.toList())
+                .setTriggeredContentUris(contentUris.toList())
         }
 
         val worker = builder.build()
@@ -138,13 +136,11 @@ class TestWorkerBuilderTest {
     @Test
     @SmallTest
     fun testWorkerBuilder_returnsExpectedType2() {
-        val listenableWorker: TestWorker = TestListenableWorkerBuilder<TestWorker>(context)
-            .setId(UUID.randomUUID())
-            .build()
+        val listenableWorker: TestWorker =
+            TestListenableWorkerBuilder<TestWorker>(context).setId(UUID.randomUUID()).build()
 
-        val worker: TestWorker = TestWorkerBuilder<TestWorker>(context, executor)
-            .setId(UUID.randomUUID())
-            .build()
+        val worker: TestWorker =
+            TestWorkerBuilder<TestWorker>(context, executor).setId(UUID.randomUUID()).build()
 
         assertThat(listenableWorker, notNullValue())
         assertThat(worker, notNullValue())
@@ -171,19 +167,19 @@ class TestWorkerBuilderTest {
     @MediumTest
     fun testWorkerBuilder_usesWorkerFactory() {
         var callCounter = 0
-        val workerFactory = object : WorkerFactory() {
-            override fun createWorker(
-                appContext: Context,
-                workerClassName: String,
-                workerParameters: WorkerParameters
-            ): ListenableWorker? {
-                callCounter++
-                return null
+        val workerFactory =
+            object : WorkerFactory() {
+                override fun createWorker(
+                    appContext: Context,
+                    workerClassName: String,
+                    workerParameters: WorkerParameters
+                ): ListenableWorker? {
+                    callCounter++
+                    return null
+                }
             }
-        }
-        val worker = TestListenableWorkerBuilder<TestWorker>(context)
-            .setWorkerFactory(workerFactory)
-            .build()
+        val worker =
+            TestListenableWorkerBuilder<TestWorker>(context).setWorkerFactory(workerFactory).build()
 
         runBlocking {
             val result = worker.startWork().await()

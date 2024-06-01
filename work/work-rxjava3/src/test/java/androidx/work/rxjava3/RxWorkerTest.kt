@@ -55,11 +55,10 @@ class RxWorkerTest {
     @Test
     fun cancelForwarding() {
         val latch = CountDownLatch(1)
-        val worker = Single
-            .never<ListenableWorker.Result>()
-            .doOnDispose {
-                latch.countDown()
-            }.toWorker(createWorkerParams(syncExecutor))
+        val worker =
+            Single.never<ListenableWorker.Result>()
+                .doOnDispose { latch.countDown() }
+                .toWorker(createWorkerParams(syncExecutor))
         val future = worker.startWork()
         future.cancel(false)
         if (!latch.await(1, TimeUnit.MINUTES)) {
@@ -70,9 +69,8 @@ class RxWorkerTest {
     @Test
     fun failedWork() {
         val error: Throwable = RuntimeException("a random error")
-        val worker = Single
-            .error<ListenableWorker.Result>(error)
-            .toWorker(createWorkerParams(syncExecutor))
+        val worker =
+            Single.error<ListenableWorker.Result>(error).toWorker(createWorkerParams(syncExecutor))
         val future = worker.startWork()
         try {
             future.get()
@@ -86,9 +84,7 @@ class RxWorkerTest {
     fun verifyCorrectDefaultScheduler() {
         var executorDidRun = false
         var runnerDidRun = false
-        val runner = Runnable {
-            runnerDidRun = true
-        }
+        val runner = Runnable { runnerDidRun = true }
         val executor = Executor {
             executorDidRun = true
             it.run()
@@ -108,15 +104,18 @@ class RxWorkerTest {
             it.run()
         }
         var testSchedulerDidRun = false
-        val testScheduler = Schedulers.from {
-            testSchedulerDidRun = true
-            it.run()
-        }
+        val testScheduler =
+            Schedulers.from {
+                testSchedulerDidRun = true
+                it.run()
+            }
         val params = createWorkerParams(executor)
-        val worker = object : RxWorker(mock(Context::class.java), params) {
-            override fun createWork() = Single.just(result)
-            override fun getBackgroundScheduler() = testScheduler
-        }
+        val worker =
+            object : RxWorker(mock(Context::class.java), params) {
+                override fun createWork() = Single.just(result)
+
+                override fun getBackgroundScheduler() = testScheduler
+            }
         assertThat(worker.startWork().get(), `is`(result))
         assertThat(executorDidRun, `is`(false))
         assertThat(testSchedulerDidRun, `is`(true))
@@ -126,20 +125,21 @@ class RxWorkerTest {
         executor: Executor = SynchronousExecutor(),
         progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
         foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
-    ) = WorkerParameters(
-        UUID.randomUUID(),
-        Data.EMPTY,
-        emptyList(),
-        WorkerParameters.RuntimeExtras(),
-        1,
-        0,
-        executor,
-        EmptyCoroutineContext,
-        InstantWorkTaskExecutor(),
-        DefaultWorkerFactory,
-        progressUpdater,
-        foregroundUpdater
-    )
+    ) =
+        WorkerParameters(
+            UUID.randomUUID(),
+            Data.EMPTY,
+            emptyList(),
+            WorkerParameters.RuntimeExtras(),
+            1,
+            0,
+            executor,
+            EmptyCoroutineContext,
+            InstantWorkTaskExecutor(),
+            DefaultWorkerFactory,
+            progressUpdater,
+            foregroundUpdater
+        )
 
     private fun Single<ListenableWorker.Result>.toWorker(
         params: WorkerParameters = createWorkerParams()

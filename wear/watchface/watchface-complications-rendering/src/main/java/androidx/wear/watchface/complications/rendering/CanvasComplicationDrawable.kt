@@ -125,8 +125,7 @@ constructor(
                 val startTime = it.tapTime.toEpochMilli()
                 val endTime = it.tapTime.toEpochMilli() + COMPLICATION_HIGHLIGHT_DURATION_MS
                 zonedDateTime.toInstant().toEpochMilli() in startTime until endTime
-            }
-                ?: false
+            } ?: false
         drawable.draw(canvas)
     }
 

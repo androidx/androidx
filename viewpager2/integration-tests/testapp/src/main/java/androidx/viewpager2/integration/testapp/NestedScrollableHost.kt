@@ -32,11 +32,12 @@ import kotlin.math.sign
  * where pages of ViewPager2 have nested scrollable elements that scroll in the same direction as
  * ViewPager2. The scrollable element needs to be the immediate and only child of this host layout.
  *
- * This solution has limitations when using multiple levels of nested scrollable elements
- * (e.g. a horizontal RecyclerView in a vertical RecyclerView in a horizontal ViewPager2).
+ * This solution has limitations when using multiple levels of nested scrollable elements (e.g. a
+ * horizontal RecyclerView in a vertical RecyclerView in a horizontal ViewPager2).
  */
 class NestedScrollableHost : FrameLayout {
     constructor(context: Context) : super(context)
+
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
     private var touchSlop = 0
@@ -51,7 +52,8 @@ class NestedScrollableHost : FrameLayout {
             return v as? ViewPager2
         }
 
-    private val child: View? get() = if (childCount > 0) getChildAt(0) else null
+    private val child: View?
+        get() = if (childCount > 0) getChildAt(0) else null
 
     init {
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
