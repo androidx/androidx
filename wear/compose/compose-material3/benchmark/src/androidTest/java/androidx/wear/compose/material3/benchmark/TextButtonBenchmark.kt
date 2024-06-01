@@ -40,8 +40,7 @@ class TextButtonBenchmark(private val textButtonType: TextButtonType) {
         fun parameters() = TextButtonType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { TextButtonTestCase(textButtonType) }
 
@@ -51,46 +50,42 @@ class TextButtonBenchmark(private val textButtonType: TextButtonType) {
     }
 }
 
-internal class TextButtonTestCase(
-    private val textButtonType: TextButtonType
-) : LayeredComposeTestCase() {
+internal class TextButtonTestCase(private val textButtonType: TextButtonType) :
+    LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         when (textButtonType) {
             TextButtonType.FilledTextButton ->
-                TextButton(
-                    onClick = {},
-                    colors = TextButtonDefaults.filledTextButtonColors()
-                ) { Text("ABC") }
-
+                TextButton(onClick = {}, colors = TextButtonDefaults.filledTextButtonColors()) {
+                    Text("ABC")
+                }
             TextButtonType.FilledTonalTextButton ->
                 TextButton(
                     onClick = {},
                     colors = TextButtonDefaults.filledTonalTextButtonColors()
-                ) { Text("ABC") }
-
+                ) {
+                    Text("ABC")
+                }
             TextButtonType.OutlinedTextButton ->
-                TextButton(
-                    onClick = {},
-                    colors = TextButtonDefaults.outlinedTextButtonColors()
-                ) { Text("ABC") }
-
+                TextButton(onClick = {}, colors = TextButtonDefaults.outlinedTextButtonColors()) {
+                    Text("ABC")
+                }
             TextButtonType.TextButton ->
-                TextButton(
-                    onClick = {},
-                    colors = TextButtonDefaults.textButtonColors()
-                ) { Text("ABC") }
+                TextButton(onClick = {}, colors = TextButtonDefaults.textButtonColors()) {
+                    Text("ABC")
+                }
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class TextButtonType {
-    FilledTextButton, FilledTonalTextButton, OutlinedTextButton, TextButton
+    FilledTextButton,
+    FilledTonalTextButton,
+    OutlinedTextButton,
+    TextButton
 }

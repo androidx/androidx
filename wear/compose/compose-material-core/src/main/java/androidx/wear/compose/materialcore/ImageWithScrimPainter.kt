@@ -24,8 +24,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
 
 /**
- * A painter which wraps another [Painter] for drawing a background image and a [Brush] which
- * is used to create an effect over the image to ensure that text drawn over it will be legible.
+ * A painter which wraps another [Painter] for drawing a background image and a [Brush] which is
+ * used to create an effect over the image to ensure that text drawn over it will be legible.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ImageWithScrimPainter(
@@ -81,8 +81,6 @@ class ImageWithScrimPainter(
             "scrimAlpha=$scrimAlpha, alpha=$alpha)"
     }
 
-    /**
-     * Size of the combined painter, return Unspecified to allow us to fill the available space
-     */
+    /** Size of the combined painter, return Unspecified to allow us to fill the available space */
     override val intrinsicSize: Size = imagePainter.intrinsicSize
 }

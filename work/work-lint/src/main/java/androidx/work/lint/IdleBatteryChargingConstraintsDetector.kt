@@ -38,39 +38,39 @@ import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
-/**
- * Warns when a developer uses both idle + battery charging constraints in WorkManager.
- */
+/** Warns when a developer uses both idle + battery charging constraints in WorkManager. */
 class IdleBatteryChargingConstraintsDetector : Detector(), SourceCodeScanner {
     companion object {
 
         private const val DESCRIPTION = "Constraints may not be met for some devices"
 
-        val ISSUE = Issue.create(
-            id = "IdleBatteryChargingConstraints",
-            briefDescription = DESCRIPTION,
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "IdleBatteryChargingConstraints",
+                briefDescription = DESCRIPTION,
+                explanation =
+                    """
                 Some devices are never considered charging and idle at the same time.
                 Consider removing one of these constraints.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                IdleBatteryChargingConstraintsDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(
+                        IdleBatteryChargingConstraintsDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE)
+                    )
             )
-        )
     }
 
     override fun getApplicableMethodNames(): List<String> = listOf("setRequiresDeviceIdle")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         var reported = false
-        if (context.evaluator.isMemberInClass(
-                method,
-                "androidx.work.Constraints.Builder"
-            ) && node.isArgumentTrue(context)
+        if (
+            context.evaluator.isMemberInClass(method, "androidx.work.Constraints.Builder") &&
+                node.isArgumentTrue(context)
         ) {
             val name = node.identifierName()
             val sourcePsi = node.receiver?.sourcePsi
@@ -78,23 +78,26 @@ class IdleBatteryChargingConstraintsDetector : Detector(), SourceCodeScanner {
                 // We need to walk both backwards to the nearest block expression and look for
                 // setRequiresCharging(true) on Constraints
                 val blockExpression = sourcePsi.toUElement()?.getParentOfType<UBlockExpression>()
-                val visitor = object : AbstractUastVisitor() {
-                    override fun visitCallExpression(node: UCallExpression): Boolean {
-                        val variableName = node.identifierName()
-                        if (node.methodName == "setRequiresCharging" &&
-                            node.isArgumentTrue(context) &&
-                            // Same variable name
-                            name == variableName &&
-                            node.receiverType?.canonicalText == "androidx.work.Constraints.Builder"
-                        ) {
-                            if (!reported) {
-                                reported = true
-                                context.report(ISSUE, context.getLocation(node), DESCRIPTION)
+                val visitor =
+                    object : AbstractUastVisitor() {
+                        override fun visitCallExpression(node: UCallExpression): Boolean {
+                            val variableName = node.identifierName()
+                            if (
+                                node.methodName == "setRequiresCharging" &&
+                                    node.isArgumentTrue(context) &&
+                                    // Same variable name
+                                    name == variableName &&
+                                    node.receiverType?.canonicalText ==
+                                        "androidx.work.Constraints.Builder"
+                            ) {
+                                if (!reported) {
+                                    reported = true
+                                    context.report(ISSUE, context.getLocation(node), DESCRIPTION)
+                                }
                             }
+                            return true
                         }
-                        return true
                     }
-                }
                 // Note: We need to navigate the sourcePsi for call expressions.
                 // blockExpression.accept(...) will NOT do what you think it does.
                 blockExpression?.sourcePsi?.toUElement()?.accept(visitor)

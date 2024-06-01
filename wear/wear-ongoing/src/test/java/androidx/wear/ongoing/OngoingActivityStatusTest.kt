@@ -25,10 +25,11 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testTextOngoingActivityStatusText() {
-        val status = Status.Builder()
-            .addPart("1", Status.TextPart("First Text"))
-            .addPart("2", Status.TextPart("Second Text"))
-            .build()
+        val status =
+            Status.Builder()
+                .addPart("1", Status.TextPart("First Text"))
+                .addPart("2", Status.TextPart("Second Text"))
+                .build()
 
         assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
 
@@ -37,42 +38,41 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testTextOngoingActivityStatusTextAndTemplate() {
-        val status = Status.Builder()
-            .addPart("one", Status.TextPart("First Text"))
-            .addPart("two", Status.TextPart("Second Text"))
-            .addTemplate("#one# | #two#").build()
+        val status =
+            Status.Builder()
+                .addPart("one", Status.TextPart("First Text"))
+                .addPart("two", Status.TextPart("Second Text"))
+                .addTemplate("#one# | #two#")
+                .build()
 
         assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
 
-        assertEquals(
-            "First Text | Second Text",
-            status.getText(context, 0).toString()
-        )
+        assertEquals("First Text | Second Text", status.getText(context, 0).toString())
     }
 
     @Test
     fun testTextOngoingActivityStatusTextAndTemplate2() {
-        val status = Status.Builder()
-            .addPart("a", Status.TextPart("A"))
-            .addPart("b", Status.TextPart("B"))
-            .addTemplate("#a##b#").build()
+        val status =
+            Status.Builder()
+                .addPart("a", Status.TextPart("A"))
+                .addPart("b", Status.TextPart("B"))
+                .addTemplate("#a##b#")
+                .build()
 
         assertEquals(Long.MAX_VALUE, status.getNextChangeTimeMillis(0))
 
-        assertEquals(
-            "AB",
-            status.getText(context, 0).toString()
-        )
+        assertEquals("AB", status.getText(context, 0).toString())
     }
 
     @Test
     fun testTextOngoingActivityStatusMixed() {
         val t0 = 123456L
-        val status = Status.Builder()
-            .addPart("type", Status.TextPart("Workout"))
-            .addPart("time", Status.StopwatchPart(t0))
-            .addTemplate("The time on your #type# is #time#")
-            .build()
+        val status =
+            Status.Builder()
+                .addPart("type", Status.TextPart("Workout"))
+                .addPart("time", Status.StopwatchPart(t0))
+                .addTemplate("The time on your #type# is #time#")
+                .build()
 
         assertEquals(t0 + 1000, status.getNextChangeTimeMillis(t0))
 
@@ -84,28 +84,21 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testProcessTemplate() {
-        val values = mapOf(
-            "1" to "One",
-            "2" to "Two",
-            "3" to "Three",
-            "Long" to "LongValue",
-            "Foo" to "Bar"
-        )
+        val values =
+            mapOf("1" to "One", "2" to "Two", "3" to "Three", "Long" to "LongValue", "Foo" to "Bar")
 
         listOf(
-            "#1# #2# #3#" to "One Two Three",
-            "#1####2####3#" to "One#Two#Three",
-            "###1####2####3###" to "#One#Two#Three#",
-            "#1##Long##Foo#" to "OneLongValueBar",
-            // Unclosed variables are ignored
-            "#1# #2# #3" to "One Two #3",
-            "#1##" to "One#"
-        ).forEach { (template, expected) ->
-            assertEquals(
-                expected,
-                Status.processTemplate(template, values).toString()
+                "#1# #2# #3#" to "One Two Three",
+                "#1####2####3#" to "One#Two#Three",
+                "###1####2####3###" to "#One#Two#Three#",
+                "#1##Long##Foo#" to "OneLongValueBar",
+                // Unclosed variables are ignored
+                "#1# #2# #3" to "One Two #3",
+                "#1##" to "One#"
             )
-        }
+            .forEach { (template, expected) ->
+                assertEquals(expected, Status.processTemplate(template, values).toString())
+            }
 
         // Check that when undefined values are used, returns null
         assertNull(Status.processTemplate("#NOT#", values))
@@ -113,29 +106,21 @@ open class OngoingActivityStatusTest {
 
     @Test
     fun testMultipleTemplates() {
-        val values = mapOf(
-            "1" to "One",
-            "2" to "Two",
-            "3" to "Three",
-            "Long" to "LongValue",
-            "Foo" to "Bar"
-        )
+        val values =
+            mapOf("1" to "One", "2" to "Two", "3" to "Three", "Long" to "LongValue", "Foo" to "Bar")
 
         // list of (list of template -> expected output)
         listOf(
-            listOf("#1#", "#2#", "#3#") to "One",
-            listOf("#5#", "#4#", "#3#", "#2#") to "Three",
-            listOf("#1##11#", "2=#2#") to "2=Two",
-        ).forEach { (templates, expected) ->
-            val status = Status(
-                templates,
-                values.map { (k, v) ->
-                    k to TextStatusPart(v)
-                }.toMap()
+                listOf("#1#", "#2#", "#3#") to "One",
+                listOf("#5#", "#4#", "#3#", "#2#") to "Three",
+                listOf("#1##11#", "2=#2#") to "2=Two",
             )
+            .forEach { (templates, expected) ->
+                val status =
+                    Status(templates, values.map { (k, v) -> k to TextStatusPart(v) }.toMap())
 
-            assertEquals(expected, status.getText(context, 0).toString())
-        }
+                assertEquals(expected, status.getText(context, 0).toString())
+            }
     }
 
     @Test(expected = IllegalStateException::class)
@@ -161,6 +146,7 @@ open class OngoingActivityStatusTest {
 
     private class SampleStatusPartImpl : StatusPart() {
         override fun getText(context: Context, timeNowMillis: Long) = "Sample"
+
         override fun getNextChangeTimeMillis(fromTimeMillis: Long) = Long.MAX_VALUE
     }
 
@@ -169,8 +155,10 @@ open class OngoingActivityStatusTest {
 
         override fun getText(context: Context, timeNowMillis: Long) =
             mPart.getText(context, timeNowMillis)
+
         override fun getNextChangeTimeMillis(fromTimeMillis: Long) =
             mPart.getNextChangeTimeMillis(fromTimeMillis)
+
         override fun toVersionedParcelable(): StatusPart = mPart
     }
 }

@@ -37,8 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class ToggleControlsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun checkbox_supports_testtag() {
@@ -71,13 +70,9 @@ class ToggleControlsTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -88,10 +83,11 @@ class ToggleControlsTest {
         rule.setContentWithTheme {
             with(ToggleControlScope(isEnabled = true, isChecked = true)) {
                 Checkbox(
-                    colors = CheckboxDefaults.colors(
-                        checkedBoxColor = boxColor,
-                        checkedCheckmarkColor = checkmarkColor
-                    ),
+                    colors =
+                        CheckboxDefaults.colors(
+                            checkedBoxColor = boxColor,
+                            checkedCheckmarkColor = checkmarkColor
+                        ),
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -111,9 +107,10 @@ class ToggleControlsTest {
         rule.setContentWithTheme {
             with(ToggleControlScope(isEnabled = true, isChecked = false)) {
                 Checkbox(
-                    colors = CheckboxDefaults.colors(
-                        uncheckedBoxColor = boxColor,
-                    ),
+                    colors =
+                        CheckboxDefaults.colors(
+                            uncheckedBoxColor = boxColor,
+                        ),
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -154,13 +151,9 @@ class ToggleControlsTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Switch
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
     }
 
     @Test
@@ -184,12 +177,13 @@ class ToggleControlsTest {
         rule.setContentWithTheme {
             with(ToggleControlScope(isEnabled = true, isChecked = true)) {
                 Switch(
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = thumbColor,
-                        checkedThumbIconColor = thumbIconColor,
-                        checkedTrackColor = trackColor,
-                        checkedTrackBorderColor = trackStrokeColor
-                    ),
+                    colors =
+                        SwitchDefaults.colors(
+                            checkedThumbColor = thumbColor,
+                            checkedThumbIconColor = thumbIconColor,
+                            checkedTrackColor = trackColor,
+                            checkedTrackBorderColor = trackStrokeColor
+                        ),
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -212,12 +206,13 @@ class ToggleControlsTest {
         rule.setContentWithTheme {
             with(ToggleControlScope(isEnabled = true, isChecked = false)) {
                 Switch(
-                    colors = SwitchDefaults.colors(
-                        uncheckedThumbColor = thumbColor,
-                        uncheckedThumbIconColor = thumbIconColor,
-                        uncheckedTrackColor = trackColor,
-                        uncheckedTrackBorderColor = trackStrokeColor
-                    ),
+                    colors =
+                        SwitchDefaults.colors(
+                            uncheckedThumbColor = thumbColor,
+                            uncheckedThumbIconColor = thumbIconColor,
+                            uncheckedTrackColor = trackColor,
+                            uncheckedTrackBorderColor = trackStrokeColor
+                        ),
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }

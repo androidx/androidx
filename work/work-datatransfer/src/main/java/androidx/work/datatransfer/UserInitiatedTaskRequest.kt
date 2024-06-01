@@ -22,31 +22,28 @@ import java.util.UUID
  * The base class for specifying parameters for network based data transfer work that should be
  * enqueued in DataTransferTaskManager.
  */
-class UserInitiatedTaskRequest constructor(
+class UserInitiatedTaskRequest
+constructor(
     private val task: Class<out UserInitiatedTask>,
-    /**
-     * [FallbackPolicy] indicating what the library should do on Android 14- devices.
-     */
+    /** [FallbackPolicy] indicating what the library should do on Android 14- devices. */
     private val fallbackPolicy: FallbackPolicy = FallbackPolicy.FALLBACK_NONE,
     /**
-     * [Constraints] required for this task to run.
-     * The default value assumes a requirement of any internet.
+     * [Constraints] required for this task to run. The default value assumes a requirement of any
+     * internet.
      */
     private val _constraints: Constraints = Constraints(),
     /**
-     * Sets the appropriate estimated upload/download byte info of the data transfer request
-     * via the [TransferInfo] object.
+     * Sets the appropriate estimated upload/download byte info of the data transfer request via the
+     * [TransferInfo] object.
      */
     private val _transferInfo: TransferInfo? = null,
     /**
-     * A list of tags associated to this work. You can query and cancel work by tags.
-     * Tags are particularly useful for modules or libraries to find and operate on their own work.
+     * A list of tags associated to this work. You can query and cancel work by tags. Tags are
+     * particularly useful for modules or libraries to find and operate on their own work.
      */
     private val _tags: MutableList<String> = mutableListOf()
 ) {
-    /**
-     * The unique identifier associated with this unit of work.
-     */
+    /** The unique identifier associated with this unit of work. */
     private val id: UUID = UUID.randomUUID()
     val stringId: String
         get() = id.toString()
@@ -61,8 +58,8 @@ class UserInitiatedTaskRequest constructor(
         get() = _tags
 
     /**
-     * The foreground service which will be used as a fallback solution on Android 14- devices.
-     * This is only used if [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set.
+     * The foreground service which will be used as a fallback solution on Android 14- devices. This
+     * is only used if [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set.
      */
     var service: Class<out AbstractUitService>? = null
 
@@ -78,18 +75,18 @@ class UserInitiatedTaskRequest constructor(
     }
 
     /**
-     * Set the [AbstractUitService] service to fallback to on Android 14- devices along with
-     * a [ForegroundServiceOnTaskFinishPolicy] policy which defines what will happen when the
-     * task is finished.
+     * Set the [AbstractUitService] service to fallback to on Android 14- devices along with a
+     * [ForegroundServiceOnTaskFinishPolicy] policy which defines what will happen when the task is
+     * finished.
      *
      * This is only used if [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set. If this method
      * is not called and [FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE] is set, an exception will
      * be thrown when the task is enqueued.
      *
      * Upon scheduling the task request, the library will call [Context.startForegroundService] with
-     * [ACTION_UIT_SCHEDULE] on the given service here.
-     * The app needs to call [android.app.Service.startForeground] within a certain amount of time,
-     * otherwise it will crash with a [android.app.ForegroundServiceDidNotStartInTimeException].
+     * [ACTION_UIT_SCHEDULE] on the given service here. The app needs to call
+     * [android.app.Service.startForeground] within a certain amount of time, otherwise it will
+     * crash with a [android.app.ForegroundServiceDidNotStartInTimeException].
      */
     fun setForegroundService(
         service: Class<out AbstractUitService>,
@@ -105,10 +102,14 @@ class UserInitiatedTaskRequest constructor(
     }
 
     suspend fun enqueue(@Suppress("UNUSED_PARAMETER") context: Context) {
-        if (this.fallbackPolicy == FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE &&
-            this.service == null) {
-            throw IllegalArgumentException("FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE is set," +
-                " but a foreground service has not been set via setForegroundService().")
+        if (
+            this.fallbackPolicy == FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE &&
+                this.service == null
+        ) {
+            throw IllegalArgumentException(
+                "FallbackPolicy.FALLBACK_TO_FOREGROUND_SERVICE is set," +
+                    " but a foreground service has not been set via setForegroundService()."
+            )
         }
         // TODO: update impl
     }
@@ -144,42 +145,34 @@ class UserInitiatedTaskRequest constructor(
 
     enum class ForegroundServiceOnTaskFinishPolicy {
         /**
-         * This indicates that the foreground service should be stopped when the job is done.
-         * This is the default behavior.
+         * This indicates that the foreground service should be stopped when the job is done. This
+         * is the default behavior.
          */
         FOREGROUND_SERVICE_STOP_FOREGROUND,
 
         /**
-         * This indicates that the foreground service should be left as is when the job is done
-         * and the app will manage its lifecycle.
+         * This indicates that the foreground service should be left as is when the job is done and
+         * the app will manage its lifecycle.
          */
         FOREGROUND_SERVICE_DETACH,
     }
 
-    /**
-     * The internal definition of the task states.
-     */
+    /** The internal definition of the task states. */
     internal enum class TaskState {
-        /**
-         * Not a valid state.
-         */
+        /** Not a valid state. */
         TASK_STATE_INVALID,
 
         /**
-         * The task has been scheduled but hasn't been put into execution, it may be waiting
-         * for the constraints.
-         * Or, it used to be running, but the constraint are no longer met, so the task was stopped.
+         * The task has been scheduled but hasn't been put into execution, it may be waiting for the
+         * constraints. Or, it used to be running, but the constraint are no longer met, so the task
+         * was stopped.
          */
         TASK_STATE_SCHEDULED,
 
-        /**
-         * The task is being executed.
-         */
+        /** The task is being executed. */
         TASK_STATE_EXECUTING,
 
-        /**
-         * The task has finished.
-         */
+        /** The task has finished. */
         TASK_STATE_FINISHED,
     }
 }

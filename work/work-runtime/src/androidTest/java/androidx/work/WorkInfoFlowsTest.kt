@@ -41,31 +41,34 @@ import org.junit.runner.RunWith
 @SmallTest
 class WorkInfoFlowsTest {
     val workerFactory = TrackingWorkerFactory()
-    val configuration = Configuration.Builder().setWorkerFactory(workerFactory)
-        .setTaskExecutor(Executors.newSingleThreadExecutor())
-        .build()
+    val configuration =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .setTaskExecutor(Executors.newSingleThreadExecutor())
+            .build()
     val env = TestEnv(configuration)
     val fakeChargingTracker = TestConstraintTracker(false, env.context, env.taskExecutor)
-    val trackers = Trackers(
-        context = env.context,
-        taskExecutor = env.taskExecutor,
-        batteryChargingTracker = fakeChargingTracker
-    )
+    val trackers =
+        Trackers(
+            context = env.context,
+            taskExecutor = env.taskExecutor,
+            batteryChargingTracker = fakeChargingTracker
+        )
     val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
 
     init {
         WorkManagerImpl.setDelegate(workManager)
     }
 
-    val unrelatedRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
-        .setInitialDelay(1, TimeUnit.DAYS)
-        .build()
+    val unrelatedRequest =
+        OneTimeWorkRequest.Builder(TestWorker::class.java).setInitialDelay(1, TimeUnit.DAYS).build()
 
     @Test
     fun flowById() = runBlocking {
-        val request = OneTimeWorkRequest.Builder(LatchWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(LatchWorker::class.java)
+                .setConstraints(Constraints(requiresCharging = true))
+                .build()
         val tester = launchTester(workManager.getWorkInfoByIdFlow(request.id))
         assertThat(tester.awaitNext()).isNull()
         workManager.enqueue(unrelatedRequest)
@@ -79,70 +82,79 @@ class WorkInfoFlowsTest {
     }
 
     @Test
-    fun flowByName() = runBlocking<Unit> {
-        val request1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .build()
-        val request2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .build()
-        val tester = launchTester(workManager.getWorkInfosForUniqueWorkFlow("name"))
-        assertThat(tester.awaitNext()).isEmpty()
-        workManager.enqueue(unrelatedRequest)
-        workManager.enqueueUniqueWork("name", KEEP, request1)
-        val firstList = tester.awaitNext()
-        assertThat(firstList.size).isEqualTo(1)
-        assertThat(firstList.first().id).isEqualTo(request1.id)
-        workManager.enqueueUniqueWork("name", APPEND, request2)
-        val secondList = tester.awaitNext()
-        assertThat(secondList.size).isEqualTo(2)
-        assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
-    }
+    fun flowByName() =
+        runBlocking<Unit> {
+            val request1 =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(requiresCharging = true))
+                    .build()
+            val request2 =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(requiresCharging = true))
+                    .build()
+            val tester = launchTester(workManager.getWorkInfosForUniqueWorkFlow("name"))
+            assertThat(tester.awaitNext()).isEmpty()
+            workManager.enqueue(unrelatedRequest)
+            workManager.enqueueUniqueWork("name", KEEP, request1)
+            val firstList = tester.awaitNext()
+            assertThat(firstList.size).isEqualTo(1)
+            assertThat(firstList.first().id).isEqualTo(request1.id)
+            workManager.enqueueUniqueWork("name", APPEND, request2)
+            val secondList = tester.awaitNext()
+            assertThat(secondList.size).isEqualTo(2)
+            assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
+        }
 
     @Test
-    fun flowByQuery() = runBlocking<Unit> {
-        val request1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .build()
-        val request2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .build()
-        val query = WorkQuery.fromIds(request1.id, request2.id)
-        val tester = launchTester(workManager.getWorkInfosFlow(query))
-        assertThat(tester.awaitNext()).isEmpty()
-        workManager.enqueue(unrelatedRequest)
-        workManager.enqueue(request1)
-        val firstList = tester.awaitNext()
-        assertThat(firstList.size).isEqualTo(1)
-        assertThat(firstList.first().id).isEqualTo(request1.id)
-        workManager.enqueue(request2)
-        val secondList = tester.awaitNext()
-        assertThat(secondList.size).isEqualTo(2)
-        assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
-    }
+    fun flowByQuery() =
+        runBlocking<Unit> {
+            val request1 =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(requiresCharging = true))
+                    .build()
+            val request2 =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(requiresCharging = true))
+                    .build()
+            val query = WorkQuery.fromIds(request1.id, request2.id)
+            val tester = launchTester(workManager.getWorkInfosFlow(query))
+            assertThat(tester.awaitNext()).isEmpty()
+            workManager.enqueue(unrelatedRequest)
+            workManager.enqueue(request1)
+            val firstList = tester.awaitNext()
+            assertThat(firstList.size).isEqualTo(1)
+            assertThat(firstList.first().id).isEqualTo(request1.id)
+            workManager.enqueue(request2)
+            val secondList = tester.awaitNext()
+            assertThat(secondList.size).isEqualTo(2)
+            assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
+        }
 
     @Test
-    fun flowByTag() = runBlocking<Unit> {
-        val request1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .addTag("tag")
-            .build()
-        val request2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .addTag("tag")
-            .build()
-        val tester = launchTester(workManager.getWorkInfosByTagFlow("tag"))
+    fun flowByTag() =
+        runBlocking<Unit> {
+            val request1 =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(requiresCharging = true))
+                    .addTag("tag")
+                    .build()
+            val request2 =
+                OneTimeWorkRequest.Builder(TestWorker::class.java)
+                    .setConstraints(Constraints(requiresCharging = true))
+                    .addTag("tag")
+                    .build()
+            val tester = launchTester(workManager.getWorkInfosByTagFlow("tag"))
 
-        assertThat(tester.awaitNext()).isEmpty()
-        workManager.enqueue(unrelatedRequest)
-        workManager.enqueue(request1)
-        val firstList = tester.awaitNext()
-        assertThat(firstList.size).isEqualTo(1)
-        assertThat(firstList.first().id).isEqualTo(request1.id)
-        workManager.enqueue(unrelatedRequest)
-        workManager.enqueue(request2)
-        val secondList = tester.awaitNext()
-        assertThat(secondList.size).isEqualTo(2)
-        assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
-    }
+            assertThat(tester.awaitNext()).isEmpty()
+            workManager.enqueue(unrelatedRequest)
+            workManager.enqueue(request1)
+            val firstList = tester.awaitNext()
+            assertThat(firstList.size).isEqualTo(1)
+            assertThat(firstList.first().id).isEqualTo(request1.id)
+            workManager.enqueue(unrelatedRequest)
+            workManager.enqueue(request2)
+            val secondList = tester.awaitNext()
+            assertThat(secondList.size).isEqualTo(2)
+            assertThat(secondList.map { it.id }).containsExactly(request1.id, request2.id)
+        }
 }

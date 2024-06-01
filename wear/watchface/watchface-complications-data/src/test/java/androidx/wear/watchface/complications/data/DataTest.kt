@@ -2252,7 +2252,7 @@ class GetContentDescriptionTest {
                 .that(
                     case.data
                         .getContentDescription(context)
-                        ?.getTextAt(context.resources, /* dateTimeMillis = */ 0)
+                        ?.getTextAt(context.resources, /* dateTimeMillis= */ 0)
                 )
                 .isEqualTo(case.contentDescription)
         }

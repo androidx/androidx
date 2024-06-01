@@ -32,8 +32,8 @@ public object TapType {
      * Used to indicate a "down" touch event on the watch face.
      *
      * The watch face will receive an [UP] or a [CANCEL] event to follow this event, to indicate
-     * whether this down event corresponds to a tap gesture to be handled by the watch face, or
-     * a different type of gesture that is handled by the system, respectively.
+     * whether this down event corresponds to a tap gesture to be handled by the watch face, or a
+     * different type of gesture that is handled by the system, respectively.
      */
     public const val DOWN: Int = IInteractiveWatchFace.TAP_TYPE_DOWN
 
@@ -47,12 +47,12 @@ public object TapType {
     public const val CANCEL: Int = IInteractiveWatchFace.TAP_TYPE_CANCEL
 
     /**
-     * Used to indicate that an "up" event on the watch face has occurred that has not been
-     * consumed by the system. A [TapType.DOWN] will always occur first. This event will not be
-     * sent if a [TapType.CANCEL] is sent.
+     * Used to indicate that an "up" event on the watch face has occurred that has not been consumed
+     * by the system. A [TapType.DOWN] will always occur first. This event will not be sent if a
+     * [TapType.CANCEL] is sent.
      *
-     * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed to
-     * be close enough to be considered a tap according to the value returned by
+     * Therefore, a [TapType.DOWN] event and the successive [TapType.UP] event are guaranteed to be
+     * close enough to be considered a tap according to the value returned by
      * [android.view.ViewConfiguration.getScaledTouchSlop].
      */
     public const val UP: Int = IInteractiveWatchFace.TAP_TYPE_UP

@@ -22,24 +22,21 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.work.Data
 
-/**
- * A Database entity which stores progress of a given [WorkSpec] id.
- *
- */
+/** A Database entity which stores progress of a given [WorkSpec] id. */
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = WorkSpec::class,
-        parentColumns = ["id"],
-        childColumns = ["work_spec_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-    )]
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = WorkSpec::class,
+                parentColumns = ["id"],
+                childColumns = ["work_spec_id"],
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE
+            )
+        ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class WorkProgress(
-    @ColumnInfo(name = "work_spec_id")
-    @PrimaryKey
-    val workSpecId: String,
-    @ColumnInfo(name = "progress")
-    val progress: Data
+    @ColumnInfo(name = "work_spec_id") @PrimaryKey val workSpecId: String,
+    @ColumnInfo(name = "progress") val progress: Data
 )

@@ -19,36 +19,29 @@ package androidx.wear.phone.interactions.authentication
 import android.net.Uri
 import androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.ErrorCode
 
-/**
- * The authentication response to be sent back to the client after completing the OAuth2 flow.
- */
-public class OAuthResponse internal constructor(
+/** The authentication response to be sent back to the client after completing the OAuth2 flow. */
+public class OAuthResponse
+internal constructor(
     /** The error code that indicated the request result status. */
     @ErrorCode public val errorCode: Int = RemoteAuthClient.NO_ERROR,
 
     /** The Url of the auth response. In case of an error it will be null. */
     public val responseUrl: Uri?
 ) {
-    /**
-     * Builder for constructing new instance of authentication response.
-     */
+    /** Builder for constructing new instance of authentication response. */
     public class Builder {
-        @ErrorCode
-        private var errorCode: Int = RemoteAuthClient.NO_ERROR
+        @ErrorCode private var errorCode: Int = RemoteAuthClient.NO_ERROR
         private var responseUrl: Uri? = null
 
         /** Set the error code to indicate the request result status */
         public fun setErrorCode(@ErrorCode errorCode: Int): Builder =
-            this.apply {
-                this.errorCode = errorCode
-            }
+            this.apply { this.errorCode = errorCode }
 
         /** Set the Url of the auth response */
-        public fun setResponseUrl(responseUrl: Uri): Builder = this.apply {
-            this.responseUrl = responseUrl
-        }
+        public fun setResponseUrl(responseUrl: Uri): Builder =
+            this.apply { this.responseUrl = responseUrl }
 
-        /** Build the response instance specified by this builder*/
+        /** Build the response instance specified by this builder */
         public fun build(): OAuthResponse = OAuthResponse(errorCode, responseUrl)
     }
 }

@@ -69,9 +69,9 @@ fun AppCardWithIconSample() {
             Icon(
                 painter = painterResource(id = android.R.drawable.star_big_off),
                 contentDescription = "Star icon",
-                modifier = Modifier
-                    .size(CardDefaults.AppImageSize)
-                    .wrapContentSize(align = Alignment.Center),
+                modifier =
+                    Modifier.size(CardDefaults.AppImageSize)
+                        .wrapContentSize(align = Alignment.Center),
             )
         },
         title = { Text("Card title") },
@@ -111,13 +111,15 @@ fun TitleCardWithImageSample() {
         onClick = { /* Do something */ },
         title = { Text("Card title") },
         time = { Text("now") },
-        colors = CardDefaults.imageCardColors(
-            containerPainter = CardDefaults.imageWithScrimBackgroundPainter(
-                backgroundImagePainter = painterResource(id = R.drawable.backgroundimage)
+        colors =
+            CardDefaults.imageCardColors(
+                containerPainter =
+                    CardDefaults.imageWithScrimBackgroundPainter(
+                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage)
+                    ),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                titleColor = MaterialTheme.colorScheme.onSurface
             ),
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            titleColor = MaterialTheme.colorScheme.onSurface
-        ),
         modifier = Modifier.semantics { contentDescription = "Background image" }
     ) {
         Text("Card content")

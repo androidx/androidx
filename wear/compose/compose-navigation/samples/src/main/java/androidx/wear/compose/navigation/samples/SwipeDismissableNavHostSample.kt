@@ -43,15 +43,13 @@ import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 fun SimpleNavHost() {
     // Example of using a NavHost where each destination in the NavGraph has a unique name.
     val navController = rememberSwipeDismissableNavController()
-    SwipeDismissableNavHost(
-        navController = navController,
-        startDestination = "off"
-    ) {
+    SwipeDismissableNavHost(navController = navController, startDestination = "off") {
         composable("off") {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
+                verticalArrangement = Arrangement.Center
+            ) {
                 Button(onClick = { navController.navigate("on") }) { Text("On") }
             }
         }
@@ -59,7 +57,8 @@ fun SimpleNavHost() {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
+                verticalArrangement = Arrangement.Center
+            ) {
                 Button(onClick = { navController.navigate("off") }) { Text("Off") }
             }
         }
@@ -71,21 +70,14 @@ fun SimpleNavHost() {
 fun NavHostWithNamedArgument() {
     // Example of using a NavHost where we pass an argument to a destination in the NavGraph.
     val navController = rememberSwipeDismissableNavController()
-    SwipeDismissableNavHost(
-        navController = navController,
-        startDestination = "list"
-    ) {
+    SwipeDismissableNavHost(navController = navController, startDestination = "list") {
         composable("list") {
             ScalingLazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 32.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
-                item {
-                    ListHeader {
-                        Text("List Screen")
-                    }
-                }
+                item { ListHeader { Text("List Screen") } }
                 items(5) { index ->
                     CompactChip(
                         modifier = Modifier.padding(vertical = 4.dp),
@@ -96,17 +88,14 @@ fun NavHostWithNamedArgument() {
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxSize()
                             )
-                        })
+                        }
+                    )
                 }
             }
         }
         composable(
             route = "detail/{Id}",
-            arguments = listOf(
-                navArgument("Id") {
-                    type = NavType.IntType
-                }
-            )
+            arguments = listOf(navArgument("Id") { type = NavType.IntType })
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("Id") ?: 0
             Column(
@@ -114,9 +103,7 @@ fun NavHostWithNamedArgument() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                ListHeader {
-                    Text("Details Screen")
-                }
+                ListHeader { Text("Details Screen") }
                 Text("Item $itemId")
             }
         }

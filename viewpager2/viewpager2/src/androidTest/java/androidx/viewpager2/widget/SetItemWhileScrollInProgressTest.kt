@@ -50,72 +50,31 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
  * Here are some example traces from ViewPager, which should look similar for ViewPager2. Note the
  * patterns in the non-scroll events, and those in the scroll events.
  *
- * 0 -> 3 (smooth) -> 0 (smooth)
- * >> setCurrentItem(3, true);
- * onPageScrollStateChanged(2)
- * onPageSelected(3)
- * onPageScrolled(0, 0.253704, 274)
- * onPageScrolled(0, 0.798148, 862)
- * onPageScrolled(1, 0.228704, 247)
- * onPageScrolled(1, 0.629630, 680)
- * onPageScrolled(1, 0.921296, 994)
- * onPageScrolled(2, 0.175000, 188)
- * onPageScrolled(2, 0.377778, 408)
- * onPageScrolled(2, 0.538889, 582)
- * onPageScrolled(2, 0.658333, 710)
- * onPageScrolled(2, 0.756481, 816)
- * onPageScrolled(2, 0.831481, 898)
- * onPageScrolled(2, 0.886111, 956)
- * >> setCurrentItem(0, true);
- * onPageSelected(0)
- * onPageScrolled(2, 0.704630, 761)
- * onPageScrolled(2, 0.185185, 200)
- * onPageScrolled(1, 0.724074, 782)
- * onPageScrolled(1, 0.343518, 370)
- * onPageScrolled(1, 0.034259, 36)
- * onPageScrolled(0, 0.784259, 847)
- * onPageScrolled(0, 0.595370, 643)
- * onPageScrolled(0, 0.437037, 472)
- * onPageScrolled(0, 0.313889, 339)
- * onPageScrolled(0, 0.220370, 238)
- * onPageScrolled(0, 0.154630, 167)
- * onPageScrolled(0, 0.102778, 111)
- * onPageScrolled(0, 0.065741, 71)
- * onPageScrolled(0, 0.039815, 43)
- * onPageScrolled(0, 0.023148, 25)
- * onPageScrolled(0, 0.012963, 13)
- * onPageScrolled(0, 0.006481, 6)
- * onPageScrolled(0, 0.002778, 3)
- * onPageScrolled(0, 0.000926, 1)
- * onPageScrolled(0, 0.000000, 0)
- * onPageScrollStateChanged(0)
+ * 0 -> 3 (smooth) -> 0 (smooth) >> setCurrentItem(3, true); onPageScrollStateChanged(2)
+ * onPageSelected(3) onPageScrolled(0, 0.253704, 274) onPageScrolled(0, 0.798148, 862)
+ * onPageScrolled(1, 0.228704, 247) onPageScrolled(1, 0.629630, 680) onPageScrolled(1,
+ * 0.921296, 994) onPageScrolled(2, 0.175000, 188) onPageScrolled(2, 0.377778, 408)
+ * onPageScrolled(2, 0.538889, 582) onPageScrolled(2, 0.658333, 710) onPageScrolled(2,
+ * 0.756481, 816) onPageScrolled(2, 0.831481, 898) onPageScrolled(2, 0.886111, 956) >>
+ * setCurrentItem(0, true); onPageSelected(0) onPageScrolled(2, 0.704630, 761) onPageScrolled(2,
+ * 0.185185, 200) onPageScrolled(1, 0.724074, 782) onPageScrolled(1, 0.343518, 370)
+ * onPageScrolled(1, 0.034259, 36) onPageScrolled(0, 0.784259, 847) onPageScrolled(0, 0.595370, 643)
+ * onPageScrolled(0, 0.437037, 472) onPageScrolled(0, 0.313889, 339) onPageScrolled(0,
+ * 0.220370, 238) onPageScrolled(0, 0.154630, 167) onPageScrolled(0, 0.102778, 111)
+ * onPageScrolled(0, 0.065741, 71) onPageScrolled(0, 0.039815, 43) onPageScrolled(0, 0.023148, 25)
+ * onPageScrolled(0, 0.012963, 13) onPageScrolled(0, 0.006481, 6) onPageScrolled(0, 0.002778, 3)
+ * onPageScrolled(0, 0.000926, 1) onPageScrolled(0, 0.000000, 0) onPageScrollStateChanged(0)
  *
- * 0 -> 3 (smooth) -> 3 (smooth)
- * >> setCurrentItem(3, true);
- * onPageScrollStateChanged(2)
- * onPageSelected(3)
- * onPageScrolled(0, 0.489815, 529)
- * onPageScrolled(0, 0.995370, 1075)
- * onPageScrolled(1, 0.416667, 449)
- * onPageScrolled(1, 0.763889, 824)
- * onPageScrolled(2, 0.047222, 50)
- * onPageScrolled(2, 0.263889, 284)
- * onPageScrolled(2, 0.449074, 484)
- * onPageScrolled(2, 0.595370, 642)
- * onPageScrolled(2, 0.708333, 764)
- * onPageScrolled(2, 0.794445, 858)
- * onPageScrolled(2, 0.855556, 924)
- * onPageScrolled(2, 0.903704, 976)
- * >> setCurrentItem(3, true);
- * onPageScrolled(2, 0.937963, 1013)
- * onPageScrolled(2, 0.962037, 1039)
- * onPageScrolled(2, 0.976852, 1055)
- * onPageScrolled(2, 0.987037, 1065)
- * onPageScrolled(2, 0.993519, 1073)
- * onPageScrolled(2, 0.997222, 1077)
- * onPageScrolled(2, 0.999074, 1078)
- * onPageScrolled(3, 0.000000, 0)
- * onPageScrollStateChanged(0)
+ * 0 -> 3 (smooth) -> 3 (smooth) >> setCurrentItem(3, true); onPageScrollStateChanged(2)
+ * onPageSelected(3) onPageScrolled(0, 0.489815, 529) onPageScrolled(0, 0.995370, 1075)
+ * onPageScrolled(1, 0.416667, 449) onPageScrolled(1, 0.763889, 824) onPageScrolled(2, 0.047222, 50)
+ * onPageScrolled(2, 0.263889, 284) onPageScrolled(2, 0.449074, 484) onPageScrolled(2,
+ * 0.595370, 642) onPageScrolled(2, 0.708333, 764) onPageScrolled(2, 0.794445, 858)
+ * onPageScrolled(2, 0.855556, 924) onPageScrolled(2, 0.903704, 976) >> setCurrentItem(3, true);
+ * onPageScrolled(2, 0.937963, 1013) onPageScrolled(2, 0.962037, 1039) onPageScrolled(2,
+ * 0.976852, 1055) onPageScrolled(2, 0.987037, 1065) onPageScrolled(2, 0.993519, 1073)
+ * onPageScrolled(2, 0.997222, 1077) onPageScrolled(2, 0.999074, 1078) onPageScrolled(3,
+ * 0.000000, 0) onPageScrollStateChanged(0)
  */
 @RunWith(Parameterized::class)
 @LargeTest
@@ -158,9 +117,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                     }
                     SystemClock.sleep(100)
                 }
-                PollingCheck.waitFor(2000) {
-                    callback.isTestFinished
-                }
+                PollingCheck.waitFor(2000) { callback.isTestFinished }
 
                 // then
                 callback.apply {
@@ -187,20 +144,34 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
             val positionOffset: Float,
             val positionOffsetPixels: Int
         ) : Event()
+
         data class OnPageSelectedEvent(val position: Int) : Event()
+
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
     }
 
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         val events = mutableListOf<Event>()
 
-        val stateEvents get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }
-        val lastEvent get() = events.last()
-        val lastState get() = events.findLast { it is OnPageScrollStateChangedEvent }
-            as? OnPageScrollStateChangedEvent
-        val lastScroll get() = events.findLast { it is OnPageScrolledEvent } as? OnPageScrolledEvent
-        val lastSelect get() = events.findLast { it is OnPageSelectedEvent } as? OnPageSelectedEvent
-        val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
+        val stateEvents
+            get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }
+
+        val lastEvent
+            get() = events.last()
+
+        val lastState
+            get() =
+                events.findLast { it is OnPageScrollStateChangedEvent }
+                    as? OnPageScrollStateChangedEvent
+
+        val lastScroll
+            get() = events.findLast { it is OnPageScrolledEvent } as? OnPageScrolledEvent
+
+        val lastSelect
+            get() = events.findLast { it is OnPageSelectedEvent } as? OnPageSelectedEvent
+
+        val draggingIx
+            get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
 
         override fun onPageScrolled(
             position: Int,
@@ -213,23 +184,21 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         }
 
         override fun onPageSelected(position: Int) {
-            synchronized(events) {
-                events.add(OnPageSelectedEvent(position))
-            }
+            synchronized(events) { events.add(OnPageSelectedEvent(position)) }
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            synchronized(events) {
-                events.add(OnPageScrollStateChangedEvent(state))
-            }
+            synchronized(events) { events.add(OnPageScrollStateChangedEvent(state)) }
         }
     }
 
-    private val RecordingCallback.isTestFinished get() = synchronized(events) {
-        lastState?.state == 0 &&
-            lastSelect?.position == lastScroll?.position &&
-            lastScroll?.positionOffsetPixels == 0
-    }
+    private val RecordingCallback.isTestFinished
+        get() =
+            synchronized(events) {
+                lastState?.state == 0 &&
+                    lastSelect?.position == lastScroll?.position &&
+                    lastScroll?.positionOffsetPixels == 0
+            }
 
     private fun RecordingCallback.assertPageSelectedEventFired(targetPage: Int) {
         assertThat(lastEvent, instanceOf(OnPageSelectedEvent::class.java))
@@ -257,11 +226,13 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                     val currentPosition = it.position + it.positionOffset.toDouble()
                     assertThat(
                         "Scroll event fired before page selected event",
-                        target, not(equalTo(-1))
+                        target,
+                        not(equalTo(-1))
                     )
                     assertThat(
                         "Scroll event not between start and destination",
-                        currentPosition, isBetweenInInMinMax(prevPosition, target.toDouble())
+                        currentPosition,
+                        isBetweenInInMinMax(prevPosition, target.toDouble())
                     )
                     prevPosition = currentPosition
                 }
@@ -280,88 +251,85 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 // region Test Suite creation
 
 private fun createTestSet(): List<TestConfig> {
-    return listOf(
-        ORIENTATION_HORIZONTAL,
-        ORIENTATION_VERTICAL
-    ).flatMap { orientation -> createTestSet(orientation) }
+    return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
+        createTestSet(orientation)
+    }
 }
 
 private fun createTestSet(orientation: Int): List<TestConfig> {
     return listOf(
-        TestConfig(
-            title = "cone-increasing-slow",
-            orientation = orientation,
-            totalPages = 10,
-            pageSequence = listOf(1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 7, 3, 8, 4, 9)
-        ),
-        TestConfig(
-            title = "cone-increasing-fast",
-            orientation = orientation,
-            totalPages = 19,
-            pageSequence = listOf(2, 1, 4, 2, 6, 3, 8, 4, 10)
-        ),
-        TestConfig(
-            title = "cone-decreasing-slow",
-            orientation = orientation,
-            totalPages = 10,
-            pageSequence = listOf(9, 8, 9, 7, 8, 6, 8, 5, 7, 4, 7, 3, 6, 2, 6, 1, 5, 0)
-        ),
-        TestConfig(
-            title = "cone-decreasing-fast",
-            orientation = orientation,
-            totalPages = 11,
-            pageSequence = listOf(10, 8, 9, 6, 8, 4, 7, 2, 6, 0)
-        ),
-        TestConfig(
-            title = "regression-hump-positive",
-            orientation = orientation,
-            totalPages = 10,
-            pageSequence = listOf(7, 6, 0, 7, 6, 0, 7, 6)
-        ),
-        TestConfig(
-            title = "regression-hump-negative",
-            orientation = orientation,
-            totalPages = 10,
-            pageSequence = listOf(8, 2, 3, 8, 2, 3, 8, 2, 3)
-        ),
-        TestConfig(
-            title = "regression-do-not-jump-forward",
-            orientation = orientation,
-            totalPages = 10,
-            pageSequence = listOf(3, 6, 9, 5)
-        ),
-        TestConfig(
-            title = "random-starts-with-noSmooth",
-            orientation = orientation,
-            totalPages = 12,
-            pageSequence = listOf(5, 11, 3, 8, 0, 10, 9, 7, 0, 4),
-            instantScrolls = setOf(0, 1, 2, 8)
-        ),
-        TestConfig(
-            title = "random-ends-with-noSmooth",
-            orientation = orientation,
-            totalPages = 12,
-            pageSequence = listOf(2, 7, 10, 1, 6, 10, 2, 8, 9, 6),
-            instantScrolls = setOf(1, 7, 9)
-        ),
-        TestConfig(
-            title = "random-ends-with-double-noSmooth",
-            orientation = orientation,
-            totalPages = 12,
-            pageSequence = listOf(8, 7, 9, 7, 3, 0, 7, 11, 10, 0),
-            instantScrolls = setOf(1, 4, 5, 8, 9)
-        ),
-        TestConfig(
-            title = "smooth-instant-long_smooth",
-            orientation = orientation,
-            totalPages = 5,
-            pageSequence = listOf(3, 4, 0),
-            instantScrolls = setOf(1)
+            TestConfig(
+                title = "cone-increasing-slow",
+                orientation = orientation,
+                totalPages = 10,
+                pageSequence = listOf(1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 7, 3, 8, 4, 9)
+            ),
+            TestConfig(
+                title = "cone-increasing-fast",
+                orientation = orientation,
+                totalPages = 19,
+                pageSequence = listOf(2, 1, 4, 2, 6, 3, 8, 4, 10)
+            ),
+            TestConfig(
+                title = "cone-decreasing-slow",
+                orientation = orientation,
+                totalPages = 10,
+                pageSequence = listOf(9, 8, 9, 7, 8, 6, 8, 5, 7, 4, 7, 3, 6, 2, 6, 1, 5, 0)
+            ),
+            TestConfig(
+                title = "cone-decreasing-fast",
+                orientation = orientation,
+                totalPages = 11,
+                pageSequence = listOf(10, 8, 9, 6, 8, 4, 7, 2, 6, 0)
+            ),
+            TestConfig(
+                title = "regression-hump-positive",
+                orientation = orientation,
+                totalPages = 10,
+                pageSequence = listOf(7, 6, 0, 7, 6, 0, 7, 6)
+            ),
+            TestConfig(
+                title = "regression-hump-negative",
+                orientation = orientation,
+                totalPages = 10,
+                pageSequence = listOf(8, 2, 3, 8, 2, 3, 8, 2, 3)
+            ),
+            TestConfig(
+                title = "regression-do-not-jump-forward",
+                orientation = orientation,
+                totalPages = 10,
+                pageSequence = listOf(3, 6, 9, 5)
+            ),
+            TestConfig(
+                title = "random-starts-with-noSmooth",
+                orientation = orientation,
+                totalPages = 12,
+                pageSequence = listOf(5, 11, 3, 8, 0, 10, 9, 7, 0, 4),
+                instantScrolls = setOf(0, 1, 2, 8)
+            ),
+            TestConfig(
+                title = "random-ends-with-noSmooth",
+                orientation = orientation,
+                totalPages = 12,
+                pageSequence = listOf(2, 7, 10, 1, 6, 10, 2, 8, 9, 6),
+                instantScrolls = setOf(1, 7, 9)
+            ),
+            TestConfig(
+                title = "random-ends-with-double-noSmooth",
+                orientation = orientation,
+                totalPages = 12,
+                pageSequence = listOf(8, 7, 9, 7, 3, 0, 7, 11, 10, 0),
+                instantScrolls = setOf(1, 4, 5, 8, 9)
+            ),
+            TestConfig(
+                title = "smooth-instant-long_smooth",
+                orientation = orientation,
+                totalPages = 5,
+                pageSequence = listOf(3, 4, 0),
+                instantScrolls = setOf(1)
+            )
         )
-    )
-        .plus(
-            List(RANDOM_TESTS_PER_CONFIG) { createRandomTest(orientation) }
-        )
+        .plus(List(RANDOM_TESTS_PER_CONFIG) { createRandomTest(orientation) })
     // To rerun a failed random test, lookup the seed and the orientation of the test in the test
     // output, give it a name and add the following code to createTestSet():
     //   .plus(listOf(

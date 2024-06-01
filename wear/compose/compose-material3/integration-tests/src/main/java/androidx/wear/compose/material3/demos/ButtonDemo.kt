@@ -64,34 +64,16 @@ fun ButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        item { ListHeader { Text("1 slot button") } }
+        item { SimpleButtonSample() }
         item {
-            ListHeader {
-                Text("1 slot button")
-            }
+            ButtonWithOnLongClick({ showOnClickToast(context) }) { showOnLongClickToast(context) }
         }
         item {
-            SimpleButtonSample()
+            Button(onClick = { /* Do something */ }, label = { Text("Button") }, enabled = false)
         }
-        item {
-            ButtonWithOnLongClick({ showOnClickToast(context) }) {
-                showOnLongClickToast(context)
-            }
-        }
-        item {
-            Button(
-                onClick = { /* Do something */ },
-                label = { Text("Button") },
-                enabled = false
-            )
-        }
-        item {
-            ListHeader {
-                Text("3 slot button")
-            }
-        }
-        item {
-            ButtonSample()
-        }
+        item { ListHeader { Text("3 slot button") } }
+        item { ButtonSample() }
         item {
             Button(
                 onClick = { /* Do something */ },
@@ -117,14 +99,8 @@ fun FilledTonalButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("1 slot button")
-            }
-        }
-        item {
-            SimpleFilledTonalButtonSample()
-        }
+        item { ListHeader { Text("1 slot button") } }
+        item { SimpleFilledTonalButtonSample() }
         item {
             FilledTonalButtonWithOnLongClick({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
@@ -137,14 +113,8 @@ fun FilledTonalButtonDemo() {
                 enabled = false
             )
         }
-        item {
-            ListHeader {
-                Text("3 slot button")
-            }
-        }
-        item {
-            FilledTonalButtonSample()
-        }
+        item { ListHeader { Text("3 slot button") } }
+        item { FilledTonalButtonSample() }
         item {
             FilledTonalButton(
                 onClick = { /* Do something */ },
@@ -170,14 +140,8 @@ fun OutlinedButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("1 slot button")
-            }
-        }
-        item {
-            SimpleOutlinedButtonSample()
-        }
+        item { ListHeader { Text("1 slot button") } }
+        item { SimpleOutlinedButtonSample() }
         item {
             OutlinedButtonWithOnLongClick({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
@@ -190,14 +154,8 @@ fun OutlinedButtonDemo() {
                 enabled = false
             )
         }
-        item {
-            ListHeader {
-                Text("3 slot button")
-            }
-        }
-        item {
-            OutlinedButtonSample()
-        }
+        item { ListHeader { Text("3 slot button") } }
+        item { OutlinedButtonSample() }
         item {
             OutlinedButton(
                 onClick = { /* Do something */ },
@@ -223,14 +181,8 @@ fun ChildButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("1 slot button")
-            }
-        }
-        item {
-            SimpleChildButtonSample()
-        }
+        item { ListHeader { Text("1 slot button") } }
+        item { SimpleChildButtonSample() }
         item {
             ChildButtonWithOnLongClick({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
@@ -243,14 +195,8 @@ fun ChildButtonDemo() {
                 enabled = false
             )
         }
-        item {
-            ListHeader {
-                Text("3 slot button")
-            }
-        }
-        item {
-            ChildButtonSample()
-        }
+        item { ListHeader { Text("3 slot button") } }
+        item { ChildButtonSample() }
         item {
             ChildButton(
                 onClick = { /* Do something */ },
@@ -276,25 +222,15 @@ fun CompactButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("2 slot compact button")
-            }
-        }
-        item {
-            CompactButtonSample()
-        }
+        item { ListHeader { Text("2 slot compact button") } }
+        item { CompactButtonSample() }
         item {
             CompactButtonWithOnLongClick({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
             }
         }
-        item {
-            FilledTonalCompactButtonSample()
-        }
-        item {
-            OutlinedCompactButtonSample()
-        }
+        item { FilledTonalCompactButtonSample() }
+        item { OutlinedCompactButtonSample() }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
@@ -304,11 +240,7 @@ fun CompactButtonDemo() {
                 Text("Child Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        item {
-            ListHeader {
-                Text("Icon only compact button")
-            }
-        }
+        item { ListHeader { Text("Icon only compact button") } }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
@@ -337,11 +269,7 @@ fun CompactButtonDemo() {
                 colors = ButtonDefaults.childButtonColors()
             )
         }
-        item {
-            ListHeader {
-                Text("Text only compact button")
-            }
-        }
+        item { ListHeader { Text("Text only compact button") } }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
@@ -383,34 +311,14 @@ fun MultilineButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("3 line label")
-            }
-        }
-        item {
-            MultilineButton(enabled = true)
-        }
-        item {
-            MultilineButton(enabled = false)
-        }
-        item {
-            MultilineButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) })
-        }
-        item {
-            MultilineButton(enabled = false, icon = { StandardIcon(ButtonDefaults.IconSize) })
-        }
-        item {
-            ListHeader {
-                Text("5 line button")
-            }
-        }
-        item {
-            Multiline3SlotButton(enabled = true)
-        }
-        item {
-            Multiline3SlotButton(enabled = false)
-        }
+        item { ListHeader { Text("3 line label") } }
+        item { MultilineButton(enabled = true) }
+        item { MultilineButton(enabled = false) }
+        item { MultilineButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) }) }
+        item { MultilineButton(enabled = false, icon = { StandardIcon(ButtonDefaults.IconSize) }) }
+        item { ListHeader { Text("5 line button") } }
+        item { Multiline3SlotButton(enabled = true) }
+        item { Multiline3SlotButton(enabled = false) }
         item {
             Multiline3SlotButton(enabled = true, icon = { StandardIcon(ButtonDefaults.IconSize) })
         }
@@ -426,28 +334,12 @@ fun AvatarButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Label + Avatar")
-            }
-        }
-        item {
-            AvatarButton(enabled = true)
-        }
-        item {
-            AvatarButton(enabled = false)
-        }
-        item {
-            ListHeader {
-                Text("Primary/Secondary + Avatar")
-            }
-        }
-        item {
-            Avatar3SlotButton(enabled = true)
-        }
-        item {
-            Avatar3SlotButton(enabled = false)
-        }
+        item { ListHeader { Text("Label + Avatar") } }
+        item { AvatarButton(enabled = true) }
+        item { AvatarButton(enabled = false) }
+        item { ListHeader { Text("Primary/Secondary + Avatar") } }
+        item { Avatar3SlotButton(enabled = true) }
+        item { Avatar3SlotButton(enabled = false) }
     }
 }
 

@@ -70,40 +70,25 @@ class RemoteService : LifecycleService() {
     private fun handleIntent(intent: Intent?) {
         when (intent?.action) {
             ACTION_ENQUEUE_WORK -> {
-                mScope.launch {
-                    enqueueWorkRequest()
-                }
+                mScope.launch { enqueueWorkRequest() }
             }
             ACTION_ENQUEUE_CONTINUATION -> {
-                mScope.launch {
-                    enqueueContinuation()
-                }
+                mScope.launch { enqueueContinuation() }
             }
             ACTION_CANCEL_WORK_BY_TAG -> {
-                mScope.launch {
-                    cancelAllWorkByTag()
-                }
+                mScope.launch { cancelAllWorkByTag() }
             }
             ACTION_CANCEL_ALL_WORK -> {
-                mScope.launch {
-                    cancelAllWork()
-                }
+                mScope.launch { cancelAllWork() }
             }
             ACTION_QUERY_WORK_INFO -> {
-                mScope.launch {
-                    queryWorkInfo()
-                }
+                mScope.launch { queryWorkInfo() }
             }
             ACTION_ENQUEUE_UNIQUE_PERIODIC -> {
-                mScope.launch {
-                    enqueuePeriodicWorkRequestWithInitialDelay()
-                }
+                mScope.launch { enqueuePeriodicWorkRequestWithInitialDelay() }
             }
-
             ACTION_UPDATE_UNIQUE_PERIODIC -> {
-                mScope.launch {
-                    updateUniquePeriodicWork()
-                }
+                mScope.launch { updateUniquePeriodicWork() }
             }
             else -> Log.d(TAG, "Unknown intent")
         }
@@ -117,40 +102,43 @@ class RemoteService : LifecycleService() {
     }
 
     private suspend fun enqueuePeriodicWorkRequestWithInitialDelay() {
-        val request = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
-            .setInitialDelay(15L, TimeUnit.MINUTES)
-            .build()
+        val request =
+            PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
+                .setInitialDelay(15L, TimeUnit.MINUTES)
+                .build()
         Log.d(TAG, "Enqueue-ing PeriodicWorker ${request.id}")
         val remoteWorkManager = RemoteWorkManager.getInstance(this)
-        remoteWorkManager.enqueueUniquePeriodicWork(
-            "unique-periodic",
-            ExistingPeriodicWorkPolicy.KEEP, request
-        ).await()
+        remoteWorkManager
+            .enqueueUniquePeriodicWork("unique-periodic", ExistingPeriodicWorkPolicy.KEEP, request)
+            .await()
     }
 
     private suspend fun updateUniquePeriodicWork() {
-        val request = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
-            .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
-            .build()
+        val request =
+            PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
+                .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+                .build()
         Log.d(TAG, "Enqueue-ing PeriodicWorker ${request.id}")
         val remoteWorkManager = RemoteWorkManager.getInstance(this)
-        remoteWorkManager.enqueueUniquePeriodicWork(
-            "unique-periodic", ExistingPeriodicWorkPolicy.UPDATE, request
-        ).await()
+        remoteWorkManager
+            .enqueueUniquePeriodicWork(
+                "unique-periodic",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                request
+            )
+            .await()
     }
 
     @SuppressLint("EnqueueWork")
     private suspend fun enqueueContinuation() {
-        val request = OneTimeWorkRequestBuilder<TestWorker>()
-            .setInitialDelay(1, TimeUnit.MINUTES)
-            .addTag(WORK_TAG)
-            .build()
+        val request =
+            OneTimeWorkRequestBuilder<TestWorker>()
+                .setInitialDelay(1, TimeUnit.MINUTES)
+                .addTag(WORK_TAG)
+                .build()
 
         Log.d(TAG, "Enqueue-ing a Continuation")
-        RemoteWorkManager.getInstance(this)
-            .beginWith(request)
-            .enqueue()
-            .await()
+        RemoteWorkManager.getInstance(this).beginWith(request).enqueue().await()
     }
 
     private suspend fun cancelAllWorkByTag() {
@@ -167,14 +155,11 @@ class RemoteService : LifecycleService() {
 
     private suspend fun queryWorkInfo() {
         Log.d(TAG, "Querying work info")
-        val query = WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED))
-            .build()
+        val query = WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED)).build()
 
         val remoteWorkManager = RemoteWorkManager.getInstance(this)
         val workInfoList: List<WorkInfo> = remoteWorkManager.getWorkInfos(query).await()
-        workInfoList.forEach {
-            Log.d(TAG, "Found Worker with tags ${it.tags}")
-        }
+        workInfoList.forEach { Log.d(TAG, "Found Worker with tags ${it.tags}") }
     }
 
     companion object {

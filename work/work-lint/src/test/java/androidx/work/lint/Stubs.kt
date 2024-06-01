@@ -22,18 +22,22 @@ import com.android.tools.lint.checks.infrastructure.TestFile
 
 object Stubs {
 
-    val WORKER_FACTORY: TestFile = kotlin(
-        "androidx/work/WorkerFactory.kt",
-        """
+    val WORKER_FACTORY: TestFile =
+        kotlin(
+                "androidx/work/WorkerFactory.kt",
+                """
         package androidx.work
 
         open class WorkerFactory
     """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile = java(
-        "androidx/work/Configuration.java",
-        """
+    val WORK_MANAGER_CONFIGURATION_PROVIDER: TestFile =
+        java(
+                "androidx/work/Configuration.java",
+                """
                  package androidx.work; 
 
                  class Configuration {
@@ -50,12 +54,14 @@ object Stubs {
                     }
                  }
             """
-    )
-        .indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val ANDROID_APPLICATION: TestFile = kotlin(
-        "android/app/Application.kt",
-        """
+    val ANDROID_APPLICATION: TestFile =
+        kotlin(
+                "android/app/Application.kt",
+                """
                 package android.app
                 open class Application {
                   fun onCreate() {
@@ -63,21 +69,26 @@ object Stubs {
                   }
                 }
             """
-    )
-        .indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val LISTENABLE_WORKER: TestFile = kotlin(
-        "androidx/work/ListenableWorker.kt",
-        """
+    val LISTENABLE_WORKER: TestFile =
+        kotlin(
+                "androidx/work/ListenableWorker.kt",
+                """
             package androidx.work
 
             open class ListenableWorker
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val RX_WORKER: TestFile = kotlin(
-        "androidx/work/RxWorker.kt",
-        """
+    val RX_WORKER: TestFile =
+        kotlin(
+                "androidx/work/RxWorker.kt",
+                """
             package androidx.work
 
             open class RxWorker: ListenableWorker() {
@@ -90,29 +101,38 @@ object Stubs {
                 }
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val WORK_REQUEST: TestFile = kotlin(
-        "androidx/work/WorkRequest.kt",
-        """
+    val WORK_REQUEST: TestFile =
+        kotlin(
+                "androidx/work/WorkRequest.kt",
+                """
             package androidx.work
 
             open class WorkRequest
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val ONE_TIME_WORK_REQUEST: TestFile = kotlin(
-        "androidx/work/OneTimeWorkRequest.kt",
-        """
+    val ONE_TIME_WORK_REQUEST: TestFile =
+        kotlin(
+                "androidx/work/OneTimeWorkRequest.kt",
+                """
             package androidx.work
 
             class OneTimeWorkRequest: WorkRequest()
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val PERIODIC_WORK_REQUEST: TestFile = kotlin(
-        "androidx/work/PeriodicWorkRequest.kt",
-        """
+    val PERIODIC_WORK_REQUEST: TestFile =
+        kotlin(
+                "androidx/work/PeriodicWorkRequest.kt",
+                """
             package androidx.work
 
             import androidx.work.ListenableWorker
@@ -147,11 +167,14 @@ object Stubs {
                 }
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val CONSTRAINTS: TestFile = java(
-        "androidx/work/Constraints.java",
-        """
+    val CONSTRAINTS: TestFile =
+        java(
+                "androidx/work/Constraints.java",
+                """
         package androidx.work;
 
         class Constraints {
@@ -165,32 +188,41 @@ object Stubs {
             }
         }
     """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val NOTIFICATION: TestFile = kotlin(
-        "android/app/Notification.kt",
-        """
+    val NOTIFICATION: TestFile =
+        kotlin(
+                "android/app/Notification.kt",
+                """
             package android.app
 
             class Notification {
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val JOB_SERVICE: TestFile = kotlin(
-        "android/app/job/JobService.kt",
-        """
+    val JOB_SERVICE: TestFile =
+        kotlin(
+                "android/app/job/JobService.kt",
+                """
             package android.app.job
 
             open class JobService {
 
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val FOREGROUND_INFO: TestFile = java(
-        "androidx/work/ForegroundInfo.java",
-        """
+    val FOREGROUND_INFO: TestFile =
+        java(
+                "androidx/work/ForegroundInfo.java",
+                """
             package androidx.work;
 
             import android.app.Notification;
@@ -202,11 +234,14 @@ object Stubs {
                     int foregroundServiceType) { }
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val WORK_MANAGER: TestFile = kotlin(
-        "androidx/work/WorkManager.kt",
-        """
+    val WORK_MANAGER: TestFile =
+        kotlin(
+                "androidx/work/WorkManager.kt",
+                """
                  package androidx.work
 
                  interface WorkManager {
@@ -215,6 +250,7 @@ object Stubs {
                     fun enqueueUniqueWork(name: String, request: PeriodicWorkRequest)
                  }
             """
-    )
-        .indented().within("src")
+            )
+            .indented()
+            .within("src")
 }

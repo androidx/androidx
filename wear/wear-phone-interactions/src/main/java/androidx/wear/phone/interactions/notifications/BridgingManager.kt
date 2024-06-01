@@ -29,20 +29,16 @@ import android.support.wearable.notifications.IBridgingManagerService
 /**
  * APIs to enable/disable notification bridging at runtime.
  *
- *
  * Using a BridgingManager object, you can set a bridging mode, and optionally set tags for
  * notifications that are exempt from the bridging mode. Specifically, create a [BridgingConfig]
  * object and set is as shown in the example usages below:
- *
- *
- *  * Disable bridging at runtime:
+ * * Disable bridging at runtime:
  * ```
  * BridgingManager.fromContext(context).setConfig(
  *     new BridgingConfig.Builder(context, false).build()
  * );
  * ```
- *
- *  * Disable bridging at runtime except for the tags "foo" and "bar":
+ * * Disable bridging at runtime except for the tags "foo" and "bar":
  * ```
  * BridgingManager.fromContext(context).setConfig(
  *     new BridgingConfig.Builder(context, false)
@@ -51,8 +47,7 @@ import android.support.wearable.notifications.IBridgingManagerService
  *         .build()
  * );
  * ```
- *
- *  * Disable bridging at runtime except for the tags "foo" and "bar" and "baz":
+ * * Disable bridging at runtime except for the tags "foo" and "bar" and "baz":
  * ```
  * BridgingManager.fromContext(context).setConfig(
  *     new BridgingConfig.Builder(context, false)
@@ -60,8 +55,7 @@ import android.support.wearable.notifications.IBridgingManagerService
  *         .build()
  *  );
  * ```
- *
- *  * Adding a bridge tag to a notification posted on a phone:
+ * * Adding a bridge tag to a notification posted on a phone:
  * ```
  * NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
  * // ... set other fields ...
@@ -82,7 +76,6 @@ public class BridgingManager private constructor(private val context: Context) {
      * Sets the BridgingConfig object.
      *
      * @param bridgingConfig The BridgingConfig object.
-     *
      * @throws RuntimeException if the service binding is failed.
      */
     public fun setConfig(bridgingConfig: BridgingConfig) {
@@ -96,11 +89,10 @@ public class BridgingManager private constructor(private val context: Context) {
         }
     }
 
-    /** Class responsible for sending the bridge mode to ClockworkHome.  */
-    private class BridgingConfigServiceConnection internal constructor(
-        private val context: Context,
-        bridgingConfig: BridgingConfig
-    ) : ServiceConnection {
+    /** Class responsible for sending the bridge mode to ClockworkHome. */
+    private class BridgingConfigServiceConnection
+    internal constructor(private val context: Context, bridgingConfig: BridgingConfig) :
+        ServiceConnection {
         private val bundle: Bundle = bridgingConfig.toBundle(context)
 
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
@@ -126,6 +118,7 @@ public class BridgingManager private constructor(private val context: Context) {
 
         /**
          * Create a BridgingManager instance with the passed in Context.
+         *
          * @param context Context object.
          */
         @JvmStatic

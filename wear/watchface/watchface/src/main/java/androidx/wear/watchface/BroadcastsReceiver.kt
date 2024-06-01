@@ -146,8 +146,7 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
                 val level: Int = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
                 val scale: Int = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
                 level * 100 / scale.toFloat()
-            }
-                ?: 100.0f
+            } ?: 100.0f
         if (batteryPercent < INITIAL_LOW_BATTERY_THRESHOLD) {
             observer.onActionBatteryLow()
         } else {

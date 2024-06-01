@@ -66,16 +66,12 @@ private fun iterativelyCancelWorkAndDependents(workDatabase: WorkDatabase, workS
  * @param workManagerImpl The [WorkManagerImpl] to use
  * @return A [Operation]
  */
-fun forId(
-    id: UUID,
-    workManagerImpl: WorkManagerImpl
-): Operation = launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
-    val workDatabase = workManagerImpl.workDatabase
-    workDatabase.runInTransaction {
-        cancel(workManagerImpl, id.toString())
+fun forId(id: UUID, workManagerImpl: WorkManagerImpl): Operation =
+    launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+        val workDatabase = workManagerImpl.workDatabase
+        workDatabase.runInTransaction { cancel(workManagerImpl, id.toString()) }
+        reschedulePendingWorkers(workManagerImpl)
     }
-    reschedulePendingWorkers(workManagerImpl)
-}
 
 /**
  * Cancels work for a specific tag.
@@ -84,40 +80,33 @@ fun forId(
  * @param workManagerImpl The [WorkManagerImpl] to use
  * @return A [Operation]
  */
-fun forTag(
-    tag: String,
-    workManagerImpl: WorkManagerImpl
-): Operation = launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
-    val workDatabase = workManagerImpl.workDatabase
-    workDatabase.runInTransaction {
-        val workSpecDao = workDatabase.workSpecDao()
-        val workSpecIds = workSpecDao.getUnfinishedWorkWithTag(tag)
-        for (workSpecId in workSpecIds) {
-            cancel(workManagerImpl, workSpecId)
+fun forTag(tag: String, workManagerImpl: WorkManagerImpl): Operation =
+    launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+        val workDatabase = workManagerImpl.workDatabase
+        workDatabase.runInTransaction {
+            val workSpecDao = workDatabase.workSpecDao()
+            val workSpecIds = workSpecDao.getUnfinishedWorkWithTag(tag)
+            for (workSpecId in workSpecIds) {
+                cancel(workManagerImpl, workSpecId)
+            }
         }
+        reschedulePendingWorkers(workManagerImpl)
     }
-    reschedulePendingWorkers(workManagerImpl)
-}
 
 /**
- *  Cancels work labelled with a specific name.
+ * Cancels work labelled with a specific name.
  *
  * @param name The name to cancel
  * @param workManagerImpl The [WorkManagerImpl] to use
  * @return A [Operation]
  */
-fun forName(
-    name: String,
-    workManagerImpl: WorkManagerImpl
-): Operation = launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
-    forNameInline(name, workManagerImpl)
-    reschedulePendingWorkers(workManagerImpl)
-}
+fun forName(name: String, workManagerImpl: WorkManagerImpl): Operation =
+    launchOperation(workManagerImpl.workTaskExecutor.serialTaskExecutor) {
+        forNameInline(name, workManagerImpl)
+        reschedulePendingWorkers(workManagerImpl)
+    }
 
-fun forNameInline(
-    name: String,
-    workManagerImpl: WorkManagerImpl
-) {
+fun forNameInline(name: String, workManagerImpl: WorkManagerImpl) {
     val workDatabase = workManagerImpl.workDatabase
     workDatabase.runInTransaction {
         val workSpecDao = workDatabase.workSpecDao()
@@ -144,9 +133,8 @@ fun forAll(workManagerImpl: WorkManagerImpl): Operation =
                 cancel(workManagerImpl, workSpecId)
             }
             // Update the last cancelled time in Preference.
-            PreferenceUtils(workDatabase).setLastCancelAllTimeMillis(
-                workManagerImpl.configuration.clock.currentTimeMillis()
-            )
+            PreferenceUtils(workDatabase)
+                .setLastCancelAllTimeMillis(workManagerImpl.configuration.clock.currentTimeMillis())
         }
         // No need to call reschedule pending workers here as we just cancelled everything.
     }

@@ -53,18 +53,12 @@ import org.junit.Rule
 import org.junit.Test
 
 class IconButtonTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
         rule.setContentWithTheme {
-            IconButton(
-                modifier = Modifier.testTag(TEST_TAG),
-                onClick = {}
-            ) {
-                TestImage()
-            }
+            IconButton(modifier = Modifier.testTag(TEST_TAG), onClick = {}) { TestImage() }
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -73,11 +67,7 @@ class IconButtonTest {
     @Test
     fun has_click_action_when_enabled() {
         rule.setContentWithTheme {
-            IconButton(
-                onClick = {},
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
+            IconButton(onClick = {}, enabled = true, modifier = Modifier.testTag(TEST_TAG)) {
                 TestImage()
             }
         }
@@ -88,11 +78,7 @@ class IconButtonTest {
     @Test
     fun has_click_action_when_disabled() {
         rule.setContentWithTheme {
-            IconButton(
-                onClick = {},
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
+            IconButton(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
                 TestImage()
             }
         }
@@ -103,11 +89,7 @@ class IconButtonTest {
     @Test
     fun is_correctly_enabled() {
         rule.setContentWithTheme {
-            IconButton(
-                onClick = {},
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
+            IconButton(onClick = {}, enabled = true, modifier = Modifier.testTag(TEST_TAG)) {
                 TestImage()
             }
         }
@@ -118,11 +100,7 @@ class IconButtonTest {
     @Test
     fun is_correctly_disabled() {
         rule.setContentWithTheme {
-            IconButton(
-                onClick = {},
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
+            IconButton(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
                 TestImage()
             }
         }
@@ -146,9 +124,7 @@ class IconButtonTest {
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            assertEquals(true, clicked)
-        }
+        rule.runOnIdle { assertEquals(true, clicked) }
     }
 
     @Test
@@ -167,29 +143,18 @@ class IconButtonTest {
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            assertEquals(false, clicked)
-        }
+        rule.runOnIdle { assertEquals(false, clicked) }
     }
 
     @Test
     fun has_role_button() {
         rule.setContentWithTheme {
-            IconButton(
-                onClick = {},
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-                TestImage()
-            }
+            IconButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { TestImage() }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Button
-                )
-            )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
     }
 
     @Test
@@ -199,29 +164,21 @@ class IconButtonTest {
         rule.setContentWithTheme {
             IconButton(
                 onClick = {},
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .semantics { role = overrideRole }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
             ) {
                 TestImage()
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).assert(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.Role,
-                overrideRole
-            )
-        )
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, overrideRole))
     }
 
     @Test
     fun gives_default_button_correct_tap_size() {
         rule.verifyTapSize(DefaultButtonSize) { modifier ->
-            IconButton(
-                onClick = {},
-                modifier = modifier.touchTargetAwareSize(DefaultButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = modifier.touchTargetAwareSize(DefaultButtonSize)) {
                 TestImage()
             }
         }
@@ -230,10 +187,7 @@ class IconButtonTest {
     @Test
     fun gives_large_button_correct_tap_size() {
         rule.verifyTapSize(LargeButtonSize) { modifier ->
-            IconButton(
-                onClick = {},
-                modifier = modifier.touchTargetAwareSize(LargeButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = modifier.touchTargetAwareSize(LargeButtonSize)) {
                 TestImage()
             }
         }
@@ -242,10 +196,7 @@ class IconButtonTest {
     @Test
     fun gives_small_button_correct_tap_size() {
         rule.verifyTapSize(SmallButtonSize) { modifier ->
-            IconButton(
-                onClick = {},
-                modifier = modifier.touchTargetAwareSize(SmallButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = modifier.touchTargetAwareSize(SmallButtonSize)) {
                 TestImage()
             }
         }
@@ -253,9 +204,7 @@ class IconButtonTest {
 
     @Test
     fun gives_extra_small_button_correct_tap_size() {
-        rule.verifyTapSize(
-            expectedSize = MinimumButtonTapSize
-        ) { modifier ->
+        rule.verifyTapSize(expectedSize = MinimumButtonTapSize) { modifier ->
             IconButton(
                 onClick = {},
                 modifier = modifier.touchTargetAwareSize(ExtraSmallButtonSize)
@@ -268,10 +217,7 @@ class IconButtonTest {
     @Test
     fun gives_default_correct_size() =
         rule.verifyActualSize(DefaultButtonSize) {
-            IconButton(
-                onClick = {},
-                modifier = it.touchTargetAwareSize(DefaultButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = it.touchTargetAwareSize(DefaultButtonSize)) {
                 TestImage()
             }
         }
@@ -279,10 +225,7 @@ class IconButtonTest {
     @Test
     fun gives_small_correct_size() =
         rule.verifyActualSize(SmallButtonSize) {
-            IconButton(
-                onClick = {},
-                modifier = it.touchTargetAwareSize(SmallButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = it.touchTargetAwareSize(SmallButtonSize)) {
                 TestImage()
             }
         }
@@ -290,10 +233,7 @@ class IconButtonTest {
     @Test
     fun gives_extraSmall_correct_size() =
         rule.verifyActualSize(ExtraSmallButtonSize) {
-            IconButton(
-                onClick = {},
-                modifier = it.touchTargetAwareSize(ExtraSmallButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = it.touchTargetAwareSize(ExtraSmallButtonSize)) {
                 TestImage()
             }
         }
@@ -301,10 +241,7 @@ class IconButtonTest {
     @Test
     fun gives_large_correct_size() =
         rule.verifyActualSize(LargeButtonSize) {
-            IconButton(
-                onClick = {},
-                modifier = it.touchTargetAwareSize(LargeButtonSize)
-            ) {
+            IconButton(onClick = {}, modifier = it.touchTargetAwareSize(LargeButtonSize)) {
                 TestImage()
             }
         }
@@ -316,10 +253,7 @@ class IconButtonTest {
             expectedShape = CircleShape,
             colors = { IconButtonDefaults.iconButtonColors() }
         ) { modifier ->
-            IconButton(
-                onClick = {},
-                modifier = modifier
-            ) {
+            IconButton(onClick = {}, modifier = modifier) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }
@@ -330,15 +264,9 @@ class IconButtonTest {
     fun allows_custom_shape_override() {
         val shape = CutCornerShape(4.dp)
 
-        rule.isShape(
-            expectedShape = shape,
-            colors = { IconButtonDefaults.iconButtonColors() }
-        ) { modifier ->
-            IconButton(
-                onClick = {},
-                modifier = modifier,
-                shape = shape
-            ) {
+        rule.isShape(expectedShape = shape, colors = { IconButtonDefaults.iconButtonColors() }) {
+            modifier ->
+            IconButton(onClick = {}, modifier = modifier, shape = shape) {
                 // omit content to allow us to validate the shape by pixel checking.
             }
         }
@@ -362,9 +290,9 @@ class IconButtonTest {
             status = Status.Disabled,
             colors = { IconButtonDefaults.iconButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
-            ) }
+            expectedContentColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
+            }
         )
     }
 
@@ -385,12 +313,12 @@ class IconButtonTest {
         rule.verifyIconButtonColors(
             status = Status.Disabled,
             colors = { IconButtonDefaults.filledIconButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContainerAlpha
-            ) },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
-            ) }
+            expectedContainerColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContainerAlpha)
+            },
+            expectedContentColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
+            }
         )
     }
 
@@ -411,12 +339,12 @@ class IconButtonTest {
         rule.verifyIconButtonColors(
             status = Status.Disabled,
             colors = { IconButtonDefaults.filledTonalIconButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContainerAlpha
-            ) },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
-            ) }
+            expectedContainerColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContainerAlpha)
+            },
+            expectedContentColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
+            }
         )
     }
 
@@ -438,9 +366,9 @@ class IconButtonTest {
             status = Status.Disabled,
             colors = { IconButtonDefaults.outlinedIconButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
-            ) }
+            expectedContentColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
+            }
         )
     }
 
@@ -451,11 +379,7 @@ class IconButtonTest {
         rule.verifyButtonBorderColor(
             expectedBorderColor = { MaterialTheme.colorScheme.outline },
             content = { modifier: Modifier ->
-                OutlinedIconButton(
-                    onClick = {},
-                    modifier = modifier,
-                    enabled = status.enabled()
-                ) {}
+                OutlinedIconButton(onClick = {}, modifier = modifier, enabled = status.enabled()) {}
             }
         )
     }
@@ -469,11 +393,7 @@ class IconButtonTest {
                 MaterialTheme.colorScheme.outline.copy(alpha = DisabledBorderAlpha)
             },
             content = { modifier: Modifier ->
-                OutlinedIconButton(
-                    onClick = {},
-                    modifier = modifier,
-                    enabled = status.enabled()
-                ) {}
+                OutlinedIconButton(onClick = {}, modifier = modifier, enabled = status.enabled()) {}
             }
         )
     }
@@ -489,11 +409,12 @@ class IconButtonTest {
                     onClick = {},
                     modifier = modifier,
                     enabled = status.enabled(),
-                    border = ButtonDefaults.outlinedButtonBorder(
-                        enabled = status.enabled(),
-                        borderColor = Color.Green,
-                        disabledBorderColor = Color.Red
-                    )
+                    border =
+                        ButtonDefaults.outlinedButtonBorder(
+                            enabled = status.enabled(),
+                            borderColor = Color.Green,
+                            disabledBorderColor = Color.Red
+                        )
                 ) {}
             }
         )
@@ -544,11 +465,7 @@ private fun ComposeContentTestRule.isShape(
             if (buttonColor == Color.Transparent) {
                 buttonColor = background
             }
-            content(
-                Modifier
-                    .testTag(TEST_TAG)
-                    .padding(padding)
-            )
+            content(Modifier.testTag(TEST_TAG).padding(padding))
         }
     }
 

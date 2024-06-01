@@ -36,18 +36,12 @@ import androidx.wear.compose.material3.Text
 @Sampled
 @Composable
 fun SimpleButtonSample() {
-    Button(
-        onClick = { /* Do something */ },
-        label = { Text("Button") }
-    )
+    Button(onClick = { /* Do something */ }, label = { Text("Button") })
 }
 
 @Sampled
 @Composable
-fun ButtonWithOnLongClick(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit
-) {
+fun ButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     Button(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -76,18 +70,12 @@ fun ButtonSample() {
 @Sampled
 @Composable
 fun SimpleFilledTonalButtonSample() {
-    FilledTonalButton(
-        onClick = { /* Do something */ },
-        label = { Text("Filled Tonal Button") }
-    )
+    FilledTonalButton(onClick = { /* Do something */ }, label = { Text("Filled Tonal Button") })
 }
 
 @Sampled
 @Composable
-fun FilledTonalButtonWithOnLongClick(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit
-) {
+fun FilledTonalButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     FilledTonalButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -116,18 +104,12 @@ fun FilledTonalButtonSample() {
 @Sampled
 @Composable
 fun SimpleOutlinedButtonSample() {
-    OutlinedButton(
-        onClick = { /* Do something */ },
-        label = { Text("Outlined Button") }
-    )
+    OutlinedButton(onClick = { /* Do something */ }, label = { Text("Outlined Button") })
 }
 
 @Sampled
 @Composable
-fun OutlinedButtonWithOnLongClick(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit
-) {
+fun OutlinedButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     OutlinedButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -156,18 +138,12 @@ fun OutlinedButtonSample() {
 @Sampled
 @Composable
 fun SimpleChildButtonSample() {
-    ChildButton(
-        onClick = { /* Do something */ },
-        label = { Text("Child Button") }
-    )
+    ChildButton(onClick = { /* Do something */ }, label = { Text("Child Button") })
 }
 
 @Sampled
 @Composable
-fun ChildButtonWithOnLongClick(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit
-) {
+fun ChildButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     ChildButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -212,10 +188,7 @@ fun CompactButtonSample() {
 
 @Sampled
 @Composable
-fun CompactButtonWithOnLongClick(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit
-) {
+fun CompactButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     CompactButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,

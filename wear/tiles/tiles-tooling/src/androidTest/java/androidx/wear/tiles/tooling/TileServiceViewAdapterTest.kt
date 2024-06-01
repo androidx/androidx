@@ -141,31 +141,31 @@ class TileServiceViewAdapterTest(
 
     private fun assertThatTileHasInflatedSuccessfully(expectedText: String = "Hello world!") {
         activityTestRule.runOnUiThread {
-            val textView = when (
-                val child = (tileServiceViewAdapter.getChildAt(0) as ViewGroup).getChildAt(0)
-            ) {
-                is TextView -> child
-                // layout elements are wrapped with a FrameLayout
-                else -> (child as? FrameLayout)?.getChildAt(0) as? TextView
-            }
+            val textView =
+                when (
+                    val child = (tileServiceViewAdapter.getChildAt(0) as ViewGroup).getChildAt(0)
+                ) {
+                    is TextView -> child
+                    // layout elements are wrapped with a FrameLayout
+                    else -> (child as? FrameLayout)?.getChildAt(0) as? TextView
+                }
             assertNotNull(textView)
             assertEquals(expectedText, textView?.text.toString())
         }
     }
 
     private fun assertThatTileHasNotInflated() {
-        activityTestRule.runOnUiThread {
-            assertEquals(0, tileServiceViewAdapter.childCount)
-        }
+        activityTestRule.runOnUiThread { assertEquals(0, tileServiceViewAdapter.childCount) }
     }
 
     companion object {
         @Parameterized.Parameters
         @JvmStatic
-        fun parameters() = listOf(
-            TEST_TILE_PREVIEWS_KOTLIN_FILE,
-            TEST_TILE_PREVIEWS_JAVA_FILE,
-        )
+        fun parameters() =
+            listOf(
+                TEST_TILE_PREVIEWS_KOTLIN_FILE,
+                TEST_TILE_PREVIEWS_JAVA_FILE,
+            )
 
         class TestActivity : Activity() {
             override fun onCreate(savedInstanceState: Bundle?) {

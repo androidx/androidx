@@ -45,31 +45,21 @@ fun TextButtonDemo() {
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader {
-                Text("Text Button")
-            }
-        }
+        item { ListHeader { Text("Text Button") } }
         item {
             Row {
                 TextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                TextButton(onClick = { }, enabled = false) {
-                    Text(text = "ABC")
-                }
+                TextButton(onClick = {}, enabled = false) { Text(text = "ABC") }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled Tonal")
-            }
-        }
+        item { ListHeader { Text("Filled Tonal") } }
         item {
             Row {
                 FilledTonalTextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.filledTonalTextButtonColors()
                 ) {
@@ -77,17 +67,13 @@ fun TextButtonDemo() {
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Filled")
-            }
-        }
+        item { ListHeader { Text("Filled") } }
         item {
             Row {
                 FilledTextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.filledTextButtonColors()
                 ) {
@@ -95,17 +81,13 @@ fun TextButtonDemo() {
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Outlined")
-            }
-        }
+        item { ListHeader { Text("Outlined") } }
         item {
             Row {
                 OutlinedTextButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 TextButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     colors = TextButtonDefaults.outlinedTextButtonColors(),
                     border = ButtonDefaults.outlinedButtonBorder(enabled = false)
@@ -114,11 +96,7 @@ fun TextButtonDemo() {
                 }
             }
         }
-        item {
-            ListHeader {
-                Text("Sizes")
-            }
-        }
+        item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${TextButtonDefaults.LargeButtonSize.value.toInt()}dp")
@@ -147,7 +125,7 @@ fun TextButtonDemo() {
 private fun TextButtonWithSize(size: Dp) {
     TextButton(
         modifier = Modifier.touchTargetAwareSize(size),
-        onClick = { },
+        onClick = {},
         enabled = true,
         colors = TextButtonDefaults.filledTonalTextButtonColors()
     ) {

@@ -51,25 +51,17 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class TextButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
-    fun filled_text_button_enabled() = verifyScreenshot {
-        sampleFilledTextButton(enabled = true)
-    }
+    fun filled_text_button_enabled() = verifyScreenshot { sampleFilledTextButton(enabled = true) }
 
     @Test
-    fun filled_text_button_disabled() =
-        verifyScreenshot {
-            sampleFilledTextButton(enabled = false)
-        }
+    fun filled_text_button_disabled() = verifyScreenshot { sampleFilledTextButton(enabled = false) }
 
     @Test
     fun filled_tonal_text_button_enabled() = verifyScreenshot {
@@ -77,10 +69,9 @@ class TextButtonScreenshotTest {
     }
 
     @Test
-    fun filled_tonal_text_button_disabled() =
-        verifyScreenshot {
-            sampleFilledTonalTextButton(enabled = false)
-        }
+    fun filled_tonal_text_button_disabled() = verifyScreenshot {
+        sampleFilledTonalTextButton(enabled = false)
+    }
 
     @Test
     fun outlined_text_button_enabled() = verifyScreenshot {
@@ -92,15 +83,9 @@ class TextButtonScreenshotTest {
         sampleOutlinedTextButton(enabled = false)
     }
 
-    @Test
-    fun text_button_enabled() = verifyScreenshot {
-        sampleTextButton(enabled = true)
-    }
+    @Test fun text_button_enabled() = verifyScreenshot { sampleTextButton(enabled = true) }
 
-    @Test
-    fun text_button_disabled() = verifyScreenshot {
-        sampleTextButton(enabled = false)
-    }
+    @Test fun text_button_disabled() = verifyScreenshot { sampleTextButton(enabled = false) }
 
     @Test
     fun text_button_with_offset() = verifyScreenshot {
@@ -146,11 +131,7 @@ class TextButtonScreenshotTest {
 
     @Composable
     private fun sampleTextButton(enabled: Boolean, modifier: Modifier = Modifier) {
-        TextButton(
-            onClick = {},
-            enabled = enabled,
-            modifier = modifier.testTag(TEST_TAG)
-        ) {
+        TextButton(onClick = {}, enabled = enabled, modifier = modifier.testTag(TEST_TAG)) {
             Text(text = "ABC")
         }
     }
@@ -161,15 +142,15 @@ class TextButtonScreenshotTest {
     ) {
         rule.setContentWithTheme {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             ) {
                 content()
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertAgainstGolden(screenshotRule, methodName)
     }
 }

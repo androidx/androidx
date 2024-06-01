@@ -33,9 +33,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun namesOnlyTest1() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -46,8 +47,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertTags(retry)
         insertName("name", retry)
 
-        val querySpec = WorkQuery.Builder.fromUniqueWorkNames(listOf("name"))
-            .build()
+        val querySpec = WorkQuery.Builder.fromUniqueWorkNames(listOf("name")).build()
         listOf(querySpec, WorkQuery.fromUniqueWorkNames("name")).forEach {
             val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
             assertThat(pojos.size, `is`(1))
@@ -58,9 +58,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun namesOnlyTest2() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -72,10 +73,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertTags(retry)
         insertName("name2", retry)
 
-        val builderSpec = WorkQuery.Builder
-            .fromUniqueWorkNames(listOf("name1"))
-            .addUniqueWorkNames(listOf("name2"))
-            .build()
+        val builderSpec =
+            WorkQuery.Builder.fromUniqueWorkNames(listOf("name1"))
+                .addUniqueWorkNames(listOf("name2"))
+                .build()
 
         val varArgSpec = WorkQuery.fromUniqueWorkNames(listOf("name1", "name2"))
         val listSpec = WorkQuery.fromUniqueWorkNames("name1", "name2")
@@ -95,9 +96,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(test)
         insertWork(retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromIds(listOf(test.id))
-            .build()
+        val querySpec = WorkQuery.Builder.fromIds(listOf(test.id)).build()
 
         listOf(querySpec, WorkQuery.fromIds(test.id)).forEach {
             val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
@@ -139,9 +138,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val builderSpec = WorkQuery.Builder
-            .fromTags(listOf(TestWorker::class.java.name))
-            .build()
+        val builderSpec = WorkQuery.Builder.fromTags(listOf(TestWorker::class.java.name)).build()
 
         listOf(builderSpec, WorkQuery.fromTags(TestWorker::class.java.name)).forEach {
             val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
@@ -162,19 +159,15 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val builderSpec = WorkQuery.Builder
-            .fromTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
-            .build()
-        val varArgSpec = WorkQuery.fromTags(
-            TestWorker::class.java.name,
-            RetryWorker::class.java.name
-        )
-        val listSpec = WorkQuery.fromTags(
-            listOf(
-                TestWorker::class.java.name,
-                RetryWorker::class.java.name
-            )
-        )
+        val builderSpec =
+            WorkQuery.Builder.fromTags(
+                    listOf(TestWorker::class.java.name, RetryWorker::class.java.name)
+                )
+                .build()
+        val varArgSpec =
+            WorkQuery.fromTags(TestWorker::class.java.name, RetryWorker::class.java.name)
+        val listSpec =
+            WorkQuery.fromTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
 
         listOf(builderSpec, varArgSpec, listSpec).forEach {
             val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
@@ -185,13 +178,15 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun statesOnlyTest1() {
-        val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test1 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
-        val test2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.CANCELLED)
-            .build()
+        val test2 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.CANCELLED)
+                .build()
 
         insertWork(test1)
         insertTags(test1)
@@ -199,9 +194,7 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(test2)
         insertTags(test2)
 
-        val builderSpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.RUNNING))
-            .build()
+        val builderSpec = WorkQuery.Builder.fromStates(listOf(WorkInfo.State.RUNNING)).build()
 
         listOf(builderSpec, WorkQuery.fromStates(WorkInfo.State.RUNNING)).forEach {
             val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
@@ -214,17 +207,20 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun statesOnlyTest2() {
-        val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test1 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
-        val test2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.CANCELLED)
-            .build()
+        val test2 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.CANCELLED)
+                .build()
 
-        val test3 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.ENQUEUED)
-            .build()
+        val test3 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.ENQUEUED)
+                .build()
 
         insertWork(test1)
         insertTags(test1)
@@ -235,14 +231,13 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(test3)
         insertTags(test3)
 
-        val builderSpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED))
-            .build()
+        val builderSpec =
+            WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED))
+                .build()
 
         val varArgSpec = WorkQuery.fromStates(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED)
-        val listSpec = WorkQuery.fromStates(
-            listOf(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED)
-        )
+        val listSpec =
+            WorkQuery.fromStates(listOf(WorkInfo.State.ENQUEUED, WorkInfo.State.CANCELLED))
 
         listOf(builderSpec, varArgSpec, listSpec).forEach {
             val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(it.toRawQuery())
@@ -264,10 +259,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromIds(listOf(test.id, retry.id))
-            .addTags(listOf(TestWorker::class.java.name))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromIds(listOf(test.id, retry.id))
+                .addTags(listOf(TestWorker::class.java.name))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
@@ -277,9 +272,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun statesAndTags1() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -289,10 +285,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.ENQUEUED))
-            .addTags(listOf(TestWorker::class.java.name))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED))
+                .addTags(listOf(TestWorker::class.java.name))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(0))
@@ -301,9 +297,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun statesAndTags2() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -313,10 +310,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.RUNNING))
-            .addTags(listOf(TestWorker::class.java.name))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromStates(listOf(WorkInfo.State.RUNNING))
+                .addTags(listOf(TestWorker::class.java.name))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
@@ -326,9 +323,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun idsAndName() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -339,10 +337,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertTags(retry)
         insertName("name", retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromIds(listOf(retry.id, test.id))
-            .addUniqueWorkNames(listOf("name"))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromIds(listOf(retry.id, test.id))
+                .addUniqueWorkNames(listOf("name"))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
@@ -352,9 +350,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun statesAndName() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -365,10 +364,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertTags(retry)
         insertName("name", retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.ENQUEUED))
-            .addUniqueWorkNames(listOf("name"))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED))
+                .addUniqueWorkNames(listOf("name"))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
@@ -378,9 +377,10 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun tagsAndName() {
-        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -391,10 +391,12 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertTags(retry)
         insertName("name", retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
-            .addUniqueWorkNames(listOf("name"))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromTags(
+                    listOf(TestWorker::class.java.name, RetryWorker::class.java.name)
+                )
+                .addUniqueWorkNames(listOf("name"))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
@@ -404,13 +406,15 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun statesTagsAndName() {
-        val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.ENQUEUED)
-            .build()
+        val test1 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.ENQUEUED)
+                .build()
 
-        val test2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test2 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -424,11 +428,11 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.ENQUEUED))
-            .addTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
-            .addUniqueWorkNames(listOf("name"))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED))
+                .addTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
+                .addUniqueWorkNames(listOf("name"))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))
@@ -438,13 +442,15 @@ class RawWorkInfoDaoTest : DatabaseTest() {
     @Test
     @SmallTest
     fun idsStatesTagsAndName() {
-        val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.ENQUEUED)
-            .build()
+        val test1 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.ENQUEUED)
+                .build()
 
-        val test2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .setInitialState(WorkInfo.State.RUNNING)
-            .build()
+        val test2 =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build()
 
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
 
@@ -458,12 +464,12 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         insertWork(retry)
         insertTags(retry)
 
-        val querySpec = WorkQuery.Builder
-            .fromStates(listOf(WorkInfo.State.ENQUEUED))
-            .addIds(listOf(test1.id, test2.id, retry.id))
-            .addTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
-            .addUniqueWorkNames(listOf("name"))
-            .build()
+        val querySpec =
+            WorkQuery.Builder.fromStates(listOf(WorkInfo.State.ENQUEUED))
+                .addIds(listOf(test1.id, test2.id, retry.id))
+                .addTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
+                .addUniqueWorkNames(listOf("name"))
+                .build()
 
         val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery())
         assertThat(pojos.size, `is`(1))

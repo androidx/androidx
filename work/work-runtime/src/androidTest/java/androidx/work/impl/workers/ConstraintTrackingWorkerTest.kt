@@ -64,17 +64,20 @@ import org.junit.runner.RunWith
 class ConstraintTrackingWorkerTest {
     val workerFactory = TrackingWorkerFactory()
     val configuration =
-        Configuration.Builder().setWorkerFactory(workerFactory)
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
             .setMinimumLoggingLevel(Log.DEBUG)
-            .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+            .setTaskExecutor(Executors.newSingleThreadExecutor())
+            .build()
     val env = TestEnv(configuration)
     val taskExecutor = env.taskExecutor
     val fakeChargingTracker = TestConstraintTracker(true, env.context, env.taskExecutor)
-    val trackers = Trackers(
-        context = env.context,
-        taskExecutor = env.taskExecutor,
-        batteryChargingTracker = fakeChargingTracker
-    )
+    val trackers =
+        Trackers(
+            context = env.context,
+            taskExecutor = env.taskExecutor,
+            batteryChargingTracker = fakeChargingTracker
+        )
     val greedyScheduler = GreedyScheduler(env, trackers)
     val workManager = WorkManager(env, listOf(greedyScheduler), trackers)
 
@@ -159,15 +162,22 @@ class ConstraintTrackingWorkerTest {
     private fun create(delegate: KClass<*>): WorkerWrapper {
         val input =
             workDataOf(ARGUMENT_CLASS_NAME to delegate.qualifiedName!!, TEST_ARGUMENT_NAME to true)
-        val request = OneTimeWorkRequest.Builder(ConstraintTrackingWorker::class.java)
-            .setConstraints(Constraints(requiresCharging = true))
-            .setInputData(input)
-            .build()
+        val request =
+            OneTimeWorkRequest.Builder(ConstraintTrackingWorker::class.java)
+                .setConstraints(Constraints(requiresCharging = true))
+                .setInputData(input)
+                .build()
         workManager.workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
         return WorkerWrapper.Builder(
-            env.context, env.configuration, env.taskExecutor,
-            NoOpForegroundProcessor, workManager.workDatabase, request.workSpec, emptyList()
-        ).build()
+                env.context,
+                env.configuration,
+                env.taskExecutor,
+                NoOpForegroundProcessor,
+                workManager.workDatabase,
+                request.workSpec,
+                emptyList()
+            )
+            .build()
     }
 
     // It correctly handles the fact that at first is created ConstraintTrackingWorker
@@ -178,10 +188,8 @@ class ConstraintTrackingWorkerTest {
 
 private const val TEST_ARGUMENT_NAME = "test"
 
-class ThreadAssertingWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
+class ThreadAssertingWorker(appContext: Context, workerParams: WorkerParameters) :
+    ListenableWorker(appContext, workerParams) {
     override fun startWork(): ListenableFuture<Result> = getFuture {
         if (Looper.getMainLooper() != Looper.myLooper())
             throw AssertionError("start work must be called on main thread")
@@ -190,23 +198,22 @@ class ThreadAssertingWorker(
     }
 }
 
-class SelfCancellingWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
+class SelfCancellingWorker(appContext: Context, workerParams: WorkerParameters) :
+    ListenableWorker(appContext, workerParams) {
     var stopCounter: Int = 0
 
-    override fun startWork(): ListenableFuture<Result> = getFuture {
-        it.setCancelled()
-    }
+    override fun startWork(): ListenableFuture<Result> = getFuture { it.setCancelled() }
+
     override fun onStopped() {
         stopCounter++
     }
 }
 
 private suspend fun WorkManager.awaitNotRunning(workerWrapper: WorkerWrapper) =
-    getWorkInfoByIdFlow(workerWrapper.workSpecId).filterNotNull()
-        .first { it.state != State.RUNNING }.state
+    getWorkInfoByIdFlow(workerWrapper.workSpecId)
+        .filterNotNull()
+        .first { it.state != State.RUNNING }
+        .state
 
 private val WorkerWrapper.workSpecId
     get() = UUID.fromString(workGenerationalId.workSpecId)

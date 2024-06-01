@@ -81,18 +81,19 @@ public class RemoteListenableWorkerTest {
         }
 
         mContext = InstrumentationRegistry.getInstrumentation().context
-        mExecutor = Executor {
-            it.run()
-        }
-        mConfiguration = Configuration.Builder()
-            .setExecutor(mExecutor)
-            .setTaskExecutor(mExecutor)
-            .setWorkerFactory(workerFactory)
-            .build()
-        mTaskExecutor = object : TaskExecutor {
-            override fun getMainThreadExecutor() = mExecutor
-            override fun getSerialTaskExecutor() = SerialExecutorImpl(mExecutor)
-        }
+        mExecutor = Executor { it.run() }
+        mConfiguration =
+            Configuration.Builder()
+                .setExecutor(mExecutor)
+                .setTaskExecutor(mExecutor)
+                .setWorkerFactory(workerFactory)
+                .build()
+        mTaskExecutor =
+            object : TaskExecutor {
+                override fun getMainThreadExecutor() = mExecutor
+
+                override fun getSerialTaskExecutor() = SerialExecutorImpl(mExecutor)
+            }
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
@@ -171,8 +172,9 @@ public class RemoteListenableWorkerTest {
         val remote = workerFactory.awaitRemote(request.id) as RemoteStopWorker
         remote.startRemoteDeferred.await()
         wrapper.interrupt(STOP_REASON_CONSTRAINT_CONNECTIVITY)
-        val reason = withTimeoutOrNull(2000) { remote.stopDeferred.await() }
-            ?: throw AssertionError("Stop wasn't called")
+        val reason =
+            withTimeoutOrNull(2000) { remote.stopDeferred.await() }
+                ?: throw AssertionError("Stop wasn't called")
         assertEquals(STOP_REASON_CONSTRAINT_CONNECTIVITY, reason)
     }
 
@@ -197,14 +199,13 @@ public class RemoteListenableWorkerTest {
     }
 
     public inline fun <reified T : RemoteListenableWorker> buildRequest(): OneTimeWorkRequest {
-        val inputData = Data.Builder()
-            .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
-            .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
-            .build()
+        val inputData =
+            Data.Builder()
+                .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
+                .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
+                .build()
 
-        val request = OneTimeWorkRequest.Builder(T::class.java)
-            .setInputData(inputData)
-            .build()
+        val request = OneTimeWorkRequest.Builder(T::class.java).setInputData(inputData).build()
 
         // Delegation
         val workSpec = tryDelegateRemoteListenableWorker(request.workSpec)
@@ -214,53 +215,55 @@ public class RemoteListenableWorkerTest {
 
     public fun buildWrapper(request: WorkRequest): WorkerWrapper {
         return WorkerWrapper.Builder(
-            mContext,
-            mConfiguration,
-            mTaskExecutor,
-            mForegroundProcessor,
-            mDatabase,
-            mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
-            emptyList()
-        ).build()
+                mContext,
+                mConfiguration,
+                mTaskExecutor,
+                mForegroundProcessor,
+                mDatabase,
+                mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+                emptyList()
+            )
+            .build()
     }
 
     private inline fun <reified T : RemoteListenableWorker> testUnbindService() {
         val request = buildRequest<T>()
-        val inputData = Data.Builder()
-            .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
-            .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
-            .putString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME, T::class.java.name)
-            .build()
+        val inputData =
+            Data.Builder()
+                .putString(ARGUMENT_PACKAGE_NAME, mContext.packageName)
+                .putString(ARGUMENT_CLASS_NAME, RemoteWorkerService::class.java.name)
+                .putString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME, T::class.java.name)
+                .build()
         val progressUpdater = mock(ProgressUpdater::class.java)
         val foregroundUpdater = mock(ForegroundUpdater::class.java)
-        val parameters = WorkerParameters(
-            request.id,
-            inputData,
-            emptyList(),
-            WorkerParameters.RuntimeExtras(),
-            0,
-            0,
-            mConfiguration.executor,
-            mConfiguration.workerCoroutineContext,
-            mTaskExecutor,
-            mConfiguration.workerFactory,
-            progressUpdater,
-            foregroundUpdater
-        )
+        val parameters =
+            WorkerParameters(
+                request.id,
+                inputData,
+                emptyList(),
+                WorkerParameters.RuntimeExtras(),
+                0,
+                0,
+                mConfiguration.executor,
+                mConfiguration.workerCoroutineContext,
+                mTaskExecutor,
+                mConfiguration.workerFactory,
+                progressUpdater,
+                foregroundUpdater
+            )
         val worker: RemoteListenableDelegatingWorker =
             mConfiguration.workerFactory.createWorkerWithDefaultFallback(
                 mContext,
-                RemoteListenableDelegatingWorker::class.java.name, parameters
+                RemoteListenableDelegatingWorker::class.java.name,
+                parameters
             ) as RemoteListenableDelegatingWorker
         worker.startWork().get()
         assertNull(worker.client.connection)
     }
 }
 
-public class RemoteStopWorker(
-    context: Context,
-    parameters: WorkerParameters
-) : RemoteListenableWorker(context, parameters) {
+public class RemoteStopWorker(context: Context, parameters: WorkerParameters) :
+    RemoteListenableWorker(context, parameters) {
 
     val startRemoteDeferred = CompletableDeferred<Unit>()
     val stopDeferred = CompletableDeferred<Int>()
@@ -268,6 +271,7 @@ public class RemoteStopWorker(
     // specially leak completer reference and keep it around.
     // otherwise future will be automatically cancelled.
     lateinit var leakedCompleter: Completer<Result>
+
     override fun startRemoteWork(): ListenableFuture<Result> {
         startRemoteDeferred.complete(Unit)
         return CallbackToFutureAdapter.getFuture {

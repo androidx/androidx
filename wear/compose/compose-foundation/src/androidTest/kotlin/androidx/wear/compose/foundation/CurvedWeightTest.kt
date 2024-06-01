@@ -21,8 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class CurvedWeightTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun base_weight_size_test() {
@@ -32,18 +31,13 @@ class CurvedWeightTest {
                 // The parent row takes 90 degrees, one child takes 30 degrees, so there is 60
                 // degrees left for the weighted element.
                 curvedRow(modifier = CurvedModifier.angularSize(90f)) {
-                    curvedRow(modifier = CurvedModifier
-                        .weight(1f)
-                        .spy(capturedInfo)
-                    ) { }
-                    curvedRow(modifier = CurvedModifier.angularSize(30f)) { }
+                    curvedRow(modifier = CurvedModifier.weight(1f).spy(capturedInfo)) {}
+                    curvedRow(modifier = CurvedModifier.angularSize(30f)) {}
                 }
             }
         }
 
-        rule.runOnIdle {
-            capturedInfo.checkParentDimensions(expectedAngleDegrees = 60f)
-        }
+        rule.runOnIdle { capturedInfo.checkParentDimensions(expectedAngleDegrees = 60f) }
     }
 
     @Test
@@ -56,15 +50,9 @@ class CurvedWeightTest {
                 // degrees left to distribute between the 2 elements, since the weights are 1 and 2,
                 // they get 20 and 40 degrees respectively
                 curvedRow(modifier = CurvedModifier.angularSize(90f)) {
-                    curvedRow(modifier = CurvedModifier
-                        .weight(1f)
-                        .spy(capturedInfo1)
-                    ) { }
-                    curvedRow(modifier = CurvedModifier.angularSize(30f)) { }
-                    curvedRow(modifier = CurvedModifier
-                        .weight(2f)
-                        .spy(capturedInfo2)
-                    ) { }
+                    curvedRow(modifier = CurvedModifier.weight(1f).spy(capturedInfo1)) {}
+                    curvedRow(modifier = CurvedModifier.angularSize(30f)) {}
+                    curvedRow(modifier = CurvedModifier.weight(2f).spy(capturedInfo2)) {}
                 }
             }
         }
@@ -85,18 +73,13 @@ class CurvedWeightTest {
                 // so the row will take 30 degrees.
                 // There is no space left in the row, so the weighted child will take 0 degrees.
                 curvedRow {
-                    curvedRow(modifier = CurvedModifier
-                        .weight(1f)
-                        .spy(capturedInfo)
-                    ) { }
-                    curvedRow(modifier = CurvedModifier.angularSize(30f)) { }
+                    curvedRow(modifier = CurvedModifier.weight(1f).spy(capturedInfo)) {}
+                    curvedRow(modifier = CurvedModifier.angularSize(30f)) {}
                 }
             }
         }
 
-        rule.runOnIdle {
-            capturedInfo.checkParentDimensions(expectedAngleDegrees = 0f)
-        }
+        rule.runOnIdle { capturedInfo.checkParentDimensions(expectedAngleDegrees = 0f) }
     }
 
     @Test
@@ -109,18 +92,14 @@ class CurvedWeightTest {
                 // so the row will take 40 degrees.
                 // There is 10 degrees left in the row, so the weighted child will take 10 degrees.
                 curvedRow {
-                    curvedRow(modifier = CurvedModifier
-                        .weight(1f)
-                        .spy(capturedInfo)
-                        .angularSize(10f)
-                    ) { }
-                    curvedRow(modifier = CurvedModifier.angularSize(30f)) { }
+                    curvedRow(
+                        modifier = CurvedModifier.weight(1f).spy(capturedInfo).angularSize(10f)
+                    ) {}
+                    curvedRow(modifier = CurvedModifier.angularSize(30f)) {}
                 }
             }
         }
 
-        rule.runOnIdle {
-            capturedInfo.checkParentDimensions(expectedAngleDegrees = 10f)
-        }
+        rule.runOnIdle { capturedInfo.checkParentDimensions(expectedAngleDegrees = 10f) }
     }
 }

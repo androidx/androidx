@@ -22,11 +22,9 @@ import androidx.work.impl.utils.taskexecutor.SerialExecutor
 internal class SynchronousSerialExecutor : SerialExecutor {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private val tasks = ArrayDeque<Runnable>()
+    @GuardedBy("lock") private val tasks = ArrayDeque<Runnable>()
 
-    @GuardedBy("lock")
-    private var isRunning = false
+    @GuardedBy("lock") private var isRunning = false
 
     override fun execute(command: Runnable) {
         synchronized(lock) {

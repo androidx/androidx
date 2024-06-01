@@ -30,10 +30,7 @@ import androidx.wear.compose.material3.OutlinedIconButton
 @Sampled
 fun IconButtonSample() {
     IconButton(onClick = { /* Do something */ }) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = "Favorite icon"
-        )
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
 }
 
@@ -41,10 +38,7 @@ fun IconButtonSample() {
 @Sampled
 fun FilledIconButtonSample() {
     FilledIconButton(onClick = { /* Do something */ }) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = "Favorite icon"
-        )
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
 }
 
@@ -52,10 +46,7 @@ fun FilledIconButtonSample() {
 @Sampled
 fun FilledTonalIconButtonSample() {
     FilledTonalIconButton(onClick = { /* Do something */ }) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = "Favorite icon"
-        )
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
 }
 
@@ -63,9 +54,6 @@ fun FilledTonalIconButtonSample() {
 @Sampled
 fun OutlinedIconButtonSample() {
     OutlinedIconButton(onClick = { /* Do something */ }) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = "Favorite icon"
-        )
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
 }

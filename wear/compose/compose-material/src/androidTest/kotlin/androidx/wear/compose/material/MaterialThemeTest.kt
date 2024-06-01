@@ -40,8 +40,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class MaterialThemeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -56,9 +55,7 @@ class MaterialThemeTest {
             )
         }
 
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(expectedBackground, 50.0f)
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(expectedBackground, 50.0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -76,9 +73,7 @@ class MaterialThemeTest {
             }
         }
 
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(Color.Cyan, 50.0f)
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(Color.Cyan, 50.0f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -92,9 +87,7 @@ class MaterialThemeTest {
             )
         }
 
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(Color.Yellow, 50.0f)
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(Color.Yellow, 50.0f)
     }
 
     @Test
@@ -114,17 +107,15 @@ class MaterialThemeTest {
 
     @Test
     fun overrides_textstyle_when_nested() {
-        val override = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            letterSpacing = 0.sp
-        )
+        val override =
+            TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Normal,
+                fontSize = 16.sp,
+                letterSpacing = 0.sp
+            )
         rule.setContentWithTheme {
-            MaterialTheme(
-                typography = MaterialTheme.typography
-                    .copy(button = override)
-            ) {
+            MaterialTheme(typography = MaterialTheme.typography.copy(button = override)) {
                 Chip(
                     onClick = {},
                     label = { Text("Test") },
@@ -150,11 +141,13 @@ class MaterialThemeTest {
         verifyBackgroundColorIsDynamic(
             initial = { MaterialTheme.colors.primaryVariant },
             selectChipColors = {
-                ChipDefaults
-                    .primaryChipColors(backgroundColor = MaterialTheme.colors.primaryVariant)
+                ChipDefaults.primaryChipColors(
+                    backgroundColor = MaterialTheme.colors.primaryVariant
+                )
             },
-            updateThemeColors =
-                { colors, primaryVariant -> colors.copy(primaryVariant = primaryVariant) }
+            updateThemeColors = { colors, primaryVariant ->
+                colors.copy(primaryVariant = primaryVariant)
+            }
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -163,8 +156,7 @@ class MaterialThemeTest {
         verifyBackgroundColorIsDynamic(
             initial = { MaterialTheme.colors.secondary },
             selectChipColors = {
-                ChipDefaults
-                    .secondaryChipColors(backgroundColor = MaterialTheme.colors.secondary)
+                ChipDefaults.secondaryChipColors(backgroundColor = MaterialTheme.colors.secondary)
             },
             updateThemeColors = { colors, secondary -> colors.copy(secondary = secondary) }
         )
@@ -175,11 +167,13 @@ class MaterialThemeTest {
         verifyBackgroundColorIsDynamic(
             initial = { MaterialTheme.colors.secondaryVariant },
             selectChipColors = {
-                ChipDefaults
-                    .secondaryChipColors(backgroundColor = MaterialTheme.colors.secondaryVariant)
+                ChipDefaults.secondaryChipColors(
+                    backgroundColor = MaterialTheme.colors.secondaryVariant
+                )
             },
-            updateThemeColors =
-                { colors, secondaryVariant -> colors.copy(secondaryVariant = secondaryVariant) }
+            updateThemeColors = { colors, secondaryVariant ->
+                colors.copy(secondaryVariant = secondaryVariant)
+            }
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -188,8 +182,7 @@ class MaterialThemeTest {
         verifyBackgroundColorIsDynamic(
             initial = { MaterialTheme.colors.error },
             selectChipColors = {
-                ChipDefaults
-                    .secondaryChipColors(backgroundColor = MaterialTheme.colors.error)
+                ChipDefaults.secondaryChipColors(backgroundColor = MaterialTheme.colors.error)
             },
             updateThemeColors = { colors, error -> colors.copy(error = error) }
         )
@@ -215,21 +208,16 @@ class MaterialThemeTest {
                         onClick = {
                             rememberedColors.value = colors.copy(primary = overrideBackground)
                         },
-                        label = { },
+                        label = {},
                         modifier = Modifier.testTag("button")
                     )
                 }
             }
         }
 
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(initialBackground, 60.0f)
-        rule.onNodeWithTag("button")
-            .performClick()
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(overrideBackground, 60.0f)
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(initialBackground, 60.0f)
+        rule.onNodeWithTag("button").performClick()
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(overrideBackground, 60.0f)
     }
 
     @Test
@@ -312,12 +300,13 @@ class MaterialThemeTest {
     @Test
     fun sets_typography_dynamically() {
         var initialStyle: TextStyle? = null
-        val overrideTextStyle = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Normal,
-            fontSize = 8.sp,
-            letterSpacing = 0.sp
-        )
+        val overrideTextStyle =
+            TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Normal,
+                fontSize = 8.sp,
+                letterSpacing = 0.sp
+            )
 
         rule.setContentWithTheme {
             val typography = Typography()
@@ -332,10 +321,9 @@ class MaterialThemeTest {
                     )
                     Chip(
                         onClick = {
-                            rememberedTypography.value =
-                                typography.copy(button = overrideTextStyle)
+                            rememberedTypography.value = typography.copy(button = overrideTextStyle)
                         },
-                        label = { },
+                        label = {},
                         modifier = Modifier.testTag("button")
                     )
                 }
@@ -370,21 +358,16 @@ class MaterialThemeTest {
                     )
                     Chip(
                         onClick = { dynamicColor.value = overrideColor },
-                        label = { },
+                        label = {},
                         modifier = Modifier.testTag("button")
                     )
                 }
             }
         }
 
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(initialColor, 60.0f)
-        rule.onNodeWithTag("button")
-            .performClick()
-        rule.onNodeWithText("Test")
-            .captureToImage()
-            .assertContainsColor(overrideColor, 60.0f)
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(initialColor, 60.0f)
+        rule.onNodeWithTag("button").performClick()
+        rule.onNodeWithText("Test").captureToImage().assertContainsColor(overrideColor, 60.0f)
     }
 
     private fun verifyContentColorIsDynamic(
@@ -417,8 +400,7 @@ class MaterialThemeTest {
         }
 
         assertEquals(initialColor, rule.textStyleOf("Test").color)
-        rule.onNodeWithTag("button")
-            .performClick()
+        rule.onNodeWithTag("button").performClick()
         assertEquals(overrideColor, rule.textStyleOf("Test").color)
     }
 
@@ -427,21 +409,22 @@ class MaterialThemeTest {
         updateTextStyle: (Typography, TextStyle) -> Typography
     ) {
         var initialStyle = TextStyle()
-        val overrideTextStyle = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Normal,
-            fontSize = 8.sp,
-            letterSpacing = 0.sp
-        )
+        val overrideTextStyle =
+            TextStyle(
+                fontFamily = FontFamily.Default,
+                fontWeight = FontWeight.Normal,
+                fontSize = 8.sp,
+                letterSpacing = 0.sp
+            )
         val typography = Typography()
 
         rule.setContentWithTheme {
             initialStyle = selectStyle(typography)
             val dynamicStyle = remember { mutableStateOf(initialStyle) }
-            val rememberedTypography =
-                updateTextStyle(typography, dynamicStyle.value)
+            val rememberedTypography = updateTextStyle(typography, dynamicStyle.value)
             MaterialTheme(
-                // WearChip always uses 'button' style for text, so assign the style under test to button.
+                // WearChip always uses 'button' style for text, so assign the style under test to
+                // button.
                 typography = rememberedTypography.copy(button = selectStyle(rememberedTypography))
             ) {
                 Column {
@@ -451,7 +434,7 @@ class MaterialThemeTest {
                     )
                     Chip(
                         onClick = { dynamicStyle.value = overrideTextStyle },
-                        label = { },
+                        label = {},
                         modifier = Modifier.testTag("button")
                     )
                 }

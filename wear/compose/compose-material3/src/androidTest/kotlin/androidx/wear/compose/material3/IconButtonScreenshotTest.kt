@@ -57,14 +57,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class IconButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun filled_icon_button_enabled() = verifyScreenshot {
@@ -122,10 +119,9 @@ class IconButtonScreenshotTest {
     }
 
     @Test
-    fun filled_tonal_compact_icon_button_disabled() =
-        verifyScreenshot {
-            sampleFilledTonalIconButton(enabled = false, isCompact = true)
-        }
+    fun filled_tonal_compact_icon_button_disabled() = verifyScreenshot {
+        sampleFilledTonalIconButton(enabled = false, isCompact = true)
+    }
 
     @Test
     fun outlined_compact_icon_button_enabled() = verifyScreenshot {
@@ -155,21 +151,25 @@ class IconButtonScreenshotTest {
     @Composable
     private fun sampleFilledIconButton(enabled: Boolean, isCompact: Boolean) {
         FilledIconButton(
-            onClick = {}, enabled = enabled, modifier = Modifier
-                .testTag(TEST_TAG)
-                .then(
-                    if (isCompact)
-                        Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
-                    else Modifier
-                )
+            onClick = {},
+            enabled = enabled,
+            modifier =
+                Modifier.testTag(TEST_TAG)
+                    .then(
+                        if (isCompact)
+                            Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
+                        else Modifier
+                    )
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
                 contentDescription = "Home",
-                modifier = if (isCompact) Modifier.size(
-                    IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
-                )
-                else Modifier
+                modifier =
+                    if (isCompact)
+                        Modifier.size(
+                            IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
+                        )
+                    else Modifier
             )
         }
     }
@@ -177,21 +177,25 @@ class IconButtonScreenshotTest {
     @Composable
     private fun sampleFilledTonalIconButton(enabled: Boolean, isCompact: Boolean) {
         FilledTonalIconButton(
-            onClick = {}, enabled = enabled, modifier = Modifier
-                .testTag(TEST_TAG)
-                .then(
-                    if (isCompact)
-                        Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
-                    else Modifier
-                )
+            onClick = {},
+            enabled = enabled,
+            modifier =
+                Modifier.testTag(TEST_TAG)
+                    .then(
+                        if (isCompact)
+                            Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
+                        else Modifier
+                    )
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
                 contentDescription = "Home",
-                modifier = if (isCompact) Modifier.size(
-                    IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
-                )
-                else Modifier
+                modifier =
+                    if (isCompact)
+                        Modifier.size(
+                            IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
+                        )
+                    else Modifier
             )
         }
     }
@@ -199,21 +203,25 @@ class IconButtonScreenshotTest {
     @Composable
     private fun sampleOutlinedIconButton(enabled: Boolean, isCompact: Boolean) {
         OutlinedIconButton(
-            onClick = {}, enabled = enabled, modifier = Modifier
-                .testTag(TEST_TAG)
-                .then(
-                    if (isCompact)
-                        Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
-                    else Modifier
-                )
+            onClick = {},
+            enabled = enabled,
+            modifier =
+                Modifier.testTag(TEST_TAG)
+                    .then(
+                        if (isCompact)
+                            Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
+                        else Modifier
+                    )
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
                 contentDescription = "Home",
-                modifier = if (isCompact) Modifier.size(
-                    IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
-                )
-                else Modifier
+                modifier =
+                    if (isCompact)
+                        Modifier.size(
+                            IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
+                        )
+                    else Modifier
             )
         }
     }
@@ -225,21 +233,26 @@ class IconButtonScreenshotTest {
         modifier: Modifier = Modifier
     ) {
         IconButton(
-            onClick = {}, enabled = enabled, modifier = modifier
-                .testTag(TEST_TAG)
-                .then(
-                    if (isCompact)
-                        Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
-                    else Modifier
-                )
+            onClick = {},
+            enabled = enabled,
+            modifier =
+                modifier
+                    .testTag(TEST_TAG)
+                    .then(
+                        if (isCompact)
+                            Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
+                        else Modifier
+                    )
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
                 contentDescription = "Home",
-                modifier = if (isCompact) Modifier.size(
-                    IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
-                )
-                else Modifier
+                modifier =
+                    if (isCompact)
+                        Modifier.size(
+                            IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
+                        )
+                    else Modifier
             )
         }
     }
@@ -250,15 +263,15 @@ class IconButtonScreenshotTest {
     ) {
         rule.setContentWithTheme {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             ) {
                 content()
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).captureToImage()
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertAgainstGolden(screenshotRule, methodName)
     }
 }

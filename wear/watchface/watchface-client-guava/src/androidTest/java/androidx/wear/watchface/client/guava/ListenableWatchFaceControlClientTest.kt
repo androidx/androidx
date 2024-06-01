@@ -57,8 +57,7 @@ private const val TIMEOUT_MS = 500L
 @MediumTest
 public class ListenableWatchFaceControlClientTest {
 
-    @get:Rule
-    val mocks = MockitoJUnit.rule()
+    @get:Rule val mocks = MockitoJUnit.rule()
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
     @Mock private lateinit var surface: Surface

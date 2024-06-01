@@ -22,24 +22,15 @@ import org.junit.Test
 
 // Simple tests to ensure samples build and show the expected elements.
 class PickerSampleTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun option_change_picker_builds() {
-        rule.setContent {
-            MaterialTheme {
-                OptionChangePicker()
-            }
-        }
+        rule.setContent { MaterialTheme { OptionChangePicker() } }
     }
 
     @Test
     fun dual_picker_builds() {
-        rule.setContent {
-            MaterialTheme {
-                DualPicker()
-            }
-        }
+        rule.setContent { MaterialTheme { DualPicker() } }
     }
 }

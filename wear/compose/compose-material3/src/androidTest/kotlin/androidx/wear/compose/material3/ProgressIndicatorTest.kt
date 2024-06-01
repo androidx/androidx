@@ -37,8 +37,7 @@ import org.junit.Test
 
 class CircularProgressIndicatorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
@@ -60,13 +59,11 @@ class CircularProgressIndicatorTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
 
         rule.runOnIdle { progress.value = 0.5f }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -76,10 +73,11 @@ class CircularProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 1f },
-                colors = ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Yellow,
-                    trackColor = Color.Red
-                ),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
             )
         }
         rule.waitForIdle()
@@ -98,17 +96,15 @@ class CircularProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 0f },
-                colors = ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Yellow,
-                    trackColor = Color.Red
-                ),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
             )
         }
         rule.waitForIdle()
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertDoesNotContainColor(Color.Yellow)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Yellow)
         // by default progress track approximately takes 25% of the control.
         rule
             .onNodeWithTag(TEST_TAG)
@@ -125,10 +121,11 @@ class CircularProgressIndicatorTest {
                 progress = { 0.5f },
                 startAngle = 0f,
                 endAngle = 180f,
-                colors = ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Yellow,
-                    trackColor = Color.Red
-                ),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
             )
         }
         rule.waitForIdle()
@@ -157,8 +154,7 @@ class CircularProgressIndicatorTest {
 
         rule.runOnIdle { progress.value = 1.5f }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
     }
 
     @Test
@@ -174,8 +170,7 @@ class CircularProgressIndicatorTest {
 
         rule.runOnIdle { progress.value = -1.5f }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -185,10 +180,11 @@ class CircularProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 0.05f },
-                colors = ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Yellow,
-                    trackColor = Color.Red
-                ),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
             )
         }
         rule.waitForIdle()
@@ -210,10 +206,11 @@ class CircularProgressIndicatorTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 0.5f },
                 strokeWidth = 4.dp,
-                colors = ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Yellow,
-                    trackColor = Color.Red
-                ),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
             )
         }
         rule.waitForIdle()
@@ -235,10 +232,11 @@ class CircularProgressIndicatorTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 0.5f },
                 strokeWidth = 36.dp,
-                colors = ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Yellow,
-                    trackColor = Color.Red
-                ),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
             )
         }
         rule.waitForIdle()

@@ -28,11 +28,10 @@ import java.util.concurrent.Executor
  * In addition, the app needs to declare that it uses the [android.Manifest.permission.WAKE_LOCK]
  * permission in its manifest.
  *
- * The created [AmbientLifecycleObserver] can also be used to query whether the device is in
- * ambient mode.
+ * The created [AmbientLifecycleObserver] can also be used to query whether the device is in ambient
+ * mode.
  *
  * As an example of how to use this class, see the following example:
- *
  * ```
  * class MyActivity : ComponentActivity() {
  *     private val callbacks = object : AmbientLifecycleObserver.AmbientLifecycleCallback {
@@ -48,16 +47,15 @@ import java.util.concurrent.Executor
  * }
  * ```
  *
- * If the observer is registered while the device is in ambient mode, the registered callback
- * will immediately receive a call to
- * [AmbientLifecycleObserver.AmbientLifecycleCallback.onEnterAmbient]. If the device is in active
- * mode, the callbacks will be registered, and `onEnterAmbient` will be called when the device next
- * enters ambient mode.
+ * If the observer is registered while the device is in ambient mode, the registered callback will
+ * immediately receive a call to [AmbientLifecycleObserver.AmbientLifecycleCallback.onEnterAmbient].
+ * If the device is in active mode, the callbacks will be registered, and `onEnterAmbient` will be
+ * called when the device next enters ambient mode.
  *
  * @param activity The activity that this observer is being attached to.
  * @param callbackExecutor The executor to run the provided callbacks on.
  * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
- *                  notify the observer about changes to the ambient state.
+ *   notify the observer about changes to the ambient state.
  */
 fun AmbientLifecycleObserver(
     activity: Activity,
@@ -73,11 +71,10 @@ fun AmbientLifecycleObserver(
  * In addition, the app needs to declare that it uses the [android.Manifest.permission.WAKE_LOCK]
  * permission in its manifest.
  *
- * The created [AmbientLifecycleObserver] can also be used to query whether the device is in
- * ambient mode.
+ * The created [AmbientLifecycleObserver] can also be used to query whether the device is in ambient
+ * mode.
  *
  * As an example of how to use this class, see the following example:
- *
  * ```
  * class MyActivity : ComponentActivity() {
  *     private val callbacks = object : AmbientLifecycleObserver.AmbientLifecycleCallback {
@@ -95,7 +92,7 @@ fun AmbientLifecycleObserver(
  *
  * @param activity The activity that this observer is being attached to.
  * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
- *                  notify the observer about changes to the ambient state.
+ *   notify the observer about changes to the ambient state.
  */
 fun AmbientLifecycleObserver(
     activity: Activity,
@@ -116,14 +113,14 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
      * [AmbientLifecycleCallback.onEnterAmbient].
      *
      * @param burnInProtectionRequired whether the ambient layout must implement burn-in protection.
-     *     When this property is set to true, views must be shifted around periodically in ambient
-     *     mode. To ensure that content isn't shifted off the screen, avoid placing content within
-     *     10 pixels of the edge of the screen. Activities should also avoid solid white areas to
-     *     prevent pixel burn-in. Both of these requirements  only apply in ambient mode, and only
-     *     when this property is set to true.
+     *   When this property is set to true, views must be shifted around periodically in ambient
+     *   mode. To ensure that content isn't shifted off the screen, avoid placing content within 10
+     *   pixels of the edge of the screen. Activities should also avoid solid white areas to prevent
+     *   pixel burn-in. Both of these requirements only apply in ambient mode, and only when this
+     *   property is set to true.
      * @param deviceHasLowBitAmbient whether this device has low-bit ambient mode. When this
-     *     property is set to true, the screen supports fewer bits for each color in ambient mode.
-     *     In this case, activities should disable anti-aliasing in ambient mode.
+     *   property is set to true, the screen supports fewer bits for each color in ambient mode. In
+     *   this case, activities should disable anti-aliasing in ambient mode.
      */
     class AmbientDetails(
         val burnInProtectionRequired: Boolean,
@@ -143,7 +140,7 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
          * lower-power mode.
          *
          * @param ambientDetails instance of [AmbientDetails] containing information about the
-         *     display being used.
+         *   display being used.
          */
         fun onEnterAmbient(ambientDetails: AmbientDetails) {}
 
@@ -160,8 +157,6 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
         fun onExitAmbient() {}
     }
 
-    /**
-     * @return {@code true} if the activity is currently in ambient.
-     */
+    /** @return {@code true} if the activity is currently in ambient. */
     val isAmbient: Boolean
 }

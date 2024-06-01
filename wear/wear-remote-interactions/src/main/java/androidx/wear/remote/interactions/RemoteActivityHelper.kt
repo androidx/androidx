@@ -87,9 +87,9 @@ constructor(
         /**
          * The remote auth's availability is unknown.
          *
-         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability states. To preserve
-         * compatibility with existing devices behavior, try [startRemoteActivity] and handle
-         * error codes accordingly.
+         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability
+         * states. To preserve compatibility with existing devices behavior, try
+         * [startRemoteActivity] and handle error codes accordingly.
          */
         public const val STATUS_UNAVAILABLE = 1
 
@@ -172,41 +172,46 @@ constructor(
     @VisibleForTesting internal var nodeClient: NodeClient = Wearable.getNodeClient(context)
 
     /** Used for testing only, so we can mock wear sdk dependency. */
-    @VisibleForTesting internal var remoteInteractionsManager: IRemoteInteractionsManager = RemoteInteractionsManagerCompat(context)
+    @VisibleForTesting
+    internal var remoteInteractionsManager: IRemoteInteractionsManager =
+        RemoteInteractionsManagerCompat(context)
 
     /**
      * Status of whether [RemoteActivityHelper] can [startRemoteActivity], if known.
      *
      * In scenarios of restricted connection or temporary disconnection with a paired device,
-     * [startRemoteActivity] will not be available. Please check [availabilityStatus] before calling [startRemoteActivity] to
-     * provide better experience for the user.
+     * [startRemoteActivity] will not be available. Please check [availabilityStatus] before calling
+     * [startRemoteActivity] to provide better experience for the user.
      *
-     * Wear devices start to support determining the availability status from Wear Sdk WEAR_TIRAMISU_4.
-     * On older wear devices, it will always return [STATUS_UNKNOWN].
-     * On phone devices, it will always return [STATUS_UNKNOWN].
+     * Wear devices start to support determining the availability status from Wear Sdk
+     * WEAR_TIRAMISU_4. On older wear devices, it will always return [STATUS_UNKNOWN]. On phone
+     * devices, it will always return [STATUS_UNKNOWN].
      *
      * @sample androidx.wear.remote.interactions.samples.RemoteActivityAvailabilitySample
      *
      * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
      *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
      */
-    public val availabilityStatus: Flow<Int> get() {
-        if (!isCurrentDeviceAWatch(context)) {
-            // Currently, we do not support knowing the startRemoteActivity's availability on a non-watch device.
-            return flowOf(STATUS_UNKNOWN)
-        }
-        if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
-            return flowOf(STATUS_UNKNOWN)
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            // This should never be reached as the check above wouldn't pass below T.
-            // `Consumer<Int>` requires min API 25 but library min API is 23, this hints to lint that the code below
-            // only executes on T+.
-            return flowOf(STATUS_UNKNOWN)
-        }
+    public val availabilityStatus: Flow<Int>
+        get() {
+            if (!isCurrentDeviceAWatch(context)) {
+                // Currently, we do not support knowing the startRemoteActivity's availability on a
+                // non-watch device.
+                return flowOf(STATUS_UNKNOWN)
+            }
+            if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
+                return flowOf(STATUS_UNKNOWN)
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                // This should never be reached as the check above wouldn't pass below T.
+                // `Consumer<Int>` requires min API 25 but library min API is 23, this hints to lint
+                // that the code below
+                // only executes on T+.
+                return flowOf(STATUS_UNKNOWN)
+            }
 
-        return getRemoteActivityHelperStatusInternal()
-    }
+            return getRemoteActivityHelperStatusInternal()
+        }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun getRemoteActivityHelperStatusInternal(): Flow<Int> {
@@ -221,7 +226,9 @@ constructor(
 
             remoteInteractionsManager.registerRemoteActivityHelperStatusListener(executor, callback)
 
-            awaitClose { remoteInteractionsManager.unregisterRemoteActivityHelperStatusListener(callback) }
+            awaitClose {
+                remoteInteractionsManager.unregisterRemoteActivityHelperStatusListener(callback)
+            }
         }
     }
 

@@ -32,13 +32,12 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 
-/**
- * An activity to test retries.
- */
+/** An activity to test retries. */
 class RetryActivity : AppCompatActivity() {
     private lateinit var button: Button
     private lateinit var textView: TextView
     private val workManager by lazy { WorkManager.getInstance(this@RetryActivity) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.retry_activity)
@@ -49,32 +48,32 @@ class RetryActivity : AppCompatActivity() {
             scheduleWork("two", 5, 0.5)
         }
         workManager.getWorkInfosByTagLiveData("test").observe(this) { workInfos ->
-            textView.text = workInfos?.joinToString("\n") { workInfo ->
-                "id: ${workInfo.id.toString().take(4)} (${workInfo.state})"
-            } ?: "nothing to show"
+            textView.text =
+                workInfos?.joinToString("\n") { workInfo ->
+                    "id: ${workInfo.id.toString().take(4)} (${workInfo.state})"
+                } ?: "nothing to show"
         }
     }
 
     private fun scheduleWork(name: String, timeTaken: Int, errorRate: Double) {
         val constraints = Constraints(requiredNetworkType = NetworkType.CONNECTED)
-        val workRequest = OneTimeWorkRequest.Builder(Worker::class.java)
-            .setConstraints(constraints)
-            .setInputData(
-                workDataOf(
-                    NAME to name,
-                    TIME_TAKEN to timeTaken,
-                    ERROR_RATE to errorRate,
+        val workRequest =
+            OneTimeWorkRequest.Builder(Worker::class.java)
+                .setConstraints(constraints)
+                .setInputData(
+                    workDataOf(
+                        NAME to name,
+                        TIME_TAKEN to timeTaken,
+                        ERROR_RATE to errorRate,
+                    )
                 )
-            )
-            .addTag("test")
-            .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
-            .build()
+                .addTag("test")
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .build()
         workManager.beginUniqueWork(name, ExistingWorkPolicy.KEEP, workRequest).enqueue()
     }
 
-    /**
-     * A Worker to test retries.
-     */
+    /** A Worker to test retries. */
     class Worker(context: Context, workerParams: WorkerParameters) :
         androidx.work.Worker(context, workerParams) {
         @SuppressLint("BanThreadSleep")

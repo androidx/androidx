@@ -40,29 +40,22 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun button_ltr() =
         verifyScreenshot(LayoutDirection.Ltr) {
-            Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("abc")
-            }
+            Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
         }
 
     @Test
     fun button_rtl() =
         verifyScreenshot(LayoutDirection.Rtl) {
-            Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("abc")
-            }
+            Button(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
         }
 
     @Test
@@ -88,48 +81,39 @@ class ButtonScreenshotTest {
         }
 
     @Test
-    fun button_disabled() =
-        verifyScreenshot {
-            Button(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("abc")
-            }
-        }
+    fun button_disabled() = verifyScreenshot {
+        Button(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
+    }
 
     @Test
     fun compactbutton_ltr() =
         verifyScreenshot(LayoutDirection.Ltr) {
-            CompactButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("xs")
-            }
+            CompactButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("xs") }
         }
 
     @Test
     fun compactbutton_rtl() =
         verifyScreenshot(LayoutDirection.Rtl) {
-            CompactButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("xs")
-            }
+            CompactButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("xs") }
         }
 
     @Test
-    fun compactbutton_disabled() =
-        verifyScreenshot {
-            CompactButton(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
-                Text("xs")
-            }
+    fun compactbutton_disabled() = verifyScreenshot {
+        CompactButton(onClick = {}, enabled = false, modifier = Modifier.testTag(TEST_TAG)) {
+            Text("xs")
         }
+    }
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         content: @Composable () -> Unit
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                content()
-            }
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

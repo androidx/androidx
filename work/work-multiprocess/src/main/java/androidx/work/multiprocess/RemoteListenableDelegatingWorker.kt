@@ -66,13 +66,15 @@ class RemoteListenableDelegatingWorker(
                 "Need to specify a class name for the RemoteListenableWorker to delegate to."
             }
             componentName = ComponentName(servicePackageName, serviceClassName)
-            val response = client.execute(componentName!!) { iListenableWorkerImpl, callback ->
-                val remoteWorkRequest = ParcelableRemoteWorkRequest(
-                    workerClassName, workerParameters
-                )
-                val requestPayload = ParcelConverters.marshall(remoteWorkRequest)
-                iListenableWorkerImpl.startWork(requestPayload, callback)
-            }.awaitWithin(this@RemoteListenableDelegatingWorker)
+            val response =
+                client
+                    .execute(componentName!!) { iListenableWorkerImpl, callback ->
+                        val remoteWorkRequest =
+                            ParcelableRemoteWorkRequest(workerClassName, workerParameters)
+                        val requestPayload = ParcelConverters.marshall(remoteWorkRequest)
+                        iListenableWorkerImpl.startWork(requestPayload, callback)
+                    }
+                    .awaitWithin(this@RemoteListenableDelegatingWorker)
             val parcelableResult = ParcelConverters.unmarshall(response, ParcelableResult.CREATOR)
             Logger.get().debug(TAG, "Cleaning up")
             client.unbindService()

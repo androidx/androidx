@@ -63,21 +63,13 @@ fun HideWhenFullDemo() {
     var smallList by remember { mutableStateOf(true) }
     val listState = rememberScrollState()
 
-    Scaffold(
-        positionIndicator = { PositionIndicator(scrollState = listState) }
-    ) {
+    Scaffold(positionIndicator = { PositionIndicator(scrollState = listState) }) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxHeight()
-                .wrapContentWidth()
-                .verticalScroll(listState)
+            modifier = Modifier.fillMaxHeight().wrapContentWidth().verticalScroll(listState)
         ) {
             repeat(if (smallList) 3 else 10) {
-                Chip(
-                    onClick = { smallList = !smallList },
-                    label = { Text("Item #$it") }
-                )
+                Chip(onClick = { smallList = !smallList }, label = { Text("Item #$it") })
             }
         }
     }
@@ -89,23 +81,12 @@ fun HideWhenFullSLCDemo() {
     val listState = rememberScalingLazyListState()
     Scaffold(
         positionIndicator = {
-            PositionIndicator(
-                scalingLazyListState = listState,
-                modifier = Modifier
-            )
+            PositionIndicator(scalingLazyListState = listState, modifier = Modifier)
         }
     ) {
-        ScalingLazyColumn(
-            state = listState,
-            autoCentering = null
-        ) {
-            items(
-                count = if (smallList) 3 else 10
-            ) {
-                Chip(
-                    onClick = { smallList = !smallList },
-                    label = { Text("Item #$it") }
-                )
+        ScalingLazyColumn(state = listState, autoCentering = null) {
+            items(count = if (smallList) 3 else 10) {
+                Chip(onClick = { smallList = !smallList }, label = { Text("Item #$it") })
             }
         }
     }
@@ -116,24 +97,11 @@ fun SLCWithPositionIndicatorDemo() {
     val listState = rememberScalingLazyListState(5)
     Scaffold(
         positionIndicator = {
-            PositionIndicator(
-                scalingLazyListState = listState,
-                modifier = Modifier
-            )
+            PositionIndicator(scalingLazyListState = listState, modifier = Modifier)
         }
     ) {
-        ScalingLazyColumn(
-            state = listState,
-            autoCentering = null
-        ) {
-            items(
-                count = 15
-            ) {
-                Chip(
-                    onClick = {},
-                    label = { Text("SLC Item #$it") }
-                )
-            }
+        ScalingLazyColumn(state = listState, autoCentering = null) {
+            items(count = 15) { Chip(onClick = {}, label = { Text("SLC Item #$it") }) }
         }
     }
 }
@@ -149,15 +117,14 @@ fun ControllablePositionIndicator() {
     var alignment by remember { mutableIntStateOf(0) }
     var reverseDirection by remember { mutableStateOf(false) }
     var layoutDirection by remember { mutableStateOf(false) }
-    val actualLayoutDirection =
-        if (layoutDirection) LayoutDirection.Rtl
-        else LayoutDirection.Ltr
-    val alignmentValues = listOf(
-        PositionIndicatorAlignment.End,
-        PositionIndicatorAlignment.OppositeRsb,
-        PositionIndicatorAlignment.Left,
-        PositionIndicatorAlignment.Right
-    )
+    val actualLayoutDirection = if (layoutDirection) LayoutDirection.Rtl else LayoutDirection.Ltr
+    val alignmentValues =
+        listOf(
+            PositionIndicatorAlignment.End,
+            PositionIndicatorAlignment.OppositeRsb,
+            PositionIndicatorAlignment.Left,
+            PositionIndicatorAlignment.Right
+        )
     val alignmentNames = listOf("End", "!Rsb", "Left", "Right")
     CompositionLocalProvider(LocalLayoutDirection provides actualLayoutDirection) {
         Scaffold(
@@ -167,21 +134,24 @@ fun ControllablePositionIndicator() {
                     indicatorHeight = 76.dp,
                     indicatorWidth = 6.dp,
                     paddingHorizontal = 5.dp,
-                    fadeInAnimationSpec = if (showFadeInAnimation) {
-                        PositionIndicatorDefaults.visibilityAnimationSpec
-                    } else {
-                        snap()
-                    },
-                    fadeOutAnimationSpec = if (showFadeOutAnimation) {
-                        PositionIndicatorDefaults.visibilityAnimationSpec
-                    } else {
-                        snap()
-                    },
-                    positionAnimationSpec = if (showPositionAnimation) {
-                        PositionIndicatorDefaults.positionAnimationSpec
-                    } else {
-                        snap()
-                    },
+                    fadeInAnimationSpec =
+                        if (showFadeInAnimation) {
+                            PositionIndicatorDefaults.visibilityAnimationSpec
+                        } else {
+                            snap()
+                        },
+                    fadeOutAnimationSpec =
+                        if (showFadeOutAnimation) {
+                            PositionIndicatorDefaults.visibilityAnimationSpec
+                        } else {
+                            snap()
+                        },
+                    positionAnimationSpec =
+                        if (showPositionAnimation) {
+                            PositionIndicatorDefaults.positionAnimationSpec
+                        } else {
+                            snap()
+                        },
                     color = MaterialTheme.colors.secondary,
                     reverseDirection = reverseDirection,
                     position = alignmentValues[alignment]
@@ -189,9 +159,7 @@ fun ControllablePositionIndicator() {
             }
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(horizontal = 20.dp),
+                modifier = Modifier.fillMaxHeight().padding(horizontal = 20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -204,14 +172,16 @@ fun ControllablePositionIndicator() {
                         value = position.floatValue,
                         valueRange = 0f..1f,
                         steps = 9,
-                        onValueChange = { position.floatValue = it })
+                        onValueChange = { position.floatValue = it }
+                    )
                     Text("Size")
                     DefaultInlineSlider(
                         modifier = Modifier.height(40.dp),
                         value = size.floatValue,
                         valueRange = 0f..1f,
                         steps = 9,
-                        onValueChange = { size.floatValue = it })
+                        onValueChange = { size.floatValue = it }
+                    )
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         Button(onClick = { alignment = (alignment + 1) % 3 }) {
                             Text(alignmentNames[alignment])
@@ -219,29 +189,28 @@ fun ControllablePositionIndicator() {
                         ToggleButton(
                             checked = layoutDirection,
                             onCheckedChange = { layoutDirection = !layoutDirection }
-                        ) { Text(if (layoutDirection) "Rtl" else "Ltr") }
+                        ) {
+                            Text(if (layoutDirection) "Rtl" else "Ltr")
+                        }
                         ToggleButton(
                             checked = reverseDirection,
                             onCheckedChange = { reverseDirection = !reverseDirection }
                         ) {
-                            Text(
-                                text = "Rev Dir",
-                                textAlign = TextAlign.Center
-                            )
+                            Text(text = "Rev Dir", textAlign = TextAlign.Center)
                         }
                     }
-                    Button(onClick = {
-                        visibility.value = when (visibility.value) {
-                            PositionIndicatorVisibility.Show ->
-                                PositionIndicatorVisibility.AutoHide
-
-                            PositionIndicatorVisibility.AutoHide ->
-                                PositionIndicatorVisibility.Hide
-
-                            else ->
-                                PositionIndicatorVisibility.Show
+                    Button(
+                        onClick = {
+                            visibility.value =
+                                when (visibility.value) {
+                                    PositionIndicatorVisibility.Show ->
+                                        PositionIndicatorVisibility.AutoHide
+                                    PositionIndicatorVisibility.AutoHide ->
+                                        PositionIndicatorVisibility.Hide
+                                    else -> PositionIndicatorVisibility.Show
+                                }
                         }
-                    }) {
+                    ) {
                         Text(
                             when (visibility.value) {
                                 PositionIndicatorVisibility.AutoHide -> "AutoHide"
@@ -281,25 +250,16 @@ fun ControllablePositionIndicator() {
 fun SharedPositionIndicator() {
     val listStates = listOf(rememberScrollState(), rememberScrollState())
     val selected = remember { mutableIntStateOf(0) }
-    Scaffold(
-        positionIndicator = {
-            PositionIndicator(listStates[selected.intValue])
-        }
-    ) {
+    Scaffold(positionIndicator = { PositionIndicator(listStates[selected.intValue]) }) {
         Row(modifier = Modifier.fillMaxSize()) {
             repeat(2) { listIndex ->
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(80.dp)
-                        .verticalScroll(listStates[listIndex])
+                    modifier =
+                        Modifier.fillMaxHeight().width(80.dp).verticalScroll(listStates[listIndex])
                 ) {
                     repeat(10) {
-                        Chip(
-                            onClick = { selected.intValue = listIndex },
-                            label = { Text("#$it") }
-                        )
+                        Chip(onClick = { selected.intValue = listIndex }, label = { Text("#$it") })
                     }
                 }
             }
@@ -312,8 +272,11 @@ internal class CustomPositionIndicatorState(
     private val size: State<Float>,
     private val visibility: State<PositionIndicatorVisibility>
 ) : PositionIndicatorState {
-    override val positionFraction get() = position.value
+    override val positionFraction
+        get() = position.value
+
     override fun sizeFraction(scrollableContainerSizePx: Float) = size.value
+
     override fun visibility(scrollableContainerSizePx: Float) = visibility.value
 
     override fun equals(other: Any?) =
@@ -322,7 +285,6 @@ internal class CustomPositionIndicatorState(
             size == other.size &&
             visibility == other.visibility
 
-    override fun hashCode(): Int = position.hashCode() +
-        31 * size.hashCode() +
-        31 * visibility.hashCode()
+    override fun hashCode(): Int =
+        position.hashCode() + 31 * size.hashCode() + 31 * visibility.hashCode()
 }

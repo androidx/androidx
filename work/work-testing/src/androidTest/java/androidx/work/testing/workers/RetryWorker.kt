@@ -22,12 +22,9 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.google.common.util.concurrent.ListenableFuture
 
-class RetryWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
+class RetryWorker(appContext: Context, workerParams: WorkerParameters) :
+    ListenableWorker(appContext, workerParams) {
     override fun startWork(): ListenableFuture<Result> = getFuture { completer ->
-        if (runAttemptCount <= 2) completer.set(Result.retry())
-        else completer.set(Result.success())
+        if (runAttemptCount <= 2) completer.set(Result.retry()) else completer.set(Result.success())
     }
 }

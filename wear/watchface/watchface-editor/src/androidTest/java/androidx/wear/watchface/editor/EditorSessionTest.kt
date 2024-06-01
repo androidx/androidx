@@ -676,11 +676,9 @@ public class EditorSessionTest {
                     lastOverrideComplications = slotIdToComplicationData
                 }
 
-                override fun clearComplicationSlotAfterEditing(slotId: Int) {
-                }
+                override fun clearComplicationSlotAfterEditing(slotId: Int) {}
 
-                override fun dontClearAnyComplicationSlotsAfterEditing() {
-                }
+                override fun dontClearAnyComplicationSlotsAfterEditing() {}
             }
         if (!shouldTimeout) {
             WatchFace.registerEditorDelegate(watchComponentName, editorDelegate)
@@ -1658,25 +1656,29 @@ public class EditorSessionTest {
 
     @Test
     public fun setOverrideComplications() {
-        val scenario = createOnWatchFaceEditingTestActivity(
-            emptyList(),
-            listOf(leftComplication, rightComplication)
-        )
-        val leftComplicationData = ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder("Left").build(),
-            ComplicationText.EMPTY
-        )
-            .build()
-        val rightComplicationData = ShortTextComplicationData.Builder(
-            PlainComplicationText.Builder("Right").build(),
-            ComplicationText.EMPTY
-        )
-            .build()
+        val scenario =
+            createOnWatchFaceEditingTestActivity(
+                emptyList(),
+                listOf(leftComplication, rightComplication)
+            )
+        val leftComplicationData =
+            ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("Left").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
+        val rightComplicationData =
+            ShortTextComplicationData.Builder(
+                    PlainComplicationText.Builder("Right").build(),
+                    ComplicationText.EMPTY
+                )
+                .build()
 
-        val complicationsMap = mapOf(
-            leftComplication.id to leftComplicationData,
-            rightComplication.id to rightComplicationData
-        )
+        val complicationsMap =
+            mapOf(
+                leftComplication.id to leftComplicationData,
+                rightComplication.id to rightComplicationData
+            )
 
         scenario.onActivity {
             it.editorSession.setOverrideComplications(complicationsMap)

@@ -28,13 +28,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
 class TrackingWorkerFactory : WorkerFactory() {
-    private val factory = object : WorkerFactory() {
-        override fun createWorker(
-            appContext: Context,
-            workerClassName: String,
-            workerParameters: WorkerParameters
-        ): ListenableWorker? = null
-    }
+    private val factory =
+        object : WorkerFactory() {
+            override fun createWorker(
+                appContext: Context,
+                workerClassName: String,
+                workerParameters: WorkerParameters
+            ): ListenableWorker? = null
+        }
     val createdWorkers = MutableStateFlow<Map<UUID, ListenableWorker>>(emptyMap())
 
     override fun createWorker(
@@ -42,13 +43,9 @@ class TrackingWorkerFactory : WorkerFactory() {
         workerClassName: String,
         workerParameters: WorkerParameters
     ): ListenableWorker {
-        return factory.createWorkerWithDefaultFallback(
-            appContext,
-            workerClassName,
-            workerParameters
-        ).also {
-            createdWorkers.value = createdWorkers.value + (it.id to it)
-        }
+        return factory
+            .createWorkerWithDefaultFallback(appContext, workerClassName, workerParameters)
+            .also { createdWorkers.value = createdWorkers.value + (it.id to it) }
     }
 
     fun awaitWorker(id: UUID) = runBlocking { await(id) }

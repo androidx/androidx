@@ -50,7 +50,8 @@ internal fun CoroutineScope.maybeLaunchUnfinishedWorkListener(
 ) {
     // Only register this in the designated process.
     if (isDefaultProcess(appContext, configuration)) {
-        db.workSpecDao().hasUnfinishedWorkFlow()
+        db.workSpecDao()
+            .hasUnfinishedWorkFlow()
             .retryWhen { throwable, attempt ->
                 Logger.get().error(TAG, "Cannot check for unfinished work", throwable)
                 // Linear backoff is good enough here.
@@ -62,8 +63,11 @@ internal fun CoroutineScope.maybeLaunchUnfinishedWorkListener(
             .distinctUntilChanged()
             .onEach { hasUnfinishedWork ->
                 PackageManagerHelper.setComponentEnabled(
-                    appContext, RescheduleReceiver::class.java, hasUnfinishedWork
+                    appContext,
+                    RescheduleReceiver::class.java,
+                    hasUnfinishedWork
                 )
-            }.launchIn(this)
+            }
+            .launchIn(this)
     }
 }

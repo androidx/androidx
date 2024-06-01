@@ -33,15 +33,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for Wear Compose Button.
- */
+/** Benchmark for Wear Compose Button. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ButtonBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val buttonCaseFactory = { ButtonTestCase() }
 
@@ -80,14 +77,11 @@ internal class ButtonTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        Button(onClick = {}) {
-        }
+        Button(onClick = {}) {}
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

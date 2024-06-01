@@ -57,8 +57,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PickerTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private var itemSizePx: Int = 20
     private var itemSizeDp: Dp = Dp.Infinity
@@ -96,8 +95,7 @@ class PickerTest {
                 Picker(
                     state = rememberPickerState(5).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3),
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -115,8 +113,11 @@ class PickerTest {
         lateinit var state: PickerState
 
         rule.setContent {
-            state = rememberPickerState(
-                initialNumberOfOptions = 10, initiallySelectedOption = startValue)
+            state =
+                rememberPickerState(
+                    initialNumberOfOptions = 10,
+                    initiallySelectedOption = startValue
+                )
         }
 
         assertThat(state.selectedOption).isEqualTo(startValue)
@@ -130,8 +131,7 @@ class PickerTest {
                 Picker(
                     state = rememberPickerState(5).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3),
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -151,8 +151,8 @@ class PickerTest {
         assertThat(state.selectedOption).isEqualTo(1)
     }
 
-   @Test
-   fun can_scroll_picker_down_on_start() {
+    @Test
+    fun can_scroll_picker_down_on_start() {
         val numberOfOptions = 5
         lateinit var state: PickerState
         rule.setContent {
@@ -160,8 +160,7 @@ class PickerTest {
                 Picker(
                     state = rememberPickerState(numberOfOptions).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3),
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -181,18 +180,14 @@ class PickerTest {
         assertThat(state.selectedOption).isEqualTo(numberOfOptions - 1)
     }
 
-    @Test
-    fun uses_positive_separation_correctly() =
-        scroll_with_separation(1)
+    @Test fun uses_positive_separation_correctly() = scroll_with_separation(1)
 
-    @Test
-    fun uses_negative_separation_correctly() =
-        scroll_with_separation(-1)
+    @Test fun uses_negative_separation_correctly() = scroll_with_separation(-1)
 
     /**
      * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
-     * (itemSizePx + separationPx) and minus 1 pixel
-     * for making it definitely less than a half of an item
+     * (itemSizePx + separationPx) and minus 1 pixel for making it definitely less than a half of an
+     * item
      */
     @Test
     fun scroll_with_positive_separation_and_offset() =
@@ -200,26 +195,23 @@ class PickerTest {
 
     /**
      * Test that picker is properly scrolled with scrollOffset, which equals to a half of the
-     * (itemSizePx - separationPx) and minus 1 pixel
-     * for making it definitely less than a half of an item
+     * (itemSizePx - separationPx) and minus 1 pixel for making it definitely less than a half of an
+     * item
      */
     @Test
     fun scroll_with_negative_separation_and_offset() =
         scroll_with_separation(-1, scrollOffset = (itemSizePx - separationPx) / 2 - 1)
 
-    private fun scroll_with_separation(
-        separationSign: Int,
-        scrollOffset: Int = 0
-    ) {
+    private fun scroll_with_separation(separationSign: Int, scrollOffset: Int = 0) {
         lateinit var state: PickerState
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(20).also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
                     separation = separationDp * separationSign
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -235,10 +227,14 @@ class PickerTest {
             // (which was added to prevent jitter around the start of the gradient).
             swipeWithVelocity(
                 start = Offset(centerX, bottom - 5),
-                end = Offset(
-                    centerX, bottom - 5 - scrollOffset -
-                        (itemSizePx + separationPx * separationSign) * itemsToScroll
-                ),
+                end =
+                    Offset(
+                        centerX,
+                        bottom -
+                            5 -
+                            scrollOffset -
+                            (itemSizePx + separationPx * separationSign) * itemsToScroll
+                    ),
                 endVelocity = NOT_A_FLING_SPEED
             )
         }
@@ -330,10 +326,11 @@ class PickerTest {
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
-            state = rememberPickerState(
-                initialNumberOfOptions = totalOptions,
-                initiallySelectedOption = initialOption
-            )
+            state =
+                rememberPickerState(
+                    initialNumberOfOptions = totalOptions,
+                    initiallySelectedOption = initialOption
+                )
             SimplePicker(state)
         }
         val initialItemIndex = state.scalingLazyListState.centerItemIndex
@@ -344,13 +341,9 @@ class PickerTest {
         // picker to its final target.
         rule.runOnIdle {
             scope.launch {
-                async {
-                    state.animateScrollToOption(firstTarget)
-                }
+                async { state.animateScrollToOption(firstTarget) }
                 delay(100) // a short delay so that the first async will be triggered first
-                async {
-                    state.animateScrollToOption(secondTarget)
-                }
+                async { state.animateScrollToOption(secondTarget) }
             }
         }
         rule.waitForIdle()
@@ -359,26 +352,17 @@ class PickerTest {
             .isEqualTo(initialItemIndex + targetDelta)
     }
 
-    @Test
-    fun scrolls_with_negative_separation() = scrolls_to_index_correctly(-1, 3)
+    @Test fun scrolls_with_negative_separation() = scrolls_to_index_correctly(-1, 3)
 
-    @Test
-    fun scrolls_with_positive_separation() = scrolls_to_index_correctly(1, 7)
+    @Test fun scrolls_with_positive_separation() = scrolls_to_index_correctly(1, 7)
 
-    @Test
-    fun scrolls_with_no_separation() = scrolls_to_index_correctly(0, 13)
+    @Test fun scrolls_with_no_separation() = scrolls_to_index_correctly(0, 13)
 
     private fun scrolls_to_index_correctly(separationSign: Int, targetIndex: Int) {
         val pickerDriver = PickerDriver(separationSign = separationSign)
-        rule.setContent {
-            pickerDriver.DrivedPicker()
-        }
+        rule.setContent { pickerDriver.DrivedPicker() }
 
-        rule.runOnIdle {
-            runBlocking {
-                pickerDriver.state.scrollToOption(targetIndex)
-            }
-        }
+        rule.runOnIdle { runBlocking { pickerDriver.state.scrollToOption(targetIndex) } }
         rule.waitForIdle()
 
         assertThat(pickerDriver.state.selectedOption).isEqualTo(targetIndex)
@@ -392,10 +376,12 @@ class PickerTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
-                    state = rememberPickerState(
-                            initialNumberOfOptions = 28,
-                            initiallySelectedOption = initialOption
-                        ).also { state = it },
+                    state =
+                        rememberPickerState(
+                                initialNumberOfOptions = 28,
+                                initiallySelectedOption = initialOption
+                            )
+                            .also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -404,11 +390,7 @@ class PickerTest {
         }
 
         val initialItemIndex = state.scalingLazyListState.centerItemIndex
-        rule.runOnIdle {
-            runBlocking {
-                state.numberOfOptions = 31
-            }
-        }
+        rule.runOnIdle { runBlocking { state.numberOfOptions = 31 } }
 
         rule.waitForIdle()
 
@@ -424,10 +406,12 @@ class PickerTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
-                    state = rememberPickerState(
-                            initialNumberOfOptions = 25,
-                            initiallySelectedOption = initialOption
-                        ).also { state = it },
+                    state =
+                        rememberPickerState(
+                                initialNumberOfOptions = 25,
+                                initiallySelectedOption = initialOption
+                            )
+                            .also { state = it },
                     contentDescription = CONTENT_DESCRIPTION,
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -453,14 +437,14 @@ class PickerTest {
         val targetIndex = 5
         rule.setContent {
             state = rememberPickerState(20)
-            LaunchedEffect(state) {
-                state.scrollToOption(targetIndex)
-            }
+            LaunchedEffect(state) { state.scrollToOption(targetIndex) }
 
             Picker(
                 state = state,
                 contentDescription = CONTENT_DESCRIPTION,
-            ) { Box(Modifier.requiredSize(itemSizeDp)) }
+            ) {
+                Box(Modifier.requiredSize(itemSizeDp))
+            }
         }
 
         rule.waitForIdle()
@@ -477,7 +461,9 @@ class PickerTest {
             Picker(
                 state = state,
                 contentDescription = CONTENT_DESCRIPTION,
-            ) { Box(Modifier.requiredSize(itemSizeDp)) }
+            ) {
+                Box(Modifier.requiredSize(itemSizeDp))
+            }
         }
 
         rule.waitForIdle()
@@ -504,13 +490,14 @@ class PickerTest {
     }
 
     @Test
-    fun small_scroll_snaps_with_separation() = scroll_snaps(separationSign = 1) {
-        swipeWithVelocity(
-            start = Offset(centerX, top),
-            end = Offset(centerX, top + itemSizePx / 2),
-            endVelocity = NOT_A_FLING_SPEED
-        )
-    }
+    fun small_scroll_snaps_with_separation() =
+        scroll_snaps(separationSign = 1) {
+            swipeWithVelocity(
+                start = Offset(centerX, top),
+                end = Offset(centerX, top + itemSizePx / 2),
+                endVelocity = NOT_A_FLING_SPEED
+            )
+        }
 
     @Test
     fun fast_scroll_snaps() = scroll_snaps {
@@ -522,13 +509,14 @@ class PickerTest {
     }
 
     @Test
-    fun fast_scroll_with_separation_snaps() = scroll_snaps(separationSign = -1) {
-        swipeWithVelocity(
-            start = Offset(centerX, bottom),
-            end = Offset(centerX, bottom - 300),
-            endVelocity = DO_FLING_SPEED
-        )
-    }
+    fun fast_scroll_with_separation_snaps() =
+        scroll_snaps(separationSign = -1) {
+            swipeWithVelocity(
+                start = Offset(centerX, bottom),
+                end = Offset(centerX, bottom - 300),
+                endVelocity = DO_FLING_SPEED
+            )
+        }
 
     @Test
     fun displays_label_when_read_only() {
@@ -541,8 +529,7 @@ class PickerTest {
                     readOnly = true,
                     readOnlyLabel = { Text(text = labelText) },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3)
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3)
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -564,8 +551,7 @@ class PickerTest {
                     readOnly = false,
                     readOnlyLabel = { Text(text = labelText) },
                     contentDescription = CONTENT_DESCRIPTION,
-                    modifier = Modifier.testTag(TEST_TAG)
-                        .requiredSize(itemSizeDp * 3)
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3)
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -586,19 +572,19 @@ class PickerTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
-                    state = rememberPickerState(
-                        initialNumberOfOptions = 5,
-                        initiallySelectedOption = initialOption)
-                        .also { state = it },
+                    state =
+                        rememberPickerState(
+                                initialNumberOfOptions = 5,
+                                initiallySelectedOption = initialOption
+                            )
+                            .also { state = it },
                     readOnly = readOnly.value,
                     contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
-                LaunchedEffect(state) {
-                    state.scrollToOption(selectedOption)
-                }
+                LaunchedEffect(state) { state.scrollToOption(selectedOption) }
             }
         }
         readOnly.value = true
@@ -615,10 +601,12 @@ class PickerTest {
         rule.setContent {
             WithTouchSlop(0f) {
                 Picker(
-                    state = rememberPickerState(
-                        initialNumberOfOptions = 5,
-                        initiallySelectedOption = initialOption)
-                        .also { state = it },
+                    state =
+                        rememberPickerState(
+                                initialNumberOfOptions = 5,
+                                initiallySelectedOption = initialOption
+                            )
+                            .also { state = it },
                     readOnly = true,
                     contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
@@ -682,10 +670,11 @@ class PickerTest {
         lateinit var selectedOption: MutableState<Int>
         rule.setContent {
             selectedOption = remember { mutableStateOf(1) }
-            val pickerState = rememberPickerState(
-                initialNumberOfOptions = numberOfOptions,
-                initiallySelectedOption = selectedOption.value
-            )
+            val pickerState =
+                rememberPickerState(
+                    initialNumberOfOptions = numberOfOptions,
+                    initiallySelectedOption = selectedOption.value
+                )
             Text(text = "${pickerState.selectedOption}")
         }
 
@@ -707,21 +696,16 @@ class PickerTest {
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
-            state = rememberPickerState(
-                initialNumberOfOptions = totalOptions,
-                initiallySelectedOption = initialOption
-            )
+            state =
+                rememberPickerState(
+                    initialNumberOfOptions = totalOptions,
+                    initiallySelectedOption = initialOption
+                )
             SimplePicker(state)
         }
 
         val initialItemIndex = state.scalingLazyListState.centerItemIndex
-        rule.runOnIdle {
-            scope.launch {
-                async {
-                    state.animateScrollToOption(targetOption)
-                }
-            }
-        }
+        rule.runOnIdle { scope.launch { async { state.animateScrollToOption(targetOption) } } }
         rule.waitForIdle()
         assertThat(state.selectedOption).isEqualTo(targetOption)
         assertThat(state.scalingLazyListState.centerItemIndex)
@@ -745,9 +729,7 @@ class PickerTest {
         touchInput: (TouchInjectionScope).() -> Unit,
     ) {
         val pickerDriver = PickerDriver(separationSign)
-        rule.setContent {
-            pickerDriver.DrivedPicker()
-        }
+        rule.setContent { pickerDriver.DrivedPicker() }
 
         rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).performTouchInput { touchInput() }
@@ -767,20 +749,22 @@ class PickerTest {
 
         @Composable
         fun DrivedPicker() {
-            val pickerHeightDp = itemSizeDp * itemsToShow +
-                separationDp * (itemsToShow - 1) * separationSign
+            val pickerHeightDp =
+                itemSizeDp * itemsToShow + separationDp * (itemsToShow - 1) * separationSign
             pickerHeightPx = with(LocalDensity.current) { pickerHeightDp.toPx() }
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(numberOfItems).also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(pickerHeightDp)
-                        .onGloballyPositioned { pickerLayoutCoordinates = it },
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .requiredSize(pickerHeightDp)
+                            .onGloballyPositioned { pickerLayoutCoordinates = it },
                     separation = separationDp * separationSign,
                     readOnly = readOnly.value,
                     contentDescription = CONTENT_DESCRIPTION,
                 ) { optionIndex ->
-                    Box(Modifier.requiredSize(itemSizeDp)
-                        .onGloballyPositioned {
+                    Box(
+                        Modifier.requiredSize(itemSizeDp).onGloballyPositioned {
                             // Save the layout coordinates if we are at the center
                             if (optionIndex == selectedOption) {
                                 centerItemLayoutCoordinates = it
@@ -793,8 +777,10 @@ class PickerTest {
 
         fun verifyCenterItemIsCentered() {
             // Ensure that the option that ended up in the middle after the fling/scroll is centered
-            assertThat(centerItemLayoutCoordinates.positionInWindow().y -
-                pickerLayoutCoordinates.positionInWindow().y)
+            assertThat(
+                    centerItemLayoutCoordinates.positionInWindow().y -
+                        pickerLayoutCoordinates.positionInWindow().y
+                )
                 .isWithin(0.1f)
                 .of(pickerHeightPx / 2f - itemSizePx / 2f)
         }

@@ -39,13 +39,14 @@ public class ParcelableConstraintConvertersTest {
     @SdkSuppress(minSdkVersion = 24)
     public fun converterTest1() {
         val uri = Uri.parse("test://foo")
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .setRequiresCharging(true)
-            .setRequiresStorageNotLow(true)
-            .addContentUriTrigger(uri, true)
-            .build()
+        val constraints =
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .setRequiresCharging(true)
+                .setRequiresStorageNotLow(true)
+                .addContentUriTrigger(uri, true)
+                .build()
 
         assertOn(constraints)
     }
@@ -61,13 +62,15 @@ public class ParcelableConstraintConvertersTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 28)
     fun converterTestNetworkRequest() {
-        val request = NetworkRequest.Builder()
-            .addCapability(NET_CAPABILITY_INTERNET)
-            .addTransportType(TRANSPORT_WIFI)
-            .build()
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkRequest(request, NetworkType.NOT_ROAMING)
-            .build()
+        val request =
+            NetworkRequest.Builder()
+                .addCapability(NET_CAPABILITY_INTERNET)
+                .addTransportType(TRANSPORT_WIFI)
+                .build()
+        val constraints =
+            Constraints.Builder()
+                .setRequiredNetworkRequest(request, NetworkType.NOT_ROAMING)
+                .build()
         assertOn(constraints)
     }
 

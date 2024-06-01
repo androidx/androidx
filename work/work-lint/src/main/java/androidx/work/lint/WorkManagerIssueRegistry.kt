@@ -26,20 +26,22 @@ import com.android.tools.lint.detector.api.Issue
 class WorkManagerIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 14
-    override val issues: List<Issue> = listOf(
-        BadConfigurationProviderIssueDetector.ISSUE,
-        IdleBatteryChargingConstraintsDetector.ISSUE,
-        InvalidPeriodicWorkRequestIntervalDetector.ISSUE,
-        PeriodicEnqueueIssueDetector.ISSUE,
-        RemoveWorkManagerInitializerDetector.ISSUE,
-        RxWorkerSetProgressDetector.ISSUE,
-        SpecifyForegroundServiceTypeIssueDetector.ISSUE,
-        SpecifyJobSchedulerIdRangeIssueDetector.ISSUE,
-        WorkerHasPublicModifierDetector.ISSUE
-    )
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=409906",
-        identifier = "androidx.work",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues: List<Issue> =
+        listOf(
+            BadConfigurationProviderIssueDetector.ISSUE,
+            IdleBatteryChargingConstraintsDetector.ISSUE,
+            InvalidPeriodicWorkRequestIntervalDetector.ISSUE,
+            PeriodicEnqueueIssueDetector.ISSUE,
+            RemoveWorkManagerInitializerDetector.ISSUE,
+            RxWorkerSetProgressDetector.ISSUE,
+            SpecifyForegroundServiceTypeIssueDetector.ISSUE,
+            SpecifyJobSchedulerIdRangeIssueDetector.ISSUE,
+            WorkerHasPublicModifierDetector.ISSUE
+        )
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=409906",
+            identifier = "androidx.work",
+            vendorName = "Android Open Source Project",
+        )
 }

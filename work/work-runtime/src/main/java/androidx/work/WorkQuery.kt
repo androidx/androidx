@@ -19,44 +19,33 @@ import android.annotation.SuppressLint
 import java.util.UUID
 
 /**
- * A specification for querying [WorkRequest]s. This is comprised of 4 components; namely
- * ids, unique work names, tags & work states.
+ * A specification for querying [WorkRequest]s. This is comprised of 4 components; namely ids,
+ * unique work names, tags & work states.
  *
- * A [List] of [WorkRequest] ids, or a [List] of  unique work names, or a
- * [List] of [WorkRequest] tags, or a [List] of [WorkInfo.State] can be
- * specified.
+ * A [List] of [WorkRequest] ids, or a [List] of unique work names, or a [List] of [WorkRequest]
+ * tags, or a [List] of [WorkInfo.State] can be specified.
  *
- * Each component in a [WorkQuery] is `AND`-ed with the others. Each value in a
- * component is `OR`-ed.
+ * Each component in a [WorkQuery] is `AND`-ed with the others. Each value in a component is
+ * `OR`-ed.
  *
- * Example:
- * `(id1 OR id2 OR ...) AND (name1 OR name2 OR ...) AND (tag1 OR tag2 OR ...) AND (state1
+ * Example: `(id1 OR id2 OR ...) AND (name1 OR name2 OR ...) AND (tag1 OR tag2 OR ...) AND (state1
  * OR state2 OR ...)`
  */
-class WorkQuery internal constructor(
-    /**
-     * The [List] of [WorkRequest] ids being queried.
-     */
+class WorkQuery
+internal constructor(
+    /** The [List] of [WorkRequest] ids being queried. */
     val ids: List<UUID> = emptyList(),
 
-    /**
-     * The [List] of unique works name being queried
-     */
+    /** The [List] of unique works name being queried */
     val uniqueWorkNames: List<String> = emptyList(),
 
-    /**
-     * The [List] of tags being queried
-     */
+    /** The [List] of tags being queried */
     val tags: List<String> = emptyList(),
 
-    /**
-     * The [List] of [WorkInfo.State]s being queried
-     */
+    /** The [List] of [WorkInfo.State]s being queried */
     val states: List<WorkInfo.State> = emptyList(),
 ) {
-    /**
-     * A builder for [WorkQuery].
-     */
+    /** A builder for [WorkQuery]. */
     class Builder private constructor() {
         private val ids = mutableListOf<UUID>()
         private val uniqueWorkNames = mutableListOf<String>()
@@ -111,8 +100,8 @@ class WorkQuery internal constructor(
          * Creates an instance of [WorkQuery].
          *
          * @return the [WorkQuery] instance
-         * @throws IllegalArgumentException if neither of ids, uniqueWorkNames, tags or states
-         * is set.
+         * @throws IllegalArgumentException if neither of ids, uniqueWorkNames, tags or states is
+         *   set.
          */
         fun build(): WorkQuery {
             if (ids.isEmpty() && uniqueWorkNames.isEmpty() && tags.isEmpty() && states.isEmpty()) {
@@ -194,8 +183,7 @@ class WorkQuery internal constructor(
          * @param ids list of ids of [WorkRequest]s
          * @return a requested WorkQuery
          */
-        @JvmStatic
-        fun fromIds(ids: List<UUID>): WorkQuery = WorkQuery(ids = ids)
+        @JvmStatic fun fromIds(ids: List<UUID>): WorkQuery = WorkQuery(ids = ids)
 
         /**
          * Creates a query for [WorkRequest]s with the given ids.
@@ -203,8 +191,7 @@ class WorkQuery internal constructor(
          * @param ids ids of [WorkRequest]s
          * @return a requested WorkQuery
          */
-        @JvmStatic
-        fun fromIds(vararg ids: UUID): WorkQuery = WorkQuery(ids = ids.toList())
+        @JvmStatic fun fromIds(vararg ids: UUID): WorkQuery = WorkQuery(ids = ids.toList())
 
         /**
          * Creates a query for [WorkRequest]s with the given tags.
@@ -212,8 +199,7 @@ class WorkQuery internal constructor(
          * @param tags tags of [WorkRequest]s
          * @return a requested WorkQuery
          */
-        @JvmStatic
-        fun fromTags(tags: List<String>): WorkQuery = WorkQuery(tags = tags)
+        @JvmStatic fun fromTags(tags: List<String>): WorkQuery = WorkQuery(tags = tags)
 
         /**
          * Creates a query for [WorkRequest]s with the given tags.
@@ -221,8 +207,7 @@ class WorkQuery internal constructor(
          * @param tags tags of [WorkRequest]s
          * @return a requested WorkQuery
          */
-        @JvmStatic
-        fun fromTags(vararg tags: String): WorkQuery = WorkQuery(tags = tags.toList())
+        @JvmStatic fun fromTags(vararg tags: String): WorkQuery = WorkQuery(tags = tags.toList())
 
         /**
          * Creates a query for [WorkRequest]s with the given unique names.

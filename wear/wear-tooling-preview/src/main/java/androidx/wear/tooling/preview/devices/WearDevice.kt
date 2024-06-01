@@ -19,35 +19,35 @@ package androidx.wear.tooling.preview.devices
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
-/**
- * List with the pre-defined devices available to be used in previews.
- */
+/** List with the pre-defined devices available to be used in previews. */
 object WearDevices {
     // Make sure to update any @StringDefs that reference this object.
     /** Round device with 227x227dp (454x454px) dimensions, 1.39" size and xhdpi density. */
     const val LARGE_ROUND = "id:wearos_large_round"
     /** Round device with 192x192dp (384x384px) dimensions, 1.2" size and xhdpi density. */
     const val SMALL_ROUND = "id:wearos_small_round"
-    /** Square device with 180x180dp (360x360px) dimensions, 1.2" size and xhdpi density. If
-     * you are targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND]
-     * instead. */
+    /**
+     * Square device with 180x180dp (360x360px) dimensions, 1.2" size and xhdpi density. If you are
+     * targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND] instead.
+     */
     const val SQUARE = "id:wearos_square"
-    /** Rectangular device with 201x238dp (402x476px) dimensions, 1.2" size and xhdpi density. If
-     * you are targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND]
-     * instead. */
+    /**
+     * Rectangular device with 201x238dp (402x476px) dimensions, 1.2" size and xhdpi density. If you
+     * are targeting Wear 3 or later, it is recommended to use [LARGE_ROUND] or [SMALL_ROUND]
+     * instead.
+     */
     const val RECT = "id:wearos_rect"
 }
 
-/**
- * Annotation for defining the device to use.
- */
+/** Annotation for defining the device to use. */
 @Retention(AnnotationRetention.SOURCE)
 @StringDef(
     open = true,
-    value = [
-        WearDevices.LARGE_ROUND,
-        WearDevices.SMALL_ROUND,
-    ]
+    value =
+        [
+            WearDevices.LARGE_ROUND,
+            WearDevices.SMALL_ROUND,
+        ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class WearDevice

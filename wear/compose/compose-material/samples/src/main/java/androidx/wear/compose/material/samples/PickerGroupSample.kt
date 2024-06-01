@@ -76,9 +76,7 @@ fun AutoCenteringPickerGroup() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val headingText = mapOf(
-            0 to "Hours", 1 to "Minutes", 2 to "Seconds", 3 to "Milli"
-        )
+        val headingText = mapOf(0 to "Hours", 1 to "Minutes", 2 to "Seconds", 3 to "Milli")
         Spacer(modifier = Modifier.size(30.dp))
         Text(text = headingText[pickerGroupState.selectedIndex]!!)
         Spacer(modifier = Modifier.size(10.dp))

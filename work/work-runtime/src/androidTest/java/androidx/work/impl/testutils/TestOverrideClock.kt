@@ -23,8 +23,7 @@ import androidx.work.Clock
  * tests, but allows an override to be set.
  */
 class TestOverrideClock : Clock {
-    @JvmField
-    var currentTimeMillis: Long = Long.MAX_VALUE
+    @JvmField var currentTimeMillis: Long = Long.MAX_VALUE
 
     override fun currentTimeMillis(): Long {
         return if (currentTimeMillis == Long.MAX_VALUE) System.currentTimeMillis()

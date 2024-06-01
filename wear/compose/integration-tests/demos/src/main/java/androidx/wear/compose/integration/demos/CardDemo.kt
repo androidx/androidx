@@ -44,17 +44,12 @@ import androidx.wear.compose.material.TitleCard
 fun CardDemo() {
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = 4.dp,
-            alignment = Alignment.CenterVertically
-        ),
+        verticalArrangement =
+            Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterVertically),
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Card(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Card(onClick = {}, modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("Basic unopinionated chip")
                     Text("Sets the shape")
@@ -169,18 +164,17 @@ fun CardDemo() {
             TitleCard(
                 onClick = {},
                 title = { Text("TitleCard With an ImageBackground") },
-                backgroundPainter = CardDefaults.imageWithScrimBackgroundPainter(
-                    backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
-                ),
+                backgroundPainter =
+                    CardDefaults.imageWithScrimBackgroundPainter(
+                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
+                    ),
                 contentColor = MaterialTheme.colors.onSurface,
                 titleColor = MaterialTheme.colors.onSurface,
             ) {
                 // Apply 24.dp padding in bottom for TitleCard with an ImageBackground.
                 // Already 12.dp padding exists. Ref - [CardDefaults.ContentPadding]
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 12.dp),
+                    modifier = Modifier.fillMaxSize().padding(bottom = 12.dp),
                 ) {
                     Text("Text coloured to stand out on the image")
                 }

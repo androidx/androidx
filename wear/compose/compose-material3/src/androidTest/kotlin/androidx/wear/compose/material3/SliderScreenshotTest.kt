@@ -57,14 +57,11 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalWearMaterial3Api::class)
 class SliderScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun inlineslider_not_segmented() {
@@ -75,7 +72,7 @@ class SliderScreenshotTest {
                 segmented = false,
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                onValueChange = { },
+                onValueChange = {},
                 valueRange = 1f..4f,
                 steps = 2
             )
@@ -92,7 +89,7 @@ class SliderScreenshotTest {
                 enabled = false,
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                onValueChange = { },
+                onValueChange = {},
                 valueRange = 1f..4f,
                 steps = 2
             )
@@ -108,7 +105,7 @@ class SliderScreenshotTest {
                 segmented = true,
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                onValueChange = { },
+                onValueChange = {},
                 valueRange = 1f..4f,
                 steps = 2
             )
@@ -125,7 +122,7 @@ class SliderScreenshotTest {
                 enabled = false,
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                onValueChange = { },
+                onValueChange = {},
                 valueRange = 1f..4f,
                 steps = 2
             )
@@ -135,15 +132,13 @@ class SliderScreenshotTest {
     @Test
     public fun inlineslider_rtl() {
         verifyScreenshot {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 InlineSlider(
                     modifier = Modifier.testTag(TEST_TAG),
                     value = 2f,
                     increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                     decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                    onValueChange = { },
+                    onValueChange = {},
                     valueRange = 1f..4f,
                     steps = 2
                 )
@@ -190,19 +185,20 @@ class SliderScreenshotTest {
                 segmented = true,
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                colors = InlineSliderDefaults.colors(
-                    containerColor = Color.Green,
-                    buttonIconColor = Color.Yellow,
-                    selectedBarColor = Color.Magenta,
-                    unselectedBarColor = Color.White,
-                    barSeparatorColor = Color.Cyan,
-                    disabledContainerColor = Color.DarkGray,
-                    disabledButtonIconColor = Color.LightGray,
-                    disabledSelectedBarColor = Color.Red,
-                    disabledUnselectedBarColor = Color.Blue,
-                    disabledBarSeparatorColor = Color.Gray
-                ),
-                onValueChange = { },
+                colors =
+                    InlineSliderDefaults.colors(
+                        containerColor = Color.Green,
+                        buttonIconColor = Color.Yellow,
+                        selectedBarColor = Color.Magenta,
+                        unselectedBarColor = Color.White,
+                        barSeparatorColor = Color.Cyan,
+                        disabledContainerColor = Color.DarkGray,
+                        disabledButtonIconColor = Color.LightGray,
+                        disabledSelectedBarColor = Color.Red,
+                        disabledUnselectedBarColor = Color.Blue,
+                        disabledBarSeparatorColor = Color.Gray
+                    ),
+                onValueChange = {},
                 valueRange = 1f..4f,
                 steps = 2
             )
@@ -215,19 +211,11 @@ class SliderScreenshotTest {
             InlineSlider(
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
-                onValueChange = { },
+                onValueChange = {},
                 valueRange = 1f..4f,
-                decreaseIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = ""
-                    )
-                },
+                decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
                 increaseIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.ThumbUp,
-                        contentDescription = ""
-                    )
+                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
                 steps = 2
             )
@@ -244,19 +232,20 @@ class SliderScreenshotTest {
                 segmented = true,
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                colors = InlineSliderDefaults.colors(
-                    containerColor = Color.Green,
-                    buttonIconColor = Color.Yellow,
-                    selectedBarColor = Color.Magenta,
-                    unselectedBarColor = Color.White,
-                    barSeparatorColor = Color.Cyan,
-                    disabledContainerColor = Color.DarkGray,
-                    disabledButtonIconColor = Color.LightGray,
-                    disabledSelectedBarColor = Color.Red,
-                    disabledUnselectedBarColor = Color.Blue,
-                    disabledBarSeparatorColor = Color.Gray
-                ),
-                onValueChange = { },
+                colors =
+                    InlineSliderDefaults.colors(
+                        containerColor = Color.Green,
+                        buttonIconColor = Color.Yellow,
+                        selectedBarColor = Color.Magenta,
+                        unselectedBarColor = Color.White,
+                        barSeparatorColor = Color.Cyan,
+                        disabledContainerColor = Color.DarkGray,
+                        disabledButtonIconColor = Color.LightGray,
+                        disabledSelectedBarColor = Color.Red,
+                        disabledUnselectedBarColor = Color.Blue,
+                        disabledBarSeparatorColor = Color.Gray
+                    ),
+                onValueChange = {},
                 valueRange = 1f..4f,
                 steps = 2
             )
@@ -270,39 +259,28 @@ class SliderScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 2f,
                 enabled = false,
-                onValueChange = { },
+                onValueChange = {},
                 valueRange = 1f..4f,
-                decreaseIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = ""
-                    )
-                },
+                decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
                 increaseIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.ThumbUp,
-                        contentDescription = ""
-                    )
+                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
                 steps = 2
             )
         }
     }
 
-    private fun verifyScreenshot(
-        content: @Composable () -> Unit
-    ) {
+    private fun verifyScreenshot(content: @Composable () -> Unit) {
         rule.setContentWithTheme {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             ) {
                 content()
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

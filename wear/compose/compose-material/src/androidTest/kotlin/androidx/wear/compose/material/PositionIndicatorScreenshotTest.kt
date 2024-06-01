@@ -42,14 +42,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class PositionIndicatorScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun left_position_indicator() =
@@ -112,9 +109,7 @@ class PositionIndicatorScreenshotTest {
         ltr: Boolean = true,
     ) {
         rule.setContentWithTheme {
-            val actualLayoutDirection =
-                if (ltr) LayoutDirection.Ltr
-                else LayoutDirection.Rtl
+            val actualLayoutDirection = if (ltr) LayoutDirection.Ltr else LayoutDirection.Rtl
             CompositionLocalProvider(LocalLayoutDirection provides actualLayoutDirection) {
                 PositionIndicator(
                     value = { value },
@@ -126,7 +121,8 @@ class PositionIndicatorScreenshotTest {
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

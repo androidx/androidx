@@ -39,32 +39,31 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * This modifier provides functionality to increment or decrement values repeatedly
- * by holding down the composable.
- * Should be used instead of clickable modifier to achieve clickable and repeatable
+ * This modifier provides functionality to increment or decrement values repeatedly by holding down
+ * the composable. Should be used instead of clickable modifier to achieve clickable and repeatable
  * clickable behavior. Can't be used along with clickable modifier as it already implements it.
  *
- * Callbacks [onClick] and [onRepeatableClick] are different. [onClick] is triggered only
- * when the hold duration is shorter than [initialDelay] and no repeatable clicks happened.
- * [onRepeatableClick] is repeatedly triggered when the hold duration is longer
- * than [initialDelay] with [incrementalDelay] intervals.
+ * Callbacks [onClick] and [onRepeatableClick] are different. [onClick] is triggered only when the
+ * hold duration is shorter than [initialDelay] and no repeatable clicks happened.
+ * [onRepeatableClick] is repeatedly triggered when the hold duration is longer than [initialDelay]
+ * with [incrementalDelay] intervals.
  *
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
- * [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
- * [MutableInteractionSource] will be created when needed.
- * @param indication indication to be shown when modified element is pressed. By default,
- * indication from [LocalIndication] will be used. Pass `null` to show no indication, or
- * current value from [LocalIndication] to show theme default
- * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will
- * appear disabled for accessibility services
+ *   [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
+ *   [MutableInteractionSource] will be created when needed.
+ * @param indication indication to be shown when modified element is pressed. By default, indication
+ *   from [LocalIndication] will be used. Pass `null` to show no indication, or current value from
+ *   [LocalIndication] to show theme default
+ * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
+ *   disabled for accessibility services
  * @param onClickLabel semantic / accessibility label for the [onClick] action
- * @param role the type of user interface element. Accessibility services might use this
- * to describe the element or do customizations
+ * @param role the type of user interface element. Accessibility services might use this to describe
+ *   the element or do customizations
  * @param initialDelay The initial delay before the click starts repeating, in ms
  * @param incrementalDelay The delay between each repeated click, in ms
  * @param onClick will be called when user clicks on the element
- * @param onRepeatableClick will be called after the [initialDelay] with [incrementalDelay]
- * between each call until the touch is released
+ * @param onRepeatableClick will be called after the [initialDelay] with [incrementalDelay] between
+ *   each call until the touch is released
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun Modifier.repeatableClickable(
@@ -88,18 +87,18 @@ fun Modifier.repeatableClickable(
     // Repeatable logic should always follow the clickable, as the lowest modifier finishes first,
     // and we have to be sure that repeatable goes before clickable.
     clickable(
-        interactionSource = interactionSource,
-        indication = indication,
-        enabled = enabled,
-        onClickLabel = onClickLabel,
-        role = role,
-        onClick = {
-            if (!ignoreOnClick) {
-                currentOnClick()
-            }
-            ignoreOnClick = false
-        },
-    )
+            interactionSource = interactionSource,
+            indication = indication,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = {
+                if (!ignoreOnClick) {
+                    currentOnClick()
+                }
+                ignoreOnClick = false
+            },
+        )
         .pointerInput(enabled) {
             coroutineScope {
                 awaitEachGesture {

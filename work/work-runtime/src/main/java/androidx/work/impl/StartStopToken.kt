@@ -36,15 +36,11 @@ class StartStopTokens {
     private val runs = mutableMapOf<WorkGenerationalId, StartStopToken>()
 
     fun tokenFor(id: WorkGenerationalId): StartStopToken {
-        return synchronized(lock) {
-            runs.getOrPut(id) { StartStopToken(id) }
-        }
+        return synchronized(lock) { runs.getOrPut(id) { StartStopToken(id) } }
     }
 
     fun remove(id: WorkGenerationalId): StartStopToken? {
-        return synchronized(lock) {
-            runs.remove(id)
-        }
+        return synchronized(lock) { runs.remove(id) }
     }
 
     fun remove(workSpecId: String): List<StartStopToken> {
@@ -60,5 +56,6 @@ class StartStopTokens {
     }
 
     fun tokenFor(spec: WorkSpec) = tokenFor(spec.generationalId())
+
     fun remove(spec: WorkSpec) = remove(spec.generationalId())
 }

@@ -26,18 +26,21 @@ suspend fun AuthAvailabilitySample(
     oAuthRequest: OAuthRequest,
     myAuthCallback: RemoteAuthClient.Callback
 ) {
-    remoteAuthClient.availabilityStatus.collect {
-        status -> when (status) {
+    remoteAuthClient.availabilityStatus.collect { status ->
+        when (status) {
             RemoteAuthClient.STATUS_UNAVAILABLE ->
                 TODO("Present alternative flow as remote auth is not available")
             RemoteAuthClient.STATUS_TEMPORARILY_UNAVAILABLE ->
                 TODO("Present education to user to connect devices or bring to proximity.")
-            RemoteAuthClient.STATUS_AVAILABLE, RemoteAuthClient.STATUS_UNKNOWN ->
+            RemoteAuthClient.STATUS_AVAILABLE,
+            RemoteAuthClient.STATUS_UNKNOWN ->
                 // Present normal auth flow when we don't know (old devices)
                 // or when we know it is available.
                 remoteAuthClient.sendAuthorizationRequest(
                     oAuthRequest,
                     Runnable::run,
-                    myAuthCallback)
-        } }
+                    myAuthCallback
+                )
+        }
+    }
 }

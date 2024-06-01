@@ -37,13 +37,10 @@ import org.junit.runners.Parameterized
 class CardBenchmark(private val type: CardType) {
 
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = CardType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = CardType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val cardTestCaseFactory = { CardTestCase(type) }
 
@@ -58,16 +55,15 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
     @Composable
     override fun MeasuredContent() {
         when (type) {
-            CardType.Card ->
-                Card(onClick = { /* do something */ }) { Text("Card") }
-
+            CardType.Card -> Card(onClick = { /* do something */ }) { Text("Card") }
             CardType.AppCard ->
                 AppCard(
                     onClick = { /* do something */ },
                     appName = { Text("App name") },
                     title = { Text("Card title") },
-                ) { Text("App Card") }
-
+                ) {
+                    Text("App Card")
+                }
             CardType.TitleCard ->
                 TitleCard(
                     onClick = { /* do something */ },
@@ -75,7 +71,6 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
                 ) {
                     Text("Title Card")
                 }
-
             CardType.OutlinedCard ->
                 OutlinedCard(onClick = { /* do something */ }) { Text("Outlined Card") }
         }
@@ -83,12 +78,13 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class CardType {
-    Card, AppCard, TitleCard, OutlinedCard
+    Card,
+    AppCard,
+    TitleCard,
+    OutlinedCard
 }

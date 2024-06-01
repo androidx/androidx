@@ -24,8 +24,8 @@ import kotlin.jvm.Throws
  * Checks a [TimelineBuilders.TimelineEntry] to ensure that at least one element within it has an
  * accessibility description registered.
  *
- * At least one element on each tile should have a machine-readable content description
- * associated with it, which can be read out using screen readers.
+ * At least one element on each tile should have a machine-readable content description associated
+ * with it, which can be read out using screen readers.
  */
 internal class CheckAccessibilityAvailable : TimelineEntryChecker {
     override val name: String
@@ -43,9 +43,7 @@ internal class CheckAccessibilityAvailable : TimelineEntryChecker {
         }
     }
 
-    private fun checkElement(
-        element: LayoutElementBuilders.LayoutElement
-    ): Boolean {
+    private fun checkElement(element: LayoutElementBuilders.LayoutElement): Boolean {
         val modifiers =
             when (element) {
                 is LayoutElementBuilders.Row -> element.modifiers
@@ -67,21 +65,15 @@ internal class CheckAccessibilityAvailable : TimelineEntryChecker {
         // Note that individual Spannable elements cannot have semantics; the parent should have
         // these.
         return when (element) {
-            is LayoutElementBuilders.Row ->
-                element.contents.any(this::checkElement)
-            is LayoutElementBuilders.Column ->
-                element.contents.any(this::checkElement)
-            is LayoutElementBuilders.Box ->
-                element.contents.any(this::checkElement)
-            is LayoutElementBuilders.Arc ->
-                element.contents.any(this::checkArcLayoutElement)
+            is LayoutElementBuilders.Row -> element.contents.any(this::checkElement)
+            is LayoutElementBuilders.Column -> element.contents.any(this::checkElement)
+            is LayoutElementBuilders.Box -> element.contents.any(this::checkElement)
+            is LayoutElementBuilders.Arc -> element.contents.any(this::checkArcLayoutElement)
             else -> false
         }
     }
 
-    private fun checkArcLayoutElement(
-        element: LayoutElementBuilders.ArcLayoutElement
-    ): Boolean {
+    private fun checkArcLayoutElement(element: LayoutElementBuilders.ArcLayoutElement): Boolean {
         val modifiers =
             when (element) {
                 // Note that ArcAdapter should be handled by taking the modifiers from the inner

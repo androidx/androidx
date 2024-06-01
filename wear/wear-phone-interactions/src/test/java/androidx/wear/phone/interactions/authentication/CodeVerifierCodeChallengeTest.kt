@@ -73,9 +73,8 @@ public class CodeVerifierCodeChallengeTest {
     @Test
     public fun testChallengeEquality() {
         val verifierValue = "jdshfkshg-8973834_SDFSSGE"
-        assertThat(
-            CodeChallenge(CodeVerifier(verifierValue))
-        ).isEqualTo(CodeChallenge(CodeVerifier(verifierValue)))
+        assertThat(CodeChallenge(CodeVerifier(verifierValue)))
+            .isEqualTo(CodeChallenge(CodeVerifier(verifierValue)))
     }
 
     @Test

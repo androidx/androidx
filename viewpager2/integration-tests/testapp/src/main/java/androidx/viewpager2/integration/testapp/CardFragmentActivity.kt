@@ -30,22 +30,23 @@ import androidx.viewpager2.integration.testapp.cards.CardView
  * [androidx.viewpager2.adapter.FragmentStateAdapter]
  *
  * @see CardViewActivity for an example of using {@link androidx.viewpager2.widget.ViewPager2} with
- * Views.
+ *   Views.
  */
 class CardFragmentActivity : BaseCardActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewPager.adapter = object : FragmentStateAdapter(this) {
-            override fun createFragment(position: Int): Fragment {
-                return CardFragment.create(Card.DECK[position])
-            }
+        viewPager.adapter =
+            object : FragmentStateAdapter(this) {
+                override fun createFragment(position: Int): Fragment {
+                    return CardFragment.create(Card.DECK[position])
+                }
 
-            override fun getItemCount(): Int {
-                return Card.DECK.size
+                override fun getItemCount(): Int {
+                    return Card.DECK.size
+                }
             }
-        }
     }
 
     class CardFragment : Fragment() {
@@ -61,7 +62,7 @@ class CardFragmentActivity : BaseCardActivity() {
 
         companion object {
 
-            /** Creates a Fragment for a given [Card]  */
+            /** Creates a Fragment for a given [Card] */
             fun create(card: Card): CardFragment {
                 val fragment = CardFragment()
                 fragment.arguments = card.toBundle()

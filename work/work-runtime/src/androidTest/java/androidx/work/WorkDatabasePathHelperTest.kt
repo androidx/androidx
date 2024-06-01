@@ -39,12 +39,13 @@ import org.junit.runner.RunWith
 @LargeTest
 class WorkDatabasePathHelperTest {
     @get:Rule
-    val migrationTestHelper = MigrationTestHelper(
-        InstrumentationRegistry.getInstrumentation(),
-        WorkDatabase::class.java,
-        emptyList(),
-        FrameworkSQLiteOpenHelperFactory()
-    )
+    val migrationTestHelper =
+        MigrationTestHelper(
+            InstrumentationRegistry.getInstrumentation(),
+            WorkDatabase::class.java,
+            emptyList(),
+            FrameworkSQLiteOpenHelperFactory()
+        )
 
     private lateinit var context: Context
 
@@ -58,13 +59,13 @@ class WorkDatabasePathHelperTest {
     fun testMigration_toNoBackupDirectory() {
         // Create a database
         migrationTestHelper.createDatabase(
-            WorkDatabasePathHelper.getDefaultDatabasePath(context).path, VERSION_9
+            WorkDatabasePathHelper.getDefaultDatabasePath(context).path,
+            VERSION_9
         )
         val paths = WorkDatabasePathHelper.migrationPaths(context)
 
-        val asserts: Map<File, Boolean> = paths.map { (source, _) ->
-            Pair(source, source.exists())
-        }.toMap()
+        val asserts: Map<File, Boolean> =
+            paths.map { (source, _) -> Pair(source, source.exists()) }.toMap()
 
         // Migrate
         WorkDatabasePathHelper.migrateDatabase(context)

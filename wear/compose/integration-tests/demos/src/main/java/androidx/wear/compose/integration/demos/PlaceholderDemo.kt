@@ -71,10 +71,7 @@ fun PlaceholderChips() {
 
             item {
                 var labelText by remember { mutableStateOf("") }
-                ChipWithContentPlaceholders(
-                    label = labelText,
-                    textAlignment = TextAlign.Center
-                )
+                ChipWithContentPlaceholders(label = labelText, textAlignment = TextAlign.Center)
                 LaunchedEffect(resetCount) {
                     labelText = ""
                     delay(3000)
@@ -109,10 +106,7 @@ fun PlaceholderChips() {
             }
             item {
                 var labelText by remember { mutableStateOf("") }
-                ChipWithOverlaidPlaceholder(
-                    label = labelText,
-                    textAlignment = TextAlign.Center
-                )
+                ChipWithOverlaidPlaceholder(label = labelText, textAlignment = TextAlign.Center)
                 LaunchedEffect(resetCount) {
                     labelText = ""
                     delay(3000)
@@ -233,10 +227,11 @@ fun PlaceholderChips() {
                 ChipWithOverlaidPlaceholder(
                     label = label,
                     icon = R.drawable.ic_accessibility_24px,
-                    colors = ChipDefaults.chipColors(
-                        backgroundColor = MaterialTheme.colors.surface,
-                        iconColor = AlternatePrimaryColor2.copy(alpha = 0.5f),
-                    ),
+                    colors =
+                        ChipDefaults.chipColors(
+                            backgroundColor = MaterialTheme.colors.surface,
+                            iconColor = AlternatePrimaryColor2.copy(alpha = 0.5f),
+                        ),
                 )
                 LaunchedEffect(resetCount) {
                     label = ""
@@ -251,9 +246,7 @@ fun PlaceholderChips() {
                     label = label,
                     icon = R.drawable.ic_accessibility_24px,
                     secondaryLabel = secondaryLabel,
-                    colors = ChipDefaults.chipColors(
-                        backgroundColor = AlternatePrimaryColor2
-                    ),
+                    colors = ChipDefaults.chipColors(backgroundColor = AlternatePrimaryColor2),
                 )
                 LaunchedEffect(resetCount) {
                     label = ""
@@ -278,8 +271,9 @@ fun PlaceholderChips() {
                     label =
                         "Primary that is long, to show truncation, we shouldn't be able to see " +
                             "more than 1 line"
-                    secondaryLabel = "Long Secondary that is long, to show truncation, we " +
-                        "shouldn't be able to see more than 1 line"
+                    secondaryLabel =
+                        "Long Secondary that is long, to show truncation, we " +
+                            "shouldn't be able to see more than 1 line"
                 }
             }
         }
@@ -289,10 +283,7 @@ fun PlaceholderChips() {
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CompactChip(
-                label = { Text("Reset") },
-                onClick = { resetCount++ }
-            )
+            CompactChip(label = { Text("Reset") }, onClick = { resetCount++ })
         }
     }
 }
@@ -314,25 +305,13 @@ fun PlaceholderCards() {
     }
 
     ScalingLazyColumn {
-        item {
-            ListHeader {
-                Text("Overlaid Placeholders", textAlign = TextAlign.Center)
-            }
-        }
-        item {
-            Centralize {
-                Chip(
-                    label = { Text("Reset") },
-                    onClick = { resetCount++ }
-                )
-            }
-        }
+        item { ListHeader { Text("Overlaid Placeholders", textAlign = TextAlign.Center) } }
+        item { Centralize { Chip(label = { Text("Reset") }, onClick = { resetCount++ }) } }
         repeat(4) { itemIndex ->
             item {
                 CardWithOverlaidPlaceholder(
                     contentReady = { showContent[itemIndex].value },
-                    content =
-                    {
+                    content = {
                         Text("Some content $refreshCount")
                         Text("Some more content")
                     }
@@ -358,14 +337,12 @@ fun ChipWithOverlaidPlaceholder(
     var iconReady by remember { mutableStateOf(icon == null) }
     val maxLabelLines = if (secondaryLabel != null) 1 else 2
     val chipPlaceholderState = rememberPlaceholderState {
-        label.isNotEmpty() &&
-            ((secondaryLabel == null) || secondaryLabel.isNotEmpty()) && iconReady
+        label.isNotEmpty() && ((secondaryLabel == null) || secondaryLabel.isNotEmpty()) && iconReady
     }
 
     Box {
         Chip(
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             onClick = onClick,
             label = {
                 Text(
@@ -373,98 +350,101 @@ fun ChipWithOverlaidPlaceholder(
                     textAlign = textAlignment,
                     maxLines = maxLabelLines,
                     overflow = TextOverflow.Clip,
-
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(align = Alignment.CenterVertically)
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
                 )
             },
-            secondaryLabel = if (secondaryLabel != null) {
-                {
-                    Text(
-                        text = secondaryLabel,
-                        textAlign = textAlignment,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-            } else {
-                null
-            },
-            icon = if (icon != null) {
-                {
-                    DemoIcon(
-                        resourceId = icon,
-                    )
-                    if (!iconReady) {
-                        LaunchedEffect(Unit) {
-                            delay(2000)
-                            iconReady = true
+            secondaryLabel =
+                if (secondaryLabel != null) {
+                    {
+                        Text(
+                            text = secondaryLabel,
+                            textAlign = textAlignment,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                } else {
+                    null
+                },
+            icon =
+                if (icon != null) {
+                    {
+                        DemoIcon(
+                            resourceId = icon,
+                        )
+                        if (!iconReady) {
+                            LaunchedEffect(Unit) {
+                                delay(2000)
+                                iconReady = true
+                            }
                         }
                     }
-                }
-            } else {
-                null
-            },
+                } else {
+                    null
+                },
             enabled = true,
-            colors = PlaceholderDefaults.placeholderChipColors(
-                originalChipColors = colors,
-                placeholderState = chipPlaceholderState
-            )
+            colors =
+                PlaceholderDefaults.placeholderChipColors(
+                    originalChipColors = colors,
+                    placeholderState = chipPlaceholderState
+                )
         )
-        if (! chipPlaceholderState.isShowContent) {
+        if (!chipPlaceholderState.isShowContent) {
             Chip(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .placeholderShimmer(
-                        placeholderState = chipPlaceholderState,
-                    ),
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .placeholderShimmer(
+                            placeholderState = chipPlaceholderState,
+                        ),
                 onClick = onClick,
                 label = {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(16.dp)
-                            .padding(top = 1.dp, bottom = 1.dp)
-                            .placeholder(placeholderState = chipPlaceholderState)
-                    )
-                },
-                secondaryLabel = if (hasSecondaryLabel) {
-                    {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
+                        modifier =
+                            Modifier.fillMaxWidth()
                                 .height(16.dp)
                                 .padding(top = 1.dp, bottom = 1.dp)
-                                .placeholder(chipPlaceholderState)
-                        )
-                    }
-                } else {
-                    null
+                                .placeholder(placeholderState = chipPlaceholderState)
+                    )
                 },
-                icon = if (hasIcon) {
-                    {
-                        Box(
-                            modifier = Modifier
-                                .size(ChipDefaults.IconSize)
-                                .placeholder(chipPlaceholderState)
-                        )
-                    }
-                } else {
-                    null
-                },
+                secondaryLabel =
+                    if (hasSecondaryLabel) {
+                        {
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .height(16.dp)
+                                        .padding(top = 1.dp, bottom = 1.dp)
+                                        .placeholder(chipPlaceholderState)
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                icon =
+                    if (hasIcon) {
+                        {
+                            Box(
+                                modifier =
+                                    Modifier.size(ChipDefaults.IconSize)
+                                        .placeholder(chipPlaceholderState)
+                            )
+                        }
+                    } else {
+                        null
+                    },
                 enabled = true,
-                colors = PlaceholderDefaults.placeholderChipColors(
-                    placeholderState = chipPlaceholderState
-                )
+                colors =
+                    PlaceholderDefaults.placeholderChipColors(
+                        placeholderState = chipPlaceholderState
+                    )
             )
         }
     }
-    LaunchedEffect(chipPlaceholderState) {
-        chipPlaceholderState.startPlaceholderAnimation()
-    }
+    LaunchedEffect(chipPlaceholderState) { chipPlaceholderState.startPlaceholderAnimation() }
 }
 
 @OptIn(ExperimentalWearMaterialApi::class)
@@ -481,75 +461,65 @@ fun ChipWithContentPlaceholders(
     val maxLabelLines = if (secondaryLabel != null) 1 else 2
     var iconReady by remember { mutableStateOf(icon == null) }
     val chipPlaceholderState = rememberPlaceholderState {
-        label.isNotEmpty() &&
-            ((secondaryLabel == null) || secondaryLabel.isNotEmpty()) && iconReady
+        label.isNotEmpty() && ((secondaryLabel == null) || secondaryLabel.isNotEmpty()) && iconReady
     }
 
     Chip(
-        modifier = modifier
-            .fillMaxWidth()
-            .placeholderShimmer(chipPlaceholderState),
+        modifier = modifier.fillMaxWidth().placeholderShimmer(chipPlaceholderState),
         onClick = onClick,
         label = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max)
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
                 Text(
                     text = label,
                     textAlign = textAlignment,
                     maxLines = maxLabelLines,
                     overflow = TextOverflow.Clip,
-
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                        .placeholder(placeholderState = chipPlaceholderState)
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .placeholder(placeholderState = chipPlaceholderState)
                 )
             }
         },
-        secondaryLabel = if (secondaryLabel != null) {
-            {
-                Text(
-                    text = secondaryLabel,
-                    textAlign = textAlignment,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .placeholder(chipPlaceholderState)
-                )
-            }
-        } else {
-            null
-        },
-        icon = if (icon != null) {
-            {
-                DemoIcon(
-                    resourceId = icon,
-                    modifier = Modifier
-                        .placeholder(chipPlaceholderState)
-                )
-                if (!iconReady) {
-                    LaunchedEffect(Unit) {
-                        delay(2000)
-                        iconReady = true
+        secondaryLabel =
+            if (secondaryLabel != null) {
+                {
+                    Text(
+                        text = secondaryLabel,
+                        textAlign = textAlignment,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth().placeholder(chipPlaceholderState)
+                    )
+                }
+            } else {
+                null
+            },
+        icon =
+            if (icon != null) {
+                {
+                    DemoIcon(
+                        resourceId = icon,
+                        modifier = Modifier.placeholder(chipPlaceholderState)
+                    )
+                    if (!iconReady) {
+                        LaunchedEffect(Unit) {
+                            delay(2000)
+                            iconReady = true
+                        }
                     }
                 }
-            }
-        } else {
-            null
-        },
+            } else {
+                null
+            },
         enabled = true,
-        colors = PlaceholderDefaults.placeholderChipColors(
-            originalChipColors = colors,
-            placeholderState = chipPlaceholderState
-        )
+        colors =
+            PlaceholderDefaults.placeholderChipColors(
+                originalChipColors = colors,
+                placeholderState = chipPlaceholderState
+            )
     )
-    LaunchedEffect(chipPlaceholderState) {
-        chipPlaceholderState.startPlaceholderAnimation()
-    }
+    LaunchedEffect(chipPlaceholderState) { chipPlaceholderState.startPlaceholderAnimation() }
 }
 
 @OptIn(ExperimentalWearMaterialApi::class)
@@ -567,56 +537,43 @@ fun CardWithOverlaidPlaceholder(
             title = { Text("AppCard") },
             time = { Text("now") },
             modifier = Modifier.fillMaxHeight()
-
         ) {
             if (content != null) content()
         }
-        if (! cardPlaceholderState.isShowContent) {
+        if (!cardPlaceholderState.isShowContent) {
             AppCard(
                 onClick = {},
                 appName = {
-                    Text(" ",
-                        modifier = Modifier
-                            .weight(2f, true)
-                            .placeholder(cardPlaceholderState)
+                    Text(
+                        " ",
+                        modifier = Modifier.weight(2f, true).placeholder(cardPlaceholderState)
                     )
                 },
                 title = {
-                    Text(" ",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .placeholder(cardPlaceholderState)
-                    )
+                    Text(" ", modifier = Modifier.fillMaxWidth().placeholder(cardPlaceholderState))
                 },
                 time = {
-                    Text(" ",
-                        modifier = Modifier
-                            .weight(1f, true)
-                            .placeholder(cardPlaceholderState)
+                    Text(
+                        " ",
+                        modifier = Modifier.weight(1f, true).placeholder(cardPlaceholderState)
                     )
                 },
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .placeholderShimmer(
-                        cardPlaceholderState,
-                        MaterialTheme.shapes.large
-                    ),
-                backgroundPainter = PlaceholderDefaults.placeholderBackgroundBrush(
-                    placeholderState = cardPlaceholderState
-                )
+                modifier =
+                    Modifier.fillMaxHeight()
+                        .placeholderShimmer(cardPlaceholderState, MaterialTheme.shapes.large),
+                backgroundPainter =
+                    PlaceholderDefaults.placeholderBackgroundBrush(
+                        placeholderState = cardPlaceholderState
+                    )
             ) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .placeholder(
-                        cardPlaceholderState,
-                        MaterialTheme.shapes.medium
-                    )
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .placeholder(cardPlaceholderState, MaterialTheme.shapes.medium)
                 )
             }
-       }
+        }
     }
-    LaunchedEffect(cardPlaceholderState) {
-        cardPlaceholderState.startPlaceholderAnimation()
-    }
+    LaunchedEffect(cardPlaceholderState) { cardPlaceholderState.startPlaceholderAnimation() }
 }

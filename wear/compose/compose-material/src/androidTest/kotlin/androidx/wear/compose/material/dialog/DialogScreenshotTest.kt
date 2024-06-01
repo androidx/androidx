@@ -45,14 +45,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class DialogScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun alert_title_body_and_buttons() = verifyScreenshot {
@@ -65,20 +62,10 @@ class DialogScreenshotTest {
                 )
             },
             negativeButton = {
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.secondaryButtonColors()
-                ) {
-                    Text("No")
-                }
+                Button(onClick = {}, colors = ButtonDefaults.secondaryButtonColors()) { Text("No") }
             },
             positiveButton = {
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.primaryButtonColors()
-                ) {
-                    Text("Yes")
-                }
+                Button(onClick = {}, colors = ButtonDefaults.primaryButtonColors()) { Text("Yes") }
             },
             modifier = Modifier.testTag(TEST_TAG),
         ) {
@@ -103,20 +90,10 @@ class DialogScreenshotTest {
                 )
             },
             negativeButton = {
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.secondaryButtonColors()
-                ) {
-                    Text("No")
-                }
+                Button(onClick = {}, colors = ButtonDefaults.secondaryButtonColors()) { Text("No") }
             },
             positiveButton = {
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.primaryButtonColors()
-                ) {
-                    Text("Yes")
-                }
+                Button(onClick = {}, colors = ButtonDefaults.primaryButtonColors()) { Text("Yes") }
             },
             modifier = Modifier.testTag(TEST_TAG),
         )
@@ -126,10 +103,12 @@ class DialogScreenshotTest {
     fun alert_icon_title_and_chip() = verifyScreenshot {
         Alert(
             icon = { TestIcon() },
-            title = { Text(
-                text = "Grant location permission to use this app",
-                textAlign = TextAlign.Center
-            ) },
+            title = {
+                Text(
+                    text = "Grant location permission to use this app",
+                    textAlign = TextAlign.Center
+                )
+            },
             modifier = Modifier.testTag(TEST_TAG),
         ) {
             item {
@@ -148,8 +127,10 @@ class DialogScreenshotTest {
         Alert(
             verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
             title = {
-                Row(modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     Text(text = "Title that is quite long", textAlign = TextAlign.Center)
                 }
             },
@@ -180,21 +161,15 @@ class DialogScreenshotTest {
             icon = { TestIcon() },
             modifier = Modifier.testTag(TEST_TAG),
         ) {
-            Text(
-                text = "Success",
-                textAlign = TextAlign.Center
-            )
+            Text(text = "Success", textAlign = TextAlign.Center)
         }
     }
 
-    private fun verifyScreenshot(
-        content: @Composable () -> Unit
-    ) {
-        rule.setContentWithTheme {
-             content()
-        }
+    private fun verifyScreenshot(content: @Composable () -> Unit) {
+        rule.setContentWithTheme { content() }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

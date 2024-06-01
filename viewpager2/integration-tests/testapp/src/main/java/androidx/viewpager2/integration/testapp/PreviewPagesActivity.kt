@@ -32,8 +32,9 @@ class PreviewPagesActivity : FragmentActivity() {
             offscreenPageLimit = 1
             val recyclerView = getChildAt(0) as RecyclerView
             recyclerView.apply {
-                val padding = resources.getDimensionPixelOffset(R.dimen.halfPageMargin) +
-                    resources.getDimensionPixelOffset(R.dimen.peekOffset)
+                val padding =
+                    resources.getDimensionPixelOffset(R.dimen.halfPageMargin) +
+                        resources.getDimensionPixelOffset(R.dimen.peekOffset)
                 // setting padding on inner RecyclerView puts overscroll effect in the right place
                 // TODO: expose in later versions not to rely on getChildAt(0) which might break
                 setPadding(padding, 0, padding, 0)
@@ -43,9 +44,10 @@ class PreviewPagesActivity : FragmentActivity() {
         }
     }
 
-    class ViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.item_preview_pages, parent, false)
-    )
+    class ViewHolder(parent: ViewGroup) :
+        RecyclerView.ViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.item_preview_pages, parent, false)
+        )
 
     class Adapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         override fun getItemCount(): Int {

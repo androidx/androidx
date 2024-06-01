@@ -33,11 +33,8 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SwipeToDismissBenchmark(
-    private val compilationMode: CompilationMode
-) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+class SwipeToDismissBenchmark(private val compilationMode: CompilationMode) {
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Before
     fun setUp() {

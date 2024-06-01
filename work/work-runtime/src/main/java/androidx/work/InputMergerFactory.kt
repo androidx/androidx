@@ -18,21 +18,19 @@ package androidx.work
 import androidx.annotation.RestrictTo
 
 /**
- * A factory object that creates [InputMerger] instances. The factory is invoked every
- * time a work runs. You can override the default implementation of this factory by manually
- * initializing [WorkManager] (see [WorkManager.initialize]
- * and specifying a new [InputMergerFactory] in
+ * A factory object that creates [InputMerger] instances. The factory is invoked every time a work
+ * runs. You can override the default implementation of this factory by manually initializing
+ * [WorkManager] (see [WorkManager.initialize] and specifying a new [InputMergerFactory] in
  * [Configuration.Builder.setInputMergerFactory].
  */
 abstract class InputMergerFactory {
     /**
-     * Override this method to create an instance of a [InputMerger] given its fully
-     * qualified class name.
+     * Override this method to create an instance of a [InputMerger] given its fully qualified class
+     * name.
      *
-     *
-     * Throwing an [Exception] here will crash the application. If an
-     * [InputMergerFactory] is unable to create an instance of a [InputMerger], it
-     * should return `null` so it can delegate to the default [InputMergerFactory].
+     * Throwing an [Exception] here will crash the application. If an [InputMergerFactory] is unable
+     * to create an instance of a [InputMerger], it should return `null` so it can delegate to the
+     * default [InputMergerFactory].
      *
      * @param className The fully qualified class name for the [InputMerger]
      * @return an instance of [InputMerger]
@@ -40,12 +38,11 @@ abstract class InputMergerFactory {
     abstract fun createInputMerger(className: String): InputMerger?
 
     /**
-     * Creates an instance of a [InputMerger] given its fully
-     * qualified class name with the correct fallback behavior.
+     * Creates an instance of a [InputMerger] given its fully qualified class name with the correct
+     * fallback behavior.
      *
      * @param className The fully qualified class name for the [InputMerger]
      * @return an instance of [InputMerger]
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun createInputMergerWithDefaultFallback(className: String): InputMerger? {

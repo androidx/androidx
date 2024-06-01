@@ -20,7 +20,7 @@
 package androidx.wear.compose.material3.tokens
 
 internal object OutlinedIconButtonTokens {
-  val ContentColor = ColorSchemeKeyTokens.OnSurface
-  val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
-  val DisabledContentOpacity = 0.38f
+    val ContentColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledContentOpacity = 0.38f
 }

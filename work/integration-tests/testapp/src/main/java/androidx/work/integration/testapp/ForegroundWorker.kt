@@ -72,13 +72,14 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
             createChannel()
         }
 
-        val notification = NotificationCompat.Builder(applicationContext, id)
-            .setContentTitle(title)
-            .setTicker(title)
-            .setContentText(content)
-            .setSmallIcon(R.drawable.ic_work_notification)
-            .setOngoing(true)
-            .build()
+        val notification =
+            NotificationCompat.Builder(applicationContext, id)
+                .setContentTitle(title)
+                .setTicker(title)
+                .setContentText(content)
+                .setSmallIcon(R.drawable.ic_work_notification)
+                .setOngoing(true)
+                .build()
 
         return ForegroundInfo(notificationId, notification)
     }

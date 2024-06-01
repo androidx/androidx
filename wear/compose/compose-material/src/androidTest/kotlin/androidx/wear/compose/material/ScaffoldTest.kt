@@ -34,17 +34,11 @@ import org.junit.Test
 
 @OptIn(ExperimentalAnimationApi::class)
 class ScaffoldTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
-        rule.setContentWithTheme {
-            Scaffold(
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-            }
-        }
+        rule.setContentWithTheme { Scaffold(modifier = Modifier.testTag(TEST_TAG)) {} }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -52,11 +46,7 @@ class ScaffoldTest {
     @Test
     fun displays_content() {
         rule.setContentWithTheme {
-            Scaffold(
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-                Text(CONTENT_MESSAGE)
-            }
+            Scaffold(modifier = Modifier.testTag(TEST_TAG)) { Text(CONTENT_MESSAGE) }
         }
 
         rule.onNodeWithText(CONTENT_MESSAGE).assertIsDisplayed()
@@ -109,9 +99,7 @@ class ScaffoldTest {
             val scrollState = rememberScalingLazyListState()
 
             Scaffold(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .background(Color.Black),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.Black),
                 timeText = { Text(TIME_TEXT_MESSAGE) },
                 vignette = {
                     if (showVignette.value) {
@@ -126,9 +114,7 @@ class ScaffoldTest {
                 }
             ) {
                 ScalingLazyColumn(modifier = Modifier.testTag("ScalingLazyColumn")) {
-                    items(20) {
-                        Text("" + it, modifier = Modifier.testTag("" + it))
-                    }
+                    items(20) { Text("" + it, modifier = Modifier.testTag("" + it)) }
                 }
             }
         }

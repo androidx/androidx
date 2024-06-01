@@ -19,9 +19,7 @@ package androidx.work.testing
 import androidx.annotation.RestrictTo
 import androidx.work.Clock
 
-/**
- * A settable [Clock] that can be used to control time and precisely test schedules
- */
+/** A settable [Clock] that can be used to control time and precisely test schedules */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestClock(var timeMillis: Long) : Clock {
 

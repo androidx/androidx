@@ -22,13 +22,9 @@ package androidx.work.datatransfer
  * transferred.
  */
 class TransferInfo(
-    /**
-     * The estimated number of bytes to be uploaded, if applicable.
-     */
+    /** The estimated number of bytes to be uploaded, if applicable. */
     val estimatedUploadBytes: Long = 0L,
-    /**
-     * The estimated number of bytes to be downloaded, if applicable.
-     */
+    /** The estimated number of bytes to be downloaded, if applicable. */
     val estimatedDownloadBytes: Long = 0L
 ) {
     override fun equals(other: Any?): Boolean {
@@ -36,7 +32,7 @@ class TransferInfo(
         if (other == null || javaClass != other.javaClass) return false
         val that = other as TransferInfo
         return estimatedUploadBytes == that.estimatedUploadBytes &&
-                estimatedDownloadBytes == that.estimatedDownloadBytes
+            estimatedDownloadBytes == that.estimatedDownloadBytes
     }
 
     override fun hashCode(): Int {

@@ -140,11 +140,11 @@ public open class ListenableWatchFaceControlClient(
          *   control service to bind to.
          * @param resourceOnlyWatchFacePackageName The name of the package from which to load the
          *   resource only watch face. This is exposed to the runtime via the
-         *  `resourceOnlyWatchFacePackageName` parameter passed to
-         *  [WatchFaceRuntimeService.createUserStyleSchema],
-         *  [WatchFaceRuntimeService.createComplicationSlotsManager],
-         *  [WatchFaceRuntimeService.createUserStyleFlavors] and
-         *  [WatchFaceRuntimeService.createWatchFace]).
+         *   `resourceOnlyWatchFacePackageName` parameter passed to
+         *   [WatchFaceRuntimeService.createUserStyleSchema],
+         *   [WatchFaceRuntimeService.createComplicationSlotsManager],
+         *   [WatchFaceRuntimeService.createUserStyleFlavors] and
+         *   [WatchFaceRuntimeService.createWatchFace]).
          * @return [ListenableFuture]<[ListenableWatchFaceControlClient]> which on success resolves
          *   to a [ListenableWatchFaceControlClient] or throws a [ServiceNotBoundException] if the
          *   watch face control service can not be bound.

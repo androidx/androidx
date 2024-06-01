@@ -28,14 +28,10 @@ public interface CurvedAlignment {
     @kotlin.jvm.JvmInline
     public value class Radial internal constructor(internal val ratio: Float) {
         companion object {
-            /**
-             * Put the child closest to the center of the container, within the available space
-             */
+            /** Put the child closest to the center of the container, within the available space */
             val Inner = Radial(1f)
 
-            /**
-             * Put the child in the middle point of the available space.
-             */
+            /** Put the child in the middle point of the available space. */
             val Center = Radial(0.5f)
 
             /**
@@ -43,9 +39,7 @@ public interface CurvedAlignment {
              */
             val Outer = Radial(0f)
 
-            /**
-             * Align the child in a custom position, 0 means Outer, 1 means Inner
-             */
+            /** Align the child in a custom position, 0 means Outer, 1 means Inner */
             fun Custom(ratio: Float): Radial {
                 return Radial(ratio)
             }
@@ -65,9 +59,7 @@ public interface CurvedAlignment {
              */
             val Start = Angular(0f)
 
-            /**
-             * Put the child in the middle point of the available space.
-             */
+            /** Put the child in the middle point of the available space. */
             val Center = Angular(0.5f)
 
             /**
@@ -76,9 +68,7 @@ public interface CurvedAlignment {
              */
             val End = Angular(1f)
 
-            /**
-             * Align the child in a custom position, 0 means Start, 1 means End
-             */
+            /** Align the child in a custom position, 0 means Start, 1 means End */
             fun Custom(ratio: Float): Angular {
                 return Angular(ratio)
             }

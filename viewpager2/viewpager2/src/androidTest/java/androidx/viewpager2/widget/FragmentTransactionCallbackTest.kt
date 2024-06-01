@@ -44,8 +44,8 @@ import org.junit.runner.RunWith
  * Integration test of [FragmentTransactionCallback] mechanism.
  *
  * The test executes various operations on a [ViewPager2] instance and inspects resulting lifecycle
- * events. The test relies on [FragmentLifecycleCallbacks] to assure the events are reflecting
- * what is happening to adapter's [Fragment]s.
+ * events. The test relies on [FragmentLifecycleCallbacks] to assure the events are reflecting what
+ * is happening to adapter's [Fragment]s.
  */
 class FragmentTransactionCallbackTest : BaseTest() {
     @Test // TODO: split into individual tests
@@ -105,9 +105,10 @@ class FragmentTransactionCallbackTest : BaseTest() {
             )
 
             // when 2: current item changed to next page
-            val latch2 = adapter.registerMaxLifecycleUpdatedLatch { fragment, maxLifecycleState ->
-                fragment.name == "f0" && maxLifecycleState == Lifecycle.State.STARTED
-            }
+            val latch2 =
+                adapter.registerMaxLifecycleUpdatedLatch { fragment, maxLifecycleState ->
+                    fragment.name == "f0" && maxLifecycleState == Lifecycle.State.STARTED
+                }
             viewPager.setCurrentItemSync(1, true, 5, SECONDS)
             latch2.awaitStrict(5)
 
@@ -183,55 +184,57 @@ class FragmentTransactionCallbackTest : BaseTest() {
                 log.consume().filter { !it.contains("onFragmentSaveInstanceState") },
                 equalTo(
                     when (Build.VERSION.SDK_INT) {
-                        in 1..28 -> listOf(
-                            "Lifecycle:onFragmentPaused(f1)",
-                            "Lifecycle:onFragmentStopped(f0)",
-                            "Lifecycle:onFragmentStopped(f1)",
-                            // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
-                            // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
-                            "Lifecycle:onFragmentViewDestroyed(f0)",
-                            "Lifecycle:onFragmentDestroyed(f0)",
-                            "Lifecycle:onFragmentDetached(f0)",
-                            "Lifecycle:onFragmentViewDestroyed(f1)",
-                            "Lifecycle:onFragmentDestroyed(f1)",
-                            "Lifecycle:onFragmentDetached(f1)",
-                            "Lifecycle:onFragmentViewCreated(f0)",
-                            "Lifecycle:onFragmentActivityCreated(f0)",
-                            "Lifecycle:onFragmentViewCreated(f1)",
-                            "Lifecycle:onFragmentActivityCreated(f1)",
-                            "Lifecycle:onFragmentStarted(f0)",
-                            "Lifecycle:onFragmentStarted(f1)",
-                            "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
-                            "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
-                            "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
-                            "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
-                            "Lifecycle:onFragmentResumed(f1)"
-                        )
+                        in 1..28 ->
+                            listOf(
+                                "Lifecycle:onFragmentPaused(f1)",
+                                "Lifecycle:onFragmentStopped(f0)",
+                                "Lifecycle:onFragmentStopped(f1)",
+                                // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
+                                // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
+                                "Lifecycle:onFragmentViewDestroyed(f0)",
+                                "Lifecycle:onFragmentDestroyed(f0)",
+                                "Lifecycle:onFragmentDetached(f0)",
+                                "Lifecycle:onFragmentViewDestroyed(f1)",
+                                "Lifecycle:onFragmentDestroyed(f1)",
+                                "Lifecycle:onFragmentDetached(f1)",
+                                "Lifecycle:onFragmentViewCreated(f0)",
+                                "Lifecycle:onFragmentActivityCreated(f0)",
+                                "Lifecycle:onFragmentViewCreated(f1)",
+                                "Lifecycle:onFragmentActivityCreated(f1)",
+                                "Lifecycle:onFragmentStarted(f0)",
+                                "Lifecycle:onFragmentStarted(f1)",
+                                "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                                "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
+                                "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
+                                "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
+                                "Lifecycle:onFragmentResumed(f1)"
+                            )
                         // TODO(b/266975014): investigate change in behaviour on API 29+
-                        else -> listOf(
-                            "Lifecycle:onFragmentPaused(f1)",
-                            "Lifecycle:onFragmentStopped(f0)",
-                            "Lifecycle:onFragmentStopped(f1)",
-                            // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
-                            // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
-                            "Lifecycle:onFragmentViewDestroyed(f0)",
-                            "Lifecycle:onFragmentDestroyed(f0)",
-                            "Lifecycle:onFragmentDetached(f0)",
-                            "Lifecycle:onFragmentViewDestroyed(f1)",
-                            "Lifecycle:onFragmentDestroyed(f1)",
-                            "Lifecycle:onFragmentDetached(f1)",
-                            "Lifecycle:onFragmentViewCreated(f0)",
-                            "Lifecycle:onFragmentActivityCreated(f0)",
-                            "Lifecycle:onFragmentViewCreated(f1)",
-                            "Lifecycle:onFragmentActivityCreated(f1)",
-                            "Lifecycle:onFragmentStarted(f0)",
-                            "Lifecycle:onFragmentStarted(f1)",
-                            "Lifecycle:onFragmentResumed(f1)",
-                            "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
-                            "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
-                            "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
-                            "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"
-                        )
+                        else ->
+                            listOf(
+                                "Lifecycle:onFragmentPaused(f1)",
+                                "Lifecycle:onFragmentStopped(f0)",
+                                "Lifecycle:onFragmentStopped(f1)",
+                                // "Lifecycle:onFragmentSaveInstanceState(f0)", # unstable ordering
+                                // "Lifecycle:onFragmentSaveInstanceState(f1)", # unstable ordering
+                                "Lifecycle:onFragmentViewDestroyed(f0)",
+                                "Lifecycle:onFragmentDestroyed(f0)",
+                                "Lifecycle:onFragmentDetached(f0)",
+                                "Lifecycle:onFragmentViewDestroyed(f1)",
+                                "Lifecycle:onFragmentDestroyed(f1)",
+                                "Lifecycle:onFragmentDetached(f1)",
+                                "Lifecycle:onFragmentViewCreated(f0)",
+                                "Lifecycle:onFragmentActivityCreated(f0)",
+                                "Lifecycle:onFragmentViewCreated(f1)",
+                                "Lifecycle:onFragmentActivityCreated(f1)",
+                                "Lifecycle:onFragmentStarted(f0)",
+                                "Lifecycle:onFragmentStarted(f1)",
+                                "Lifecycle:onFragmentResumed(f1)",
+                                "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                                "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
+                                "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
+                                "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"
+                            )
                     }
                 )
             )
@@ -287,7 +290,8 @@ class FragmentTransactionCallbackTest : BaseTest() {
 
             // then
             assertThat(
-                log.consume(), equalTo(
+                log.consume(),
+                equalTo(
                     listOf(
                         "Adapter:onFragmentPreAdded(<no-tag>)",
                         "Lifecycle:onFragmentPreAttached(f1)",
@@ -431,12 +435,13 @@ class FragmentTransactionCallbackTest : BaseTest() {
                 log.append("Lifecycle:onFragmentPreCreated(${f.name})")
             }
 
-            @Deprecated("To get a callback specifically when a Fragment activity's\n" +
-                " {@link android.app.Activity#onCreate(Bundle)} is called, register a\n" +
-                " {@link androidx.lifecycle.LifecycleObserver} on the Activity's\n" +
-                " {@link Lifecycle} in" +
-                " {@link #onFragmentAttached(FragmentManager, Fragment, Context)}, removing it\n" +
-                " when it receives the {@link Lifecycle.State#CREATED} callback."
+            @Deprecated(
+                "To get a callback specifically when a Fragment activity's\n" +
+                    " {@link android.app.Activity#onCreate(Bundle)} is called, register a\n" +
+                    " {@link androidx.lifecycle.LifecycleObserver} on the Activity's\n" +
+                    " {@link Lifecycle} in" +
+                    " {@link #onFragmentAttached(FragmentManager, Fragment, Context)}, removing it\n" +
+                    " when it receives the {@link Lifecycle.State#CREATED} callback."
             )
             override fun onFragmentActivityCreated(
                 fm: FragmentManager,
@@ -456,49 +461,48 @@ class FragmentTransactionCallbackTest : BaseTest() {
         }
     }
 
-    private fun createRecordingFragmentTransactionCallback(log: RecordingLogger):
-        FragmentTransactionCallback {
-            return object : FragmentTransactionCallback() {
-                override fun onFragmentPreAdded(fragment: Fragment): OnPostEventListener {
-                    log.append("Adapter:onFragmentPreAdded(${fragment.name})")
-                    return OnPostEventListener {
-                        log.append("Adapter:onFragmentAdded(${fragment.name})")
-                    }
+    private fun createRecordingFragmentTransactionCallback(
+        log: RecordingLogger
+    ): FragmentTransactionCallback {
+        return object : FragmentTransactionCallback() {
+            override fun onFragmentPreAdded(fragment: Fragment): OnPostEventListener {
+                log.append("Adapter:onFragmentPreAdded(${fragment.name})")
+                return OnPostEventListener {
+                    log.append("Adapter:onFragmentAdded(${fragment.name})")
                 }
+            }
 
-                override fun onFragmentPreSavedInstanceState(
-                    fragment: Fragment
-                ): OnPostEventListener {
-                    log.append("Adapter:onFragmentPreSavedInstanceState(${fragment.name})")
-                    return OnPostEventListener {
-                        log.append("Adapter:onFragmentSavedInstanceState(${fragment.name})")
-                    }
+            override fun onFragmentPreSavedInstanceState(fragment: Fragment): OnPostEventListener {
+                log.append("Adapter:onFragmentPreSavedInstanceState(${fragment.name})")
+                return OnPostEventListener {
+                    log.append("Adapter:onFragmentSavedInstanceState(${fragment.name})")
                 }
+            }
 
-                override fun onFragmentPreRemoved(fragment: Fragment): OnPostEventListener {
-                    log.append("Adapter:onFragmentPreRemoved(${fragment.name})")
-                    return OnPostEventListener {
-                        log.append("Adapter:onFragmentRemoved(${fragment.name})")
-                    }
+            override fun onFragmentPreRemoved(fragment: Fragment): OnPostEventListener {
+                log.append("Adapter:onFragmentPreRemoved(${fragment.name})")
+                return OnPostEventListener {
+                    log.append("Adapter:onFragmentRemoved(${fragment.name})")
                 }
+            }
 
-                override fun onFragmentMaxLifecyclePreUpdated(
-                    fragment: Fragment,
-                    maxLifecycleState: Lifecycle.State
-                ): OnPostEventListener {
+            override fun onFragmentMaxLifecyclePreUpdated(
+                fragment: Fragment,
+                maxLifecycleState: Lifecycle.State
+            ): OnPostEventListener {
+                log.append(
+                    "Adapter:onFragmentMaxLifecyclePreUpdated(${fragment.name} " +
+                        "at $maxLifecycleState)"
+                )
+                return OnPostEventListener {
                     log.append(
-                        "Adapter:onFragmentMaxLifecyclePreUpdated(${fragment.name} " +
+                        "Adapter:onFragmentMaxLifecycleUpdated(${fragment.name} " +
                             "at $maxLifecycleState)"
                     )
-                    return OnPostEventListener {
-                        log.append(
-                            "Adapter:onFragmentMaxLifecycleUpdated(${fragment.name} " +
-                                "at $maxLifecycleState)"
-                        )
-                    }
                 }
             }
         }
+    }
 }
 
 private class RecordingLogger {
@@ -511,32 +515,32 @@ private class RecordingLogger {
     }
 }
 
-private val Fragment.name get(): String = this.tag ?: "<no-tag>"
+private val Fragment.name
+    get(): String = this.tag ?: "<no-tag>"
 
 private fun FragmentStateAdapter.registerFragmentAddedLatch(
     condition: (Fragment) -> Boolean
 ): CountDownLatch {
     val latch = CountDownLatch(1)
-    registerFragmentTransactionCallback(object : FragmentTransactionCallback() {
-        override fun onFragmentPreAdded(fragment: Fragment): OnPostEventListener {
-            return OnPostEventListener {
-                if (condition(fragment))
-                    latch.countDown()
+    registerFragmentTransactionCallback(
+        object : FragmentTransactionCallback() {
+            override fun onFragmentPreAdded(fragment: Fragment): OnPostEventListener {
+                return OnPostEventListener { if (condition(fragment)) latch.countDown() }
             }
         }
-    })
+    )
     return latch
 }
 
 private fun FragmentStateAdapter.registerFragmentRemovedLatch(): CountDownLatch {
     val latch = CountDownLatch(1)
-    registerFragmentTransactionCallback(object : FragmentTransactionCallback() {
-        override fun onFragmentPreRemoved(fragment: Fragment): OnPostEventListener {
-            return OnPostEventListener {
-                latch.countDown()
+    registerFragmentTransactionCallback(
+        object : FragmentTransactionCallback() {
+            override fun onFragmentPreRemoved(fragment: Fragment): OnPostEventListener {
+                return OnPostEventListener { latch.countDown() }
             }
         }
-    })
+    )
     return latch
 }
 
@@ -544,18 +548,20 @@ private fun FragmentStateAdapter.registerMaxLifecycleUpdatedLatch(
     condition: (Fragment, Lifecycle.State) -> Boolean
 ): CountDownLatch {
     val latch = CountDownLatch(1)
-    registerFragmentTransactionCallback(object : FragmentTransactionCallback() {
-        override fun onFragmentMaxLifecyclePreUpdated(
-            fragment: Fragment,
-            maxLifecycleState: Lifecycle.State
-        ): OnPostEventListener {
-            return OnPostEventListener {
-                if (condition(fragment, maxLifecycleState)) {
-                    latch.countDown()
+    registerFragmentTransactionCallback(
+        object : FragmentTransactionCallback() {
+            override fun onFragmentMaxLifecyclePreUpdated(
+                fragment: Fragment,
+                maxLifecycleState: Lifecycle.State
+            ): OnPostEventListener {
+                return OnPostEventListener {
+                    if (condition(fragment, maxLifecycleState)) {
+                        latch.countDown()
+                    }
                 }
             }
         }
-    })
+    )
     return latch
 }
 

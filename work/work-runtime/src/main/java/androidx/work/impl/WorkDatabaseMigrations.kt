@@ -45,9 +45,7 @@ import androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES
 import androidx.work.impl.utils.PreferenceUtils
 import androidx.work.impl.utils.migrateLegacyIdGenerator
 
-/**
- * Migration helpers for [androidx.work.impl.WorkDatabase].
- */
+/** Migration helpers for [androidx.work.impl.WorkDatabase]. */
 internal object WorkDatabaseVersions {
     // Known WorkDatabase versions
     const val VERSION_1 = 1
@@ -77,8 +75,7 @@ internal object WorkDatabaseVersions {
     // made input_merger_class_name non null
     const val VERSION_17 = 17
     // next_schedule_time_override & next_schedule_time_override_generation were added
-    @Suppress("unused")
-    const val VERSION_18 = 18
+    @Suppress("unused") const val VERSION_18 = 18
     // stop_reason added
     const val VERSION_19 = 19
     // default value of last_enqueue_time changed to -1
@@ -138,9 +135,8 @@ private const val INITIALIZE_PERIOD_COUNTER =
     "UPDATE workspec SET period_count = 1 WHERE last_enqueue_time <> 0 AND interval_duration <> 0"
 
 /**
- * Removes the `alarmInfo` table and substitutes it for a more general
- * `SystemIdInfo` table.
- * Adds implicit work tags for all work (a tag with the worker class name).
+ * Removes the `alarmInfo` table and substitutes it for a more general `SystemIdInfo` table. Adds
+ * implicit work tags for all work (a tag with the worker class name).
  */
 object Migration_1_2 : Migration(VERSION_1, VERSION_2) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -156,10 +152,7 @@ object Migration_1_2 : Migration(VERSION_1, VERSION_2) {
     }
 }
 
-/**
- * Marks `SCHEDULE_REQUESTED_AT` to something other than
- * `SCHEDULE_NOT_REQUESTED_AT`.
- */
+/** Marks `SCHEDULE_REQUESTED_AT` to something other than `SCHEDULE_NOT_REQUESTED_AT`. */
 object Migration_3_4 : Migration(VERSION_3, VERSION_4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
@@ -168,9 +161,7 @@ object Migration_3_4 : Migration(VERSION_3, VERSION_4) {
     }
 }
 
-/**
- * Adds the `ContentUri` delays to the WorkSpec table.
- */
+/** Adds the `ContentUri` delays to the WorkSpec table. */
 object Migration_4_5 : Migration(VERSION_4, VERSION_5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(WORKSPEC_ADD_TRIGGER_UPDATE_DELAY)
@@ -178,36 +169,28 @@ object Migration_4_5 : Migration(VERSION_4, VERSION_5) {
     }
 }
 
-/**
- * Adds [androidx.work.impl.model.WorkProgress].
- */
+/** Adds [androidx.work.impl.model.WorkProgress]. */
 object Migration_6_7 : Migration(VERSION_6, VERSION_7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_WORK_PROGRESS)
     }
 }
 
-/**
- * Adds an index on period_start_time in [WorkSpec].
- */
+/** Adds an index on period_start_time in [WorkSpec]. */
 object Migration_7_8 : Migration(VERSION_7, VERSION_8) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_INDEX_PERIOD_START_TIME)
     }
 }
 
-/**
- * Adds a notification_provider to the [WorkSpec].
- */
+/** Adds a notification_provider to the [WorkSpec]. */
 object Migration_8_9 : Migration(VERSION_8, VERSION_9) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_RUN_IN_FOREGROUND)
     }
 }
 
-/**
- * Adds a notification_provider to the [WorkSpec].
- */
+/** Adds a notification_provider to the [WorkSpec]. */
 object Migration_11_12 : Migration(VERSION_11, VERSION_12) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_OUT_OF_QUOTA_POLICY)
@@ -232,15 +215,16 @@ class AutoMigration_14_15 : AutoMigrationSpec {
         val values = ContentValues(1)
         values.put("last_enqueue_time", System.currentTimeMillis())
         db.update(
-            "WorkSpec", OnConflictStrategy.ABORT, values,
-            "last_enqueue_time = 0 AND interval_duration <> 0 ", emptyArray()
+            "WorkSpec",
+            OnConflictStrategy.ABORT,
+            values,
+            "last_enqueue_time = 0 AND interval_duration <> 0 ",
+            emptyArray()
         )
     }
 }
 
-/**
- * A [WorkDatabase] migration that reschedules all eligible Workers.
- */
+/** A [WorkDatabase] migration that reschedules all eligible Workers. */
 class RescheduleMigration(val mContext: Context, startVersion: Int, endVersion: Int) :
     Migration(startVersion, endVersion) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -250,23 +234,20 @@ class RescheduleMigration(val mContext: Context, startVersion: Int, endVersion: 
                 arrayOf(PreferenceUtils.KEY_RESCHEDULE_NEEDED, 1)
             )
         } else {
-            val preferences = mContext.getSharedPreferences(
-                PreferenceUtils.PREFERENCES_FILE_NAME,
-                Context.MODE_PRIVATE
-            )
+            val preferences =
+                mContext.getSharedPreferences(
+                    PreferenceUtils.PREFERENCES_FILE_NAME,
+                    Context.MODE_PRIVATE
+                )
 
             // Mutate the shared preferences directly, and eventually they will get
             // migrated to the data store post v10.
-            preferences.edit()
-                .putBoolean(PreferenceUtils.KEY_RESCHEDULE_NEEDED, true)
-                .apply()
+            preferences.edit().putBoolean(PreferenceUtils.KEY_RESCHEDULE_NEEDED, true).apply()
         }
     }
 }
 
-/**
- * Adds the [androidx.work.impl.model.Preference] table.
- */
+/** Adds the [androidx.work.impl.model.Preference] table. */
 internal class WorkMigration9To10(private val context: Context) : Migration(VERSION_9, VERSION_10) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(PreferenceUtils.CREATE_PREFERENCE)
@@ -286,10 +267,7 @@ object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
                 "LEFT JOIN WorkSpec ON work_spec_id = id WHERE WorkSpec.id IS NULL)"
         )
 
-        db.execSQL(
-            "ALTER TABLE `WorkSpec` ADD COLUMN `generation` " +
-                "INTEGER NOT NULL DEFAULT 0"
-        )
+        db.execSQL("ALTER TABLE `WorkSpec` ADD COLUMN `generation` " + "INTEGER NOT NULL DEFAULT 0")
         db.execSQL(
             """CREATE TABLE IF NOT EXISTS `_new_SystemIdInfo` (
             `work_spec_id` TEXT NOT NULL, 
@@ -298,7 +276,8 @@ object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
             PRIMARY KEY(`work_spec_id`, `generation`), 
             FOREIGN KEY(`work_spec_id`) REFERENCES `WorkSpec`(`id`) 
                 ON UPDATE CASCADE ON DELETE CASCADE )
-               """.trimIndent()
+               """
+                .trimIndent()
         )
         db.execSQL(
             "INSERT INTO `_new_SystemIdInfo` (`work_spec_id`,`system_id`) " +
@@ -318,7 +297,8 @@ object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
             """UPDATE WorkSpec
                 SET input_merger_class_name = '${OverwritingInputMerger::class.java.name}'
                 WHERE input_merger_class_name IS NULL
-                """.trimIndent()
+                """
+                .trimIndent()
         )
         db.execSQL(
             """CREATE TABLE IF NOT EXISTS `_new_WorkSpec` (
@@ -350,9 +330,11 @@ object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
                 `trigger_max_content_delay` INTEGER NOT NULL,
                 `content_uri_triggers` BLOB NOT NULL,
                 PRIMARY KEY(`id`)
-                )""".trimIndent()
+                )"""
+                .trimIndent()
         )
-        db.execSQL("""INSERT INTO `_new_WorkSpec` (
+        db.execSQL(
+            """INSERT INTO `_new_WorkSpec` (
             `id`,
             `state`,
             `worker_class_name`,
@@ -408,13 +390,19 @@ object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
             `trigger_content_update_delay`,
             `trigger_max_content_delay`,
             `content_uri_triggers`
-            FROM `WorkSpec`""".trimIndent())
+            FROM `WorkSpec`"""
+                .trimIndent()
+        )
         db.execSQL("DROP TABLE `WorkSpec`")
         db.execSQL("ALTER TABLE `_new_WorkSpec` RENAME TO `WorkSpec`")
-        db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkSpec_schedule_requested_at`" +
-            "ON `WorkSpec` (`schedule_requested_at`)")
-        db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkSpec_last_enqueue_time` ON" +
-            "`WorkSpec` (`last_enqueue_time`)")
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_WorkSpec_schedule_requested_at`" +
+                "ON `WorkSpec` (`schedule_requested_at`)"
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_WorkSpec_last_enqueue_time` ON" +
+                "`WorkSpec` (`last_enqueue_time`)"
+        )
     }
 }
 

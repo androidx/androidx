@@ -55,28 +55,41 @@ class SchedulersTest {
     @Test
     fun runDependency() {
         val cancelled = mutableSetOf<String>()
-        val trackingScheduler = object : Scheduler {
-            override fun schedule(vararg workSpecs: WorkSpec?) {}
-            override fun cancel(workSpecId: String) {
-                cancelled.add(workSpecId)
-            }
+        val trackingScheduler =
+            object : Scheduler {
+                override fun schedule(vararg workSpecs: WorkSpec?) {}
 
-            override fun hasLimitedSchedulingSlots() = false
-        }
-        val wm = WorkManagerImpl(
-            context, configuration, env.taskExecutor, env.db,
-        ) { context: Context,
-            configuration: Configuration,
-            taskExecutor: TaskExecutor,
-            _: WorkDatabase,
-            trackers: Trackers,
-            processor: Processor ->
-            listOf(
-                GreedyScheduler(context, configuration, trackers, processor,
-                    WorkLauncherImpl(processor, taskExecutor), taskExecutor),
-                trackingScheduler
-            )
-        }
+                override fun cancel(workSpecId: String) {
+                    cancelled.add(workSpecId)
+                }
+
+                override fun hasLimitedSchedulingSlots() = false
+            }
+        val wm =
+            WorkManagerImpl(
+                context,
+                configuration,
+                env.taskExecutor,
+                env.db,
+            ) {
+                context: Context,
+                configuration: Configuration,
+                taskExecutor: TaskExecutor,
+                _: WorkDatabase,
+                trackers: Trackers,
+                processor: Processor ->
+                listOf(
+                    GreedyScheduler(
+                        context,
+                        configuration,
+                        trackers,
+                        processor,
+                        WorkLauncherImpl(processor, taskExecutor),
+                        taskExecutor
+                    ),
+                    trackingScheduler
+                )
+            }
 
         val workRequest = OneTimeWorkRequest.from(TestWorker::class.java)
         val dependency = OneTimeWorkRequest.from(TestWorker::class.java)
@@ -94,18 +107,26 @@ class SchedulersTest {
     @Test
     fun failedWorker() {
         val cancelled = mutableSetOf<String>()
-        val trackingScheduler = object : Scheduler {
-            override fun schedule(vararg workSpecs: WorkSpec?) {}
-            override fun cancel(workSpecId: String) {
-                cancelled.add(workSpecId)
-            }
+        val trackingScheduler =
+            object : Scheduler {
+                override fun schedule(vararg workSpecs: WorkSpec?) {}
 
-            override fun hasLimitedSchedulingSlots() = false
-        }
-        val wm = WorkManagerImpl(
-            context, configuration, env.taskExecutor, env.db,
-            listOf(trackingScheduler, greedyScheduler), env.processor, trackers
-        )
+                override fun cancel(workSpecId: String) {
+                    cancelled.add(workSpecId)
+                }
+
+                override fun hasLimitedSchedulingSlots() = false
+            }
+        val wm =
+            WorkManagerImpl(
+                context,
+                configuration,
+                env.taskExecutor,
+                env.db,
+                listOf(trackingScheduler, greedyScheduler),
+                env.processor,
+                trackers
+            )
 
         val workRequest = OneTimeWorkRequest.from(FailureWorker::class.java)
         wm.enqueue(workRequest)
@@ -122,27 +143,36 @@ class SchedulersTest {
     @Test
     fun interruptionReschedules() {
         val schedulers = mutableListOf<Scheduler>()
-        val wm = WorkManagerImpl(
-            context, configuration, env.taskExecutor, env.db, schedulers, env.processor, trackers
-        )
+        val wm =
+            WorkManagerImpl(
+                context,
+                configuration,
+                env.taskExecutor,
+                env.db,
+                schedulers,
+                env.processor,
+                trackers
+            )
         val scheduledSpecs = mutableListOf<WorkSpec>()
         val cancelledIds = mutableListOf<String>()
         val launcher = WorkLauncherImpl(env.processor, env.taskExecutor)
-        val scheduler = object : Scheduler {
-            val tokens = StartStopTokens()
-            override fun schedule(vararg workSpecs: WorkSpec) {
-                scheduledSpecs.addAll(workSpecs)
-                workSpecs.forEach {
-                    if (it.runAttemptCount == 0) launcher.startWork(tokens.tokenFor(it))
+        val scheduler =
+            object : Scheduler {
+                val tokens = StartStopTokens()
+
+                override fun schedule(vararg workSpecs: WorkSpec) {
+                    scheduledSpecs.addAll(workSpecs)
+                    workSpecs.forEach {
+                        if (it.runAttemptCount == 0) launcher.startWork(tokens.tokenFor(it))
+                    }
                 }
-            }
 
-            override fun cancel(workSpecId: String) {
-                cancelledIds.add(workSpecId)
-            }
+                override fun cancel(workSpecId: String) {
+                    cancelledIds.add(workSpecId)
+                }
 
-            override fun hasLimitedSchedulingSlots() = false
-        }
+                override fun hasLimitedSchedulingSlots() = false
+            }
 
         schedulers.add(scheduler)
         val request = OneTimeWorkRequest.from(StopAwareWorker::class.java)
@@ -174,32 +204,40 @@ class SchedulersTest {
     @Test
     fun periodicReschedules() {
         val schedulers = mutableListOf<Scheduler>()
-        val wm = WorkManagerImpl(
-            context, configuration, env.taskExecutor, env.db,
-            schedulers, env.processor, trackers
-        )
+        val wm =
+            WorkManagerImpl(
+                context,
+                configuration,
+                env.taskExecutor,
+                env.db,
+                schedulers,
+                env.processor,
+                trackers
+            )
         val scheduledSpecs = mutableListOf<WorkSpec>()
         val cancelledIds = mutableListOf<String>()
         val launcher = WorkLauncherImpl(env.processor, env.taskExecutor)
-        val scheduler = object : Scheduler {
-            val tokens = StartStopTokens()
-            override fun schedule(vararg workSpecs: WorkSpec) {
-                scheduledSpecs.addAll(workSpecs)
-                workSpecs.forEach {
-                    if (it.periodCount == 0) launcher.startWork(tokens.tokenFor(it))
+        val scheduler =
+            object : Scheduler {
+                val tokens = StartStopTokens()
+
+                override fun schedule(vararg workSpecs: WorkSpec) {
+                    scheduledSpecs.addAll(workSpecs)
+                    workSpecs.forEach {
+                        if (it.periodCount == 0) launcher.startWork(tokens.tokenFor(it))
+                    }
                 }
-            }
 
-            override fun cancel(workSpecId: String) {
-                cancelledIds.add(workSpecId)
-            }
+                override fun cancel(workSpecId: String) {
+                    cancelledIds.add(workSpecId)
+                }
 
-            override fun hasLimitedSchedulingSlots() = false
-        }
+                override fun hasLimitedSchedulingSlots() = false
+            }
 
         schedulers.add(scheduler)
-        val request = PeriodicWorkRequest.Builder(LatchWorker::class.java, 1L, TimeUnit.DAYS)
-            .build()
+        val request =
+            PeriodicWorkRequest.Builder(LatchWorker::class.java, 1L, TimeUnit.DAYS).build()
         wm.enqueue(request)
         val reenqueuedLatch = CountDownLatch(1)
         var running = false

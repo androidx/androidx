@@ -27,23 +27,23 @@ import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
  * A curved layout composable that places its children stacked as part of an arc (the first child
- * will be the outermost). This is similar to a [Column] layout, but curved into a segment of
- * an annulus.
+ * will be the outermost). This is similar to a [Column] layout, but curved into a segment of an
+ * annulus.
  *
- * The thickness of the layout (the difference between the outer and inner radius) will be the
- * sum of the thickness of its children, and the angle taken will be the biggest angle of the
- * children.
+ * The thickness of the layout (the difference between the outer and inner radius) will be the sum
+ * of the thickness of its children, and the angle taken will be the biggest angle of the children.
  *
  * Example usage:
+ *
  * @sample androidx.wear.compose.foundation.samples.CurvedRowAndColumn
  *
  * @param modifier The [CurvedModifier] to apply to this curved column.
  * @param radialDirection Order to lay out components, outside in or inside out. The default is to
- * inherit from the containing [curvedColumn] or [CurvedLayout]
+ *   inherit from the containing [curvedColumn] or [CurvedLayout]
  * @param angularAlignment Angular alignment specifies where to lay down children that are thinner
- * than the curved column, either at the [CurvedAlignment.Angular.Start] of the layout,
- * at the [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center].
- * If unspecified or null, they can choose for themselves.
+ *   than the curved column, either at the [CurvedAlignment.Angular.Start] of the layout, at the
+ *   [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center]. If unspecified or null,
+ *   they can choose for themselves.
  * @param contentBuilder Scope used to provide the content for this column.
  */
 public fun CurvedScope.curvedColumn(
@@ -51,14 +51,15 @@ public fun CurvedScope.curvedColumn(
     radialDirection: CurvedDirection.Radial? = null,
     angularAlignment: CurvedAlignment.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
-) = add(
-    CurvedColumnChild(
-        curvedLayoutDirection.copy(overrideRadial = radialDirection),
-        angularAlignment,
-        contentBuilder
-    ),
-    modifier
-)
+) =
+    add(
+        CurvedColumnChild(
+            curvedLayoutDirection.copy(overrideRadial = radialDirection),
+            angularAlignment,
+            contentBuilder
+        ),
+        modifier
+    )
 
 internal class CurvedColumnChild(
     curvedLayoutDirection: CurvedLayoutDirection,
@@ -66,40 +67,44 @@ internal class CurvedColumnChild(
     contentBuilder: CurvedScope.() -> Unit
 ) : ContainerChild(curvedLayoutDirection, !curvedLayoutDirection.outsideIn(), contentBuilder) {
     override fun doEstimateThickness(maxRadius: Float): Float =
-        maxRadius - children.fastFold(maxRadius) { currentMaxRadius, node ->
-            currentMaxRadius - node.estimateThickness(currentMaxRadius)
-        }
+        maxRadius -
+            children.fastFold(maxRadius) { currentMaxRadius, node ->
+                currentMaxRadius - node.estimateThickness(currentMaxRadius)
+            }
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
         parentThickness: Float,
     ): PartialLayoutInfo {
         // Compute space used by weighted children and space left
-        val weights = childrenInLayoutOrder.fastMap { node ->
-            (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
-        }
-        val sumWeights = weights.sum()
-        val extraSpace = parentThickness - childrenInLayoutOrder.fastMapIndexed { ix, node ->
-            if (weights[ix] == 0f) {
-                node.estimatedThickness
-            } else {
-                0f
+        val weights =
+            childrenInLayoutOrder.fastMap { node ->
+                (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
             }
-        }.sum()
+        val sumWeights = weights.sum()
+        val extraSpace =
+            parentThickness -
+                childrenInLayoutOrder
+                    .fastMapIndexed { ix, node ->
+                        if (weights[ix] == 0f) {
+                            node.estimatedThickness
+                        } else {
+                            0f
+                        }
+                    }
+                    .sum()
 
         // position children
         var outerRadius = parentOuterRadius
         childrenInLayoutOrder.fastForEachIndexed { ix, node ->
-            val actualThickness = if (weights[ix] > 0f) {
+            val actualThickness =
+                if (weights[ix] > 0f) {
                     extraSpace * weights[ix] / sumWeights
                 } else {
                     node.estimatedThickness
                 }
 
-            node.radialPosition(
-                outerRadius,
-                actualThickness
-            )
+            node.radialPosition(outerRadius, actualThickness)
             outerRadius -= actualThickness
         }
         var maxSweep = childrenInLayoutOrder.fastMaxOfOrNull { it.sweepRadians } ?: 0f
@@ -121,16 +126,13 @@ internal class CurvedColumnChild(
             var childAngularPosition = parentStartAngleRadians
             var childSweep = parentSweepRadians
             if (angularAlignment != null) {
-                childAngularPosition = parentStartAngleRadians + angularAlignment.ratio *
-                    (parentSweepRadians - child.sweepRadians)
+                childAngularPosition =
+                    parentStartAngleRadians +
+                        angularAlignment.ratio * (parentSweepRadians - child.sweepRadians)
                 childSweep = child.sweepRadians
             }
 
-            child.angularPosition(
-                childAngularPosition,
-                childSweep,
-                centerOffset
-            )
+            child.angularPosition(childAngularPosition, childSweep, centerOffset)
         }
         return parentStartAngleRadians
     }

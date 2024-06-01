@@ -80,13 +80,7 @@ internal fun ComposeContentTestRule.isShape(
 ) {
     setContent {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-            Box(
-                Modifier
-                    .padding(padding)
-                    .background(backgroundColor)
-            ) {
-                content()
-            }
+            Box(Modifier.padding(padding).background(backgroundColor)) { content() }
         }
     }
 
@@ -105,14 +99,12 @@ internal fun ComposeContentTestRule.isShape(
 }
 
 internal fun ComposeContentTestRule.verifyHeight(expected: Dp, content: @Composable () -> Unit) {
-    setContentForSizeAssertions {
-        content()
-    }.assertHeightIsEqualTo(expected)
+    setContentForSizeAssertions { content() }.assertHeightIsEqualTo(expected)
 }
 
 /**
- * assertContainsColor - uses a threshold on an ImageBitmap's color distribution
- * to check that a UI element is predominantly the expected color.
+ * assertContainsColor - uses a threshold on an ImageBitmap's color distribution to check that a UI
+ * element is predominantly the expected color.
  */
 internal fun ImageBitmap.assertContainsColor(expectedColor: Color, minPercent: Float = 50.0f) {
     val histogram = histogram()
@@ -141,25 +133,17 @@ private fun ImageBitmap.histogram(): MutableMap<Color, Long> {
 internal fun TestImage(modifier: Modifier = Modifier, iconLabel: String = "TestIcon") {
     val testImage = Icons.Outlined.Add
     Image(
-        testImage, iconLabel,
-        modifier = modifier
-            .fillMaxSize()
-            .testTag(iconLabel),
+        testImage,
+        iconLabel,
+        modifier = modifier.fillMaxSize().testTag(iconLabel),
         contentScale = ContentScale.Fit,
         alignment = Alignment.Center
     )
 }
 
 @Composable
-internal fun TestText(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    TextWithDefaults(
-        text = AnnotatedString(text),
-        modifier = modifier,
-        style = TextStyle.Default
-    )
+internal fun TestText(text: String, modifier: Modifier = Modifier) {
+    TextWithDefaults(text = AnnotatedString(text), modifier = modifier, style = TextStyle.Default)
 }
 
 internal fun ComposeContentTestRule.setContentForSizeAssertions(
@@ -171,11 +155,7 @@ internal fun ComposeContentTestRule.setContentForSizeAssertions(
     setContent {
         Box {
             Box(
-                Modifier
-                    .sizeIn(
-                        maxWidth = parentMaxWidth,
-                        maxHeight = parentMaxHeight
-                    )
+                Modifier.sizeIn(maxWidth = parentMaxWidth, maxHeight = parentMaxHeight)
                     .testTag("containerForSizeAssertion")
             ) {
                 content()

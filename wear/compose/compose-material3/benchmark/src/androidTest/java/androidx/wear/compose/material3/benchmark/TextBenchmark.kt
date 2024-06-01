@@ -34,15 +34,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for Wear Compose Material 3 [Text].
- */
+/** Benchmark for Wear Compose Material 3 [Text]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TextBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val textCaseFactory = { TextTestCase() }
 
@@ -90,8 +87,6 @@ internal class TextTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

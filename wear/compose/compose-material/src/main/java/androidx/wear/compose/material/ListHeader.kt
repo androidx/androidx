@@ -38,8 +38,9 @@ import androidx.compose.ui.unit.dp
  * MaterialTheme. The contents will be start and end padded and should cover up to 3 lines of text.
  *
  * Example usage:
+ *
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
-
+ *
  * @param modifier The modifier for the list header
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content
@@ -53,13 +54,14 @@ public fun ListHeader(
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
-        modifier = modifier
-            .defaultMinSize(minHeight = 48.dp)
-            .height(IntrinsicSize.Min)
-            .wrapContentSize()
-            .background(backgroundColor)
-            .padding(horizontal = 14.dp)
-            .semantics(mergeDescendants = true) { heading() }
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = 48.dp)
+                .height(IntrinsicSize.Min)
+                .wrapContentSize()
+                .background(backgroundColor)
+                .padding(horizontal = 14.dp)
+                .semantics(mergeDescendants = true) { heading() }
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,

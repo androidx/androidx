@@ -44,9 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Tests what happens when a smooth scroll is interrupted by a drag
- */
+/** Tests what happens when a smooth scroll is interrupted by a drag */
 @RunWith(Parameterized::class)
 @LargeTest
 class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
@@ -90,10 +88,11 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
             }
         ) {
             // when we are close enough
-            val waitTillCloseEnough = test.viewPager.addWaitForDistanceToTarget(
-                config.targetPage,
-                config.distanceToTargetWhenStartDrag
-            )
+            val waitTillCloseEnough =
+                test.viewPager.addWaitForDistanceToTarget(
+                    config.targetPage,
+                    config.distanceToTargetWhenStartDrag
+                )
             test.runOnUiThreadSync { test.viewPager.setCurrentItem(config.targetPage, true) }
             waitTillCloseEnough.await(2, SECONDS)
 
@@ -120,11 +119,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 stateEvents.map { it.state },
                 equalTo(
                     if (expectIdleAfterDrag()) {
-                        listOf(
-                            SCROLL_STATE_SETTLING,
-                            SCROLL_STATE_DRAGGING,
-                            SCROLL_STATE_IDLE
-                        )
+                        listOf(SCROLL_STATE_SETTLING, SCROLL_STATE_DRAGGING, SCROLL_STATE_IDLE)
                     } else {
                         listOf(
                             SCROLL_STATE_SETTLING,
@@ -142,34 +137,41 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 // this slightly changes the assertions
                 assertThat(
                     "viewPager.getCurrentItem() should be ${config.targetPage}",
-                    test.viewPager.currentItem, equalTo(config.targetPage)
+                    test.viewPager.currentItem,
+                    equalTo(config.targetPage)
                 )
                 assertThat(
                     "Exactly 1 onPageSelected event should be fired",
-                    selectEvents.size, equalTo(1)
+                    selectEvents.size,
+                    equalTo(1)
                 )
                 assertThat(
                     "onPageSelected event should have reported ${config.targetPage}",
-                    selectEvents.first().position, equalTo(config.targetPage)
+                    selectEvents.first().position,
+                    equalTo(config.targetPage)
                 )
             } else {
                 assertThat(
                     "viewPager.getCurrentItem() should not be ${config.targetPage}",
-                    test.viewPager.currentItem, not(equalTo(config.targetPage))
+                    test.viewPager.currentItem,
+                    not(equalTo(config.targetPage))
                 )
                 assertThat(
                     "Exactly 2 onPageSelected events should be fired",
-                    selectEvents.size, equalTo(2)
+                    selectEvents.size,
+                    equalTo(2)
                 )
                 assertThat(
                     "First onPageSelected event should have reported ${config.targetPage}",
-                    selectEvents.first().position, equalTo(config.targetPage)
+                    selectEvents.first().position,
+                    equalTo(config.targetPage)
                 )
                 assertThat(
                     "Second onPageSelected event should have reported " +
                         "$currentlyVisible, or visible page should be " +
                         "${selectEvents.last().position}",
-                    selectEvents.last().position, equalTo(currentlyVisible)
+                    selectEvents.last().position,
+                    equalTo(currentlyVisible)
                 )
             }
         }
@@ -215,11 +217,12 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
     }
 
     private fun TestConfig.pageToSnapTo(movingForward: Boolean): Int {
-        val positionToStartDragging = if (movingForward) {
-            targetPage - distanceToTargetWhenStartDrag
-        } else {
-            targetPage + distanceToTargetWhenStartDrag
-        }
+        val positionToStartDragging =
+            if (movingForward) {
+                targetPage - distanceToTargetWhenStartDrag
+            } else {
+                targetPage + distanceToTargetWhenStartDrag
+            }
         return if (movingForward == dragInOppositeDirection) {
             floor(positionToStartDragging).toInt()
         } else {
@@ -233,37 +236,40 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
             val positionOffset: Float,
             val positionOffsetPixels: Int
         ) : Event()
+
         data class OnPageSelectedEvent(val position: Int) : Event()
+
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
     }
 
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
-        val stateEvents get() = eventsCopy.mapNotNull { it as? OnPageScrollStateChangedEvent }
-        val selectEvents get() = eventsCopy.mapNotNull { it as? OnPageSelectedEvent }
+        val stateEvents
+            get() = eventsCopy.mapNotNull { it as? OnPageScrollStateChangedEvent }
+
+        val selectEvents
+            get() = eventsCopy.mapNotNull { it as? OnPageSelectedEvent }
 
         private fun addEvent(e: Event) {
-            synchronized(events) {
-                events.add(e)
-            }
+            synchronized(events) { events.add(e) }
         }
 
         private val eventsCopy: List<Event>
-            get() = synchronized(events) {
-                return mutableListOf<Event>().apply {
-                    addAll(events)
+            get() =
+                synchronized(events) {
+                    return mutableListOf<Event>().apply { addAll(events) }
                 }
-            }
 
         val wasSettleInterrupted: Boolean
             get() {
                 val changeToSettlingEvent = OnPageScrollStateChangedEvent(SCROLL_STATE_SETTLING)
-                val lastScrollEvent = eventsCopy
-                    .dropWhile { it != changeToSettlingEvent }
-                    .dropWhile { it !is OnPageScrolledEvent }
-                    .takeWhile { it is OnPageScrolledEvent }
-                    .lastOrNull() as? OnPageScrolledEvent
+                val lastScrollEvent =
+                    eventsCopy
+                        .dropWhile { it != changeToSettlingEvent }
+                        .dropWhile { it !is OnPageScrolledEvent }
+                        .takeWhile { it is OnPageScrolledEvent }
+                        .lastOrNull() as? OnPageScrolledEvent
                 return lastScrollEvent?.let { it.positionOffsetPixels != 0 } ?: false
             }
 
@@ -284,10 +290,12 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         }
 
         fun expectIdleAfterDrag(): Boolean {
-            val lastScrollEvent = eventsCopy
-                .dropWhile { it != OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) }.drop(1)
-                .takeWhile { it is OnPageScrolledEvent }
-                .lastOrNull() as? OnPageScrolledEvent
+            val lastScrollEvent =
+                eventsCopy
+                    .dropWhile { it != OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) }
+                    .drop(1)
+                    .takeWhile { it is OnPageScrolledEvent }
+                    .lastOrNull() as? OnPageScrolledEvent
             return lastScrollEvent?.let { it.positionOffsetPixels == 0 } ?: false
         }
 
@@ -301,43 +309,45 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
 
 private fun createTestSet(): List<TestConfig> {
     return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
-        listOf(true, false).flatMap { dragInOppositeDirection ->
-            listOf(0.4f, 1.5f).flatMap { distanceToTarget ->
-                listOf(true, false).flatMap { endInSnappedPosition ->
-                    listOf(
-                        TestConfig(
-                            title = "forward",
-                            orientation = orientation,
-                            startPage = 0,
-                            targetPage = 4,
-                            dragInOppositeDirection = dragInOppositeDirection,
-                            distanceToTargetWhenStartDrag = distanceToTarget,
-                            endInSnappedPosition = endInSnappedPosition
-                        ),
-                        TestConfig(
-                            title = "backward",
-                            orientation = orientation,
-                            startPage = 8,
-                            targetPage = 4,
-                            dragInOppositeDirection = dragInOppositeDirection,
-                            distanceToTargetWhenStartDrag = distanceToTarget,
-                            endInSnappedPosition = endInSnappedPosition
+        listOf(true, false)
+            .flatMap { dragInOppositeDirection ->
+                listOf(0.4f, 1.5f).flatMap { distanceToTarget ->
+                    listOf(true, false).flatMap { endInSnappedPosition ->
+                        listOf(
+                            TestConfig(
+                                title = "forward",
+                                orientation = orientation,
+                                startPage = 0,
+                                targetPage = 4,
+                                dragInOppositeDirection = dragInOppositeDirection,
+                                distanceToTargetWhenStartDrag = distanceToTarget,
+                                endInSnappedPosition = endInSnappedPosition
+                            ),
+                            TestConfig(
+                                title = "backward",
+                                orientation = orientation,
+                                startPage = 8,
+                                targetPage = 4,
+                                dragInOppositeDirection = dragInOppositeDirection,
+                                distanceToTargetWhenStartDrag = distanceToTarget,
+                                endInSnappedPosition = endInSnappedPosition
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }.plus(
-            listOf(
-                TestConfig(
-                    title = "drag back to start",
-                    orientation = orientation,
-                    startPage = 0,
-                    targetPage = 1,
-                    dragInOppositeDirection = true,
-                    distanceToTargetWhenStartDrag = .7f
+            .plus(
+                listOf(
+                    TestConfig(
+                        title = "drag back to start",
+                        orientation = orientation,
+                        startPage = 0,
+                        targetPage = 1,
+                        dragInOppositeDirection = true,
+                        distanceToTargetWhenStartDrag = .7f
+                    )
                 )
             )
-        )
     }
 }
 

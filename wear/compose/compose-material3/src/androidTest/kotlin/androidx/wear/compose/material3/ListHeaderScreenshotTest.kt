@@ -36,69 +36,62 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ListHeaderScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
-    fun listheader() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule
-    ) {
-        ListHeader(modifier = Modifier.testTag(TEST_TAG)) {
-            Text("Header")
+    fun listheader() =
+        rule.verifyScreenshot(methodName = testName.methodName, screenshotRule = screenshotRule) {
+            ListHeader(modifier = Modifier.testTag(TEST_TAG)) { Text("Header") }
         }
-    }
 
     @Test
-    fun listsubheader_textonly() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-    ) {
-        ListSubheader(modifier = Modifier.testTag(TEST_TAG)) {
-            Text("Subheader")
+    fun listsubheader_textonly() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+        ) {
+            ListSubheader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
         }
-    }
 
     @Test
-    fun listsubheader_textonly_rtl() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        layoutDirection = LayoutDirection.Rtl,
-    ) {
-        ListSubheader(modifier = Modifier.testTag(TEST_TAG)) {
-            Text("Subheader")
+    fun listsubheader_textonly_rtl() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            layoutDirection = LayoutDirection.Rtl,
+        ) {
+            ListSubheader(modifier = Modifier.testTag(TEST_TAG)) { Text("Subheader") }
         }
-    }
 
     @Test
-    fun listsubheader_text_and_icon() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        layoutDirection = LayoutDirection.Ltr,
-    ) {
-        ListSubheader(
-            modifier = Modifier.testTag(TEST_TAG),
-            label = { Text(text = "Subheader") },
-            icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
-        )
-    }
+    fun listsubheader_text_and_icon() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            layoutDirection = LayoutDirection.Ltr,
+        ) {
+            ListSubheader(
+                modifier = Modifier.testTag(TEST_TAG),
+                label = { Text(text = "Subheader") },
+                icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
+            )
+        }
 
     @Test
-    fun listsubheader_text_and_icon_rtl() = rule.verifyScreenshot(
-        methodName = testName.methodName,
-        screenshotRule = screenshotRule,
-        layoutDirection = LayoutDirection.Rtl
-    ) {
-        ListSubheader(
-            modifier = Modifier.testTag(TEST_TAG),
-            label = { Text(text = "Subheader") },
-            icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
-        )
-    }
+    fun listsubheader_text_and_icon_rtl() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            layoutDirection = LayoutDirection.Rtl
+        ) {
+            ListSubheader(
+                modifier = Modifier.testTag(TEST_TAG),
+                label = { Text(text = "Subheader") },
+                icon = { Icon(imageVector = Icons.Outlined.Home, "home") }
+            )
+        }
 }

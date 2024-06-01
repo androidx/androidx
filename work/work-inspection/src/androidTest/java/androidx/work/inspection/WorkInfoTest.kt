@@ -38,8 +38,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class WorkInfoTest {
-    @get:Rule
-    val testEnvironment = WorkManagerInspectorTestEnvironment()
+    @get:Rule val testEnvironment = WorkManagerInspectorTestEnvironment()
 
     private suspend fun clearAllWorks() {
         testEnvironment.workManager.cancelAllWork().await()
@@ -47,13 +46,13 @@ class WorkInfoTest {
     }
 
     private suspend fun inspectWorkManager() {
-        val command = Command.newBuilder()
-            .setTrackWorkManager(TrackWorkManagerCommand.getDefaultInstance())
-            .build()
-        testEnvironment.sendCommand(command)
-            .let { response ->
-                assertThat(response.hasTrackWorkManager()).isEqualTo(true)
-            }
+        val command =
+            Command.newBuilder()
+                .setTrackWorkManager(TrackWorkManagerCommand.getDefaultInstance())
+                .build()
+        testEnvironment.sendCommand(command).let { response ->
+            assertThat(response.hasTrackWorkManager()).isEqualTo(true)
+        }
     }
 
     @Test
@@ -66,12 +65,12 @@ class WorkInfoTest {
             assertThat(event.workAdded.work.id).isEqualTo(request.stringId)
         }
         clearAllWorks()
-        testEnvironment.receiveFilteredEvent { event ->
-            event.hasWorkRemoved()
-        }.let { event ->
-            assertThat(event.hasWorkRemoved()).isTrue()
-            assertThat(event.workRemoved.id).isEqualTo(request.stringId)
-        }
+        testEnvironment
+            .receiveFilteredEvent { event -> event.hasWorkRemoved() }
+            .let { event ->
+                assertThat(event.hasWorkRemoved()).isTrue()
+                assertThat(event.workRemoved.id).isEqualTo(request.stringId)
+            }
     }
 
     @Test
@@ -92,11 +91,11 @@ class WorkInfoTest {
         inspectWorkManager()
         val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         testEnvironment.workManager.enqueue(request).await()
-        testEnvironment.receiveFilteredEvent { event ->
-            event.hasWorkUpdated() && event.workUpdated.state == State.SUCCEEDED
-        }.let { event ->
-            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
-        }
+        testEnvironment
+            .receiveFilteredEvent { event ->
+                event.hasWorkUpdated() && event.workUpdated.state == State.SUCCEEDED
+            }
+            .let { event -> assertThat(event.workUpdated.id).isEqualTo(request.stringId) }
     }
 
     @Test
@@ -104,11 +103,11 @@ class WorkInfoTest {
         inspectWorkManager()
         val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         testEnvironment.workManager.enqueue(request).await()
-        testEnvironment.receiveFilteredEvent { event ->
-            event.hasWorkUpdated() && event.workUpdated.runAttemptCount == 1
-        }.let { event ->
-            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
-        }
+        testEnvironment
+            .receiveFilteredEvent { event ->
+                event.hasWorkUpdated() && event.workUpdated.runAttemptCount == 1
+            }
+            .let { event -> assertThat(event.workUpdated.id).isEqualTo(request.stringId) }
     }
 
     @Test
@@ -116,18 +115,17 @@ class WorkInfoTest {
         inspectWorkManager()
         val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         testEnvironment.workManager.enqueue(request).await()
-        testEnvironment.receiveFilteredEvent { event ->
-            event.hasWorkUpdated() &&
-                event.workUpdated.hasData() &&
-                event.workUpdated.data.entriesCount == 1
-        }.let { event ->
-            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
-            val expectedEntry = DataEntry.newBuilder()
-                .setKey("key")
-                .setValue("value")
-                .build()
-            assertThat(event.workUpdated.data.getEntries(0)).isEqualTo(expectedEntry)
-        }
+        testEnvironment
+            .receiveFilteredEvent { event ->
+                event.hasWorkUpdated() &&
+                    event.workUpdated.hasData() &&
+                    event.workUpdated.data.entriesCount == 1
+            }
+            .let { event ->
+                assertThat(event.workUpdated.id).isEqualTo(request.stringId)
+                val expectedEntry = DataEntry.newBuilder().setKey("key").setValue("value").build()
+                assertThat(event.workUpdated.data.getEntries(0)).isEqualTo(expectedEntry)
+            }
     }
 
     @Test
@@ -135,12 +133,12 @@ class WorkInfoTest {
         inspectWorkManager()
         val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         testEnvironment.workManager.enqueue(request).await()
-        testEnvironment.receiveFilteredEvent { event ->
-            event.hasWorkUpdated() &&
-                event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
-        }.let { event ->
-            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
-        }
+        testEnvironment
+            .receiveFilteredEvent { event ->
+                event.hasWorkUpdated() &&
+                    event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+            }
+            .let { event -> assertThat(event.workUpdated.id).isEqualTo(request.stringId) }
     }
 
     @Test
@@ -149,7 +147,8 @@ class WorkInfoTest {
         val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         val workContinuation = testEnvironment.workManager.beginWith(request)
         // a call stack should be recorded from WorkManagerInspector.
-        testEnvironment.consumeRegisteredHooks()
+        testEnvironment
+            .consumeRegisteredHooks()
             .first()
             .asEntryHook
             .onEntry(workContinuation, listOf())
@@ -164,9 +163,8 @@ class WorkInfoTest {
             // lambda method. Therefore, we just check that there is a frame
             // on the stack with the method name `onEntry`. That can be
             // on a synthetic lambda class generated by D8 desugaring.
-            val hasOnEntryStackFrame = workInfo.callStack.framesList.any {
-                it.methodName.equals("onEntry")
-            }
+            val hasOnEntryStackFrame =
+                workInfo.callStack.framesList.any { it.methodName.equals("onEntry") }
             assertThat(hasOnEntryStackFrame).isTrue()
         }
     }
@@ -177,7 +175,8 @@ class WorkInfoTest {
         val work1 = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         val work2 = OneTimeWorkRequestBuilder<EmptyWorker>().build()
         val name = "myName"
-        testEnvironment.workManager.beginUniqueWork(name, ExistingWorkPolicy.REPLACE, work1)
+        testEnvironment.workManager
+            .beginUniqueWork(name, ExistingWorkPolicy.REPLACE, work1)
             .then(work2)
             .enqueue()
             .await()
@@ -205,17 +204,17 @@ class WorkInfoTest {
         val request = OneTimeWorkRequestBuilder<IdleWorker>().build()
         testEnvironment.workManager.enqueue(request).await()
 
-        val cancelCommand = WorkManagerInspectorProtocol.CancelWorkCommand
-            .newBuilder()
-            .setId(request.stringId)
-            .build()
+        val cancelCommand =
+            WorkManagerInspectorProtocol.CancelWorkCommand.newBuilder()
+                .setId(request.stringId)
+                .build()
         val command = Command.newBuilder().setCancelWork(cancelCommand).build()
         testEnvironment.sendCommand(command)
 
-        testEnvironment.receiveFilteredEvent { event ->
-            event.hasWorkUpdated() && event.workUpdated.state == State.CANCELLED
-        }.let { event ->
-            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
-        }
+        testEnvironment
+            .receiveFilteredEvent { event ->
+                event.hasWorkUpdated() && event.workUpdated.state == State.CANCELLED
+            }
+            .let { event -> assertThat(event.workUpdated.id).isEqualTo(request.stringId) }
     }
 }

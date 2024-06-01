@@ -41,61 +41,54 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SelectionControlsScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
-    fun radiobutton_checked_enabled() =
-        verifyScreenshot {
-            with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                RadioButton(modifier = testBackgroundModifier())
-            }
+    fun radiobutton_checked_enabled() = verifyScreenshot {
+        with(SelectionControlScope(isEnabled = true, isSelected = true)) {
+            RadioButton(modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun radiobutton_unchecked_enabled() =
-        verifyScreenshot {
-            with(SelectionControlScope(isEnabled = true, isSelected = false)) {
-                RadioButton(modifier = testBackgroundModifier())
-            }
+    fun radiobutton_unchecked_enabled() = verifyScreenshot {
+        with(SelectionControlScope(isEnabled = true, isSelected = false)) {
+            RadioButton(modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun radiobutton_checked_disabled() =
-        verifyScreenshot {
-            with(SelectionControlScope(isEnabled = false, isSelected = true)) {
-                RadioButton(modifier = testBackgroundModifier())
-            }
+    fun radiobutton_checked_disabled() = verifyScreenshot {
+        with(SelectionControlScope(isEnabled = false, isSelected = true)) {
+            RadioButton(modifier = testBackgroundModifier())
         }
+    }
 
     @Test
-    fun radiobutton_unchecked_disabled() =
-        verifyScreenshot {
-            with(SelectionControlScope(isEnabled = false, isSelected = false)) {
-                RadioButton(modifier = testBackgroundModifier())
-            }
+    fun radiobutton_unchecked_disabled() = verifyScreenshot {
+        with(SelectionControlScope(isEnabled = false, isSelected = false)) {
+            RadioButton(modifier = testBackgroundModifier())
         }
+    }
 
     private fun verifyScreenshot(
         threshold: Double = 0.98,
         content: @Composable BoxScope.() -> Unit
     ) {
         rule.setContentWithTheme(composable = content)
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName, MSSIMMatcher(threshold))
     }
 
     @Composable
     private fun testBackgroundModifier(): Modifier =
-        Modifier
-            .testTag(TEST_TAG)
+        Modifier.testTag(TEST_TAG)
             .background(
                 MaterialTheme.colorScheme.primary
                     .copy(alpha = 0.5f)

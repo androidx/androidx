@@ -80,9 +80,9 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
      * - Each test page contains a [TextView] containing an item value.
      * - Adapters implementing [StatefulAdapter] save state of pages
      *
-     * When an item value is changed ([ChangeItem]) in the collection [items], and it already has
-     * a saved state associated with it, we might end up with state being restored and overriding
-     * the new page value.
+     * When an item value is changed ([ChangeItem]) in the collection [items], and it already has a
+     * saved state associated with it, we might end up with state being restored and overriding the
+     * new page value.
      *
      * To work around that, below we are changing the [TextView] as we change the value in the
      * backing item collection [items].
@@ -150,7 +150,8 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
         latch.await(5, TimeUnit.SECONDS)
     }
 
-    private val ViewPager2.middleItem: Int get() = adapter!!.itemCount / 2
+    private val ViewPager2.middleItem: Int
+        get() = adapter!!.itemCount / 2
 
     data class TestConfig(
         val name: String,
@@ -165,7 +166,9 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
 
     sealed class Action(val position: Int) {
         data class AddItem(private val _position: Int, val item: String) : Action(_position)
+
         data class ChangeItem(private val _position: Int) : Action(_position)
+
         data class RemoveItem(private val _position: Int) : Action(_position)
 
         fun perform(items: MutableList<String>) {
@@ -193,179 +196,197 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
 private fun createTestSet(): List<TestConfig> {
     val result = mutableListOf<TestConfig>()
 
-    listOf(
-        fragmentAdapterProviderValueId,
-        viewAdapterProviderValueId,
-        viewAdapterProvider
-    ).forEach { adapterProvider ->
-        listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).forEach { orientation ->
-            result += TestConfig(
-                name = "remove first",
-                _items = stringSequence(pageCount = 9),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 0)),
-                orientation = orientation,
-                expectedEndItems = listOf("1", "2", "3", "4", "5", "6", "7", "8")
-            )
+    listOf(fragmentAdapterProviderValueId, viewAdapterProviderValueId, viewAdapterProvider)
+        .forEach { adapterProvider ->
+            listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).forEach { orientation ->
+                result +=
+                    TestConfig(
+                        name = "remove first",
+                        _items = stringSequence(pageCount = 9),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(RemoveItem(_position = 0)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("1", "2", "3", "4", "5", "6", "7", "8")
+                    )
 
-            result += TestConfig(
-                name = "remove middle",
-                _items = stringSequence(pageCount = 9),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 4)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "3", "5", "6", "7", "8")
-            )
+                result +=
+                    TestConfig(
+                        name = "remove middle",
+                        _items = stringSequence(pageCount = 9),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(RemoveItem(_position = 4)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "3", "5", "6", "7", "8")
+                    )
 
-            result += TestConfig(
-                name = "remove before middle",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 1)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "2", "3", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "remove before middle",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(RemoveItem(_position = 1)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "2", "3", "4")
+                    )
 
-            result += TestConfig(
-                name = "remove after middle",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 3)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "remove after middle",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(RemoveItem(_position = 3)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "4")
+                    )
 
-            result += TestConfig(
-                name = "remove last",
-                _items = stringSequence(pageCount = 9),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 8)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7")
-            )
+                result +=
+                    TestConfig(
+                        name = "remove last",
+                        _items = stringSequence(pageCount = 9),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(RemoveItem(_position = 8)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7")
+                    )
 
-            result += TestConfig(
-                name = "add before first",
-                _items = stringSequence(pageCount = 9),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 0, item = "1000")),
-                orientation = orientation,
-                expectedEndItems = listOf("1000", "0", "1", "2", "3", "4", "5", "6", "7", "8")
-            )
+                result +=
+                    TestConfig(
+                        name = "add before first",
+                        _items = stringSequence(pageCount = 9),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 0, item = "1000")),
+                        orientation = orientation,
+                        expectedEndItems =
+                            listOf("1000", "0", "1", "2", "3", "4", "5", "6", "7", "8")
+                    )
 
-            result += TestConfig(
-                name = "add before middle",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 1, item = "99")),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "99", "1", "2", "3", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "add before middle",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 1, item = "99")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "99", "1", "2", "3", "4")
+                    )
 
-            result += TestConfig(
-                name = "add on middle",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 2, item = "99")),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "99", "2", "3", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "add on middle",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 2, item = "99")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "99", "2", "3", "4")
+                    )
 
-            result += TestConfig(
-                name = "add after middle",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 3, item = "99")),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "99", "3", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "add after middle",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 3, item = "99")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "99", "3", "4")
+                    )
 
-            result += TestConfig(
-                name = "add before last",
-                _items = stringSequence(pageCount = 9),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 8, item = "88")),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "88", "8")
-            )
+                result +=
+                    TestConfig(
+                        name = "add before last",
+                        _items = stringSequence(pageCount = 9),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 8, item = "88")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "88", "8")
+                    )
 
-            result += TestConfig(
-                name = "add after last",
-                _items = stringSequence(pageCount = 9),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 9, item = "99")),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "99")
-            )
+                result +=
+                    TestConfig(
+                        name = "add after last",
+                        _items = stringSequence(pageCount = 9),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 9, item = "99")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "99")
+                    )
 
-            result += TestConfig(
-                name = "change first",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(ChangeItem(_position = 0)),
-                orientation = orientation,
-                expectedEndItems = listOf("0-suffix", "1", "2", "3", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "change first",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(ChangeItem(_position = 0)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0-suffix", "1", "2", "3", "4")
+                    )
 
-            result += TestConfig(
-                name = "change middle",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(ChangeItem(_position = 2)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2-suffix", "3", "4")
-            )
+                result +=
+                    TestConfig(
+                        name = "change middle",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(ChangeItem(_position = 2)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2-suffix", "3", "4")
+                    )
 
-            result += TestConfig(
-                name = "change last",
-                _items = stringSequence(pageCount = 5),
-                adapterProvider = adapterProvider,
-                actions = listOf(ChangeItem(_position = 4)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "1", "2", "3", "4-suffix")
-            )
+                result +=
+                    TestConfig(
+                        name = "change last",
+                        _items = stringSequence(pageCount = 5),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(ChangeItem(_position = 4)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "1", "2", "3", "4-suffix")
+                    )
 
-            result += TestConfig(
-                name = "regression1",
-                _items = stringSequence(pageCount = 1),
-                adapterProvider = adapterProvider,
-                actions = listOf(AddItem(_position = 0, item = "1"), RemoveItem(0)),
-                orientation = orientation,
-                expectedEndItems = listOf("0")
-            )
+                result +=
+                    TestConfig(
+                        name = "regression1",
+                        _items = stringSequence(pageCount = 1),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(AddItem(_position = 0, item = "1"), RemoveItem(0)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0")
+                    )
 
-            result += TestConfig(
-                name = "regression2",
-                _items = stringSequence(pageCount = 6),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(2), RemoveItem(1)),
-                orientation = orientation,
-                expectedEndItems = listOf("0", "3", "4", "5")
-            )
+                result +=
+                    TestConfig(
+                        name = "regression2",
+                        _items = stringSequence(pageCount = 6),
+                        adapterProvider = adapterProvider,
+                        actions = listOf(RemoveItem(2), RemoveItem(1)),
+                        orientation = orientation,
+                        expectedEndItems = listOf("0", "3", "4", "5")
+                    )
 
-            result += TestConfig(
-                name = "regression3",
-                _items = stringSequence(pageCount = 3),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 0), AddItem(_position = 1, item = "3")),
-                orientation = orientation,
-                expectedEndItems = listOf("1", "3", "2")
-            )
+                result +=
+                    TestConfig(
+                        name = "regression3",
+                        _items = stringSequence(pageCount = 3),
+                        adapterProvider = adapterProvider,
+                        actions =
+                            listOf(RemoveItem(_position = 0), AddItem(_position = 1, item = "3")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("1", "3", "2")
+                    )
 
-            result += TestConfig(
-                name = "regression4",
-                _items = stringSequence(pageCount = 3),
-                adapterProvider = adapterProvider,
-                actions = listOf(RemoveItem(_position = 0), AddItem(_position = 0, item = "3")),
-                orientation = orientation,
-                expectedEndItems = listOf("3", "1", "2")
-            )
+                result +=
+                    TestConfig(
+                        name = "regression4",
+                        _items = stringSequence(pageCount = 3),
+                        adapterProvider = adapterProvider,
+                        actions =
+                            listOf(RemoveItem(_position = 0), AddItem(_position = 0, item = "3")),
+                        orientation = orientation,
+                        expectedEndItems = listOf("3", "1", "2")
+                    )
 
-            repeat(RANDOM_TESTS_PER_CONFIG) {
-                result += generateRandomTest(adapterProvider, orientation)
+                repeat(RANDOM_TESTS_PER_CONFIG) {
+                    result += generateRandomTest(adapterProvider, orientation)
+                }
             }
         }
-    }
 
     return result
 }

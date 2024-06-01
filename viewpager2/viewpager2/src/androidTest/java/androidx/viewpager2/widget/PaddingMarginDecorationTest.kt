@@ -77,71 +77,72 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
     }
 
     private lateinit var test: Context
-    private val viewPager get() = test.viewPager
+    private val viewPager
+        get() = test.viewPager
 
-    private val vpSize: Int get() {
-        return if (viewPager.isHorizontal) viewPager.width else viewPager.height
-    }
+    private val vpSize: Int
+        get() {
+            return if (viewPager.isHorizontal) viewPager.width else viewPager.height
+        }
 
-    private val vpPadding: Int get() {
-        return if (viewPager.isHorizontal)
-            viewPager.paddingLeft + viewPager.paddingRight
-        else
-            viewPager.paddingTop + viewPager.paddingBottom
-    }
+    private val vpPadding: Int
+        get() {
+            return if (viewPager.isHorizontal) viewPager.paddingLeft + viewPager.paddingRight
+            else viewPager.paddingTop + viewPager.paddingBottom
+        }
 
-    private val rvSize: Int get() {
-        val rv = viewPager.recyclerView
-        return if (viewPager.isHorizontal) rv.width else rv.height
-    }
+    private val rvSize: Int
+        get() {
+            val rv = viewPager.recyclerView
+            return if (viewPager.isHorizontal) rv.width else rv.height
+        }
 
-    private val rvMargin: Int get() {
-        return if (viewPager.isHorizontal)
-            horizontalMargin(viewPager.recyclerView.layoutParams)
-        else
-            verticalMargin(viewPager.recyclerView.layoutParams)
-    }
+    private val rvMargin: Int
+        get() {
+            return if (viewPager.isHorizontal) horizontalMargin(viewPager.recyclerView.layoutParams)
+            else verticalMargin(viewPager.recyclerView.layoutParams)
+        }
 
-    private val rvPadding: Int get() {
-        val rv = viewPager.recyclerView
-        return if (viewPager.isHorizontal)
-            rv.paddingLeft + rv.paddingRight
-        else
-            rv.paddingTop + rv.paddingBottom
-    }
+    private val rvPadding: Int
+        get() {
+            val rv = viewPager.recyclerView
+            return if (viewPager.isHorizontal) rv.paddingLeft + rv.paddingRight
+            else rv.paddingTop + rv.paddingBottom
+        }
 
-    private val itemSize: Int get() {
-        val item = viewPager.linearLayoutManager.findViewByPosition(0)!!
-        return if (viewPager.isHorizontal) item.width else item.height
-    }
+    private val itemSize: Int
+        get() {
+            val item = viewPager.linearLayoutManager.findViewByPosition(0)!!
+            return if (viewPager.isHorizontal) item.width else item.height
+        }
 
-    private val itemMargin: Int get() {
-        val item = viewPager.linearLayoutManager.findViewByPosition(0)!!
-        return if (viewPager.isHorizontal)
-            horizontalMargin(item.layoutParams)
-        else
-            verticalMargin(item.layoutParams)
-    }
+    private val itemMargin: Int
+        get() {
+            val item = viewPager.linearLayoutManager.findViewByPosition(0)!!
+            return if (viewPager.isHorizontal) horizontalMargin(item.layoutParams)
+            else verticalMargin(item.layoutParams)
+        }
 
-    private val itemDecoration: Int get() {
-        val llm = viewPager.linearLayoutManager
-        val item = llm.findViewByPosition(0)!!
-        return if (viewPager.isHorizontal)
-            llm.getLeftDecorationWidth(item) + llm.getRightDecorationWidth(item)
-        else
-            llm.getTopDecorationHeight(item) + llm.getBottomDecorationHeight(item)
-    }
+    private val itemDecoration: Int
+        get() {
+            val llm = viewPager.linearLayoutManager
+            val item = llm.findViewByPosition(0)!!
+            return if (viewPager.isHorizontal)
+                llm.getLeftDecorationWidth(item) + llm.getRightDecorationWidth(item)
+            else llm.getTopDecorationHeight(item) + llm.getBottomDecorationHeight(item)
+        }
 
-    private val adapterProvider: AdapterProviderForItems get() {
-        return AdapterProviderForItems(
-            "adapterProvider",
-            if (config.itemMarginPx > 0) {
-                { items -> { MarginViewAdapter(config.itemMarginPx, items) } }
-            } else {
-                { items -> { ViewAdapter(items) } }
-            }
-        )
-    }
+    private val adapterProvider: AdapterProviderForItems
+        get() {
+            return AdapterProviderForItems(
+                "adapterProvider",
+                if (config.itemMarginPx > 0) {
+                    { items -> { MarginViewAdapter(config.itemMarginPx, items) } }
+                } else {
+                    { items -> { ViewAdapter(items) } }
+                }
+            )
+        }
 
     class MarginViewAdapter(private val margin: Int, items: List<String>) : ViewAdapter(items) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -260,9 +261,7 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
                 assertThat(scrollEventCount, equalTo(eventCount - 4))
 
                 // dive into scroll events
-                val sortOrder =
-                    if (targetPage - initialPage > 0) SortOrder.ASC
-                    else SortOrder.DESC
+                val sortOrder = if (targetPage - initialPage > 0) SortOrder.ASC else SortOrder.DESC
                 scrollEvents.assertPositionSorted(sortOrder)
                 scrollEvents.assertOffsetSorted(sortOrder)
                 scrollEvents.assertValueCorrectness(initialPage, targetPage, viewPager.pageSize)
@@ -314,31 +313,37 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
                     // verify all events
                     assertThat(
                         "Events should start with a state change to DRAGGING",
-                        draggingIx, equalTo(0)
+                        draggingIx,
+                        equalTo(0)
                     )
                     assertThat(
                         "Last event should be a state change to IDLE",
-                        idleIx, equalTo(lastIx)
+                        idleIx,
+                        equalTo(lastIx)
                     )
                     assertThat(
                         "All events but the state changes to DRAGGING and IDLE" +
                             " should be scroll events",
-                        scrollEventCount, equalTo(eventCount - 2)
+                        scrollEventCount,
+                        equalTo(eventCount - 2)
                     )
 
                     // dive into scroll events
                     scrollEvents.forEach {
                         assertThat(
                             "All scroll events should report page $targetPage",
-                            it.position, equalTo(targetPage)
+                            it.position,
+                            equalTo(targetPage)
                         )
                         assertThat(
                             "All scroll events should report an offset of 0f",
-                            it.positionOffset, equalTo(0f)
+                            it.positionOffset,
+                            equalTo(0f)
                         )
                         assertThat(
                             "All scroll events should report an offset of 0px",
-                            it.positionOffsetPixels, equalTo(0)
+                            it.positionOffsetPixels,
+                            equalTo(0)
                         )
                     }
                 }
@@ -358,22 +363,42 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
             val positionOffset: Float,
             val positionOffsetPixels: Int
         ) : Event()
+
         data class OnPageSelectedEvent(val position: Int) : Event()
+
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
     }
 
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
-        val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
-        val eventCount get() = events.size
-        val scrollEventCount get() = scrollEvents.size
-        val lastIx get() = events.size - 1
-        val firstScrolledIx get() = events.indexOfFirst { it is OnPageScrolledEvent }
-        val lastScrolledIx get() = events.indexOfLast { it is OnPageScrolledEvent }
-        val settlingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_SETTLING))
-        val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
-        val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
+        val scrollEvents
+            get() = events.mapNotNull { it as? OnPageScrolledEvent }
+
+        val eventCount
+            get() = events.size
+
+        val scrollEventCount
+            get() = scrollEvents.size
+
+        val lastIx
+            get() = events.size - 1
+
+        val firstScrolledIx
+            get() = events.indexOfFirst { it is OnPageScrolledEvent }
+
+        val lastScrolledIx
+            get() = events.indexOfLast { it is OnPageScrolledEvent }
+
+        val settlingIx
+            get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_SETTLING))
+
+        val draggingIx
+            get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
+
+        val idleIx
+            get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
+
         val pageSelectedIx: (page: Int) -> Int = { events.indexOf(OnPageSelectedEvent(it)) }
 
         override fun onPageScrolled(

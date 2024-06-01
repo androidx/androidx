@@ -18,9 +18,7 @@ package androidx.wear.phone.interactions.authentication
 import android.os.Build
 import com.google.wear.Sdk
 
-/**
- * Provides wear sdk api version.
- */
+/** Provides wear sdk api version. */
 internal class WearApiVersion {
 
     // TODO(b/307543793): Reuse the generalized `WearApiVersionHelper` once available.
@@ -28,7 +26,8 @@ internal class WearApiVersion {
     val wearSdkVersion: Int
         get() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                // Wear SDK INT can only be accessed safely from UPSIDE_DOWN_CAKE, introduced from tiramisu kr2.
+                // Wear SDK INT can only be accessed safely from UPSIDE_DOWN_CAKE, introduced from
+                // tiramisu kr2.
                 // Or crashes with `NoSuchField` will be experienced.
                 return Sdk.VERSION.WEAR_SDK_INT
             }

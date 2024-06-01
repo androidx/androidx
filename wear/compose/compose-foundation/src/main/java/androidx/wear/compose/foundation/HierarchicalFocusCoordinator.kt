@@ -34,23 +34,22 @@ import kotlinx.coroutines.CoroutineScope
 
 /**
  * Coordinates focus for any composables in [content] and determines which composable will get
- * focus.
- * [HierarchicalFocusCoordinator]s can be nested, and form a tree, with an implicit root.
+ * focus. [HierarchicalFocusCoordinator]s can be nested, and form a tree, with an implicit root.
  * Focus-requiring components (i.e. components using [OnFocusChange] or [RequestFocusWhenActive])
  * should only be in the leaf [HierarchicalFocusCoordinator]s, and there should be at most one per
- * [HierarchicalFocusCoordinator].
- * For [HierarchicalFocusCoordinator] elements sharing a parent (or at the top level, sharing the
- * implicit root parent), only one should have focus enabled.
- * The selected [HierarchicalFocusCoordinator] is the one that has focus enabled for itself and all
+ * [HierarchicalFocusCoordinator]. For [HierarchicalFocusCoordinator] elements sharing a parent (or
+ * at the top level, sharing the implicit root parent), only one should have focus enabled. The
+ * selected [HierarchicalFocusCoordinator] is the one that has focus enabled for itself and all
  * ancestors, it will pass focus to its focus-requiring component if it has one, or call
- * FocusManager#clearFocus() otherwise.
- * If no [HierarchicalFocusCoordinator] is selected, there will be no change on the focus state.
+ * FocusManager#clearFocus() otherwise. If no [HierarchicalFocusCoordinator] is selected, there will
+ * be no change on the focus state.
  *
  * Example usage:
+ *
  * @sample androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
  *
- * @param requiresFocus a function that returns true when the [content] is active in the
- * composition and requires the focus
+ * @param requiresFocus a function that returns true when the [content] is active in the composition
+ *   and requires the focus
  * @param content The content of this component.
  */
 @Composable
@@ -68,45 +67,38 @@ public fun HierarchicalFocusCoordinator(
 }
 
 /**
- * Use as part of a focus-requiring component to register a callback to be notified when the
- * focus state changes.
+ * Use as part of a focus-requiring component to register a callback to be notified when the focus
+ * state changes.
  *
  * @param onFocusChanged callback to be invoked when the focus state changes, the parameter is the
- * new state (if true, we are becoming active and should request focus).
+ *   new state (if true, we are becoming active and should request focus).
  */
 @Composable
 @ExperimentalWearFoundationApi
 public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) {
-    FocusComposableImpl(
-        focusEnabled = { true },
-        onFocusChanged = onFocusChanged,
-        content = {}
-    )
+    FocusComposableImpl(focusEnabled = { true }, onFocusChanged = onFocusChanged, content = {})
 }
 
 /**
- * Use as part of a focus-requiring component to register a callback to automatically request
- * focus when this component is active.
- * Note that this may call requestFocus in the provided FocusRequester, so that focusRequester
- * should be used in a .focusRequester modifier on a Composable that is part of the composition.
+ * Use as part of a focus-requiring component to register a callback to automatically request focus
+ * when this component is active. Note that this may call requestFocus in the provided
+ * FocusRequester, so that focusRequester should be used in a .focusRequester modifier on a
+ * Composable that is part of the composition.
  *
  * @param focusRequester The associated [FocusRequester] to request focus on.
  */
 @Composable
 @ExperimentalWearFoundationApi
 public fun RequestFocusWhenActive(focusRequester: FocusRequester) {
-    OnFocusChange {
-        if (it) focusRequester.requestFocus()
-    }
+    OnFocusChange { if (it) focusRequester.requestFocus() }
 }
 
 /**
- * Creates, remembers and returns a new [FocusRequester], that will have .requestFocus called
- * when the enclosing [HierarchicalFocusCoordinator] becomes active.
- * Note that the location you call this is important, in particular, which
- * [HierarchicalFocusCoordinator] is enclosing it. Also, this may call requestFocus in the returned
- * FocusRequester, so that focusRequester should be used in a .focusRequester modifier on a
- * Composable that is part of the composition.
+ * Creates, remembers and returns a new [FocusRequester], that will have .requestFocus called when
+ * the enclosing [HierarchicalFocusCoordinator] becomes active. Note that the location you call this
+ * is important, in particular, which [HierarchicalFocusCoordinator] is enclosing it. Also, this may
+ * call requestFocus in the returned FocusRequester, so that focusRequester should be used in a
+ * .focusRequester modifier on a Composable that is part of the composition.
  */
 @Composable
 @ExperimentalWearFoundationApi
@@ -115,11 +107,11 @@ public fun rememberActiveFocusRequester() =
 
 /**
  * Implements a node in the Focus control tree (either a [HierarchicalFocusCoordinator] or
- * [OnFocusChange]).
- * Each [FocusComposableImpl] maps to a [FocusNode] in our internal representation, this is used to:
+ * [OnFocusChange]). Each [FocusComposableImpl] maps to a [FocusNode] in our internal
+ * representation, this is used to:
  * 1) Check that our parent is focused (or we have no explicit parent), to see if we can be focused.
  * 2) See if we have children. If not, we are a leaf node and will forward focus status updates to
- * the onFocusChanged callback.
+ *    the onFocusChanged callback.
  */
 @Composable
 internal fun FocusComposableImpl(
@@ -131,18 +123,18 @@ internal fun FocusComposableImpl(
     val parent by rememberUpdatedState(LocalFocusNodeParent.current)
 
     // Node in our internal tree representation of the FocusComposableImpl
-    val node = remember { FocusNode(focused = derivedStateOf {
-        (parent?.focused?.value ?: true) && updatedFocusEnabled()
-    }) }
+    val node = remember {
+        FocusNode(
+            focused = derivedStateOf { (parent?.focused?.value ?: true) && updatedFocusEnabled() }
+        )
+    }
 
     // Attach our node to our parent's (and remove if we leave the composition).
     parent?.let {
         DisposableEffect(it) {
             it.children.add(node)
 
-            onDispose {
-                it.children.remove(node)
-            }
+            onDispose { it.children.remove(node) }
         }
     }
 

@@ -53,60 +53,53 @@ import androidx.wear.compose.materialcore.animateTick
 import androidx.wear.compose.materialcore.isLayoutDirectionRtl
 
 /**
- * [Checkbox] provides an animated checkbox for use as a toggle control in
- * [ToggleButton] or [SplitToggleButton].
+ * [Checkbox] provides an animated checkbox for use as a toggle control in [ToggleButton] or
+ * [SplitToggleButton].
  *
  * Checkbox sample:
+ *
  * @sample androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
  *
- * @param modifier Modifier to be applied to the checkbox. This can be used to provide a
- * content description for accessibility.
+ * @param modifier Modifier to be applied to the checkbox. This can be used to provide a content
+ *   description for accessibility.
  * @param colors [CheckboxColors] from which the box and checkmark colors will be obtained.
  */
 @Composable
 fun ToggleControlScope.Checkbox(
     modifier: Modifier = Modifier,
     colors: CheckboxColors = CheckboxDefaults.colors(),
-) = androidx.wear.compose.materialcore.Checkbox(
-    checked = isChecked,
-    modifier = modifier,
-    boxColor = { isEnabled, isChecked ->
-        colors.boxColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    checkmarkColor = { isEnabled, isChecked ->
-        colors.checkmarkColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    enabled = isEnabled,
-    onCheckedChange = null,
-    interactionSource = null,
-    drawBox = { drawScope, color, progress, isRtl ->
-        drawScope.drawBox(
-            color = color,
-            progress = progress,
-            isRtl = isRtl
-        )
-    },
-    progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
-    width = WIDTH,
-    height = CHECKBOX_HEIGHT,
-    ripple = rippleOrFallbackImplementation()
-)
+) =
+    androidx.wear.compose.materialcore.Checkbox(
+        checked = isChecked,
+        modifier = modifier,
+        boxColor = { isEnabled, isChecked ->
+            colors.boxColor(enabled = isEnabled, checked = isChecked)
+        },
+        checkmarkColor = { isEnabled, isChecked ->
+            colors.checkmarkColor(enabled = isEnabled, checked = isChecked)
+        },
+        enabled = isEnabled,
+        onCheckedChange = null,
+        interactionSource = null,
+        drawBox = { drawScope, color, progress, isRtl ->
+            drawScope.drawBox(color = color, progress = progress, isRtl = isRtl)
+        },
+        progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
+        width = WIDTH,
+        height = CHECKBOX_HEIGHT,
+        ripple = rippleOrFallbackImplementation()
+    )
 
 /**
- * [Switch] provides an animated switch for use as a toggle control in
- * [ToggleButton] or [SplitToggleButton].
+ * [Switch] provides an animated switch for use as a toggle control in [ToggleButton] or
+ * [SplitToggleButton].
  *
  * Switch samples:
+ *
  * @sample androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
  *
- * @param modifier Modifier to be applied to the switch. This can be used to provide a
- * content description for accessibility.
+ * @param modifier Modifier to be applied to the switch. This can be used to provide a content
+ *   description for accessibility.
  * @param colors [SwitchColors] from which the colors of the thumb and track will be obtained.
  */
 @Composable
@@ -117,43 +110,44 @@ fun ToggleControlScope.Switch(
     val isRtl = isLayoutDirectionRtl()
     val targetState = if (isChecked) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState, label = "switchTransition")
-    val thumbProgress = transition.animateFloat(
-        transitionSpec = { SWITCH_PROGRESS_ANIMATION_SPEC }, label = "switchTransition"
-    ) {
-        when (it) {
-            SelectionStage.Unchecked -> 0f
-            SelectionStage.Checked -> 1f
+    val thumbProgress =
+        transition.animateFloat(
+            transitionSpec = { SWITCH_PROGRESS_ANIMATION_SPEC },
+            label = "switchTransition"
+        ) {
+            when (it) {
+                SelectionStage.Unchecked -> 0f
+                SelectionStage.Checked -> 1f
+            }
         }
-    }
     val thumbColor = colors.thumbColor(enabled = isEnabled, checked = isChecked).value
     val thumbIconColor = colors.thumbIconColor(enabled = isEnabled, checked = isChecked).value
     val trackColor = colors.trackColor(enabled = isEnabled, checked = isChecked).value
     val trackBorderColor = colors.trackBorderColor(enabled = isEnabled, checked = isChecked).value
     Box(
-        modifier = modifier
-            .semantics { this.role = Role.Switch }
-            .height(SWITCH_HEIGHT)
-            .width(WIDTH)
-            .border(
-                width = SWITCH_TRACK_WIDTH,
-                shape = CircleShape,
-                color = if (trackColor == trackBorderColor) Color.Transparent else trackBorderColor
-            )
-            .background(
-                color = trackColor,
-                shape = CircleShape
-            )
-            .drawBehind {
-                drawThumbAndTick(
-                    isEnabled,
-                    isChecked,
-                    thumbColor,
-                    thumbProgress.value,
-                    thumbIconColor,
-                    isRtl
+        modifier =
+            modifier
+                .semantics { this.role = Role.Switch }
+                .height(SWITCH_HEIGHT)
+                .width(WIDTH)
+                .border(
+                    width = SWITCH_TRACK_WIDTH,
+                    shape = CircleShape,
+                    color =
+                        if (trackColor == trackBorderColor) Color.Transparent else trackBorderColor
                 )
-            }
-            .wrapContentSize(Alignment.CenterEnd)
+                .background(color = trackColor, shape = CircleShape)
+                .drawBehind {
+                    drawThumbAndTick(
+                        isEnabled,
+                        isChecked,
+                        thumbColor,
+                        thumbProgress.value,
+                        thumbIconColor,
+                        isRtl
+                    )
+                }
+                .wrapContentSize(Alignment.CenterEnd)
     )
 }
 
@@ -161,17 +155,15 @@ fun ToggleControlScope.Switch(
  * Represents the content colors used in [Checkbox] in different states.
  *
  * @param checkedBoxColor The box color of [Checkbox] when enabled and checked.
- * @param checkedCheckmarkColor The check mark color of [Checkbox] when enabled
- * and checked.
+ * @param checkedCheckmarkColor The check mark color of [Checkbox] when enabled and checked.
  * @param uncheckedBoxColor The box color of [Checkbox] when enabled and unchecked.
- * @param uncheckedCheckmarkColor The check mark color of [Checkbox] when enabled
- * and unchecked.
+ * @param uncheckedCheckmarkColor The check mark color of [Checkbox] when enabled and unchecked.
  * @param disabledCheckedBoxColor The box color of [Checkbox] when disabled and checked.
- * @param disabledCheckedCheckmarkColor The check mark color of [Checkbox] when disabled
- * and checked.
+ * @param disabledCheckedCheckmarkColor The check mark color of [Checkbox] when disabled and
+ *   checked.
  * @param disabledUncheckedBoxColor The box color of [Checkbox] when disabled and unchecked.
- * @param disabledUncheckedCheckmarkColor The check mark color of [Checkbox] when disabled
- * and unchecked.
+ * @param disabledUncheckedCheckmarkColor The check mark color of [Checkbox] when disabled and
+ *   unchecked.
  */
 @Immutable
 class CheckboxColors(
@@ -193,15 +185,16 @@ class CheckboxColors(
      * @param checked Whether the [Checkbox] is currently checked or unchecked
      */
     @Composable
-    internal fun boxColor(enabled: Boolean, checked: Boolean): State<Color> = animateSelectionColor(
-        enabled = enabled,
-        checked = checked,
-        checkedColor = checkedBoxColor,
-        uncheckedColor = uncheckedBoxColor,
-        disabledCheckedColor = disabledCheckedBoxColor,
-        disabledUncheckedColor = disabledUncheckedBoxColor,
-        animationSpec = COLOR_ANIMATION_SPEC
-    )
+    internal fun boxColor(enabled: Boolean, checked: Boolean): State<Color> =
+        animateSelectionColor(
+            enabled = enabled,
+            checked = checked,
+            checkedColor = checkedBoxColor,
+            uncheckedColor = uncheckedBoxColor,
+            disabledCheckedColor = disabledCheckedBoxColor,
+            disabledUncheckedColor = disabledUncheckedBoxColor,
+            animationSpec = COLOR_ANIMATION_SPEC
+        )
 
     /**
      * Represents the checkmark color for this [Checkbox], depending on the [enabled] and [checked]
@@ -265,14 +258,14 @@ class CheckboxColors(
  * @param disabledCheckedThumbColor The thumb color of [Switch] when disabled and checked.
  * @param disabledCheckedThumbIconColor The thumb icon color of [Switch] when disabled and checked.
  * @param disabledCheckedTrackColor The track color of [Switch] when disabled and checked.
- * @param disabledCheckedTrackBorderColor The track border color of [Switch] when disabled
- * and checked.
+ * @param disabledCheckedTrackBorderColor The track border color of [Switch] when disabled and
+ *   checked.
  * @param disabledUncheckedThumbColor The thumb color of [Switch] when disabled and unchecked.
- * @param disabledUncheckedThumbIconColor The thumb icon color of [Switch] when disabled
- * and unchecked.
+ * @param disabledUncheckedThumbIconColor The thumb icon color of [Switch] when disabled and
+ *   unchecked.
  * @param disabledUncheckedTrackColor The track color of [Switch] when disabled and unchecked.
- * @param disabledUncheckedTrackBorderColor The track border color of [Switch] when disabled
- * and unchecked.
+ * @param disabledUncheckedTrackBorderColor The track border color of [Switch] when disabled and
+ *   unchecked.
  */
 @Immutable
 class SwitchColors(
@@ -386,26 +379,23 @@ class SwitchColors(
     }
 }
 
-/**
- * Contains the default values used by [Checkbox].
- */
+/** Contains the default values used by [Checkbox]. */
 object CheckboxDefaults {
     /**
      * Creates a [CheckboxColors] for use in a [Checkbox].
      *
      * @param checkedBoxColor The box color of this [Checkbox] when enabled and checked.
-     * @param checkedCheckmarkColor The check mark color of this [Checkbox] when enabled
-     * and checked.
+     * @param checkedCheckmarkColor The check mark color of this [Checkbox] when enabled and
+     *   checked.
      * @param uncheckedBoxColor The box color of this [Checkbox] when enabled and unchecked.
-     * @param uncheckedCheckmarkColor The check mark color of this [Checkbox] when enabled
-     * and unchecked.
+     * @param uncheckedCheckmarkColor The check mark color of this [Checkbox] when enabled and
+     *   unchecked.
      * @param disabledCheckedBoxColor The box color of this [Checkbox] when disabled and checked
      * @param disabledCheckedCheckmarkColor The check mark color of this [Checkbox] when disabled
-     * and checked
-     * @param disabledUncheckedBoxColor The box color of this [Checkbox] when disabled and
-     * unchecked
+     *   and checked
+     * @param disabledUncheckedBoxColor The box color of this [Checkbox] when disabled and unchecked
      * @param disabledUncheckedCheckmarkColor The check mark color of this [Checkbox] when disabled
-     * and unchecked
+     *   and unchecked
      */
     @Composable
     fun colors(
@@ -420,21 +410,20 @@ object CheckboxDefaults {
         disabledUncheckedBoxColor: Color =
             MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
         disabledUncheckedCheckmarkColor: Color = Color.Transparent
-    ): CheckboxColors = CheckboxColors(
-        checkedBoxColor = checkedBoxColor,
-        checkedCheckmarkColor = checkedCheckmarkColor,
-        uncheckedBoxColor = uncheckedBoxColor,
-        uncheckedCheckmarkColor = uncheckedCheckmarkColor,
-        disabledCheckedBoxColor = disabledCheckedBoxColor,
-        disabledCheckedCheckmarkColor = disabledCheckedCheckmarkColor,
-        disabledUncheckedBoxColor = disabledUncheckedBoxColor,
-        disabledUncheckedCheckmarkColor = disabledUncheckedCheckmarkColor
-    )
+    ): CheckboxColors =
+        CheckboxColors(
+            checkedBoxColor = checkedBoxColor,
+            checkedCheckmarkColor = checkedCheckmarkColor,
+            uncheckedBoxColor = uncheckedBoxColor,
+            uncheckedCheckmarkColor = uncheckedCheckmarkColor,
+            disabledCheckedBoxColor = disabledCheckedBoxColor,
+            disabledCheckedCheckmarkColor = disabledCheckedCheckmarkColor,
+            disabledUncheckedBoxColor = disabledUncheckedBoxColor,
+            disabledUncheckedCheckmarkColor = disabledUncheckedCheckmarkColor
+        )
 }
 
-/**
- * Contains the default values used by [Switch].
- */
+/** Contains the default values used by [Switch]. */
 object SwitchDefaults {
     /**
      * Creates a [SwitchColors] for use in a [Switch].
@@ -445,24 +434,24 @@ object SwitchDefaults {
      * @param checkedTrackBorderColor The border color of this [Switch] when enabled and checked.
      * @param uncheckedThumbColor The thumb color of this [Switch] when enabled and unchecked.
      * @param uncheckedThumbIconColor The thumb icon color of this [Switch] when enabled and
-     * checked.
+     *   checked.
      * @param uncheckedTrackColor The track color of this [Switch] when enabled and unchecked.
      * @param uncheckedTrackBorderColor The border color of this [Switch] when enabled and
-     * unchecked.
+     *   unchecked.
      * @param disabledCheckedThumbColor The thumb color of this [Switch] when disabled and checked.
-     * @param disabledCheckedThumbIconColor The thumb icon color of this [Switch] when disabled
-     * and checked.
+     * @param disabledCheckedThumbIconColor The thumb icon color of this [Switch] when disabled and
+     *   checked.
      * @param disabledCheckedTrackColor The track color of this [Switch] when disabled and checked.
      * @param disabledCheckedTrackBorderColor The border color of this [Switch] when disabled and
-     * unchecked.
+     *   unchecked.
      * @param disabledUncheckedThumbColor The thumb color of this [Switch] when disabled and
-     * unchecked.
+     *   unchecked.
      * @param disabledUncheckedThumbIconColor The thumb icon color of this [Switch] when disabled
-     * and unchecked.
+     *   and unchecked.
      * @param disabledUncheckedTrackColor The track color of this [Switch] when disabled and
-     * unchecked.
-     * @param disabledUncheckedTrackBorderColor The border color of this [Switch] when disabled
-     * and unchecked.
+     *   unchecked.
+     * @param disabledUncheckedTrackBorderColor The border color of this [Switch] when disabled and
+     *   unchecked.
      */
     @Composable
     fun colors(
@@ -487,24 +476,25 @@ object SwitchDefaults {
         disabledUncheckedTrackColor: Color = Color.Transparent,
         disabledUncheckedTrackBorderColor: Color =
             MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f)
-    ): SwitchColors = SwitchColors(
-        checkedThumbColor = checkedThumbColor,
-        checkedThumbIconColor = checkedThumbIconColor,
-        checkedTrackColor = checkedTrackColor,
-        checkedTrackBorderColor = checkedTrackBorderColor,
-        uncheckedThumbColor = uncheckedThumbColor,
-        uncheckedThumbIconColor = uncheckedThumbIconColor,
-        uncheckedTrackColor = uncheckedTrackColor,
-        uncheckedTrackBorderColor = uncheckedTrackBorderColor,
-        disabledCheckedThumbColor = disabledCheckedThumbColor,
-        disabledCheckedThumbIconColor = disabledCheckedThumbIconColor,
-        disabledCheckedTrackColor = disabledCheckedTrackColor,
-        disabledCheckedTrackBorderColor = disabledCheckedTrackBorderColor,
-        disabledUncheckedThumbColor = disabledUncheckedThumbColor,
-        disabledUncheckedThumbIconColor = disabledUncheckedThumbIconColor,
-        disabledUncheckedTrackColor = disabledUncheckedTrackColor,
-        disabledUncheckedTrackBorderColor = disabledUncheckedTrackBorderColor
-    )
+    ): SwitchColors =
+        SwitchColors(
+            checkedThumbColor = checkedThumbColor,
+            checkedThumbIconColor = checkedThumbIconColor,
+            checkedTrackColor = checkedTrackColor,
+            checkedTrackBorderColor = checkedTrackBorderColor,
+            uncheckedThumbColor = uncheckedThumbColor,
+            uncheckedThumbIconColor = uncheckedThumbIconColor,
+            uncheckedTrackColor = uncheckedTrackColor,
+            uncheckedTrackBorderColor = uncheckedTrackBorderColor,
+            disabledCheckedThumbColor = disabledCheckedThumbColor,
+            disabledCheckedThumbIconColor = disabledCheckedThumbIconColor,
+            disabledCheckedTrackColor = disabledCheckedTrackColor,
+            disabledCheckedTrackBorderColor = disabledCheckedTrackBorderColor,
+            disabledUncheckedThumbColor = disabledUncheckedThumbColor,
+            disabledUncheckedThumbIconColor = disabledUncheckedThumbIconColor,
+            disabledUncheckedTrackColor = disabledUncheckedTrackColor,
+            disabledUncheckedTrackBorderColor = disabledUncheckedTrackBorderColor
+        )
 }
 
 private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
@@ -520,9 +510,11 @@ private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
     // Draw the outline of the box.
     drawRoundRect(
         color,
-        topLeft = Offset(
-            topCornerPx + halfStrokeWidthPx + startXOffsetPx, topCornerPx + halfStrokeWidthPx
-        ),
+        topLeft =
+            Offset(
+                topCornerPx + halfStrokeWidthPx + startXOffsetPx,
+                topCornerPx + halfStrokeWidthPx
+            ),
         size = Size(checkboxSizePx - strokeWidthPx, checkboxSizePx - strokeWidthPx),
         cornerRadius = CornerRadius(radiusPx - halfStrokeWidthPx),
         alpha = 1 - progress,
@@ -552,25 +544,29 @@ private fun DrawScope.drawThumbAndTick(
     val thumbPaddingUnchecked = SWITCH_HEIGHT / 2 - THUMB_RADIUS_UNCHECKED
     val thumbPaddingChecked = SWITCH_HEIGHT / 2 - THUMB_RADIUS_CHECKED
 
-    val switchThumbRadiusPx = lerp(
-        start = THUMB_RADIUS_UNCHECKED.toPx(),
-        stop = THUMB_RADIUS_CHECKED.toPx(),
-        fraction = progress
-    )
+    val switchThumbRadiusPx =
+        lerp(
+            start = THUMB_RADIUS_UNCHECKED.toPx(),
+            stop = THUMB_RADIUS_CHECKED.toPx(),
+            fraction = progress
+        )
 
     val switchTrackLengthPx = WIDTH.toPx()
 
     // For Rtl mode the thumb progress will start from the end of the switch.
-    val thumbProgressPx = if (isRtl) lerp(
-        start = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingUnchecked.toPx(),
-        stop = switchThumbRadiusPx + thumbPaddingChecked.toPx(),
-        fraction = progress
-    )
-    else lerp(
-        start = switchThumbRadiusPx + thumbPaddingUnchecked.toPx(),
-        stop = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingChecked.toPx(),
-        fraction = progress
-    )
+    val thumbProgressPx =
+        if (isRtl)
+            lerp(
+                start = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingUnchecked.toPx(),
+                stop = switchThumbRadiusPx + thumbPaddingChecked.toPx(),
+                fraction = progress
+            )
+        else
+            lerp(
+                start = switchThumbRadiusPx + thumbPaddingUnchecked.toPx(),
+                stop = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingChecked.toPx(),
+                fraction = progress
+            )
 
     drawCircle(
         color = thumbColor,

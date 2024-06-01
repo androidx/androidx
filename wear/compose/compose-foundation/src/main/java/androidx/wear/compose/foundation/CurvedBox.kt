@@ -22,44 +22,40 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
- * A layout composable that places its children on top of each other and on an arc. This is
- * similar to a [Box] layout, but curved into a segment of an annulus.
+ * A layout composable that places its children on top of each other and on an arc. This is similar
+ * to a [Box] layout, but curved into a segment of an annulus.
  *
- * The thickness of the layout (the difference between the outer and inner radius) will be the
- * same as the thickest child, and the angle taken will be the biggest angle of the
- * children.
+ * The thickness of the layout (the difference between the outer and inner radius) will be the same
+ * as the thickest child, and the angle taken will be the biggest angle of the children.
  *
  * Example usage:
+ *
  * @sample androidx.wear.compose.foundation.samples.CurvedBoxSample
  *
  * @param modifier The [CurvedModifier] to apply to this curved row.
  * @param radialAlignment Radial alignment specifies where to lay down children that are thinner
- * than the CurvedBox, either closer to the center [CurvedAlignment.Radial.Inner], apart from
- * the center [CurvedAlignment.Radial.Outer] or in the
- * middle point [CurvedAlignment.Radial.Center]. If unspecified, they can choose for themselves.
+ *   than the CurvedBox, either closer to the center [CurvedAlignment.Radial.Inner], apart from the
+ *   center [CurvedAlignment.Radial.Outer] or in the middle point [CurvedAlignment.Radial.Center].
+ *   If unspecified, they can choose for themselves.
  * @param angularAlignment Angular alignment specifies where to lay down children that are thinner
- * than the CurvedBox, either at the [CurvedAlignment.Angular.Start] of the layout,
- * at the [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center].
- * If unspecified or null, they can choose for themselves.
+ *   than the CurvedBox, either at the [CurvedAlignment.Angular.Start] of the layout, at the
+ *   [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center]. If unspecified or null,
+ *   they can choose for themselves.
  * @param contentBuilder Specifies the content of this layout, currently there are 5 available
- * elements defined in foundation for this DSL: the sub-layouts [curvedBox], [curvedRow]
- * and [curvedColumn], [basicCurvedText] and [curvedComposable]
- * (used to add normal composables to curved layouts)
+ *   elements defined in foundation for this DSL: the sub-layouts [curvedBox], [curvedRow] and
+ *   [curvedColumn], [basicCurvedText] and [curvedComposable] (used to add normal composables to
+ *   curved layouts)
  */
 public fun CurvedScope.curvedBox(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial? = null,
     angularAlignment: CurvedAlignment.Angular? = null,
     contentBuilder: CurvedScope.() -> Unit
-) = add(
-    CurvedBoxChild(
-        curvedLayoutDirection,
-        radialAlignment,
-        angularAlignment,
-        contentBuilder
-    ),
-    modifier
-)
+) =
+    add(
+        CurvedBoxChild(curvedLayoutDirection, radialAlignment, angularAlignment, contentBuilder),
+        modifier
+    )
 
 internal class CurvedBoxChild(
     curvedLayoutDirection: CurvedLayoutDirection,
@@ -76,21 +72,20 @@ internal class CurvedBoxChild(
         parentThickness: Float,
     ): PartialLayoutInfo {
         // position children, take max sweep.
-        val maxSweep = children.fastMaxOfOrNull { child ->
-            var childRadialPosition = parentOuterRadius
-            var childThickness = parentThickness
-            if (radialAlignment != null) {
-                childRadialPosition = parentOuterRadius - radialAlignment.ratio *
-                    (parentThickness - child.estimatedThickness)
-                childThickness = child.estimatedThickness
-            }
+        val maxSweep =
+            children.fastMaxOfOrNull { child ->
+                var childRadialPosition = parentOuterRadius
+                var childThickness = parentThickness
+                if (radialAlignment != null) {
+                    childRadialPosition =
+                        parentOuterRadius -
+                            radialAlignment.ratio * (parentThickness - child.estimatedThickness)
+                    childThickness = child.estimatedThickness
+                }
 
-            child.radialPosition(
-                childRadialPosition,
-                childThickness
-            )
-            child.sweepRadians
-        } ?: 0f
+                child.radialPosition(childRadialPosition, childThickness)
+                child.sweepRadians
+            } ?: 0f
         return PartialLayoutInfo(
             maxSweep,
             parentOuterRadius,
@@ -108,16 +103,13 @@ internal class CurvedBoxChild(
             var childAngularPosition = parentStartAngleRadians
             var childSweep = parentSweepRadians
             if (angularAlignment != null) {
-                childAngularPosition = parentStartAngleRadians + angularAlignment.ratio *
-                    (parentSweepRadians - child.sweepRadians)
+                childAngularPosition =
+                    parentStartAngleRadians +
+                        angularAlignment.ratio * (parentSweepRadians - child.sweepRadians)
                 childSweep = child.sweepRadians
             }
 
-            child.angularPosition(
-                childAngularPosition,
-                childSweep,
-                centerOffset
-            )
+            child.angularPosition(childAngularPosition, childSweep, centerOffset)
         }
         return parentStartAngleRadians
     }

@@ -48,14 +48,11 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class HorizontalPageIndicatorScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun horizontalPageIndicator_circular_selected_page() {
@@ -87,10 +84,7 @@ class HorizontalPageIndicatorScreenshotTest {
         between_pages(false)
     }
 
-    private fun selected_page(
-        isRound: Boolean,
-        layoutDirection: LayoutDirection
-    ) {
+    private fun selected_page(isRound: Boolean, layoutDirection: LayoutDirection) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.LayoutDirection(layoutDirection)
@@ -100,7 +94,8 @@ class HorizontalPageIndicatorScreenshotTest {
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
@@ -108,11 +103,7 @@ class HorizontalPageIndicatorScreenshotTest {
     private fun between_pages(isRound: Boolean) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-                Box(
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .size(200.dp)
-                ) {
+                Box(modifier = Modifier.testTag(TEST_TAG).size(200.dp)) {
                     HorizontalPageIndicator(
                         pageCount = PAGE_COUNT,
                         currentPage = SELECTED_PAGE_INDEX,
@@ -126,7 +117,8 @@ class HorizontalPageIndicatorScreenshotTest {
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
@@ -134,11 +126,7 @@ class HorizontalPageIndicatorScreenshotTest {
     @Composable
     private fun defaultHorizontalPageIndicator(isRound: Boolean) {
         DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-            Box(
-                modifier = Modifier
-                    .testTag(TEST_TAG)
-                    .size(200.dp)
-            ) {
+            Box(modifier = Modifier.testTag(TEST_TAG).size(200.dp)) {
                 HorizontalPageIndicator(
                     pageCount = PAGE_COUNT,
                     currentPage = SELECTED_PAGE_INDEX,

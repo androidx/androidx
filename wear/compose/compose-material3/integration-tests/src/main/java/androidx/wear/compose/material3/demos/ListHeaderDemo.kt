@@ -26,17 +26,9 @@ import androidx.wear.compose.material3.samples.ListSubheaderWithIconSample
 
 @Composable
 fun ListHeaderDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        item {
-            ListHeaderSample()
-        }
-        item {
-            ListSubheaderSample()
-        }
-        item {
-            ListSubheaderWithIconSample()
-        }
+    ScalingLazyColumn(modifier = Modifier.fillMaxWidth()) {
+        item { ListHeaderSample() }
+        item { ListSubheaderSample() }
+        item { ListSubheaderWithIconSample() }
     }
 }

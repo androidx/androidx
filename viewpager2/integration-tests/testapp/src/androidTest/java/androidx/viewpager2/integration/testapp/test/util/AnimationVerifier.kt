@@ -42,20 +42,20 @@ class AnimationVerifier(private val viewPager: ViewPager2) {
     private var hasTranslation = false
     private var hasScale = false
 
-    private val isAnimationRecorded get() = recordAnimationLatch.count == 0L
+    private val isAnimationRecorded
+        get() = recordAnimationLatch.count == 0L
 
-    private val callback = object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageScrolled(position: Int, offset: Float, offsetPx: Int) {
-            if (!foundAnimatedFrame && offsetPx != 0) {
-                foundAnimatedFrame = true
-                // Page transformations are done *after* OnPageChangeCallbacks are called,
-                // so postpone the actual verification
-                viewPager.post {
-                    recordAnimationProperties(position)
+    private val callback =
+        object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrolled(position: Int, offset: Float, offsetPx: Int) {
+                if (!foundAnimatedFrame && offsetPx != 0) {
+                    foundAnimatedFrame = true
+                    // Page transformations are done *after* OnPageChangeCallbacks are called,
+                    // so postpone the actual verification
+                    viewPager.post { recordAnimationProperties(position) }
                 }
             }
         }
-    }
 
     init {
         reset()
@@ -93,10 +93,11 @@ class AnimationVerifier(private val viewPager: ViewPager2) {
         val page = lm.findViewByPosition(position)
 
         // Get the animation values to verify
-        hasRotation = !isZero(page!!.rotation) || !isZero(page.rotationX) ||
-            !isZero(page.rotationY)
-        hasTranslation = !isZero(page.translationX) || !isZero(page.translationY) ||
-            !isZero(ViewCompat.getTranslationZ(page))
+        hasRotation = !isZero(page!!.rotation) || !isZero(page.rotationX) || !isZero(page.rotationY)
+        hasTranslation =
+            !isZero(page.translationX) ||
+                !isZero(page.translationY) ||
+                !isZero(ViewCompat.getTranslationZ(page))
         hasScale = !isOne(page.scaleX) || !isOne(page.scaleY)
 
         // Mark verification as done

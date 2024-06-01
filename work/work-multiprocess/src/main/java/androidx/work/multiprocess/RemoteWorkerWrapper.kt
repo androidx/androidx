@@ -40,24 +40,28 @@ internal fun executeRemoteWorker(
     val dispatcher = taskExecutor.mainThreadExecutor.asCoroutineDispatcher()
     val future =
         launchFuture<ListenableWorker.Result>(dispatcher + job, launchUndispatched = false) {
-            val worker = try {
-                configuration.workerFactory
-                    .createWorkerWithDefaultFallback(context, workerClassName, workerParameters)
-            } catch (throwable: Throwable) {
-                configuration.workerInitializationExceptionHandler?.let { handler ->
-                    taskExecutor.executeOnTaskThread {
-                        handler.safeAccept(
-                            WorkerExceptionInfo(workerClassName, workerParameters, throwable),
-                            ListenableWorkerImpl.TAG
-                        )
+            val worker =
+                try {
+                    configuration.workerFactory.createWorkerWithDefaultFallback(
+                        context,
+                        workerClassName,
+                        workerParameters
+                    )
+                } catch (throwable: Throwable) {
+                    configuration.workerInitializationExceptionHandler?.let { handler ->
+                        taskExecutor.executeOnTaskThread {
+                            handler.safeAccept(
+                                WorkerExceptionInfo(workerClassName, workerParameters, throwable),
+                                ListenableWorkerImpl.TAG
+                            )
+                        }
                     }
+                    throw throwable
                 }
-                throw throwable
-            }
             when (worker) {
                 is RemoteListenableWorker -> worker.startRemoteWork().awaitWithin(worker)
-                else -> worker.startWork()
-                    .awaitWithin(worker) // Just treat it as a delegated worker
+                else ->
+                    worker.startWork().awaitWithin(worker) // Just treat it as a delegated worker
             }
         }
     return future

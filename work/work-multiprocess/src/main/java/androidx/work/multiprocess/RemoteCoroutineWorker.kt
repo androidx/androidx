@@ -28,12 +28,12 @@ import kotlinx.coroutines.Job
 /**
  * An implementation of [RemoteListenableWorker] that can bind to a remote process.
  *
- * To be able to bind to a remote process, A [RemoteCoroutineWorker] needs additional
- * arguments as part of its input [androidx.work.Data].
+ * To be able to bind to a remote process, A [RemoteCoroutineWorker] needs additional arguments as
+ * part of its input [androidx.work.Data].
  *
  * The arguments [RemoteListenableWorker.ARGUMENT_PACKAGE_NAME],
- * [RemoteListenableWorker.ARGUMENT_CLASS_NAME] are used to determine the [android.app.Service]
- * that the [RemoteCoroutineWorker] can bind to.
+ * [RemoteListenableWorker.ARGUMENT_CLASS_NAME] are used to determine the [android.app.Service] that
+ * the [RemoteCoroutineWorker] can bind to.
  *
  * [doRemoteWork] is then subsequently called in the process that the [android.app.Service] is
  * running in.
@@ -47,8 +47,8 @@ public abstract class RemoteCoroutineWorker(context: Context, parameters: Worker
      *
      * A [RemoteCoroutineWorker] has a well defined
      * [execution window](https://d.android.com/reference/android/app/job/JobScheduler) to finish
-     * its execution and return a [androidx.work.ListenableWorker.Result]. Note that the
-     * execution window also includes the cost of binding to the remote process.
+     * its execution and return a [androidx.work.ListenableWorker.Result]. Note that the execution
+     * window also includes the cost of binding to the remote process.
      */
     public abstract suspend fun doRemoteWork(): Result
 

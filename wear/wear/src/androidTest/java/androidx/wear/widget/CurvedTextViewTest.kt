@@ -43,8 +43,7 @@ class CurvedTextViewTest {
     private val canvas = Canvas(bitmap)
     private val renderDoneLatch = CountDownLatch(1)
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule("wear/wear")
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule("wear/wear")
 
     private fun doOneTest(key: String, views: List<View>) {
         // Set the main frame.
@@ -63,41 +62,37 @@ class CurvedTextViewTest {
         bitmap.assertAgainstGolden(screenshotRule, key)
     }
 
-    private fun createThree(centerStr: String, leftStr: String, rightStr: String) = listOf(
-        CurvedTextView(ApplicationProvider.getApplicationContext())
-            .apply {
+    private fun createThree(centerStr: String, leftStr: String, rightStr: String) =
+        listOf(
+            CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                 text = centerStr
                 textColor = Color.BLUE
                 setBackgroundColor(Color.rgb(100, 100, 0))
                 anchorType = ArcLayout.ANCHOR_CENTER
                 anchorAngleDegrees = 0f
             },
-        CurvedTextView(ApplicationProvider.getApplicationContext())
-            .apply {
+            CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                 text = leftStr
                 textColor = Color.RED
                 setBackgroundColor(Color.rgb(0, 100, 100))
                 anchorAngleDegrees = 240f
                 anchorType = ArcLayout.ANCHOR_START
             },
-        CurvedTextView(ApplicationProvider.getApplicationContext())
-            .apply {
+            CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
                 text = rightStr
                 textColor = Color.GREEN
                 setBackgroundColor(Color.rgb(100, 0, 100))
                 anchorType = ArcLayout.ANCHOR_END
                 anchorAngleDegrees = 120f
             }
-    )
+        )
 
-    private fun createThree(): List<CurvedTextView> =
-        createThree("Center", "Left", "Right")
+    private fun createThree(): List<CurvedTextView> = createThree("Center", "Left", "Right")
 
     @Test
     @Throws(Exception::class)
     fun testDefaults() {
-        val textView =
-            CurvedTextView(ApplicationProvider.getApplicationContext())
+        val textView = CurvedTextView(ApplicationProvider.getApplicationContext())
         textView.text = "Hello World!"
         doOneTest("hello_world_screenshot", listOf(textView))
     }
@@ -113,11 +108,7 @@ class CurvedTextViewTest {
     fun testMaxSweepDegree() {
         doOneTest(
             "max_sweep_degree_screenshot",
-            createThree(
-                "center long string",
-                "left string",
-                "right"
-            ).apply {
+            createThree("center long string", "left string", "right").apply {
                 forEach {
                     it.setSweepRangeDegrees(0f, 55f)
                     it.ellipsize = TextUtils.TruncateAt.END
@@ -131,11 +122,7 @@ class CurvedTextViewTest {
     fun testMinSweepDegree() {
         doOneTest(
             "min_sweep_degree_screenshot",
-            createThree(
-                "center long string",
-                "left string",
-                "right"
-            ).apply {
+            createThree("center long string", "left string", "right").apply {
                 forEach {
                     it.setSweepRangeDegrees(55f, 360f)
                     it.ellipsize = TextUtils.TruncateAt.END
@@ -149,19 +136,16 @@ class CurvedTextViewTest {
     fun tesSweepDegree() {
         doOneTest(
             "sweep_degree_screenshot",
-            createThree(
-                "center long string",
-                "left string",
-                "right"
-            ).apply {
+            createThree("center long string", "left string", "right").apply {
                 forEachIndexed { ix, v ->
                     v.setSweepRangeDegrees(50f, 60f)
                     v.ellipsize = TextUtils.TruncateAt.END
-                    v.textAlignment = listOf(
-                        View.TEXT_ALIGNMENT_CENTER,
-                        View.TEXT_ALIGNMENT_TEXT_START,
-                        View.TEXT_ALIGNMENT_TEXT_END
-                    )[ix]
+                    v.textAlignment =
+                        listOf(
+                            View.TEXT_ALIGNMENT_CENTER,
+                            View.TEXT_ALIGNMENT_TEXT_START,
+                            View.TEXT_ALIGNMENT_TEXT_END
+                        )[ix]
                 }
             }
         )
@@ -181,9 +165,7 @@ class CurvedTextViewTest {
     fun testTextSize() {
         doOneTest(
             "text_size_screenshot",
-            createThree().apply {
-                forEachIndexed { ix, it -> it.textSize = 20f + ix * 4f }
-            }
+            createThree().apply { forEachIndexed { ix, it -> it.textSize = 20f + ix * 4f } }
         )
     }
 
@@ -192,16 +174,13 @@ class CurvedTextViewTest {
     fun testEllipsize() {
         doOneTest(
             "ellipsize_screenshot",
-            (
-                createThree() zip
+            (createThree() zip
                     listOf(
                         TextUtils.TruncateAt.START,
                         TextUtils.TruncateAt.MIDDLE,
                         TextUtils.TruncateAt.END
-                    )
-                )
-                .map
-                { (v, e) ->
+                    ))
+                .map { (v, e) ->
                     v.ellipsize = e
                     v.setSweepRangeDegrees(0f, 50f)
                     v.text += " but Longer"
@@ -218,8 +197,10 @@ class CurvedTextViewTest {
             createThree().apply {
                 forEachIndexed { ix, it ->
                     it.setPadding(
-                        ix * 10, ((ix + 1) % 4) * 10,
-                        ((ix + 2) % 4) * 10, ((ix + 3) % 4) * 10
+                        ix * 10,
+                        ((ix + 1) % 4) * 10,
+                        ((ix + 2) % 4) * 10,
+                        ((ix + 3) % 4) * 10
                     )
                 }
             }
@@ -232,22 +213,20 @@ class CurvedTextViewTest {
         doOneTest(
             "cw_text_background_screenshot",
             listOf(
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "This is a clockwise text for testing background"
-                        isClockwise = true
-                        anchorAngleDegrees = 170.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setBackgroundColor(Color.rgb(0, 100, 100))
-                    },
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "Another clockwise text"
-                        isClockwise = true
-                        anchorAngleDegrees = 70.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setBackgroundColor(Color.rgb(0, 100, 100))
-                    }
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "This is a clockwise text for testing background"
+                    isClockwise = true
+                    anchorAngleDegrees = 170.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setBackgroundColor(Color.rgb(0, 100, 100))
+                },
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "Another clockwise text"
+                    isClockwise = true
+                    anchorAngleDegrees = 70.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setBackgroundColor(Color.rgb(0, 100, 100))
+                }
             )
         )
     }
@@ -258,22 +237,20 @@ class CurvedTextViewTest {
         doOneTest(
             "ccw_text_background_screenshot",
             listOf(
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "This is a counterclockwise text for testing background"
-                        isClockwise = false
-                        anchorAngleDegrees = 100.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setBackgroundColor(Color.rgb(0, 100, 100))
-                    },
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "Another counterclockwise text"
-                        isClockwise = false
-                        anchorAngleDegrees = 230.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setBackgroundColor(Color.rgb(0, 100, 100))
-                    }
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "This is a counterclockwise text for testing background"
+                    isClockwise = false
+                    anchorAngleDegrees = 100.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setBackgroundColor(Color.rgb(0, 100, 100))
+                },
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "Another counterclockwise text"
+                    isClockwise = false
+                    anchorAngleDegrees = 230.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setBackgroundColor(Color.rgb(0, 100, 100))
+                }
             )
         )
     }
@@ -283,27 +260,24 @@ class CurvedTextViewTest {
         doOneTest(
             "styles_test",
             listOf(
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "Bold"
-                        anchorAngleDegrees = 0.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setTypeface(null, Typeface.BOLD)
-                    },
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "Italic"
-                        anchorAngleDegrees = 60.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setTypeface(null, Typeface.ITALIC)
-                    },
-                CurvedTextView(ApplicationProvider.getApplicationContext())
-                    .apply {
-                        text = "ItalicBold"
-                        anchorAngleDegrees = 120.0f
-                        anchorType = ArcLayout.ANCHOR_START
-                        setTypeface(null, Typeface.BOLD_ITALIC)
-                    },
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "Bold"
+                    anchorAngleDegrees = 0.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setTypeface(null, Typeface.BOLD)
+                },
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "Italic"
+                    anchorAngleDegrees = 60.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setTypeface(null, Typeface.ITALIC)
+                },
+                CurvedTextView(ApplicationProvider.getApplicationContext()).apply {
+                    text = "ItalicBold"
+                    anchorAngleDegrees = 120.0f
+                    anchorType = ArcLayout.ANCHOR_START
+                    setTypeface(null, Typeface.BOLD_ITALIC)
+                },
             )
         )
     }

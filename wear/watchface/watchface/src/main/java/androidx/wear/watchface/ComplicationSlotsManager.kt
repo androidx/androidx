@@ -97,14 +97,13 @@ public class ComplicationSlotsManager(
             for ((_, complication) in complicationSlots) {
                 require(
                     complication.defaultDataSourcePolicy.systemDataSourceFallback !=
-                    SystemDataSources.DATA_SOURCE_HEART_RATE ||
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                        SystemDataSources.DATA_SOURCE_HEART_RATE ||
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
                 ) {
                     "DATA_SOURCE_HEART_RATE requires Android U or above."
                 }
             }
         }
-
         get() = watchFaceHostApi_
 
     internal lateinit var renderer: Renderer
@@ -517,11 +516,9 @@ public class ComplicationSlotsManager(
                     it.value.defaultDataSourcePolicy.systemDataSourceFallback,
                     systemDataSourceFallbackDefaultType,
                     it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                        ?.toWireComplicationType()
-                        ?: systemDataSourceFallbackDefaultType,
+                        ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                     it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                        ?.toWireComplicationType()
-                        ?: systemDataSourceFallbackDefaultType,
+                        ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                     it.value.enabled,
                     it.value.initiallyEnabled,
                     it.value.renderer.getData().type.toWireComplicationType(),

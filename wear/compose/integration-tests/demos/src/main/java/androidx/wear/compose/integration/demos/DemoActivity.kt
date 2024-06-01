@@ -41,9 +41,7 @@ import androidx.wear.compose.integration.demos.common.Demo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.MaterialTheme
 
-/**
- * Main [Activity] for Wear Compose related demos.
- */
+/** Main [Activity] for Wear Compose related demos. */
 class DemoActivity : ComponentActivity() {
     lateinit var hostView: View
     lateinit var focusManager: FocusManager
@@ -52,38 +50,44 @@ class DemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        ComposeView(this).also {
-            setContentView(it)
-        }.setContent {
-            hostView = LocalView.current
-            focusManager = LocalFocusManager.current
-            val activityStarter = fun(demo: ActivityDemo<*>) {
-                startActivity(Intent(this, demo.activityClass.java))
-            }
-            val navigator = rememberSaveable(
-                saver = Navigator.Saver(WearComposeDemos, onBackPressedDispatcher, activityStarter)
-            ) {
-                Navigator(WearComposeDemos, onBackPressedDispatcher, activityStarter)
-            }
-            MaterialTheme {
-                DemoApp(
-                    currentDemo = navigator.currentDemo,
-                    parentDemo = navigator.parentDemo,
-                    onNavigateTo = { demo ->
-                        navigator.navigateTo(demo)
-                    },
-                    onNavigateBack = {
-                        if (!navigator.navigateBack()) {
-                            ActivityCompat.finishAffinity(this)
-                        }
+        ComposeView(this)
+            .also { setContentView(it) }
+            .setContent {
+                hostView = LocalView.current
+                focusManager = LocalFocusManager.current
+                val activityStarter =
+                    fun(demo: ActivityDemo<*>) {
+                        startActivity(Intent(this, demo.activityClass.java))
                     }
-                )
+                val navigator =
+                    rememberSaveable(
+                        saver =
+                            Navigator.Saver(
+                                WearComposeDemos,
+                                onBackPressedDispatcher,
+                                activityStarter
+                            )
+                    ) {
+                        Navigator(WearComposeDemos, onBackPressedDispatcher, activityStarter)
+                    }
+                MaterialTheme {
+                    DemoApp(
+                        currentDemo = navigator.currentDemo,
+                        parentDemo = navigator.parentDemo,
+                        onNavigateTo = { demo -> navigator.navigateTo(demo) },
+                        onNavigateBack = {
+                            if (!navigator.navigateBack()) {
+                                ActivityCompat.finishAffinity(this)
+                            }
+                        }
+                    )
+                }
             }
-        }
     }
 }
 
-private class Navigator private constructor(
+private class Navigator
+private constructor(
     private val backDispatcher: OnBackPressedDispatcher,
     private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
     initialDemo: Demo,
@@ -95,14 +99,16 @@ private class Navigator private constructor(
         launchActivityDemo: (ActivityDemo<*>) -> Unit
     ) : this(backDispatcher, launchActivityDemo, rootDemo, mutableListOf<Demo>())
 
-    private val onBackPressed = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            navigateBack()
-        }
-    }.apply {
-        isEnabled = !isRoot
-        backDispatcher.addCallback(this)
-    }
+    private val onBackPressed =
+        object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() {
+                    navigateBack()
+                }
+            }
+            .apply {
+                isEnabled = !isRoot
+                backDispatcher.addCallback(this)
+            }
 
     private var _currentDemo by mutableStateOf(initialDemo)
     var currentDemo: Demo
@@ -115,7 +121,8 @@ private class Navigator private constructor(
     val parentDemo: Demo?
         get() = backStack.lastOrNull()
 
-    val isRoot: Boolean get() = backStack.isEmpty()
+    val isRoot: Boolean
+        get() = backStack.isEmpty()
 
     fun navigateTo(demo: Demo) {
         if (demo is ActivityDemo<*>) {
@@ -140,21 +147,21 @@ private class Navigator private constructor(
             rootDemo: DemoCategory,
             backDispatcher: OnBackPressedDispatcher,
             launchActivityDemo: (ActivityDemo<*>) -> Unit
-        ): Saver<Navigator, *> = listSaver<Navigator, String>(
-            save = { navigator ->
-                (navigator.backStack + navigator.currentDemo).map { it.title }
-            },
-            restore = { restored ->
-                require(restored.isNotEmpty()) { "restored demo is empty" }
-                val backStack = restored.mapTo(mutableListOf()) {
-                    requireNotNull(findDemo(rootDemo, it)) { "No root demo" }
+        ): Saver<Navigator, *> =
+            listSaver<Navigator, String>(
+                save = { navigator ->
+                    (navigator.backStack + navigator.currentDemo).map { it.title }
+                },
+                restore = { restored ->
+                    require(restored.isNotEmpty()) { "restored demo is empty" }
+                    val backStack =
+                        restored.mapTo(mutableListOf()) {
+                            requireNotNull(findDemo(rootDemo, it)) { "No root demo" }
+                        }
+                    val initial = backStack.removeAt(backStack.lastIndex)
+                    Navigator(backDispatcher, launchActivityDemo, initial, backStack)
                 }
-                val initial = backStack.removeAt(backStack.lastIndex)
-                Navigator(
-                    backDispatcher, launchActivityDemo, initial, backStack
-                )
-            }
-        )
+            )
 
         private fun findDemo(demo: Demo, title: String): Demo? {
             if (demo.title == title) {
@@ -162,8 +169,9 @@ private class Navigator private constructor(
             }
             if (demo is DemoCategory) {
                 demo.demos.forEach { child ->
-                    findDemo(child, title)
-                        ?.let { return it }
+                    findDemo(child, title)?.let {
+                        return it
+                    }
                 }
             }
             return null

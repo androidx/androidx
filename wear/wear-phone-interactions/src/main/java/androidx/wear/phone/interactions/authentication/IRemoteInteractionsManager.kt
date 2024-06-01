@@ -19,17 +19,21 @@ import com.google.wear.services.remoteinteractions.RemoteInteractionsManager
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
-/**
- * Forwards remote auth interaction availabilities to [RemoteInteractionsManager].
- */
+/** Forwards remote auth interaction availabilities to [RemoteInteractionsManager]. */
 internal interface IRemoteInteractionsManager {
 
     /** Whether the availability status API is supported. */
     val isAvailabilityStatusApiSupported: Boolean
 
-    /** Forwards a call [registerRemoteAuthClientStatusListener] to [RemoteInteractionsManager.registerRemoteAuthClientStatusListener]. */
+    /**
+     * Forwards a call [registerRemoteAuthClientStatusListener] to
+     * [RemoteInteractionsManager.registerRemoteAuthClientStatusListener].
+     */
     fun registerRemoteAuthClientStatusListener(executor: Executor, listener: Consumer<Int>)
 
-    /** Forwards a call [unregisterRemoteAuthClientStatusListener] to [RemoteInteractionsManager.unregisterRemoteAuthClientStatusListener]. */
+    /**
+     * Forwards a call [unregisterRemoteAuthClientStatusListener] to
+     * [RemoteInteractionsManager.unregisterRemoteAuthClientStatusListener].
+     */
     fun unregisterRemoteAuthClientStatusListener(listener: Consumer<Int>)
 }

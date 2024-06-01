@@ -41,21 +41,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Benchmark for Wear Compose Material 3 [Icon].
- */
+/** Benchmark for Wear Compose Material 3 [Icon]. */
 @LargeTest
 @RunWith(Parameterized::class)
 class IconBenchmark(private val iconType: IconType) {
 
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = IconType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = IconType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val iconCaseFactory = { IconTestCase(iconType) }
 
@@ -95,56 +90,46 @@ class IconBenchmark(private val iconType: IconType) {
     }
 }
 
-internal class IconTestCase(
-    private val iconType: IconType
-) : LayeredComposeTestCase() {
+internal class IconTestCase(private val iconType: IconType) : LayeredComposeTestCase() {
     private val width = 24.dp
     private val height = 24.dp
-    private val imageVector = ImageVector.Builder(
-        defaultWidth = width, defaultHeight = height,
-        viewportWidth = width.value, viewportHeight = height.value
-    ).build()
-    private val imageBitmap = ImageBitmap(
-        width = width.value.toInt(),
-        height = height.value.toInt()
-    )
-    private val painter = object : Painter() {
-        override fun DrawScope.onDraw() {
-            drawRect(color = Color.Black)
-        }
+    private val imageVector =
+        ImageVector.Builder(
+                defaultWidth = width,
+                defaultHeight = height,
+                viewportWidth = width.value,
+                viewportHeight = height.value
+            )
+            .build()
+    private val imageBitmap =
+        ImageBitmap(width = width.value.toInt(), height = height.value.toInt())
+    private val painter =
+        object : Painter() {
+            override fun DrawScope.onDraw() {
+                drawRect(color = Color.Black)
+            }
 
-        override val intrinsicSize: Size
-            get() = Size(width.value, height.value)
-    }
+            override val intrinsicSize: Size
+                get() = Size(width.value, height.value)
+        }
 
     @Composable
     override fun MeasuredContent() {
         when (iconType) {
-            IconType.ImageVector -> Icon(
-                imageVector = imageVector,
-                contentDescription = "vector"
-            )
-
-            IconType.Bitmap -> Icon(
-                bitmap = imageBitmap,
-                contentDescription = "bitmap"
-            )
-
-            IconType.Painter -> Icon(
-                painter = painter,
-                contentDescription = "painter"
-            )
+            IconType.ImageVector -> Icon(imageVector = imageVector, contentDescription = "vector")
+            IconType.Bitmap -> Icon(bitmap = imageBitmap, contentDescription = "bitmap")
+            IconType.Painter -> Icon(painter = painter, contentDescription = "painter")
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class IconType {
-    ImageVector, Bitmap, Painter
+    ImageVector,
+    Bitmap,
+    Painter
 }

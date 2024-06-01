@@ -36,17 +36,12 @@ private const val STATE_INITIALIZING = "INITIALIZING"
 private const val STATE_CREATED = "CREATED"
 private const val STATE_ACTIVITY_CREATED = "ACTIVITY_CREATED"
 
-private val FRAGMENT_LIFECYCLE_STATES = listOf(
-    STATE_INITIALIZING,
-    STATE_CREATED,
-    STATE_ACTIVITY_CREATED,
-    STATE_STARTED,
-    STATE_RESUMED
-)
+private val FRAGMENT_LIFECYCLE_STATES =
+    listOf(STATE_INITIALIZING, STATE_CREATED, STATE_ACTIVITY_CREATED, STATE_STARTED, STATE_RESUMED)
 
 // TODO: add tests for data-set changes
 
-/**  Verifies that primary item Fragment is RESUMED while the rest is STARTED */
+/** Verifies that primary item Fragment is RESUMED while the rest is STARTED */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentLifecycleTest : BaseTest() {
@@ -97,9 +92,7 @@ class FragmentLifecycleTest : BaseTest() {
 
     private fun test_setCurrentItem_offscreenPageLimit(offscreenPageLimit: Int) {
         setUpTest(orientation).apply {
-            runOnUiThreadSync {
-                viewPager.offscreenPageLimit = offscreenPageLimit
-            }
+            runOnUiThreadSync { viewPager.offscreenPageLimit = offscreenPageLimit }
             val expectedValues = stringSequence(totalPages).toMutableList()
             val adapter = adapterProvider.provider(expectedValues.toList()) // defensive copy
             setAdapterSync(adapter)
@@ -107,16 +100,17 @@ class FragmentLifecycleTest : BaseTest() {
             performAssertions(expectedValues, 0)
 
             // Pair(targetPageIx, isSmoothScroll)
-            val steps = listOf(
-                9 to true,
-                0 to false,
-                1 to true,
-                8 to false,
-                7 to false,
-                9 to true,
-                5 to true,
-                0 to true
-            )
+            val steps =
+                listOf(
+                    9 to true,
+                    0 to false,
+                    1 to true,
+                    8 to false,
+                    7 to false,
+                    9 to true,
+                    5 to true,
+                    0 to true
+                )
 
             steps.forEach { (target, isSmoothScroll) ->
                 viewPager.setCurrentItemSync(target, isSmoothScroll, timeoutMs, MILLISECONDS)
@@ -134,64 +128,65 @@ class FragmentLifecycleTest : BaseTest() {
 
             performAssertions(items, 0)
 
-            val steps = listOf(
-                DataChangeTestStep(
-                    description = "Remove current; current=lastIx; notifyItemRemoved",
-                    startPageIx = 9,
-                    expectedPageIx = 8,
-                    expectedPageText = "8",
-                    dataChangeAction = {
-                        val ix = 9
-                        items.removeAt(ix)
-                        adapter.notifyItemRemoved(ix)
-                    }
-                ),
-                DataChangeTestStep(
-                    description = "Remove current; current=lastIx; dataSetChanged",
-                    startPageIx = 8,
-                    expectedPageIx = 0,
-                    expectedPageText = "0",
-                    dataChangeAction = {
-                        items.removeAt(8)
-                        adapter.notifyDataSetChanged()
-                    }
-                ),
-                DataChangeTestStep(
-                    description = "Remove after current",
-                    startPageIx = 3,
-                    expectedPageIx = 3,
-                    expectedPageText = "3",
-                    dataChangeAction = {
-                        val ix = items.lastIndex
-                        items.removeAt(ix)
-                        adapter.notifyItemRemoved(ix)
-                    }
-                ),
-                DataChangeTestStep(
-                    description = "Move current",
-                    startPageIx = 5,
-                    expectedPageIx = 4,
-                    expectedPageText = "5",
-                    dataChangeAction = {
-                        assertThat(items[5], equalTo("5")) // quick check
-                        items.removeAt(5)
-                        items.add(4, "5")
-                        assertThat(items[4], equalTo("5")) // quick check
-                        adapter.notifyItemMoved(5, 4)
-                    }
-                ),
-                DataChangeTestStep(
-                    description = "Add before current",
-                    startPageIx = 3,
-                    expectedPageIx = 4,
-                    expectedPageText = "3",
-                    dataChangeAction = {
-                        val ix = 0
-                        items.add(ix, "999")
-                        adapter.notifyItemInserted(ix)
-                    }
+            val steps =
+                listOf(
+                    DataChangeTestStep(
+                        description = "Remove current; current=lastIx; notifyItemRemoved",
+                        startPageIx = 9,
+                        expectedPageIx = 8,
+                        expectedPageText = "8",
+                        dataChangeAction = {
+                            val ix = 9
+                            items.removeAt(ix)
+                            adapter.notifyItemRemoved(ix)
+                        }
+                    ),
+                    DataChangeTestStep(
+                        description = "Remove current; current=lastIx; dataSetChanged",
+                        startPageIx = 8,
+                        expectedPageIx = 0,
+                        expectedPageText = "0",
+                        dataChangeAction = {
+                            items.removeAt(8)
+                            adapter.notifyDataSetChanged()
+                        }
+                    ),
+                    DataChangeTestStep(
+                        description = "Remove after current",
+                        startPageIx = 3,
+                        expectedPageIx = 3,
+                        expectedPageText = "3",
+                        dataChangeAction = {
+                            val ix = items.lastIndex
+                            items.removeAt(ix)
+                            adapter.notifyItemRemoved(ix)
+                        }
+                    ),
+                    DataChangeTestStep(
+                        description = "Move current",
+                        startPageIx = 5,
+                        expectedPageIx = 4,
+                        expectedPageText = "5",
+                        dataChangeAction = {
+                            assertThat(items[5], equalTo("5")) // quick check
+                            items.removeAt(5)
+                            items.add(4, "5")
+                            assertThat(items[4], equalTo("5")) // quick check
+                            adapter.notifyItemMoved(5, 4)
+                        }
+                    ),
+                    DataChangeTestStep(
+                        description = "Add before current",
+                        startPageIx = 3,
+                        expectedPageIx = 4,
+                        expectedPageText = "3",
+                        dataChangeAction = {
+                            val ix = 0
+                            items.add(ix, "999")
+                            adapter.notifyItemInserted(ix)
+                        }
+                    )
                 )
-            )
 
             steps.forEach {
                 viewPager.setCurrentItemSync(it.startPageIx, false, timeoutMs, MILLISECONDS)
@@ -224,14 +219,14 @@ class FragmentLifecycleTest : BaseTest() {
 
     /**
      * Verifies the following:
-     *  - Primary item Fragment is Resumed
-     *  - Primary item Fragment's menu is visible
-     *  - Other Fragments are Started
-     *  - Other Fragments's menu is not visible
-     *  - Correct page content is displayed
-     *  - ViewPager2 currentItem is correct
-     *  - A11y page actions are correct
-     *  - Adapter self-checks if present are passing
+     * - Primary item Fragment is Resumed
+     * - Primary item Fragment's menu is visible
+     * - Other Fragments are Started
+     * - Other Fragments's menu is not visible
+     * - Correct page content is displayed
+     * - ViewPager2 currentItem is correct
+     * - A11y page actions are correct
+     * - Adapter self-checks if present are passing
      */
     private fun Context.performAssertions(
         expectedValues: MutableList<String>,
@@ -240,12 +235,7 @@ class FragmentLifecycleTest : BaseTest() {
     ) {
         val fragmentInfo: List<FragmentInfo> =
             activity.supportFragmentManager.fragments.map {
-                FragmentInfo(
-                    it.tag!!,
-                    it.stateString,
-                    it.isResumed,
-                    it.isMenuVisible
-                )
+                FragmentInfo(it.tag!!, it.stateString, it.isResumed, it.isMenuVisible)
             }
 
         val resumed = fragmentInfo.filter { it.state == STATE_RESUMED }.toList()
@@ -256,11 +246,13 @@ class FragmentLifecycleTest : BaseTest() {
         assertThat(resumed.first().isResumed, equalTo(true))
         assertThat(resumed.first().isMenuVisible, equalTo(true))
 
-        fragmentInfo.filter { it.state != STATE_RESUMED }.forEach { fi ->
-            assertThat(fi.state, equalTo(STATE_STARTED))
-            assertThat(fi.isResumed, equalTo(false))
-            assertThat(fi.isMenuVisible, equalTo(false))
-        }
+        fragmentInfo
+            .filter { it.state != STATE_RESUMED }
+            .forEach { fi ->
+                assertThat(fi.state, equalTo(STATE_STARTED))
+                assertThat(fi.isResumed, equalTo(false))
+                assertThat(fi.isMenuVisible, equalTo(false))
+            }
 
         assertBasicState(
             ix,
@@ -280,14 +272,15 @@ private data class FragmentInfo(
 private fun fragmentStateToString(state: Int): String =
     FRAGMENT_LIFECYCLE_STATES.first { getFragmentFieldValue<Int>(it, null) == state }
 
-private val (Fragment).stateInt: Int get() = getFragmentFieldValue("mState", this)
+private val (Fragment).stateInt: Int
+    get() = getFragmentFieldValue("mState", this)
 
-private val (Fragment).stateString: String get() = fragmentStateToString(this.stateInt)
+private val (Fragment).stateString: String
+    get() = fragmentStateToString(this.stateInt)
 
 private fun <T> getFragmentFieldValue(methodName: String, target: Fragment?): T {
     val field = Fragment::class.java.declaredFields.first { it.name.contains(methodName) }
     field.isAccessible = true
     val result = field.get(target)
-    @Suppress("UNCHECKED_CAST")
-    return result as T
+    @Suppress("UNCHECKED_CAST") return result as T
 }

@@ -28,8 +28,7 @@ import org.junit.runner.RunWith
 class CheckAccessibilityAvailableTest {
     @Test
     fun check_throwsWithNoSemantics() {
-        val entry = buildTimelineEntry(
-            LayoutElementBuilders.Box.Builder().build())
+        val entry = buildTimelineEntry(LayoutElementBuilders.Box.Builder().build())
 
         var exception: CheckerException? = null
 
@@ -102,12 +101,8 @@ class CheckAccessibilityAvailableTest {
         assertThat(exception).isNull()
     }
 
-    private fun buildTimelineEntry(
-        layout: LayoutElementBuilders.LayoutElement
-    ) =
+    private fun buildTimelineEntry(layout: LayoutElementBuilders.LayoutElement) =
         TimelineBuilders.TimelineEntry.Builder()
-            .setLayout(
-                LayoutElementBuilders.Layout.Builder().setRoot(layout).build()
-            )
+            .setLayout(LayoutElementBuilders.Layout.Builder().setRoot(layout).build())
             .build()
 }

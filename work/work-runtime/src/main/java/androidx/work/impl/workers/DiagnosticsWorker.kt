@@ -42,14 +42,12 @@ internal class DiagnosticsWorker(context: Context, parameters: WorkerParameters)
             workManager.configuration.clock.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
         val completed = workSpecDao.getRecentlyCompletedWork(startAt)
         val running = workSpecDao.getRunningWork()
-        val enqueued = workSpecDao.getAllEligibleWorkSpecsForScheduling(
-            Scheduler.MAX_GREEDY_SCHEDULER_LIMIT
-        )
+        val enqueued =
+            workSpecDao.getAllEligibleWorkSpecsForScheduling(Scheduler.MAX_GREEDY_SCHEDULER_LIMIT)
         if (completed.isNotEmpty()) {
             Logger.get().info(TAG, "Recently completed work:\n\n")
-            Logger.get().info(
-                TAG, workSpecRows(workNameDao, workTagDao, systemIdInfoDao, completed)
-            )
+            Logger.get()
+                .info(TAG, workSpecRows(workNameDao, workTagDao, systemIdInfoDao, completed))
         }
         if (running.isNotEmpty()) {
             Logger.get().info(TAG, "Running work:\n\n")

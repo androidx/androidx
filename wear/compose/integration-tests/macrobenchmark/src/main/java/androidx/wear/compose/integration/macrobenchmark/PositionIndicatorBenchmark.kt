@@ -36,11 +36,8 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class PositionIndicatorBenchmark(
-    private val compilationMode: CompilationMode
-) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+class PositionIndicatorBenchmark(private val compilationMode: CompilationMode) {
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Before
     fun setUp() {
@@ -56,9 +53,7 @@ class PositionIndicatorBenchmark(
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(
-                FrameTimingMetric()
-            ),
+            metrics = listOf(FrameTimingMetric()),
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {

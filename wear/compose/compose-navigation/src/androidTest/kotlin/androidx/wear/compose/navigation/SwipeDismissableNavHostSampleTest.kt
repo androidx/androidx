@@ -27,14 +27,11 @@ import org.junit.Rule
 import org.junit.Test
 
 class SwipeDismissableNavHostSampleTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun toggles_between_destinations_in_simplenavhost() {
-        rule.setContentWithTheme {
-            SimpleNavHost()
-        }
+        rule.setContentWithTheme { SimpleNavHost() }
 
         rule.onNodeWithText("On").performClick()
         rule.onNodeWithText("Off").performClick()
@@ -44,9 +41,7 @@ class SwipeDismissableNavHostSampleTest {
 
     @Test
     fun navigates_to_named_arguments() {
-        rule.setContentWithTheme {
-            NavHostWithNamedArgument()
-        }
+        rule.setContentWithTheme { NavHostWithNamedArgument() }
 
         rule.onNodeWithText("Item 1").performClick()
 
@@ -55,9 +50,7 @@ class SwipeDismissableNavHostSampleTest {
 
     @Test
     fun swipes_back_from_named_arguments() {
-        rule.setContentWithTheme {
-            NavHostWithNamedArgument()
-        }
+        rule.setContentWithTheme { NavHostWithNamedArgument() }
 
         rule.onNodeWithText("Item 1").performClick()
         rule.onRoot().performTouchInput { swipeRight() }

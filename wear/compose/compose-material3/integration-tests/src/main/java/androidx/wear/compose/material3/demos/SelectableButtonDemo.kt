@@ -44,9 +44,7 @@ fun SelectableButtonDemo() {
         modifier = Modifier.fillMaxSize().selectableGroup(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        item {
-            ListHeader { Text("Selectable Button") }
-        }
+        item { ListHeader { Text("Selectable Button") } }
         item {
             DemoSelectableButton(
                 enabled = true,
@@ -61,18 +59,10 @@ fun SelectableButtonDemo() {
                 onSelected = { selectedRadioIndex = 1 }
             )
         }
-        item {
-            ListHeader { Text("Disabled Selectable Button") }
-        }
-        item {
-            DemoSelectableButton(enabled = false, selected = true)
-        }
-        item {
-            DemoSelectableButton(enabled = false, selected = false)
-        }
-        item {
-            ListHeader { Text("Icon") }
-        }
+        item { ListHeader { Text("Disabled Selectable Button") } }
+        item { DemoSelectableButton(enabled = false, selected = true) }
+        item { DemoSelectableButton(enabled = false, selected = false) }
+        item { ListHeader { Text("Icon") } }
         item {
             DemoSelectableButton(
                 enabled = true,
@@ -82,17 +72,11 @@ fun SelectableButtonDemo() {
             }
         }
         item {
-            DemoSelectableButton(
-                enabled = true,
-                selected = true,
-                secondary = "Secondary label"
-            ) {
+            DemoSelectableButton(enabled = true, selected = true, secondary = "Secondary label") {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
         }
-        item {
-            ListHeader { Text("Multi-line") }
-        }
+        item { ListHeader { Text("Multi-line") } }
         item {
             DemoSelectableButton(
                 enabled = true,
@@ -140,17 +124,18 @@ private fun DemoSelectableButton(
                 overflow = TextOverflow.Ellipsis
             )
         },
-        secondaryLabel = secondary?.let {
-            {
-                Text(
-                    secondary,
-                    Modifier.fillMaxWidth(),
-                    maxLines = 2,
-                    textAlign = TextAlign.Start,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        },
+        secondaryLabel =
+            secondary?.let {
+                {
+                    Text(
+                        secondary,
+                        Modifier.fillMaxWidth(),
+                        maxLines = 2,
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            },
         selected = selected,
         onSelect = onSelected,
         enabled = enabled,

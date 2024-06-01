@@ -45,100 +45,84 @@ class PositionIndicatorActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val fraction = remember {
-                mutableFloatStateOf(0f)
-            }
-            val sizeFraction = remember {
-                mutableFloatStateOf(.25f)
-            }
+            val fraction = remember { mutableFloatStateOf(0f) }
+            val sizeFraction = remember { mutableFloatStateOf(.25f) }
 
-            val visibility = remember {
-                mutableStateOf(PositionIndicatorVisibility.Show)
-            }
+            val visibility = remember { mutableStateOf(PositionIndicatorVisibility.Show) }
 
             val pIState = remember { CustomState(fraction, sizeFraction, visibility) }
 
-            Scaffold(modifier = Modifier.fillMaxSize(), positionIndicator = {
-                PositionIndicator(
-                    state = pIState,
-                    indicatorHeight = 50.dp,
-                    indicatorWidth = 4.dp,
-                    paddingHorizontal = 5.dp
-                )
-            }) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                positionIndicator = {
+                    PositionIndicator(
+                        state = pIState,
+                        indicatorHeight = 50.dp,
+                        indicatorWidth = 4.dp,
+                        paddingHorizontal = 5.dp
+                    )
+                }
+            ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            visibility.value = when (visibility.value) {
-                                PositionIndicatorVisibility.Show ->
-                                    PositionIndicatorVisibility.AutoHide
-
-                                PositionIndicatorVisibility.AutoHide ->
-                                    PositionIndicatorVisibility.Hide
-
-                                PositionIndicatorVisibility.Hide ->
-                                    PositionIndicatorVisibility.Show
-
-                                else -> throw IllegalArgumentException("Invalid visibility type")
-                            }
-                        }
-                        .semantics {
-                            contentDescription = CHANGE_VISIBILITY
-                        }
+                    Box(
+                        modifier =
+                            Modifier.size(30.dp)
+                                .clickable {
+                                    visibility.value =
+                                        when (visibility.value) {
+                                            PositionIndicatorVisibility.Show ->
+                                                PositionIndicatorVisibility.AutoHide
+                                            PositionIndicatorVisibility.AutoHide ->
+                                                PositionIndicatorVisibility.Hide
+                                            PositionIndicatorVisibility.Hide ->
+                                                PositionIndicatorVisibility.Show
+                                            else ->
+                                                throw IllegalArgumentException(
+                                                    "Invalid visibility type"
+                                                )
+                                        }
+                                }
+                                .semantics { contentDescription = CHANGE_VISIBILITY }
                     )
 
-                    Box(modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            visibility.value = PositionIndicatorVisibility.Hide
-                        }
-                        .semantics {
-                            contentDescription = CHANGE_VISIBILITY_HIDE
-                        }
+                    Box(
+                        modifier =
+                            Modifier.size(30.dp)
+                                .clickable { visibility.value = PositionIndicatorVisibility.Hide }
+                                .semantics { contentDescription = CHANGE_VISIBILITY_HIDE }
                     )
 
-                    Box(modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            visibility.value = PositionIndicatorVisibility.Show
-                        }
-                        .semantics {
-                            contentDescription = CHANGE_VISIBILITY_SHOW
-                        }
+                    Box(
+                        modifier =
+                            Modifier.size(30.dp)
+                                .clickable { visibility.value = PositionIndicatorVisibility.Show }
+                                .semantics { contentDescription = CHANGE_VISIBILITY_SHOW }
                     )
 
-                    Box(modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            visibility.value = PositionIndicatorVisibility.AutoHide
-                        }
-                        .semantics {
-                            contentDescription = CHANGE_VISIBILITY_AUTO_HIDE
-                        }
+                    Box(
+                        modifier =
+                            Modifier.size(30.dp)
+                                .clickable {
+                                    visibility.value = PositionIndicatorVisibility.AutoHide
+                                }
+                                .semantics { contentDescription = CHANGE_VISIBILITY_AUTO_HIDE }
                     )
 
-                    Box(modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            fraction.floatValue += 0.05f
-                        }
-                        .semantics {
-                            contentDescription = INCREASE_POSITION
-                        }
+                    Box(
+                        modifier =
+                            Modifier.size(30.dp)
+                                .clickable { fraction.floatValue += 0.05f }
+                                .semantics { contentDescription = INCREASE_POSITION }
                     )
 
-                    Box(modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            fraction.floatValue -= 0.05f
-                        }
-                        .semantics {
-                            contentDescription = DECREASE_POSITION
-                        }
+                    Box(
+                        modifier =
+                            Modifier.size(30.dp)
+                                .clickable { fraction.floatValue -= 0.05f }
+                                .semantics { contentDescription = DECREASE_POSITION }
                     )
                 }
             }

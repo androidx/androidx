@@ -456,7 +456,7 @@ class RemoteActivityHelperTest {
     @Config(minSdk = VERSION_CODES.TIRAMISU)
     fun remoteActivityHelperStatus_notSupported_unknown() {
         setSystemFeatureWatch(true)
-            whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(false)
+        whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(false)
         val remoteActivityHelperStatus = runBlocking {
             mRemoteActivityHelper.availabilityStatus.first()
         }
@@ -471,10 +471,12 @@ class RemoteActivityHelperTest {
     fun remoteActivityHelperStatus_supported_propagateStatus() {
         setSystemFeatureWatch(true)
 
-        for (remoteStatus in listOf(
-            RemoteActivityHelper.STATUS_AVAILABLE,
-            RemoteActivityHelper.STATUS_UNAVAILABLE,
-            RemoteActivityHelper.STATUS_TEMPORARILY_UNAVAILABLE)) {
+        for (remoteStatus in
+            listOf(
+                RemoteActivityHelper.STATUS_AVAILABLE,
+                RemoteActivityHelper.STATUS_UNAVAILABLE,
+                RemoteActivityHelper.STATUS_TEMPORARILY_UNAVAILABLE
+            )) {
             whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(true)
             doAnswer {
                     @Suppress("UNCHECKED_CAST")
