@@ -83,7 +83,9 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
             // Merge adjacent and overlapping changes as we go.
             if (
                 change.preStart in preMin..preMax ||
-                change.preEnd in preMin..preMax
+                change.preEnd in preMin..preMax ||
+                preMin in change.preStart..change.preEnd ||
+                preMax in change.preStart..change.preEnd
             ) {
                 if (mergedOverlappingChange == null) {
                     mergedOverlappingChange = change
