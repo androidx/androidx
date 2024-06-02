@@ -20,6 +20,8 @@ import androidx.compose.foundation.AtomicReference
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.InfiniteAnimationPolicy
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -52,7 +54,7 @@ internal class CursorAnimationState {
      * Won't return until the animation cancelled via [cancelAndHide] or this coroutine's [Job] is
      * cancelled. In both cases, the cursor will always end up hidden.
      */
-    suspend fun snapToVisibleAndAnimate() {
+    suspend fun snapToVisibleAndAnimate() = runCursorAnimation {
         coroutineScope {
             // Can't do a single atomic update because we need to get the old value before launching
             // the new coroutine. So we set to null first, and then launch only if still null (i.e.
@@ -94,3 +96,19 @@ internal class CursorAnimationState {
         job?.cancel()
     }
 }
+
+/**
+ * Runs the infinite animation in [block], taking into account the current
+ * [InfiniteAnimationPolicy].
+ *
+ * This is needed to allow the text field cursor blinking to be cancelled by
+ * [InfiniteAnimationPolicy] as if it was an animation. Otherwise `waitForIdle` in tests with a
+ * focused text field will never return. Note that on Android this isn't needed because there
+ * `waitForIdle` appears to completely ignore delayed tasks (see
+ * https://issuetracker.google.com/issues/324768454 for details).
+ */
+private suspend fun runCursorAnimation(block: suspend () -> Unit) =
+    when (val policy = coroutineContext[InfiniteAnimationPolicy]) {
+        null -> block()
+        else -> policy.onInfiniteOperation { block() }
+    }
