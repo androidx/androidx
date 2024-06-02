@@ -92,7 +92,7 @@ interface PlatformContext {
     fun setPointerIcon(pointerIcon: PointerIcon) = Unit
 
     val parentFocusManager: FocusManager get() = EmptyFocusManager
-    fun requestFocus(): Boolean = false
+    fun requestFocus(): Boolean = true
 
     /**
      * The listener to track [RootForTest]s.
