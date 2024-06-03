@@ -32,7 +32,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 /** View to show the display configuration from the latest update. */
-class WindowStateView @JvmOverloads constructor(
+class WindowStateView
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -82,18 +84,13 @@ class WindowStateView @JvmOverloads constructor(
         prevApplicationDisplayBoundsView = viewBinding.prevApplicationDisplayBoundsView
         prevActivityDisplayBoundsView = viewBinding.prevActivityDisplayBoundsView
 
-        context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.WindowStateView,
-            0, 0).apply {
+        context.theme.obtainStyledAttributes(attrs, R.styleable.WindowStateView, 0, 0).apply {
             try {
                 getString(R.styleable.WindowStateView_title)?.let {
                     viewBinding.callbackTitle.text = it
                     title = it
                 }
-                shouldHidePrevConfig = getBoolean(
-                    R.styleable.WindowStateView_hidePrevConfig,
-                    false)
+                shouldHidePrevConfig = getBoolean(R.styleable.WindowStateView_hidePrevConfig, false)
                 if (shouldHidePrevConfig) {
                     timestampView.visibility = GONE
                     applicationDisplayRotationView.shouldHighlightChange = false
@@ -120,20 +117,19 @@ class WindowStateView @JvmOverloads constructor(
     fun onWindowStateCallbackInvoked() {
         val applicationDisplayRotation =
             applicationDisplayManager.getDisplay(DEFAULT_DISPLAY).rotation
-        val activityDisplayRotation =
-            activityDisplayManager.getDisplay(DEFAULT_DISPLAY).rotation
-        val applicationDisplayBounds = windowMetricsCalculator
-            .computeMaximumWindowMetrics(context.applicationContext)
-            .bounds
-        val activityDisplayBounds = windowMetricsCalculator
-            .computeMaximumWindowMetrics(context)
-            .bounds
+        val activityDisplayRotation = activityDisplayManager.getDisplay(DEFAULT_DISPLAY).rotation
+        val applicationDisplayBounds =
+            windowMetricsCalculator.computeMaximumWindowMetrics(context.applicationContext).bounds
+        val activityDisplayBounds =
+            windowMetricsCalculator.computeMaximumWindowMetrics(context).bounds
 
-        if (shouldHidePrevConfig &&
-            applicationDisplayRotation == lastApplicationDisplayRotation &&
-            activityDisplayRotation == lastActivityDisplayRotation &&
-            applicationDisplayBounds == lastApplicationDisplayBounds &&
-            activityDisplayBounds == lastActivityDisplayBounds) {
+        if (
+            shouldHidePrevConfig &&
+                applicationDisplayRotation == lastApplicationDisplayRotation &&
+                activityDisplayRotation == lastActivityDisplayRotation &&
+                applicationDisplayBounds == lastApplicationDisplayBounds &&
+                activityDisplayBounds == lastActivityDisplayBounds
+        ) {
             // Skip if the state is unchanged.
             return
         }
@@ -152,7 +148,8 @@ class WindowStateView @JvmOverloads constructor(
         if (!shouldHidePrevConfig && lastApplicationDisplayRotation != -1) {
             // Skip if there is no previous value.
             prevApplicationDisplayRotationView.updateValue(
-                lastApplicationDisplayRotation.toString())
+                lastApplicationDisplayRotation.toString()
+            )
             prevActivityDisplayRotationView.updateValue(lastActivityDisplayRotation.toString())
             prevApplicationDisplayBoundsView.updateValue(lastApplicationDisplayBounds.toString())
             prevActivityDisplayBoundsView.updateValue(lastActivityDisplayBounds.toString())

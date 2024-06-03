@@ -24,32 +24,37 @@ import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitPlaceholderRule
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ADJACENT
 
-/**
- * Example trampoline activity that launches a split and finishes itself.
- */
+/** Example trampoline activity that launches a split and finishes itself. */
 class SplitActivityTrampoline : SplitActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val activityFilters = setOf(ActivityFilter(componentName(
-            "androidx.window.demo.embedding.SplitActivityTrampolineTarget"), null))
+        val activityFilters =
+            setOf(
+                ActivityFilter(
+                    componentName("androidx.window.demo.embedding.SplitActivityTrampolineTarget"),
+                    null
+                )
+            )
         val placeholderIntent = Intent()
         placeholderIntent.component =
             componentName("androidx.window.demo.embedding.SplitActivityPlaceholder")
-        val defaultSplitAttributes = SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
-            .build()
-        val placeholderRule = SplitPlaceholderRule.Builder(activityFilters, placeholderIntent)
-            .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
-            .setMinHeightDp(0)
-            .setMinSmallestWidthDp(0)
-            .setFinishPrimaryWithPlaceholder(ADJACENT)
-            .setDefaultSplitAttributes(defaultSplitAttributes)
-            .build()
+        val defaultSplitAttributes =
+            SplitAttributes.Builder()
+                .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
+                .build()
+        val placeholderRule =
+            SplitPlaceholderRule.Builder(activityFilters, placeholderIntent)
+                .setMinWidthDp(MIN_SPLIT_WIDTH_DP)
+                .setMinHeightDp(0)
+                .setMinSmallestWidthDp(0)
+                .setFinishPrimaryWithPlaceholder(ADJACENT)
+                .setDefaultSplitAttributes(defaultSplitAttributes)
+                .build()
         RuleController.getInstance(this).addRule(placeholderRule)
         val activityIntent = Intent()
-        activityIntent.component = componentName(
-            "androidx.window.demo.embedding.SplitActivityTrampolineTarget")
+        activityIntent.component =
+            componentName("androidx.window.demo.embedding.SplitActivityTrampolineTarget")
         startActivity(activityIntent)
 
         finish()

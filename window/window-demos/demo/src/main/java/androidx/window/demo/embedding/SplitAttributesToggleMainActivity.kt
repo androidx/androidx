@@ -47,8 +47,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalWindowApi::class)
-open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase(),
-    View.OnClickListener, RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener,
+open class SplitAttributesToggleMainActivity :
+    SplitAttributesToggleActivityBase(),
+    View.OnClickListener,
+    RadioGroup.OnCheckedChangeListener,
+    AdapterView.OnItemSelectedListener,
     CompoundButton.OnCheckedChangeListener {
 
     protected lateinit var viewBinding: ActivitySplitAttributesTogglePrimaryActivityBinding
@@ -82,36 +85,40 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
         viewBinding.usePlaceholderCheckBox.setOnCheckedChangeListener(this)
         viewBinding.placeholderSplitLayoutOption.setOnCheckedChangeListener(this)
         val placeholderSplitTypeSpinner = viewBinding.placeholderSplitTypeSpinner
-        placeholderSplitTypeSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            CUSTOMIZED_SPLIT_TYPES_TEXT,
-        )
+        placeholderSplitTypeSpinner.adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                CUSTOMIZED_SPLIT_TYPES_TEXT,
+            )
         placeholderSplitTypeSpinner.onItemSelectedListener = this
         val placeholderLayoutDirectionSpinner = viewBinding.placeholderLayoutDirectionSpinner
-        placeholderLayoutDirectionSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            CUSTOMIZED_LAYOUT_DIRECTIONS_TEXT,
-        )
+        placeholderLayoutDirectionSpinner.adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                CUSTOMIZED_LAYOUT_DIRECTIONS_TEXT,
+            )
         placeholderLayoutDirectionSpinner.onItemSelectedListener = this
 
         viewBinding.startActivityPairButton.setOnClickListener(this)
         viewBinding.useSplitRuleCheckBox.setOnCheckedChangeListener(this)
         viewBinding.splitRuleSplitLayoutOption.setOnCheckedChangeListener(this)
         val splitRuleSplitTypeSpinner = viewBinding.splitRuleSplitTypeSpinner
-        splitRuleSplitTypeSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            CUSTOMIZED_SPLIT_TYPES_TEXT,
-        )
+        splitRuleSplitTypeSpinner.adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                CUSTOMIZED_SPLIT_TYPES_TEXT,
+            )
         splitRuleSplitTypeSpinner.onItemSelectedListener = this
         val splitRuleLayoutDirectionSpinner = viewBinding.splitRuleLayoutDirectionSpinner
-        splitRuleLayoutDirectionSpinner.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            CUSTOMIZED_LAYOUT_DIRECTIONS_TEXT,
-        )
+        splitRuleLayoutDirectionSpinner.adapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                CUSTOMIZED_LAYOUT_DIRECTIONS_TEXT,
+            )
         splitRuleLayoutDirectionSpinner.onItemSelectedListener = this
 
         lifecycleScope.launch {
@@ -119,8 +126,9 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
             // It automatically restarts the block when the lifecycle is STARTED again.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                splitController.splitInfoList(this@SplitAttributesToggleMainActivity)
-                    .collect { updateUiFromRules() }
+                splitController.splitInfoList(this@SplitAttributesToggleMainActivity).collect {
+                    updateUiFromRules()
+                }
             }
         }
     }
@@ -142,7 +150,8 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                     splitPlaceholderRule?.isSticky ?: false
                 viewBinding.placeholderSplitLayoutOption.check(
                     when (
-                        splitPlaceholderRule?.tag
+                        splitPlaceholderRule
+                            ?.tag
                             ?.removePrefix(PREFIX_FULLSCREEN_TOGGLE)
                             ?.removePrefix(PREFIX_PLACEHOLDER)
                     ) {
@@ -156,8 +165,10 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                         else -> 0
                     }
                 )
-                if (viewBinding.placeholderSplitLayoutOption.checkedRadioButtonId ==
-                    R.id.placeholder_use_customized_split_attributes) {
+                if (
+                    viewBinding.placeholderSplitLayoutOption.checkedRadioButtonId ==
+                        R.id.placeholder_use_customized_split_attributes
+                ) {
                     viewBinding.placeholderSplitTypeSpinner.setSelection(
                         CUSTOMIZED_SPLIT_TYPES_VALUE.indexOf(
                             demoActivityEmbeddingController.customizedSplitType
@@ -177,7 +188,8 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                 onCheckedChanged(useSplitRuleCheckBox, useSplitRuleCheckBox.isChecked)
                 viewBinding.splitRuleSplitLayoutOption.check(
                     when (
-                        splitPairRule?.tag
+                        splitPairRule
+                            ?.tag
                             ?.removePrefix(PREFIX_FULLSCREEN_TOGGLE)
                             ?.removePrefix(PREFIX_PLACEHOLDER)
                     ) {
@@ -191,8 +203,10 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                         else -> 0
                     }
                 )
-                if (viewBinding.splitRuleSplitLayoutOption.checkedRadioButtonId ==
-                    R.id.split_rule_use_customized_split_attributes) {
+                if (
+                    viewBinding.splitRuleSplitLayoutOption.checkedRadioButtonId ==
+                        R.id.split_rule_use_customized_split_attributes
+                ) {
                     viewBinding.splitRuleSplitTypeSpinner.setSelection(
                         CUSTOMIZED_SPLIT_TYPES_VALUE.indexOf(
                             demoActivityEmbeddingController.customizedSplitType
@@ -205,27 +219,27 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
                     )
                     shouldShowSpinner = true
                 }
-                demoActivityEmbeddingController.splitAttributesCustomizationEnabled
-                    .set(shouldShowSpinner)
+                demoActivityEmbeddingController.splitAttributesCustomizationEnabled.set(
+                    shouldShowSpinner
+                )
             }
         }
     }
 
     private suspend fun updateWarningMessages() {
-        val warningMessages = StringBuilder().apply {
-            val apiLevel = WindowSdkExtensions.getInstance().extensionVersion
+        val warningMessages =
+            StringBuilder().apply {
+                val apiLevel = WindowSdkExtensions.getInstance().extensionVersion
 
-            if (apiLevel < 2) {
-                append(resources.getString(R.string.split_attributes_calculator_not_supported))
-                append("\n")
+                if (apiLevel < 2) {
+                    append(resources.getString(R.string.split_attributes_calculator_not_supported))
+                    append("\n")
+                }
+                if (apiLevel < 3) {
+                    append("Finishing secondary activities is not supported on this device!\n")
+                }
             }
-            if (apiLevel < 3) {
-                append("Finishing secondary activities is not supported on this device!\n")
-            }
-        }
-        withContext(Dispatchers.Main) {
-            viewBinding.warningMessageTextView.text = warningMessages
-        }
+        withContext(Dispatchers.Main) { viewBinding.warningMessageTextView.text = warningMessages }
     }
 
     override fun onClick(button: View) {
@@ -244,7 +258,8 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
 
     open fun applyRules() {
         // Only remove rules with tag specified
-        ruleController.getRules()
+        ruleController
+            .getRules()
             .filter { rule -> rule.tag?.contains(PREFIX_FULLSCREEN_TOGGLE) ?: false }
             .forEach { rule -> ruleController.removeRule(rule) }
 
@@ -302,67 +317,72 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
         pendingRules.clear()
         if (viewBinding.usePlaceholderCheckBox.isChecked) {
             // Create the SplitPlaceholderRule
-            val placeholderFilter = ActivityFilter(
-                ComponentName(
+            val placeholderFilter =
+                ActivityFilter(
+                    ComponentName(
+                        this@SplitAttributesToggleMainActivity,
+                        SplitAttributesTogglePrimaryActivity::class.java
+                    ),
+                    intentAction = null,
+                )
+            val placeholderIntent =
+                Intent(
                     this@SplitAttributesToggleMainActivity,
-                    SplitAttributesTogglePrimaryActivity::class.java
-                ),
-                intentAction = null,
-            )
-            val placeholderIntent = Intent(
-                this@SplitAttributesToggleMainActivity,
-                SplitAttributesTogglePlaceholderActivity::class.java
-            )
-            val splitPlaceholderRule = SplitPlaceholderRule.Builder(
-                setOf(placeholderFilter),
-                placeholderIntent
-            )
-                .setFinishPrimaryWithPlaceholder(SplitRule.FinishBehavior.ALWAYS)
-                .setTag(
-                    PREFIX_FULLSCREEN_TOGGLE + PREFIX_PLACEHOLDER +
-                    when (viewBinding.placeholderSplitLayoutOption.checkedRadioButtonId) {
-                        R.id.placeholder_use_default_split_attributes ->
-                            TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
-                        R.id.placeholder_use_folding_aware_split_attributes ->
-                            TAG_SHOW_FULLSCREEN_IN_PORTRAIT +
-                                SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
-                        R.id.placeholder_use_customized_split_attributes ->
-                            TAG_CUSTOMIZED_SPLIT_ATTRIBUTES
-                        else -> null
-                    }
-                ).setSticky(viewBinding.useStickyPlaceholderCheckBox.isChecked)
-                .build()
+                    SplitAttributesTogglePlaceholderActivity::class.java
+                )
+            val splitPlaceholderRule =
+                SplitPlaceholderRule.Builder(setOf(placeholderFilter), placeholderIntent)
+                    .setFinishPrimaryWithPlaceholder(SplitRule.FinishBehavior.ALWAYS)
+                    .setTag(
+                        PREFIX_FULLSCREEN_TOGGLE +
+                            PREFIX_PLACEHOLDER +
+                            when (viewBinding.placeholderSplitLayoutOption.checkedRadioButtonId) {
+                                R.id.placeholder_use_default_split_attributes ->
+                                    TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
+                                R.id.placeholder_use_folding_aware_split_attributes ->
+                                    TAG_SHOW_FULLSCREEN_IN_PORTRAIT +
+                                        SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
+                                R.id.placeholder_use_customized_split_attributes ->
+                                    TAG_CUSTOMIZED_SPLIT_ATTRIBUTES
+                                else -> null
+                            }
+                    )
+                    .setSticky(viewBinding.useStickyPlaceholderCheckBox.isChecked)
+                    .build()
             pendingRules.add(splitPlaceholderRule)
         }
         if (viewBinding.useSplitRuleCheckBox.isChecked) {
             // Create the SplitPairRule
-            val splitActivityFilter = SplitPairFilter(
-                ComponentName(
-                    this@SplitAttributesToggleMainActivity,
-                    SplitAttributesTogglePrimaryActivity::class.java
-                ),
-                ComponentName(
-                    this@SplitAttributesToggleMainActivity,
-                    SplitAttributesToggleSecondaryActivity::class.java
-                ),
-                secondaryActivityIntentAction = null,
-            )
-            val splitPairRule = SplitPairRule.Builder(setOf(splitActivityFilter))
-                .setFinishPrimaryWithSecondary(SplitRule.FinishBehavior.ALWAYS)
-                .setFinishSecondaryWithPrimary(SplitRule.FinishBehavior.ALWAYS)
-                .setTag(
-                    PREFIX_FULLSCREEN_TOGGLE +
-                    when (viewBinding.splitRuleSplitLayoutOption.checkedRadioButtonId) {
-                        R.id.split_rule_use_single_split_attributes ->
-                            TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
-                        R.id.split_rule_use_folding_aware_split_attributes ->
-                            TAG_SHOW_FULLSCREEN_IN_PORTRAIT +
-                                SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
-                        R.id.split_rule_use_customized_split_attributes ->
-                            TAG_CUSTOMIZED_SPLIT_ATTRIBUTES
-                        else -> null
-                    }
-                ).build()
+            val splitActivityFilter =
+                SplitPairFilter(
+                    ComponentName(
+                        this@SplitAttributesToggleMainActivity,
+                        SplitAttributesTogglePrimaryActivity::class.java
+                    ),
+                    ComponentName(
+                        this@SplitAttributesToggleMainActivity,
+                        SplitAttributesToggleSecondaryActivity::class.java
+                    ),
+                    secondaryActivityIntentAction = null,
+                )
+            val splitPairRule =
+                SplitPairRule.Builder(setOf(splitActivityFilter))
+                    .setFinishPrimaryWithSecondary(SplitRule.FinishBehavior.ALWAYS)
+                    .setFinishSecondaryWithPrimary(SplitRule.FinishBehavior.ALWAYS)
+                    .setTag(
+                        PREFIX_FULLSCREEN_TOGGLE +
+                            when (viewBinding.splitRuleSplitLayoutOption.checkedRadioButtonId) {
+                                R.id.split_rule_use_single_split_attributes ->
+                                    TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
+                                R.id.split_rule_use_folding_aware_split_attributes ->
+                                    TAG_SHOW_FULLSCREEN_IN_PORTRAIT +
+                                        SUFFIX_AND_HORIZONTAL_LAYOUT_IN_TABLETOP
+                                R.id.split_rule_use_customized_split_attributes ->
+                                    TAG_CUSTOMIZED_SPLIT_ATTRIBUTES
+                                else -> null
+                            }
+                    )
+                    .build()
             pendingRules.add(splitPairRule)
         }
     }
@@ -380,8 +400,9 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
     }
 
     private fun updateSpinnerVisibility(id: Int, visibility: Int) {
-        demoActivityEmbeddingController.splitAttributesCustomizationEnabled
-            .set(visibility == View.VISIBLE)
+        demoActivityEmbeddingController.splitAttributesCustomizationEnabled.set(
+            visibility == View.VISIBLE
+        )
         when (id) {
             R.id.placeholder_use_customized_split_attributes -> {
                 viewBinding.placeholderSplitTypeTextView.visibility = visibility
@@ -400,10 +421,12 @@ open class SplitAttributesToggleMainActivity : SplitAttributesToggleActivityBase
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         when (parent?.id) {
-            R.id.placeholder_split_type_spinner, R.id.split_rule_split_type_spinner ->
+            R.id.placeholder_split_type_spinner,
+            R.id.split_rule_split_type_spinner ->
                 demoActivityEmbeddingController.customizedSplitType =
                     CUSTOMIZED_SPLIT_TYPES_VALUE[position]
-            R.id.placeholder_layout_direction_spinner, R.id.split_rule_layout_direction_spinner ->
+            R.id.placeholder_layout_direction_spinner,
+            R.id.split_rule_layout_direction_spinner ->
                 demoActivityEmbeddingController.customizedLayoutDirection =
                     CUSTOMIZED_LAYOUT_DIRECTIONS_VALUE[position]
         }

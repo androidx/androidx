@@ -31,7 +31,8 @@ import androidx.window.layout.WindowMetrics
  * determine when features can be enabled.
  */
 @ExperimentalWindowApi
-class WindowAreaInfo internal constructor(
+class WindowAreaInfo
+internal constructor(
 
     /**
      * The [WindowMetrics] that represent the size of the area. Used to determine if the behavior
@@ -39,16 +40,11 @@ class WindowAreaInfo internal constructor(
      */
     var metrics: WindowMetrics,
 
-    /**
-     * The [Type] of this window area
-     */
+    /** The [Type] of this window area */
     val type: Type,
 
-    /**
-     * [Binder] token to identify the specific WindowArea
-     */
+    /** [Binder] token to identify the specific WindowArea */
     val token: Binder,
-
     private val windowAreaComponent: WindowAreaComponent
 ) {
 
@@ -60,10 +56,8 @@ class WindowAreaInfo internal constructor(
      * with a [WINDOW_AREA_STATUS_UNSUPPORTED] value is returned.
      */
     fun getCapability(operation: WindowAreaCapability.Operation): WindowAreaCapability {
-        return capabilityMap[operation] ?: WindowAreaCapability(
-            operation,
-            WINDOW_AREA_STATUS_UNSUPPORTED
-        )
+        return capabilityMap[operation]
+            ?: WindowAreaCapability(operation, WINDOW_AREA_STATUS_UNSUPPORTED)
     }
 
     /**
@@ -100,9 +94,7 @@ class WindowAreaInfo internal constructor(
         }
     }
 
-    /**
-     * Represents a type of [WindowAreaInfo]
-     */
+    /** Represents a type of [WindowAreaInfo] */
     @ExperimentalWindowApi
     class Type private constructor(private val description: String) {
         override fun toString(): String {
@@ -114,8 +106,7 @@ class WindowAreaInfo internal constructor(
              * Type of window area that is facing the same direction as the rear camera(s) on the
              * device.
              */
-            @JvmField
-            val TYPE_REAR_FACING = Type("REAR FACING")
+            @JvmField val TYPE_REAR_FACING = Type("REAR FACING")
         }
     }
 

@@ -20,18 +20,24 @@ import android.util.DisplayMetrics
 import java.util.Locale
 
 /**
- * Utility object to provide information about specific devices that may not be available
- * through the extensions API at a certain vendor API level
+ * Utility object to provide information about specific devices that may not be available through
+ * the extensions API at a certain vendor API level
  */
 internal object DeviceUtils {
 
-    private val deviceList = listOf(DeviceMetrics("google", "pixel fold",
-        DisplayMetrics().apply {
-            widthPixels = 1080
-            heightPixels = 2092
-            density = 2.625f
-            densityDpi = 420 }
-        ))
+    private val deviceList =
+        listOf(
+            DeviceMetrics(
+                "google",
+                "pixel fold",
+                DisplayMetrics().apply {
+                    widthPixels = 1080
+                    heightPixels = 2092
+                    density = 2.625f
+                    densityDpi = 420
+                }
+            )
+        )
 
     internal fun hasDeviceMetrics(manufacturer: String, model: String): Boolean {
         return deviceList.any {
@@ -41,9 +47,11 @@ internal object DeviceUtils {
     }
 
     internal fun getRearDisplayMetrics(manufacturer: String, model: String): DisplayMetrics? {
-        return deviceList.firstOrNull {
-            it.manufacturer == manufacturer.lowercase(Locale.US) &&
-                it.model == model.lowercase(Locale.US)
-        }?.rearDisplayMetrics
+        return deviceList
+            .firstOrNull {
+                it.manufacturer == manufacturer.lowercase(Locale.US) &&
+                    it.model == model.lowercase(Locale.US)
+            }
+            ?.rearDisplayMetrics
     }
 }

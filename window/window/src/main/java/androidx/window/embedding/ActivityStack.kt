@@ -23,13 +23,14 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
  * A container that holds a stack of activities, overlapping and bound to the same rectangle on the
  * screen.
  */
-class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
+class ActivityStack
+@RestrictTo(LIBRARY_GROUP)
+constructor(
     /**
      * The [Activity] list in this application's process that belongs to this [ActivityStack].
      *
-     * Note that Activities that are running in other processes will not be contained in this
-     * list. They can be in any position in terms of ordering relative to the activities in the
-     * list.
+     * Note that Activities that are running in other processes will not be contained in this list.
+     * They can be in any position in terms of ordering relative to the activities in the list.
      */
     internal val activitiesInProcess: List<Activity>,
     /**
@@ -43,9 +44,7 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
     val isEmpty: Boolean,
 ) {
 
-    /**
-     * Whether this [ActivityStack] contains the [activity].
-     */
+    /** Whether this [ActivityStack] contains the [activity]. */
     operator fun contains(activity: Activity): Boolean {
         return activitiesInProcess.contains(activity)
     }
@@ -67,8 +66,5 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
     }
 
     override fun toString(): String =
-        "ActivityStack{" +
-            "activitiesInProcess=$activitiesInProcess" +
-            ", isEmpty=$isEmpty" +
-            "}"
+        "ActivityStack{" + "activitiesInProcess=$activitiesInProcess" + ", isEmpty=$isEmpty" + "}"
 }

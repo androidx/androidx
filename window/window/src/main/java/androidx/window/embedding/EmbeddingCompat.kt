@@ -54,12 +54,15 @@ internal class EmbeddingCompat(
                 break
             }
         }
-        if (hasSplitRule &&
-            SplitController.getInstance(applicationContext).splitSupportStatus != SPLIT_AVAILABLE
+        if (
+            hasSplitRule &&
+                SplitController.getInstance(applicationContext).splitSupportStatus !=
+                    SPLIT_AVAILABLE
         ) {
             if (BuildConfig.verificationMode == VerificationMode.LOG) {
                 Log.w(
-                    TAG, "Cannot set SplitRule because ActivityEmbedding Split is not " +
+                    TAG,
+                    "Cannot set SplitRule because ActivityEmbedding Split is not " +
                         "supported or PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED is not set."
                 )
             }
@@ -72,18 +75,16 @@ internal class EmbeddingCompat(
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
         if (ExtensionsUtil.safeVendorApiLevel < 2) {
-            consumerAdapter.addConsumer(
-                embeddingExtension,
-                List::class,
-                "setSplitInfoCallback"
-            ) { values ->
+            consumerAdapter.addConsumer(embeddingExtension, List::class, "setSplitInfoCallback") {
+                values ->
                 val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
                 embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
             }
         } else {
-            val callback = Consumer<List<OEMSplitInfo>> { splitInfoList ->
-                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
-            }
+            val callback =
+                Consumer<List<OEMSplitInfo>> { splitInfoList ->
+                    embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+                }
             embeddingExtension.setSplitInfoCallback(callback)
         }
     }
@@ -118,10 +119,7 @@ internal class EmbeddingCompat(
     }
 
     @RequiresWindowSdkExtension(3)
-    override fun updateSplitAttributes(
-        splitInfo: SplitInfo,
-        splitAttributes: SplitAttributes
-    ) {
+    override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3)
 
         embeddingExtension.updateSplitAttributes(
@@ -148,10 +146,11 @@ internal class EmbeddingCompat(
             return try {
                 EmbeddingCompat::class.java.classLoader?.let { loader ->
                     SafeActivityEmbeddingComponentProvider(
-                        loader,
-                        ConsumerAdapter(loader),
-                        WindowExtensionsProvider.getWindowExtensions(),
-                    ).activityEmbeddingComponent != null
+                            loader,
+                            ConsumerAdapter(loader),
+                            WindowExtensionsProvider.getWindowExtensions(),
+                        )
+                        .activityEmbeddingComponent != null
                 } ?: false
             } catch (e: NoClassDefFoundError) {
                 if (DEBUG) {
@@ -170,10 +169,11 @@ internal class EmbeddingCompat(
             return if (isEmbeddingAvailable()) {
                 EmbeddingCompat::class.java.classLoader?.let { loader ->
                     SafeActivityEmbeddingComponentProvider(
-                        loader,
-                        ConsumerAdapter(loader),
-                        WindowExtensionsProvider.getWindowExtensions(),
-                    ).activityEmbeddingComponent
+                            loader,
+                            ConsumerAdapter(loader),
+                            WindowExtensionsProvider.getWindowExtensions(),
+                        )
+                        .activityEmbeddingComponent
                 } ?: emptyActivityEmbeddingProxy()
             } else {
                 emptyActivityEmbeddingProxy()
@@ -184,7 +184,8 @@ internal class EmbeddingCompat(
             return Proxy.newProxyInstance(
                 EmbeddingCompat::class.java.classLoader,
                 arrayOf(ActivityEmbeddingComponent::class.java)
-            ) { _, _, _ -> } as ActivityEmbeddingComponent
+            ) { _, _, _ ->
+            } as ActivityEmbeddingComponent
         }
     }
 }

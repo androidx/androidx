@@ -52,8 +52,11 @@ import kotlinx.coroutines.withContext
  * split and PiP configuration options with checkboxes and launch activities with those options
  * applied.
  */
-abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnCheckedChangeListener,
-    View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+abstract class SplitPipActivityBase :
+    AppCompatActivity(),
+    CompoundButton.OnCheckedChangeListener,
+    View.OnClickListener,
+    RadioGroup.OnCheckedChangeListener {
 
     lateinit var splitController: SplitController
     lateinit var ruleController: RuleController
@@ -77,8 +80,8 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
         componentNameA = ComponentName(packageName, SplitPipActivityA::class.java.name)
         componentNameB = ComponentName(packageName, SplitPipActivityB::class.java.name)
         componentNameNotPip = ComponentName(packageName, SplitPipActivityNoPip::class.java.name)
-        componentNamePlaceholder = ComponentName(packageName,
-            SplitPipActivityPlaceholder::class.java.name)
+        componentNamePlaceholder =
+            ComponentName(packageName, SplitPipActivityPlaceholder::class.java.name)
 
         splitController = SplitController.getInstance(this)
         ruleController = RuleController.getInstance(this)
@@ -105,25 +108,25 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
             // It automatically restarts the block when the lifecycle is STARTED again.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                splitController.splitInfoList(this@SplitPipActivityBase)
-                    .collect { newSplitInfos ->
-                        var isInSplit = false
-                        for (info in newSplitInfos) {
-                            if (info.contains(this@SplitPipActivityBase) &&
+                splitController.splitInfoList(this@SplitPipActivityBase).collect { newSplitInfos ->
+                    var isInSplit = false
+                    for (info in newSplitInfos) {
+                        if (
+                            info.contains(this@SplitPipActivityBase) &&
                                 info.splitAttributes.splitType == SPLIT_TYPE_EXPAND
-                            ) {
-                                isInSplit = true
-                                break
-                            }
-                        }
-
-                        withContext(Dispatchers.Main) {
-                            viewBinding.activityEmbeddedStatusTextView.visibility =
-                                if (isInSplit) View.VISIBLE else View.GONE
-
-                            updateCheckboxes()
+                        ) {
+                            isInSplit = true
+                            break
                         }
                     }
+
+                    withContext(Dispatchers.Main) {
+                        viewBinding.activityEmbeddedStatusTextView.visibility =
+                            if (isInSplit) View.VISIBLE else View.GONE
+
+                        updateCheckboxes()
+                    }
+                }
             }
         }
     }
@@ -186,8 +189,7 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
                 enterPipOnUserLeave = false
                 autoEnterPip = true
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                    Toast.makeText(this, "auto enter PiP not supported", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(this, "auto enter PiP not supported", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -268,26 +270,26 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
     /** Updates the split rules based on the current selection on checkboxes. */
     private fun updateSplitRules() {
         ruleController.clearRules()
-        val defaultSplitAttributes = SplitAttributes.Builder()
-            .setSplitType(SplitAttributes.SplitType.ratio(splitRatio))
-            .build()
+        val defaultSplitAttributes =
+            SplitAttributes.Builder()
+                .setSplitType(SplitAttributes.SplitType.ratio(splitRatio))
+                .build()
         if (viewBinding.splitMainCheckBox.isChecked) {
             val pairFilters = HashSet<SplitPairFilter>()
             pairFilters.add(SplitPairFilter(componentNameA, componentNameB, null))
             pairFilters.add(SplitPairFilter(componentNameA, componentNameNotPip, null))
             val finishAWithB = viewBinding.finishPrimaryWithSecondaryCheckBox.isChecked
             val finishBWithA = viewBinding.finishSecondaryWithPrimaryCheckBox.isChecked
-            val rule = SplitPairRule.Builder(pairFilters)
-                .setMinWidthDp(0)
-                .setMinHeightDp(0)
-                .setMinSmallestWidthDp(0)
-                .setFinishPrimaryWithSecondary(
-                    if (finishAWithB) ALWAYS else NEVER)
-                .setFinishSecondaryWithPrimary(
-                    if (finishBWithA) ALWAYS else NEVER)
-                .setClearTop(true)
-                .setDefaultSplitAttributes(defaultSplitAttributes)
-                .build()
+            val rule =
+                SplitPairRule.Builder(pairFilters)
+                    .setMinWidthDp(0)
+                    .setMinHeightDp(0)
+                    .setMinSmallestWidthDp(0)
+                    .setFinishPrimaryWithSecondary(if (finishAWithB) ALWAYS else NEVER)
+                    .setFinishSecondaryWithPrimary(if (finishBWithA) ALWAYS else NEVER)
+                    .setClearTop(true)
+                    .setDefaultSplitAttributes(defaultSplitAttributes)
+                    .build()
             ruleController.addRule(rule)
         }
 
@@ -296,14 +298,15 @@ abstract class SplitPipActivityBase : AppCompatActivity(), CompoundButton.OnChec
             activityFilters.add(ActivityFilter(componentNameB, null))
             val intent = Intent().setComponent(componentNamePlaceholder)
             val isSticky = viewBinding.useStickyPlaceHolderCheckBox.isChecked
-            val rule = SplitPlaceholderRule.Builder(activityFilters, intent)
-                .setMinWidthDp(0)
-                .setMinHeightDp(0)
-                .setMinSmallestWidthDp(0)
-                .setSticky(isSticky)
-                .setFinishPrimaryWithPlaceholder(ADJACENT)
-                .setDefaultSplitAttributes(defaultSplitAttributes)
-                .build()
+            val rule =
+                SplitPlaceholderRule.Builder(activityFilters, intent)
+                    .setMinWidthDp(0)
+                    .setMinHeightDp(0)
+                    .setMinSmallestWidthDp(0)
+                    .setSticky(isSticky)
+                    .setFinishPrimaryWithPlaceholder(ADJACENT)
+                    .setDefaultSplitAttributes(defaultSplitAttributes)
+                    .build()
             ruleController.addRule(rule)
         }
     }

@@ -30,26 +30,25 @@ import kotlinx.coroutines.rx2.asObservable
 
 /**
  * Return an [Observable] stream of [WindowLayoutInfo].
+ *
  * @see WindowInfoTracker.windowLayoutInfo
  */
-fun WindowInfoTracker.windowLayoutInfoObservable(
-    activity: Activity
-): Observable<WindowLayoutInfo> {
+fun WindowInfoTracker.windowLayoutInfoObservable(activity: Activity): Observable<WindowLayoutInfo> {
     return windowLayoutInfo(activity).asObservable()
 }
 
 /**
  * Return a [Flowable] stream of [WindowLayoutInfo].
+ *
  * @see WindowInfoTracker.windowLayoutInfo
  */
-fun WindowInfoTracker.windowLayoutInfoFlowable(
-    activity: Activity
-): Flowable<WindowLayoutInfo> {
+fun WindowInfoTracker.windowLayoutInfoFlowable(activity: Activity): Flowable<WindowLayoutInfo> {
     return windowLayoutInfo(activity).asFlowable()
 }
 
 /**
  * Return an [Observable] stream of [WindowLayoutInfo].
+ *
  * @see WindowInfoTracker.windowLayoutInfo
  */
 @OptIn(ExperimentalWindowApi::class)
@@ -61,6 +60,7 @@ fun WindowInfoTracker.windowLayoutInfoObservable(
 
 /**
  * Return a [Flowable] stream of [WindowLayoutInfo].
+ *
  * @see WindowInfoTracker.windowLayoutInfo
  */
 @OptIn(ExperimentalWindowApi::class)

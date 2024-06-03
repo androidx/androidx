@@ -27,9 +27,9 @@ import androidx.window.reflection.ReflectionUtils.validateReflection
 import androidx.window.reflection.WindowExtensionsConstants
 
 /**
- * Reflection Guard for [WindowAreaComponent].
- * This will go through the [WindowAreaComponent]'s method by reflection and
- * check each method's name and signature to see if the interface is what we required.
+ * Reflection Guard for [WindowAreaComponent]. This will go through the [WindowAreaComponent]'s
+ * method by reflection and check each method's name and signature to see if the interface is what
+ * we required.
  */
 internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) {
 
@@ -40,24 +40,26 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
             return try {
                 if (
                     windowExtensions != null &&
-                    isWindowAreaProviderValid(windowExtensions) &&
-                    isWindowAreaComponentValid(
-                        windowAreaComponentClass, ExtensionsUtil.safeVendorApiLevel
-                    ) &&
-                    isExtensionWindowAreaStatusValid(
-                        extensionWindowAreaStatusClass, ExtensionsUtil.safeVendorApiLevel
-                    ) &&
-                    isValidExtensionWindowPresentation()
-                ) windowExtensions.windowAreaComponent else null
+                        isWindowAreaProviderValid(windowExtensions) &&
+                        isWindowAreaComponentValid(
+                            windowAreaComponentClass,
+                            ExtensionsUtil.safeVendorApiLevel
+                        ) &&
+                        isExtensionWindowAreaStatusValid(
+                            extensionWindowAreaStatusClass,
+                            ExtensionsUtil.safeVendorApiLevel
+                        ) &&
+                        isValidExtensionWindowPresentation()
+                )
+                    windowExtensions.windowAreaComponent
+                else null
             } catch (e: Exception) {
                 null
             }
         }
 
     private fun isWindowAreaProviderValid(windowExtensions: Any): Boolean {
-        return validateReflection(
-            "WindowExtensions#getWindowAreaComponent is not valid"
-        ) {
+        return validateReflection("WindowExtensions#getWindowAreaComponent is not valid") {
             val getWindowAreaComponentMethod =
                 windowExtensions::class.java.getMethod("getWindowAreaComponent")
             getWindowAreaComponentMethod.isPublic &&
@@ -69,7 +71,8 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
         // Not required for API Level 2 or below
         return ExtensionsUtil.safeVendorApiLevel <= 2 ||
             isExtensionWindowAreaPresentationValid(
-                extensionWindowAreaPresentationClass, ExtensionsUtil.safeVendorApiLevel
+                extensionWindowAreaPresentationClass,
+                ExtensionsUtil.safeVendorApiLevel
             )
     }
 

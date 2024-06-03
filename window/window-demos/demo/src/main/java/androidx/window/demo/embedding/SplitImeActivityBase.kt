@@ -22,8 +22,7 @@ import androidx.window.demo.databinding.ActivitySplitImeLayoutBinding
 
 /**
  * Sample showcase of split activity with input field. Allows the user to use IME with split
- * activities.
- * The split rule is defined in `main_split_config.xml`.
+ * activities. The split rule is defined in `main_split_config.xml`.
  */
 abstract class SplitImeActivityBase : AppCompatActivity() {
 

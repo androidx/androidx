@@ -45,9 +45,7 @@ class SplitLayoutActivity : AppCompatActivity() {
                 // and stops collection when the lifecycle is STOPPED
                 WindowInfoTracker.getOrCreate(this@SplitLayoutActivity)
                     .windowLayoutInfo(this@SplitLayoutActivity)
-                    .collect { newLayoutInfo ->
-                        splitLayout.updateWindowLayout(newLayoutInfo)
-                    }
+                    .collect { newLayoutInfo -> splitLayout.updateWindowLayout(newLayoutInfo) }
             }
         }
     }

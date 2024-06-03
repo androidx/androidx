@@ -19,9 +19,7 @@ package androidx.window.testing.embedding
 import androidx.window.embedding.EmbeddingBackend
 import androidx.window.embedding.EmbeddingBackendDecorator
 
-/**
- * Decorator to return [StubEmbeddingBackend] instead of the actual implementation.
- */
+/** Decorator to return [StubEmbeddingBackend] instead of the actual implementation. */
 internal class StubEmbeddingBackendDecorator(
     private val stubEmbeddingBackend: StubEmbeddingBackend
 ) : EmbeddingBackendDecorator {

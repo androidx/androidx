@@ -38,8 +38,7 @@ abstract class WindowSdkExtensions internal constructor() {
      *
      * When Window SDK Extensions is not present on the device, the extension version will be 0.
      */
-    @get: IntRange(from = 0)
-    open val extensionVersion: Int = ExtensionsUtil.safeVendorApiLevel
+    @get:IntRange(from = 0) open val extensionVersion: Int = ExtensionsUtil.safeVendorApiLevel
 
     /**
      * Checks the [extensionVersion] and throws [UnsupportedOperationException] if the minimum
@@ -50,8 +49,10 @@ abstract class WindowSdkExtensions internal constructor() {
      */
     internal fun requireExtensionVersion(@IntRange(from = 1) version: Int) {
         if (extensionVersion < version) {
-            throw UnsupportedOperationException("This API requires extension version " +
-                "$version, but the device is on $extensionVersion")
+            throw UnsupportedOperationException(
+                "This API requires extension version " +
+                    "$version, but the device is on $extensionVersion"
+            )
         }
     }
 

@@ -52,20 +52,17 @@ class ActivityRuleTest {
 
     @Test
     fun equalsImpliesHashCode() {
-        val firstRule = ActivityRule.Builder(setOf(FILTER_WITH_ACTIVITY))
-            .setAlwaysExpand(true)
-            .build()
-        val secondRule = ActivityRule.Builder(setOf(FILTER_WITH_ACTIVITY))
-            .setAlwaysExpand(true)
-            .build()
+        val firstRule =
+            ActivityRule.Builder(setOf(FILTER_WITH_ACTIVITY)).setAlwaysExpand(true).build()
+        val secondRule =
+            ActivityRule.Builder(setOf(FILTER_WITH_ACTIVITY)).setAlwaysExpand(true).build()
 
         assertEquals(firstRule, secondRule)
         assertEquals(firstRule.hashCode(), secondRule.hashCode())
     }
 
     /**
-     * Verifies that default params are set correctly when creating [ActivityRule] with a
-     * builder.
+     * Verifies that default params are set correctly when creating [ActivityRule] with a builder.
      */
     @Test
     fun testDefaults_ActivityRule_Builder() {
@@ -73,18 +70,13 @@ class ActivityRuleTest {
         assertFalse(rule.alwaysExpand)
     }
 
-    /**
-     * Verifies that the params are set correctly when creating [ActivityRule] with a builder.
-     */
+    /** Verifies that the params are set correctly when creating [ActivityRule] with a builder. */
     @Test
     fun test_ActivityRule_Builder() {
         val filters = HashSet<ActivityFilter>()
         filters.add(FILTER_WITH_ACTIVITY)
 
-        val rule = ActivityRule.Builder(filters)
-            .setAlwaysExpand(true)
-            .setTag(TEST_TAG)
-            .build()
+        val rule = ActivityRule.Builder(filters).setAlwaysExpand(true).setTag(TEST_TAG).build()
         assertTrue(rule.alwaysExpand)
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(filters, rule.filters)
@@ -96,11 +88,12 @@ class ActivityRuleTest {
         filters.add(FILTER_WITH_ACTIVITY)
         val alwaysExpand = true
 
-        val ruleString = ActivityRule.Builder(filters)
-            .setAlwaysExpand(alwaysExpand)
-            .setTag(TEST_TAG)
-            .build()
-            .toString()
+        val ruleString =
+            ActivityRule.Builder(filters)
+                .setAlwaysExpand(alwaysExpand)
+                .setTag(TEST_TAG)
+                .build()
+                .toString()
 
         assertTrue(ruleString.contains(filters.toString()))
         assertTrue(ruleString.contains(alwaysExpand.toString()))
@@ -109,9 +102,7 @@ class ActivityRuleTest {
 
     companion object {
         private const val TEST_TAG = "test"
-        val FILTER_WITH_ACTIVITY = ActivityFilter(
-            ActivityComponentInfo("package", "className"),
-            null
-        )
+        val FILTER_WITH_ACTIVITY =
+            ActivityFilter(ActivityComponentInfo("package", "className"), null)
     }
 }

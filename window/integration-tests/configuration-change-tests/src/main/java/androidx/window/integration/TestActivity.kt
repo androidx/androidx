@@ -23,8 +23,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * An [Activity] that handles some configuration changes and provides helper methods to
- * synchronize when the configuration has changed.
+ * An [Activity] that handles some configuration changes and provides helper methods to synchronize
+ * when the configuration has changed.
  */
 class TestActivity : ComponentActivity(), View.OnLayoutChangeListener {
     private var layoutLatch = CountDownLatch(1)
@@ -55,18 +55,17 @@ class TestActivity : ComponentActivity(), View.OnLayoutChangeListener {
         resumeLatch.countDown()
     }
 
-    /**
-     * Resets layout counter when waiting for a layout before calling [.waitForLayout].
-     */
+    /** Resets layout counter when waiting for a layout before calling [.waitForLayout]. */
     fun resetLayoutCounter() {
         layoutLatch = CountDownLatch(1)
     }
 
     /**
-     * Blocks and waits for the next layout.
-     * [.resetLayoutCounter] must be called before this method.
-     * @return {@code true} if the layout happened before the timeout count reaches zero and
-     * {@code false} if the waiting time finishes before the layout occurs.
+     * Blocks and waits for the next layout. [.resetLayoutCounter] must be called before this
+     * method.
+     *
+     * @return {@code true} if the layout happened before the timeout count reaches zero and {@code
+     *   false} if the waiting time finishes before the layout occurs.
      */
     fun waitForLayout(): Boolean {
         return try {
@@ -79,19 +78,18 @@ class TestActivity : ComponentActivity(), View.OnLayoutChangeListener {
     companion object {
         private var resumeLatch = CountDownLatch(1)
 
-        /**
-         * Resets layout counter when waiting for a layout before calling [.waitForOnResume].
-         */
+        /** Resets layout counter when waiting for a layout before calling [.waitForOnResume]. */
         @JvmStatic
         fun resetResumeCounter() {
             resumeLatch = CountDownLatch(1)
         }
 
         /**
-         * Waits for onResume() to be called for any activity of this class.
-         * This can be used to track activity re-creation.
+         * Waits for onResume() to be called for any activity of this class. This can be used to
+         * track activity re-creation.
+         *
          * @return {@code true} if the onResume() happened before the timeout counter reaches zero
-         * and {@code false} if the waiting time finishes before the onResume() happens.
+         *   and {@code false} if the waiting time finishes before the onResume() happens.
          */
         @JvmStatic
         fun waitForOnResume(): Boolean {

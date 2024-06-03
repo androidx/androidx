@@ -21,8 +21,8 @@ import android.widget.FrameLayout
 import androidx.window.layout.DisplayFeature
 
 /**
- * Offset the [DisplayFeature]'s bounds to match its respective
- * location in the view's coordinate space.
+ * Offset the [DisplayFeature]'s bounds to match its respective location in the view's coordinate
+ * space.
  */
 fun adjustFeaturePositionOffset(displayFeature: DisplayFeature, view: View): Rect {
     // Get the location of the view in window to be in the same coordinate space as the feature.
@@ -37,11 +37,13 @@ fun adjustFeaturePositionOffset(displayFeature: DisplayFeature, view: View): Rec
 }
 
 /**
- * Gets the layout params for placing a rectangle indicating a
- * [DisplayFeature] inside a [FrameLayout].
+ * Gets the layout params for placing a rectangle indicating a [DisplayFeature] inside a
+ * [FrameLayout].
  */
-fun getLayoutParamsForFeatureInFrameLayout(displayFeature: DisplayFeature, view: FrameLayout):
-    FrameLayout.LayoutParams {
+fun getLayoutParamsForFeatureInFrameLayout(
+    displayFeature: DisplayFeature,
+    view: FrameLayout
+): FrameLayout.LayoutParams {
     val featureRectInView = adjustFeaturePositionOffset(displayFeature, view)
     val lp = FrameLayout.LayoutParams(featureRectInView.width(), featureRectInView.height())
     lp.leftMargin = featureRectInView.left

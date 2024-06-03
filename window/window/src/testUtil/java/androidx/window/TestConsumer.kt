@@ -19,30 +19,22 @@ package androidx.window
 import androidx.core.util.Consumer
 import org.junit.Assert.assertEquals
 
-/**
- * A test [Consumer] to hold all the values and make assertions based on the values.
- */
+/** A test [Consumer] to hold all the values and make assertions based on the values. */
 public class TestConsumer<T> : Consumer<T> {
 
     private val values: MutableList<T> = mutableListOf()
 
-    /**
-     * Add the value to the list of seen values.
-     */
+    /** Add the value to the list of seen values. */
     override fun accept(value: T) {
         values.add(value)
     }
 
-    /**
-     * Assert that there have been a fixed number of values
-     */
+    /** Assert that there have been a fixed number of values */
     public fun assertValueCount(count: Int) {
         assertEquals(count, values.size)
     }
 
-    /**
-     * Assert that there has been exactly one value.
-     */
+    /** Assert that there has been exactly one value. */
     public fun assertValue(t: T) {
         assertValueCount(1)
         assertEquals(t, values[0])

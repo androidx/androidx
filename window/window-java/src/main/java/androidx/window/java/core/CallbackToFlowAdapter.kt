@@ -27,29 +27,23 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-/**
- * A utility class to convert from a [Consumer<T>] to a [Flow<T>].
- */
+/** A utility class to convert from a [Consumer<T>] to a [Flow<T>]. */
 internal class CallbackToFlowAdapter {
 
     private val globalLock = ReentrantLock()
 
-    @GuardedBy("globalLock")
-    private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
+    @GuardedBy("globalLock") private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
 
     /**
-     * Generic method for registering a [Consumer] to collect the values from a [Flow].
-     * Registering the same [Consumer] is a no-op.
+     * Generic method for registering a [Consumer] to collect the values from a [Flow]. Registering
+     * the same [Consumer] is a no-op.
      */
     fun <T : Any> connect(executor: Executor, consumer: Consumer<T>, flow: Flow<T>) {
         globalLock.withLock {
             if (consumerToJobMap[consumer] == null) {
                 val scope = CoroutineScope(executor.asCoroutineDispatcher())
-                consumerToJobMap[consumer] = scope.launch {
-                    flow.collect { value ->
-                        consumer.accept(value)
-                    }
-                }
+                consumerToJobMap[consumer] =
+                    scope.launch { flow.collect { value -> consumer.accept(value) } }
             }
         }
     }

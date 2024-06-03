@@ -32,13 +32,11 @@ import kotlin.concurrent.withLock
  * extensions.
  */
 @RequiresWindowSdkExtension(2)
-internal class MulticastConsumerApi2(
-    private val context: Context
-) : Consumer<OEMWindowLayoutInfo>, OEMConsumer<OEMWindowLayoutInfo> {
+internal class MulticastConsumerApi2(private val context: Context) :
+    Consumer<OEMWindowLayoutInfo>, OEMConsumer<OEMWindowLayoutInfo> {
     private val globalLock = ReentrantLock()
 
-    @GuardedBy("globalLock")
-    private var lastKnownValue: WindowLayoutInfo? = null
+    @GuardedBy("globalLock") private var lastKnownValue: WindowLayoutInfo? = null
     @GuardedBy("globalLock")
     private val registeredListeners = mutableSetOf<Consumer<WindowLayoutInfo>>()
 
@@ -58,9 +56,7 @@ internal class MulticastConsumerApi2(
     }
 
     fun removeListener(listener: Consumer<WindowLayoutInfo>) {
-        globalLock.withLock {
-            registeredListeners.remove(listener)
-        }
+        globalLock.withLock { registeredListeners.remove(listener) }
     }
 
     fun isEmpty(): Boolean {

@@ -24,9 +24,7 @@ import androidx.window.embedding.SplitPairFilter
 import androidx.window.embedding.SplitPairRule
 import androidx.window.embedding.SplitRule.FinishBehavior
 
-/**
- * Initializes activity embedding rules for performance tests.
- */
+/** Initializes activity embedding rules for performance tests. */
 class ActivityEmbeddingRuleInitializer : Initializer<Unit> {
 
     override fun create(context: Context) {
@@ -40,17 +38,19 @@ class ActivityEmbeddingRuleInitializer : Initializer<Unit> {
                 pairFilters.add(
                     SplitPairFilter(
                         ComponentName(context, Activity1::class.java.name),
-                        ComponentName("package $index", "cls $index"), null
+                        ComponentName("package $index", "cls $index"),
+                        null
                     )
                 )
-                val rule = SplitPairRule.Builder(pairFilters)
-                    .setMinWidthDp(600)
-                    .setMinHeightDp(0)
-                    .setMinSmallestWidthDp(0)
-                    .setFinishPrimaryWithSecondary(FinishBehavior.NEVER)
-                    .setFinishSecondaryWithPrimary(FinishBehavior.NEVER)
-                    .setClearTop(true)
-                    .build()
+                val rule =
+                    SplitPairRule.Builder(pairFilters)
+                        .setMinWidthDp(600)
+                        .setMinHeightDp(0)
+                        .setMinSmallestWidthDp(0)
+                        .setFinishPrimaryWithSecondary(FinishBehavior.NEVER)
+                        .setFinishSecondaryWithPrimary(FinishBehavior.NEVER)
+                        .setClearTop(true)
+                        .build()
                 addRule(rule)
             }
         }

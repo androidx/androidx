@@ -36,10 +36,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
     @Test
     override fun testTranslate_validFeature() {
         val bounds = Rect(WINDOW_BOUNDS.left, 0, WINDOW_BOUNDS.right, 0)
-        val foldFeature = sidecarDisplayFeature(
-            bounds,
-            SidecarDisplayFeature.TYPE_FOLD
-        )
+        val foldFeature = sidecarDisplayFeature(bounds, SidecarDisplayFeature.TYPE_FOLD)
         val sidecarDisplayFeatures = listOf(foldFeature)
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
@@ -52,9 +49,8 @@ public class SidecarAdapterTest : TranslatorTestInterface {
 
     @Test
     public fun testTranslateWindowLayoutInfo_filterRemovesEmptyBoundsFeature() {
-        val sidecarDisplayFeatures = listOf(
-            sidecarDisplayFeature(Rect(), SidecarDisplayFeature.TYPE_FOLD)
-        )
+        val sidecarDisplayFeatures =
+            listOf(sidecarDisplayFeature(Rect(), SidecarDisplayFeature.TYPE_FOLD))
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
@@ -66,16 +62,11 @@ public class SidecarAdapterTest : TranslatorTestInterface {
     public fun testTranslateWindowLayoutInfo_filterRemovesNonEmptyAreaFoldFeature() {
         val fullWidthBounds = Rect(0, 1, WINDOW_BOUNDS.width(), 2)
         val fullHeightBounds = Rect(1, 0, 2, WINDOW_BOUNDS.height())
-        val sidecarDisplayFeatures = listOf(
-            sidecarDisplayFeature(
-                fullWidthBounds,
-                SidecarDisplayFeature.TYPE_FOLD
-            ),
-            sidecarDisplayFeature(
-                fullHeightBounds,
-                SidecarDisplayFeature.TYPE_FOLD
+        val sidecarDisplayFeatures =
+            listOf(
+                sidecarDisplayFeature(fullWidthBounds, SidecarDisplayFeature.TYPE_FOLD),
+                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_FOLD)
             )
-        )
         val sidecarCallbackAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
@@ -86,24 +77,15 @@ public class SidecarAdapterTest : TranslatorTestInterface {
     // TODO(b/175507310): Reinstate after fix.
     // @Test
     override fun testTranslateWindowLayoutInfo_filterRemovesHingeFeatureNotSpanningFullDimension() {
-        val fullWidthBounds = Rect(
-            WINDOW_BOUNDS.left, WINDOW_BOUNDS.top,
-            WINDOW_BOUNDS.right / 2, 2
-        )
-        val fullHeightBounds = Rect(
-            WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, 2,
-            WINDOW_BOUNDS.bottom / 2
-        )
-        val sidecarDisplayFeatures = listOf(
-            sidecarDisplayFeature(
-                fullWidthBounds,
-                SidecarDisplayFeature.TYPE_HINGE
-            ),
-            sidecarDisplayFeature(
-                fullHeightBounds,
-                SidecarDisplayFeature.TYPE_HINGE
+        val fullWidthBounds =
+            Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.right / 2, 2)
+        val fullHeightBounds =
+            Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, 2, WINDOW_BOUNDS.bottom / 2)
+        val sidecarDisplayFeatures =
+            listOf(
+                sidecarDisplayFeature(fullWidthBounds, SidecarDisplayFeature.TYPE_HINGE),
+                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_HINGE)
             )
-        )
         val sidecarAdapter = SidecarAdapter()
         val windowLayoutInfo = sidecarWindowLayoutInfo(sidecarDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
@@ -114,28 +96,22 @@ public class SidecarAdapterTest : TranslatorTestInterface {
     // TODO(b/175507310): Reinstate after fix.
     // @Test
     override fun testTranslateWindowLayoutInfo_filterRemovesFoldFeatureNotSpanningFullDimension() {
-        val fullWidthBounds = Rect(
-            WINDOW_BOUNDS.left, WINDOW_BOUNDS.top,
-            WINDOW_BOUNDS.right / 2, WINDOW_BOUNDS.top
-        )
-        val fullHeightBounds = Rect(
-            WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.left,
-            WINDOW_BOUNDS.bottom / 2
-        )
-        val extensionDisplayFeatures = listOf(
-            sidecarDisplayFeature(
-                fullWidthBounds,
-                SidecarDisplayFeature.TYPE_HINGE
-            ),
-            sidecarDisplayFeature(
-                fullHeightBounds,
-                SidecarDisplayFeature.TYPE_HINGE
+        val fullWidthBounds =
+            Rect(WINDOW_BOUNDS.left, WINDOW_BOUNDS.top, WINDOW_BOUNDS.right / 2, WINDOW_BOUNDS.top)
+        val fullHeightBounds =
+            Rect(
+                WINDOW_BOUNDS.left,
+                WINDOW_BOUNDS.top,
+                WINDOW_BOUNDS.left,
+                WINDOW_BOUNDS.bottom / 2
             )
-        )
+        val extensionDisplayFeatures =
+            listOf(
+                sidecarDisplayFeature(fullWidthBounds, SidecarDisplayFeature.TYPE_HINGE),
+                sidecarDisplayFeature(fullHeightBounds, SidecarDisplayFeature.TYPE_HINGE)
+            )
         val sidecarCallbackAdapter = SidecarAdapter()
-        val windowLayoutInfo = sidecarWindowLayoutInfo(
-            extensionDisplayFeatures
-        )
+        val windowLayoutInfo = sidecarWindowLayoutInfo(extensionDisplayFeatures)
         val state = sidecarDeviceState(SidecarDeviceState.POSTURE_OPENED)
         val actual = sidecarCallbackAdapter.translate(windowLayoutInfo, state)
         assertTrue(actual.displayFeatures.isEmpty())
@@ -168,6 +144,7 @@ public class SidecarAdapterTest : TranslatorTestInterface {
 
     internal companion object {
         private val WINDOW_BOUNDS = Rect(0, 0, 50, 100)
+
         private fun sidecarDisplayFeature(bounds: Rect, type: Int): SidecarDisplayFeature {
             val feature = SidecarDisplayFeature()
             feature.rect = bounds

@@ -30,10 +30,10 @@ import java.util.concurrent.Executor
 internal interface WindowBackend {
 
     /**
-     * Registers a callback for layout changes of the window for the supplied [UiContext].
-     * Must be called only after the it is attached to the window.
-     * The supplied [UiContext] should correspond to a window or an area on the screen. It must be
-     * either an [Activity] or a [UiContext] created with [Context#createWindowContext].
+     * Registers a callback for layout changes of the window for the supplied [UiContext]. Must be
+     * called only after the it is attached to the window. The supplied [UiContext] should
+     * correspond to a window or an area on the screen. It must be either an [Activity] or a
+     * [UiContext] created with [Context#createWindowContext].
      */
     fun registerLayoutChangeCallback(
         @UiContext context: Context,
@@ -41,9 +41,7 @@ internal interface WindowBackend {
         callback: Consumer<WindowLayoutInfo>
     )
 
-    /**
-     * Unregisters a callback for window layout changes.
-     */
+    /** Unregisters a callback for window layout changes. */
     fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

@@ -39,9 +39,9 @@ import androidx.window.reflection.ReflectionUtils.validateReflection
 import androidx.window.reflection.WindowExtensionsConstants.ACTIVITY_EMBEDDING_COMPONENT_CLASS
 
 /**
- * Reflection Guard for [ActivityEmbeddingComponent].
- * This will go through the [ActivityEmbeddingComponent]'s method by reflection and
- * check each method's name and signature to see if the interface is what we required.
+ * Reflection Guard for [ActivityEmbeddingComponent]. This will go through the
+ * [ActivityEmbeddingComponent]'s method by reflection and check each method's name and signature to
+ * see if the interface is what we required.
  */
 internal class SafeActivityEmbeddingComponentProvider(
     private val loader: ClassLoader,
@@ -84,14 +84,14 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     /**
      * [WindowExtensions.VENDOR_API_LEVEL_1] includes the following methods:
-     *  - [ActivityEmbeddingComponent.setEmbeddingRules]
-     *  - [ActivityEmbeddingComponent.isActivityEmbedded]
-     *  - [ActivityEmbeddingComponent.setSplitInfoCallback] with [java.util.function.Consumer]
-     * and following classes:
-     *  - [ActivityRule]
-     *  - [SplitInfo]
-     *  - [SplitPairRule]
-     *  - [SplitPlaceholderRule]
+     * - [ActivityEmbeddingComponent.setEmbeddingRules]
+     * - [ActivityEmbeddingComponent.isActivityEmbedded]
+     * - [ActivityEmbeddingComponent.setSplitInfoCallback] with [java.util.function.Consumer] and
+     *   following classes:
+     * - [ActivityRule]
+     * - [SplitInfo]
+     * - [SplitPairRule]
+     * - [SplitPlaceholderRule]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel1(): Boolean {
@@ -106,14 +106,13 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     /**
      * Vendor API level 2 includes the following methods:
-     *  - [ActivityEmbeddingComponent.setSplitInfoCallback] with [Consumer]
-     *  - [ActivityEmbeddingComponent.clearSplitInfoCallback]
-     *  - [ActivityEmbeddingComponent.setSplitAttributesCalculator]
-     *  - [ActivityEmbeddingComponent.clearSplitAttributesCalculator]
-     *  - [SplitInfo.getSplitAttributes]
-     * and following classes:
-     *  - [SplitAttributes]
-     *  - [SplitAttributes.SplitType]
+     * - [ActivityEmbeddingComponent.setSplitInfoCallback] with [Consumer]
+     * - [ActivityEmbeddingComponent.clearSplitInfoCallback]
+     * - [ActivityEmbeddingComponent.setSplitAttributesCalculator]
+     * - [ActivityEmbeddingComponent.clearSplitAttributesCalculator]
+     * - [SplitInfo.getSplitAttributes] and following classes:
+     * - [SplitAttributes]
+     * - [SplitAttributes.SplitType]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel2(): Boolean {
@@ -128,20 +127,19 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
-            val setEmbeddingRulesMethod = activityEmbeddingComponentClass.getMethod(
-                "setEmbeddingRules",
-                Set::class.java
-            )
+            val setEmbeddingRulesMethod =
+                activityEmbeddingComponentClass.getMethod("setEmbeddingRules", Set::class.java)
             setEmbeddingRulesMethod.isPublic
         }
     }
 
     private fun isMethodIsActivityEmbeddedValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#isActivityEmbedded is not valid") {
-            val isActivityEmbeddedMethod = activityEmbeddingComponentClass.getMethod(
-                "isActivityEmbedded",
-                Activity::class.java
-            )
+            val isActivityEmbeddedMethod =
+                activityEmbeddingComponentClass.getMethod(
+                    "isActivityEmbedded",
+                    Activity::class.java
+                )
             isActivityEmbeddedMethod.isPublic &&
                 isActivityEmbeddedMethod.doesReturn(Boolean::class.java)
         }
@@ -161,10 +159,11 @@ internal class SafeActivityEmbeddingComponentProvider(
         return validateReflection(
             "ActivityEmbeddingComponent#setSplitAttributesCalculator is not valid"
         ) {
-            val setSplitAttributesCalculatorMethod = activityEmbeddingComponentClass.getMethod(
-                "setSplitAttributesCalculator",
-                Function::class.java
-            )
+            val setSplitAttributesCalculatorMethod =
+                activityEmbeddingComponentClass.getMethod(
+                    "setSplitAttributesCalculator",
+                    Function::class.java
+                )
             val clearSplitAttributesCalculatorMethod =
                 activityEmbeddingComponentClass.getMethod("clearSplitAttributesCalculator")
             setSplitAttributesCalculatorMethod.isPublic &&
@@ -183,23 +182,19 @@ internal class SafeActivityEmbeddingComponentProvider(
     private fun isClassSplitAttributesValid(): Boolean =
         validateReflection("Class SplitAttributes is not valid") {
             val splitAttributesClass = SplitAttributes::class.java
-            val getLayoutDirectionMethod =
-                splitAttributesClass.getMethod("getLayoutDirection")
+            val getLayoutDirectionMethod = splitAttributesClass.getMethod("getLayoutDirection")
             val getSplitTypeMethod = splitAttributesClass.getMethod("getSplitType")
             val splitAttributesBuilderClass = SplitAttributes.Builder::class.java
-            val setSplitTypeMethod = splitAttributesBuilderClass.getMethod(
-                "setSplitType",
-                SplitType::class.java
-            )
-            val setLayoutDirectionMethod = splitAttributesBuilderClass.getMethod(
-                "setLayoutDirection",
-                Int::class.java
-            )
+            val setSplitTypeMethod =
+                splitAttributesBuilderClass.getMethod("setSplitType", SplitType::class.java)
+            val setLayoutDirectionMethod =
+                splitAttributesBuilderClass.getMethod("setLayoutDirection", Int::class.java)
             getLayoutDirectionMethod.isPublic &&
                 getLayoutDirectionMethod.doesReturn(Int::class.java) &&
                 getSplitTypeMethod.isPublic &&
                 getSplitTypeMethod.doesReturn(SplitType::class.java) &&
-                setSplitTypeMethod.isPublic && setLayoutDirectionMethod.isPublic
+                setSplitTypeMethod.isPublic &&
+                setLayoutDirectionMethod.isPublic
         }
 
     private fun isClassSplitTypeValid(): Boolean =
@@ -212,8 +207,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val hingeSplitTypeClass = SplitType.HingeSplitType::class.java
             val hingeSplitTypeConstructor =
                 hingeSplitTypeClass.getDeclaredConstructor(SplitType::class.java)
-            val getFallbackSplitTypeMethod =
-                hingeSplitTypeClass.getMethod("getFallbackSplitType")
+            val getFallbackSplitTypeMethod = hingeSplitTypeClass.getMethod("getFallbackSplitType")
             val expandContainersSplitTypeClass = SplitType.ExpandContainersSplitType::class.java
             val expandContainersSplitTypeConstructor =
                 expandContainersSplitTypeClass.getDeclaredConstructor()
@@ -243,10 +237,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             val activityRuleClass = ActivityRule::class.java
             val shouldAlwaysExpandMethod = activityRuleClass.getMethod("shouldAlwaysExpand")
             val activityRuleBuilderClass = ActivityRule.Builder::class.java
-            val setShouldAlwaysExpandMethod = activityRuleBuilderClass.getMethod(
-                "setShouldAlwaysExpand",
-                Boolean::class.java
-            )
+            val setShouldAlwaysExpandMethod =
+                activityRuleBuilderClass.getMethod("setShouldAlwaysExpand", Boolean::class.java)
             shouldAlwaysExpandMethod.isPublic &&
                 shouldAlwaysExpandMethod.doesReturn(Boolean::class.java) &&
                 setShouldAlwaysExpandMethod.isPublic
@@ -255,8 +247,7 @@ internal class SafeActivityEmbeddingComponentProvider(
     private fun isClassSplitInfoValid(): Boolean =
         validateReflection("Class SplitInfo is not valid") {
             val splitInfoClass = SplitInfo::class.java
-            val getPrimaryActivityStackMethod =
-                splitInfoClass.getMethod("getPrimaryActivityStack")
+            val getPrimaryActivityStackMethod = splitInfoClass.getMethod("getPrimaryActivityStack")
             val getSecondaryActivityStackMethod =
                 splitInfoClass.getMethod("getSecondaryActivityStack")
             val getSplitRatioMethod = splitInfoClass.getMethod("getSplitRatio")
@@ -302,10 +293,11 @@ internal class SafeActivityEmbeddingComponentProvider(
 
     private fun isMethodSetSplitInfoCallbackWindowConsumerValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setSplitInfoCallback is not valid") {
-            val setSplitInfoCallbackMethod = activityEmbeddingComponentClass.getMethod(
-                "setSplitInfoCallback",
-                Consumer::class.java
-            )
+            val setSplitInfoCallbackMethod =
+                activityEmbeddingComponentClass.getMethod(
+                    "setSplitInfoCallback",
+                    Consumer::class.java
+                )
             setSplitInfoCallbackMethod.isPublic
         }
     }

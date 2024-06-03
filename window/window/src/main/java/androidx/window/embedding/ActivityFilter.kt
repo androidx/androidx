@@ -27,19 +27,20 @@ import androidx.window.embedding.MatcherUtils.sMatchersTag
 import androidx.window.embedding.MatcherUtils.validateComponentName
 
 /**
- * Filter for [ActivityRule] and [SplitPlaceholderRule] that checks for component name match when
- * a new activity is started. If the filter matches the started activity [Intent], the activity will
+ * Filter for [ActivityRule] and [SplitPlaceholderRule] that checks for component name match when a
+ * new activity is started. If the filter matches the started activity [Intent], the activity will
  * then apply the rule based on the match result. This filter allows a wildcard symbol in the end or
  * instead of the package name, and a wildcard symbol in the end or instead of the class name.
  */
-class ActivityFilter internal constructor(
+class ActivityFilter
+internal constructor(
     /**
      * Component name in the intent for the activity. Must be non-empty. Can contain a single
      * wildcard at the end. Supported formats:
-     *   - package/class
-     *   - `package/*`
-     *   - `package/suffix.*`
-     *   - `*/*`
+     * - package/class
+     * - `package/*`
+     * - `package/suffix.*`
+     * - `*/*`
      */
     internal val activityComponentInfo: ActivityComponentInfo,
     /**
@@ -55,70 +56,64 @@ class ActivityFilter internal constructor(
      * Constructs a new [ActivityFilter] using a [ComponentName] and an [Intent] action.
      *
      * @param componentName Component name in the intent for the activity. Must be non-empty. Can
-     * contain a single wildcard at the end. Supported formats:
-     *   - package/class
-     *   - `package/*`
-     *   - `package/suffix.*`
-     *   - `*/*`
+     *   contain a single wildcard at the end. Supported formats:
+     *     - package/class
+     *     - `package/*`
+     *     - `package/suffix.*`
+     *     - `*/*`
+     *
      * @param intentAction Action used for activity launch intent. If it is not `null`, the
-     * [ActivityFilter] will check the activity [Intent.getAction] besides the component name. If it
-     * is `null`, [Intent.getAction] will be ignored.
+     *   [ActivityFilter] will check the activity [Intent.getAction] besides the component name. If
+     *   it is `null`, [Intent.getAction] will be ignored.
      */
-    constructor(componentName: ComponentName, intentAction: String?) : this(
-        ActivityComponentInfo(componentName),
-        intentAction
-    )
+    constructor(
+        componentName: ComponentName,
+        intentAction: String?
+    ) : this(ActivityComponentInfo(componentName), intentAction)
 
     init {
         validateComponentName(activityComponentInfo.packageName, activityComponentInfo.className)
     }
 
     /**
-     * Returns `true` if the [ActivityFilter] matches this [Intent].
-     * If the [ActivityFilter] is created with an intent action, the filter will also compare it
-     * with [Intent.getAction].
+     * Returns `true` if the [ActivityFilter] matches this [Intent]. If the [ActivityFilter] is
+     * created with an intent action, the filter will also compare it with [Intent.getAction].
      *
      * @param intent the [Intent] to test against.
      */
     fun matchesIntent(intent: Intent): Boolean {
-        val match = if (!isIntentMatching(intent, activityComponentInfo)) {
+        val match =
+            if (!isIntentMatching(intent, activityComponentInfo)) {
                 false
             } else {
                 intentAction == null || intentAction == intent.action
             }
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
-            Log.w(
-                sMatchersTag,
-                "Checking filter $this against intent $intent:  $matchString"
-            )
+            Log.w(sMatchersTag, "Checking filter $this against intent $intent:  $matchString")
         }
         return match
     }
 
     /**
-     * Returns `true` if the [ActivityFilter] matches this [Activity].
-     * If the [ActivityFilter] is created with an intent action, the filter will also compare it
-     * with [Intent.getAction] of [Activity.getIntent].
+     * Returns `true` if the [ActivityFilter] matches this [Activity]. If the [ActivityFilter] is
+     * created with an intent action, the filter will also compare it with [Intent.getAction] of
+     * [Activity.getIntent].
      *
      * @param activity the [Activity] to test against.
      */
     fun matchesActivity(activity: Activity): Boolean {
-        val match = isActivityMatching(activity, activityComponentInfo) &&
-            (intentAction == null || intentAction == activity.intent?.action)
+        val match =
+            isActivityMatching(activity, activityComponentInfo) &&
+                (intentAction == null || intentAction == activity.intent?.action)
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
-            Log.w(
-                sMatchersTag,
-                "Checking filter $this against activity $activity:  $matchString"
-            )
+            Log.w(sMatchersTag, "Checking filter $this against activity $activity:  $matchString")
         }
         return match
     }
 
-    /**
-     * [ComponentName] that the [ActivityFilter] will use to match [Activity] and [Intent].
-     */
+    /** [ComponentName] that the [ActivityFilter] will use to match [Activity] and [Intent]. */
     val componentName: ComponentName
         get() {
             return ComponentName(activityComponentInfo.packageName, activityComponentInfo.className)
