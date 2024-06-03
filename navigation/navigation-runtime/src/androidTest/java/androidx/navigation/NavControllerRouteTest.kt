@@ -3919,6 +3919,136 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectEmptyStringList() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(emptyList())) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEmptyStringListUseDefault() {
+        @Serializable
+        @SerialName("test")
+        class TestClass(val arg: List<String> = listOf("one", "two"))
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(emptyList())) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).containsExactly("one", "two").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringListEmptyString() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(listOf(""))) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).containsExactly("")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringListEmptyStringFirstValue() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(listOf("", "two", "three"))) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).containsExactly("", "two", "three").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringListEmptyStringMiddleValue() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(listOf("one", "", "three"))) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).containsExactly("one", "", "three").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringListEmptyStringLastValue() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(listOf("one", "two", ""))) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).containsExactly("one", "two", "").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEmptyIntList() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<Int>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(emptyList())) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEmptyIntListUseDefault() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<Int> = listOf(1, 2))
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(emptyList())) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).containsExactly(1, 2).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testDeepLinkFromNavGraph() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
