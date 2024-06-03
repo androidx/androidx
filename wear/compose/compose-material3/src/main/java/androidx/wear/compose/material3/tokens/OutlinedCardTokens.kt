@@ -23,13 +23,13 @@ import androidx.compose.ui.unit.dp
 
 internal object OutlinedCardTokens {
     val AppImageSize = 16.0.dp
-    val AppNameColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val AppNameColor = ColorSchemeKeyTokens.OnSurface
     val BorderWidth = 1.0.dp
     val ContainerBorderColor = ColorSchemeKeyTokens.Outline
     val ContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ContentTypography = TypographyKeyTokens.BodyLarge
     val Shape = ShapeKeyTokens.CornerLarge
     val SubtitleColor = ColorSchemeKeyTokens.Tertiary
-    val TimeColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val TimeColor = ColorSchemeKeyTokens.OnSurface
     val TitleColor = ColorSchemeKeyTokens.OnSurface
 }
