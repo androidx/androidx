@@ -32,7 +32,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
-    compileSdkPreview "VanillaIceCream"
+    compileSdk = 35
 }
 
 dependencies {
@@ -77,7 +77,7 @@ android {
     }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.biometric"
-    compileSdkPreview "VanillaIceCream"
+    compileSdk = 35
 }
 
 androidx {
