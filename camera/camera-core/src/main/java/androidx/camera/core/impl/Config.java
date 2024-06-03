@@ -252,9 +252,19 @@ public interface Config {
          * value.
          *
          * <p>This priority should only be used to explicitly specify an option, such as used by
-         * {@code Camera2Interop} or {@code Camera2CameraControl}, and should be used with caution.
+         * {@code Camera2Interop} or {@code Camera2CameraControl} to override an option.
          */
         ALWAYS_OVERRIDE,
+
+        /**
+         * This priority is higher than {@link #REQUIRED} and {@link #OPTIONAL}, and it is designed
+         * to override the options internally to work around some device specific issues.
+         *
+         * <p>When two option values are set with this priority, the newer value takes precedence
+         * over the old one. Options with this priority can still be overridden by
+         * {@link #ALWAYS_OVERRIDE} which are normally used by {@code Camera2Interop}.
+         */
+        HIGH_PRIORITY_REQUIRED,
 
         /**
          * It's a required option value in order to achieve expected CameraX behavior. It takes

@@ -17,6 +17,7 @@
 package androidx.camera.core.impl;
 
 import static androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE;
+import static androidx.camera.core.impl.Config.OptionPriority.HIGH_PRIORITY_REQUIRED;
 import static androidx.camera.core.impl.Config.OptionPriority.OPTIONAL;
 import static androidx.camera.core.impl.Config.OptionPriority.REQUIRED;
 
@@ -51,12 +52,14 @@ public class OptionsBundleTest {
             "option.int_list", List.class);
     private static final Option<Object> OPTION_NULL_VALUE = Option.create("option.NullVaule",
             Object.class);
-    private static final Option<Object> OPTION_MISSING =
-            Option.create("option.missing", Object.class);
+    private static final Option<Object> OPTION_MISSING = Option.create("option.missing",
+            Object.class);
 
     private static final Object VALUE_1 = new Object();
     private static final Object VALUE_1_A = new Object();
     private static final Object VALUE_2 = new Object();
+    private static final Object VALUE_3 = new Object();
+    private static final Object VALUE_4 = new Object();
     private static final List<Integer> VALUE_INTEGER_LIST = new ArrayList<>();
     private static final Object VALUE_MISSING = new Object();
 
@@ -77,7 +80,7 @@ public class OptionsBundleTest {
         mutOpts.insertOption(OPTION_1, REQUIRED, VALUE_2);
         mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_1);
         mutOpts.insertOption(OPTION_1, OPTIONAL, VALUE_1_A);
-
+        mutOpts.insertOption(OPTION_1, HIGH_PRIORITY_REQUIRED, VALUE_4);
 
         mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
         mutOpts.insertOption(OPTION_2, VALUE_2);
@@ -137,41 +140,35 @@ public class OptionsBundleTest {
         assertThat(copyBundle.containsOption(OPTION_1_A)).isTrue();
         assertThat(copyBundle.containsOption(OPTION_2)).isTrue();
 
-        assertThat(copyBundle.getPriorities(OPTION_1))
-                .containsExactly(REQUIRED, ALWAYS_OVERRIDE, OPTIONAL);
-        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, REQUIRED))
-                .isEqualTo(VALUE_2);
-        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, ALWAYS_OVERRIDE))
-                .isEqualTo(VALUE_1);
-        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, OPTIONAL))
-                .isEqualTo(VALUE_1_A);
+        assertThat(copyBundle.getPriorities(OPTION_1)).containsExactly(REQUIRED, ALWAYS_OVERRIDE,
+                OPTIONAL, HIGH_PRIORITY_REQUIRED);
+        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, REQUIRED)).isEqualTo(VALUE_2);
+        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, ALWAYS_OVERRIDE)).isEqualTo(
+                VALUE_1);
+        assertThat(copyBundle.retrieveOptionWithPriority(OPTION_1, OPTIONAL)).isEqualTo(VALUE_1_A);
     }
 
     @Test
     public void canFindPartialIds() {
-        mAllOpts.findOptions(
-                "option.1",
-                new Config.OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(@NonNull Option<?> option) {
-                        assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
-                        return true;
-                    }
-                });
+        mAllOpts.findOptions("option.1", new Config.OptionMatcher() {
+            @Override
+            public boolean onOptionMatched(@NonNull Option<?> option) {
+                assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
+                return true;
+            }
+        });
     }
 
     @Test
     public void canStopSearchingAfterFirstMatch() {
         final AtomicInteger count = new AtomicInteger();
-        mAllOpts.findOptions(
-                "option",
-                new Config.OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(@NonNull Option<?> option) {
-                        count.getAndIncrement();
-                        return false;
-                    }
-                });
+        mAllOpts.findOptions("option", new Config.OptionMatcher() {
+            @Override
+            public boolean onOptionMatched(@NonNull Option<?> option) {
+                count.getAndIncrement();
+                return false;
+            }
+        });
 
         assertThat(count.get()).isEqualTo(1);
     }
@@ -179,15 +176,13 @@ public class OptionsBundleTest {
     @Test
     public void canGetZeroResults_fromFind() {
         final AtomicInteger count = new AtomicInteger();
-        mAllOpts.findOptions(
-                "invalid_find_string",
-                new Config.OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(@NonNull Option<?> option) {
-                        count.getAndIncrement();
-                        return false;
-                    }
-                });
+        mAllOpts.findOptions("invalid_find_string", new Config.OptionMatcher() {
+            @Override
+            public boolean onOptionMatched(@NonNull Option<?> option) {
+                count.getAndIncrement();
+                return false;
+            }
+        });
 
         assertThat(count.get()).isEqualTo(0);
     }
@@ -195,15 +190,13 @@ public class OptionsBundleTest {
     @Test
     public void canRetrieveValue_fromFindLambda() {
         final AtomicReference<Object> value = new AtomicReference<>(VALUE_MISSING);
-        mAllOpts.findOptions(
-                "option.2",
-                new Config.OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(@NonNull Option<?> option) {
-                        value.set(mAllOpts.retrieveOption(option));
-                        return true;
-                    }
-                });
+        mAllOpts.findOptions("option.2", new Config.OptionMatcher() {
+            @Override
+            public boolean onOptionMatched(@NonNull Option<?> option) {
+                value.set(mAllOpts.retrieveOption(option));
+                return true;
+            }
+        });
 
         assertThat(value.get()).isSameInstanceAs(VALUE_2);
     }
@@ -219,12 +212,16 @@ public class OptionsBundleTest {
         MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
         mutOpts.insertOption(OPTION_1, REQUIRED, VALUE_2);
         mutOpts.insertOption(OPTION_1, ALWAYS_OVERRIDE, VALUE_1);
-        mutOpts.insertOption(OPTION_1, OPTIONAL, VALUE_1_A);
+        mutOpts.insertOption(OPTION_1, OPTIONAL, VALUE_3);
+        mutOpts.insertOption(OPTION_1, HIGH_PRIORITY_REQUIRED, VALUE_4);
+
 
         OptionsBundle config = OptionsBundle.from(mutOpts);
         assertThat(config.retrieveOptionWithPriority(OPTION_1, REQUIRED)).isEqualTo(VALUE_2);
         assertThat(config.retrieveOptionWithPriority(OPTION_1, ALWAYS_OVERRIDE)).isEqualTo(VALUE_1);
-        assertThat(config.retrieveOptionWithPriority(OPTION_1, OPTIONAL)).isEqualTo(VALUE_1_A);
+        assertThat(config.retrieveOptionWithPriority(OPTION_1, OPTIONAL)).isEqualTo(VALUE_3);
+        assertThat(config.retrieveOptionWithPriority(OPTION_1, HIGH_PRIORITY_REQUIRED)).isEqualTo(
+                VALUE_4);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -248,8 +245,8 @@ public class OptionsBundleTest {
 
     @Test
     public void canGetPriorites() {
-        assertThat(mAllOpts.getPriorities(OPTION_1))
-                .containsExactly(ALWAYS_OVERRIDE, OPTIONAL, REQUIRED);
+        assertThat(mAllOpts.getPriorities(OPTION_1)).containsExactly(ALWAYS_OVERRIDE, OPTIONAL,
+                REQUIRED, HIGH_PRIORITY_REQUIRED);
     }
 
     @Test
