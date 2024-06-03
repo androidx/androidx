@@ -22,6 +22,8 @@ import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.SeekableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -78,13 +80,15 @@ private fun rememberViewModelStoreOwner(): ViewModelStoreOwner {
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
  *
  * The builder passed into this method is [remember]ed. This means that for this NavHost, the
  * contents of the builder cannot be changed.
+ *
+ * @sample androidx.navigation.compose.samples.NavScaffold
  *
  * @param navController the navController for this host
  * @param startDestination the route for the start destination
@@ -114,7 +118,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -142,7 +146,7 @@ public fun NavHost(
     navController: NavHostController,
     startDestination: String,
     modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.Center,
+    contentAlignment: Alignment = Alignment.TopStart,
     route: String? = null,
     enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
         { fadeIn(animationSpec = tween(700)) },
@@ -169,7 +173,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -194,7 +198,7 @@ public fun NavHost(
     navController: NavHostController,
     startDestination: String,
     modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.Center,
+    contentAlignment: Alignment = Alignment.TopStart,
     route: String? = null,
     enterTransition: (@JvmSuppressWildcards
     AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
@@ -226,7 +230,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -370,7 +374,7 @@ public fun NavHost(
 ) = NavHost(navController, graph, modifier)
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -393,7 +397,7 @@ public fun NavHost(
     navController: NavHostController,
     graph: NavGraph,
     modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.Center,
+    contentAlignment: Alignment = Alignment.TopStart,
     enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
         { fadeIn(animationSpec = tween(700)) },
     exitTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) =
@@ -416,7 +420,7 @@ public fun NavHost(
 }
 
 /**
- * Provides in place in the Compose hierarchy for self contained navigation to occur.
+ * Provides a place in the Compose hierarchy for self contained navigation to occur.
  *
  * Once this is called, any Composable within the given [NavGraphBuilder] can be navigated to from
  * the provided [navController].
@@ -436,7 +440,7 @@ public fun NavHost(
     navController: NavHostController,
     graph: NavGraph,
     modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.Center,
+    contentAlignment: Alignment = Alignment.TopStart,
     enterTransition: (@JvmSuppressWildcards
     AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
         { fadeIn(animationSpec = tween(700)) },
@@ -469,24 +473,25 @@ public fun NavHost(
 
     var progress by remember { mutableFloatStateOf(0f) }
     var inPredictiveBack by remember { mutableStateOf(false) }
-    // TODO: Support PredictiveBackHandler on multiplatform
-//    PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
-//        progress = 0f
-//        val currentBackStackEntry = currentBackStack.lastOrNull()
-//        composeNavigator.prepareForTransition(currentBackStackEntry!!)
-//        val previousEntry = currentBackStack[currentBackStack.size - 2]
-//        composeNavigator.prepareForTransition(previousEntry)
-//        try {
-//            backEvent.collect {
-//                inPredictiveBack = true
-//                progress = it.progress
-//            }
-//            inPredictiveBack = false
-//            composeNavigator.popBackStack(currentBackStackEntry, false)
-//        } catch (e: CancellationException) {
-//            inPredictiveBack = false
-//        }
-//    }
+    /* TODO: Support PredictiveBackHandler on multiplatform
+    PredictiveBackHandler(currentBackStack.size > 1) { backEvent ->
+        progress = 0f
+        val currentBackStackEntry = currentBackStack.lastOrNull()
+        composeNavigator.prepareForTransition(currentBackStackEntry!!)
+        val previousEntry = currentBackStack[currentBackStack.size - 2]
+        composeNavigator.prepareForTransition(previousEntry)
+        try {
+            backEvent.collect {
+                inPredictiveBack = true
+                progress = it.progress
+            }
+            inPredictiveBack = false
+            composeNavigator.popBackStack(currentBackStackEntry, false)
+        } catch (e: CancellationException) {
+            inPredictiveBack = false
+        }
+    }
+    */
 
     DisposableEffect(lifecycleOwner) {
         // Setup the navController with proper owners
@@ -557,22 +562,29 @@ public fun NavHost(
             }
         }
 
-        val transition =
-//        if (inPredictiveBack) {
-//            val transitionState = remember(backStackEntry) {
-//                // The state returned here cannot be nullable cause it produces the input of the
-//                // transitionSpec passed into the AnimatedContent and that must match the non-nullable
-//                // scope exposed by the transitions on the NavHost and composable APIs.
-//                SeekableTransitionState(backStackEntry)
-//            }
-//            LaunchedEffect(progress) {
-//                val previousEntry = currentBackStack[currentBackStack.size - 2]
-//                transitionState.seekTo(progress, previousEntry)
-//            }
-//            rememberTransition(transitionState, label = "entry")
-//        } else {
-            updateTransition(backStackEntry, label = "entry")
-//        }
+        val transitionState = remember {
+            // The state returned here cannot be nullable cause it produces the input of the
+            // transitionSpec passed into the AnimatedContent and that must match the non-nullable
+            // scope exposed by the transitions on the NavHost and composable APIs.
+            SeekableTransitionState(backStackEntry)
+        }
+
+        if (inPredictiveBack) {
+            LaunchedEffect(progress) {
+                val previousEntry = currentBackStack[currentBackStack.size - 2]
+                transitionState.seekTo(progress, previousEntry)
+            }
+        } else {
+            LaunchedEffect(backStackEntry) {
+                // This ensures we don't animate after the back gesture is cancelled and we
+                // are already on the current state
+                if (transitionState.currentState != backStackEntry) {
+                    transitionState.animateTo(backStackEntry)
+                }
+            }
+        }
+
+        val transition = rememberTransition(transitionState, label = "entry")
 
         transition.AnimatedContent(
             modifier,
