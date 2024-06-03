@@ -33,18 +33,11 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateListOf
  */
 @Stable
-class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
-    override var firstStateRecord: StateRecord =
-        persistentListOf<T>().let { list ->
-            StateListStateRecord(list).also {
-                if (Snapshot.isInSnapshot) {
-                    it.next =
-                        StateListStateRecord(list).also { next ->
-                            next.snapshotId = Snapshot.PreexistingSnapshotId
-                        }
-                }
-            }
-        }
+class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T>) :
+    StateObject, MutableList<T>, RandomAccess {
+    constructor() : this(persistentListOf())
+
+    override var firstStateRecord: StateRecord = stateRecordWith(persistentList)
         private set
 
     override fun prependStateRecord(value: StateRecord) {
@@ -261,6 +254,36 @@ class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
         }
         result
     }
+
+    private fun stateRecordWith(list: PersistentList<T>): StateRecord {
+        return StateListStateRecord(list).also {
+            if (Snapshot.isInSnapshot) {
+                it.next =
+                    StateListStateRecord(list).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
+            }
+        }
+    }
+}
+
+/**
+ * Creates a new snapshot state list with the specified [size], where each element is calculated by
+ * calling the specified [init] function.
+ *
+ * The function [init] is called for each list element sequentially starting from the first one. It
+ * should return the value for a list element given its index.
+ */
+fun <T> SnapshotStateList(size: Int, init: (index: Int) -> T): SnapshotStateList<T> {
+    if (size == 0) {
+        return SnapshotStateList()
+    }
+
+    val builder = persistentListOf<T>().builder()
+    for (i in 0 until size) {
+        builder.add(init(i))
+    }
+    return SnapshotStateList(builder.build())
 }
 
 /**
