@@ -3757,6 +3757,76 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithEmptyStringList() {
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test(route = "start?arg={arg}") {
+                    argument("arg") { type = NavType.StringListType }
+                }
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val arg = navController.currentBackStackEntry?.arguments?.getStringArray("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).asList().isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithEmptyStringListUseDefault() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test(route = "start?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.StringListType
+                        defaultValue = listOf("one", "two")
+                    }
+                }
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val arg = navController.currentBackStackEntry?.arguments?.getStringArray("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).asList().containsExactly("one", "two")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithEmptyIntList() {
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start?arg=") {
+                test(route = "start?arg={arg}") { argument("arg") { type = NavType.IntListType } }
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val arg = navController.currentBackStackEntry?.arguments?.getIntArray("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).asList().isEmpty()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithEmptyIntListUseDefault() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start?arg=") {
+                test(route = "start?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.IntListType
+                        defaultValue = listOf(1, 2)
+                    }
+                }
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val arg = navController.currentBackStackEntry?.arguments?.getIntArray("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).asList().containsExactly(1, 2)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectListArg() {
         @Serializable class TestClass(val arg: MutableList<Boolean>)
 
