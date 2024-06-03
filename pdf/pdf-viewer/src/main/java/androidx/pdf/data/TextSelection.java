@@ -16,10 +16,12 @@
 
 package androidx.pdf.data;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.SelectionBoundary;
 
@@ -35,11 +37,11 @@ public class TextSelection implements Parcelable {
     public static final Creator<TextSelection> CREATOR = new Creator<TextSelection>() {
         @Override
         public TextSelection createFromParcel(Parcel parcel) {
-            return new TextSelection((SelectionBoundary) Objects.requireNonNull(
-                    parcel.readParcelable(
-                            SelectionBoundary.class.getClassLoader())),
-                    (SelectionBoundary) Objects.requireNonNull(parcel.readParcelable(
-                            SelectionBoundary.class.getClassLoader())));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return Api33Impl.createFromParcel(parcel);
+            } else {
+                return ApiPre33Impl.createFromParcel(parcel);
+            }
         }
 
         @Override
@@ -77,12 +79,68 @@ public class TextSelection implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        parcel.writeParcelable(mStart, 0);
-        parcel.writeParcelable(mStop, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Api33Impl.writeToParcel(this, parcel, flags);
+        } else {
+            ApiPre33Impl.writeToParcel(this, parcel, flags);
+        }
     }
 
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU) // API 33
+    private static final class Api33Impl {
+
+        private Api33Impl() {
+        } // Prevent instantiation
+
+        public static TextSelection createFromParcel(Parcel parcel) {
+            SelectionBoundary start = parcel.readParcelable(
+                    SelectionBoundary.class.getClassLoader(), SelectionBoundary.class);
+            SelectionBoundary stop = parcel.readParcelable(
+                    SelectionBoundary.class.getClassLoader(), SelectionBoundary.class);
+
+            Objects.requireNonNull(start, "Start SelectionBoundary cannot be null");
+            Objects.requireNonNull(stop, "Stop SelectionBoundary cannot be null");
+
+            return new TextSelection(start, stop);
+        }
+
+        public static void writeToParcel(
+                TextSelection selection,
+                @NonNull Parcel parcel,
+                int flags
+        ) {
+            parcel.writeParcelable(selection.mStart, flags);
+            parcel.writeParcelable(selection.mStop, flags);
+        }
+    }
+
+    private static final class ApiPre33Impl {
+
+        private ApiPre33Impl() {
+        } // Prevent instantiation
+
+        public static TextSelection createFromParcel(Parcel parcel) {
+            SelectionBoundary start = SelectionBoundary.CREATOR.createFromParcel(parcel);
+            SelectionBoundary stop = SelectionBoundary.CREATOR.createFromParcel(parcel);
+
+            Objects.requireNonNull(start, "Start SelectionBoundary cannot be null");
+            Objects.requireNonNull(stop, "Stop SelectionBoundary cannot be null");
+
+            return new TextSelection(start, stop);
+        }
+
+        public static void writeToParcel(
+                TextSelection selection,
+                @NonNull Parcel parcel,
+                int flags
+        ) {
+            selection.mStart.writeToParcel(parcel, flags);
+            selection.mStop.writeToParcel(parcel, flags);
+        }
     }
 }
