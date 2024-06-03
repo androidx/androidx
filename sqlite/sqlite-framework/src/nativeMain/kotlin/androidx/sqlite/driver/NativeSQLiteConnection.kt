@@ -35,7 +35,6 @@ import sqlite3.sqlite3_close_v2
 import sqlite3.sqlite3_prepare16_v2
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
-@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : SQLiteConnection {
 
     @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false

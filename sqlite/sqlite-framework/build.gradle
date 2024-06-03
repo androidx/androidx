@@ -92,6 +92,9 @@ androidXMultiplatform {
         }
         nativeMain {
             dependsOn(commonMain)
+            // For usage of C interop APIs
+            // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
+            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
         }
         nativeTest {
             dependsOn(commonTest)
@@ -101,10 +104,9 @@ androidXMultiplatform {
                 def main = target.compilations["main"]
                 main.defaultSourceSet {
                     dependsOn(nativeMain)
+                    // Aligns dependants of nativeMain to have same language settings.
+                    languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
                 }
-                // For usage of C interop APIs
-                // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
-                main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
                     sqlite3 { cInteropSettings ->
                         includeDirs(configurations.sqliteSources.incoming.files)
