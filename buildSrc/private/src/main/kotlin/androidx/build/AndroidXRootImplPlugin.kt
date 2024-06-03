@@ -57,7 +57,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         project.validateAllAndroidxArgumentsAreRecognized()
         tasks.register("listAndroidXProperties", ListAndroidXPropertiesTask::class.java)
         setDependencyVersions()
-        configureKtlintCheckFile()
+        configureKtfmtCheckFile()
         tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
 
         maybeRegisterFilterableTask()
