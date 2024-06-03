@@ -57,3 +57,15 @@ fun OutlinedIconButtonSample() {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }
 }
+
+@Sampled
+@Composable
+fun IconButtonWithOnLongClickSample(onLongClick: () -> Unit) {
+    IconButton(
+        onClick = { /* Do something for onClick*/ },
+        onLongClick = onLongClick,
+        onLongClickLabel = "OnLongClick action"
+    ) {
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+    }
+}

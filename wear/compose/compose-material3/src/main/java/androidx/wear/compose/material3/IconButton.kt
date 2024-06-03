@@ -56,8 +56,15 @@ import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
  *
  * @sample androidx.wear.compose.material3.samples.IconButtonSample
  *
+ * Example of an [IconButton] with onLongClick:
+ *
+ * @sample androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
+ *   set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the icon button's shape. It is strongly recommended to use the default as
@@ -77,16 +84,20 @@ import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
 fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
-) {
-    androidx.wear.compose.materialcore.RoundButton(
+) =
+    RoundButton(
         onClick = onClick,
         modifier.minimumInteractiveComponentSize(),
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
         enabled = enabled,
         backgroundColor = { colors.containerColor(enabled = it) },
         interactionSource = interactionSource,
@@ -96,7 +107,6 @@ fun IconButton(
         ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
-}
 
 /**
  * Wear Material [FilledIconButton] is a circular, icon-only button with a colored background and a
@@ -122,6 +132,9 @@ fun IconButton(
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
+ *   set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the icon button's shape. It is strongly recommended to use the default as
@@ -141,13 +154,29 @@ fun IconButton(
 fun FilledIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
-) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
+) =
+    RoundButton(
+        onClick = onClick,
+        modifier = modifier.minimumInteractiveComponentSize(),
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        enabled = enabled,
+        backgroundColor = { colors.containerColor(enabled = it) },
+        interactionSource = interactionSource,
+        shape = shape,
+        border = { border },
+        buttonSize = IconButtonDefaults.DefaultButtonSize,
+        ripple = rippleOrFallbackImplementation(),
+        content = provideScopeContent(colors.contentColor(enabled = enabled), content)
+    )
 
 /**
  * Wear Material [FilledTonalIconButton] is a circular, icon-only button with a muted, colored
@@ -173,6 +202,9 @@ fun FilledIconButton(
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
+ *   set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the icon button's shape. It is strongly recommended to use the default as
@@ -192,13 +224,29 @@ fun FilledIconButton(
 fun FilledTonalIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
-) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
+) =
+    RoundButton(
+        onClick = onClick,
+        modifier = modifier.minimumInteractiveComponentSize(),
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        enabled = enabled,
+        backgroundColor = { colors.containerColor(enabled = it) },
+        interactionSource = interactionSource,
+        shape = shape,
+        border = { border },
+        buttonSize = IconButtonDefaults.DefaultButtonSize,
+        ripple = rippleOrFallbackImplementation(),
+        content = provideScopeContent(colors.contentColor(enabled = enabled), content)
+    )
 
 /**
  * Wear Material [OutlinedIconButton] is a circular, icon-only button with a transparent background,
@@ -227,6 +275,9 @@ fun FilledTonalIconButton(
  *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
+ *   set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the icon button's shape. It is strongly recommended to use the default as
@@ -247,13 +298,29 @@ fun FilledTonalIconButton(
 fun OutlinedIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = IconButtonDefaults.shape,
     colors: IconButtonColors = IconButtonDefaults.outlinedIconButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
-) = IconButton(onClick, modifier, enabled, shape, colors, border, interactionSource, content)
+) =
+    RoundButton(
+        onClick = onClick,
+        modifier = modifier.minimumInteractiveComponentSize(),
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        enabled = enabled,
+        backgroundColor = { colors.containerColor(enabled = it) },
+        interactionSource = interactionSource,
+        shape = shape,
+        border = { border },
+        buttonSize = IconButtonDefaults.DefaultButtonSize,
+        ripple = rippleOrFallbackImplementation(),
+        content = provideScopeContent(colors.contentColor(enabled = enabled), content)
+    )
 
 /**
  * Wear Material [IconToggleButton] is a filled icon toggle button which switches between primary
