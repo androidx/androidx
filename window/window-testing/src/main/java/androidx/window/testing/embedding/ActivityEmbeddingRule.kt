@@ -63,9 +63,9 @@ class ActivityEmbeddingRule : TestRule {
      * Overrides the return value of [ActivityEmbeddingController.isActivityEmbedded].
      *
      * @param activity [Activity] that will be passed to
-     * [ActivityEmbeddingController.isActivityEmbedded].
+     *   [ActivityEmbeddingController.isActivityEmbedded].
      * @param isActivityEmbedded whether [ActivityEmbeddingController.isActivityEmbedded] should
-     * return `true` for the `activity`.
+     *   return `true` for the `activity`.
      */
     fun overrideIsActivityEmbedded(activity: Activity, isActivityEmbedded: Boolean) {
         stubEmbeddingBackend.overrideIsActivityEmbedded(activity, isActivityEmbedded)
@@ -86,7 +86,7 @@ class ActivityEmbeddingRule : TestRule {
      *
      * @param activity the [Activity] corresponding to the [splitInfoList].
      * @param splitInfoList a list of [SplitInfo] that will be emitted through
-     * [SplitController.splitInfoList].
+     *   [SplitController.splitInfoList].
      */
     fun overrideSplitInfo(activity: Activity, splitInfoList: List<SplitInfo>) {
         stubEmbeddingBackend.overrideSplitInfo(activity, splitInfoList)

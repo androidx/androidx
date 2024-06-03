@@ -25,29 +25,24 @@ import androidx.window.extensions.embedding.SplitInfo.Token
 
 /** Describes a split pair of two containers with activities. */
 @Suppress("Deprecation") // To compat with device with version 3 and 4.
-class SplitInfo private constructor(
-    /**
-     * The [ActivityStack] representing the primary split container.
-     */
+class SplitInfo
+private constructor(
+    /** The [ActivityStack] representing the primary split container. */
     val primaryActivityStack: ActivityStack,
-    /**
-     * The [ActivityStack] representing the secondary split container.
-     */
+    /** The [ActivityStack] representing the secondary split container. */
     val secondaryActivityStack: ActivityStack,
     /** The [SplitAttributes] of this split pair. */
     val splitAttributes: SplitAttributes,
-
     @Deprecated(
         message = "Use [token] instead",
-        replaceWith = ReplaceWith(
-            expression = "SplitInfo.token",
-            imports = arrayOf("androidx.window.embedding.SplitInfo"),
-        )
+        replaceWith =
+            ReplaceWith(
+                expression = "SplitInfo.token",
+                imports = arrayOf("androidx.window.embedding.SplitInfo"),
+            )
     )
     private val binder: IBinder?,
-    /**
-     * A token uniquely identifying this `SplitInfo`.
-     */
+    /** A token uniquely identifying this `SplitInfo`. */
     private val token: Token?,
 ) {
     @RequiresWindowSdkExtension(5)
@@ -58,9 +53,7 @@ class SplitInfo private constructor(
         token: Token,
     ) : this(primaryActivityStack, secondaryActivityStack, splitAttributes, binder = null, token)
 
-    /**
-     * Creates SplitInfo for [WindowSdkExtensions.extensionVersion] 3 and 4.
-     */
+    /** Creates SplitInfo for [WindowSdkExtensions.extensionVersion] 3 and 4. */
     @RequiresWindowSdkExtension(3)
     internal constructor(
         primaryActivityStack: ActivityStack,
@@ -114,8 +107,7 @@ class SplitInfo private constructor(
      * contains the [activity].
      */
     operator fun contains(activity: Activity): Boolean {
-        return primaryActivityStack.contains(activity) ||
-            secondaryActivityStack.contains(activity)
+        return primaryActivityStack.contains(activity) || secondaryActivityStack.contains(activity)
     }
 
     override fun equals(other: Any?): Boolean {

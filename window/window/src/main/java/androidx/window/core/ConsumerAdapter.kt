@@ -31,9 +31,7 @@ import kotlin.reflect.cast
  * API signatures after library desugaring. See b/203472665
  */
 @SuppressLint("BanUncheckedReflection")
-internal class ConsumerAdapter(
-    private val loader: ClassLoader
-) {
+internal class ConsumerAdapter(private val loader: ClassLoader) {
     internal fun consumerClassOrNull(): Class<*>? {
         return try {
             unsafeConsumerClass()
@@ -61,7 +59,8 @@ internal class ConsumerAdapter(
         methodName: String,
         consumer: (T) -> Unit
     ) {
-        obj.javaClass.getMethod(methodName, unsafeConsumerClass())
+        obj.javaClass
+            .getMethod(methodName, unsafeConsumerClass())
             .invoke(obj, buildConsumer(clazz, consumer))
     }
 
@@ -75,7 +74,8 @@ internal class ConsumerAdapter(
         consumer: (T) -> Unit
     ): Subscription {
         val javaConsumer = buildConsumer(clazz, consumer)
-        obj.javaClass.getMethod(addMethodName, Activity::class.java, unsafeConsumerClass())
+        obj.javaClass
+            .getMethod(addMethodName, Activity::class.java, unsafeConsumerClass())
             .invoke(obj, activity, javaConsumer)
         val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
         return object : Subscription {
@@ -94,8 +94,7 @@ internal class ConsumerAdapter(
         consumer: (T) -> Unit
     ): Subscription {
         val javaConsumer = buildConsumer(clazz, consumer)
-        obj.javaClass.getMethod(addMethodName, unsafeConsumerClass())
-            .invoke(obj, javaConsumer)
+        obj.javaClass.getMethod(addMethodName, unsafeConsumerClass()).invoke(obj, javaConsumer)
         val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
         return object : Subscription {
             override fun dispose() {
@@ -114,7 +113,8 @@ internal class ConsumerAdapter(
         consumer: (T) -> Unit
     ): Subscription {
         val javaConsumer = buildConsumer(clazz, consumer)
-        obj.javaClass.getMethod(addMethodName, Context::class.java, unsafeConsumerClass())
+        obj.javaClass
+            .getMethod(addMethodName, Context::class.java, unsafeConsumerClass())
             .invoke(obj, context, javaConsumer)
         val removeMethod = obj.javaClass.getMethod(removeMethodName, unsafeConsumerClass())
         return object : Subscription {
@@ -125,8 +125,8 @@ internal class ConsumerAdapter(
     }
 
     /**
-     * Similar to {@link #createSubscription} but without needing to provide
-     * a {@code removeMethodName} due to it being handled on the extensions side
+     * Similar to {@link #createSubscription} but without needing to provide a {@code
+     * removeMethodName} due to it being handled on the extensions side
      */
     fun <T : Any> createConsumer(
         obj: Any,
@@ -136,9 +136,10 @@ internal class ConsumerAdapter(
         consumer: (T) -> Unit
     ) {
         val javaConsumer = buildConsumer(clazz, consumer)
-        obj.javaClass.getMethod(addMethodName, Activity::class.java, unsafeConsumerClass())
+        obj.javaClass
+            .getMethod(addMethodName, Activity::class.java, unsafeConsumerClass())
             .invoke(obj, activity, javaConsumer)
-        }
+    }
 
     private class ConsumerHandler<T : Any>(
         private val clazz: KClass<T>,

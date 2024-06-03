@@ -31,11 +31,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
-/**
- * Unit tests for [SidecarWindowBackend] that run on the JVM.
- */
+/** Unit tests for [SidecarWindowBackend] that run on the JVM. */
 public class SidecarWindowBackendUnitTest {
     private lateinit var context: Context
+
     @Before
     public fun setUp() {
         context = mock()
@@ -67,9 +66,7 @@ public class SidecarWindowBackendUnitTest {
         // Check unregistering the layout change callback
         backend.unregisterLayoutChangeCallback(consumer)
         assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
-        verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(
-            eq(activity)
-        )
+        verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(eq(activity))
     }
 
     @Test
@@ -121,10 +118,7 @@ public class SidecarWindowBackendUnitTest {
         val consumer: Consumer<WindowLayoutInfo> = mock()
         val activity = mock<Activity>()
         backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, consumer)
-        backend.registerLayoutChangeCallback(
-            activity, { obj: Runnable -> obj.run() },
-            mock()
-        )
+        backend.registerLayoutChangeCallback(activity, { obj: Runnable -> obj.run() }, mock())
         assertEquals(2, backend.windowLayoutChangeCallbacks.size.toLong())
         verify(backend.windowExtension!!).onWindowLayoutChangeListenerAdded(activity)
 
@@ -166,13 +160,12 @@ public class SidecarWindowBackendUnitTest {
         ExtensionInterfaceCompat {
         private var mInterface: ExtensionCallbackInterface
         private val mWindowLayoutInfo: WindowLayoutInfo
+
         override fun validateExtensionInterface(): Boolean {
             return true
         }
 
-        override fun setExtensionCallback(
-            extensionCallback: ExtensionCallbackInterface
-        ) {
+        override fun setExtensionCallback(extensionCallback: ExtensionCallbackInterface) {
             mInterface = extensionCallback
         }
 
@@ -183,12 +176,13 @@ public class SidecarWindowBackendUnitTest {
         override fun onWindowLayoutChangeListenerRemoved(activity: Activity) {}
 
         init {
-            mInterface = object : ExtensionCallbackInterface {
-                override fun onWindowLayoutChanged(
-                    activity: Activity,
-                    newLayout: WindowLayoutInfo
-                ) {}
-            }
+            mInterface =
+                object : ExtensionCallbackInterface {
+                    override fun onWindowLayoutChanged(
+                        activity: Activity,
+                        newLayout: WindowLayoutInfo
+                    ) {}
+                }
             mWindowLayoutInfo = windowLayoutInfo
         }
     }

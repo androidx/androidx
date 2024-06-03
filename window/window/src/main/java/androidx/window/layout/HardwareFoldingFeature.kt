@@ -21,13 +21,13 @@ import androidx.window.core.Bounds
 
 /**
  * @param [type] that is either [HardwareFoldingFeature.Type.FOLD] or
- * [HardwareFoldingFeature.Type.HINGE] @param [state] the physical state of the hinge that is
- * either [FoldingFeature.State.FLAT] or [FoldingFeature.State.HALF_OPENED]
+ *   [HardwareFoldingFeature.Type.HINGE] @param [state] the physical state of the hinge that is
+ *   either [FoldingFeature.State.FLAT] or [FoldingFeature.State.HALF_OPENED]
  */
 internal class HardwareFoldingFeature(
     /**
-     * The bounding rectangle of the feature within the application window in the window
-     * coordinate space.
+     * The bounding rectangle of the feature within the application window in the window coordinate
+     * space.
      */
     private val featureBounds: Bounds,
     internal val type: Type,
@@ -42,18 +42,20 @@ internal class HardwareFoldingFeature(
         get() = featureBounds.toRect()
 
     override val isSeparating: Boolean
-        get() = when {
-            type == Type.HINGE -> true
-            type == Type.FOLD && state == FoldingFeature.State.HALF_OPENED -> true
-            else -> false
-        }
+        get() =
+            when {
+                type == Type.HINGE -> true
+                type == Type.FOLD && state == FoldingFeature.State.HALF_OPENED -> true
+                else -> false
+            }
 
     override val occlusionType: FoldingFeature.OcclusionType
-        get() = if (featureBounds.width == 0 || featureBounds.height == 0) {
-            FoldingFeature.OcclusionType.NONE
-        } else {
-            FoldingFeature.OcclusionType.FULL
-        }
+        get() =
+            if (featureBounds.width == 0 || featureBounds.height == 0) {
+                FoldingFeature.OcclusionType.NONE
+            } else {
+                FoldingFeature.OcclusionType.FULL
+            }
 
     override val orientation: FoldingFeature.Orientation
         get() {
@@ -90,9 +92,7 @@ internal class HardwareFoldingFeature(
     }
 
     internal companion object {
-        /**
-         * Verifies the bounds of the folding feature.
-         */
+        /** Verifies the bounds of the folding feature. */
         internal fun validateFeatureBounds(bounds: Bounds) {
             require(!(bounds.width == 0 && bounds.height == 0)) { "Bounds must be non zero" }
             require(!(bounds.left != 0 && bounds.top != 0)) {
@@ -101,9 +101,7 @@ internal class HardwareFoldingFeature(
         }
     }
 
-    /**
-     * Represents the type of hinge.
-     */
+    /** Represents the type of hinge. */
     internal class Type private constructor(private val description: String) {
 
         override fun toString(): String {
@@ -111,14 +109,10 @@ internal class HardwareFoldingFeature(
         }
 
         internal companion object {
-            /**
-             * Represent a continuous screen that folds.
-             */
+            /** Represent a continuous screen that folds. */
             val FOLD: Type = Type("FOLD")
 
-            /**
-             * Represents a hinge connecting two separate display panels.
-             */
+            /** Represents a hinge connecting two separate display panels. */
             val HINGE: Type = Type("HINGE")
         }
     }

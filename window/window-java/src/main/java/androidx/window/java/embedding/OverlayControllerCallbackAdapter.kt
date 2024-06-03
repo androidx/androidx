@@ -27,14 +27,14 @@ import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
 
 /**
- * An adapted interface for [OverlayController] that provides callback shaped APIs to report
- * the latest [OverlayInfo].
+ * An adapted interface for [OverlayController] that provides callback shaped APIs to report the
+ * latest [OverlayInfo].
  *
  * It should only be used if [OverlayController.overlayInfo] is not available. For example, an app
  * is written in Java and cannot use Flow APIs.
  *
- * @constructor creates a callback adapter of [OverlayController.overlayInfo] flow API.
  * @param controller an [OverlayController] that can be obtained by [OverlayController.getInstance].
+ * @constructor creates a callback adapter of [OverlayController.overlayInfo] flow API.
  */
 class OverlayControllerCallbackAdapter(private val controller: OverlayController) {
 
@@ -47,15 +47,15 @@ class OverlayControllerCallbackAdapter(private val controller: OverlayController
      * [OverlayInfo.currentOverlayAttributes] will be `null`.
      *
      * Note that launching an overlay [ActivityStack] only supports on the device with
-     * [WindowSdkExtensions.extensionVersion] equal to or larger than 5.
-     * If [WindowSdkExtensions.extensionVersion] is less than 5, this flow will always
-     * report [OverlayInfo] without associated [OverlayInfo.activityStack].
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 5. If
+     * [WindowSdkExtensions.extensionVersion] is less than 5, this flow will always report
+     * [OverlayInfo] without associated [OverlayInfo.activityStack].
      *
      * @param overlayTag the overlay [ActivityStack]'s tag which is set through
-     * [OverlayCreateParams]
+     *   [OverlayCreateParams]
      * @param executor the [Executor] to dispatch the [OverlayInfo] change
-     * @param consumer the [Consumer] that will be invoked on the [executor] when there is
-     * an update to [OverlayInfo].
+     * @param consumer the [Consumer] that will be invoked on the [executor] when there is an update
+     *   to [OverlayInfo].
      */
     @RequiresWindowSdkExtension(5)
     fun addOverlayInfoListener(

@@ -44,16 +44,14 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(5)
     fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
 
-    @RequiresWindowSdkExtension(5)
-    fun unpinTopActivityStack(taskId: Int)
+    @RequiresWindowSdkExtension(5) fun unpinTopActivityStack(taskId: Int)
 
     @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     )
 
-    @RequiresWindowSdkExtension(2)
-    fun clearSplitAttributesCalculator()
+    @RequiresWindowSdkExtension(2) fun clearSplitAttributesCalculator()
 
     @RequiresWindowSdkExtension(5)
     fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle
@@ -61,14 +59,12 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(6)
     fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle
 
-    @RequiresWindowSdkExtension(5)
-    fun finishActivityStacks(activityStacks: Set<ActivityStack>)
+    @RequiresWindowSdkExtension(5) fun finishActivityStacks(activityStacks: Set<ActivityStack>)
 
     @RequiresWindowSdkExtension(5)
     fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
 
-    @RequiresWindowSdkExtension(3)
-    fun invalidateVisibleActivityStacks()
+    @RequiresWindowSdkExtension(3) fun invalidateVisibleActivityStacks()
 
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
@@ -78,8 +74,7 @@ internal interface EmbeddingInterfaceCompat {
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     )
 
-    @RequiresWindowSdkExtension(6)
-    fun clearOverlayAttributesCalculator()
+    @RequiresWindowSdkExtension(6) fun clearOverlayAttributesCalculator()
 
     @RequiresWindowSdkExtension(6)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)

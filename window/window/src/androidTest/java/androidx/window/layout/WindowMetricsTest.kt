@@ -29,7 +29,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tests for [WindowMetrics] class.  */
+/** Tests for [WindowMetrics] class. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 public class WindowMetricsTest {

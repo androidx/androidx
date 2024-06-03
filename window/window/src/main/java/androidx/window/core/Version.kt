@@ -18,30 +18,27 @@ package androidx.window.core
 import java.math.BigInteger
 import java.util.regex.Pattern
 
-/**
- * Class encapsulating a version with major, minor, patch and description values.
- */
-internal class Version private constructor(
-    val major: Int,
-    val minor: Int,
-    val patch: Int,
-    val description: String
-) : Comparable<Version> {
+/** Class encapsulating a version with major, minor, patch and description values. */
+internal class Version
+private constructor(val major: Int, val minor: Int, val patch: Int, val description: String) :
+    Comparable<Version> {
 
     // Cached BigInteger value of the version.
     private val bigInteger: BigInteger by lazy {
-        BigInteger.valueOf(major.toLong()).shiftLeft(32)
+        BigInteger.valueOf(major.toLong())
+            .shiftLeft(32)
             .or(BigInteger.valueOf(minor.toLong()))
             .shiftLeft(32)
             .or(BigInteger.valueOf(patch.toLong()))
     }
 
     override fun toString(): String {
-        val postfix = if (description.isNotBlank()) {
-            "-$description"
-        } else {
-            ""
-        }
+        val postfix =
+            if (description.isNotBlank()) {
+                "-$description"
+            } else {
+                ""
+            }
         return "$major.$minor.$patch$postfix"
     }
 
@@ -50,7 +47,8 @@ internal class Version private constructor(
      *
      * @param other The version to compare to this one.
      * @return 0 if it have the same major minor and patch version; less than 0 if this version
-     * sorts ahead of <var>other</var>; greater than 0 if this version sorts after <var>other</var>.
+     *   sorts ahead of <var>other</var>; greater than 0 if this version sorts after
+     *   <var>other</var>.
      */
     override fun compareTo(other: Version): Int {
         return bigInteger.compareTo(other.bigInteger)
@@ -85,7 +83,7 @@ internal class Version private constructor(
          * Parses a string to a version object.
          *
          * @param versionString string in the format "1.2.3" or "1.2.3-Description"
-         * (major.minor.patch[-description])
+         *   (major.minor.patch[-description])
          * @return the parsed Version object or `null`> if the versionString format is invalid.
          */
         @JvmStatic

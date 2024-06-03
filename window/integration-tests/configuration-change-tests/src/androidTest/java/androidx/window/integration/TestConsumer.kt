@@ -23,35 +23,23 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import org.junit.Assert.assertTrue
 
-/**
- * Data structure to hold values in a mutable list.
- */
+/** Data structure to hold values in a mutable list. */
 internal class TestConsumer<T>(count: Int) : Consumer<T> {
     private val valueLock = ReentrantLock()
-    @GuardedBy("valueLock")
-    private val values = mutableListOf<T>()
+    @GuardedBy("valueLock") private val values = mutableListOf<T>()
 
     private val countDownLock = ReentrantLock()
-    @GuardedBy("countDownLock")
-    private var valueLatch = CountDownLatch(count)
+    @GuardedBy("countDownLock") private var valueLatch = CountDownLatch(count)
 
     private val waitTimeSeconds: Long = 3L
 
-    /**
-     * Appends the new value at the end of the mutable list values.
-     */
+    /** Appends the new value at the end of the mutable list values. */
     override fun accept(value: T) {
-        valueLock.withLock {
-            values.add(value)
-        }
-        countDownLock.withLock {
-            valueLatch.countDown()
-        }
+        valueLock.withLock { values.add(value) }
+        countDownLock.withLock { valueLatch.countDown() }
     }
 
-    /**
-     * Returns the current number of values stored.
-     */
+    /** Returns the current number of values stored. */
     private fun size(): Int {
         valueLock.withLock {
             return values.size
@@ -59,8 +47,8 @@ internal class TestConsumer<T>(count: Int) : Consumer<T> {
     }
 
     /**
-     * Waits for the mutable list's length to be at a certain number (count).
-     * The method will wait waitTimeSeconds for the count before asserting false.
+     * Waits for the mutable list's length to be at a certain number (count). The method will wait
+     * waitTimeSeconds for the count before asserting false.
      */
     fun waitForValueCount() {
         assertTrue(
@@ -73,16 +61,12 @@ internal class TestConsumer<T>(count: Int) : Consumer<T> {
         )
     }
 
-    /**
-     * Returns {@code true} if there are no stored values, {@code false} otherwise.
-     */
+    /** Returns {@code true} if there are no stored values, {@code false} otherwise. */
     fun isEmpty(): Boolean {
         return size() == 0
     }
 
-    /**
-     * Returns the object in the mutable list at the requested index.
-     */
+    /** Returns the object in the mutable list at the requested index. */
     fun get(valueIndex: Int): T {
         valueLock.withLock {
             return values[valueIndex]

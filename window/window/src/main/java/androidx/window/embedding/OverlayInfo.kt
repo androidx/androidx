@@ -18,10 +18,9 @@ package androidx.window.embedding
 
 import android.app.Activity
 
-/**
- * Describes an overlay [ActivityStack] associated with [OverlayCreateParams.tag].
- */
-class OverlayInfo internal constructor(
+/** Describes an overlay [ActivityStack] associated with [OverlayCreateParams.tag]. */
+class OverlayInfo
+internal constructor(
     /** The unique identifier associated with the overlay [ActivityStack]. */
     val overlayTag: String,
     /**

@@ -39,11 +39,11 @@ internal object ActivityEmbeddingOptionsImpl {
      *
      * Properties:
      *
-     * |Key|Type|Property|
-     * |---|----|----|
-     * |[KEY_EMBEDDING_BOUNDS_ALIGNMENT]|[Int]|[EmbeddingBounds.alignment]|
-     * |[KEY_EMBEDDING_BOUNDS_WIDTH]|[Bundle]|[EmbeddingBounds.width]|
-     * |[KEY_EMBEDDING_BOUNDS_HEIGHT]|[Bundle]|[EmbeddingBounds.height]|
+     * | Key                              | Type     | Property                    |
+     * |----------------------------------|----------|-----------------------------|
+     * | [KEY_EMBEDDING_BOUNDS_ALIGNMENT] | [Int]    | [EmbeddingBounds.alignment] |
+     * | [KEY_EMBEDDING_BOUNDS_WIDTH]     | [Bundle] | [EmbeddingBounds.width]     |
+     * | [KEY_EMBEDDING_BOUNDS_HEIGHT]    | [Bundle] | [EmbeddingBounds.height]    |
      */
     private const val KEY_EMBEDDING_BOUNDS = "androidx.window.embedding.EmbeddingBounds"
 
@@ -68,10 +68,10 @@ internal object ActivityEmbeddingOptionsImpl {
      *
      * Properties:
      *
-     * |Key|Type|Property|
-     * |---|----|----|
-     * |[KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE]|[String]| The dimension type |
-     * |[KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE]|[Int], [Float]| The dimension value |
+     * | Key                                    | Type           | Property            |
+     * |----------------------------------------|----------------|---------------------|
+     * | [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE]  | [String]       | The dimension type  |
+     * | [KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE] | [Int], [Float] | The dimension value |
      */
     private const val KEY_EMBEDDING_BOUNDS_WIDTH = "androidx.window.embedding.EmbeddingBounds.width"
 
@@ -82,36 +82,36 @@ internal object ActivityEmbeddingOptionsImpl {
      *
      * Properties:
      *
-     * |Key|Type|Property|
-     * |---|----|----|
-     * |[KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE]|[String]| The dimension type |
-     * |[KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE]|[Int], [Float]| The dimension value |
+     * | Key                                    | Type           | Property            |
+     * |----------------------------------------|----------------|---------------------|
+     * | [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE]  | [String]       | The dimension type  |
+     * | [KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE] | [Int], [Float] | The dimension value |
      */
     private const val KEY_EMBEDDING_BOUNDS_HEIGHT =
         "androidx.window.embedding.EmbeddingBounds.height"
 
     /**
-     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates
-     * the [Dimension] is [DIMENSION_EXPANDED].
+     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates the
+     * [Dimension] is [DIMENSION_EXPANDED].
      */
     private const val DIMENSION_TYPE_EXPANDED = "expanded"
 
     /**
-     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates
-     * the [Dimension] is [DIMENSION_HINGE].
+     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates the
+     * [Dimension] is [DIMENSION_HINGE].
      */
     private const val DIMENSION_TYPE_HINGE = "hinge"
 
     /**
-     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates
-     * the [Dimension] is from [Dimension.ratio]. If this type is used,
+     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates the
+     * [Dimension] is from [Dimension.ratio]. If this type is used,
      * [KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE] should also be specified with a [Float] value.
      */
     private const val DIMENSION_TYPE_RATIO = "ratio"
 
     /**
-     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates
-     * the [Dimension] is from [Dimension.pixel]. If this type is used,
+     * A [Dimension] type passed with [KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE], which indicates the
+     * [Dimension] is from [Dimension.pixel]. If this type is used,
      * [KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE] should also be specified with a [Int] value.
      */
     private const val DIMENSION_TYPE_PIXEL = "pixel"
@@ -143,8 +143,8 @@ internal object ActivityEmbeddingOptionsImpl {
         "androidx.window.embedding.EmbeddingBounds.dimension_value"
 
     /**
-     * Puts [OverlayCreateParams] information to [android.app.ActivityOptions] bundle to launch
-     * the overlay container
+     * Puts [OverlayCreateParams] information to [android.app.ActivityOptions] bundle to launch the
+     * overlay container
      *
      * @param overlayCreateParams The [OverlayCreateParams] to launch the overlay container
      */
@@ -159,9 +159,7 @@ internal object ActivityEmbeddingOptionsImpl {
         options.putEmbeddingBounds(overlayCreateParams.overlayAttributes.bounds)
     }
 
-    /**
-     * Puts [EmbeddingBounds] information into a bundle for tracking.
-     */
+    /** Puts [EmbeddingBounds] information into a bundle for tracking. */
     private fun Bundle.putEmbeddingBounds(embeddingBounds: EmbeddingBounds) {
         putBundle(
             KEY_EMBEDDING_BOUNDS,
@@ -215,8 +213,8 @@ internal object ActivityEmbeddingOptionsImpl {
      *     - [DIMENSION_TYPE_RATIO]
      *     - [DIMENSION_TYPE_PIXEL]
      * - [KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE]: Only specified for [DIMENSION_TYPE_RATIO] and
-     * [DIMENSION_TYPE_PIXEL]. [DIMENSION_TYPE_RATIO] requires a [Float], while
-     * [DIMENSION_TYPE_PIXEL] requires a [Int].
+     *   [DIMENSION_TYPE_PIXEL]. [DIMENSION_TYPE_RATIO] requires a [Float], while
+     *   [DIMENSION_TYPE_PIXEL] requires a [Int].
      */
     private fun Bundle.putDimension(key: String, dimension: Dimension) {
         putBundle(
@@ -226,16 +224,13 @@ internal object ActivityEmbeddingOptionsImpl {
                     DIMENSION_EXPANDED -> {
                         putString(KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE, DIMENSION_TYPE_EXPANDED)
                     }
-
                     DIMENSION_HINGE -> {
                         putString(KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE, DIMENSION_TYPE_HINGE)
                     }
-
                     is Dimension.Ratio -> {
                         putString(KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE, DIMENSION_TYPE_RATIO)
                         putFloat(KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE, dimension.value)
                     }
-
                     is Dimension.Pixel -> {
                         putString(KEY_EMBEDDING_BOUNDS_DIMENSION_TYPE, DIMENSION_TYPE_PIXEL)
                         putInt(KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE, dimension.value)

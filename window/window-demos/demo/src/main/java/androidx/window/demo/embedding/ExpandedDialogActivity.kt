@@ -29,15 +29,12 @@ class ExpandedDialogActivity : AppCompatActivity() {
     }
 
     private fun showDialog() {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Dialog in expanded activity")
-            .setMessage("To demo showing dialog that can expand over a split")
-            .setNeutralButton("Close") { _, _ ->
-                finish()
-            }
-            .setOnDismissListener {
-                finish()
-            }
+        val dialog =
+            AlertDialog.Builder(this)
+                .setTitle("Dialog in expanded activity")
+                .setMessage("To demo showing dialog that can expand over a split")
+                .setNeutralButton("Close") { _, _ -> finish() }
+                .setOnDismissListener { finish() }
 
         dialog.show()
     }

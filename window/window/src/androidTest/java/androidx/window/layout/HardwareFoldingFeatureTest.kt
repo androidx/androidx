@@ -24,7 +24,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tests for [HardwareFoldingFeature] class.  */
+/** Tests for [HardwareFoldingFeature] class. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class HardwareFoldingFeatureTest {

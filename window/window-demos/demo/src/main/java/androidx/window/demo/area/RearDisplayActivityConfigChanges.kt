@@ -41,9 +41,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * Demo Activity that showcases listening for RearDisplay Status
- * as well as enabling/disabling RearDisplay mode. This Activity
- * implements [WindowAreaSessionCallback] for simplicity.
+ * Demo Activity that showcases listening for RearDisplay Status as well as enabling/disabling
+ * RearDisplay mode. This Activity implements [WindowAreaSessionCallback] for simplicity.
  *
  * This Activity overrides configuration changes for simplicity.
  */
@@ -82,12 +81,12 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
                     windowAreaInfos.forEach { windowAreaInfo ->
                         if (windowAreaInfo.type == WindowAreaInfo.Type.TYPE_REAR_FACING) {
                             currentWindowAreaInfo = windowAreaInfo
-                            val transferCapability = windowAreaInfo.getCapability(
-                                OPERATION_TRANSFER_ACTIVITY_TO_AREA
-                            )
+                            val transferCapability =
+                                windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA)
                             infoLogAdapter.append(
                                 getCurrentTimeString(),
-                                transferCapability.status.toString() + " : " +
+                                transferCapability.status.toString() +
+                                    " : " +
                                     windowAreaInfo.metrics.toString()
                             )
                             updateRearDisplayButton()
@@ -116,9 +115,8 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
         binding.rearDisplaySessionButton.setOnClickListener {
             if (rearDisplaySession == null) {
                 try {
-                    rearDisplaySession = currentWindowAreaInfo?.getActiveSession(
-                        OPERATION_TRANSFER_ACTIVITY_TO_AREA
-                    )
+                    rearDisplaySession =
+                        currentWindowAreaInfo?.getActiveSession(OPERATION_TRANSFER_ACTIVITY_TO_AREA)
                     updateRearDisplayButton()
                 } catch (e: IllegalStateException) {
                     infoLogAdapter.appendAndNotify(getCurrentTimeString(), e.toString())
@@ -129,8 +127,10 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
 
     override fun onSessionStarted(session: WindowAreaSession) {
         rearDisplaySession = session
-        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
-            "RearDisplay Session has been started")
+        infoLogAdapter.appendAndNotify(
+            getCurrentTimeString(),
+            "RearDisplay Session has been started"
+        )
         updateRearDisplayButton()
     }
 
@@ -152,12 +152,10 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
                     binding.rearDisplayButton.isEnabled = false
                     binding.rearDisplayButton.text = "RearDisplay is not supported on this device"
                 }
-
                 WINDOW_AREA_STATUS_UNAVAILABLE -> {
                     binding.rearDisplayButton.isEnabled = false
                     binding.rearDisplayButton.text = "RearDisplay is not currently available"
                 }
-
                 WINDOW_AREA_STATUS_AVAILABLE -> {
                     binding.rearDisplayButton.isEnabled = true
                     binding.rearDisplayButton.text = "Enable RearDisplay Mode"

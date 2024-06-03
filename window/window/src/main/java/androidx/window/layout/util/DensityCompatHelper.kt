@@ -25,14 +25,10 @@ import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
 
-/**
- * Provides compatibility behavior for functionality related to display density.
- */
+/** Provides compatibility behavior for functionality related to display density. */
 internal interface DensityCompatHelper {
 
-    /**
-     * Returns the logical density of the display associated with the [Context].
-     */
+    /** Returns the logical density of the display associated with the [Context]. */
     fun density(context: Context): Float
 
     /**
@@ -46,8 +42,7 @@ internal interface DensityCompatHelper {
             return when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
                     DensityCompatHelperApi34Impl
-                else ->
-                    DensityCompatHelperBaseImpl
+                else -> DensityCompatHelperBaseImpl
             }
         }
     }
@@ -59,8 +54,7 @@ private object DensityCompatHelperBaseImpl : DensityCompatHelper {
     }
 
     override fun density(configuration: Configuration, windowMetrics: AndroidWindowMetrics): Float {
-        return configuration.densityDpi.toFloat() /
-            DisplayMetrics.DENSITY_DEFAULT
+        return configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT
     }
 }
 

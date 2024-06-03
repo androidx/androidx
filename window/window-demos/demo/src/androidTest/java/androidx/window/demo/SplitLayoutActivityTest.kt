@@ -52,8 +52,7 @@ class SplitLayoutActivityTest {
     private val activityRule = ActivityScenarioRule(SplitLayoutActivity::class.java)
     private val publisherRule = WindowLayoutInfoPublisherRule()
 
-    @get:Rule
-    val testRule: TestRule
+    @get:Rule val testRule: TestRule
 
     init {
         testRule = RuleChain.outerRule(publisherRule).around(activityRule)
@@ -77,11 +76,8 @@ class SplitLayoutActivityTest {
     fun testDeviceOpen_Vertical() {
         var isWindowBigEnoughForTest = false
         activityRule.scenario.onActivity { activity ->
-            val feature = FoldingFeature(
-                activity = activity,
-                orientation = VERTICAL,
-                state = HALF_OPENED
-            )
+            val feature =
+                FoldingFeature(activity = activity, orientation = VERTICAL, state = HALF_OPENED)
             val expected = TestWindowLayoutInfo(listOf(feature))
             publisherRule.overrideWindowLayoutInfo(expected)
 
@@ -93,7 +89,8 @@ class SplitLayoutActivityTest {
         }
 
         if (isWindowBigEnoughForTest) {
-            // Checks that start_layout is on the left of end_layout with a vertical folding feature.
+            // Checks that start_layout is on the left of end_layout with a vertical folding
+            // feature.
             // This requires to run the test on a big enough screen to fit both views on screen
             onView(withId(R.id.start_layout)).check(isCompletelyLeftOf(withId(R.id.end_layout)))
         } else {
@@ -111,11 +108,8 @@ class SplitLayoutActivityTest {
         var isWindowBigEnoughForTest = false
 
         activityRule.scenario.onActivity { activity ->
-            val feature = FoldingFeature(
-                activity = activity,
-                orientation = HORIZONTAL,
-                state = HALF_OPENED
-            )
+            val feature =
+                FoldingFeature(activity = activity, orientation = HORIZONTAL, state = HALF_OPENED)
             val expected = TestWindowLayoutInfo(listOf(feature))
             publisherRule.overrideWindowLayoutInfo(expected)
 
@@ -143,6 +137,7 @@ class SplitLayoutActivityTest {
     /**
      * Check if the Window is big enough to fit {@code startView} and {@code endView} in the two
      * display areas defined by the {@code feature} in the {@code layout}.
+     *
      * @return A Boolean that defines if the window is big enough.
      */
     private fun isWindowBigEnough(
@@ -162,32 +157,36 @@ class SplitLayoutActivityTest {
 
             val featureBounds = adjustFeaturePositionOffset(feature, this)
             if (feature.orientation == HORIZONTAL) { // Horizontal layout
-                val topRect = Rect(
-                    paddingLeft, paddingTop,
-                    paddingLeft + paddedWidth, featureBounds.top
-                )
-                val bottomRect = Rect(
-                    paddingLeft, featureBounds.bottom,
-                    paddingLeft + paddedWidth, paddingTop + paddedHeight
-                )
+                val topRect =
+                    Rect(paddingLeft, paddingTop, paddingLeft + paddedWidth, featureBounds.top)
+                val bottomRect =
+                    Rect(
+                        paddingLeft,
+                        featureBounds.bottom,
+                        paddingLeft + paddedWidth,
+                        paddingTop + paddedHeight
+                    )
 
-                if (measureAndCheckMinSize(topRect, startView) &&
-                    measureAndCheckMinSize(bottomRect, endView)
+                if (
+                    measureAndCheckMinSize(topRect, startView) &&
+                        measureAndCheckMinSize(bottomRect, endView)
                 ) {
                     return true
                 }
             } else if (feature.orientation == VERTICAL) { // Vertical layout
-                val leftRect = Rect(
-                    paddingLeft, paddingTop,
-                    featureBounds.left, paddingTop + paddedHeight
-                )
-                val rightRect = Rect(
-                    featureBounds.right, paddingTop,
-                    paddingLeft + paddedWidth, paddingTop + paddedHeight
-                )
+                val leftRect =
+                    Rect(paddingLeft, paddingTop, featureBounds.left, paddingTop + paddedHeight)
+                val rightRect =
+                    Rect(
+                        featureBounds.right,
+                        paddingTop,
+                        paddingLeft + paddedWidth,
+                        paddingTop + paddedHeight
+                    )
 
-                if (measureAndCheckMinSize(leftRect, startView) &&
-                    measureAndCheckMinSize(rightRect, endView)
+                if (
+                    measureAndCheckMinSize(leftRect, startView) &&
+                        measureAndCheckMinSize(rightRect, endView)
                 ) {
                     return true
                 }
@@ -198,17 +197,14 @@ class SplitLayoutActivityTest {
 
     /**
      * Measures a child view and sees if it will fit in the provided rect.
-     * <p>Note: This method calls [View.measure] on the child view, which updates
-     * its stored values for measured with and height. If the view will end up with different
-     * values, it should be measured again.
+     *
+     * <p>Note: This method calls [View.measure] on the child view, which updates its stored values
+     * for measured with and height. If the view will end up with different values, it should be
+     * measured again.
      */
     private fun measureAndCheckMinSize(rect: Rect, childView: View): Boolean {
-        val widthSpec =
-            View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST)
-        val heightSpec = View.MeasureSpec.makeMeasureSpec(
-            rect.height(),
-            View.MeasureSpec.AT_MOST
-        )
+        val widthSpec = View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST)
+        val heightSpec = View.MeasureSpec.makeMeasureSpec(rect.height(), View.MeasureSpec.AT_MOST)
         childView.measure(widthSpec, heightSpec)
         return childView.measuredWidthAndState and FrameLayout.MEASURED_STATE_TOO_SMALL == 0 &&
             childView.measuredHeightAndState and FrameLayout.MEASURED_STATE_TOO_SMALL == 0

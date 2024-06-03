@@ -15,5 +15,5 @@
  */
 package androidx.window
 
-/** Activity that handles orientation configuration change.  */
+/** Activity that handles orientation configuration change. */
 internal class TestConfigChangeHandlingActivity : TestActivity()

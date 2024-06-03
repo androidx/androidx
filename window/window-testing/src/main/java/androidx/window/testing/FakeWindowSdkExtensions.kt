@@ -20,8 +20,8 @@ import androidx.annotation.IntRange
 import androidx.window.WindowSdkExtensions
 
 /**
- * A fake [WindowSdkExtensions] implementation that can override [extensionVersion],
- * which is intended to be used during unit tests.
+ * A fake [WindowSdkExtensions] implementation that can override [extensionVersion], which is
+ * intended to be used during unit tests.
  */
 internal class FakeWindowSdkExtensions : WindowSdkExtensions() {
 

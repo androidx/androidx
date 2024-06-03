@@ -20,9 +20,8 @@ import android.os.Bundle
 import androidx.window.demo2.R
 
 /**
- * Activity that can be embedded in untrusted mode. See
- * `android:allowUntrustedActivityEmbedding` in AndroidManifest. Activity can be launched from
- * the split demos in window-samples/demos.
+ * Activity that can be embedded in untrusted mode. See `android:allowUntrustedActivityEmbedding` in
+ * AndroidManifest. Activity can be launched from the split demos in window-samples/demos.
  */
 class UntrustedEmbeddingActivity : EmbeddedActivityBase() {
 

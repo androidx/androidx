@@ -52,21 +52,24 @@ internal open class OverlayControllerImpl(
 
     @GuardedBy("globalLock")
     internal var overlayAttributesCalculator:
-        ((OverlayAttributesCalculatorParams) -> OverlayAttributes)? = null
+        ((OverlayAttributesCalculatorParams) -> OverlayAttributes)? =
+        null
         get() = globalLock.withLock { field }
-        set(value) { globalLock.withLock { field = value } }
+        set(value) {
+            globalLock.withLock { field = value }
+        }
 
     /**
-     * Mapping between the overlay container tag and its default [OverlayAttributes].
-     * It's to record the [OverlayAttributes] updated through [updateOverlayAttributes] and
-     * report in [OverlayAttributesCalculatorParams].
+     * Mapping between the overlay container tag and its default [OverlayAttributes]. It's to record
+     * the [OverlayAttributes] updated through [updateOverlayAttributes] and report in
+     * [OverlayAttributesCalculatorParams].
      */
     @GuardedBy("globalLock")
     private val overlayTagToDefaultAttributesMap: MutableMap<String, OverlayAttributes> = ArrayMap()
 
     /**
-     * Mapping between the overlay container tag and its current [OverlayAttributes] to provide
-     * the [OverlayInfo] updates.
+     * Mapping between the overlay container tag and its current [OverlayAttributes] to provide the
+     * [OverlayInfo] updates.
      */
     @GuardedBy("globalLock")
     private val overlayTagToCurrentAttributesMap = ArrayMap<String, OverlayAttributes>()
@@ -74,9 +77,7 @@ internal open class OverlayControllerImpl(
     @GuardedBy("globalLock")
     private val overlayTagToContainerMap = ArrayMap<String, ActivityStack>()
 
-    /**
-     * The mapping from [OverlayInfo] callback to [activityStacks][ActivityStack] callback.
-     */
+    /** The mapping from [OverlayInfo] callback to [activityStacks][ActivityStack] callback. */
     @GuardedBy("globalLock")
     private val overlayInfoToActivityStackCallbackMap =
         ArrayMap<JetpackConsumer<OverlayInfo>, Consumer<List<ActivityStack>>>()
@@ -87,23 +88,31 @@ internal open class OverlayControllerImpl(
         embeddingExtension.setActivityStackAttributesCalculator { params ->
             globalLock.withLock {
                 val parentContainerInfo = params.parentContainerInfo
-                val density = DensityCompatHelper.getInstance()
-                    .density(parentContainerInfo.configuration, parentContainerInfo.windowMetrics)
-                val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(
-                    parentContainerInfo.windowMetrics, density
-                )
-                val overlayAttributes = calculateOverlayAttributes(
-                    params.activityStackTag,
-                    params.launchOptions.getOverlayAttributes(),
+                val density =
+                    DensityCompatHelper.getInstance()
+                        .density(
+                            parentContainerInfo.configuration,
+                            parentContainerInfo.windowMetrics
+                        )
+                val windowMetrics =
                     WindowMetricsCalculator.translateWindowMetrics(
-                        params.parentContainerInfo.windowMetrics, density
-                    ),
-                    params.parentContainerInfo.configuration,
-                    ExtensionsWindowLayoutInfoAdapter.translate(
-                        windowMetrics,
-                        parentContainerInfo.windowLayoutInfo
-                    ),
-                )
+                        parentContainerInfo.windowMetrics,
+                        density
+                    )
+                val overlayAttributes =
+                    calculateOverlayAttributes(
+                        params.activityStackTag,
+                        params.launchOptions.getOverlayAttributes(),
+                        WindowMetricsCalculator.translateWindowMetrics(
+                            params.parentContainerInfo.windowMetrics,
+                            density
+                        ),
+                        params.parentContainerInfo.configuration,
+                        ExtensionsWindowLayoutInfoAdapter.translate(
+                            windowMetrics,
+                            parentContainerInfo.windowLayoutInfo
+                        ),
+                    )
                 return@setActivityStackAttributesCalculator overlayAttributes
                     .toActivityStackAttributes(parentContainerInfo)
             }
@@ -145,12 +154,14 @@ internal open class OverlayControllerImpl(
         val currentOverlayTags = overlayTagToContainerMap.keys
 
         for (overlayTag in lastOverlayTags) {
-            if (overlayTag !in currentOverlayTags &&
-                // If an overlay activityStack is not in the current overlay container list, check
-                // whether the activityStack does really not exist in WM Extensions in case
-                // an overlay container is just launched, but th WM Jetpack hasn't received the
-                // update yet.
-                embeddingExtension.getActivityStackToken(overlayTag) == null
+            if (
+                overlayTag !in currentOverlayTags &&
+                    // If an overlay activityStack is not in the current overlay container list,
+                    // check
+                    // whether the activityStack does really not exist in WM Extensions in case
+                    // an overlay container is just launched, but th WM Jetpack hasn't received the
+                    // update yet.
+                    embeddingExtension.getActivityStackToken(overlayTag) == null
             ) {
                 dismissedOverlayTags.add(overlayTag)
             }
@@ -170,7 +181,7 @@ internal open class OverlayControllerImpl(
      *
      * @param tag The overlay [ActivityStack].
      * @param initialOverlayAttrs The [OverlayCreateParams.overlayAttributes] that used to launching
-     * this overlay [ActivityStack]
+     *   this overlay [ActivityStack]
      * @param windowMetrics The parent window container's [WindowMetrics]
      * @param configuration The parent window container's [Configuration]
      * @param windowLayoutInfo The parent window container's [WindowLayoutInfo]
@@ -183,20 +194,22 @@ internal open class OverlayControllerImpl(
         configuration: Configuration,
         windowLayoutInfo: WindowLayoutInfo,
     ): OverlayAttributes {
-        val defaultOverlayAttrs = getUpdatedOverlayAttributes(tag)
-            ?: initialOverlayAttrs
-            ?: throw IllegalArgumentException(
-                "Can't retrieve overlay attributes from launch options"
-            )
-        val currentOverlayAttrs = overlayAttributesCalculator?.invoke(
-            OverlayAttributesCalculatorParams(
-                windowMetrics,
-                configuration,
-                windowLayoutInfo,
-                tag,
-                defaultOverlayAttrs,
-            )
-        ) ?: defaultOverlayAttrs
+        val defaultOverlayAttrs =
+            getUpdatedOverlayAttributes(tag)
+                ?: initialOverlayAttrs
+                ?: throw IllegalArgumentException(
+                    "Can't retrieve overlay attributes from launch options"
+                )
+        val currentOverlayAttrs =
+            overlayAttributesCalculator?.invoke(
+                OverlayAttributesCalculatorParams(
+                    windowMetrics,
+                    configuration,
+                    windowLayoutInfo,
+                    tag,
+                    defaultOverlayAttrs,
+                )
+            ) ?: defaultOverlayAttrs
 
         overlayTagToCurrentAttributesMap[tag] = currentOverlayAttrs
 
@@ -212,12 +225,13 @@ internal open class OverlayControllerImpl(
         overlayAttributes: OverlayAttributes
     ) {
         globalLock.withLock {
-            val activityStackToken = overlayTagToContainerMap[overlayTag]?.activityStackToken
-                // Users may call this API before any callback coming. Try to ask platform if
-                // this container exists.
-                ?: embeddingExtension.getActivityStackToken(overlayTag)
-                // Early return if there's no such ActivityStack associated with the tag.
-                ?: return
+            val activityStackToken =
+                overlayTagToContainerMap[overlayTag]?.activityStackToken
+                    // Users may call this API before any callback coming. Try to ask platform if
+                    // this container exists.
+                    ?: embeddingExtension.getActivityStackToken(overlayTag)
+                    // Early return if there's no such ActivityStack associated with the tag.
+                    ?: return
 
             embeddingExtension.updateActivityStackAttributes(
                 activityStackToken,
@@ -235,14 +249,17 @@ internal open class OverlayControllerImpl(
 
     private fun OverlayAttributes.toActivityStackAttributes(
         parentContainerInfo: ParentContainerInfo
-    ): ActivityStackAttributes = ActivityStackAttributes.Builder()
-        .setRelativeBounds(
-            EmbeddingBounds.translateEmbeddingBounds(
-                bounds,
-                adapter.translate(parentContainerInfo)
-            ).toRect()
-        ).setWindowAttributes(adapter.translateWindowAttributes())
-        .build()
+    ): ActivityStackAttributes =
+        ActivityStackAttributes.Builder()
+            .setRelativeBounds(
+                EmbeddingBounds.translateEmbeddingBounds(
+                        bounds,
+                        adapter.translate(parentContainerInfo)
+                    )
+                    .toRect()
+            )
+            .setWindowAttributes(adapter.translateWindowAttributes())
+            .build()
 
     private fun List<ActivityStack>.getOverlayContainers(): List<ActivityStack> =
         filter { activityStack -> activityStack.tag != null }.toList()
@@ -253,37 +270,39 @@ internal open class OverlayControllerImpl(
         overlayInfoCallback: JetpackConsumer<OverlayInfo>,
     ) {
         globalLock.withLock {
-            val callback = Consumer<List<ActivityStack>> { activityStacks ->
-                val overlayInfoList = activityStacks.filter { activityStack ->
-                    activityStack.tag == overlayTag
+            val callback =
+                Consumer<List<ActivityStack>> { activityStacks ->
+                    val overlayInfoList =
+                        activityStacks.filter { activityStack -> activityStack.tag == overlayTag }
+                    if (overlayInfoList.size > 1) {
+                        throw IllegalStateException(
+                            "There must be at most one overlay ActivityStack with $overlayTag"
+                        )
+                    }
+                    val overlayInfo =
+                        if (overlayInfoList.isEmpty()) {
+                            OverlayInfo(
+                                overlayTag,
+                                currentOverlayAttributes = null,
+                                activityStack = null,
+                            )
+                        } else {
+                            overlayInfoList.first().toOverlayInfo()
+                        }
+                    overlayInfoCallback.accept(overlayInfo)
                 }
-                if (overlayInfoList.size > 1) {
-                    throw IllegalStateException(
-                        "There must be at most one overlay ActivityStack with $overlayTag"
-                    )
-                }
-                val overlayInfo = if (overlayInfoList.isEmpty()) {
-                    OverlayInfo(
-                        overlayTag,
-                        currentOverlayAttributes = null,
-                        activityStack = null,
-                    )
-                } else {
-                    overlayInfoList.first().toOverlayInfo()
-                }
-                overlayInfoCallback.accept(overlayInfo)
-            }
             overlayInfoToActivityStackCallbackMap[overlayInfoCallback] = callback
 
             embeddingExtension.registerActivityStackCallback(executor, callback)
         }
     }
 
-    private fun ActivityStack.toOverlayInfo(): OverlayInfo = OverlayInfo(
-        tag!!,
-        overlayTagToCurrentAttributesMap[tag!!],
-        adapter.translate(this),
-    )
+    private fun ActivityStack.toOverlayInfo(): OverlayInfo =
+        OverlayInfo(
+            tag!!,
+            overlayTagToCurrentAttributesMap[tag!!],
+            adapter.translate(this),
+        )
 
     open fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
         globalLock.withLock {

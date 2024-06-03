@@ -26,9 +26,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-/**
- * The controller that allows checking the current [Activity] embedding status.
- */
+/** The controller that allows checking the current [Activity] embedding status. */
 class ActivityEmbeddingController internal constructor(private val backend: EmbeddingBackend) {
     /**
      * Checks if the [activity] is embedded and its presentation may be customized by the host
@@ -36,25 +34,23 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param activity the [Activity] to check.
      */
-    fun isActivityEmbedded(activity: Activity): Boolean =
-        backend.isActivityEmbedded(activity)
+    fun isActivityEmbedded(activity: Activity): Boolean = backend.isActivityEmbedded(activity)
 
     /**
      * Returns the [ActivityStack] that this [activity] is part of when it is being organized in the
      * embedding container and associated with a [SplitInfo]. Returns `null` if there is no such
      * [ActivityStack].
      *
-     * Started from [WindowSdkExtensions.extensionVersion] 5, this method can also obtain
-     * standalone [ActivityStack], which is not associated with any [SplitInfo]. For example,
-     * an [ActivityStack] launched with [ActivityRule.alwaysExpand], or an overlay [ActivityStack]
+     * Started from [WindowSdkExtensions.extensionVersion] 5, this method can also obtain standalone
+     * [ActivityStack], which is not associated with any [SplitInfo]. For example, an
+     * [ActivityStack] launched with [ActivityRule.alwaysExpand], or an overlay [ActivityStack]
      * launched by [setLaunchingActivityStack] with [OverlayCreateParams].
      *
      * @param activity The [Activity] to check.
      * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
-     * [ActivityStack].
+     *   [ActivityStack].
      */
-    fun getActivityStack(activity: Activity): ActivityStack? =
-        backend.getActivityStack(activity)
+    fun getActivityStack(activity: Activity): ActivityStack? = backend.getActivityStack(activity)
 
     /**
      * Sets the launching [ActivityStack] to the given [Bundle].
@@ -65,24 +61,22 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @param activityStack the [ActivityStack] to be set.
      */
     @RequiresWindowSdkExtension(5)
-    internal fun setLaunchingActivityStack(
-        options: Bundle,
-        activityStack: ActivityStack
-    ): Bundle = backend.setLaunchingActivityStack(options, activityStack)
+    internal fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle =
+        backend.setLaunchingActivityStack(options, activityStack)
 
     /**
      * Finishes a set of [activityStacks][ActivityStack] from the lowest to the highest z-order
      * regardless of the order of `activityStack` passed in the input parameter.
      *
-     * If a remaining activityStack from a split participates in other splits with
-     * other activityStacks, the remaining activityStack might split with other activityStacks.
-     * For example, if activityStack A splits with activityStack B and C, and activityStack C covers
+     * If a remaining activityStack from a split participates in other splits with other
+     * activityStacks, the remaining activityStack might split with other activityStacks. For
+     * example, if activityStack A splits with activityStack B and C, and activityStack C covers
      * activityStack B, finishing activityStack C might make the split of activityStack A and B
      * show.
      *
-     * If all split-associated activityStacks are finished, the remaining activityStack will
-     * be expanded to fill the parent task container. This is useful to expand the primary
-     * container as the sample linked below shows.
+     * If all split-associated activityStacks are finished, the remaining activityStack will be
+     * expanded to fill the parent task container. This is useful to expand the primary container as
+     * the sample linked below shows.
      *
      * **Note** that it's caller's responsibility to check whether this API is supported by checking
      * [WindowSdkExtensions.extensionVersion] is greater than or equal to 5. If not, an alternative
@@ -91,6 +85,7 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param activityStacks The set of [ActivityStack] to be finished.
      * @throws UnsupportedOperationException if extension version is less than 5.
+     *
      * @sample androidx.window.samples.embedding.expandPrimaryContainer
      */
     @RequiresWindowSdkExtension(5)
@@ -111,8 +106,8 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * are explicitly set will be updated.
      *
      * **Note** that it is recommended to be configured in the [androidx.startup.Initializer] or
-     * [android.app.Application.onCreate], so that the [EmbeddingConfiguration] is applied early
-     * in the application startup, before any activities complete initialization. The
+     * [android.app.Application.onCreate], so that the [EmbeddingConfiguration] is applied early in
+     * the application startup, before any activities complete initialization. The
      * [EmbeddingConfiguration] updates afterward may or may not apply to already running
      * activities.
      *
@@ -132,18 +127,17 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * on the application state.
      *
      * This method is not needed for changes that are driven by window and device state changes or
-     * new activity starts, because those will invoke the calculator functions
-     * automatically.
+     * new activity starts, because those will invoke the calculator functions automatically.
      *
-     * Visible [activityStacks][ActivityStack] are usually the last element of [SplitInfo]
-     * list which was received from the callback registered in [SplitController.splitInfoList] and
-     * an active overlay [ActivityStack] if exists.
+     * Visible [activityStacks][ActivityStack] are usually the last element of [SplitInfo] list
+     * which was received from the callback registered in [SplitController.splitInfoList] and an
+     * active overlay [ActivityStack] if exists.
      *
      * The call will be no-op if there is no visible [activityStacks][ActivityStack] or there's no
      * calculator set.
      *
-     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *                                       is less than 3.
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 3.
      * @see androidx.window.embedding.OverlayController.setOverlayAttributesCalculator
      * @see androidx.window.embedding.SplitController.setSplitAttributesCalculator
      */
@@ -160,13 +154,12 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * [activity] is currently embedded as [EmbeddedActivityWindowInfo.isEmbedded] is `true`.
      *
      * When the [activity] is embedded, the [Flow] will be invoked when [EmbeddedActivityWindowInfo]
-     * is changed.
-     * When the [activity] is not embedded, the [Flow] will not be triggered unless the [activity]
-     * is becoming non-embedded from embedded.
+     * is changed. When the [activity] is not embedded, the [Flow] will not be triggered unless the
+     * [activity] is becoming non-embedded from embedded.
      *
      * Note that this API is only supported on the device with
-     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6.
-     * If [WindowSdkExtensions.extensionVersion] is less than 6, this [Flow] will not be invoked.
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6. If
+     * [WindowSdkExtensions.extensionVersion] is less than 6, this [Flow] will not be invoked.
      *
      * @param activity the [Activity] that is interested in getting the embedded window info.
      * @return a [Flow] of [EmbeddedActivityWindowInfo] of the [activity].

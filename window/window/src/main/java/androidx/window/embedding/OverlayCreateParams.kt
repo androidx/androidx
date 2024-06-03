@@ -28,13 +28,15 @@ import java.util.UUID
  *
  * See [android.os.Bundle.setOverlayCreateParams] for how to create an overlay [ActivityStack].
  *
- * @property tag The unique identifier of the overlay [ActivityStack], which will be generated
- * automatically if not specified.
- * @property overlayAttributes The attributes of the overlay [ActivityStack], which defaults to
- * the default value of [OverlayAttributes].
  * @constructor creates a parameter container to launch an overlay [ActivityStack].
+ * @property tag The unique identifier of the overlay [ActivityStack], which will be generated
+ *   automatically if not specified.
+ * @property overlayAttributes The attributes of the overlay [ActivityStack], which defaults to the
+ *   default value of [OverlayAttributes].
  */
-class OverlayCreateParams @JvmOverloads constructor(
+class OverlayCreateParams
+@JvmOverloads
+constructor(
     val tag: String = generateOverlayTag(),
     val overlayAttributes: OverlayAttributes = OverlayAttributes.Builder().build(),
 ) {
@@ -44,9 +46,7 @@ class OverlayCreateParams @JvmOverloads constructor(
             ", attrs=$overlayAttributes" +
             "}"
 
-    /**
-     * The [OverlayCreateParams] builder.
-     */
+    /** The [OverlayCreateParams] builder. */
     class Builder {
         private var tag: String? = null
         private var launchAttrs: OverlayAttributes? = null
@@ -67,24 +67,20 @@ class OverlayCreateParams @JvmOverloads constructor(
          * @param attrs The [OverlayAttributes].
          * @return The [OverlayCreateParams] builder.
          */
-        fun setOverlayAttributes(
-            attrs: OverlayAttributes
-        ): Builder = apply { launchAttrs = attrs }
+        fun setOverlayAttributes(attrs: OverlayAttributes): Builder = apply { launchAttrs = attrs }
 
         /** Builds the [OverlayCreateParams] */
-        fun build(): OverlayCreateParams = OverlayCreateParams(
-            tag ?: generateOverlayTag(),
-            launchAttrs ?: OverlayAttributes.Builder().build()
-        )
+        fun build(): OverlayCreateParams =
+            OverlayCreateParams(
+                tag ?: generateOverlayTag(),
+                launchAttrs ?: OverlayAttributes.Builder().build()
+            )
     }
 
     companion object {
 
-        /**
-         * A helper function to generate a random unique identifier.
-         */
+        /** A helper function to generate a random unique identifier. */
         @JvmStatic
-        fun generateOverlayTag(): String =
-            UUID.randomUUID().toString().substring(IntRange(0, 32))
+        fun generateOverlayTag(): String = UUID.randomUUID().toString().substring(IntRange(0, 32))
     }
 }

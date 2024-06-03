@@ -22,17 +22,18 @@ import android.graphics.Rect
  * Describes the embedded window related info of an activity.
  *
  * When the activity is embedded, the [ActivityEmbeddingController.embeddedActivityWindowInfo] will
- * be invoked when any fields of [EmbeddedActivityWindowInfo] is changed.
- * When the activity is not embedded, the [ActivityEmbeddingController.embeddedActivityWindowInfo]
- * will not be triggered unless the activity is becoming non-embedded from embedded, in which case
- * [isEmbedded] will be `false`.
+ * be invoked when any fields of [EmbeddedActivityWindowInfo] is changed. When the activity is not
+ * embedded, the [ActivityEmbeddingController.embeddedActivityWindowInfo] will not be triggered
+ * unless the activity is becoming non-embedded from embedded, in which case [isEmbedded] will be
+ * `false`.
  *
  * @see ActivityEmbeddingController.embeddedActivityWindowInfo
  */
-class EmbeddedActivityWindowInfo internal constructor(
+class EmbeddedActivityWindowInfo
+internal constructor(
     /**
-     * Whether this activity is embedded and its presentation may be customized by the host
-     * process of the task it is associated with.
+     * Whether this activity is embedded and its presentation may be customized by the host process
+     * of the task it is associated with.
      */
     val isEmbedded: Boolean,
     /**

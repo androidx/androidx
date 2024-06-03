@@ -35,25 +35,25 @@ class EmbeddingCompatTest {
 
     private val component = mock<ActivityEmbeddingComponent>()
     private val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
-    private val embeddingCompat = EmbeddingCompat(
-        component,
-        EMBEDDING_ADAPTER,
-        CONSUMER_ADAPTER,
-        mock(),
-        mock(),
-        mock(),
-    )
+    private val embeddingCompat =
+        EmbeddingCompat(
+            component,
+            EMBEDDING_ADAPTER,
+            CONSUMER_ADAPTER,
+            mock(),
+            mock(),
+            mock(),
+        )
 
     @Suppress("Deprecation")
     @Test
     fun setSplitInfoCallback_callsActualMethod() {
-        val callback = object : EmbeddingInterfaceCompat.EmbeddingCallbackInterface {
-            override fun onSplitInfoChanged(splitInfo: List<SplitInfo>) {
-            }
+        val callback =
+            object : EmbeddingInterfaceCompat.EmbeddingCallbackInterface {
+                override fun onSplitInfoChanged(splitInfo: List<SplitInfo>) {}
 
-            override fun onActivityStackChanged(activityStacks: List<ActivityStack>) {
+                override fun onActivityStackChanged(activityStacks: List<ActivityStack>) {}
             }
-        }
         embeddingCompat.setEmbeddingCallback(callback)
 
         when (extensionVersion) {
@@ -61,10 +61,11 @@ class EmbeddingCompatTest {
             in 2..4 -> verify(component).setSplitInfoCallback(any<Consumer<List<OEMSplitInfo>>>())
             5 -> {
                 verify(component).setSplitInfoCallback(any<Consumer<List<OEMSplitInfo>>>())
-                verify(component).registerActivityStackCallback(
-                    any<Executor>(),
-                    any<Consumer<List<OEMActivityStack>>>()
-                )
+                verify(component)
+                    .registerActivityStackCallback(
+                        any<Executor>(),
+                        any<Consumer<List<OEMActivityStack>>>()
+                    )
             }
         }
     }

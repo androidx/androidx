@@ -29,9 +29,8 @@ import androidx.window.layout.adapter.WindowBackend
  * there are active listeners. Context has to be an [Activity] or a [UiContext] created with
  * [Context#createWindowContext] or InputMethodService.
  */
-internal class ExtensionWindowBackend(
-    private val backend: WindowBackend
-) : WindowBackend by backend {
+internal class ExtensionWindowBackend(private val backend: WindowBackend) :
+    WindowBackend by backend {
 
     companion object {
 
@@ -40,10 +39,7 @@ internal class ExtensionWindowBackend(
          * should be a single instance per app and this is handled in
          * [androidx.window.layout.WindowInfoTracker.getOrCreate].
          */
-        fun newInstance(
-            component: WindowLayoutComponent,
-            adapter: ConsumerAdapter
-        ): WindowBackend {
+        fun newInstance(component: WindowLayoutComponent, adapter: ConsumerAdapter): WindowBackend {
             val safeVendorApiLevel = ExtensionsUtil.safeVendorApiLevel
             return when {
                 safeVendorApiLevel >= 6 -> ExtensionWindowBackendApi6(component, adapter)

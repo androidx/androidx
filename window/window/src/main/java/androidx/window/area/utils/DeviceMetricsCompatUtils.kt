@@ -31,14 +31,19 @@ import androidx.window.extensions.area.WindowAreaComponent
  */
 internal object DeviceMetricsCompatUtils {
 
-    private val deviceMetricsList = listOf(DeviceMetrics("google", "pixel fold",
-        DisplayMetrics().apply {
-            widthPixels = 1080
-            heightPixels = 2092
-            density = 2.625f
-            densityDpi = DisplayMetrics.DENSITY_420
-        }
-    ))
+    private val deviceMetricsList =
+        listOf(
+            DeviceMetrics(
+                "google",
+                "pixel fold",
+                DisplayMetrics().apply {
+                    widthPixels = 1080
+                    heightPixels = 2092
+                    density = 2.625f
+                    densityDpi = DisplayMetrics.DENSITY_420
+                }
+            )
+        )
 
     fun hasDeviceMetrics(): Boolean {
         return getDeviceMetrics() != null
@@ -47,7 +52,7 @@ internal object DeviceMetricsCompatUtils {
     fun getDeviceMetrics(): DeviceMetrics? {
         return deviceMetricsList.firstOrNull { deviceMetrics ->
             deviceMetrics.brand.equals(Build.BRAND, ignoreCase = true) &&
-            deviceMetrics.model.equals(Build.MODEL, ignoreCase = true)
+                deviceMetrics.model.equals(Build.MODEL, ignoreCase = true)
         }
     }
 }

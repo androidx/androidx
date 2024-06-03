@@ -63,15 +63,15 @@ internal object ContextCompatHelperApi30 {
 
     /**
      * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
-     * @DoNotInline required for implementation-specific class method to prevent it from being
-     * inlined.
      *
      * @see androidx.window.layout.WindowMetrics.getWindowInsets
+     * @DoNotInline required for implementation-specific class method to prevent it from being
+     *   inlined.
      */
     @DoNotInline
     fun currentWindowInsets(@UiContext context: Context): WindowInsetsCompat {
-        val platformInsets = context.getSystemService(WindowManager::class.java)
-            .currentWindowMetrics.windowInsets
+        val platformInsets =
+            context.getSystemService(WindowManager::class.java).currentWindowMetrics.windowInsets
         return WindowInsetsCompat.toWindowInsetsCompat(platformInsets)
     }
 }

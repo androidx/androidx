@@ -16,9 +16,7 @@
 
 package androidx.window.layout
 
-/**
- * A class to represent a posture that the device supports.
- */
+/** A class to represent a posture that the device supports. */
 class SupportedPosture internal constructor(private val rawValue: Int) {
 
     override fun toString(): String {
@@ -43,10 +41,7 @@ class SupportedPosture internal constructor(private val rawValue: Int) {
     }
 
     companion object {
-        /**
-         * The posture where there is a single fold in the half-opened state.
-         */
-        @JvmField
-        val TABLETOP: SupportedPosture = SupportedPosture(0)
+        /** The posture where there is a single fold in the half-opened state. */
+        @JvmField val TABLETOP: SupportedPosture = SupportedPosture(0)
     }
 }

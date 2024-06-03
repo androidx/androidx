@@ -40,13 +40,13 @@ import kotlin.math.min
  * Some important constants are:
  * - [BOUNDS_EXPANDED]: To indicate the bounds fills the parent window container.
  * - [BOUNDS_HINGE_TOP]: To indicate the bounds are at the top of the parent window container while
- * its bottom follows the hinge position. Refer to [BOUNDS_HINGE_LEFT], [BOUNDS_HINGE_BOTTOM] and
- * [BOUNDS_HINGE_RIGHT] for other bounds that follows the hinge position.
+ *   its bottom follows the hinge position. Refer to [BOUNDS_HINGE_LEFT], [BOUNDS_HINGE_BOTTOM] and
+ *   [BOUNDS_HINGE_RIGHT] for other bounds that follows the hinge position.
  *
+ * @constructor creates an embedding bounds.
  * @property alignment The alignment of the bounds relative to parent window container.
  * @property width The width of the bounds.
  * @property height The height of the bounds.
- * @constructor creates an embedding bounds.
  */
 class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height: Dimension) {
     override fun toString(): String {
@@ -63,9 +63,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is EmbeddingBounds) return false
-        return alignment == other.alignment &&
-            width == other.width &&
-            height == other.height
+        return alignment == other.alignment && width == other.width && height == other.height
     }
 
     /** Returns `true` if the [width] should fallback to half of parent task width. */
@@ -73,8 +71,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
         if (width != DIMENSION_HINGE) {
             return false
         }
-        return !windowLayoutInfo.isVertical() ||
-            alignment in listOf(ALIGN_TOP, ALIGN_BOTTOM)
+        return !windowLayoutInfo.isVertical() || alignment in listOf(ALIGN_TOP, ALIGN_BOTTOM)
     }
 
     /** Returns `true` if the [height] should fallback to half of parent task height. */
@@ -82,8 +79,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
         if (height != DIMENSION_HINGE) {
             return false
         }
-        return !windowLayoutInfo.isHorizontal() ||
-            alignment in listOf(ALIGN_LEFT, ALIGN_RIGHT)
+        return !windowLayoutInfo.isHorizontal() || alignment in listOf(ALIGN_LEFT, ALIGN_RIGHT)
     }
 
     private fun WindowLayoutInfo.isHorizontal(): Boolean {
@@ -105,20 +101,19 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
         return if (foldingFeatures.size == 1) foldingFeatures[0] else null
     }
 
-    /**
-     * Calculates [width] in pixel with [parentContainerBounds] and [windowLayoutInfo].
-     */
+    /** Calculates [width] in pixel with [parentContainerBounds] and [windowLayoutInfo]. */
     @Px
     internal fun getWidthInPixel(
         parentContainerBounds: Bounds,
         windowLayoutInfo: WindowLayoutInfo
     ): Int {
         val taskWidth = parentContainerBounds.width
-        val widthDimension = if (shouldUseFallbackDimensionForWidth(windowLayoutInfo)) {
-            ratio(0.5f)
-        } else {
-            width
-        }
+        val widthDimension =
+            if (shouldUseFallbackDimensionForWidth(windowLayoutInfo)) {
+                ratio(0.5f)
+            } else {
+                width
+            }
         when (widthDimension) {
             is Dimension.Ratio -> return widthDimension * taskWidth
             is Dimension.Pixel -> return min(taskWidth, widthDimension.value)
@@ -133,9 +128,11 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
                         parentContainerBounds.right - hingeBounds.right
                     }
                     else -> {
-                        throw IllegalStateException("Unhandled condition to get height in pixel! " +
-                            "embeddingBounds=$this taskBounds=$parentContainerBounds " +
-                            "windowLayoutInfo=$windowLayoutInfo")
+                        throw IllegalStateException(
+                            "Unhandled condition to get height in pixel! " +
+                                "embeddingBounds=$this taskBounds=$parentContainerBounds " +
+                                "windowLayoutInfo=$windowLayoutInfo"
+                        )
                     }
                 }
             }
@@ -143,20 +140,19 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
         }
     }
 
-    /**
-     * Calculates [height] in pixel with [parentContainerBounds] and [windowLayoutInfo].
-     */
+    /** Calculates [height] in pixel with [parentContainerBounds] and [windowLayoutInfo]. */
     @Px
     internal fun getHeightInPixel(
         parentContainerBounds: Bounds,
         windowLayoutInfo: WindowLayoutInfo
     ): Int {
         val taskHeight = parentContainerBounds.height
-        val heightDimension = if (shouldUseFallbackDimensionForHeight(windowLayoutInfo)) {
-            ratio(0.5f)
-        } else {
-            height
-        }
+        val heightDimension =
+            if (shouldUseFallbackDimensionForHeight(windowLayoutInfo)) {
+                ratio(0.5f)
+            } else {
+                height
+            }
         when (heightDimension) {
             is Dimension.Ratio -> return heightDimension * taskHeight
             is Dimension.Pixel -> return min(taskHeight, heightDimension.value)
@@ -171,9 +167,11 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
                         parentContainerBounds.bottom - hingeBounds.bottom
                     }
                     else -> {
-                        throw IllegalStateException("Unhandled condition to get height in pixel! " +
-                            "embeddingBounds=$this taskBounds=$parentContainerBounds " +
-                            "windowLayoutInfo=$windowLayoutInfo")
+                        throw IllegalStateException(
+                            "Unhandled condition to get height in pixel! " +
+                                "embeddingBounds=$this taskBounds=$parentContainerBounds " +
+                                "windowLayoutInfo=$windowLayoutInfo"
+                        )
                     }
                 }
             }
@@ -184,7 +182,9 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
     /** The position of the bounds relative to parent window container. */
     class Alignment internal constructor(@IntRange(from = 0, to = 3) internal val value: Int) {
 
-        init { require(value in 0..3) }
+        init {
+            require(value in 0..3)
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -196,31 +196,28 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
             return value
         }
 
-        override fun toString(): String = when (value) {
-            0 -> "top"
-            1 -> "left"
-            2 -> "bottom"
-            3 -> "right"
-            else -> "unknown position:$value"
-        }
+        override fun toString(): String =
+            when (value) {
+                0 -> "top"
+                1 -> "left"
+                2 -> "bottom"
+                3 -> "right"
+                else -> "unknown position:$value"
+            }
 
         companion object {
 
             /** Specifies that the bounds is at the top of the parent window container. */
-            @JvmField
-            val ALIGN_TOP = Alignment(0)
+            @JvmField val ALIGN_TOP = Alignment(0)
 
             /** Specifies that the bounds is at the left of the parent window container. */
-            @JvmField
-            val ALIGN_LEFT = Alignment(1)
+            @JvmField val ALIGN_LEFT = Alignment(1)
 
             /** Specifies that the bounds is at the bottom of the parent window container. */
-            @JvmField
-            val ALIGN_BOTTOM = Alignment(2)
+            @JvmField val ALIGN_BOTTOM = Alignment(2)
 
             /** Specifies that the bounds is at the right of the parent window container. */
-            @JvmField
-            val ALIGN_RIGHT = Alignment(3)
+            @JvmField val ALIGN_RIGHT = Alignment(3)
         }
     }
 
@@ -228,9 +225,9 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
      * The dimension of the bounds, which can be represented as multiple formats:
      * - [DIMENSION_EXPANDED]: means the bounds' dimension fills parent window's dimension.
      * - in [pixel]: To specify the dimension value in pixel.
-     * - in [ratio]: To specify the dimension that relative to the parent window container.
-     * For example, if [width] has [ratio] value 0.6, it means the bounds' width is 0.6 to the
-     * parent window container's width.
+     * - in [ratio]: To specify the dimension that relative to the parent window container. For
+     *   example, if [width] has [ratio] value 0.6, it means the bounds' width is 0.6 to the parent
+     *   window container's width.
      */
     abstract class Dimension internal constructor(internal val description: String) {
 
@@ -249,13 +246,12 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
          *
          * @param value The dimension length in pixel
          */
-        internal class Pixel(
-            @Px
-            @IntRange(from = 1)
-            internal val value: Int
-        ) : Dimension("dimension in pixel:$value") {
+        internal class Pixel(@Px @IntRange(from = 1) internal val value: Int) :
+            Dimension("dimension in pixel:$value") {
 
-            init { require(value >= 1) { "Pixel value must be a positive integer." } }
+            init {
+                require(value >= 1) { "Pixel value must be a positive integer." }
+            }
 
             internal operator fun compareTo(dimen: Int): Int = value - dimen
         }
@@ -267,11 +263,12 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
          * @param value The ratio in (0.0, 1.0)
          */
         internal class Ratio(
-            @FloatRange(from = 0.0, fromInclusive = false, to = 1.0)
-            internal val value: Float
+            @FloatRange(from = 0.0, fromInclusive = false, to = 1.0) internal val value: Float
         ) : Dimension("dimension in ratio:$value") {
 
-            init { require(value > 0.0 && value <= 1.0) { "Ratio must be in range (0.0, 1.0]" } }
+            init {
+                require(value > 0.0 && value <= 1.0) { "Ratio must be in range (0.0, 1.0]" }
+            }
 
             internal operator fun times(dimen: Int): Int = (value * dimen).toInt()
         }
@@ -279,28 +276,24 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
         companion object {
 
             /** Represents this dimension follows its parent window dimension. */
-            @JvmField
-            val DIMENSION_EXPANDED: Dimension = Ratio(1.0f)
+            @JvmField val DIMENSION_EXPANDED: Dimension = Ratio(1.0f)
 
             /**
-             * Represents this dimension follows the hinge position if the current window and
-             * device state satisfies, or fallbacks to a half of the parent task dimension,
-             * otherwise.
+             * Represents this dimension follows the hinge position if the current window and device
+             * state satisfies, or fallbacks to a half of the parent task dimension, otherwise.
              *
              * The [DIMENSION_HINGE] works only if:
-             *
              * - The parent container is not in multi-window mode (e.g., split-screen mode or
              *   picture-in-picture mode)
              * - The device has a hinge or separating fold reported by
              *   [androidx.window.layout.FoldingFeature.isSeparating]
              * - The hinge or separating fold orientation matches [EmbeddingBounds.alignment]:
-             *       - The hinge or fold orientation is vertical, and the position is
-             *         [POSITION_LEFT] or [POSITION_RIGHT]
-             *       - The hinge or fold orientation is horizontal, and the position is
-             *         [POSITION_TOP] or [POSITION_BOTTOM]
+             *     - The hinge or fold orientation is vertical, and the position is [POSITION_LEFT]
+             *       or [POSITION_RIGHT]
+             *     - The hinge or fold orientation is horizontal, and the position is [POSITION_TOP]
+             *       or [POSITION_BOTTOM]
              */
-            @JvmField
-            val DIMENSION_HINGE: Dimension = object : Dimension("hinge") {}
+            @JvmField val DIMENSION_HINGE: Dimension = object : Dimension("hinge") {}
 
             /**
              * Creates the dimension in pixel.
@@ -310,8 +303,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
              *
              * @param value The dimension length in pixel
              */
-            @JvmStatic
-            fun pixel(@Px @IntRange(from = 1) value: Int): Dimension = Pixel(value)
+            @JvmStatic fun pixel(@Px @IntRange(from = 1) value: Int): Dimension = Pixel(value)
 
             /**
              * Creates the dimension which takes a proportion of the parent window dimension.
@@ -337,44 +329,32 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_TOP = EmbeddingBounds(
-            ALIGN_TOP,
-            width = DIMENSION_EXPANDED,
-            height = DIMENSION_HINGE
-        )
+        val BOUNDS_HINGE_TOP =
+            EmbeddingBounds(ALIGN_TOP, width = DIMENSION_EXPANDED, height = DIMENSION_HINGE)
 
         /**
          * The bounds located on the left of the parent window, and the bounds' right side matches
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_LEFT = EmbeddingBounds(
-            ALIGN_LEFT,
-            width = DIMENSION_HINGE,
-            height = DIMENSION_EXPANDED
-        )
+        val BOUNDS_HINGE_LEFT =
+            EmbeddingBounds(ALIGN_LEFT, width = DIMENSION_HINGE, height = DIMENSION_EXPANDED)
 
         /**
          * The bounds located on the bottom of the parent window, and the bounds' top side matches
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_BOTTOM = EmbeddingBounds(
-            ALIGN_BOTTOM,
-            width = DIMENSION_EXPANDED,
-            height = DIMENSION_HINGE
-        )
+        val BOUNDS_HINGE_BOTTOM =
+            EmbeddingBounds(ALIGN_BOTTOM, width = DIMENSION_EXPANDED, height = DIMENSION_HINGE)
 
         /**
          * The bounds located on the right of the parent window, and the bounds' left side matches
          * the hinge position.
          */
         @JvmField
-        val BOUNDS_HINGE_RIGHT = EmbeddingBounds(
-            ALIGN_RIGHT,
-            width = DIMENSION_HINGE,
-            height = DIMENSION_EXPANDED
-        )
+        val BOUNDS_HINGE_RIGHT =
+            EmbeddingBounds(ALIGN_RIGHT, width = DIMENSION_HINGE, height = DIMENSION_EXPANDED)
 
         /** Translates [EmbeddingBounds] to pure [Rect] bounds with given [ParentContainerInfo]. */
         @VisibleForTesting
@@ -383,38 +363,37 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
             parentContainerBounds: Bounds,
             windowLayoutInfo: WindowLayoutInfo,
         ): Bounds {
-            if (embeddingBounds.width == DIMENSION_EXPANDED &&
-                embeddingBounds.height == DIMENSION_EXPANDED) {
+            if (
+                embeddingBounds.width == DIMENSION_EXPANDED &&
+                    embeddingBounds.height == DIMENSION_EXPANDED
+            ) {
                 // If width and height are expanded, set bounds to empty to follow the parent task
                 // bounds.
                 return Bounds.EMPTY_BOUNDS
             }
             // 1. Fallbacks dimensions to ratio(0.5) if they can't follow the hinge with the current
             //    device and window state.
-            val width = if (embeddingBounds.shouldUseFallbackDimensionForWidth(windowLayoutInfo)) {
-                ratio(0.5f)
-            } else {
-                embeddingBounds.width
-            }
-            val height = if (
-                embeddingBounds.shouldUseFallbackDimensionForHeight(windowLayoutInfo)
-            ) {
-                ratio(0.5f)
-            } else {
-                embeddingBounds.height
-            }
+            val width =
+                if (embeddingBounds.shouldUseFallbackDimensionForWidth(windowLayoutInfo)) {
+                    ratio(0.5f)
+                } else {
+                    embeddingBounds.width
+                }
+            val height =
+                if (embeddingBounds.shouldUseFallbackDimensionForHeight(windowLayoutInfo)) {
+                    ratio(0.5f)
+                } else {
+                    embeddingBounds.height
+                }
 
-            // 2. Computes dimensions to pixel values. If it just matches parent task bounds, returns
+            // 2. Computes dimensions to pixel values. If it just matches parent task bounds,
+            // returns
             //    the empty bounds to declare the bounds follow the parent task bounds.
             val sanitizedBounds = EmbeddingBounds(embeddingBounds.alignment, width, height)
-            val widthInPixel = sanitizedBounds.getWidthInPixel(
-                parentContainerBounds,
-                windowLayoutInfo
-            )
-            val heightInPixel = sanitizedBounds.getHeightInPixel(
-                parentContainerBounds,
-                windowLayoutInfo
-            )
+            val widthInPixel =
+                sanitizedBounds.getWidthInPixel(parentContainerBounds, windowLayoutInfo)
+            val heightInPixel =
+                sanitizedBounds.getHeightInPixel(parentContainerBounds, windowLayoutInfo)
             val taskWidth = parentContainerBounds.width
             val taskHeight = parentContainerBounds.height
 
@@ -429,10 +408,8 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
             //       the parent task bounds and centered by the middle of the height.
             return Bounds(0, 0, widthInPixel, heightInPixel).let { bounds ->
                 when (embeddingBounds.alignment) {
-                    ALIGN_TOP ->
-                        bounds.offset(((taskWidth - widthInPixel) / 2), 0)
-                    ALIGN_LEFT ->
-                        bounds.offset(0, ((taskHeight - heightInPixel) / 2))
+                    ALIGN_TOP -> bounds.offset(((taskWidth - widthInPixel) / 2), 0)
+                    ALIGN_LEFT -> bounds.offset(0, ((taskHeight - heightInPixel) / 2))
                     ALIGN_BOTTOM ->
                         bounds.offset(((taskWidth - widthInPixel) / 2), taskHeight - heightInPixel)
                     ALIGN_RIGHT ->
@@ -445,21 +422,18 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
             }
         }
 
-        private fun Bounds.offset(dx: Int, dy: Int): Bounds = Bounds(
-            left + dx,
-            top + dy,
-            right + dx,
-            bottom + dy
-        )
+        private fun Bounds.offset(dx: Int, dy: Int): Bounds =
+            Bounds(left + dx, top + dy, right + dx, bottom + dy)
 
         /** Translates [EmbeddingBounds] to pure [Rect] bounds with given [ParentContainerInfo]. */
         internal fun translateEmbeddingBounds(
             embeddingBounds: EmbeddingBounds,
             parentContainerInfo: ParentContainerInfo,
-        ): Bounds = translateEmbeddingBounds(
-            embeddingBounds,
-            parentContainerInfo.windowBounds,
-            parentContainerInfo.windowLayoutInfo
-        )
+        ): Bounds =
+            translateEmbeddingBounds(
+                embeddingBounds,
+                parentContainerInfo.windowBounds,
+                parentContainerInfo.windowLayoutInfo
+            )
     }
 }

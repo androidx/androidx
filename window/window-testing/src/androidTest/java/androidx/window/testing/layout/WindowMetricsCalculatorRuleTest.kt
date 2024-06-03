@@ -34,15 +34,14 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A test class for [WindowMetricsCalculatorRule] that tests using
- * [StubWindowMetricsCalculator] instead of the actual implementation.
+ * A test class for [WindowMetricsCalculatorRule] that tests using [StubWindowMetricsCalculator]
+ * instead of the actual implementation.
  */
 class WindowMetricsCalculatorRuleTest {
     private val activityRule = ActivityScenarioRule(TestActivity::class.java)
     private val mWindowMetricsCalculatorRule = WindowMetricsCalculatorRule()
 
-    @get:Rule
-    val testRule: TestRule
+    @get:Rule val testRule: TestRule
 
     init {
         testRule = RuleChain.outerRule(mWindowMetricsCalculatorRule).around(activityRule)
@@ -107,8 +106,7 @@ class WindowMetricsCalculatorRuleTest {
             // DefaultDisplay#getRealSize is used in StubWindowMetricsCalculator for compatibility
             // with older versions. We're just asserting that the value via
             // StubWindowMetricsCalculator#computeCurrentWindowMetrics is equal to this.
-            @Suppress("DEPRECATION")
-            wm.defaultDisplay.getRealSize(displaySize)
+            @Suppress("DEPRECATION") wm.defaultDisplay.getRealSize(displaySize)
             val actual = calculator.computeCurrentWindowMetrics(activity as Context)
 
             assertEquals(0, actual.bounds.left)
@@ -144,14 +142,16 @@ class WindowMetricsCalculatorRuleTest {
             WindowMetricsCalculator.reset()
             val expected = WindowMetricsCalculator.getOrCreate()
             try {
-                WindowMetricsCalculatorRule().apply(
-                    object : Statement() {
-                        override fun evaluate() {
-                            throw TestException
-                        }
-                    },
-                    Description.EMPTY
-                ).evaluate()
+                WindowMetricsCalculatorRule()
+                    .apply(
+                        object : Statement() {
+                            override fun evaluate() {
+                                throw TestException
+                            }
+                        },
+                        Description.EMPTY
+                    )
+                    .evaluate()
             } catch (e: TestException) {
                 // Throw unexpected exceptions.
             }

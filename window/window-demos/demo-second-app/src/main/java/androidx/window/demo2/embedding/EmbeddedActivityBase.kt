@@ -48,9 +48,7 @@ open class EmbeddedActivityBase : AppCompatActivity() {
             startActivity(Intent(this, this.javaClass))
         }
         viewBinding.buttonStartActivityFromApplicationContext.setOnClickListener {
-            application.startActivity(
-                Intent(this, this.javaClass).setFlags(FLAG_ACTIVITY_NEW_TASK)
-            )
+            application.startActivity(Intent(this, this.javaClass).setFlags(FLAG_ACTIVITY_NEW_TASK))
         }
 
         activityEmbeddingController = ActivityEmbeddingController.getInstance(this)
@@ -74,7 +72,8 @@ open class EmbeddedActivityBase : AppCompatActivity() {
                 // STOPPED), the flow will not report the change (because it has been unregistered).
                 // Reset before start listening.
                 resetWindowInfoView()
-                activityEmbeddingController.embeddedActivityWindowInfo(this@EmbeddedActivityBase)
+                activityEmbeddingController
+                    .embeddedActivityWindowInfo(this@EmbeddedActivityBase)
                     .collect { info ->
                         if (info.isEmbedded) {
                             windowInfoView.text = info.toString()

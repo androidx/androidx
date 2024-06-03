@@ -33,14 +33,16 @@ class DividerAttributesTest {
     fun testDividerAttributesEquals() {
         val attrs1 = FixedDividerAttributes.Builder().build()
         val attrs2 = DraggableDividerAttributes.Builder().build()
-        val attrs3 = DraggableDividerAttributes.Builder()
-            .setWidthDp(20)
-            .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
-            .build()
-        val attrs4 = DraggableDividerAttributes.Builder()
-            .setWidthDp(DividerAttributes.WIDTH_SYSTEM_DEFAULT)
-            .setDragRange(DRAG_RANGE_SYSTEM_DEFAULT)
-            .build()
+        val attrs3 =
+            DraggableDividerAttributes.Builder()
+                .setWidthDp(20)
+                .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
+                .build()
+        val attrs4 =
+            DraggableDividerAttributes.Builder()
+                .setWidthDp(DividerAttributes.WIDTH_SYSTEM_DEFAULT)
+                .setDragRange(DRAG_RANGE_SYSTEM_DEFAULT)
+                .build()
 
         assertNotEquals(attrs1, attrs2)
         assertNotEquals(attrs1.hashCode(), attrs2.hashCode())
@@ -58,11 +60,12 @@ class DividerAttributesTest {
 
     @Test
     fun testBuilder() {
-        val attrs = DraggableDividerAttributes.Builder()
-            .setWidthDp(20)
-            .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
-            .setColor(Color.GRAY)
-            .build()
+        val attrs =
+            DraggableDividerAttributes.Builder()
+                .setWidthDp(20)
+                .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
+                .setColor(Color.GRAY)
+                .build()
 
         assertEquals(20, attrs.widthDp)
         assertEquals(SplitRatioDragRange(0.3f, 0.7f), attrs.dragRange)

@@ -39,25 +39,17 @@ import org.mockito.kotlin.spy
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-/**
- * Verifies [ActivityWindowInfoCallbackController]
- */
+/** Verifies [ActivityWindowInfoCallbackController] */
 @Suppress("GuardedBy")
 class ActivityWindowInfoCallbackControllerTest {
 
-    @get:Rule
-    val testRule = WindowSdkExtensionsRule()
+    @get:Rule val testRule = WindowSdkExtensionsRule()
 
-    @Mock
-    private lateinit var embeddingExtension: ActivityEmbeddingComponent
-    @Mock
-    private lateinit var callback1: JetpackConsumer<EmbeddedActivityWindowInfo>
-    @Mock
-    private lateinit var callback2: JetpackConsumer<EmbeddedActivityWindowInfo>
-    @Mock
-    private lateinit var activity1: Activity
-    @Mock
-    private lateinit var activity2: Activity
+    @Mock private lateinit var embeddingExtension: ActivityEmbeddingComponent
+    @Mock private lateinit var callback1: JetpackConsumer<EmbeddedActivityWindowInfo>
+    @Mock private lateinit var callback2: JetpackConsumer<EmbeddedActivityWindowInfo>
+    @Mock private lateinit var activity1: Activity
+    @Mock private lateinit var activity2: Activity
 
     @Captor
     private lateinit var callbackCaptor: ArgumentCaptor<Consumer<ExtensionsActivityWindowInfo>>
@@ -115,18 +107,17 @@ class ActivityWindowInfoCallbackControllerTest {
         controller.addCallback(activity1, callback1)
         controller.addCallback(activity1, callback2)
 
-        verify(embeddingExtension).setEmbeddedActivityWindowInfoCallback(
-            any(),
-            callbackCaptor.capture()
-        )
+        verify(embeddingExtension)
+            .setEmbeddedActivityWindowInfoCallback(any(), callbackCaptor.capture())
         val extensionsCallback = callbackCaptor.value
 
         val extensionsInfo: ExtensionsActivityWindowInfo = mock()
-        val expectedInfo = EmbeddedActivityWindowInfo(
-            isEmbedded = true,
-            parentHostBounds = mock(),
-            boundsInParentHost = mock()
-        )
+        val expectedInfo =
+            EmbeddedActivityWindowInfo(
+                isEmbedded = true,
+                parentHostBounds = mock(),
+                boundsInParentHost = mock()
+            )
         doReturn(expectedInfo).whenever(controller).translate(extensionsInfo)
 
         // No callback because the activity doesn't match.
@@ -153,11 +144,12 @@ class ActivityWindowInfoCallbackControllerTest {
 
         // Only the remaining callback can receive the info.
         controller.removeCallback(callback1)
-        val expectedInfo2 = EmbeddedActivityWindowInfo(
-            isEmbedded = false,
-            parentHostBounds = mock(),
-            boundsInParentHost = mock()
-        )
+        val expectedInfo2 =
+            EmbeddedActivityWindowInfo(
+                isEmbedded = false,
+                parentHostBounds = mock(),
+                boundsInParentHost = mock()
+            )
         doReturn(expectedInfo2).whenever(controller).translate(extensionsInfo)
         extensionsCallback.accept(extensionsInfo)
 

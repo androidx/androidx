@@ -73,27 +73,32 @@ internal class OverlayControllerTest {
     }
 
     @Test
-    fun test_overlayInfoComesFromBackend() = testScope.runTest {
-        val tag = "test"
-        val expected = OverlayInfo(
-            overlayTag = tag,
-            currentOverlayAttributes = OverlayAttributes(),
-            activityStack = ActivityStack(
-                emptyList(),
-                true,
-                ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
-            )
-        )
-        doAnswer { invocationOnMock ->
-            @Suppress("UNCHECKED_CAST")
-            val listener = invocationOnMock.arguments.last() as Consumer<OverlayInfo>
-            listener.accept(expected)
-        }.whenever(mockBackend).addOverlayInfoCallback(any(), any(), any())
+    fun test_overlayInfoComesFromBackend() =
+        testScope.runTest {
+            val tag = "test"
+            val expected =
+                OverlayInfo(
+                    overlayTag = tag,
+                    currentOverlayAttributes = OverlayAttributes(),
+                    activityStack =
+                        ActivityStack(
+                            emptyList(),
+                            true,
+                            ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
+                        )
+                )
+            doAnswer { invocationOnMock ->
+                    @Suppress("UNCHECKED_CAST")
+                    val listener = invocationOnMock.arguments.last() as Consumer<OverlayInfo>
+                    listener.accept(expected)
+                }
+                .whenever(mockBackend)
+                .addOverlayInfoCallback(any(), any(), any())
 
-        val actual = overlayController.overlayInfo(tag).take(1).toList().first()
+            val actual = overlayController.overlayInfo(tag).take(1).toList().first()
 
-        Assert.assertEquals(expected, actual)
-        verify(mockBackend).addOverlayInfoCallback(eq(tag), any(), any())
-        verify(mockBackend).removeOverlayInfoCallback(any())
-    }
+            Assert.assertEquals(expected, actual)
+            verify(mockBackend).addOverlayInfoCallback(eq(tag), any(), any())
+            verify(mockBackend).removeOverlayInfoCallback(any())
+        }
 }

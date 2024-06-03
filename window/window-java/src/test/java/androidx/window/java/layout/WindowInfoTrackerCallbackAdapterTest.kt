@@ -39,9 +39,7 @@ class WindowInfoTrackerCallbackAdapterTest {
         whenever(tracker.windowLayoutInfo(any())).thenReturn(mutableFlow)
 
         adapter.addWindowLayoutInfoListener(mock(), Runnable::run, consumer)
-        runBlocking {
-            mutableFlow.emit(WindowLayoutInfo(emptyList()))
-        }
+        runBlocking { mutableFlow.emit(WindowLayoutInfo(emptyList())) }
 
         verify(consumer).accept(WindowLayoutInfo(emptyList()))
     }
@@ -56,9 +54,7 @@ class WindowInfoTrackerCallbackAdapterTest {
 
         adapter.addWindowLayoutInfoListener(mock(), Runnable::run, consumer)
         adapter.removeWindowLayoutInfoListener(consumer)
-        runBlocking {
-            mutableFlow.emit(WindowLayoutInfo(emptyList()))
-        }
+        runBlocking { mutableFlow.emit(WindowLayoutInfo(emptyList())) }
 
         verifyNoMoreInteractions(consumer)
     }

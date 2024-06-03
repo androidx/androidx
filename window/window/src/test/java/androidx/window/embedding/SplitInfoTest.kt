@@ -29,8 +29,7 @@ import org.mockito.kotlin.mock
 /** Unit tests for [SplitInfo] */
 class SplitInfoTest {
 
-    @get:Rule
-    val testRule = WindowSdkExtensionsRule()
+    @get:Rule val testRule = WindowSdkExtensionsRule()
 
     @Before
     fun setUp() {

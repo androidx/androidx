@@ -33,36 +33,26 @@ import androidx.window.layout.util.ContextCompatHelper.unwrapUiContext
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowInsets
 import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 
-/**
- * Provides compatibility behavior for functionality related to [WindowMetricsCalculator].
- */
+/** Provides compatibility behavior for functionality related to [WindowMetricsCalculator]. */
 internal interface WindowMetricsCompatHelper {
 
-    /**
-     * Translates platform [AndroidWindowMetrics] to jetpack [WindowMetrics].
-     */
+    /** Translates platform [AndroidWindowMetrics] to jetpack [WindowMetrics]. */
     @RequiresApi(Build.VERSION_CODES.R)
     fun translateWindowMetrics(windowMetrics: AndroidWindowMetrics, density: Float): WindowMetrics
 
-    /**
-     * Returns the [WindowMetrics] associated with the provided [Context].
-     */
+    /** Returns the [WindowMetrics] associated with the provided [Context]. */
     fun currentWindowMetrics(
         @UiContext context: Context,
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics
 
-    /**
-     * Returns the [WindowMetrics] associated with the provided [Activity].
-     */
+    /** Returns the [WindowMetrics] associated with the provided [Activity]. */
     fun currentWindowMetrics(
         activity: Activity,
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics
 
-    /**
-     * Returns the maximum [WindowMetrics] for a given [UiContext].
-     */
+    /** Returns the maximum [WindowMetrics] for a given [UiContext]. */
     fun maximumWindowMetrics(
         @UiContext context: Context,
         densityCompatHelper: DensityCompatHelper
@@ -73,10 +63,8 @@ internal interface WindowMetricsCompatHelper {
             return when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
                     WindowMetricsCompatHelperApi34Impl
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
-                    WindowMetricsCompatHelperApi30Impl
-                else ->
-                    WindowMetricsCompatHelperBaseImpl
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> WindowMetricsCompatHelperApi30Impl
+                else -> WindowMetricsCompatHelperBaseImpl
             }
         }
     }
@@ -99,7 +87,6 @@ internal object WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper {
             is Activity -> {
                 return currentWindowMetrics(unwrappedContext, densityCompatHelper)
             }
-
             is InputMethodService -> {
                 val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -107,17 +94,12 @@ internal object WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper {
                 // However, there isn't a way for us to figure this out from the application
                 // layer. But, this should be good enough for now given the small likelihood of
                 // IMEs showing up on non-primary displays on these SDK levels.
-                @Suppress("DEPRECATION")
-                val displaySize = getRealSizeForDisplay(wm.defaultDisplay)
+                @Suppress("DEPRECATION") val displaySize = getRealSizeForDisplay(wm.defaultDisplay)
 
                 // IME occupies the whole display bounds.
                 val imeBounds = Rect(0, 0, displaySize.x, displaySize.y)
-                return WindowMetrics(
-                    imeBounds,
-                    density = densityCompatHelper.density(context)
-                )
+                return WindowMetrics(imeBounds, density = densityCompatHelper.density(context))
             }
-
             else -> {
                 throw IllegalArgumentException("$context is not a UiContext")
             }
@@ -215,24 +197,27 @@ internal object WindowMetricsCompatHelperApi34Impl : WindowMetricsCompatHelper {
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics {
         val wm = context.getSystemService(WindowManager::class.java)
-        return WindowMetrics(wm.currentWindowMetrics.bounds,
+        return WindowMetrics(
+            wm.currentWindowMetrics.bounds,
             WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets),
-            wm.currentWindowMetrics.density)
+            wm.currentWindowMetrics.density
+        )
     }
 
     override fun currentWindowMetrics(
         activity: Activity,
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics {
-        return WindowMetricsCompatHelperApi30Impl
-            .currentWindowMetrics(activity, densityCompatHelper)
+        return WindowMetricsCompatHelperApi30Impl.currentWindowMetrics(
+            activity,
+            densityCompatHelper
+        )
     }
 
     override fun maximumWindowMetrics(
         @UiContext context: Context,
         densityCompatHelper: DensityCompatHelper
     ): WindowMetrics {
-        return WindowMetricsCompatHelperApi30Impl
-            .maximumWindowMetrics(context, densityCompatHelper)
+        return WindowMetricsCompatHelperApi30Impl.maximumWindowMetrics(context, densityCompatHelper)
     }
 }

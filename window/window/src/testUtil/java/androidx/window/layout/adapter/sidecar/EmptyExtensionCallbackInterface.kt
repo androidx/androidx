@@ -19,9 +19,7 @@ import android.app.Activity
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
 
-/**
- * An empty implementation of [ExtensionCallbackInterface] with no-op methods.
- */
+/** An empty implementation of [ExtensionCallbackInterface] with no-op methods. */
 internal class EmptyExtensionCallbackInterface : ExtensionCallbackInterface {
     override fun onWindowLayoutChanged(activity: Activity, newLayout: WindowLayoutInfo) {}
 }

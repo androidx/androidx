@@ -32,8 +32,7 @@ import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.testing.layout.FoldingFeatureTestingConstants.FOLDING_FEATURE_CENTER_DEFAULT
 
 /**
- * A class to contain all the constants related to testing
- * [androidx.window.layout.DisplayFeature]s.
+ * A class to contain all the constants related to testing [androidx.window.layout.DisplayFeature]s.
  */
 object FoldingFeatureTestingConstants {
     /**
@@ -44,13 +43,13 @@ object FoldingFeatureTestingConstants {
 }
 
 /**
- * A convenience method to get a test fold with default values provided. With the default values
- * it returns a [FoldingFeature.State.HALF_OPENED] feature that splits the screen along the
+ * A convenience method to get a test fold with default values provided. With the default values it
+ * returns a [FoldingFeature.State.HALF_OPENED] feature that splits the screen along the
  * [FoldingFeature.Orientation.HORIZONTAL] axis.
  *
- * The bounds of the feature are calculated based on [orientation] and [size]. If the
- * feature is [VERTICAL] then the feature is centered horizontally. The top-left x-coordinate is
- * center - ([size] / 2) and the top-right x-coordinate is center + ([size] / 2). If the feature is
+ * The bounds of the feature are calculated based on [orientation] and [size]. If the feature is
+ * [VERTICAL] then the feature is centered horizontally. The top-left x-coordinate is center -
+ * ([size] / 2) and the top-right x-coordinate is center + ([size] / 2). If the feature is
  * [HORIZONTAL] then the feature is centered vertically. The top-left y-coordinate is center -
  * ([size] / 2) and the bottom-left y-coordinate is center - ([size] / 2). The folding features
  * always cover the window in one dimension and that determines the other coordinates.
@@ -59,22 +58,21 @@ object FoldingFeatureTestingConstants {
  * Otherwise, use values greater than or equal to 0 to specify the center.
  *
  * @param activity that will house the [FoldingFeature].
- * @param center the center of the fold complementary to the orientation in px. For a
- * [HORIZONTAL] fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis. The default
- * value will be calculated to be in the middle of the window.
+ * @param center the center of the fold complementary to the orientation in px. For a [HORIZONTAL]
+ *   fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis. The default value will
+ *   be calculated to be in the middle of the window.
  * @param size the smaller dimension of the fold in px. The larger dimension always covers the
- * entire window.
+ *   entire window.
  * @param state [State] of the fold. The default value is [HALF_OPENED]
  * @param orientation [Orientation] of the fold. The default value is [HORIZONTAL]
  * @return [FoldingFeature] that is splitting if the width is not 0 and runs parallel to the
- * [Orientation] axis.
+ *   [Orientation] axis.
  */
 @JvmOverloads
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
     activity: Activity,
-    @IntRange(from = -1)
-    center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
+    @IntRange(from = -1) center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
     state: State = HALF_OPENED,
     orientation: Orientation = HORIZONTAL
@@ -95,9 +93,9 @@ fun FoldingFeature(
  * default values it returns a [FoldingFeature.State.HALF_OPENED] feature that splits the screen
  * along the [FoldingFeature.Orientation.HORIZONTAL] axis.
  *
- * The bounds of the feature are calculated based on [orientation] and [size]. If the
- * feature is [VERTICAL] then the feature is centered horizontally. The top-left x-coordinate is
- * center - ([size] / 2) and the top-right x-coordinate is center + ([size] / 2). If the feature is
+ * The bounds of the feature are calculated based on [orientation] and [size]. If the feature is
+ * [VERTICAL] then the feature is centered horizontally. The top-left x-coordinate is center -
+ * ([size] / 2) and the top-right x-coordinate is center + ([size] / 2). If the feature is
  * [HORIZONTAL] then the feature is centered vertically. The top-left y-coordinate is center -
  * ([size] / 2) and the bottom-left y-coordinate is center - ([size] / 2). The folding features
  * always cover the window in one dimension and that determines the other coordinates.
@@ -106,22 +104,21 @@ fun FoldingFeature(
  * Otherwise, use values greater than or equal to 0 to specify the center.
  *
  * @param windowBounds that will contain the [FoldingFeature].
- * @param center the center of the fold complementary to the orientation in px. For a
- * [HORIZONTAL] fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis. The default
- * value will be calculated to be in the middle of the window.
+ * @param center the center of the fold complementary to the orientation in px. For a [HORIZONTAL]
+ *   fold, this is the y-axis and for a [VERTICAL] fold this is the x-axis. The default value will
+ *   be calculated to be in the middle of the window.
  * @param size the smaller dimension of the fold in px. The larger dimension always covers the
- * entire window.
+ *   entire window.
  * @param state [State] of the fold. The default value is [HALF_OPENED]
  * @param orientation [Orientation] of the fold. The default value is [HORIZONTAL]
  * @return [FoldingFeature] that is splitting if the width is not 0 and runs parallel to the
- * [Orientation] axis.
+ *   [Orientation] axis.
  */
 @JvmOverloads
 @JvmName("createFoldingFeature")
 fun FoldingFeature(
     windowBounds: Rect,
-    @IntRange(from = -1)
-    center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
+    @IntRange(from = -1) center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
     state: State = HALF_OPENED,
     orientation: Orientation = HORIZONTAL
@@ -139,29 +136,32 @@ private fun foldingFeatureInternal(
     val shouldTreatAsHinge = size != 0
     val isSeparating = shouldTreatAsHinge || state == HALF_OPENED
     val offset = size / 2
-    val actualCenter = if (center < 0) {
-        when (orientation) {
-            HORIZONTAL -> windowBounds.centerY()
-            VERTICAL -> windowBounds.centerX()
-            else -> windowBounds.centerX()
+    val actualCenter =
+        if (center < 0) {
+            when (orientation) {
+                HORIZONTAL -> windowBounds.centerY()
+                VERTICAL -> windowBounds.centerX()
+                else -> windowBounds.centerX()
+            }
+        } else {
+            center
         }
-    } else {
-        center
-    }
     val start = actualCenter - offset
     val end = actualCenter + offset
-    val bounds = if (orientation == VERTICAL) {
-        val windowHeight = windowBounds.height()
-        Rect(start, 0, end, windowHeight)
-    } else {
-        val windowWidth = windowBounds.width()
-        Rect(0, start, windowWidth, end)
-    }
-    val occlusionType = if (shouldTreatAsHinge) {
-        FULL
-    } else {
-        NONE
-    }
+    val bounds =
+        if (orientation == VERTICAL) {
+            val windowHeight = windowBounds.height()
+            Rect(start, 0, end, windowHeight)
+        } else {
+            val windowWidth = windowBounds.width()
+            Rect(0, start, windowWidth, end)
+        }
+    val occlusionType =
+        if (shouldTreatAsHinge) {
+            FULL
+        } else {
+            NONE
+        }
     return FakeFoldingFeature(
         bounds = bounds,
         isSeparating = isSeparating,

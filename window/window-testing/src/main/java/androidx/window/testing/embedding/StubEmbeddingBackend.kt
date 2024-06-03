@@ -43,9 +43,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-/**
- * A stub implementation of [EmbeddingBackend] that's intended to be used by Robolectric.
- */
+/** A stub implementation of [EmbeddingBackend] that's intended to be used by Robolectric. */
 internal class StubEmbeddingBackend : EmbeddingBackend {
 
     private val embeddedActivities = HashSet<Activity>()
@@ -99,8 +97,8 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     /**
-     * Adds a callback to the list of listeners associated to the [Activity]. If the listener
-     * has been added before it is ignored. If a value has been set for the [Activity] then it is
+     * Adds a callback to the list of listeners associated to the [Activity]. If the listener has
+     * been added before it is ignored. If a value has been set for the [Activity] then it is
      * emitted immediately to the listener
      *
      * @param activity the associated [Activity] for the listener
@@ -115,10 +113,12 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
         if (splitInfoJobs.containsKey(callback)) {
             return
         }
-        val job = CoroutineScope(executor.asCoroutineDispatcher()).launch {
-            splitInfoFlow.getOrPut(activity) { MutableStateFlow(emptyList()) }
-                .collect { value -> callback.accept(value) }
-        }
+        val job =
+            CoroutineScope(executor.asCoroutineDispatcher()).launch {
+                splitInfoFlow
+                    .getOrPut(activity) { MutableStateFlow(emptyList()) }
+                    .collect { value -> callback.accept(value) }
+            }
         splitInfoJobs[callback] = job
     }
 

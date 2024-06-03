@@ -45,11 +45,8 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_emptyWidthIsFold() {
         val center = windowBounds.centerX()
-        val actual = FoldingFeature(
-            windowBounds = windowBounds,
-            state = FLAT,
-            orientation = VERTICAL
-        )
+        val actual =
+            FoldingFeature(windowBounds = windowBounds, state = FLAT, orientation = VERTICAL)
         val expectedBounds = Rect(center, 0, center, windowBounds.height())
         assertEquals(expectedBounds.left, actual.bounds.left)
         assertEquals(expectedBounds.right, actual.bounds.right)
@@ -111,12 +108,13 @@ public class DisplayFeatureTestingTest {
     public fun testFold_nonEmptyWidthIsFold() {
         val center = windowBounds.centerX()
         val width = 20
-        val actual = FoldingFeature(
-            windowBounds = windowBounds,
-            size = width,
-            state = FLAT,
-            orientation = VERTICAL
-        )
+        val actual =
+            FoldingFeature(
+                windowBounds = windowBounds,
+                size = width,
+                state = FLAT,
+                orientation = VERTICAL
+            )
         val expectedBounds = Rect(center - width / 2, 0, center + width / 2, windowBounds.height())
         assertEquals(expectedBounds.left, actual.bounds.left)
         assertEquals(expectedBounds.right, actual.bounds.right)
@@ -132,9 +130,8 @@ public class DisplayFeatureTestingTest {
     @Test
     public fun testFold_windowBoundsFromActivity() {
         activityRule.scenario.onActivity { activity ->
-            val windowBounds = WindowMetricsCalculator.getOrCreate()
-                .computeCurrentWindowMetrics(activity)
-                .bounds
+            val windowBounds =
+                WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity).bounds
             val actual = FoldingFeature(activity = activity)
             val expected = FoldingFeature(windowBounds = windowBounds)
             val expectedBounds = expected.bounds

@@ -18,9 +18,7 @@ package androidx.window.area.utils
 
 import android.util.DisplayMetrics
 
-/**
- * Data class holding metrics about a specific device.
- */
+/** Data class holding metrics about a specific device. */
 internal class DeviceMetrics(
     val brand: String,
     val model: String,

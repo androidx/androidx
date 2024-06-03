@@ -31,8 +31,8 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * An implementation of [ExtensionInterfaceCompat] that switches the state when a consumer
- * is unregistered. Useful for testing consumers when they go through a cycle of register then
+ * An implementation of [ExtensionInterfaceCompat] that switches the state when a consumer is
+ * unregistered. Useful for testing consumers when they go through a cycle of register then
  * unregister then register again.
  */
 internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCompat {
@@ -40,8 +40,7 @@ internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCo
     private val foldBounds = Rect(0, 100, 200, 100)
     @GuardedBy("globalLock")
     private var callback: ExtensionCallbackInterface = EmptyExtensionCallbackInterface()
-    @GuardedBy("globalLock")
-    private var state = FLAT
+    @GuardedBy("globalLock") private var state = FLAT
 
     override fun validateExtensionInterface(): Boolean {
         return true

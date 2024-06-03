@@ -32,10 +32,10 @@ import java.util.concurrent.Executor
  * It should only be used if [ActivityEmbeddingController.embeddedActivityWindowInfo] is not
  * available. For example, an app is written in Java and cannot use Flow APIs.
  *
- * @constructor creates a callback adapter of
- * [ActivityEmbeddingController.embeddedActivityWindowInfo] flow API.
  * @param controller an [ActivityEmbeddingController] that can be obtained by
- * [ActivityEmbeddingController.getInstance].
+ *   [ActivityEmbeddingController.getInstance].
+ * @constructor creates a callback adapter of
+ *   [ActivityEmbeddingController.embeddedActivityWindowInfo] flow API.
  */
 class ActivityEmbeddingControllerCallbackAdapter(
     private val controller: ActivityEmbeddingController
@@ -49,19 +49,17 @@ class ActivityEmbeddingControllerCallbackAdapter(
      * [activity] is currently embedded as [EmbeddedActivityWindowInfo.isEmbedded] is `true`.
      *
      * When the [activity] is embedded, the [listener] will be invoked when
-     * [EmbeddedActivityWindowInfo] is changed.
-     * When the [activity] is not embedded, the [listener] will not be triggered unless the
-     * [activity] is becoming non-embedded from embedded.
+     * [EmbeddedActivityWindowInfo] is changed. When the [activity] is not embedded, the [listener]
+     * will not be triggered unless the [activity] is becoming non-embedded from embedded.
      *
      * Note that this API is only supported on the device with
-     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6.
-     * If [WindowSdkExtensions.extensionVersion] is less than 6, this [listener] will not be
-     * invoked.
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6. If
+     * [WindowSdkExtensions.extensionVersion] is less than 6, this [listener] will not be invoked.
      *
      * @param activity the [Activity] that is interested in getting the embedded window info.
      * @param executor the [Executor] to dispatch the [EmbeddedActivityWindowInfo] change.
-     * @param listener the [Consumer] that will be invoked on the [executor] when there is
-     * an update to [EmbeddedActivityWindowInfo].
+     * @param listener the [Consumer] that will be invoked on the [executor] when there is an update
+     *   to [EmbeddedActivityWindowInfo].
      */
     @RequiresWindowSdkExtension(6)
     fun addEmbeddedActivityWindowInfoListener(

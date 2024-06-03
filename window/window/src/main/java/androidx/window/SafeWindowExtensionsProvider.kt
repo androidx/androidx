@@ -47,8 +47,8 @@ internal class SafeWindowExtensionsProvider(private val loader: ClassLoader) {
                 "WindowExtensionsProvider#getWindowExtensions is not valid"
             ) {
                 val providerClass = windowExtensionsProviderClass
-                val getWindowExtensionsMethod = providerClass
-                    .getDeclaredMethod("getWindowExtensions")
+                val getWindowExtensionsMethod =
+                    providerClass.getDeclaredMethod("getWindowExtensions")
                 val windowExtensionsClass = windowExtensionsClass
                 getWindowExtensionsMethod.doesReturn(windowExtensionsClass) &&
                     getWindowExtensionsMethod.isPublic
@@ -60,6 +60,7 @@ internal class SafeWindowExtensionsProvider(private val loader: ClassLoader) {
             loader.loadClass(WindowExtensionsConstants.WINDOW_EXTENSIONS_PROVIDER_CLASS)
         }
     }
+
     private val windowExtensionsProviderClass: Class<*>
         get() {
             return loader.loadClass(WindowExtensionsConstants.WINDOW_EXTENSIONS_PROVIDER_CLASS)

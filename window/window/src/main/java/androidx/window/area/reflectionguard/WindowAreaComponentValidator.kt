@@ -20,23 +20,24 @@ import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.reflection.ReflectionUtils.validateImplementation
 
-/**
- * Utility class to validate [WindowAreaComponent] implementation.
- */
+/** Utility class to validate [WindowAreaComponent] implementation. */
 internal object WindowAreaComponentValidator {
 
     internal fun isWindowAreaComponentValid(windowAreaComponent: Class<*>, apiLevel: Int): Boolean {
-        val isWindowAreaComponentValid: Boolean = when {
-            apiLevel <= 1 -> false
-
-            apiLevel == 2 -> validateImplementation(
-                windowAreaComponent, WindowAreaComponentApi2Requirements::class.java
-            )
-
-            else -> validateImplementation(
-                windowAreaComponent, WindowAreaComponentApi3Requirements::class.java
-            )
-        }
+        val isWindowAreaComponentValid: Boolean =
+            when {
+                apiLevel <= 1 -> false
+                apiLevel == 2 ->
+                    validateImplementation(
+                        windowAreaComponent,
+                        WindowAreaComponentApi2Requirements::class.java
+                    )
+                else ->
+                    validateImplementation(
+                        windowAreaComponent,
+                        WindowAreaComponentApi3Requirements::class.java
+                    )
+            }
         return isWindowAreaComponentValid
     }
 
@@ -44,13 +45,15 @@ internal object WindowAreaComponentValidator {
         extensionWindowAreaStatus: Class<*>,
         apiLevel: Int
     ): Boolean {
-        val isExtensionWindowAreaStatusValid: Boolean = when {
-            apiLevel <= 2 -> true
-
-            else -> validateImplementation(
-                extensionWindowAreaStatus, ExtensionWindowAreaStatusRequirements::class.java
-            )
-        }
+        val isExtensionWindowAreaStatusValid: Boolean =
+            when {
+                apiLevel <= 2 -> true
+                else ->
+                    validateImplementation(
+                        extensionWindowAreaStatus,
+                        ExtensionWindowAreaStatusRequirements::class.java
+                    )
+            }
         return isExtensionWindowAreaStatusValid
     }
 
@@ -58,13 +61,15 @@ internal object WindowAreaComponentValidator {
         extensionWindowAreaPresentation: Class<*>,
         apiLevel: Int
     ): Boolean {
-        val isExtensionWindowAreaPresentationValid: Boolean = when {
-            apiLevel <= 2 -> true
-
-            else -> validateImplementation(
-                extensionWindowAreaPresentation, ExtensionWindowAreaPresentation::class.java
-            )
-        }
+        val isExtensionWindowAreaPresentationValid: Boolean =
+            when {
+                apiLevel <= 2 -> true
+                else ->
+                    validateImplementation(
+                        extensionWindowAreaPresentation,
+                        ExtensionWindowAreaPresentation::class.java
+                    )
+            }
         return isExtensionWindowAreaPresentationValid
     }
 }

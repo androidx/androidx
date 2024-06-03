@@ -27,9 +27,8 @@ import org.junit.runners.model.Statement
  * [TestRule] for overriding [WindowSdkExtensions] properties in unit tests.
  *
  * The [TestRule] is designed to only be used in unit tests. Users should use the actual
- * [WindowSdkExtensions] properties for instrumentation tests. Overriding the device's
- * extensions version to a higher version may lead to unexpected test failures or even app
- * crash.
+ * [WindowSdkExtensions] properties for instrumentation tests. Overriding the device's extensions
+ * version to a higher version may lead to unexpected test failures or even app crash.
  */
 class WindowSdkExtensionsRule : TestRule {
 
@@ -43,10 +42,13 @@ class WindowSdkExtensionsRule : TestRule {
     ): Statement {
         return object : Statement() {
             override fun evaluate() {
-                WindowSdkExtensions.overrideDecorator(object : WindowSdkExtensionsDecorator {
-                    override fun decorate(windowSdkExtensions: WindowSdkExtensions):
-                        WindowSdkExtensions = fakeWindowSdkExtensions
-                })
+                WindowSdkExtensions.overrideDecorator(
+                    object : WindowSdkExtensionsDecorator {
+                        override fun decorate(
+                            windowSdkExtensions: WindowSdkExtensions
+                        ): WindowSdkExtensions = fakeWindowSdkExtensions
+                    }
+                )
                 try {
                     base.evaluate()
                 } finally {

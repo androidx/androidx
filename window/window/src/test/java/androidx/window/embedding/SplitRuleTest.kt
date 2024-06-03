@@ -18,9 +18,7 @@ package androidx.window.embedding
 
 import org.junit.Test
 
-/**
- * Unit tests for [SplitRule] to validate base behavior.
- */
+/** Unit tests for [SplitRule] to validate base behavior. */
 class SplitRuleTest {
 
     @Test(expected = IllegalArgumentException::class)

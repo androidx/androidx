@@ -19,18 +19,16 @@ package androidx.window.embedding
 /**
  * The attributes to describe how an overlay container should look like.
  *
- * @property bounds The overlay container's [EmbeddingBounds], which defaults to
- * [EmbeddingBounds.BOUNDS_EXPANDED] if not specified.
  * @constructor creates an overlay attributes.
+ * @property bounds The overlay container's [EmbeddingBounds], which defaults to
+ *   [EmbeddingBounds.BOUNDS_EXPANDED] if not specified.
  */
-class OverlayAttributes @JvmOverloads constructor(
-    val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED
-) {
+class OverlayAttributes
+@JvmOverloads
+constructor(val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED) {
 
     override fun toString(): String =
-        "${OverlayAttributes::class.java.simpleName}: {" +
-            "bounds=$bounds" +
-            "}"
+        "${OverlayAttributes::class.java.simpleName}: {" + "bounds=$bounds" + "}"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -52,9 +50,7 @@ class OverlayAttributes @JvmOverloads constructor(
          * @param bounds The [EmbeddingBounds] of the overlay [ActivityStack].
          * @return The [OverlayAttributes] builder.
          */
-        fun setBounds(bounds: EmbeddingBounds): Builder = apply {
-            this.bounds = bounds
-        }
+        fun setBounds(bounds: EmbeddingBounds): Builder = apply { this.bounds = bounds }
 
         /** Builds [OverlayAttributes]. */
         fun build(): OverlayAttributes = OverlayAttributes(bounds)
