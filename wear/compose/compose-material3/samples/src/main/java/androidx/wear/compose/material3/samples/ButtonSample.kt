@@ -41,7 +41,7 @@ fun SimpleButtonSample() {
 
 @Sampled
 @Composable
-fun ButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
+fun ButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     Button(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -75,7 +75,10 @@ fun SimpleFilledTonalButtonSample() {
 
 @Sampled
 @Composable
-fun FilledTonalButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
+fun FilledTonalButtonWithOnLongClickSample(
+    onClickHandler: () -> Unit,
+    onLongClickHandler: () -> Unit
+) {
     FilledTonalButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -109,7 +112,10 @@ fun SimpleOutlinedButtonSample() {
 
 @Sampled
 @Composable
-fun OutlinedButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
+fun OutlinedButtonWithOnLongClickSample(
+    onClickHandler: () -> Unit,
+    onLongClickHandler: () -> Unit
+) {
     OutlinedButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -143,7 +149,7 @@ fun SimpleChildButtonSample() {
 
 @Sampled
 @Composable
-fun ChildButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
+fun ChildButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     ChildButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,
@@ -188,7 +194,7 @@ fun CompactButtonSample() {
 
 @Sampled
 @Composable
-fun CompactButtonWithOnLongClick(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
+fun CompactButtonWithOnLongClickSample(onClickHandler: () -> Unit, onLongClickHandler: () -> Unit) {
     CompactButton(
         onClick = onClickHandler,
         onLongClick = onLongClickHandler,

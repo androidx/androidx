@@ -41,16 +41,16 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonSample
-import androidx.wear.compose.material3.samples.ButtonWithOnLongClick
+import androidx.wear.compose.material3.samples.ButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.ChildButtonSample
-import androidx.wear.compose.material3.samples.ChildButtonWithOnLongClick
+import androidx.wear.compose.material3.samples.ChildButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.CompactButtonSample
-import androidx.wear.compose.material3.samples.CompactButtonWithOnLongClick
+import androidx.wear.compose.material3.samples.CompactButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.FilledTonalButtonSample
-import androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClick
+import androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
 import androidx.wear.compose.material3.samples.OutlinedButtonSample
-import androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClick
+import androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleButtonSample
 import androidx.wear.compose.material3.samples.SimpleChildButtonSample
@@ -67,7 +67,9 @@ fun ButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleButtonSample() }
         item {
-            ButtonWithOnLongClick({ showOnClickToast(context) }) { showOnLongClickToast(context) }
+            ButtonWithOnLongClickSample({ showOnClickToast(context) }) {
+                showOnLongClickToast(context)
+            }
         }
         item {
             Button(onClick = { /* Do something */ }, label = { Text("Button") }, enabled = false)
@@ -102,7 +104,7 @@ fun FilledTonalButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleFilledTonalButtonSample() }
         item {
-            FilledTonalButtonWithOnLongClick({ showOnClickToast(context) }) {
+            FilledTonalButtonWithOnLongClickSample({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
             }
         }
@@ -143,7 +145,7 @@ fun OutlinedButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleOutlinedButtonSample() }
         item {
-            OutlinedButtonWithOnLongClick({ showOnClickToast(context) }) {
+            OutlinedButtonWithOnLongClickSample({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
             }
         }
@@ -184,7 +186,7 @@ fun ChildButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleChildButtonSample() }
         item {
-            ChildButtonWithOnLongClick({ showOnClickToast(context) }) {
+            ChildButtonWithOnLongClickSample({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
             }
         }
@@ -225,7 +227,7 @@ fun CompactButtonDemo() {
         item { ListHeader { Text("2 slot compact button") } }
         item { CompactButtonSample() }
         item {
-            CompactButtonWithOnLongClick({ showOnClickToast(context) }) {
+            CompactButtonWithOnLongClickSample({ showOnClickToast(context) }) {
                 showOnLongClickToast(context)
             }
         }
