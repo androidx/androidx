@@ -1026,6 +1026,10 @@ package androidx.compose.runtime.snapshots {
     property public int size;
   }
 
+  public final class SnapshotStateListKt {
+    method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> SnapshotStateList(int size, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends T> init);
+  }
+
   @androidx.compose.runtime.Stable public final class SnapshotStateMap<K, V> implements kotlin.jvm.internal.markers.KMutableMap java.util.Map<K,V> androidx.compose.runtime.snapshots.StateObject {
     ctor public SnapshotStateMap();
     method public void clear();
