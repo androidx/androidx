@@ -16,10 +16,13 @@
 
 package androidx.build
 
+import androidx.build.logging.TERMINAL_RED
+import androidx.build.logging.TERMINAL_RESET
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import com.facebook.ktfmt.format.Formatter
 import com.facebook.ktfmt.format.Formatter.format
 import java.io.File
+import java.nio.file.Paths
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -31,12 +34,15 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileTree
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.intellij.lang.annotations.Language
 
 fun Project.configureKtfmt() {
@@ -76,7 +82,7 @@ abstract class BaseKtfmtTask : DefaultTask() {
     @get:Internal val projectPath: String = project.path
 
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
-    fun getInputFiles(): FileTree {
+    open fun getInputFiles(): FileTree {
         val projectDirectory = overrideDirectory
         val subdirectories = overrideSubdirectories
         if (projectDirectory == null || subdirectories.isNullOrEmpty()) {
@@ -194,4 +200,83 @@ abstract class KtfmtCheckTask : BaseKtfmtTask() {
     fun runCheck() {
         runKtfmt(format = false)
     }
+}
+
+@CacheableTask
+abstract class KtfmtCheckFileTask : BaseKtfmtTask() {
+    init {
+        description = "Check Kotlin code style."
+        group = "Verification"
+    }
+
+    @get:Internal val projectDir = project.projectDir
+
+    @get:Input
+    @set:Option(
+        option = "file",
+        description =
+            "File to check. This option can be used multiple times: --file file1.kt " +
+                "--file file2.kt"
+    )
+    var files: List<String> = emptyList()
+
+    @get:Input
+    @set:Option(
+        option = "format",
+        description =
+            "Use --format to auto-correct style violations (if some errors cannot be " +
+                "fixed automatically they will be printed to stderr)"
+    )
+    var format = false
+
+    override fun getInputFiles(): FileTree {
+        if (files.isEmpty()) throw StopExecutionException()
+        val kotlinFiles =
+            files
+                .filter { file ->
+                    val isKotlinFile = file.endsWith(".kt") || file.endsWith(".ktx")
+                    val inExcludedDir =
+                        Paths.get(file).any { subPath ->
+                            ExcludedDirectories.contains(subPath.toString())
+                        }
+
+                    isKotlinFile && !inExcludedDir
+                }
+                .map { it.replace("./", "**/") }
+
+        if (kotlinFiles.isEmpty()) throw StopExecutionException()
+        return objects.fileTree().setDir(projectDir).apply { include(kotlinFiles) }
+    }
+
+    @TaskAction
+    fun runCheck() {
+        try {
+            runKtfmt(format = format)
+        } catch (e: IllegalStateException) {
+            val kotlinFiles =
+                files.filter { file ->
+                    val isKotlinFile = file.endsWith(".kt") || file.endsWith(".ktx")
+                    val inExcludedDir =
+                        Paths.get(file).any { subPath ->
+                            ExcludedDirectories.contains(subPath.toString())
+                        }
+
+                    isKotlinFile && !inExcludedDir
+                }
+            error(
+                """
+
+                ********************************************************************************
+                ${TERMINAL_RED}You can attempt to automatically fix these issues with:
+                ./gradlew :ktCheckFile --format ${kotlinFiles.joinToString(separator = " "){ "--file $it" }}$TERMINAL_RESET
+                ********************************************************************************
+                """
+                    .trimIndent()
+            )
+        }
+    }
+}
+
+fun Project.configureKtfmtCheckFile() {
+    tasks.register("ktCheckFile", KtfmtCheckFileTask::class.java)
 }
