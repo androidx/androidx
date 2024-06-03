@@ -21,15 +21,15 @@ import androidx.window.core.Bounds
 import androidx.window.layout.WindowLayoutInfo
 
 /**
- * The parent container information directly passed from WM Extensions, which is created to
- * make test implementation easier.
+ * The parent container information directly passed from WM Extensions, which is created to make
+ * test implementation easier.
  *
  * @property windowBounds The parent container's [Bounds].
  * @property windowLayoutInfo The parent container's [WindowLayoutInfo].
  * @property windowInsets The parent container's [WindowInsetsCompat].
  * @property configuration The parent container's [Configuration].
  * @property density The parent container's density in DP, which has the same unit as
- * [android.util.DisplayMetrics.density].
+ *   [android.util.DisplayMetrics.density].
  */
 internal data class ParentContainerInfo(
     /** The parent container's [Bounds]. */

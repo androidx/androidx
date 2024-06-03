@@ -43,13 +43,10 @@ class DemoActivityEmbeddingController private constructor() {
             }
         }
         set(value) {
-            lock.withLock {
-                layoutDirectionLocked = value
-            }
+            lock.withLock { layoutDirectionLocked = value }
         }
 
-    @GuardedBy("lock")
-    private var layoutDirectionLocked = SplitAttributes.LayoutDirection.LOCALE
+    @GuardedBy("lock") private var layoutDirectionLocked = SplitAttributes.LayoutDirection.LOCALE
 
     internal var customizedSplitType: SplitAttributes.SplitType
         get() {
@@ -58,16 +55,12 @@ class DemoActivityEmbeddingController private constructor() {
             }
         }
         set(value) {
-            lock.withLock {
-                splitTypeLocked = value
-            }
+            lock.withLock { splitTypeLocked = value }
         }
 
-    @GuardedBy("lock")
-    private var splitTypeLocked = SplitAttributes.SplitType.SPLIT_TYPE_EQUAL
+    @GuardedBy("lock") private var splitTypeLocked = SplitAttributes.SplitType.SPLIT_TYPE_EQUAL
 
-    @GuardedBy("lock")
-    private var animationBackgroundLocked = EmbeddingAnimationBackground.DEFAULT
+    @GuardedBy("lock") private var animationBackgroundLocked = EmbeddingAnimationBackground.DEFAULT
 
     internal var animationBackground: EmbeddingAnimationBackground
         get() {
@@ -76,9 +69,7 @@ class DemoActivityEmbeddingController private constructor() {
             }
         }
         set(value) {
-            lock.withLock {
-                animationBackgroundLocked = value
-            }
+            lock.withLock { animationBackgroundLocked = value }
         }
 
     internal var overlayAttributes: OverlayAttributes
@@ -88,24 +79,18 @@ class DemoActivityEmbeddingController private constructor() {
             }
         }
         set(value) {
-            lock.withLock {
-                overlayAttributesLocked = value
-            }
+            lock.withLock { overlayAttributesLocked = value }
         }
 
-    @GuardedBy("lock")
-    private var overlayAttributesLocked = DEFAULT_OVERLAY_ATTRIBUTES
+    @GuardedBy("lock") private var overlayAttributesLocked = DEFAULT_OVERLAY_ATTRIBUTES
 
     internal var overlayMode = AtomicInteger()
 
     companion object {
-        @Volatile
-        private var globalInstance: DemoActivityEmbeddingController? = null
+        @Volatile private var globalInstance: DemoActivityEmbeddingController? = null
         private val globalLock = ReentrantLock()
 
-        /**
-         * Obtains the singleton instance of [DemoActivityEmbeddingController].
-         */
+        /** Obtains the singleton instance of [DemoActivityEmbeddingController]. */
         @JvmStatic
         fun getInstance(): DemoActivityEmbeddingController {
             if (globalInstance == null) {
@@ -120,11 +105,12 @@ class DemoActivityEmbeddingController private constructor() {
 
         /** Anmiation background constants. */
         val ANIMATION_BACKGROUND_TEXTS = arrayOf("DEFAULT", "BLUE", "GREEN", "YELLOW")
-        val ANIMATION_BACKGROUND_VALUES = arrayOf(
-            EmbeddingAnimationBackground.DEFAULT,
-            EmbeddingAnimationBackground.createColorBackground(Color.BLUE),
-            EmbeddingAnimationBackground.createColorBackground(Color.GREEN),
-            EmbeddingAnimationBackground.createColorBackground(Color.YELLOW)
-        )
+        val ANIMATION_BACKGROUND_VALUES =
+            arrayOf(
+                EmbeddingAnimationBackground.DEFAULT,
+                EmbeddingAnimationBackground.createColorBackground(Color.BLUE),
+                EmbeddingAnimationBackground.createColorBackground(Color.GREEN),
+                EmbeddingAnimationBackground.createColorBackground(Color.YELLOW)
+            )
     }
 }

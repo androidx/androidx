@@ -33,8 +33,8 @@ class HierarchyRequestDomErrorTest {
     @Test
     fun getter_success() {
         val error = HierarchyRequestError()
-        val expectedType = HierarchyRequestError
-            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_HIERARCHY_REQUEST_ERROR
+        val expectedType =
+            HierarchyRequestError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_HIERARCHY_REQUEST_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

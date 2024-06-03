@@ -25,21 +25,22 @@ import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Com
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
- * During the get-passkey flow, this is thrown when a DOM Exception is thrown,
- * indicating the operation contains a DOMException error type. The fido spec can be found
+ * During the get-passkey flow, this is thrown when a DOM Exception is thrown, indicating the
+ * operation contains a DOMException error type. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names). The full list of
  * implemented DOMErrors extends from and can be seen at [DomError].
  *
  * @property domError the specific error from the DOMException types defined in the fido spec found
- * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
+ *   [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names)
  * @throws NullPointerException If [domError] is null
  */
-class GetPublicKeyCredentialDomException @JvmOverloads constructor(
-    val domError: DomError,
-    errorMessage: CharSequence? = null
-) : GetPublicKeyCredentialException(
-    TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
-    errorMessage) {
+class GetPublicKeyCredentialDomException
+@JvmOverloads
+constructor(val domError: DomError, errorMessage: CharSequence? = null) :
+    GetPublicKeyCredentialException(
+        TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
+        errorMessage
+    ) {
     internal companion object {
         internal const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
             "androidx.credentials.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION"
@@ -47,11 +48,14 @@ class GetPublicKeyCredentialDomException @JvmOverloads constructor(
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
         fun createFrom(type: String, msg: String?): GetCredentialException {
-            val prefix =
-                "$TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION$SEPARATOR"
+            val prefix = "$TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION$SEPARATOR"
             return try {
-                DomExceptionUtils.generateDomException(type, prefix, msg,
-                    GetPublicKeyCredentialDomException(UnknownError()))
+                DomExceptionUtils.generateDomException(
+                    type,
+                    prefix,
+                    msg,
+                    GetPublicKeyCredentialDomException(UnknownError())
+                )
             } catch (t: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a response
                 // with the raw framework values.

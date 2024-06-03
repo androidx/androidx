@@ -17,16 +17,17 @@
 package androidx.credentials.exceptions
 
 /**
- * During the create credential flow, this is thrown when credential manager is unsupported, typically
- * because the device has disabled it or did not ship with this feature enabled. A software update
- * or a restart after enabling may fix this issue, but in certain cases, the device hardware may
- * be the limiting factor.
+ * During the create credential flow, this is thrown when credential manager is unsupported,
+ * typically because the device has disabled it or did not ship with this feature enabled. A
+ * software update or a restart after enabling may fix this issue, but in certain cases, the device
+ * hardware may be the limiting factor.
  *
  * @see CreateCredentialException
  */
-class CreateCredentialUnsupportedException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
+class CreateCredentialUnsupportedException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
     internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION =
             "androidx.credentials.TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION"

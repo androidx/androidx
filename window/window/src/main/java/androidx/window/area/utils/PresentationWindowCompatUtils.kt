@@ -29,8 +29,8 @@ internal object PresentationWindowCompatUtils {
         extensionPresentation: ExtensionWindowAreaPresentation
     ): Window? {
         val getWindowMethod = getWindowMethod(extensionPresentation)
-        return if (getWindowMethod == null) null else
-            (getWindowMethod.invoke(extensionPresentation) as Window?)
+        return if (getWindowMethod == null) null
+        else (getWindowMethod.invoke(extensionPresentation) as Window?)
     }
 
     private fun getWindowMethod(extensionPresentation: ExtensionWindowAreaPresentation): Method? {

@@ -37,11 +37,7 @@ class DiffUtilTest {
     private val before = mutableListOf<Item>()
     private val after = mutableListOf<Item>()
     private val log = StringBuilder()
-    private val callback = ItemListCallback(
-        oldList = before,
-        newList = after,
-        assertCalls = true
-    )
+    private val callback = ItemListCallback(oldList = before, newList = after, assertCalls = true)
 
     init {
         Item.idCounter = 0
@@ -51,16 +47,14 @@ class DiffUtilTest {
     @JvmField
     val logOnExceptionWatcher: TestWatcher =
         object : TestWatcher() {
-            override fun failed(
-                e: Throwable,
-                description: Description
-            ) {
+            override fun failed(e: Throwable, description: Description) {
                 System.err.println(
                     """
                     LOG:
                     $log
                     END_LOG
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
         }
@@ -315,22 +309,10 @@ class DiffUtilTest {
     fun testDisableMoveDetection() {
         initWithSize(5)
         move(0, 4)
-        val applied = applyUpdates(
-            before,
-            DiffUtil.calculateDiff(callback, false)
-        )
-        assertThat(
-            applied.size,
-            `is`(5)
-        )
-        assertThat(
-            applied[4].newItem,
-            `is`(true)
-        )
-        assertThat(
-            applied.contains(before[0]),
-            `is`(false)
-        )
+        val applied = applyUpdates(before, DiffUtil.calculateDiff(callback, false))
+        assertThat(applied.size, `is`(5))
+        assertThat(applied[4].newItem, `is`(true))
+        assertThat(applied.contains(before[0]), `is`(false))
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
@@ -378,30 +360,25 @@ class DiffUtilTest {
             val op = sRand.nextInt(6)
             when (op) {
                 0 -> add(sRand.nextInt(after.size + 1))
-                1 -> if (after.isNotEmpty()) {
-                    delete(sRand.nextInt(after.size))
-                }
+                1 ->
+                    if (after.isNotEmpty()) {
+                        delete(sRand.nextInt(after.size))
+                    }
                 2 -> // move
-                    if (after.size > 0) {
-                        move(
-                            sRand.nextInt(after.size),
-                            sRand.nextInt(after.size)
-                        )
+                if (after.size > 0) {
+                        move(sRand.nextInt(after.size), sRand.nextInt(after.size))
                     }
                 3 -> // update
-                    if (after.size > 0) {
+                if (after.size > 0) {
                         update(sRand.nextInt(after.size))
                     }
                 4 -> // update with payload
-                    if (after.size > 0) {
+                if (after.size > 0) {
                         updateWithPayload(sRand.nextInt(after.size))
                     }
                 5 -> // duplicate
-                    if (after.size > 0) {
-                        duplicate(
-                            sRand.nextInt(after.size),
-                            sRand.nextInt(after.size)
-                        )
+                if (after.size > 0) {
+                        duplicate(sRand.nextInt(after.size), sRand.nextInt(after.size))
                     }
             }
         }
@@ -429,9 +406,7 @@ class DiffUtilTest {
                 missingBeforePosition.add(oldPos)
             }
         }
-        missingBeforePosition.forEach {
-            assertFalse(afterCopy.contains(before[it]))
-        }
+        missingBeforePosition.forEach { assertFalse(afterCopy.contains(before[it])) }
 
         try {
             result.convertOldPositionToNew(before.size)
@@ -450,9 +425,7 @@ class DiffUtilTest {
                 missingAfterPositions.add(newPos)
             }
         }
-        missingAfterPositions.forEach {
-            assertFalse(beforeCopy.contains(after[it]))
-        }
+        missingAfterPositions.forEach { assertFalse(beforeCopy.contains(after[it])) }
 
         try {
             result.convertNewPositionToOld(after.size)
@@ -464,153 +437,90 @@ class DiffUtilTest {
     private fun initWithSize(size: Int) {
         before.clear()
         after.clear()
-        repeat(size) {
-            before.add(Item(false))
-        }
+        repeat(size) { before.add(Item(false)) }
         after.addAll(before)
         log.append("initWithSize($size);\n")
     }
 
     private fun log(title: String, items: List<*>) {
         log.append(title).append(":").append(items.size).append("\n")
-        items.forEach { item ->
-            log.append("  ").append(item).append("\n")
-        }
+        items.forEach { item -> log.append("  ").append(item).append("\n") }
     }
 
-    private fun assertEquals(
-        applied: List<Item>,
-        after: List<Item>
-    ) {
+    private fun assertEquals(applied: List<Item>, after: List<Item>) {
         log("applied", applied)
         val report = log.toString()
         val duplicateDiffs = computeExpectedNewItemsForExisting(after)
 
         // in theory we can get duplicateDiff[it.id] time "Add" event for existing items
-        assertThat(
-            report,
-            applied.size,
-            `is`(after.size)
-        )
+        assertThat(report, applied.size, `is`(after.size))
         after.indices.forEach { index ->
             val item = applied[index]
             if (after[index].newItem) {
-                assertThat(
-                    report,
-                    item.newItem,
-                    `is`(true)
-                )
+                assertThat(report, item.newItem, `is`(true))
             } else if (duplicateDiffs.getOrElse(after[index].id) { 0 } > 0 && item.newItem) {
                 // a duplicated item might come as a new item, be OK with it
                 duplicateDiffs[after[index].id] = duplicateDiffs[after[index].id]!! - 1
             } else if (after[index].changed) {
-                assertThat(
-                    report,
-                    item.newItem,
-                    `is`(false)
-                )
-                assertThat(
-                    report,
-                    item.changed,
-                    `is`(true)
-                )
-                assertThat(
-                    report,
-                    item.id,
-                    `is`(after[index].id)
-                )
-                assertThat(
-                    report,
-                    item.payload,
-                    `is`(after[index].payload)
-                )
+                assertThat(report, item.newItem, `is`(false))
+                assertThat(report, item.changed, `is`(true))
+                assertThat(report, item.id, `is`(after[index].id))
+                assertThat(report, item.payload, `is`(after[index].payload))
             } else {
-                assertThat(
-                    report,
-                    item,
-                    equalTo(
-                        after[index]
-                    )
-                )
+                assertThat(report, item, equalTo(after[index]))
             }
         }
     }
 
     /**
-     * When an item is duplicated more than once in the new list, some of those will
-     * show up as new items, we should be OK with that but still verify
+     * When an item is duplicated more than once in the new list, some of those will show up as new
+     * items, we should be OK with that but still verify
      *
      * @return mapping for <itemId -> max # of duplicates show up as new in the new list>
      */
     private fun computeExpectedNewItemsForExisting(after: List<Item>): MutableMap<Long, Int> {
         // we might create list w/ duplicates.
         val duplicateDiffs = mutableMapOf<Long, Int>() // id to count
-        after.filterNot { it.newItem }.forEach {
-            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrElse(it.id) { 1 }
-        }
-        before.forEach {
-            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrElse(it.id) { 0 }
-        }
+        after
+            .filterNot { it.newItem }
+            .forEach { duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrElse(it.id) { 1 } }
+        before.forEach { duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrElse(it.id) { 0 } }
         return duplicateDiffs
     }
 
-    private fun applyUpdates(
-        before: List<Item>,
-        result: DiffUtil.DiffResult
-    ): List<Item> {
+    private fun applyUpdates(before: List<Item>, result: DiffUtil.DiffResult): List<Item> {
         val target = mutableListOf<Item>()
         target.addAll(before)
-        result.dispatchUpdatesTo(object : ListUpdateCallback {
-            override fun onInserted(position: Int, count: Int) {
-                repeat(count) {
-                    target.add(it + position, Item(true))
+        result.dispatchUpdatesTo(
+            object : ListUpdateCallback {
+                override fun onInserted(position: Int, count: Int) {
+                    repeat(count) { target.add(it + position, Item(true)) }
+                }
+
+                override fun onRemoved(position: Int, count: Int) {
+                    repeat(count) { target.removeAt(position) }
+                }
+
+                override fun onMoved(fromPosition: Int, toPosition: Int) {
+                    val item = target.removeAt(fromPosition)
+                    target.add(toPosition, item)
+                }
+
+                override fun onChanged(position: Int, count: Int, payload: Any?) {
+                    repeat(count) { offset ->
+                        val positionInList = position + offset
+                        val existing = target[positionInList]
+                        // make sure we don't update same item twice in callbacks
+                        assertThat(existing.changed, `is`(false))
+                        assertThat(existing.newItem, `is`(false))
+                        assertThat(existing.payload, `is`(nullValue()))
+                        val replica = existing.copy(changed = true, payload = payload as? String)
+                        target.removeAt(positionInList)
+                        target.add(positionInList, replica)
+                    }
                 }
             }
-
-            override fun onRemoved(position: Int, count: Int) {
-                repeat(count) {
-                    target.removeAt(position)
-                }
-            }
-
-            override fun onMoved(
-                fromPosition: Int,
-                toPosition: Int
-            ) {
-                val item = target.removeAt(fromPosition)
-                target.add(toPosition, item)
-            }
-
-            override fun onChanged(
-                position: Int,
-                count: Int,
-                payload: Any?
-            ) {
-                repeat(count) { offset ->
-                    val positionInList = position + offset
-                    val existing = target[positionInList]
-                    // make sure we don't update same item twice in callbacks
-                    assertThat(
-                        existing.changed,
-                        `is`(false)
-                    )
-                    assertThat(
-                        existing.newItem,
-                        `is`(false)
-                    )
-                    assertThat(
-                        existing.payload,
-                        `is`(nullValue())
-                    )
-                    val replica = existing.copy(
-                        changed = true,
-                        payload = payload as? String
-                    )
-                    target.removeAt(positionInList)
-                    target.add(positionInList, replica)
-                }
-            }
-        })
+        )
         return target
     }
 
@@ -630,11 +540,8 @@ class DiffUtilTest {
             return // new item cannot be changed
         }
         // clean the payload since this might be after an updateWithPayload call
-        val replica = existing.copy(
-            changed = true,
-            payload = null,
-            data = UUID.randomUUID().toString()
-        )
+        val replica =
+            existing.copy(changed = true, payload = null, data = UUID.randomUUID().toString())
         after[index] = replica
         log.append("update(").append(index).append(");\n")
     }
@@ -644,11 +551,12 @@ class DiffUtilTest {
         if (existing.newItem) {
             return // new item cannot be changed
         }
-        val replica = existing.copy(
-            changed = true,
-            data = UUID.randomUUID().toString(),
-            payload = UUID.randomUUID().toString()
-        )
+        val replica =
+            existing.copy(
+                changed = true,
+                data = UUID.randomUUID().toString(),
+                payload = UUID.randomUUID().toString()
+            )
         after[index] = replica
         log.append("updateWithPayload(").append(index).append(");\n")
     }
@@ -688,43 +596,21 @@ class DiffUtilTest {
 
         override fun getNewListSize() = newList.size
 
-        override fun areItemsTheSame(
-            oldItemIndex: Int,
-            newItemIndex: Int
-        ): Boolean {
+        override fun areItemsTheSame(oldItemIndex: Int, newItemIndex: Int): Boolean {
             return oldList[oldItemIndex].id == newList[newItemIndex].id
         }
 
-        override fun areContentsTheSame(
-            oldItemIndex: Int,
-            newItemIndex: Int
-        ): Boolean {
+        override fun areContentsTheSame(oldItemIndex: Int, newItemIndex: Int): Boolean {
             if (assertCalls) {
-                assertThat(
-                    oldList[oldItemIndex].id,
-                    equalTo(newList[newItemIndex].id)
-                )
+                assertThat(oldList[oldItemIndex].id, equalTo(newList[newItemIndex].id))
             }
             return oldList[oldItemIndex].data == newList[newItemIndex].data
         }
 
-        override fun getChangePayload(
-            oldItemIndex: Int,
-            newItemIndex: Int
-        ): Any? {
+        override fun getChangePayload(oldItemIndex: Int, newItemIndex: Int): Any? {
             if (assertCalls) {
-                assertThat(
-                    oldList[oldItemIndex].id,
-                    equalTo(newList[newItemIndex].id)
-                )
-                assertThat(
-                    oldList[oldItemIndex].data,
-                    not(
-                        equalTo(
-                            newList[newItemIndex].data
-                        )
-                    )
-                )
+                assertThat(oldList[oldItemIndex].id, equalTo(newList[newItemIndex].id))
+                assertThat(oldList[oldItemIndex].data, not(equalTo(newList[newItemIndex].data)))
             }
 
             return newList[newItemIndex].payload

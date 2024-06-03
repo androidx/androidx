@@ -39,9 +39,9 @@ import androidx.window.reflection.WindowExtensionsConstants.WINDOW_LAYOUT_COMPON
 import java.lang.reflect.ParameterizedType
 
 /**
- * Reflection Guard for [WindowLayoutComponent].
- * This will go through the [WindowLayoutComponent]'s method by reflection and
- * check each method's name and signature to see if the interface is what we required.
+ * Reflection Guard for [WindowLayoutComponent]. This will go through the [WindowLayoutComponent]'s
+ * method by reflection and check each method's name and signature to see if the interface is what
+ * we required.
  */
 internal class SafeWindowLayoutComponentProvider(
     private val loader: ClassLoader,
@@ -83,9 +83,9 @@ internal class SafeWindowLayoutComponentProvider(
 
     /**
      * [WindowExtensions.VENDOR_API_LEVEL_1] includes the following methods
-     *  - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Activity] and
-     * [java.util.function.Consumer]
-     *  - [WindowLayoutComponent.removeWindowLayoutInfoListener] with [java.util.function.Consumer]
+     * - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Activity] and
+     *   [java.util.function.Consumer]
+     * - [WindowLayoutComponent.removeWindowLayoutInfoListener] with [java.util.function.Consumer]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel1(): Boolean {
@@ -94,8 +94,8 @@ internal class SafeWindowLayoutComponentProvider(
 
     /**
      * [WindowExtensions.VENDOR_API_LEVEL_2] includes the following methods
-     *  - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Context] and [Consumer]
-     *  - [WindowLayoutComponent.removeWindowLayoutInfoListener] with [Consumer]
+     * - [WindowLayoutComponent.addWindowLayoutInfoListener] with [Context] and [Consumer]
+     * - [WindowLayoutComponent.removeWindowLayoutInfoListener] with [Consumer]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel2(): Boolean {
@@ -111,8 +111,7 @@ internal class SafeWindowLayoutComponentProvider(
     }
 
     private fun isWindowLayoutProviderValid(): Boolean {
-        return validateReflection(
-            "WindowExtensions#getWindowLayoutComponent is not valid") {
+        return validateReflection("WindowExtensions#getWindowLayoutComponent is not valid") {
             val extensionsClass = safeWindowExtensionsProvider.windowExtensionsClass
             val getWindowLayoutComponentMethod =
                 extensionsClass.getMethod("getWindowLayoutComponent")
@@ -145,14 +144,14 @@ internal class SafeWindowLayoutComponentProvider(
             val consumerClass =
                 consumerAdapter.consumerClassOrNull() ?: return@validateReflection false
             val windowLayoutComponent = windowLayoutComponentClass
-            val addListenerMethod = windowLayoutComponent
-                .getMethod(
+            val addListenerMethod =
+                windowLayoutComponent.getMethod(
                     "addWindowLayoutInfoListener",
                     Activity::class.java,
                     consumerClass
                 )
-            val removeListenerMethod = windowLayoutComponent
-                .getMethod("removeWindowLayoutInfoListener", consumerClass)
+            val removeListenerMethod =
+                windowLayoutComponent.getMethod("removeWindowLayoutInfoListener", consumerClass)
             addListenerMethod.isPublic && removeListenerMethod.isPublic
         }
     }
@@ -163,14 +162,17 @@ internal class SafeWindowLayoutComponentProvider(
                 "(${Context::class.java.name}, $WINDOW_CONSUMER) is not valid"
         ) {
             val windowLayoutComponent = windowLayoutComponentClass
-            val addListenerMethod = windowLayoutComponent
-                .getMethod(
+            val addListenerMethod =
+                windowLayoutComponent.getMethod(
                     "addWindowLayoutInfoListener",
                     Context::class.java,
                     Consumer::class.java
                 )
-            val removeListenerMethod = windowLayoutComponent
-                .getMethod("removeWindowLayoutInfoListener", Consumer::class.java)
+            val removeListenerMethod =
+                windowLayoutComponent.getMethod(
+                    "removeWindowLayoutInfoListener",
+                    Consumer::class.java
+                )
             addListenerMethod.isPublic && removeListenerMethod.isPublic
         }
     }
@@ -180,10 +182,10 @@ internal class SafeWindowLayoutComponentProvider(
             val displayFoldFeatureClass = displayFoldFeatureClass
 
             val getTypeMethod = displayFoldFeatureClass.getMethod("getType")
-            val hasPropertyMethod = displayFoldFeatureClass
-                .getMethod("hasProperty", Int::class.java)
-            val hasPropertiesMethod = displayFoldFeatureClass
-                .getMethod("hasProperties", IntArray::class.java)
+            val hasPropertyMethod =
+                displayFoldFeatureClass.getMethod("hasProperty", Int::class.java)
+            val hasPropertiesMethod =
+                displayFoldFeatureClass.getMethod("hasProperties", IntArray::class.java)
 
             getTypeMethod.isPublic &&
                 getTypeMethod.doesReturn(Int::class.java) &&
@@ -198,11 +200,12 @@ internal class SafeWindowLayoutComponentProvider(
         return validateReflection("SupportedWindowFeatures is not valid") {
             val supportedWindowFeaturesClass = supportedWindowFeaturesClass
 
-            val getDisplayFoldFeaturesMethod = supportedWindowFeaturesClass
-                .getMethod("getDisplayFoldFeatures")
+            val getDisplayFoldFeaturesMethod =
+                supportedWindowFeaturesClass.getMethod("getDisplayFoldFeatures")
             val returnTypeGeneric =
                 (getDisplayFoldFeaturesMethod.genericReturnType as ParameterizedType)
-                .actualTypeArguments[0] as Class<*>
+                    .actualTypeArguments[0]
+                    as Class<*>
 
             getDisplayFoldFeaturesMethod.isPublic &&
                 getDisplayFoldFeaturesMethod.doesReturn(List::class.java) &&
@@ -211,11 +214,10 @@ internal class SafeWindowLayoutComponentProvider(
     }
 
     private fun isGetSupportedWindowFeaturesValid(): Boolean {
-        return validateReflection(
-            "WindowLayoutComponent#getSupportedWindowFeatures is not valid") {
+        return validateReflection("WindowLayoutComponent#getSupportedWindowFeatures is not valid") {
             val windowLayoutComponent = windowLayoutComponentClass
-            val getSupportedWindowFeaturesMethod = windowLayoutComponent
-                .getMethod("getSupportedWindowFeatures")
+            val getSupportedWindowFeaturesMethod =
+                windowLayoutComponent.getMethod("getSupportedWindowFeatures")
 
             getSupportedWindowFeaturesMethod.isPublic &&
                 getSupportedWindowFeaturesMethod.doesReturn(supportedWindowFeaturesClass)

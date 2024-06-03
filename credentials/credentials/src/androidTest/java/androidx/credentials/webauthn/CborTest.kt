@@ -26,38 +26,38 @@ import org.junit.runner.RunWith
 @SmallTest
 class CborTest {
 
-  @Test
-  fun encodeDecode_numbers() {
-    val obj = 1
-    val cborOut = Cbor().encode(obj)
-    assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
-  }
+    @Test
+    fun encodeDecode_numbers() {
+        val obj = 1
+        val cborOut = Cbor().encode(obj)
+        assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
+    }
 
-  @Test
-  fun encodeDecode_byteArray() {
-    val obj = byteArrayOf(1)
-    val cborOut = Cbor().encode(obj)
-    assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
-  }
+    @Test
+    fun encodeDecode_byteArray() {
+        val obj = byteArrayOf(1)
+        val cborOut = Cbor().encode(obj)
+        assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
+    }
 
-  @Test
-  fun encodeDecode_string() {
-    val obj = "test"
-    val cborOut = Cbor().encode(obj)
-    assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
-  }
+    @Test
+    fun encodeDecode_string() {
+        val obj = "test"
+        val cborOut = Cbor().encode(obj)
+        assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
+    }
 
-  @Test
-  fun encodeDecode_list() {
-    val obj = listOf("test")
-    val cborOut = Cbor().encode(obj)
-    assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
-  }
+    @Test
+    fun encodeDecode_list() {
+        val obj = listOf("test")
+        val cborOut = Cbor().encode(obj)
+        assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
+    }
 
-  @Test
-  fun encodeDecode_map() {
-    val obj = mapOf("key" to "value")
-    val cborOut = Cbor().encode(obj)
-    assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
-  }
+    @Test
+    fun encodeDecode_map() {
+        val obj = mapOf("key" to "value")
+        val cborOut = Cbor().encode(obj)
+        assertThat(Cbor().decode(cborOut)).isEqualTo(obj)
+    }
 }

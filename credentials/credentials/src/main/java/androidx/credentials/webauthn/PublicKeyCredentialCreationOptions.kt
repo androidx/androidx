@@ -22,53 +22,55 @@ import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class PublicKeyCredentialCreationOptions(requestJson: String) {
-  val json: JSONObject
+    val json: JSONObject
 
-  val rp: PublicKeyCredentialRpEntity
-  val user: PublicKeyCredentialUserEntity
-  val challenge: ByteArray
-  val pubKeyCredParams: List<PublicKeyCredentialParameters>
+    val rp: PublicKeyCredentialRpEntity
+    val user: PublicKeyCredentialUserEntity
+    val challenge: ByteArray
+    val pubKeyCredParams: List<PublicKeyCredentialParameters>
 
-  var timeout: Long
-  var excludeCredentials: List<PublicKeyCredentialDescriptor>
-  var authenticatorSelection: AuthenticatorSelectionCriteria
-  var attestation: String
+    var timeout: Long
+    var excludeCredentials: List<PublicKeyCredentialDescriptor>
+    var authenticatorSelection: AuthenticatorSelectionCriteria
+    var attestation: String
 
-  init {
-    json = JSONObject(requestJson)
-    val challengeString = json.getString("challenge")
-    challenge = WebAuthnUtils.b64Decode(challengeString)
-    val rpJson = json.getJSONObject("rp")
-    rp = PublicKeyCredentialRpEntity(rpJson.getString("name"), rpJson.getString("id"))
-    val rpUser = json.getJSONObject("user")
-    val userId = WebAuthnUtils.b64Decode(rpUser.getString("id"))
-    user =
-      PublicKeyCredentialUserEntity(
-        rpUser.getString("name"),
-        userId,
-        rpUser.getString("displayName")
-      )
-    val pubKeyCredParamsJson = json.getJSONArray("pubKeyCredParams")
-    val pubKeyCredParamsTmp: MutableList<PublicKeyCredentialParameters> = mutableListOf()
-    for (i in 0 until pubKeyCredParamsJson.length()) {
-      val e = pubKeyCredParamsJson.getJSONObject(i)
-      pubKeyCredParamsTmp.add(PublicKeyCredentialParameters(e.getString("type"), e.getLong("alg")))
+    init {
+        json = JSONObject(requestJson)
+        val challengeString = json.getString("challenge")
+        challenge = WebAuthnUtils.b64Decode(challengeString)
+        val rpJson = json.getJSONObject("rp")
+        rp = PublicKeyCredentialRpEntity(rpJson.getString("name"), rpJson.getString("id"))
+        val rpUser = json.getJSONObject("user")
+        val userId = WebAuthnUtils.b64Decode(rpUser.getString("id"))
+        user =
+            PublicKeyCredentialUserEntity(
+                rpUser.getString("name"),
+                userId,
+                rpUser.getString("displayName")
+            )
+        val pubKeyCredParamsJson = json.getJSONArray("pubKeyCredParams")
+        val pubKeyCredParamsTmp: MutableList<PublicKeyCredentialParameters> = mutableListOf()
+        for (i in 0 until pubKeyCredParamsJson.length()) {
+            val e = pubKeyCredParamsJson.getJSONObject(i)
+            pubKeyCredParamsTmp.add(
+                PublicKeyCredentialParameters(e.getString("type"), e.getLong("alg"))
+            )
+        }
+        pubKeyCredParams = pubKeyCredParamsTmp.toList()
+
+        timeout = json.optLong("timeout", 0)
+        // TODO: Fix excludeCredentials and authenticatorSelection
+        excludeCredentials = emptyList()
+        authenticatorSelection = AuthenticatorSelectionCriteria("platform", "required")
+        attestation = json.optString("attestation", "none")
+
+        Log.i("WebAuthn", "Challenge $challenge()")
+        Log.i("WebAuthn", "rp $rp")
+        Log.i("WebAuthn", "user $user")
+        Log.i("WebAuthn", "pubKeyCredParams $pubKeyCredParams")
+        Log.i("WebAuthn", "timeout $timeout")
+        Log.i("WebAuthn", "excludeCredentials $excludeCredentials")
+        Log.i("WebAuthn", "authenticatorSelection $authenticatorSelection")
+        Log.i("WebAuthn", "attestation $attestation")
     }
-    pubKeyCredParams = pubKeyCredParamsTmp.toList()
-
-    timeout = json.optLong("timeout", 0)
-    // TODO: Fix excludeCredentials and authenticatorSelection
-    excludeCredentials = emptyList()
-    authenticatorSelection = AuthenticatorSelectionCriteria("platform", "required")
-    attestation = json.optString("attestation", "none")
-
-    Log.i("WebAuthn", "Challenge $challenge()")
-    Log.i("WebAuthn", "rp $rp")
-    Log.i("WebAuthn", "user $user")
-    Log.i("WebAuthn", "pubKeyCredParams $pubKeyCredParams")
-    Log.i("WebAuthn", "timeout $timeout")
-    Log.i("WebAuthn", "excludeCredentials $excludeCredentials")
-    Log.i("WebAuthn", "authenticatorSelection $authenticatorSelection")
-    Log.i("WebAuthn", "attestation $attestation")
-  }
 }

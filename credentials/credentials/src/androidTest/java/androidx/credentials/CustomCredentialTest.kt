@@ -32,7 +32,9 @@ class CustomCredentialTest {
         Assert.assertThrows(
             "Expected empty type to throw IAE",
             IllegalArgumentException::class.java
-        ) { CustomCredential("", Bundle()) }
+        ) {
+            CustomCredential("", Bundle())
+        }
     }
 
     @Test
@@ -45,10 +47,7 @@ class CustomCredentialTest {
         val expectedType = "TYPE"
         val expectedBundle = Bundle()
         expectedBundle.putString("Test", "Test")
-        val option = CustomCredential(
-            expectedType,
-            expectedBundle
-        )
+        val option = CustomCredential(expectedType, expectedBundle)
         assertThat(option.type).isEqualTo(expectedType)
         assertThat(equals(option.data, expectedBundle)).isTrue()
     }

@@ -17,16 +17,17 @@
 package androidx.credentials.exceptions
 
 /**
- * During the clear credential flow, this is thrown when credential manager is unsupported, typically
- * because the device has disabled it or did not ship with this feature enabled. A software update
- * or a restart after enabling may fix this issue, but in certain cases, the device hardware may
- * be the limiting factor.
+ * During the clear credential flow, this is thrown when credential manager is unsupported,
+ * typically because the device has disabled it or did not ship with this feature enabled. A
+ * software update or a restart after enabling may fix this issue, but in certain cases, the device
+ * hardware may be the limiting factor.
  *
  * @see ClearCredentialException
  */
-class ClearCredentialUnsupportedException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : ClearCredentialException(TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
+class ClearCredentialUnsupportedException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    ClearCredentialException(TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION, errorMessage) {
     internal companion object {
         internal const val TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION =
             "androidx.credentials.TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION"

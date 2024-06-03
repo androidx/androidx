@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RunWith(AndroidJUnit4::class)
 class RecyclerViewScrollFrameRateTest {
-    @get:Rule
-    val rule = ActivityTestRule(TestContentViewActivity::class.java)
+    @get:Rule val rule = ActivityTestRule(TestContentViewActivity::class.java)
 
     @Test
     fun smoothScrollFrameRateBoost() {
@@ -53,26 +52,27 @@ class RecyclerViewScrollFrameRateTest {
         rule.runOnUiThread {
             rv.layoutManager =
                 LinearLayoutManager(rule.activity, LinearLayoutManager.VERTICAL, false)
-            rv.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-                override fun onCreateViewHolder(
-                    parent: ViewGroup,
-                    viewType: Int
-                ): RecyclerView.ViewHolder {
-                    val view = TextView(parent.context)
-                    view.textSize = 40f
-                    view.setTextColor(Color.WHITE)
-                    return object : RecyclerView.ViewHolder(view) {}
-                }
+            rv.adapter =
+                object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                    override fun onCreateViewHolder(
+                        parent: ViewGroup,
+                        viewType: Int
+                    ): RecyclerView.ViewHolder {
+                        val view = TextView(parent.context)
+                        view.textSize = 40f
+                        view.setTextColor(Color.WHITE)
+                        return object : RecyclerView.ViewHolder(view) {}
+                    }
 
-                override fun getItemCount(): Int = 10000
+                    override fun getItemCount(): Int = 10000
 
-                override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-                    val view = holder.itemView as TextView
-                    view.text = "Text $position"
-                    val color = if (position % 2 == 0) Color.BLACK else 0xFF000080.toInt()
-                    view.setBackgroundColor(color)
+                    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                        val view = holder.itemView as TextView
+                        view.text = "Text $position"
+                        val color = if (position % 2 == 0) Color.BLACK else 0xFF000080.toInt()
+                        view.setBackgroundColor(color)
+                    }
                 }
-            }
             rule.activity.contentView.addView(rv)
         }
         runOnDraw(rv, { rv.smoothScrollBy(0, 1000) }) {
@@ -81,29 +81,24 @@ class RecyclerViewScrollFrameRateTest {
         }
 
         // Second frame
-        runOnDraw(rv) {
-            assertThat(rv.frameContentVelocity).isGreaterThan(0f)
-        }
+        runOnDraw(rv) { assertThat(rv.frameContentVelocity).isGreaterThan(0f) }
 
         // Third frame
-        runOnDraw(rv) {
-            assertThat(rv.frameContentVelocity).isGreaterThan(0f)
-        }
+        runOnDraw(rv) { assertThat(rv.frameContentVelocity).isGreaterThan(0f) }
     }
 
-    private fun runOnDraw(view: View, setup: () -> Unit = { }, onDraw: () -> Unit) {
+    private fun runOnDraw(view: View, setup: () -> Unit = {}, onDraw: () -> Unit) {
         val latch = CountDownLatch(1)
-        val onDrawListener = ViewTreeObserver.OnDrawListener {
-            latch.countDown()
-            onDraw()
-        }
+        val onDrawListener =
+            ViewTreeObserver.OnDrawListener {
+                latch.countDown()
+                onDraw()
+            }
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
             setup()
         }
         assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
-        rule.runOnUiThread {
-            view.viewTreeObserver.removeOnDrawListener(onDrawListener)
-        }
+        rule.runOnUiThread { view.viewTreeObserver.removeOnDrawListener(onDrawListener) }
     }
 }

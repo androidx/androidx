@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("deprecation")
+
 package androidx.credentials.playservices.getsigninintent
 
 import android.os.Build
@@ -42,30 +43,23 @@ class CredentialProviderGetSignInIntentControllerTest {
     @Test
     fun convertRequestToPlayServices_success() {
         val serverClientId: String = "server_client_id"
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            val actual: GetSignInIntentRequest = getInstance(activity!!)
-                .convertRequestToPlayServices(
-                    GetCredentialRequest(
-                        listOf(
-                            GetSignInWithGoogleOption.Builder(serverClientId).build()
+            val actual: GetSignInIntentRequest =
+                getInstance(activity!!)
+                    .convertRequestToPlayServices(
+                        GetCredentialRequest(
+                            listOf(GetSignInWithGoogleOption.Builder(serverClientId).build())
                         )
                     )
-                )
-            assertThat(
-                actual.serverClientId
-            ).isEqualTo(serverClientId)
+            assertThat(actual.serverClientId).isEqualTo(serverClientId)
         }
     }
 
     @Test
     fun convertRequestToPlayServices_moreThanOneOption_failure() {
         val serverClientId: String = "server_client_id"
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
             assertThrows(GetCredentialUnsupportedException::class.java) {
                 getInstance(activity!!)

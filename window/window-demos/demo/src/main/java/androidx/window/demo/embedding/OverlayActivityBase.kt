@@ -58,8 +58,11 @@ import androidx.window.embedding.setLaunchingActivityStack
 import androidx.window.embedding.setOverlayCreateParams
 import kotlinx.coroutines.launch
 
-open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
-    RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener,
+open class OverlayActivityBase :
+    AppCompatActivity(),
+    View.OnClickListener,
+    RadioGroup.OnCheckedChangeListener,
+    AdapterView.OnItemSelectedListener,
     SeekBar.OnSeekBarChangeListener {
 
     private val overlayTag = OverlayCreateParams.generateOverlayTag()
@@ -84,8 +87,7 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
         overlayController = OverlayController.getInstance(this)
 
         if (splitController.splitSupportStatus != SPLIT_AVAILABLE || extensionVersion < 6) {
-            Toast.makeText(this, R.string.toast_show_overlay_warning,
-                Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.toast_show_overlay_warning, Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -103,19 +105,21 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
         radioGroupChooseOverlayLayout.setOnCheckedChangeListener(this)
 
         viewBinding.spinnerAlignment.apply {
-            adapter = ArrayAdapter(
-                this@OverlayActivityBase,
-                android.R.layout.simple_spinner_dropdown_item,
-                POSITION_TEXT_ARRAY,
-            )
+            adapter =
+                ArrayAdapter(
+                    this@OverlayActivityBase,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    POSITION_TEXT_ARRAY,
+                )
             onItemSelectedListener = this@OverlayActivityBase
         }
 
-        val dimensionAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_dropdown_item,
-            DIMENSION_TYPE_TEXT_ARRAY,
-        )
+        val dimensionAdapter =
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                DIMENSION_TYPE_TEXT_ARRAY,
+            )
         viewBinding.spinnerWidth.apply {
             adapter = dimensionAdapter
             onItemSelectedListener = this@OverlayActivityBase
@@ -136,15 +140,15 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
             // It automatically restarts the block when the lifecycle is STARTED again.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                overlayController.overlayInfo(overlayTag)
-                    .collect { overlayInfo ->
-                        overlayActivityStack = overlayInfo.activityStack
-                        val hasOverlay = overlayActivityStack != null
-                        viewBinding.buttonUpdateOverlayLayout.isEnabled =
-                            hasOverlay && demoActivityEmbeddingController.overlayMode.get() !=
+                overlayController.overlayInfo(overlayTag).collect { overlayInfo ->
+                    overlayActivityStack = overlayInfo.activityStack
+                    val hasOverlay = overlayActivityStack != null
+                    viewBinding.buttonUpdateOverlayLayout.isEnabled =
+                        hasOverlay &&
+                            demoActivityEmbeddingController.overlayMode.get() !=
                                 OVERLAY_MODE_CHANGE_WITH_ORIENTATION.value
-                        updateOverlayBoundsText(overlayInfo)
-                    }
+                    updateOverlayBoundsText(overlayInfo)
+                }
             }
         }
     }
@@ -169,8 +173,9 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun updateOverlayBoundsText(overlayInfo: OverlayInfo) {
-        viewBinding.textViewOverlayBounds.text = resources.getString(R.string.overlay_bounds_text) +
-            overlayInfo.currentOverlayAttributes?.bounds.toString()
+        viewBinding.textViewOverlayBounds.text =
+            resources.getString(R.string.overlay_bounds_text) +
+                overlayInfo.currentOverlayAttributes?.bounds.toString()
     }
 
     @OptIn(ExperimentalWindowApi::class)
@@ -194,49 +199,55 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
                                 "androidx.window.demo2.embedding.UntrustedEmbeddingActivity"
                             )
                         },
-                        ActivityOptions.makeBasic().toBundle().setOverlayCreateParams(
-                            this,
-                            OverlayCreateParams.Builder()
-                                .setTag(overlayTag)
-                                .setOverlayAttributes(
-                                    if (isCustomizationMode) {
-                                        overlayAttributes
-                                    } else {
-                                        DEFAULT_OVERLAY_ATTRIBUTES
-                                    }
-                                ).build()
-                        )
+                        ActivityOptions.makeBasic()
+                            .toBundle()
+                            .setOverlayCreateParams(
+                                this,
+                                OverlayCreateParams.Builder()
+                                    .setTag(overlayTag)
+                                    .setOverlayAttributes(
+                                        if (isCustomizationMode) {
+                                            overlayAttributes
+                                        } else {
+                                            DEFAULT_OVERLAY_ATTRIBUTES
+                                        }
+                                    )
+                                    .build()
+                            )
                     )
                 } catch (e: ActivityNotFoundException) {
                     Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show()
                 }
             }
-            R.id.button_launch_overlay_activity_a -> startActivity(
-                Intent(this, OverlayAssociatedActivityA::class.java).apply {
-                    if (viewBinding.checkboxReorderToFront.isChecked) {
-                        flags = FLAG_ACTIVITY_REORDER_TO_FRONT
+            R.id.button_launch_overlay_activity_a ->
+                startActivity(
+                    Intent(this, OverlayAssociatedActivityA::class.java).apply {
+                        if (viewBinding.checkboxReorderToFront.isChecked) {
+                            flags = FLAG_ACTIVITY_REORDER_TO_FRONT
+                        }
                     }
-                }
-            )
-            R.id.button_launch_overlay_activity_b -> startActivity(
-                Intent(this, OverlayAssociatedActivityB::class.java),
-                overlayActivityStack?.let {
-                    if (viewBinding.checkboxLaunchToOverlay.isChecked) {
-                        ActivityOptions.makeBasic().toBundle().setLaunchingActivityStack(
-                            this,
-                            it,
-                        )
-                    } else {
-                        null
+                )
+            R.id.button_launch_overlay_activity_b ->
+                startActivity(
+                    Intent(this, OverlayAssociatedActivityB::class.java),
+                    overlayActivityStack?.let {
+                        if (viewBinding.checkboxLaunchToOverlay.isChecked) {
+                            ActivityOptions.makeBasic()
+                                .toBundle()
+                                .setLaunchingActivityStack(
+                                    this,
+                                    it,
+                                )
+                        } else {
+                            null
+                        }
                     }
-                }
-            )
+                )
             R.id.button_finish_this_activity -> finish()
             R.id.button_update_overlay_layout -> {
                 if (isCustomizationMode) {
                     demoActivityEmbeddingController.overlayAttributes = overlayAttributes
-                    ActivityEmbeddingController
-                        .getInstance(this).invalidateVisibleActivityStacks()
+                    ActivityEmbeddingController.getInstance(this).invalidateVisibleActivityStacks()
                 } else {
                     overlayController.updateOverlayAttributes(overlayTag, overlayAttributes)
                 }
@@ -256,27 +267,30 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
                     createDimensionFromUi(spinnerWidth),
                     createDimensionFromUi(spinnerHeight),
                 )
-            ).build()
+            )
+            .build()
     }
 
     private fun createDimensionFromUi(spinner: Spinner): Dimension =
         when (val position = spinner.selectedItemPosition) {
             INDEX_DIMENSION_EXPAND -> Dimension.DIMENSION_EXPANDED
             INDEX_DIMENSION_HINGE -> Dimension.DIMENSION_HINGE
-            INDEX_DIMENSION_RATIO -> Dimension.ratio(
-                if (spinner.isSpinnerWidth()) {
-                    viewBinding.seekBarWidthInRatio.progress.toFloat() / 100
-                } else {
-                    viewBinding.seekBarHeightInRatio.progress.toFloat() / 100
-                }
-            )
-            INDEX_DIMENSION_PIXEL -> Dimension.pixel(
-                if (spinner.isSpinnerWidth()) {
-                    viewBinding.editTextNumberDecimalWidthInPixel.text.toString().toInt()
-                } else {
-                    viewBinding.editTextNumberDecimalHeightInPixel.text.toString().toInt()
-                }
-            )
+            INDEX_DIMENSION_RATIO ->
+                Dimension.ratio(
+                    if (spinner.isSpinnerWidth()) {
+                        viewBinding.seekBarWidthInRatio.progress.toFloat() / 100
+                    } else {
+                        viewBinding.seekBarHeightInRatio.progress.toFloat() / 100
+                    }
+                )
+            INDEX_DIMENSION_PIXEL ->
+                Dimension.pixel(
+                    if (spinner.isSpinnerWidth()) {
+                        viewBinding.editTextNumberDecimalWidthInPixel.text.toString().toInt()
+                    } else {
+                        viewBinding.editTextNumberDecimalHeightInPixel.text.toString().toInt()
+                    }
+                )
             else -> throw IllegalStateException("Unknown spinner index: $position")
         }
 
@@ -293,36 +307,42 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        if (parent is Spinner &&
-            parent in arrayOf(viewBinding.spinnerWidth, viewBinding.spinnerHeight)
+        if (
+            parent is Spinner &&
+                parent in arrayOf(viewBinding.spinnerWidth, viewBinding.spinnerHeight)
         ) {
             updateDimensionUi(parent)
         }
     }
 
     private fun updateDimensionUi(spinner: Spinner) {
-        val textViewRatio = if (spinner.isSpinnerWidth()) {
-            viewBinding.textViewWidthInRatio
-        } else {
-            viewBinding.textViewHeightInRatio
-        }
-        val seekBarRatio = if (spinner.isSpinnerWidth()) {
-            viewBinding.seekBarWidthInRatio
-        } else {
-            viewBinding.seekBarHeightInRatio
-        }
-        val textViewPixel = if (spinner.isSpinnerWidth()) {
-            viewBinding.textViewWidthInPixel
-        } else {
-            viewBinding.textViewHeightInPixel
-        }
-        val editTextPixel = if (spinner.isSpinnerWidth()) {
-            viewBinding.editTextNumberDecimalWidthInPixel
-        } else {
-            viewBinding.editTextNumberDecimalHeightInPixel
-        }
+        val textViewRatio =
+            if (spinner.isSpinnerWidth()) {
+                viewBinding.textViewWidthInRatio
+            } else {
+                viewBinding.textViewHeightInRatio
+            }
+        val seekBarRatio =
+            if (spinner.isSpinnerWidth()) {
+                viewBinding.seekBarWidthInRatio
+            } else {
+                viewBinding.seekBarHeightInRatio
+            }
+        val textViewPixel =
+            if (spinner.isSpinnerWidth()) {
+                viewBinding.textViewWidthInPixel
+            } else {
+                viewBinding.textViewHeightInPixel
+            }
+        val editTextPixel =
+            if (spinner.isSpinnerWidth()) {
+                viewBinding.editTextNumberDecimalWidthInPixel
+            } else {
+                viewBinding.editTextNumberDecimalHeightInPixel
+            }
         when (spinner.selectedItemPosition) {
-            INDEX_DIMENSION_EXPAND, INDEX_DIMENSION_HINGE -> {
+            INDEX_DIMENSION_EXPAND,
+            INDEX_DIMENSION_HINGE -> {
                 textViewRatio.visibility = View.GONE
                 seekBarRatio.visibility = View.GONE
                 textViewPixel.visibility = View.GONE
@@ -387,28 +407,31 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
     }
 
     companion object {
-        internal val DEFAULT_OVERLAY_ATTRIBUTES = OverlayAttributes(
-            EmbeddingBounds(
-                ALIGN_RIGHT,
-                Dimension.ratio(0.5f),
-                Dimension.ratio(0.8f),
+        internal val DEFAULT_OVERLAY_ATTRIBUTES =
+            OverlayAttributes(
+                EmbeddingBounds(
+                    ALIGN_RIGHT,
+                    Dimension.ratio(0.5f),
+                    Dimension.ratio(0.8f),
+                )
             )
-        )
 
         private val POSITION_TEXT_ARRAY = arrayOf("top", "left", "bottom", "right")
-        private val ALIGNMENT_VALUE_ARRAY = arrayListOf(
-            ALIGN_TOP,
-            ALIGN_LEFT,
-            ALIGN_BOTTOM,
-            ALIGN_RIGHT,
-        )
+        private val ALIGNMENT_VALUE_ARRAY =
+            arrayListOf(
+                ALIGN_TOP,
+                ALIGN_LEFT,
+                ALIGN_BOTTOM,
+                ALIGN_RIGHT,
+            )
 
-        private val DIMENSION_TYPE_TEXT_ARRAY = arrayOf(
-            "expand to the task",
-            "follow the hinge",
-            "dimension in ratio",
-            "dimension in pixel",
-        )
+        private val DIMENSION_TYPE_TEXT_ARRAY =
+            arrayOf(
+                "expand to the task",
+                "follow the hinge",
+                "dimension in ratio",
+                "dimension in pixel",
+            )
         private const val INDEX_DIMENSION_EXPAND = 0
         private const val INDEX_DIMENSION_HINGE = 1
         private const val INDEX_DIMENSION_RATIO = 2

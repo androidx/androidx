@@ -28,17 +28,16 @@ import androidx.window.embedding.setLaunchingActivityStack
 suspend fun launchingOnPrimaryActivityStack() {
     var primaryActivityStack: ActivityStack? = null
 
-    SplitController.getInstance(primaryActivity).splitInfoList(primaryActivity)
-        .collect { splitInfoList ->
-            primaryActivityStack = splitInfoList.last().primaryActivityStack
-        }
+    SplitController.getInstance(primaryActivity).splitInfoList(primaryActivity).collect {
+        splitInfoList ->
+        primaryActivityStack = splitInfoList.last().primaryActivityStack
+    }
 
     primaryActivity.startActivity(
         INTENT,
-        ActivityOptionsCompat.makeBasic().toBundle()!!.setLaunchingActivityStack(
-            primaryActivity,
-            primaryActivityStack!!
-        )
+        ActivityOptionsCompat.makeBasic()
+            .toBundle()!!
+            .setLaunchingActivityStack(primaryActivity, primaryActivityStack!!)
     )
 }
 
@@ -55,10 +54,9 @@ suspend fun launchingOnOverlayActivityStack() {
     // host task behind the overlay ActivityStack.
     overlainActivity.startActivity(
         INTENT,
-        ActivityOptionsCompat.makeBasic().toBundle()!!.setLaunchingActivityStack(
-            overlainActivity,
-            overlayActivityStack!!
-        )
+        ActivityOptionsCompat.makeBasic()
+            .toBundle()!!
+            .setLaunchingActivityStack(overlainActivity, overlayActivityStack!!)
     )
 }
 

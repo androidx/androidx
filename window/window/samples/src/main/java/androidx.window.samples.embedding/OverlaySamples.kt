@@ -31,18 +31,22 @@ import androidx.window.embedding.setOverlayCreateParams
 @Sampled
 fun launchOverlayActivityStackSample() {
     // Creates an overlay container on the right
-    val params = OverlayCreateParams(
-        overlayAttributes = OverlayAttributes(
-            EmbeddingBounds(
-                alignment = EmbeddingBounds.Alignment.ALIGN_RIGHT,
-                width = ratio(0.5f),
-                height = EmbeddingBounds.Dimension.DIMENSION_EXPANDED,
-            )
+    val params =
+        OverlayCreateParams(
+            overlayAttributes =
+                OverlayAttributes(
+                    EmbeddingBounds(
+                        alignment = EmbeddingBounds.Alignment.ALIGN_RIGHT,
+                        width = ratio(0.5f),
+                        height = EmbeddingBounds.Dimension.DIMENSION_EXPANDED,
+                    )
+                )
         )
-    )
 
-    val optionsWithOverlayParams = ActivityOptionsCompat.makeBasic().toBundle()
-        ?.setOverlayCreateParams(launchingActivity, params)
+    val optionsWithOverlayParams =
+        ActivityOptionsCompat.makeBasic()
+            .toBundle()
+            ?.setOverlayCreateParams(launchingActivity, params)
 
     // Start INTENT to the overlay container specified by params.
     launchingActivity.startActivity(INTENT, optionsWithOverlayParams)

@@ -37,14 +37,10 @@ import org.mockito.kotlin.whenever
  */
 class ActivityEmbeddingOptionsTest {
 
-    @Mock
-    private lateinit var mockEmbeddingBackend: EmbeddingBackend
-    @Mock
-    private lateinit var mockContext: Context
-    @Mock
-    private lateinit var mockActivity: Activity
-    @Mock
-    private lateinit var mockOptions: Bundle
+    @Mock private lateinit var mockEmbeddingBackend: EmbeddingBackend
+    @Mock private lateinit var mockContext: Context
+    @Mock private lateinit var mockActivity: Activity
+    @Mock private lateinit var mockOptions: Bundle
 
     private lateinit var annotationClosable: AutoCloseable
 
@@ -54,17 +50,16 @@ class ActivityEmbeddingOptionsTest {
     fun setUp() {
         annotationClosable = MockitoAnnotations.openMocks(this)
 
-        mockActivityStack = ActivityStack(
-            listOf(),
-            true,
-            ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN
-        )
+        mockActivityStack =
+            ActivityStack(listOf(), true, ActivityStackToken.INVALID_ACTIVITY_STACK_TOKEN)
         whenever(mockActivity.applicationContext).doReturn(mockContext)
 
-        EmbeddingBackend.overrideDecorator(object : EmbeddingBackendDecorator {
-            override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =
-                mockEmbeddingBackend
-        })
+        EmbeddingBackend.overrideDecorator(
+            object : EmbeddingBackendDecorator {
+                override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =
+                    mockEmbeddingBackend
+            }
+        )
     }
 
     @After
@@ -77,8 +72,7 @@ class ActivityEmbeddingOptionsTest {
     fun testSetLaunchingActivityStack() {
         mockOptions.setLaunchingActivityStack(mockActivity, mockActivityStack)
 
-        verify(mockEmbeddingBackend).setLaunchingActivityStack(
-            mockOptions, mockActivityStack)
+        verify(mockEmbeddingBackend).setLaunchingActivityStack(mockOptions, mockActivityStack)
     }
 
     @Test
@@ -86,7 +80,6 @@ class ActivityEmbeddingOptionsTest {
         val overlayCreateParams = OverlayCreateParams(overlayAttributes = OverlayAttributes())
         mockOptions.setOverlayCreateParams(mockActivity, overlayCreateParams)
 
-        verify(mockEmbeddingBackend).setOverlayCreateParams(
-            mockOptions, overlayCreateParams)
+        verify(mockEmbeddingBackend).setOverlayCreateParams(mockOptions, overlayCreateParams)
     }
 }

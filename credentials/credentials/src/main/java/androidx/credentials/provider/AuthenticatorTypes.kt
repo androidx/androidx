@@ -25,8 +25,8 @@ import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 
 /**
  * This allows verification when users pass in [BiometricManager.Authenticators] constants; namely
- * we can have a parameter hint that indicates what they should be. You can learn more about
- * the constants from [BiometricManager.Authenticators] to utilize best practices.
+ * we can have a parameter hint that indicates what they should be. You can learn more about the
+ * constants from [BiometricManager.Authenticators] to utilize best practices.
  *
  * @see BiometricManager.Authenticators
  */

@@ -24,17 +24,20 @@ import androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CRED
 import androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN
 
 /**
- * This acts as a parameter hint for what [BiometricPrompt]'s result constants should be.
- * You can learn more about the constants from [BiometricPrompt] to utilize best practices.
+ * This acts as a parameter hint for what [BiometricPrompt]'s result constants should be. You can
+ * learn more about the constants from [BiometricPrompt] to utilize best practices.
  *
  * @see BiometricPrompt
  */
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
-@IntDef(value = [
-    AUTHENTICATION_RESULT_TYPE_BIOMETRIC,
-    AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
-    AUTHENTICATION_RESULT_TYPE_UNKNOWN
-])
+@IntDef(
+    value =
+        [
+            AUTHENTICATION_RESULT_TYPE_BIOMETRIC,
+            AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
+            AUTHENTICATION_RESULT_TYPE_UNKNOWN
+        ]
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class AuthenticatorResultTypes

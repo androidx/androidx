@@ -21,9 +21,10 @@ package androidx.credentials.exceptions
  *
  * @see CreateCredentialException
  */
-class CreateCredentialUnknownException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
+class CreateCredentialUnknownException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    CreateCredentialException(TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION, errorMessage) {
 
     internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION =

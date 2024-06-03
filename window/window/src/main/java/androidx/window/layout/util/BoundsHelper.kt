@@ -38,14 +38,10 @@ import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetTop
 import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 import java.lang.reflect.InvocationTargetException
 
-/**
- * Provides compatibility behavior for calculating bounds of an activity.
- */
+/** Provides compatibility behavior for calculating bounds of an activity. */
 internal interface BoundsHelper {
 
-    /**
-     * Compute the current bounds for the given [Activity].
-     */
+    /** Compute the current bounds for the given [Activity]. */
     fun currentWindowBounds(activity: Activity): Rect
 
     fun maximumWindowBounds(@UiContext context: Context): Rect
@@ -92,9 +88,7 @@ private object BoundsHelperApi30Impl : BoundsHelper {
 @RequiresApi(Build.VERSION_CODES.Q)
 private object BoundsHelperApi29Impl : BoundsHelper {
 
-    /**
-     * Computes the window bounds for [Build.VERSION_CODES.Q].
-     */
+    /** Computes the window bounds for [Build.VERSION_CODES.Q]. */
     @SuppressLint("BanUncheckedReflection", "BlockedPrivateApi")
     override fun currentWindowBounds(activity: Activity): Rect {
         var bounds: Rect
@@ -134,10 +128,8 @@ private object BoundsHelperApi28Impl : BoundsHelper {
     /**
      * Computes the window bounds for [Build.VERSION_CODES.P].
      *
-     * NOTE: This method may result in incorrect values if the [android.content.res.Resources]
-     * value stored at 'navigation_bar_height' does not match the true navigation bar inset on
-     * the window.
-     *
+     * NOTE: This method may result in incorrect values if the [android.content.res.Resources] value
+     * stored at 'navigation_bar_height' does not match the true navigation bar inset on the window.
      */
     @SuppressLint("BanUncheckedReflection", "BlockedPrivateApi")
     override fun currentWindowBounds(activity: Activity): Rect {
@@ -176,11 +168,9 @@ private object BoundsHelperApi28Impl : BoundsHelper {
 
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions
-        @Suppress("DEPRECATION")
-        val currentDisplay = platformWindowManager.defaultDisplay
+        @Suppress("DEPRECATION") val currentDisplay = platformWindowManager.defaultDisplay
         val realDisplaySize = Point()
-        @Suppress("DEPRECATION")
-        currentDisplay.getRealSize(realDisplaySize)
+        @Suppress("DEPRECATION") currentDisplay.getRealSize(realDisplaySize)
 
         if (!isInMultiWindowMode(activity)) {
             // The activity is not in multi-window mode. Check if the addition of the
@@ -195,8 +185,9 @@ private object BoundsHelperApi28Impl : BoundsHelper {
                 bounds.left = 0
             }
         }
-        if ((bounds.width() < realDisplaySize.x || bounds.height() < realDisplaySize.y) &&
-            !isInMultiWindowMode(activity)
+        if (
+            (bounds.width() < realDisplaySize.x || bounds.height() < realDisplaySize.y) &&
+                !isInMultiWindowMode(activity)
         ) {
             // If the corrected bounds are not the same as the display size and the activity is
             // not in multi-window mode it is possible there are unreported cutouts inset-ing
@@ -230,28 +221,24 @@ private object BoundsHelperApi28Impl : BoundsHelper {
 private object BoundsHelperApi24Impl : BoundsHelper {
 
     /**
-     * Computes the window bounds for platforms between [Build.VERSION_CODES.N]
-     * and [Build.VERSION_CODES.O_MR1], inclusive.
+     * Computes the window bounds for platforms between [Build.VERSION_CODES.N] and
+     * [Build.VERSION_CODES.O_MR1], inclusive.
      *
      * NOTE: This method may result in incorrect values under the following conditions:
-     *
-     *  * If the activity is in multi-window mode the origin of the returned bounds will
-     *  always be anchored at (0, 0).
-     *  * If the [android.content.res.Resources] value stored at 'navigation_bar_height' does
-     *  not match the true navigation bar size the returned bounds will not take into account
-     *  the navigation bar.
-     *
+     * * If the activity is in multi-window mode the origin of the returned bounds will always be
+     *   anchored at (0, 0).
+     * * If the [android.content.res.Resources] value stored at 'navigation_bar_height' does not
+     *   match the true navigation bar size the returned bounds will not take into account the
+     *   navigation bar.
      */
     override fun currentWindowBounds(activity: Activity): Rect {
         val bounds = Rect()
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions
-        @Suppress("DEPRECATION")
-        val defaultDisplay = activity.windowManager.defaultDisplay
+        @Suppress("DEPRECATION") val defaultDisplay = activity.windowManager.defaultDisplay
         // [Display#getRectSize] is deprecated but we have this for
         // compatibility with older versions
-        @Suppress("DEPRECATION")
-        defaultDisplay.getRectSize(bounds)
+        @Suppress("DEPRECATION") defaultDisplay.getRectSize(bounds)
         if (!isInMultiWindowMode(activity)) {
             // The activity is not in multi-window mode. Check if the addition of the
             // navigation bar size to Display#getSize() results in the real display size and
@@ -275,24 +262,22 @@ private object BoundsHelperApi24Impl : BoundsHelper {
 private object BoundsHelperApi16Impl : BoundsHelper {
 
     /**
-     * Computes the window bounds for platforms between [Build.VERSION_CODES.JELLY_BEAN]
-     * and [Build.VERSION_CODES.M], inclusive.
+     * Computes the window bounds for platforms between [Build.VERSION_CODES.JELLY_BEAN] and
+     * [Build.VERSION_CODES.M], inclusive.
      *
-     * Given that multi-window mode isn't supported before N we simply return the real display
-     * size which should match the window size of a full-screen app.
+     * Given that multi-window mode isn't supported before N we simply return the real display size
+     * which should match the window size of a full-screen app.
      */
     override fun currentWindowBounds(activity: Activity): Rect {
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions
-        @Suppress("DEPRECATION")
-        val defaultDisplay = activity.windowManager.defaultDisplay
+        @Suppress("DEPRECATION") val defaultDisplay = activity.windowManager.defaultDisplay
         val realDisplaySize = getRealSizeForDisplay(defaultDisplay)
         val bounds = Rect()
         if (realDisplaySize.x == 0 || realDisplaySize.y == 0) {
             // [Display#getRectSize] is deprecated but we have this for
             // compatibility with older versions
-            @Suppress("DEPRECATION")
-            defaultDisplay.getRectSize(bounds)
+            @Suppress("DEPRECATION") defaultDisplay.getRectSize(bounds)
         } else {
             bounds.right = realDisplaySize.x
             bounds.bottom = realDisplaySize.y
@@ -305,8 +290,7 @@ private object BoundsHelperApi16Impl : BoundsHelper {
         // [WindowManager#getDefaultDisplay] is deprecated but we have this for
         // compatibility with older versions, as we can't reliably get the display associated
         // with a Context through public APIs either.
-        @Suppress("DEPRECATION")
-        val display = wm.defaultDisplay
+        @Suppress("DEPRECATION") val display = wm.defaultDisplay
         val displaySize = getRealSizeForDisplay(display)
         return Rect(0, 0, displaySize.x, displaySize.y)
     }
@@ -315,9 +299,9 @@ private object BoundsHelperApi16Impl : BoundsHelper {
 /**
  * Returns the [android.content.res.Resources] value stored as 'navigation_bar_height'.
  *
- * Note: This is error-prone and is **not** the recommended way to determine the size
- * of the overlapping region between the navigation bar and a given window. The best
- * approach is to acquire the [android.view.WindowInsets].
+ * Note: This is error-prone and is **not** the recommended way to determine the size of the
+ * overlapping region between the navigation bar and a given window. The best approach is to acquire
+ * the [android.view.WindowInsets].
  */
 private fun getNavigationBarHeight(context: Context): Int {
     val resources = context.resources
@@ -330,17 +314,15 @@ private fun getNavigationBarHeight(context: Context): Int {
 private fun getRectSizeFromDisplay(activity: Activity, bounds: Rect) {
     // [WindowManager#getDefaultDisplay] is deprecated but we have this for
     // compatibility with older versions
-    @Suppress("DEPRECATION")
-    val defaultDisplay = activity.windowManager.defaultDisplay
+    @Suppress("DEPRECATION") val defaultDisplay = activity.windowManager.defaultDisplay
     // [Display#getRectSize] is deprecated but we have this for
     // compatibility with older versions
-    @Suppress("DEPRECATION")
-    defaultDisplay.getRectSize(bounds)
+    @Suppress("DEPRECATION") defaultDisplay.getRectSize(bounds)
 }
 
 /**
- * Returns the [DisplayCutout] for the given display. Note that display cutout returned
- * here is for the display and the insets provided are in the display coordinate system.
+ * Returns the [DisplayCutout] for the given display. Note that display cutout returned here is for
+ * the display and the insets provided are in the display coordinate system.
  *
  * @return the display cutout for the given display.
  */
@@ -353,9 +335,8 @@ private fun getCutoutForDisplay(display: Display): DisplayCutout? {
         val displayInfoConstructor = displayInfoClass.getConstructor()
         displayInfoConstructor.isAccessible = true
         val displayInfo = displayInfoConstructor.newInstance()
-        val getDisplayInfoMethod = display.javaClass.getDeclaredMethod("getDisplayInfo",
-            displayInfo.javaClass
-        )
+        val getDisplayInfoMethod =
+            display.javaClass.getDeclaredMethod("getDisplayInfo", displayInfo.javaClass)
         getDisplayInfoMethod.isAccessible = true
         getDisplayInfoMethod.invoke(display, displayInfo)
         val displayCutoutField = displayInfo.javaClass.getDeclaredField("displayCutout")

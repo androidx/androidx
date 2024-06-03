@@ -23,15 +23,15 @@ import androidx.window.embedding.SplitController
 
 @Sampled
 suspend fun expandPrimaryContainer() {
-    SplitController.getInstance(primaryActivity).splitInfoList(primaryActivity)
-        .collect { splitInfoList ->
-            // Find all associated secondary ActivityStacks
-            val associatedSecondaryActivityStacks = splitInfoList
-                .mapTo(mutableSetOf()) { splitInfo -> splitInfo.secondaryActivityStack }
-            // Finish them all.
-            ActivityEmbeddingController.getInstance(primaryActivity)
-                .finishActivityStacks(associatedSecondaryActivityStacks)
-        }
+    SplitController.getInstance(primaryActivity).splitInfoList(primaryActivity).collect {
+        splitInfoList ->
+        // Find all associated secondary ActivityStacks
+        val associatedSecondaryActivityStacks =
+            splitInfoList.mapTo(mutableSetOf()) { splitInfo -> splitInfo.secondaryActivityStack }
+        // Finish them all.
+        ActivityEmbeddingController.getInstance(primaryActivity)
+            .finishActivityStacks(associatedSecondaryActivityStacks)
+    }
 }
 
 val primaryActivity = Activity()

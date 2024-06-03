@@ -34,8 +34,9 @@ internal class RearDisplayPresentationSessionPresenterImpl(
     override val context: Context = presentation.presentationContext
 
     override val window: Window? =
-        if (vendorApiLevel >= 4) presentation.window else
-            PresentationWindowCompatUtils.getWindowBeforeVendorApiLevel4(presentation)
+        if (vendorApiLevel >= 4) presentation.window
+        else PresentationWindowCompatUtils.getWindowBeforeVendorApiLevel4(presentation)
+
     override fun setContentView(view: View) {
         presentation.setPresentationView(view)
     }

@@ -24,18 +24,15 @@ import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
- @SdkSuppress(minSdkVersion = 28)
- @RunWith(AndroidJUnit4::class)
- @SmallTest
- class ProviderCreateCredentialRequestTest {
+@SdkSuppress(minSdkVersion = 28)
+@RunWith(AndroidJUnit4::class)
+@SmallTest
+class ProviderCreateCredentialRequestTest {
 
     @Test
     fun constructor_success() {
         val request = CreatePasswordRequest("id", "password")
 
-        ProviderCreateCredentialRequest(
-                request,
-                CallingAppInfo("name",
-                SigningInfo()))
+        ProviderCreateCredentialRequest(request, CallingAppInfo("name", SigningInfo()))
     }
- }
+}

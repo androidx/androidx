@@ -41,8 +41,7 @@ val splitAttributesCalculator = { _: SplitAttributesCalculatorParams ->
 @Sampled
 fun annotateRequiresWindowSdkExtension() {
     // Given that there's an API required Window SDK Extension version 3
-    @RequiresWindowSdkExtension(3)
-    fun coolFeature() {}
+    @RequiresWindowSdkExtension(3) fun coolFeature() {}
 
     // Developers can use @RequiresWindowSdkExtension to annotate their own functions to document
     // the required minimum API level.

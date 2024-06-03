@@ -43,15 +43,16 @@ import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
+internal class ExtensionEmbeddingBackend
+@VisibleForTesting
+constructor(
     private val applicationContext: Context,
-    @field:VisibleForTesting @field:GuardedBy(
-        "globalLock"
-    ) var embeddingExtension: EmbeddingInterfaceCompat?
+    @field:VisibleForTesting
+    @field:GuardedBy("globalLock")
+    var embeddingExtension: EmbeddingInterfaceCompat?
 ) : EmbeddingBackend {
 
-    @VisibleForTesting
-    val splitChangeCallbacks: CopyOnWriteArrayList<SplitListenerWrapper>
+    @VisibleForTesting val splitChangeCallbacks: CopyOnWriteArrayList<SplitListenerWrapper>
     private val embeddingCallback = EmbeddingCallbackImpl()
 
     init {
@@ -60,8 +61,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     companion object {
-        @Volatile
-        private var globalInstance: ExtensionEmbeddingBackend? = null
+        @Volatile private var globalInstance: ExtensionEmbeddingBackend? = null
         private val globalLock = ReentrantLock()
         private const val TAG = "EmbeddingBackend"
 
@@ -71,10 +71,8 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
                     if (globalInstance == null) {
                         val applicationContext = context.applicationContext
                         val embeddingExtension = initAndVerifyEmbeddingExtension(applicationContext)
-                        globalInstance = ExtensionEmbeddingBackend(
-                            applicationContext,
-                            embeddingExtension
-                        )
+                        globalInstance =
+                            ExtensionEmbeddingBackend(applicationContext, embeddingExtension)
                     }
                 }
             }
@@ -91,29 +89,31 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         ): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
             try {
-                if (isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
-                    EmbeddingCompat.isEmbeddingAvailable()
+                if (
+                    isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
+                        EmbeddingCompat.isEmbeddingAvailable()
                 ) {
-                    impl = EmbeddingBackend::class.java.classLoader?.let { loader ->
-                        val embeddingExtension = EmbeddingCompat.embeddingComponent()
-                        val adapter = EmbeddingAdapter(PredicateAdapter(loader))
-                        EmbeddingCompat(
-                            embeddingExtension,
-                            adapter,
-                            ConsumerAdapter(loader),
-                            applicationContext,
-                            if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
-                                OverlayControllerImpl(embeddingExtension, adapter)
-                            } else {
-                                null
-                            },
-                            if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
-                                ActivityWindowInfoCallbackController(embeddingExtension)
-                            } else {
-                                null
-                            },
-                        )
-                    }
+                    impl =
+                        EmbeddingBackend::class.java.classLoader?.let { loader ->
+                            val embeddingExtension = EmbeddingCompat.embeddingComponent()
+                            val adapter = EmbeddingAdapter(PredicateAdapter(loader))
+                            EmbeddingCompat(
+                                embeddingExtension,
+                                adapter,
+                                ConsumerAdapter(loader),
+                                applicationContext,
+                                if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+                                    OverlayControllerImpl(embeddingExtension, adapter)
+                                } else {
+                                    null
+                                },
+                                if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+                                    ActivityWindowInfoCallbackController(embeddingExtension)
+                                } else {
+                                    null
+                                },
+                            )
+                        }
                     // TODO(b/190433400): Check API conformance
                 }
             } catch (t: Throwable) {
@@ -144,12 +144,13 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    @GuardedBy("globalLock")
-    private val ruleTracker = RuleTracker()
+    @GuardedBy("globalLock") private val ruleTracker = RuleTracker()
 
     @GuardedBy("globalLock")
     override fun getRules(): Set<EmbeddingRule> {
-        globalLock.withLock { return ruleTracker.splitRules.toSet() }
+        globalLock.withLock {
+            return ruleTracker.splitRules.toSet()
+        }
     }
 
     @GuardedBy("globalLock")
@@ -183,12 +184,12 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     /**
      * A helper class to manage the registered [tags][EmbeddingRule.tag] and [rules][EmbeddingRule]
      * It supports:
-     *   - Add a set of [rules][EmbeddingRule] and verify if there's duplicated [EmbeddingRule.tag]
-     *     if needed.
-     *   - Clears all registered [rules][EmbeddingRule]
-     *   - Add a runtime [rule][EmbeddingRule] or update an existing [rule][EmbeddingRule] by
+     * - Add a set of [rules][EmbeddingRule] and verify if there's duplicated [EmbeddingRule.tag] if
+     *   needed.
+     * - Clears all registered [rules][EmbeddingRule]
+     * - Add a runtime [rule][EmbeddingRule] or update an existing [rule][EmbeddingRule] by
      *   [tag][EmbeddingRule.tag] if the tag has been registered.
-     *   - Remove a runtime [rule][EmbeddingRule]
+     * - Remove a runtime [rule][EmbeddingRule]
      */
     private class RuleTracker {
         val splitRules = ArraySet<EmbeddingRule>()
@@ -207,8 +208,9 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         /**
          * Adds a rule to [RuleTracker] or update an existing rule if the [tag][EmbeddingRule.tag]
          * has been registered and `throwOnDuplicateTag` is `false`
+         *
          * @throws IllegalArgumentException if `throwOnDuplicateTag` is `true` and the
-         * [tag][EmbeddingRule.tag] has been registered.
+         *   [tag][EmbeddingRule.tag] has been registered.
          */
         fun addOrUpdateRule(rule: EmbeddingRule, throwOnDuplicateTag: Boolean = false) {
             if (rule in splitRules) {
@@ -220,8 +222,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
             } else if (tagRuleMap.containsKey(tag)) {
                 if (throwOnDuplicateTag) {
                     throw IllegalArgumentException(
-                        "Duplicated tag: $tag. Tag must be unique " +
-                            "among all registered rules"
+                        "Duplicated tag: $tag. Tag must be unique " + "among all registered rules"
                     )
                 } else {
                     // Update the rule if throwOnDuplicateTag = false
@@ -253,8 +254,8 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     /**
-     * Wrapper around [Consumer<List<SplitInfo>>] that also includes the [Executor]
-     * on which the callback should run and the [Activity].
+     * Wrapper around [Consumer<List<SplitInfo>>] that also includes the [Executor] on which the
+     * callback should run and the [Activity].
      */
     internal class SplitListenerWrapper(
         private val activity: Activity,
@@ -262,10 +263,10 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         val callback: Consumer<List<SplitInfo>>
     ) {
         private var lastValue: List<SplitInfo>? = null
+
         fun accept(splitInfoList: List<SplitInfo>) {
-            val splitsWithActivity = splitInfoList.filter { splitState ->
-                splitState.contains(activity)
-            }
+            val splitsWithActivity =
+                splitInfoList.filter { splitState -> splitState.contains(activity) }
             if (splitsWithActivity == lastValue) {
                 return
             }
@@ -294,9 +295,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
-    override fun removeSplitListenerForActivity(
-        consumer: Consumer<List<SplitInfo>>
-    ) {
+    override fun removeSplitListenerForActivity(consumer: Consumer<List<SplitInfo>>) {
         globalLock.withLock {
             for (callbackWrapper in splitChangeCallbacks) {
                 if (callbackWrapper.callback == consumer) {
@@ -366,23 +365,18 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
-        globalLock.withLock {
-            embeddingExtension?.setSplitAttributesCalculator(calculator)
-        }
+        globalLock.withLock { embeddingExtension?.setSplitAttributesCalculator(calculator) }
     }
 
     @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
-        globalLock.withLock {
-            embeddingExtension?.clearSplitAttributesCalculator()
-        }
+        globalLock.withLock { embeddingExtension?.clearSplitAttributesCalculator() }
     }
 
     override fun getActivityStack(activity: Activity): ActivityStack? =
         globalLock.withLock {
-            embeddingCallback.lastActivityStacks.find { activityStack ->
-                activity in activityStack
-            } ?: getActivityStackFromSplitInfoList(activity)
+            embeddingCallback.lastActivityStacks.find { activityStack -> activity in activityStack }
+                ?: getActivityStackFromSplitInfoList(activity)
         }
 
     @GuardedBy("globalLock")
@@ -402,17 +396,14 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     @RequiresWindowSdkExtension(5)
-    override fun setLaunchingActivityStack(
-        options: Bundle,
-        activityStack: ActivityStack
-    ): Bundle = embeddingExtension?.setLaunchingActivityStack(options, activityStack) ?: options
+    override fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle =
+        embeddingExtension?.setLaunchingActivityStack(options, activityStack) ?: options
 
     @RequiresWindowSdkExtension(6)
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
-    ): Bundle = embeddingExtension?.setOverlayCreateParams(options, overlayCreateParams)
-        ?: options
+    ): Bundle = embeddingExtension?.setOverlayCreateParams(options, overlayCreateParams) ?: options
 
     @RequiresWindowSdkExtension(5)
     override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
@@ -430,10 +421,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     @RequiresWindowSdkExtension(3)
-    override fun updateSplitAttributes(
-        splitInfo: SplitInfo,
-        splitAttributes: SplitAttributes
-    ) {
+    override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
     }
 
@@ -461,7 +449,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         overlayInfoCallback: Consumer<OverlayInfo>,
     ) {
         embeddingExtension?.addOverlayInfoCallback(overlayTag, executor, overlayInfoCallback)
-        // Send an empty OverlayInfo if the extension does not exist.
+            // Send an empty OverlayInfo if the extension does not exist.
             ?: overlayInfoCallback.accept(
                 OverlayInfo(
                     overlayTag,
@@ -495,29 +483,34 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     private object Api31Impl {
         @DoNotInline
         fun isSplitPropertyEnabled(context: Context): SplitController.SplitSupportStatus {
-            val property = try {
-                context.packageManager.getProperty(
-                    WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
-                    context.packageName
-                )
-            } catch (e: PackageManager.NameNotFoundException) {
-                if (BuildConfig.verificationMode == VerificationMode.LOG) {
-                    Log.w(TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
-                            " must be set and enabled in AndroidManifest.xml to use splits APIs."
+            val property =
+                try {
+                    context.packageManager.getProperty(
+                        WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
+                        context.packageName
                     )
+                } catch (e: PackageManager.NameNotFoundException) {
+                    if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                        Log.w(
+                            TAG,
+                            WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                                " must be set and enabled in AndroidManifest.xml to use splits APIs."
+                        )
+                    }
+                    return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+                } catch (e: Exception) {
+                    if (BuildConfig.verificationMode == VerificationMode.LOG) {
+                        // This can happen when it is a test environment that doesn't support
+                        // getProperty.
+                        Log.e(TAG, "PackageManager.getProperty is not supported", e)
+                    }
+                    return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
                 }
-                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
-            } catch (e: Exception) {
-                if (BuildConfig.verificationMode == VerificationMode.LOG) {
-                    // This can happen when it is a test environment that doesn't support
-                    // getProperty.
-                    Log.e(TAG, "PackageManager.getProperty is not supported", e)
-                }
-                return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
-            }
             if (!property.isBoolean) {
                 if (BuildConfig.verificationMode == VerificationMode.LOG) {
-                    Log.w(TAG, WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
+                    Log.w(
+                        TAG,
+                        WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
                             " must have a boolean value"
                     )
                 }

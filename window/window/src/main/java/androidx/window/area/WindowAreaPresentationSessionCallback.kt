@@ -41,15 +41,15 @@ interface WindowAreaPresentationSessionCallback {
      * Notifies about an end of a presentation session. The presentation and any app-provided
      * content in the window area is removed.
      *
-     * @param t [Throwable] to provide information on if the session was ended due to an error.
-     * This will only occur if a session is attempted to be enabled when it is not available, but
-     * can be expanded to alert for more errors in the future.
+     * @param t [Throwable] to provide information on if the session was ended due to an error. This
+     *   will only occur if a session is attempted to be enabled when it is not available, but can
+     *   be expanded to alert for more errors in the future.
      */
     fun onSessionEnded(t: Throwable?)
 
     /**
-     * Notifies about changes in visibility of a container that can hold the app content to show
-     * in the window area. Notification of the container being visible is guaranteed to occur after
+     * Notifies about changes in visibility of a container that can hold the app content to show in
+     * the window area. Notification of the container being visible is guaranteed to occur after
      * [onSessionStarted] has been called. The container being no longer visible is guaranteed to
      * occur before [onSessionEnded].
      *

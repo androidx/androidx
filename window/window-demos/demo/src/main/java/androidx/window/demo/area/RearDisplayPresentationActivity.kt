@@ -49,8 +49,7 @@ import kotlinx.coroutines.launch
  * This Activity overrides configuration changes for simplicity.
  */
 @OptIn(ExperimentalWindowApi::class)
-class RearDisplayPresentationActivity : AppCompatActivity(),
-    WindowAreaPresentationSessionCallback {
+class RearDisplayPresentationActivity : AppCompatActivity(), WindowAreaPresentationSessionCallback {
 
     private var activePresentation: WindowAreaSessionPresenter? = null
     private var currentWindowAreaInfo: WindowAreaInfo? = null
@@ -77,17 +76,18 @@ class RearDisplayPresentationActivity : AppCompatActivity(),
                 // and stops collection when the lifecycle is STOPPED
                 windowAreaController.windowAreaInfos.collect { windowAreaInfos ->
                     infoLogAdapter.appendAndNotify(
-                        getCurrentTimeString(), "number of areas: " + windowAreaInfos.size
+                        getCurrentTimeString(),
+                        "number of areas: " + windowAreaInfos.size
                     )
                     windowAreaInfos.forEach { windowAreaInfo ->
                         if (windowAreaInfo.type == TYPE_REAR_FACING) {
                             currentWindowAreaInfo = windowAreaInfo
-                            val presentCapability = windowAreaInfo.getCapability(
-                                OPERATION_PRESENT_ON_AREA
-                            )
+                            val presentCapability =
+                                windowAreaInfo.getCapability(OPERATION_PRESENT_ON_AREA)
                             infoLogAdapter.append(
                                 getCurrentTimeString(),
-                                presentCapability.status.toString() + " : " +
+                                presentCapability.status.toString() +
+                                    " : " +
                                     windowAreaInfo.metrics.toString()
                             )
                             updateRearDisplayPresentationButton()
@@ -115,26 +115,32 @@ class RearDisplayPresentationActivity : AppCompatActivity(),
     }
 
     override fun onSessionStarted(session: WindowAreaSessionPresenter) {
-        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
-            "Presentation session has been started")
+        infoLogAdapter.appendAndNotify(
+            getCurrentTimeString(),
+            "Presentation session has been started"
+        )
 
         activePresentation = session
         val concurrentContext: Context = session.context
-        val contentView = LayoutInflater.from(concurrentContext).inflate(
-            R.layout.concurrent_presentation, null)
+        val contentView =
+            LayoutInflater.from(concurrentContext).inflate(R.layout.concurrent_presentation, null)
         session.setContentView(contentView)
         activePresentation = session
         updateRearDisplayPresentationButton()
     }
 
     override fun onContainerVisibilityChanged(isVisible: Boolean) {
-        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
-            "Presentation content is visible: $isVisible")
+        infoLogAdapter.appendAndNotify(
+            getCurrentTimeString(),
+            "Presentation content is visible: $isVisible"
+        )
     }
 
     override fun onSessionEnded(t: Throwable?) {
-        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
-            "Presentation session has been ended")
+        infoLogAdapter.appendAndNotify(
+            getCurrentTimeString(),
+            "Presentation session has been ended"
+        )
         activePresentation = null
     }
 

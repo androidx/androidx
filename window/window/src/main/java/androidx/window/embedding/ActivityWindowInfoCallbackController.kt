@@ -37,29 +37,27 @@ internal open class ActivityWindowInfoCallbackController(
 ) {
     private val globalLock = ReentrantLock()
 
-    @GuardedBy("globalLock")
-    private val extensionsCallback: Consumer<ExtensionsActivityWindowInfo>
+    @GuardedBy("globalLock") private val extensionsCallback: Consumer<ExtensionsActivityWindowInfo>
 
     @VisibleForTesting
     @GuardedBy("globalLock")
     internal var callbacks:
-        MutableMap<JetpackConsumer<EmbeddedActivityWindowInfo>, CallbackWrapper> = ArrayMap()
+        MutableMap<JetpackConsumer<EmbeddedActivityWindowInfo>, CallbackWrapper> =
+        ArrayMap()
 
     init {
         WindowSdkExtensions.getInstance().requireExtensionVersion(6)
-        extensionsCallback = Consumer<ExtensionsActivityWindowInfo> { info ->
-            globalLock.withLock {
-                for (callbackWrapper in callbacks.values) {
-                    callbackWrapper.accept(info)
+        extensionsCallback =
+            Consumer<ExtensionsActivityWindowInfo> { info ->
+                globalLock.withLock {
+                    for (callbackWrapper in callbacks.values) {
+                        callbackWrapper.accept(info)
+                    }
                 }
             }
-        }
     }
 
-    fun addCallback(
-        activity: Activity,
-        callback: JetpackConsumer<EmbeddedActivityWindowInfo>
-    ) {
+    fun addCallback(activity: Activity, callback: JetpackConsumer<EmbeddedActivityWindowInfo>) {
         globalLock.withLock {
             if (callbacks.isEmpty()) {
                 // Register when the first callback is added.
@@ -97,7 +95,7 @@ internal open class ActivityWindowInfoCallbackController(
         val parentHostBounds = Rect(info.taskBounds)
         val boundsInParentHost = Rect(info.activityStackBounds)
         // Converting to host container coordinate.
-        boundsInParentHost.offset(-parentHostBounds.left, - parentHostBounds.top)
+        boundsInParentHost.offset(-parentHostBounds.left, -parentHostBounds.top)
         return EmbeddedActivityWindowInfo(
             isEmbedded = info.isEmbedded,
             parentHostBounds = parentHostBounds,

@@ -20,20 +20,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-/**
- * The unit tests for [EmbeddingAspectRatio].
- */
+/** The unit tests for [EmbeddingAspectRatio]. */
 class EmbeddingAspectRatioTest {
 
     @Test
     fun testRatio() {
         // ratio must > 1.
-        assertThrows(IllegalArgumentException::class.java) {
-            EmbeddingAspectRatio.ratio(0f)
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            EmbeddingAspectRatio.ratio(1f)
-        }
+        assertThrows(IllegalArgumentException::class.java) { EmbeddingAspectRatio.ratio(0f) }
+        assertThrows(IllegalArgumentException::class.java) { EmbeddingAspectRatio.ratio(1f) }
 
         // test equals and value.
         assertEquals(EmbeddingAspectRatio.ratio(1.1f), EmbeddingAspectRatio.ratio(1.1f))

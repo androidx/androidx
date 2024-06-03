@@ -38,6 +38,8 @@ internal class ExtensionWindowBackendApi0 : WindowBackend {
     }
 
     override val supportedPostures: List<SupportedPosture>
-        get() = throw UnsupportedOperationException(
-            "supportedPostures is only supported on Window SDK 6.")
+        get() =
+            throw UnsupportedOperationException(
+                "supportedPostures is only supported on Window SDK 6."
+            )
 }

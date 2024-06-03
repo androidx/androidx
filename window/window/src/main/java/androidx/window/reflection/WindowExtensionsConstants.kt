@@ -16,66 +16,55 @@
 
 package androidx.window.reflection
 
-/**
- * Constants for WindowExtensions
- */
+/** Constants for WindowExtensions */
 internal object WindowExtensionsConstants {
-    /**
-     * Constant name for package [androidx.window.extensions]
-     */
+    /** Constant name for package [androidx.window.extensions] */
     private const val WINDOW_EXTENSIONS_PACKAGE_NAME = "androidx.window.extensions"
 
     /**
-     * Constant name for class [androidx.window.extensions.WindowExtensionsProvider] used
-     * for reflection
+     * Constant name for class [androidx.window.extensions.WindowExtensionsProvider] used for
+     * reflection
      */
     internal const val WINDOW_EXTENSIONS_PROVIDER_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.WindowExtensionsProvider"
 
-    /**
-     * Constant name for class [androidx.window.extensions.WindowExtensions] used for reflection
-     */
-    internal const val WINDOW_EXTENSIONS_CLASS =
-        "$WINDOW_EXTENSIONS_PACKAGE_NAME.WindowExtensions"
+    /** Constant name for class [androidx.window.extensions.WindowExtensions] used for reflection */
+    internal const val WINDOW_EXTENSIONS_CLASS = "$WINDOW_EXTENSIONS_PACKAGE_NAME.WindowExtensions"
 
     internal const val LAYOUT_PACKAGE = "layout"
 
     /**
-     * Constant name for class [androidx.window.extensions.layout.FoldingFeature]
-     * used for reflection
+     * Constant name for class [androidx.window.extensions.layout.FoldingFeature] used for
+     * reflection
      */
     internal const val FOLDING_FEATURE_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.FoldingFeature"
 
-    /**
-     * Constant name for class [androidx.window.extensions.layout.SupportedWindowFeatures]
-     */
+    /** Constant name for class [androidx.window.extensions.layout.SupportedWindowFeatures] */
     internal const val SUPPORTED_WINDOW_FEATURES_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.SupportedWindowFeatures"
 
-    /**
-     * Constant name for class [androidx.window.extensions.layout.DisplayFoldFeature]
-     */
+    /** Constant name for class [androidx.window.extensions.layout.DisplayFoldFeature] */
     internal const val DISPLAY_FOLD_FEATURE_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.DisplayFoldFeature"
 
     /**
-     * Constant name for class [androidx.window.extensions.layout.WindowLayoutComponent]
-     * used for reflection
+     * Constant name for class [androidx.window.extensions.layout.WindowLayoutComponent] used for
+     * reflection
      */
     internal const val WINDOW_LAYOUT_COMPONENT_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.WindowLayoutComponent"
 
     /**
-     * Constant name for class [androidx.window.extensions.area.WindowAreaComponent]
-     * used for reflection
+     * Constant name for class [androidx.window.extensions.area.WindowAreaComponent] used for
+     * reflection
      */
     internal const val WINDOW_AREA_COMPONENT_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.area.WindowAreaComponent"
 
     /**
-     * Constant name for class [androidx.window.extensions.area.ExtensionWindowAreaStatus]
-     * used for reflection
+     * Constant name for class [androidx.window.extensions.area.ExtensionWindowAreaStatus] used for
+     * reflection
      */
     internal const val EXTENSION_WINDOW_AREA_STATUS_CLASS =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.area.ExtensionWindowAreaStatus"
@@ -95,15 +84,11 @@ internal object WindowExtensionsConstants {
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.embedding.ActivityEmbeddingComponent"
 
     /**
-     * Constant name for class [androidx.window.extensions.core.util.function]
-     * used for reflection
+     * Constant name for class [androidx.window.extensions.core.util.function] used for reflection
      */
     internal const val WINDOW_CONSUMER =
         "$WINDOW_EXTENSIONS_PACKAGE_NAME.core.util.function.Consumer"
 
-    /**
-     * Constant name for class [java.util.function.Consumer]
-     * used for reflection
-     */
+    /** Constant name for class [java.util.function.Consumer] used for reflection */
     internal const val JAVA_CONSUMER = "java.util.function.Consumer"
 }

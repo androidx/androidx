@@ -22,13 +22,12 @@ import android.view.Display
 internal object DisplayHelper {
 
     /**
-     * Returns the full (real) size of the display, in pixels, without subtracting any window
-     * decor or applying any compatibility scale factors.
+     * Returns the full (real) size of the display, in pixels, without subtracting any window decor
+     * or applying any compatibility scale factors.
      *
      * The size is adjusted based on the current rotation of the display.
      *
      * @return a point representing the real display size in pixels.
-     *
      * @see Display.getRealSize
      */
     @Suppress("DEPRECATION")

@@ -40,8 +40,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * This test verifies that the velocity that RecyclerView flings with in response to finger input
- * is the same despite any nested scrolling scenario.
+ * This test verifies that the velocity that RecyclerView flings with in response to finger input is
+ * the same despite any nested scrolling scenario.
  */
 @RunWith(Parameterized::class)
 @LargeTest
@@ -58,9 +58,8 @@ class RecyclerViewNestedScrollingFlingTest(
 
     @Rule
     @JvmField
-    val mActivityResetRule: ActivityScenarioResetRule<TestActivity> = TestActivity.ResetRule(
-        mActivityRule.scenario
-    )
+    val mActivityResetRule: ActivityScenarioResetRule<TestActivity> =
+        TestActivity.ResetRule(mActivityRule.scenario)
 
     @Before
     @Throws(Throwable::class)
@@ -68,24 +67,24 @@ class RecyclerViewNestedScrollingFlingTest(
 
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        mRecyclerView = RecyclerView(context).apply {
-            layoutParams = ViewGroup.LayoutParams(1000, 1000)
-            adapter = TestAdapter(context, 1000, rvIntercepts)
-            val rvOrientation =
-                if (orientationVertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL
-            layoutManager = LinearLayoutManager(context, rvOrientation, false)
-        }
+        mRecyclerView =
+            RecyclerView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(1000, 1000)
+                adapter = TestAdapter(context, 1000, rvIntercepts)
+                val rvOrientation =
+                    if (orientationVertical) RecyclerView.VERTICAL else RecyclerView.HORIZONTAL
+                layoutManager = LinearLayoutManager(context, rvOrientation, false)
+            }
 
-        mNestedScrollingParent = NestedScrollingParent(context).apply {
-            layoutParams = ViewGroup.LayoutParams(1000, 1000)
-            addView(mRecyclerView)
-        }
+        mNestedScrollingParent =
+            NestedScrollingParent(context).apply {
+                layoutParams = ViewGroup.LayoutParams(1000, 1000)
+                addView(mRecyclerView)
+            }
 
         val testedFrameLayout = mActivityRule.getActivity().container
         testedFrameLayout.expectLayouts(1)
-        mActivityRule.runOnUiThread {
-            testedFrameLayout.addView(mNestedScrollingParent)
-        }
+        mActivityRule.runOnUiThread { testedFrameLayout.addView(mNestedScrollingParent) }
         testedFrameLayout.waitForLayout(2)
     }
 
@@ -110,9 +109,12 @@ class RecyclerViewNestedScrollingFlingTest(
         //
         // We are making up for the bug by expecting a slightly different velocity (one that is
         // accurate given that the bug exists).
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M &&
-            !orientationVertical && scrollDirectionForward && !rvIntercepts &&
-            (preScrollConsumption != 0 || postScrollConsumption != 0)
+        if (
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.M &&
+                !orientationVertical &&
+                scrollDirectionForward &&
+                !rvIntercepts &&
+                (preScrollConsumption != 0 || postScrollConsumption != 0)
         ) {
             expectedVelocity = 9850
         }
@@ -130,13 +132,14 @@ class RecyclerViewNestedScrollingFlingTest(
         }
 
         val velocities = intArrayOf(1, 1)
-        mRecyclerView.onFlingListener = object : RecyclerView.OnFlingListener() {
-            override fun onFling(velocityX: Int, velocityY: Int): Boolean {
-                velocities[0] = velocityX
-                velocities[1] = velocityY
-                return false
+        mRecyclerView.onFlingListener =
+            object : RecyclerView.OnFlingListener() {
+                override fun onFling(velocityX: Int, velocityY: Int): Boolean {
+                    velocities[0] = velocityX
+                    velocities[1] = velocityY
+                    return false
+                }
             }
-        }
 
         val halfDirectionalDistance = directionalDistance / 2
         val halfTime = elapsedTime / 2
@@ -159,10 +162,8 @@ class RecyclerViewNestedScrollingFlingTest(
         }
 
         val (expected, errorRange) =
-            if (orientationVertical)
-                Pair(intArrayOf(0, expectedVelocity), intArrayOf(0, 1))
-            else
-                Pair(intArrayOf(expectedVelocity, 0), intArrayOf(1, 0))
+            if (orientationVertical) Pair(intArrayOf(0, expectedVelocity), intArrayOf(0, 1))
+            else Pair(intArrayOf(expectedVelocity, 0), intArrayOf(1, 0))
 
         assertThat(
             velocities[0].toDouble(),
@@ -175,31 +176,18 @@ class RecyclerViewNestedScrollingFlingTest(
     }
 
     inner class NestedScrollingParent(context: Context) :
-        FrameLayout(context),
-        NestedScrollingChild3,
-        NestedScrollingParent3 {
+        FrameLayout(context), NestedScrollingChild3, NestedScrollingParent3 {
 
         var preScrollX: Int = 0
         var postScrollX: Int = 0
         var preScrollY: Int = 0
         var postScrollY: Int = 0
 
-        override fun onStartNestedScroll(
-            child: View,
-            target: View,
-            axes: Int,
-            type: Int
-        ): Boolean {
+        override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
             return true
         }
 
-        override fun onNestedScrollAccepted(
-            child: View,
-            target: View,
-            axes: Int,
-            type: Int
-        ) {
-        }
+        override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) {}
 
         override fun onStopNestedScroll(target: View, type: Int) {}
 
@@ -210,8 +198,7 @@ class RecyclerViewNestedScrollingFlingTest(
             dxUnconsumed: Int,
             dyUnconsumed: Int,
             type: Int
-        ) {
-        }
+        ) {}
 
         override fun onNestedPreScroll(
             target: View,
@@ -290,8 +277,7 @@ class RecyclerViewNestedScrollingFlingTest(
             offsetInWindow: IntArray?,
             type: Int,
             consumed: IntArray
-        ) {
-        }
+        ) {}
 
         override fun setNestedScrollingEnabled(enabled: Boolean) {}
 
@@ -354,16 +340,9 @@ class RecyclerViewNestedScrollingFlingTest(
             dyConsumed: Int,
             dxUnconsumed: Int,
             dyUnconsumed: Int
-        ) {
-        }
+        ) {}
 
-        override fun onNestedPreScroll(
-            target: View,
-            dx: Int,
-            dy: Int,
-            consumed: IntArray
-        ) {
-        }
+        override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {}
 
         override fun onNestedFling(
             target: View,
@@ -392,16 +371,14 @@ class RecyclerViewNestedScrollingFlingTest(
         }
     }
 
-    private inner class TestAdapter internal constructor(
+    private inner class TestAdapter
+    internal constructor(
         private val mContext: Context,
         private val itemSize: Int,
         private val rvIntercepts: Boolean
     ) : RecyclerView.Adapter<TestViewHolder>() {
 
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): TestViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TestViewHolder {
             val view = View(mContext)
             view.layoutParams = ViewGroup.LayoutParams(itemSize, itemSize)
             view.isClickable = rvIntercepts
@@ -420,17 +397,16 @@ class RecyclerViewNestedScrollingFlingTest(
 
     companion object {
 
-        @ClassRule
-        @JvmField
-        val mActivityRule = ResettableActivityScenarioRule<TestActivity>()
+        @ClassRule @JvmField val mActivityRule = ResettableActivityScenarioRule<TestActivity>()
 
         @JvmStatic
         @Parameterized.Parameters(
-            name = "orientationVertical:{0}, " +
-                "scrollDirectionForward:{1}, " +
-                "rvIntercepts:{2}, " +
-                "preScrollConsumption:{3}, " +
-                "postScrollConsumption:{4}"
+            name =
+                "orientationVertical:{0}, " +
+                    "scrollDirectionForward:{1}, " +
+                    "rvIntercepts:{2}, " +
+                    "preScrollConsumption:{3}, " +
+                    "postScrollConsumption:{4}"
         )
         fun data(): Collection<Array<Any>> {
             val configurations = ArrayList<Array<Any>>()

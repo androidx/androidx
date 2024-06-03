@@ -32,14 +32,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.mock
 
-/**
- * Verifies [OverlayControllerImpl]
- */
+/** Verifies [OverlayControllerImpl] */
 @Suppress("GuardedBy")
 class OverlayControllerImplTest {
 
-    @get:Rule
-    val testRule = WindowSdkExtensionsRule()
+    @get:Rule val testRule = WindowSdkExtensionsRule()
 
     private lateinit var overlayController: TestableOverlayControllerImpl
 
@@ -78,34 +75,34 @@ class OverlayControllerImplTest {
 
     private fun OverlayControllerImpl.calculateOverlayAttributes(
         initialOverlayAttrs: OverlayAttributes?
-    ): OverlayAttributes = calculateOverlayAttributes(
-        TAG_TEST,
-        initialOverlayAttrs,
-        WindowMetrics(Rect(), WindowInsetsCompat.CONSUMED, density = 1f),
-        Configuration(),
-        WindowLayoutInfo(emptyList())
-    )
+    ): OverlayAttributes =
+        calculateOverlayAttributes(
+            TAG_TEST,
+            initialOverlayAttrs,
+            WindowMetrics(Rect(), WindowInsetsCompat.CONSUMED, density = 1f),
+            Configuration(),
+            WindowLayoutInfo(emptyList())
+        )
 
     companion object {
         private const val TAG_TEST = "test"
 
         private val DEFAULT_OVERLAY_ATTRS = OverlayAttributes.Builder().build()
 
-        private val CALCULATED_OVERLAY_ATTRS = OverlayAttributes.Builder()
-            .setBounds(EmbeddingBounds.BOUNDS_HINGE_RIGHT)
-            .build()
+        private val CALCULATED_OVERLAY_ATTRS =
+            OverlayAttributes.Builder().setBounds(EmbeddingBounds.BOUNDS_HINGE_RIGHT).build()
 
-        private val UPDATED_OVERLAY_ATTRS = OverlayAttributes.Builder()
-            .setBounds(EmbeddingBounds.BOUNDS_HINGE_BOTTOM)
-            .build()
+        private val UPDATED_OVERLAY_ATTRS =
+            OverlayAttributes.Builder().setBounds(EmbeddingBounds.BOUNDS_HINGE_BOTTOM).build()
     }
 
     private class TestableOverlayControllerImpl(
         mockExtension: ActivityEmbeddingComponent = mock<ActivityEmbeddingComponent>(),
-    ) : OverlayControllerImpl(
-        mockExtension,
-        EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader()))
-    ) {
+    ) :
+        OverlayControllerImpl(
+            mockExtension,
+            EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader()))
+        ) {
         val overlayTagToAttributesMap = HashMap<String, OverlayAttributes>()
 
         override fun getUpdatedOverlayAttributes(overlayTag: String): OverlayAttributes? =

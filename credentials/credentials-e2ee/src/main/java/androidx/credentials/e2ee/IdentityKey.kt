@@ -23,18 +23,15 @@ import com.google.crypto.tink.subtle.Ed25519Sign
 import com.google.crypto.tink.subtle.Hkdf
 
 /**
- * A public-private key pair usable for signing, representing an end user
- * identity in an end-to-end encrypted messaging system.
+ * A public-private key pair usable for signing, representing an end user identity in an end-to-end
+ * encrypted messaging system.
  *
  * @property public The public key, stored as a byte array.
  * @property private The private key, stored as a byte array.
  * @property type The type of signing key, e.g. Ed25519.
  */
-class IdentityKey private constructor(
-    val public: ByteArray,
-    val private: ByteArray,
-    @IdentityKeyType val type: Int
-) {
+class IdentityKey
+private constructor(val public: ByteArray, val private: ByteArray, @IdentityKeyType val type: Int) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(IDENTITY_KEY_TYPE_RESERVED, IDENTITY_KEY_TYPE_ED25519)
@@ -42,23 +39,22 @@ class IdentityKey private constructor(
 
     companion object {
         /**
-         * The default signing key type, which should not be used.
-         * This is required to match https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+         * The default signing key type, which should not be used. This is required to match
+         * https://www.iana.org/assignments/cose/cose.xhtml#algorithms
          */
         const val IDENTITY_KEY_TYPE_RESERVED = 0
 
         /**
-         * A signing key on Ed25519.
-         * The value matches https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+         * A signing key on Ed25519. The value matches
+         * https://www.iana.org/assignments/cose/cose.xhtml#algorithms
          */
         const val IDENTITY_KEY_TYPE_ED25519 = 6
 
         /**
          * Creates a [IdentityKey], a public/private key pair usable for signing. It is intended for
          * use with the WebAuthn PRF extension (https://w3c.github.io/webauthn/#prf-extension). The
-         * generated IdentityKey is deterministic given prf and salt, thus the prf value must be kept
-         * secret.
-         * Currently, only Ed25519 is supported as a key type.
+         * generated IdentityKey is deterministic given prf and salt, thus the prf value must be
+         * kept secret. Currently, only Ed25519 is supported as a key type.
          *
          * @param prf The PRF output of WebAuthn used in the key derivation.
          * @param salt An optional salt used in the key derivation.
@@ -77,15 +73,17 @@ class IdentityKey private constructor(
                 throw IllegalArgumentException("Only Ed25519 is supported at this stage.")
             }
 
-            val hkdf: ByteArray = Hkdf.computeHkdf(
-                "HmacSHA256", prf,
-                // According to RFC 5869, Section 2.2 the salt is optional. If no salt is
-                // provided, the HKDF uses a salt that is an array of zeros of the same length
-                // as the hash digest.
-                /* salt= */ salt ?: ByteArray(32),
-                /* info= */ ByteArray(0),
-                /* size= */ 32
-            )
+            val hkdf: ByteArray =
+                Hkdf.computeHkdf(
+                    "HmacSHA256",
+                    prf,
+                    // According to RFC 5869, Section 2.2 the salt is optional. If no salt is
+                    // provided, the HKDF uses a salt that is an array of zeros of the same length
+                    // as the hash digest.
+                    /* salt= */ salt ?: ByteArray(32),
+                    /* info= */ ByteArray(0),
+                    /* size= */ 32
+                )
             val keyPair: Ed25519Sign.KeyPair = Ed25519Sign.KeyPair.newKeyPairFromSeed(hkdf)
             return IdentityKey(keyPair.publicKey, keyPair.privateKey, IDENTITY_KEY_TYPE_ED25519)
         }
@@ -95,10 +93,12 @@ class IdentityKey private constructor(
         if (other == null) return false
         if (this === other) return true
         if (other !is IdentityKey) return false
-        if (type != other.type || !private.contentEquals(other.private) || !public.contentEquals(
-                other.public
-            )
-        ) return false
+        if (
+            type != other.type ||
+                !private.contentEquals(other.private) ||
+                !public.contentEquals(other.public)
+        )
+            return false
         return true
     }
 

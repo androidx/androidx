@@ -31,12 +31,11 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-@RunWith(
-    AndroidJUnit4::class
-)
+@RunWith(AndroidJUnit4::class)
 class RecyclerViewPrefetchTest : BaseRecyclerViewInstrumentationTest() {
     private inner class PrefetchLayoutManager : TestLayoutManager() {
         var prefetchLatch = CountDownLatch(1)
+
         override fun canScrollHorizontally(): Boolean = false
 
         override fun canScrollVertically(): Boolean = true
@@ -68,11 +67,8 @@ class RecyclerViewPrefetchTest : BaseRecyclerViewInstrumentationTest() {
 
         @Throws(InterruptedException::class)
         fun waitForPrefetch(time: Int) {
-            assertThat(
-                prefetchLatch.await(time.toLong(), TimeUnit.SECONDS),
-                `is`(true)
-            )
-            instrumentation.runOnMainSync { }
+            assertThat(prefetchLatch.await(time.toLong(), TimeUnit.SECONDS), `is`(true))
+            instrumentation.runOnMainSync {}
         }
     }
 

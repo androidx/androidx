@@ -20,17 +20,17 @@ import androidx.annotation.IntRange
 import androidx.window.RequiresWindowSdkExtension
 
 /**
- * Configurations of Activity Embedding environment that defines how the
- * embedded Activities behave.
+ * Configurations of Activity Embedding environment that defines how the embedded Activities behave.
  *
- * @see ActivityEmbeddingController.setEmbeddingConfiguration
+ * @constructor The [EmbeddingConfiguration] constructor. The properties are undefined if not
+ *   specified.
  * @property dimAreaBehavior The requested dim area behavior.
- * @constructor The [EmbeddingConfiguration] constructor. The properties are undefined
- *              if not specified.
+ * @see ActivityEmbeddingController.setEmbeddingConfiguration
  */
-class EmbeddingConfiguration @JvmOverloads constructor(
-    @RequiresWindowSdkExtension(5)
-    val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEFINED
+class EmbeddingConfiguration
+@JvmOverloads
+constructor(
+    @RequiresWindowSdkExtension(5) val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEFINED
 ) {
     /**
      * The area of dimming to apply.
@@ -42,15 +42,14 @@ class EmbeddingConfiguration @JvmOverloads constructor(
             /**
              * The dim area is not defined.
              *
-             * This is the default value while building a [EmbeddingConfiguration]. This would
-             * also keep the existing dim area configuration of the current Activity Embedding
-             * environment unchanged when [ActivityEmbeddingController.setEmbeddingConfiguration]
-             * is called.
+             * This is the default value while building a [EmbeddingConfiguration]. This would also
+             * keep the existing dim area configuration of the current Activity Embedding
+             * environment unchanged when [ActivityEmbeddingController.setEmbeddingConfiguration] is
+             * called.
              *
              * @see ActivityEmbeddingController.setEmbeddingConfiguration
              */
-            @JvmField
-            val UNDEFINED = DimAreaBehavior(0)
+            @JvmField val UNDEFINED = DimAreaBehavior(0)
 
             /**
              * The dim effect is applying on the [ActivityStack] of the Activity window when needed.
@@ -58,8 +57,7 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * [ActivityStack], the dim effect is applying only on the [ActivityStack] of the
              * requested Activity.
              */
-            @JvmField
-            val ON_ACTIVITY_STACK = DimAreaBehavior(1)
+            @JvmField val ON_ACTIVITY_STACK = DimAreaBehavior(1)
 
             /**
              * The dimming effect is applying on the area of the whole Task when needed. If the
@@ -71,17 +69,17 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * before the [DimAreaBehavior] is explicitly set by
              * [ActivityEmbeddingController.setEmbeddingConfiguration].
              */
-            @JvmField
-            val ON_TASK = DimAreaBehavior(2)
+            @JvmField val ON_TASK = DimAreaBehavior(2)
         }
 
         override fun toString(): String {
-            return "DimAreaBehavior=" + when (value) {
-                0 -> "UNDEFINED"
-                1 -> "ON_ACTIVITY_STACK"
-                2 -> "ON_TASK"
-                else -> "UNKNOWN"
-            }
+            return "DimAreaBehavior=" +
+                when (value) {
+                    0 -> "UNDEFINED"
+                    1 -> "ON_ACTIVITY_STACK"
+                    2 -> "ON_TASK"
+                    else -> "UNKNOWN"
+                }
         }
     }
 
@@ -89,7 +87,7 @@ class EmbeddingConfiguration @JvmOverloads constructor(
         if (this === other) return true
         if (other !is EmbeddingConfiguration) return false
 
-        if (dimAreaBehavior != other.dimAreaBehavior) return false;
+        if (dimAreaBehavior != other.dimAreaBehavior) return false
         return true
     }
 
@@ -97,12 +95,9 @@ class EmbeddingConfiguration @JvmOverloads constructor(
         return dimAreaBehavior.hashCode()
     }
 
-    override fun toString(): String =
-        "EmbeddingConfiguration{$dimAreaBehavior}"
+    override fun toString(): String = "EmbeddingConfiguration{$dimAreaBehavior}"
 
-    /**
-     * Builder for creating an instance of [EmbeddingConfiguration].
-     */
+    /** Builder for creating an instance of [EmbeddingConfiguration]. */
     class Builder {
         private var mDimAreaBehavior = DimAreaBehavior.UNDEFINED
 

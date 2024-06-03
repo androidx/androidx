@@ -48,7 +48,7 @@ class DensityCompatHelperTest {
     @Test
     fun testDensityFromContext_beforeU() {
         assumePlatformBeforeU()
-        runActionsAcrossActivityLifecycle(activityScenarioRule, { }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle(activityScenarioRule, {}) { activity: TestActivity ->
             val helper = DensityCompatHelper.getInstance()
             assertEquals(activity.resources.displayMetrics.density, helper.density(activity))
         }
@@ -58,7 +58,7 @@ class DensityCompatHelperTest {
     @Test
     fun testDensityFromContext_UOrAbove() {
         assumePlatformUOrAbove()
-        runActionsAcrossActivityLifecycle(activityScenarioRule, { }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle(activityScenarioRule, {}) { activity: TestActivity ->
             val wm = activity.getSystemService(WindowManager::class.java)
             val helper = DensityCompatHelper.getInstance()
             assertEquals(wm.currentWindowMetrics.density, helper.density(activity))
@@ -70,18 +70,20 @@ class DensityCompatHelperTest {
     fun testDensityFromConfiguration_beforeU() {
         assumePlatformBeforeU()
         assumePlatformROrAbove()
-        runActionsAcrossActivityLifecycle(activityScenarioRule, { }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle(activityScenarioRule, {}) { activity: TestActivity ->
             val helper = DensityCompatHelper.getInstance()
 
             @Suppress("DEPRECATION")
-            val fakeWindowMetrics = AndroidWindowMetrics(
-                Rect(0, 0, 0, 0),
-                WindowInsets.Builder().build(),
-            )
+            val fakeWindowMetrics =
+                AndroidWindowMetrics(
+                    Rect(0, 0, 0, 0),
+                    WindowInsets.Builder().build(),
+                )
 
             val density = helper.density(activity.resources.configuration, fakeWindowMetrics)
-            val expectedDensity = activity.resources.configuration.densityDpi.toFloat() /
-                DisplayMetrics.DENSITY_DEFAULT
+            val expectedDensity =
+                activity.resources.configuration.densityDpi.toFloat() /
+                    DisplayMetrics.DENSITY_DEFAULT
             assertEquals(expectedDensity, density)
         }
     }
@@ -90,15 +92,12 @@ class DensityCompatHelperTest {
     @Test
     fun testDensityFromWindowMetrics_UOrAbove() {
         assumePlatformUOrAbove()
-        runActionsAcrossActivityLifecycle(activityScenarioRule, { }) { activity: TestActivity ->
+        runActionsAcrossActivityLifecycle(activityScenarioRule, {}) { activity: TestActivity ->
             val helper = DensityCompatHelper.getInstance()
 
             val fakeDensity = 123.456f
-            val fakeWindowMetrics = AndroidWindowMetrics(
-                Rect(0, 0, 0, 0),
-                WindowInsets.Builder().build(),
-                fakeDensity
-            )
+            val fakeWindowMetrics =
+                AndroidWindowMetrics(Rect(0, 0, 0, 0), WindowInsets.Builder().build(), fakeDensity)
 
             val density = helper.density(activity.resources.configuration, fakeWindowMetrics)
             assertEquals(fakeDensity, density)

@@ -26,31 +26,29 @@ import org.junit.runners.model.Statement
 
 /**
  * A [TestRule] to help test consuming a stream of [WindowLayoutInfo] values.
- * [WindowLayoutInfoPublisherRule] allows you to push through different [WindowLayoutInfo] values
- * on demand.
+ * [WindowLayoutInfoPublisherRule] allows you to push through different [WindowLayoutInfo] values on
+ * demand.
  *
  * Here are some recommended testing scenarios.
  *
- * To test the scenario where no [WindowLayoutInfo] is ever emitted.  Just set the rule as a
- * standard rule.
+ * To test the scenario where no [WindowLayoutInfo] is ever emitted. Just set the rule as a standard
+ * rule.
  *
  * To test sending a generic feature build your own [WindowLayoutInfo] and publish it through the
  * method [WindowLayoutInfoPublisherRule.overrideWindowLayoutInfo].
  *
  * Some helper methods are provided to test the following scenarios.
  * <ul>
- *     <li>A fold in the middle and the dimension matches the shortest window dimension.</li>
- *     <li>A fold in the middle and the dimension matches the longest window dimension.</li>
- *     <li>A fold in the middle and has vertical orientation.</li>
- *     <li>A fold in the middle and has horizontal orientation.</li>
+ * <li>A fold in the middle and the dimension matches the shortest window dimension.</li>
+ * <li>A fold in the middle and the dimension matches the longest window dimension.</li>
+ * <li>A fold in the middle and has vertical orientation.</li>
+ * <li>A fold in the middle and has horizontal orientation.</li>
  * </ul>
  */
 class WindowLayoutInfoPublisherRule : TestRule {
 
-    private val flow = MutableSharedFlow<WindowLayoutInfo>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = DROP_OLDEST
-    )
+    private val flow =
+        MutableSharedFlow<WindowLayoutInfo>(extraBufferCapacity = 1, onBufferOverflow = DROP_OLDEST)
     private val overrideServices = PublishWindowInfoTrackerDecorator(flow)
 
     override fun apply(base: Statement, description: Description): Statement {

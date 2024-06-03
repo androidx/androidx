@@ -34,15 +34,15 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ActivityEmbeddingStartupBenchmark {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureStartup(
-        compilationMode = CompilationMode.DEFAULT,
-        startupMode = StartupMode.COLD,
-        packageName = "androidx.window.integration.macrobenchmark.target"
-    ) {
-        action = "androidx.window.integration.macrobenchmark.target.ACTIVITY1"
-    }
+    fun startup() =
+        benchmarkRule.measureStartup(
+            compilationMode = CompilationMode.DEFAULT,
+            startupMode = StartupMode.COLD,
+            packageName = "androidx.window.integration.macrobenchmark.target"
+        ) {
+            action = "androidx.window.integration.macrobenchmark.target.ACTIVITY1"
+        }
 }

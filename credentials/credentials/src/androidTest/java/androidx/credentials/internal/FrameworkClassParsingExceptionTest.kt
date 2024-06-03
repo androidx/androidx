@@ -22,13 +22,13 @@ import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
-  @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-  @RunWith(AndroidJUnit4::class)
-  @SmallTest
-  class FrameworkClassParsingExceptionTest {
+@SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
+@RunWith(AndroidJUnit4::class)
+@SmallTest
+class FrameworkClassParsingExceptionTest {
 
-      @Test
-      fun constructor_success() {
-          FrameworkClassParsingException()
-      }
-  }
+    @Test
+    fun constructor_success() {
+        FrameworkClassParsingException()
+    }
+}

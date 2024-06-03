@@ -20,9 +20,8 @@ import androidx.annotation.IntRange
 
 // TODO(b/292738295): Provide lint checks for RequiresWindowSdkExtension
 /**
- * Denotes that the annotated element must only be used if
- * [WindowSdkExtensions.extensionVersion] is greater than or equal to the given [version].
- * Please see code sample linked below for usages.
+ * Denotes that the annotated element must only be used if [WindowSdkExtensions.extensionVersion] is
+ * greater than or equal to the given [version]. Please see code sample linked below for usages.
  *
  * Calling the API that requires a higher level than the device's current level may lead to
  * exceptions or unexpected results.
@@ -44,6 +43,5 @@ import androidx.annotation.IntRange
 )
 annotation class RequiresWindowSdkExtension(
     /** The minimum required [WindowSdkExtensions] version of the denoted target */
-    @IntRange(from = 1)
-    val version: Int
+    @IntRange(from = 1) val version: Int
 )

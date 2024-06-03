@@ -29,9 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests for [BoundsHelper].
- */
+/** Tests for [BoundsHelper]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BoundsHelperTest {
@@ -46,8 +44,8 @@ class BoundsHelperTest {
         assumePlatformROrAbove()
         activityScenarioRule.scenario.onActivity { activity ->
             val currentBounds = BoundsHelper.getInstance().currentWindowBounds(activity)
-            val expectedBounds = activity.getSystemService(WindowManager::class.java)
-                .currentWindowMetrics.bounds
+            val expectedBounds =
+                activity.getSystemService(WindowManager::class.java).currentWindowMetrics.bounds
             assertEquals(expectedBounds, currentBounds)
         }
     }
@@ -58,8 +56,8 @@ class BoundsHelperTest {
         assumePlatformROrAbove()
         activityScenarioRule.scenario.onActivity { activity ->
             val currentBounds = BoundsHelper.getInstance().maximumWindowBounds(activity)
-            val expectedBounds = activity.getSystemService(WindowManager::class.java)
-                .maximumWindowMetrics.bounds
+            val expectedBounds =
+                activity.getSystemService(WindowManager::class.java).maximumWindowMetrics.bounds
             assertEquals(expectedBounds, currentBounds)
         }
     }

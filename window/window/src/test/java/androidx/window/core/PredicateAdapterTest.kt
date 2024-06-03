@@ -68,8 +68,8 @@ class PredicateAdapterTest {
 
     @Test
     fun testPairHashCode() {
-        val actual = adapter.buildPairPredicate(String::class, String::class, pairPredicate)
-            .hashCode()
+        val actual =
+            adapter.buildPairPredicate(String::class, String::class, pairPredicate).hashCode()
         assertEquals(pairPredicate.hashCode(), actual)
     }
 
@@ -81,8 +81,8 @@ class PredicateAdapterTest {
 
     @Test
     fun testPairToString() {
-        val actual = adapter.buildPairPredicate(String::class, String::class, pairPredicate)
-            .toString()
+        val actual =
+            adapter.buildPairPredicate(String::class, String::class, pairPredicate).toString()
         assertEquals(pairPredicate.toString(), actual)
     }
 
@@ -105,11 +105,9 @@ class PredicateAdapterTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return
         }
-        val actual = adapter.buildPairPredicate(
-            String::class,
-            String::class,
-            pairPredicate
-        ) as Predicate<Pair<String, String>>
+        val actual =
+            adapter.buildPairPredicate(String::class, String::class, pairPredicate)
+                as Predicate<Pair<String, String>>
 
         val inputs = listOf("", "a").zip(listOf("", "b"))
         inputs.forEach { data ->
@@ -158,11 +156,7 @@ class PredicateAdapterTest {
                 outerOr.test(data),
                 actual.test(data)
             )
-            assertEquals(
-                "Checking notNot predicate on $data",
-                notNot.test(data),
-                actual.test(data)
-            )
+            assertEquals("Checking notNot predicate on $data", notNot.test(data), actual.test(data))
         }
     }
 }

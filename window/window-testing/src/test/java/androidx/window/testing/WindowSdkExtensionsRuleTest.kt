@@ -24,15 +24,16 @@ import org.junit.Test
 /** Test class to verify [WindowSdkExtensionsRule] behaviors. */
 class WindowSdkExtensionsRuleTest {
 
-    @JvmField
-    @Rule
-    val rule = WindowSdkExtensionsRule()
+    @JvmField @Rule val rule = WindowSdkExtensionsRule()
 
     /** Verifies the [WindowSdkExtensionsRule] behavior. */
     @Test
     fun testWindowSdkExtensionsRule() {
-        assertEquals("The WindowSdkExtensions.extensionVersion is 0 in unit test", 0,
-            WindowSdkExtensions.getInstance().extensionVersion)
+        assertEquals(
+            "The WindowSdkExtensions.extensionVersion is 0 in unit test",
+            0,
+            WindowSdkExtensions.getInstance().extensionVersion
+        )
 
         rule.overrideExtensionVersion(3)
 

@@ -27,14 +27,13 @@ import androidx.window.embedding.MatcherUtils.sMatchersTag
 import androidx.window.embedding.MatcherUtils.validateComponentName
 
 /**
- * Filter for [SplitPairRule] and used to find if a pair of activities should be put in a split.
- * It is used when a new activity is started from the primary activity.
- * If the filter matches the primary [Activity.getComponentName] and the new started activity
- * [Intent], it matches the [SplitPairRule] that holds this filter.
- *
-
+ * Filter for [SplitPairRule] and used to find if a pair of activities should be put in a split. It
+ * is used when a new activity is started from the primary activity. If the filter matches the
+ * primary [Activity.getComponentName] and the new started activity [Intent], it matches the
+ * [SplitPairRule] that holds this filter.
  */
-class SplitPairFilter internal constructor(
+class SplitPairFilter
+internal constructor(
     private val _primaryActivityName: ActivityComponentInfo,
     private val _secondaryActivityName: ActivityComponentInfo,
     val secondaryActivityIntentAction: String?
@@ -42,28 +41,27 @@ class SplitPairFilter internal constructor(
 
     /**
      * @param primaryActivityName Component name of the primary activity in the split. Must be
-     * non-empty. Can contain a single wildcard at the end.
-     * Supported formats:
+     *   non-empty. Can contain a single wildcard at the end. Supported formats:
      * - package/class
      * - `package/*`
      * - `package/suffix.*`
      * - `*/*`
+     *
      * @param secondaryActivityName Component name of the secondary activity in the split. Must be
-     * non-empty. Can contain a single wildcard at the end.
-     * Supported formats:
+     *   non-empty. Can contain a single wildcard at the end. Supported formats:
      * - package/class
      * - `package/*`
      * - `package/suffix.*`
      * - `*/*`
+     *
      * @param secondaryActivityIntentAction action used for secondary activity launch Intent. If it
-     * is not `null`, the [SplitPairFilter] will check the activity [Intent.getAction] besides the
-     * component name. If it is `null`, [Intent.getAction] will be ignored.
+     *   is not `null`, the [SplitPairFilter] will check the activity [Intent.getAction] besides the
+     *   component name. If it is `null`, [Intent.getAction] will be ignored.
      */
     constructor(
         /**
          * Component name of the primary activity in the split. Must be non-empty. Can contain a
-         * single wildcard at the end.
-         * Supported formats:
+         * single wildcard at the end. Supported formats:
          * - package/class
          * - `package/*`
          * - `package/suffix.*`
@@ -72,8 +70,7 @@ class SplitPairFilter internal constructor(
         primaryActivityName: ComponentName,
         /**
          * Component name of the secondary activity in the split. Must be non-empty. Can contain a
-         * single wildcard at the end.
-         * Supported formats:
+         * single wildcard at the end. Supported formats:
          * - package/class
          * - `package/*`
          * - `package/suffix.*`
@@ -114,14 +111,15 @@ class SplitPairFilter internal constructor(
      */
     fun matchesActivityPair(primaryActivity: Activity, secondaryActivity: Activity): Boolean {
         // Check if the activity component names match
-        val match = if (!isActivityMatching(primaryActivity, _primaryActivityName)) {
-            false
-        } else if (!isActivityMatching(secondaryActivity, _secondaryActivityName)) {
-            false
-        } else {
-            secondaryActivityIntentAction == null ||
-                secondaryActivityIntentAction == secondaryActivity.intent?.action
-        }
+        val match =
+            if (!isActivityMatching(primaryActivity, _primaryActivityName)) {
+                false
+            } else if (!isActivityMatching(secondaryActivity, _secondaryActivityName)) {
+                false
+            } else {
+                secondaryActivityIntentAction == null ||
+                    secondaryActivityIntentAction == secondaryActivity.intent?.action
+            }
 
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
@@ -136,9 +134,9 @@ class SplitPairFilter internal constructor(
 
     /**
      * Returns `true` if this [SplitPairFilter] matches the [primaryActivity] and the
-     * [secondaryActivityIntent]
-     * If the [SplitPairFilter] is created with [secondaryActivityIntentAction], the filter will
-     * also compare it with [Intent.getAction] of the [secondaryActivityIntent].
+     * [secondaryActivityIntent] If the [SplitPairFilter] is created with
+     * [secondaryActivityIntentAction], the filter will also compare it with [Intent.getAction] of
+     * the [secondaryActivityIntent].
      *
      * @param primaryActivity the [Activity] to test against with the [primaryActivityName]
      * @param secondaryActivityIntent the [Intent] to test against with the [secondaryActivityName]
@@ -147,14 +145,15 @@ class SplitPairFilter internal constructor(
         primaryActivity: Activity,
         secondaryActivityIntent: Intent
     ): Boolean {
-        val match = if (!isActivityMatching(primaryActivity, _primaryActivityName)) {
-            false
-        } else if (!isIntentMatching(secondaryActivityIntent, _secondaryActivityName)) {
-            false
-        } else {
-            secondaryActivityIntentAction == null ||
-                secondaryActivityIntentAction == secondaryActivityIntent.action
-        }
+        val match =
+            if (!isActivityMatching(primaryActivity, _primaryActivityName)) {
+                false
+            } else if (!isIntentMatching(secondaryActivityIntent, _secondaryActivityName)) {
+                false
+            } else {
+                secondaryActivityIntentAction == null ||
+                    secondaryActivityIntentAction == secondaryActivityIntent.action
+            }
         if (sDebugMatchers) {
             val matchString = if (match) "MATCH" else "NO MATCH"
             Log.w(

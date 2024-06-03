@@ -29,153 +29,187 @@ class CreatePublicKeyCredentialControllerTestUtils {
 
         const val TAG = "PasskeyTestUtils"
 
-         // optional and not required key 'transports' is missing in the JSONObject that composes
-         // up the JSONArray found at key 'excludeCredentials'
-         const val OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD = ("{\"rp\": {\"name\": " +
-             "\"Address " + "Book\", " + "\"id\": " +
-             "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
-             "\"id\": " + "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\"," +
-             "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-             "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-             "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-             "\"public-key\", \"alg\": -7}, {\"type\": " +
-             "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-             "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-             "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-             "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-             "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"public-key\"}]," +
-             "\"attestation\": \"none\"}")
+        // optional and not required key 'transports' is missing in the JSONObject that composes
+        // up the JSONArray found at key 'excludeCredentials'
+        const val OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD =
+            ("{\"rp\": {\"name\": " +
+                "\"Address " +
+                "Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
+                "\"id\": " +
+                "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\"," +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+                "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"public-key\"}]," +
+                "\"attestation\": \"none\"}")
 
         // This signature indicates what the json above, after parsing, must contain
-        const val OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE = "{\"rp\":{\"name\":true," +
-            "\"id\":true},\"user\":{\"name\":true,\"id\":true,\"displayName\":true," +
-            "\"icon\":true}, \"challenge\":true,\"pubKeyCredParams\":true," +
-            "\"excludeCredentials\":true," + "\"attestation\":true}"
+        const val OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE =
+            "{\"rp\":{\"name\":true," +
+                "\"id\":true},\"user\":{\"name\":true,\"id\":true,\"displayName\":true," +
+                "\"icon\":true}, \"challenge\":true,\"pubKeyCredParams\":true," +
+                "\"excludeCredentials\":true," +
+                "\"attestation\":true}"
 
         // optional, but if it exists, required key 'type' exists but is empty in the JSONObject
         // that composes up the JSONArray found at key 'excludeCredentials'
-         const val OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD = ("{\"rp\": {\"name\": " +
-            "\"Address " + "Book\", " + "\"id\": " +
-             "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
-             "\"id\": " + "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\"," +
-             "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-             "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-             "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-             "\"public-key\", \"alg\": -7}, {\"type\": " +
-             "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-             "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-             "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-             "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-             "\"excludeCredentials\": [{\"type\":\"\",\"id\":\"public-key\"," +
-             "\"transports\"=[\"ble\"]}]," +
-             "\"attestation\": \"none\"}")
+        const val OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD =
+            ("{\"rp\": {\"name\": " +
+                "\"Address " +
+                "Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
+                "\"id\": " +
+                "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\"," +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+                "\"excludeCredentials\": [{\"type\":\"\",\"id\":\"public-key\"," +
+                "\"transports\"=[\"ble\"]}]," +
+                "\"attestation\": \"none\"}")
 
         // optional, but if it exists, required key 'type' is missing in the JSONObject that
         // composes up the JSONArray found at key 'excludeCredentials'
-         const val OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD = ("{\"rp\": {\"name\": " +
-             "\"Address " + "Book\", " + "\"id\": " + "\"addressbook-c7876.uc.r.appspot.com\"}, " +
-             "\"user\": {\"name\": \"lee@gmail.com\", " + "\"id\": " +
-             "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\"," +
-             "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-             "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-             "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-             "\"public-key\", \"alg\": -7}, {\"type\": " +
-             "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-             "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-             "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-             "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-             "\"excludeCredentials\": [{\"id\":\"AA\",\"transports\"=[\"ble\"]}]," +
-             "\"attestation\": \"none\"}")
+        const val OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD =
+            ("{\"rp\": {\"name\": " +
+                "\"Address " +
+                "Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, " +
+                "\"user\": {\"name\": \"lee@gmail.com\", " +
+                "\"id\": " +
+                "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\"," +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+                "\"excludeCredentials\": [{\"id\":\"AA\",\"transports\"=[\"ble\"]}]," +
+                "\"attestation\": \"none\"}")
 
-         // user id is non existent
-         const val MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD = ("{\"rp\": {\"name\": " +
-             "\"Address " + "Book\", " + "\"id\": " +
-             "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
-             "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-             "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-             "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-             "\"public-key\", \"alg\": -7}, {\"type\": " +
-             "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-             "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-             "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-             "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-             "\"excludeCredentials\": []," + "\"attestation\": \"none\"}")
+        // user id is non existent
+        const val MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD =
+            ("{\"rp\": {\"name\": " +
+                "\"Address " +
+                "Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"name\": \"lee@gmail.com\", " +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+                "\"excludeCredentials\": []," +
+                "\"attestation\": \"none\"}")
 
         // user id is empty ("")
-        const val MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY = ("{\"rp\": {\"name\": " +
-            "\"Address " + "Book\", " + "\"id\": " +
-            "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"id\": " +
-            "\"\", \"name\": \"lee@gmail.com\", " +
-            "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-            "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-            "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-            "\"public-key\", \"alg\": -7}, {\"type\": " +
-            "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-            "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-            "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-            "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-            "\"excludeCredentials\": []," + "\"attestation\": \"none\"}")
+        const val MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY =
+            ("{\"rp\": {\"name\": " +
+                "\"Address " +
+                "Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"id\": " +
+                "\"\", \"name\": \"lee@gmail.com\", " +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+                "\"excludeCredentials\": []," +
+                "\"attestation\": \"none\"}")
 
         // all required and optional types are here
-        const val MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT = ("{\"rp\": " +
-            "{\"name\": " + "\"Address Book\", " + "\"id\": " +
-            "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"id\": " +
-            "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\", \"name\": \"lee@gmail.com\", " +
-            "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-            "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-            "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-            "\"public-key\", \"alg\": -7}, {\"type\": " +
-            "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-            "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-            "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-            "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}], \"timeout\": 60000, " +
-            "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"public-key\"," +
-            "\"transports\"=[\"ble\"]}], " + "\"authenticatorSelection\": " +
-            "{\"authenticatorAttachment\": \"platform\", \"residentKey\": \"required\", " +
-            "\"requireResidentKey\": true, \"userVerification\": \"preferred\"}, " +
-            "\"attestation\": \"none\"}")
+        const val MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT =
+            ("{\"rp\": " +
+                "{\"name\": " +
+                "\"Address Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, \"user\": {\"id\": " +
+                "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\", \"name\": \"lee@gmail.com\", " +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}], \"timeout\": 60000, " +
+                "\"excludeCredentials\": [{\"id\":\"AA\",\"type\":\"public-key\"," +
+                "\"transports\"=[\"ble\"]}], " +
+                "\"authenticatorSelection\": " +
+                "{\"authenticatorAttachment\": \"platform\", \"residentKey\": \"required\", " +
+                "\"requireResidentKey\": true, \"userVerification\": \"preferred\"}, " +
+                "\"attestation\": \"none\"}")
 
         // This signature indicates what [MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL], after
         // parsing, must contain. It is a 'brace' to ensure required values are tested.
-        const val ALL_REQUIRED_AND_OPTIONAL_SIGNATURE = "{\"rp\":{\"name\":true,\"id\":true}," +
-            "\"user\":{\"id\":true,\"name\":true,\"displayName\":true,\"icon\":true}," +
-            "\"challenge\":true,\"pubKeyCredParams\":true,\"timeout\":true," +
-            "\"excludeCredentials\":true,\"authenticatorSelection\":{" +
-            "\"authenticatorAttachment\":true,\"residentKey\":true,\"requireResidentKey\":true," +
-            "\"userVerification\":true},\"attestation\":true}"
+        const val ALL_REQUIRED_AND_OPTIONAL_SIGNATURE =
+            "{\"rp\":{\"name\":true,\"id\":true}," +
+                "\"user\":{\"id\":true,\"name\":true,\"displayName\":true,\"icon\":true}," +
+                "\"challenge\":true,\"pubKeyCredParams\":true,\"timeout\":true," +
+                "\"excludeCredentials\":true,\"authenticatorSelection\":{" +
+                "\"authenticatorAttachment\":true,\"residentKey\":true,\"requireResidentKey\":true," +
+                "\"userVerification\":true},\"attestation\":true}"
 
         // Contains all required keys for the JSON, but not any of the other cases
-        const val MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT = ("{\"rp\": {\"name\": " +
-            "\"Address " + "Book\", " + "\"id\": " + "\"addressbook-c7876.uc.r.appspot.com\"}, " +
-            "\"user\": {\"id\": " +
-            "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\", \"name\": \"lee@gmail.com\", " +
-            "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
-            "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
-            "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
-            "\"public-key\", \"alg\": -7}, {\"type\": " +
-            "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
-            "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
-            "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
-            "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
-            "\"excludeCredentials\": []," + "\"attestation\": \"none\"}")
+        const val MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT =
+            ("{\"rp\": {\"name\": " +
+                "\"Address " +
+                "Book\", " +
+                "\"id\": " +
+                "\"addressbook-c7876.uc.r.appspot.com\"}, " +
+                "\"user\": {\"id\": " +
+                "\"QjFpVTZDbENOVlU2NXBCd3ZCejlwc0Fqa0ZjMg\", \"name\": \"lee@gmail.com\", " +
+                "\"displayName\": \"lee@gmail.com\", \"icon\": \"\"}, \"challenge\": " +
+                "\"RkKbM6yyNpuM-_46Gdb49xxi09fH6zD267vuXEzTM2WrfTSfPL" +
+                "-6gEAHY_HHPaQKh0ANgge2p1j0Mb7xOTKFBQ\", \"pubKeyCredParams\": [{\"type\": " +
+                "\"public-key\", \"alg\": -7}, {\"type\": " +
+                "\"public-key\", \"alg\": -36}, {\"type\": \"public-key\", \"alg\": -37}, " +
+                "{\"type\": \"public-key\", \"alg\": -38}, {\"type\": \"public-key\", \"alg\": " +
+                "-39}, {\"type\": \"public-key\", \"alg\": -257}, {\"type\": \"public-key\", " +
+                "\"alg\": -258}, {\"type\": \"public-key\", \"alg\": -259}]," +
+                "\"excludeCredentials\": []," +
+                "\"attestation\": \"none\"}")
 
         // This signature indicates what [MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT], after
         // parsing, must contain. It is a 'brace' to ensure required values are tested.
-        const val ALL_REQUIRED_FIELDS_SIGNATURE = "{\"rp\":{\"name\":true,\"id\":true}," +
-            "\"user\":{\"id\":true,\"name\":true,\"displayName\":true,\"icon\":true}," +
-            "\"challenge\":true,\"pubKeyCredParams\":true,\"excludeCredentials\":true," +
-            "\"attestation\":true}"
+        const val ALL_REQUIRED_FIELDS_SIGNATURE =
+            "{\"rp\":{\"name\":true,\"id\":true}," +
+                "\"user\":{\"id\":true,\"name\":true,\"displayName\":true,\"icon\":true}," +
+                "\"challenge\":true,\"pubKeyCredParams\":true,\"excludeCredentials\":true," +
+                "\"attestation\":true}"
 
         /**
-         * Generates a JSON for the **create request** flow that is maximally filled given the inputs,
-         * so it can always be a representative json to any input to compare against for this
-         * create request flow, acting as a 'subset' as during parsing certain values may have
+         * Generates a JSON for the **create request** flow that is maximally filled given the
+         * inputs, so it can always be a representative json to any input to compare against for
+         * this create request flow, acting as a 'subset' as during parsing certain values may have
          * been removed if not required from the input based on the fido impl flow. I.e. the input
          * that generates the [PublicKeyCredentialCreationOptions] we utilize here must be a
          * superset based on the FIDO Implementation, *not* the spec! Then during parsing, further
          * values may have been removed, meaning the JSON formed from
-         * [PublicKeyCredentialCreationOptions] is a guaranteed subset, never greater than the
-         * input json superset.
+         * [PublicKeyCredentialCreationOptions] is a guaranteed subset, never greater than the input
+         * json superset.
          */
         @Throws(JSONException::class)
         @JvmStatic
@@ -199,10 +233,8 @@ class CreatePublicKeyCredentialControllerTestUtils {
             selectionCriteria?.let {
                 val authSelect = JSONObject()
                 val authAttachment = selectionCriteria.attachmentAsString
-                if (authAttachment != null) authSelect.put(
-                    "authenticatorAttachment",
-                    authAttachment
-                )
+                if (authAttachment != null)
+                    authSelect.put("authenticatorAttachment", authAttachment)
                 val residentKey = selectionCriteria.residentKeyRequirementAsString
                 if (residentKey != null) authSelect.put("residentKey", residentKey)
                 if (selectionCriteria.requireResidentKey != null) {
@@ -230,8 +262,10 @@ class CreatePublicKeyCredentialControllerTestUtils {
                     descriptorI.put("id", TestUtils.b64Encode(descriptorJSON.id))
                     descriptorI.put("type", descriptorJSON.type)
                     descriptorJSON.transports?.let {
-                        descriptorI.put("transports",
-                            createJSONArrayFromTransports(descriptorJSON.transports!!))
+                        descriptorI.put(
+                            "transports",
+                            createJSONArrayFromTransports(descriptorJSON.transports!!)
+                        )
                     }
                     descriptor.put(descriptorI)
                 }
@@ -300,17 +334,19 @@ class CreatePublicKeyCredentialControllerTestUtils {
 
         /**
          * This converts all JSON Leaves to a 'true' boolean value. Note this is lax on
-         * lists/JSONArrays. In short, it creates a 'signature' for a JSONObject. It can be used
-         * to generate constants which can be used to test with.
+         * lists/JSONArrays. In short, it creates a 'signature' for a JSONObject. It can be used to
+         * generate constants which can be used to test with.
          *
          * For example, given this json object
+         *
          * ```
          * {"rp":{"name":true,"id":true},"user":{
          * "id":true,"name":true,"displayName":true,"icon":true
          * },"challenge":true,"pubKeyCredParams":true,"excludeCredentials":true,"attestation":true}
          * ```
-         * notice that all the 'leaves' have become true outside of the array exception. This can
-         * be used to make fixed required keys.
+         *
+         * notice that all the 'leaves' have become true outside of the array exception. This can be
+         * used to make fixed required keys.
          *
          * @param json the json object with which to modify in place
          */
@@ -344,7 +380,6 @@ class CreatePublicKeyCredentialControllerTestUtils {
          *     val hasClientExtensionOutputs = true
          *     val isDiscoverableCredential = true
          *     val expectedClientExtensions = "{\"credProps\":{\"rk\":true}}"
-         *
          *     val json = PublicKeyCredentialControllerUtility.beginSignInAssertionResponse(
          *       byteArrayClientDataJson,
          *       byteArrayAuthenticatorData,
@@ -358,8 +393,8 @@ class CreatePublicKeyCredentialControllerTestUtils {
          *       isDiscoverableCredential
          *     )
          *
-         * The json can be used as necessary, even if only to generate a log with which to pull
-         * the string from (to then further use that string in other test cases).
+         * The json can be used as necessary, even if only to generate a log with which to pull the
+         * string from (to then further use that string in other test cases).
          */
         fun getPublicKeyCredentialResponseGenerator(
             clientDataJSON: ByteArray,
@@ -406,7 +441,7 @@ class CreatePublicKeyCredentialControllerTestUtils {
                 isDiscoverableCredential,
                 json
             )
-            return json;
+            return json
         }
 
         // This can be shared by both get and create flow response parsers, fills 'json'.

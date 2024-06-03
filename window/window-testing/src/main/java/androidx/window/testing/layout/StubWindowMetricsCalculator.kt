@@ -82,8 +82,10 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
             windowManager: WindowManager,
             @UiContext context: Context
         ): WindowMetrics {
-            return WindowMetrics(windowManager.currentWindowMetrics.bounds,
-                density = context.resources.displayMetrics.density)
+            return WindowMetrics(
+                windowManager.currentWindowMetrics.bounds,
+                density = context.resources.displayMetrics.density
+            )
         }
     }
 }

@@ -28,35 +28,31 @@ import org.junit.Test
 
 /**
  * An integration test to verify that if [WindowExtensionsProvider] is present then
- * [SafeActivityEmbeddingComponentProvider.activityEmbeddingComponent] will return a value.
- * This can fail if the implementation of window:extensions:extensions
- * does not have the expected API.
+ * [SafeActivityEmbeddingComponentProvider.activityEmbeddingComponent] will return a value. This can
+ * fail if the implementation of window:extensions:extensions does not have the expected API.
  */
 class SafeActivityEmbeddingComponentProviderTest {
 
     // TODO(b/267708462) : add a more reliable test
     /**
-     * Test that if [WindowExtensionsProvider] is available then
-     * use [SafeActivityEmbeddingComponentProvider.activityEmbeddingComponent] to validate.
-     * If [WindowExtensions.getActivityEmbeddingComponent] matches contract,
-     * return a non-null value.
+     * Test that if [WindowExtensionsProvider] is available then use
+     * [SafeActivityEmbeddingComponentProvider.activityEmbeddingComponent] to validate. If
+     * [WindowExtensions.getActivityEmbeddingComponent] matches contract, return a non-null value.
      * If it doesn't match, it will return a null.
      */
     @Test
     fun activityEmbeddingComponentIsAvailable_ifProviderIsAvailable() {
         val loader = SafeActivityEmbeddingComponentProviderTest::class.java.classLoader!!
         val consumerAdapter = ConsumerAdapter(loader)
-        val windowExtensions: WindowExtensions = try {
-            WindowExtensionsProvider.getWindowExtensions()
-        } catch (e: UnsupportedOperationException) {
-            Log.d(TAG, "Device doesn't have WindowExtensions available")
-            return
-        }
-        val safeProvider = SafeActivityEmbeddingComponentProvider(
-            loader,
-            consumerAdapter,
-            windowExtensions
-        )
+        val windowExtensions: WindowExtensions =
+            try {
+                WindowExtensionsProvider.getWindowExtensions()
+            } catch (e: UnsupportedOperationException) {
+                Log.d(TAG, "Device doesn't have WindowExtensions available")
+                return
+            }
+        val safeProvider =
+            SafeActivityEmbeddingComponentProvider(loader, consumerAdapter, windowExtensions)
         val safeComponent = safeProvider.activityEmbeddingComponent
         try {
             val actualComponent = windowExtensions.activityEmbeddingComponent

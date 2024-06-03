@@ -22,25 +22,23 @@ import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialRequest
 
 /**
- * Final request received by the provider after the user has selected a given [CreateEntry]
- * on the UI.
+ * Final request received by the provider after the user has selected a given [CreateEntry] on the
+ * UI.
  *
- * This request contains the actual request coming from the calling app,
- * and the application information associated with the calling app.
+ * This request contains the actual request coming from the calling app, and the application
+ * information associated with the calling app.
  *
  * @constructor constructs an instance of [ProviderCreateCredentialRequest]
- *
- * @property callingRequest the complete [CreateCredentialRequest] coming from
- * the calling app that is requesting for credential creation
- * @property callingAppInfo information pertaining to the calling app making
- * the request
- *
+ * @property callingRequest the complete [CreateCredentialRequest] coming from the calling app that
+ *   is requesting for credential creation
+ * @property callingAppInfo information pertaining to the calling app making the request
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class ProviderCreateCredentialRequest internal constructor(
+class ProviderCreateCredentialRequest
+internal constructor(
     val callingRequest: CreateCredentialRequest,
     val callingAppInfo: CallingAppInfo,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -52,22 +50,18 @@ class ProviderCreateCredentialRequest internal constructor(
         // TODO: Remove when exposing API
         Log.i("ProvCrCredRequest", isInternal.toString())
     }
+
     /**
      * Constructs an instance of this class
      *
-     * @param callingRequest the complete [CreateCredentialRequest] coming from
-     * the calling app that is requesting for credential creation
-     * @param callingAppInfo information pertaining to the calling app making
-     * the request
+     * @param callingRequest the complete [CreateCredentialRequest] coming from the calling app that
+     *   is requesting for credential creation
+     * @param callingAppInfo information pertaining to the calling app making the request
      */
     constructor(
         callingRequest: CreateCredentialRequest,
         callingAppInfo: CallingAppInfo,
-    ) : this(
-        callingRequest = callingRequest,
-        callingAppInfo = callingAppInfo,
-        isInternal = false
-    )
+    ) : this(callingRequest = callingRequest, callingAppInfo = callingAppInfo, isInternal = false)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting

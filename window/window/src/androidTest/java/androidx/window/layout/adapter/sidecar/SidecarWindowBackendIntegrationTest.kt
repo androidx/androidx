@@ -50,7 +50,7 @@ import org.mockito.kotlin.atLeastOnce
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 
-/** Tests for the extension implementation on the device.  */
+/** Tests for the extension implementation on the device. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
@@ -78,12 +78,7 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
         val rect = Rect(0, 100, 100, 100)
         val type = 1
         val state = 1
-        val displayFeature =
-            ExtensionFoldingFeature(
-                rect,
-                type,
-                state
-            )
+        val displayFeature = ExtensionFoldingFeature(rect, type, state)
         assertEquals(rect, displayFeature.bounds)
     }
 
@@ -96,10 +91,8 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
         activityTestRule.scenario.onActivity { activity ->
             extension.onWindowLayoutChangeListenerAdded(activity)
             assertTrue("Layout must happen after launch", activity.waitForLayout())
-            verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
-                any(),
-                argThat(WindowLayoutInfoValidator(activity))
-            )
+            verify(callbackInterface, atLeastOnce())
+                .onWindowLayoutChanged(any(), argThat(WindowLayoutInfoValidator(activity)))
         }
     }
 
@@ -134,8 +127,8 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
             activity.resetLayoutCounter()
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             val layoutHappened = activity.waitForLayout()
-            if (activity.resources.configuration.orientation
-                != Configuration.ORIENTATION_LANDSCAPE
+            if (
+                activity.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
             ) {
                 // Orientation change did not occur on this device config. Skipping the test.
                 return@onActivity
@@ -143,13 +136,9 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
             assertTrue("Layout must happen after orientation change", layoutHappened)
             if (!isSidecar) {
                 verify(callbackInterface, atLeastOnce())
-                    .onWindowLayoutChanged(
-                        any(),
-                        argThat(DistinctWindowLayoutInfoMatcher())
-                    )
+                    .onWindowLayoutChanged(any(), argThat(DistinctWindowLayoutInfoMatcher()))
             } else {
-                verify(callbackInterface, atLeastOnce())
-                    .onWindowLayoutChanged(any(), any())
+                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), any())
             }
         }
     }
@@ -165,8 +154,8 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
             activity.resetLayoutCounter()
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             activity.waitForLayout()
-            if (activity.resources.configuration.orientation
-                != Configuration.ORIENTATION_PORTRAIT
+            if (
+                activity.resources.configuration.orientation != Configuration.ORIENTATION_PORTRAIT
             ) {
                 // Orientation change did not occur on this device config. Skipping the test.
                 return@onActivity
@@ -175,21 +164,17 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             waitForOnResume()
             activity.waitForLayout()
-            if (activity.resources.configuration.orientation
-                != Configuration.ORIENTATION_LANDSCAPE
+            if (
+                activity.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
             ) {
                 // Orientation change did not occur on this device config. Skipping the test.
                 return@onActivity
             }
             if (!isSidecar) {
                 verify(callbackInterface, atLeastOnce())
-                    .onWindowLayoutChanged(
-                        any(),
-                        argThat(DistinctWindowLayoutInfoMatcher())
-                    )
+                    .onWindowLayoutChanged(any(), argThat(DistinctWindowLayoutInfoMatcher()))
             } else {
-                verify(callbackInterface, atLeastOnce())
-                    .onWindowLayoutChanged(any(), any())
+                verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), any())
             }
         }
     }
@@ -205,37 +190,32 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
     }
 
     private fun assumeExtensionV10_V01() {
-        Assume.assumeTrue(
-            Version.VERSION_0_1 == SidecarCompat.sidecarVersion
-        )
+        Assume.assumeTrue(Version.VERSION_0_1 == SidecarCompat.sidecarVersion)
     }
 
     private val isSidecar: Boolean
         get() = SidecarCompat.sidecarVersion != null
 
     /**
-     * An argument matcher that ensures the arguments used to call are distinct.  The only exception
+     * An argument matcher that ensures the arguments used to call are distinct. The only exception
      * is to allow the first value to trigger twice in case the initial value is pushed and then
      * replayed.
      */
     private class DistinctWindowLayoutInfoMatcher : ArgumentMatcher<WindowLayoutInfo> {
         private val mWindowLayoutInfos: MutableSet<WindowLayoutInfo> = HashSet()
+
         override fun matches(windowLayoutInfo: WindowLayoutInfo): Boolean {
             return when {
-                mWindowLayoutInfos.size == 1 &&
-                    mWindowLayoutInfos.contains(windowLayoutInfo) -> {
+                mWindowLayoutInfos.size == 1 && mWindowLayoutInfos.contains(windowLayoutInfo) -> {
                     // First element is emitted twice so it is allowed
                     true
                 }
-
                 mWindowLayoutInfos.contains(windowLayoutInfo) -> {
                     false
                 }
-
                 windowLayoutInfo.displayFeatures.isEmpty() -> {
                     true
                 }
-
                 else -> {
                     mWindowLayoutInfos.add(windowLayoutInfo)
                     true
@@ -244,9 +224,7 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
         }
     }
 
-    /**
-     * An argument matcher to ensure each [WindowLayoutInfo] is valid.
-     */
+    /** An argument matcher to ensure each [WindowLayoutInfo] is valid. */
     private class WindowLayoutInfoValidator(private val mActivity: TestActivity) :
         ArgumentMatcher<WindowLayoutInfo> {
         override fun matches(windowLayoutInfo: WindowLayoutInfo): Boolean {
@@ -268,11 +246,12 @@ public class SidecarWindowBackendIntegrationTest : WindowTestBase() {
                 return false
             }
             val featureRect: Rect = displayFeature.bounds
-            val windowMetrics = WindowMetricsCalculator.getOrCreate()
-                .computeCurrentWindowMetrics(activity)
+            val windowMetrics =
+                WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(activity)
             if (
-                featureRect.height() == 0 && featureRect.width() == 0 || featureRect.left < 0 ||
-                featureRect.top < 0
+                featureRect.height() == 0 && featureRect.width() == 0 ||
+                    featureRect.left < 0 ||
+                    featureRect.top < 0
             ) {
                 return false
             }

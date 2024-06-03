@@ -33,9 +33,7 @@ class TimeoutDomErrorTest {
     @Test
     fun getter_success() {
         val error = TimeoutError()
-        val expectedType =
-            TimeoutError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TIMEOUT_ERROR
+        val expectedType = TimeoutError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_TIMEOUT_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

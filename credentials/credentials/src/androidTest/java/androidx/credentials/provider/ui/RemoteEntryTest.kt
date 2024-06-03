@@ -36,8 +36,8 @@ import org.junit.runner.RunWith
 class RemoteEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
-    private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
-        PendingIntent.FLAG_IMMUTABLE)
+    private val mPendingIntent =
+        PendingIntent.getActivity(mContext, 0, mIntent, PendingIntent.FLAG_IMMUTABLE)
 
     @Test
     fun constructor_success() {
@@ -75,8 +75,8 @@ class RemoteEntryTest {
         val slice = toSlice(originalEntry)
         Assert.assertNotNull(slice)
 
-        val remoteEntry = RemoteEntry.fromRemoteEntry(
-            android.service.credentials.RemoteEntry(slice))
+        val remoteEntry =
+            RemoteEntry.fromRemoteEntry(android.service.credentials.RemoteEntry(slice))
 
         assertThat(remoteEntry).isNotNull()
         assertThat(remoteEntry!!.pendingIntent).isEqualTo(mPendingIntent)

@@ -35,8 +35,8 @@ class CredentialManagerViewHandlerTest {
     private val mContext: Context = ApplicationProvider.getApplicationContext()
 
     companion object {
-        private val GET_CRED_PASSWORD_REQ = GetCredentialRequest.Builder()
-            .setCredentialOptions(listOf(GetPasswordOption())).build()
+        private val GET_CRED_PASSWORD_REQ =
+            GetCredentialRequest.Builder().setCredentialOptions(listOf(GetPasswordOption())).build()
         private val GET_CRED_PASSWORD_FRAMEWORK_REQ =
             convertGetRequestToFrameworkClass(GET_CRED_PASSWORD_REQ)
     }
@@ -45,20 +45,13 @@ class CredentialManagerViewHandlerTest {
     @RequiresApi(35)
     fun setPendingCredentialRequest_frameworkAttrSetSuccessfully() {
         val editText = EditText(mContext)
-        val pendingGetCredentialRequest = PendingGetCredentialRequest(
-            GET_CRED_PASSWORD_REQ
-        ) { _: GetCredentialResponse? -> }
+        val pendingGetCredentialRequest =
+            PendingGetCredentialRequest(GET_CRED_PASSWORD_REQ) { _: GetCredentialResponse? -> }
 
-        editText
-            .pendingGetCredentialRequest = pendingGetCredentialRequest
+        editText.pendingGetCredentialRequest = pendingGetCredentialRequest
 
-        equals(
-            editText.pendingCredentialRequest!!,
-            GET_CRED_PASSWORD_FRAMEWORK_REQ
-        )
-        assertThat(editText.pendingCredentialCallback).isInstanceOf(
-            OutcomeReceiver::class.java
-        )
+        equals(editText.pendingCredentialRequest!!, GET_CRED_PASSWORD_FRAMEWORK_REQ)
+        assertThat(editText.pendingCredentialCallback).isInstanceOf(OutcomeReceiver::class.java)
     }
 
     @Test
@@ -69,25 +62,19 @@ class CredentialManagerViewHandlerTest {
         val getCredentialResponse = AtomicReference<GetCredentialResponse>()
         val editText = EditText(mContext)
 
-        editText
-            .pendingGetCredentialRequest = PendingGetCredentialRequest(
-            GET_CRED_PASSWORD_REQ) {
-                response ->
-            getCredentialResponse.set(response)
-            latch1.countDown()
-        }
+        editText.pendingGetCredentialRequest =
+            PendingGetCredentialRequest(GET_CRED_PASSWORD_REQ) { response ->
+                getCredentialResponse.set(response)
+                latch1.countDown()
+            }
 
         equals(editText.pendingCredentialRequest!!, GET_CRED_PASSWORD_FRAMEWORK_REQ)
-        assertThat(editText.pendingCredentialCallback).isInstanceOf(
-            OutcomeReceiver::class.java
-        )
+        assertThat(editText.pendingCredentialCallback).isInstanceOf(OutcomeReceiver::class.java)
 
         val passwordCredential = PasswordCredential("id", "password")
         val frameworkPasswordResponse =
             android.credentials.GetCredentialResponse(
-                Credential(
-                    passwordCredential.type, passwordCredential.data
-                )
+                Credential(passwordCredential.type, passwordCredential.data)
             )
 
         editText.pendingCredentialCallback!!.onResult(frameworkPasswordResponse)

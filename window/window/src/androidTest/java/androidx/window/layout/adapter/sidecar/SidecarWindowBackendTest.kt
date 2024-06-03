@@ -42,7 +42,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
-/** Tests for [SidecarWindowBackend] class.  */
+/** Tests for [SidecarWindowBackend] class. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class SidecarWindowBackendTest : WindowTestBase() {
@@ -90,9 +90,7 @@ public class SidecarWindowBackendTest : WindowTestBase() {
             // Check unregistering the layout change callback
             backend.unregisterLayoutChangeCallback(consumer)
             assertTrue(backend.windowLayoutChangeCallbacks.isEmpty())
-            verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(
-                eq(activity)
-            )
+            verify(backend.windowExtension!!).onWindowLayoutChangeListenerRemoved(eq(activity))
         }
     }
 

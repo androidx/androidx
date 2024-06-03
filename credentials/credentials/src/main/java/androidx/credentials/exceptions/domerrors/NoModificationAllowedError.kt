@@ -18,8 +18,8 @@ package androidx.credentials.exceptions.domerrors
 
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
- * exception contains a no_modification_allowed_err from the fido spec, indicating the object
- * can not be modified. The fido spec can be found
+ * exception contains a no_modification_allowed_err from the fido spec, indicating the object can
+ * not be modified. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`

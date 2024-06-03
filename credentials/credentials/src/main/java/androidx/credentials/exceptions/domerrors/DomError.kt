@@ -31,16 +31,20 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
  * In this example, we create a wrapper exception named [CreatePublicKeyCredentialDomException].
  * This contains a constructor that accepts a DomError. We then employ various sub classes to the
  * DomError for individual error types, such as [AbortError].
+ *
  * ```
  * class AbortError : DomError(type_var) { ... }
  * ```
+ *
  * Then it is expected that when abort errors show up in code, one can create the wrapper exception
  * with the designed DomError subclass.
+ *
  * ```
  * // ... (logic checking for abort error) ...
  * val exception = CreatePublicKeyCredentialDomException(AbortError(), e.getMessage())
  * // ... (logic using exception to throw or pass in callback) ...
  * ```
+ *
  * This utilization may vary by use case.
  */
 abstract class DomError(

@@ -27,13 +27,13 @@ import androidx.window.core.ExperimentalWindowApi
 /**
  * Metrics about a [android.view.Window], consisting of its bounds.
  *
- *
  * This is obtained from [WindowMetricsCalculator.computeCurrentWindowMetrics] or
  * [WindowMetricsCalculator.computeMaximumWindowMetrics].
  *
  * @see WindowMetricsCalculator
  */
-class WindowMetrics internal constructor(
+class WindowMetrics
+internal constructor(
     private val _bounds: Bounds,
     private val _windowInsetsCompat: WindowInsetsCompat,
 
@@ -45,23 +45,20 @@ class WindowMetrics internal constructor(
     val density: Float
 ) {
 
-    /**
-     * An internal constructor for [WindowMetrics]
-     */
+    /** An internal constructor for [WindowMetrics] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
         bounds: Rect,
         insets: WindowInsetsCompat = WindowInsetsCompat.Builder().build(),
         density: Float
     ) : this(Bounds(bounds), insets, density)
+
     /**
      * Returns a new [Rect] describing the bounds of the area the window occupies.
      *
-     *
-     * **Note that the size of the reported bounds can have different size than
-     * [Display#getSize].** This method reports the window size including all system
-     * decorations, while [Display#getSize] reports the area excluding navigation bars
-     * and display cutout areas.
+     * **Note that the size of the reported bounds can have different size than [Display#getSize].**
+     * This method reports the window size including all system decorations, while [Display#getSize]
+     * reports the area excluding navigation bars and display cutout areas.
      *
      * @return window bounds in pixels.
      */

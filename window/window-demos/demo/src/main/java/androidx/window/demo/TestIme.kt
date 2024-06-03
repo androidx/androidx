@@ -56,14 +56,14 @@ internal class TestIme : InputMethodService() {
     }
 
     private fun displayCurrentWindowMetrics() {
-        val windowMetrics = WindowMetricsCalculator.getOrCreate()
-            .computeCurrentWindowMetrics(this@TestIme)
+        val windowMetrics =
+            WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this@TestIme)
         displayWindowMetrics("CurrentWindowMetrics update", windowMetrics)
     }
 
     private fun displayMaximumWindowMetrics() {
-        val windowMetrics = WindowMetricsCalculator.getOrCreate()
-            .computeMaximumWindowMetrics(this@TestIme)
+        val windowMetrics =
+            WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(this@TestIme)
         displayWindowMetrics("MaximumWindowMetrics update", windowMetrics)
     }
 
@@ -73,10 +73,14 @@ internal class TestIme : InputMethodService() {
         val width = windowMetrics.bounds.width()
         val height = windowMetrics.bounds.height()
 
-        val logBuilder = StringBuilder().append("Width: $width, Height: $height\n" +
-            "Top: ${windowMetrics.bounds.top}, Bottom: ${windowMetrics.bounds.bottom}, " +
-            "Left: ${windowMetrics.bounds.left}, Right: ${windowMetrics.bounds.right}\n" +
-            "Density: ${windowMetrics.density}")
+        val logBuilder =
+            StringBuilder()
+                .append(
+                    "Width: $width, Height: $height\n" +
+                        "Top: ${windowMetrics.bounds.top}, Bottom: ${windowMetrics.bounds.bottom}, " +
+                        "Left: ${windowMetrics.bounds.left}, Right: ${windowMetrics.bounds.right}\n" +
+                        "Density: ${windowMetrics.density}"
+                )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val windowInsets = windowMetrics.getWindowInsets()

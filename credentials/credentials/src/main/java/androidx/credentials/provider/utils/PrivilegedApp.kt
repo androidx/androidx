@@ -19,10 +19,7 @@ package androidx.credentials.provider.utils
 import android.os.Build
 import org.json.JSONObject
 
-internal data class PrivilegedApp(
-    val packageName: String,
-    val fingerprints: Set<String>
-) {
+internal data class PrivilegedApp(val packageName: String, val fingerprints: Set<String>) {
     companion object {
         private const val PACKAGE_NAME_KEY = "package_name"
         private const val SIGNATURES_KEY = "signatures"
@@ -46,7 +43,8 @@ internal data class PrivilegedApp(
                 }
                 apps.add(
                     createFromJSONObject(
-                        appJsonObject.getJSONObject(APP_INFO_KEY), filterUserDebug = true
+                        appJsonObject.getJSONObject(APP_INFO_KEY),
+                        filterUserDebug = true
                     )
                 )
             }
@@ -62,8 +60,9 @@ internal data class PrivilegedApp(
             val fingerprints = mutableSetOf<String>()
             for (j in 0 until signaturesJson.length()) {
                 if (filterUserDebug) {
-                    if (USER_DEBUG_KEY == signaturesJson.getJSONObject(j)
-                            .optString(BUILD_KEY) && USER_BUILD_TYPE != Build.TYPE
+                    if (
+                        USER_DEBUG_KEY == signaturesJson.getJSONObject(j).optString(BUILD_KEY) &&
+                            USER_BUILD_TYPE != Build.TYPE
                     ) {
                         continue
                     }

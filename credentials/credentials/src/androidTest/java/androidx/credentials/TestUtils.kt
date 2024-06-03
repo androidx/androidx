@@ -53,8 +53,8 @@ fun equals(a: Bundle, b: Bundle): Boolean {
 }
 
 /**
- * Allows deep copying a bundle prior to API 26. Can adjust for more types, but currently
- * that is not needed.
+ * Allows deep copying a bundle prior to API 26. Can adjust for more types, but currently that is
+ * not needed.
  */
 @Suppress("DEPRECATION")
 fun deepCopyBundle(bundle: Bundle): Bundle {
@@ -73,8 +73,10 @@ fun deepCopyBundle(bundle: Bundle): Bundle {
 /** Used to maintain compatibility across API levels. */
 const val MAX_CRED_MAN_PRE_FRAMEWORK_API_LEVEL = Build.VERSION_CODES.TIRAMISU
 
-/** True if the device running the test is post framework api level,
- * false if pre framework api level. */
+/**
+ * True if the device running the test is post framework api level, false if pre framework api
+ * level.
+ */
 fun isPostFrameworkApiLevel(): Boolean {
     return Build.VERSION.SDK_INT >= 34
 }
@@ -95,13 +97,8 @@ fun equals(
     createCredentialRequest: android.service.credentials.CreateCredentialRequest,
     request: ProviderCreateCredentialRequest
 ) {
-    assertThat(createCredentialRequest.type).isEqualTo(
-        request.callingRequest.type
-    )
-    equals(
-        createCredentialRequest.data,
-        request.callingRequest.credentialData
-    )
+    assertThat(createCredentialRequest.type).isEqualTo(request.callingRequest.type)
+    equals(createCredentialRequest.data, request.callingRequest.credentialData)
     Assert.assertEquals(
         createCredentialRequest.callingAppInfo.packageName,
         request.callingAppInfo.packageName
@@ -121,10 +118,7 @@ fun equals(
         getCredentialRequest.callingAppInfo.packageName,
         request.callingAppInfo.packageName
     )
-    Assert.assertEquals(
-        getCredentialRequest.callingAppInfo.origin,
-        request.callingAppInfo.origin
-    )
+    Assert.assertEquals(getCredentialRequest.callingAppInfo.origin, request.callingAppInfo.origin)
     equals(getCredentialRequest.credentialOptions, request.credentialOptions)
 }
 
@@ -145,8 +139,7 @@ fun equals(
     frameworkRequest2: android.credentials.GetCredentialRequest
 ) {
     equals(frameworkRequest1.data, frameworkRequest2.data)
-    credentialOptionsEqual(frameworkRequest1.credentialOptions,
-        frameworkRequest2.credentialOptions)
+    credentialOptionsEqual(frameworkRequest1.credentialOptions, frameworkRequest2.credentialOptions)
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -166,9 +159,8 @@ fun equals(
     credentialOption1: CredentialOption
 ) {
     assertThat(credentialOption.type).isEqualTo(credentialOption1.type)
-    assertThat(credentialOption.isSystemProviderRequired).isEqualTo(
-        credentialOption1.isSystemProviderRequired
-    )
+    assertThat(credentialOption.isSystemProviderRequired)
+        .isEqualTo(credentialOption1.isSystemProviderRequired)
     equals(credentialOption.credentialRetrievalData, credentialOption1.requestData)
     equals(credentialOption.candidateQueryData, credentialOption1.candidateQueryData)
     assertThat(credentialOption.allowedProviders).isEqualTo(credentialOption1.allowedProviders)
@@ -176,9 +168,8 @@ fun equals(
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun setUpCreatePasswordRequest(): android.service.credentials.CreateCredentialRequest {
-    val passwordReq: CreateCredentialRequest = CreatePasswordRequest(
-        "test-user-id", "test-password"
-    )
+    val passwordReq: CreateCredentialRequest =
+        CreatePasswordRequest("test-user-id", "test-password")
     val request =
         android.service.credentials.CreateCredentialRequest(
             android.service.credentials.CallingAppInfo("calling_package", SigningInfo()),
@@ -197,9 +188,8 @@ fun equals(
     equals(credentialOption1.credentialRetrievalData, credentialOption2.credentialRetrievalData)
     assertThat(credentialOption1.type).isEqualTo(credentialOption2.type)
     assertThat(credentialOption1.allowedProviders).isEqualTo(credentialOption2.allowedProviders)
-    assertThat(credentialOption1.isSystemProviderRequired).isEqualTo(
-        credentialOption2.isSystemProviderRequired
-    )
+    assertThat(credentialOption1.isSystemProviderRequired)
+        .isEqualTo(credentialOption2.isSystemProviderRequired)
 }
 
 fun equals(

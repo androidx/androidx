@@ -16,7 +16,6 @@
 
 package androidx.window.embedding
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import androidx.annotation.VisibleForTesting
@@ -28,8 +27,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 /**
- * The controller to manage overlay [ActivityStack], which is launched by
- * the activityOptions that [setOverlayCreateParams].
+ * The controller to manage overlay [ActivityStack], which is launched by the activityOptions that
+ * [setOverlayCreateParams].
  *
  * See linked sample below for how to launch an [android.app.Activity] into an overlay
  * [ActivityStack].
@@ -40,9 +39,9 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
  */
-class OverlayController @VisibleForTesting internal constructor(
-    private val backend: EmbeddingBackend
-) {
+class OverlayController
+@VisibleForTesting
+internal constructor(private val backend: EmbeddingBackend) {
 
     @RequiresWindowSdkExtension(6)
     internal fun setOverlayCreateParams(
@@ -61,17 +60,17 @@ class OverlayController @VisibleForTesting internal constructor(
      * - Device folding state changes.
      * - Device is attached to an external display and the app is forwarded to that display.
      *
-     * If there's no [calculator] set, the overlay presentation will be calculated with
-     * the previous set [OverlayAttributes], either from [OverlayCreateParams] to initialize
-     * the overlay container, or from the runtime API to update the overlay container's
-     * [OverlayAttributes].
+     * If there's no [calculator] set, the overlay presentation will be calculated with the previous
+     * set [OverlayAttributes], either from [OverlayCreateParams] to initialize the overlay
+     * container, or from the runtime API to update the overlay container's [OverlayAttributes].
      *
      * See the sample linked below for how to use [OverlayAttributes] calculator
      *
      * @param calculator The overlay calculator function to compute [OverlayAttributes] by
      *   [OverlayAttributesCalculatorParams]. It will replace the previously set if it exists.
-     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *   is less than 6.
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 6.
+     *
      * @sample androidx.window.samples.embedding.overlayAttributesCalculatorSample
      */
     @RequiresWindowSdkExtension(6)
@@ -84,8 +83,8 @@ class OverlayController @VisibleForTesting internal constructor(
     /**
      * Clears the overlay calculator function previously set by [setOverlayAttributesCalculator].
      *
-     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *                                       is less than 6.
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 6.
      */
     @RequiresWindowSdkExtension(6)
     fun clearOverlayAttributesCalculator() {
@@ -93,8 +92,8 @@ class OverlayController @VisibleForTesting internal constructor(
     }
 
     /**
-     * Updates [OverlayAttributes] of the overlay [ActivityStack] specified by [overlayTag].
-     * It's no op if there's no such overlay [ActivityStack] associated with [overlayTag].
+     * Updates [OverlayAttributes] of the overlay [ActivityStack] specified by [overlayTag]. It's no
+     * op if there's no such overlay [ActivityStack] associated with [overlayTag].
      *
      * If an [OverlayAttributes] calculator function is specified, the updated [overlayAttributes]
      * will be passed by [OverlayAttributesCalculatorParams.defaultOverlayAttributes] when the
@@ -106,8 +105,8 @@ class OverlayController @VisibleForTesting internal constructor(
      *
      * @param overlayTag The overlay [ActivityStack]'s tag
      * @param overlayAttributes The [OverlayAttributes] to update
-     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
-     *                                       is less than 6.
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 6.
      */
     @RequiresWindowSdkExtension(6)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
@@ -121,12 +120,12 @@ class OverlayController @VisibleForTesting internal constructor(
      * reported in [OverlayInfo.activityStack]. Otherwise, [OverlayInfo.activityStack] is `null`.
      *
      * Note that launching an overlay [ActivityStack] only supports on the device with
-     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6.
-     * If [WindowSdkExtensions.extensionVersion] is less than 6, this flow will always
-     * report [OverlayInfo] without associated [OverlayInfo.activityStack].
+     * [WindowSdkExtensions.extensionVersion] equal to or larger than 6. If
+     * [WindowSdkExtensions.extensionVersion] is less than 6, this flow will always report
+     * [OverlayInfo] without associated [OverlayInfo.activityStack].
      *
      * @param overlayTag The overlay [ActivityStack]'s tag which is set through
-     * [OverlayCreateParams]
+     *   [OverlayCreateParams]
      * @return a [Flow] of [OverlayInfo] this [overlayTag] is associated with
      */
     @RequiresWindowSdkExtension(6)

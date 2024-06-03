@@ -30,39 +30,37 @@ import org.json.JSONObject
 /**
  * Information pertaining to the calling application.
  *
- * @constructor constructs an instance of [CallingAppInfo]
- *
  * @param packageName the calling package name of the calling app
  * @param signingInfo the signingInfo associated with the calling app
- * @param origin the origin of the calling app. This is only set when a
- * privileged app like a browser, calls on behalf of another application.
- *
+ * @param origin the origin of the calling app. This is only set when a privileged app like a
+ *   browser, calls on behalf of another application.
+ * @constructor constructs an instance of [CallingAppInfo]
  * @throws NullPointerException If [packageName] or [signingInfo] is null
  * @throws IllegalArgumentException If [packageName] is empty
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class CallingAppInfo @JvmOverloads constructor(
+class CallingAppInfo
+@JvmOverloads
+constructor(
     val packageName: String,
     val signingInfo: SigningInfo,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val origin: String? = null
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val origin: String? = null
 ) {
     internal companion object {
         private const val TAG = "CallingAppInfo"
     }
 
     /**
-     * Returns the origin of the calling app. This is only non-null if a
-     * privileged app like a browser calls Credential Manager APIs on
-     * behalf of another application.
+     * Returns the origin of the calling app. This is only non-null if a privileged app like a
+     * browser calls Credential Manager APIs on behalf of another application.
      *
-     * Additionally, in order to get the origin, the credential provider must
-     * provide an allowlist of privileged browsers/apps that it trusts.
-     * This allowlist must be in the form of a valid, non-empty JSON. The
-     * origin will only be returned if the [packageName] and the SHA256 hash of the newest
-     * signature obtained from the [signingInfo], is present in the [privilegedAllowlist].
+     * Additionally, in order to get the origin, the credential provider must provide an allowlist
+     * of privileged browsers/apps that it trusts. This allowlist must be in the form of a valid,
+     * non-empty JSON. The origin will only be returned if the [packageName] and the SHA256 hash of
+     * the newest signature obtained from the [signingInfo], is present in the
+     * [privilegedAllowlist].
      *
      * Packages that are signed with multiple signers will only receive the origin if all of the
      * signatures are present in the [privilegedAllowlist].
@@ -90,19 +88,18 @@ class CallingAppInfo @JvmOverloads constructor(
      * ```
      *
      * All keys in the JSON must be exactly as stated in the sample above. Note that if the build
-     * for a given fingerprint is specified as 'userdebug', that fingerprint will
-     * only be considered if the device is on a 'userdebug' build, as determined by [Build.TYPE].
+     * for a given fingerprint is specified as 'userdebug', that fingerprint will only be considered
+     * if the device is on a 'userdebug' build, as determined by [Build.TYPE].
      *
-     * @throws IllegalArgumentException If [privilegedAllowlist] is empty, or an
-     * invalid JSON, or does not follow the format detailed above
+     * @throws IllegalArgumentException If [privilegedAllowlist] is empty, or an invalid JSON, or
+     *   does not follow the format detailed above
      * @throws IllegalStateException If the origin is non-null, but the [packageName] and
-     * [signingInfo] do not have a match in the [privilegedAllowlist]
+     *   [signingInfo] do not have a match in the [privilegedAllowlist]
      */
     fun getOrigin(privilegedAllowlist: String): String? {
         if (!RequestValidationUtil.isValidJSON(privilegedAllowlist)) {
             throw IllegalArgumentException(
-                "privilegedAllowlist must not be " +
-                    "empty, and must be a valid JSON"
+                "privilegedAllowlist must not be " + "empty, and must be a valid JSON"
             )
         }
         if (origin == null) {
@@ -110,10 +107,9 @@ class CallingAppInfo @JvmOverloads constructor(
             return origin
         }
         try {
-            if (isAppPrivileged(
-                    PrivilegedApp.extractPrivilegedApps(
-                        JSONObject(privilegedAllowlist)
-                    )
+            if (
+                isAppPrivileged(
+                    PrivilegedApp.extractPrivilegedApps(JSONObject(privilegedAllowlist))
                 )
             ) {
                 return origin
@@ -121,23 +117,23 @@ class CallingAppInfo @JvmOverloads constructor(
         } catch (_: JSONException) {
             throw IllegalArgumentException("privilegedAllowlist must be formatted properly")
         }
-        throw IllegalStateException("Origin is not being returned as the calling app did not" +
-            "match the privileged allowlist")
+        throw IllegalStateException(
+            "Origin is not being returned as the calling app did not" +
+                "match the privileged allowlist"
+        )
     }
 
     /**
      * Returns true if the [origin] is populated, and false otherwise.
      *
-     * Note that the [origin] is only populated if a privileged app like a browser calls
-     * Credential Manager APIs on behalf of another application.
+     * Note that the [origin] is only populated if a privileged app like a browser calls Credential
+     * Manager APIs on behalf of another application.
      */
     fun isOriginPopulated(): Boolean {
         return origin != null
     }
 
-    private fun isAppPrivileged(
-        candidateApps: List<PrivilegedApp>
-    ): Boolean {
+    private fun isAppPrivileged(candidateApps: List<PrivilegedApp>): Boolean {
         for (app in candidateApps) {
             if (app.packageName == packageName) {
                 return isAppPrivileged(app.fingerprints)
@@ -166,8 +162,9 @@ class CallingAppInfo @JvmOverloads constructor(
             if (signingInfo.hasMultipleSigners() && signingInfo.apkContentsSigners != null) {
                 fingerprints.addAll(convertToFingerprints(signingInfo.apkContentsSigners))
             } else if (signingInfo.signingCertificateHistory != null) {
-                fingerprints.addAll(convertToFingerprints(
-                    arrayOf(signingInfo.signingCertificateHistory[0])))
+                fingerprints.addAll(
+                    convertToFingerprints(arrayOf(signingInfo.signingCertificateHistory[0]))
+                )
             }
             return fingerprints
         }

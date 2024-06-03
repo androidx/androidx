@@ -25,7 +25,8 @@ import androidx.window.layout.WindowMetrics
  * [OverlayController.setOverlayAttributesCalculator] and references the corresponding overlay
  * [ActivityStack] by [overlayTag].
  */
-class OverlayAttributesCalculatorParams internal constructor(
+class OverlayAttributesCalculatorParams
+internal constructor(
     /** The parent container's [WindowMetrics] */
     val parentWindowMetrics: WindowMetrics,
     /** The parent container's [Configuration] */

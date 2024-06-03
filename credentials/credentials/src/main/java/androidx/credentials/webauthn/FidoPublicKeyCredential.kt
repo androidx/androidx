@@ -21,23 +21,23 @@ import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class FidoPublicKeyCredential(
-  val rawId: ByteArray,
-  val response: AuthenticatorResponse,
-  val authenticatorAttachment: String
+    val rawId: ByteArray,
+    val response: AuthenticatorResponse,
+    val authenticatorAttachment: String
 ) {
 
-  fun json(): String {
-    // See RegistrationResponseJSON at
-    // https://w3c.github.io/webauthn/#ref-for-dom-publickeycredential-tojson
-    val encodedId = WebAuthnUtils.b64Encode(rawId)
-    val ret = JSONObject()
-    ret.put("id", encodedId)
-    ret.put("rawId", encodedId)
-    ret.put("type", "public-key")
-    ret.put("authenticatorAttachment", authenticatorAttachment)
-    ret.put("response", response.json())
-    ret.put("clientExtensionResults", JSONObject())
+    fun json(): String {
+        // See RegistrationResponseJSON at
+        // https://w3c.github.io/webauthn/#ref-for-dom-publickeycredential-tojson
+        val encodedId = WebAuthnUtils.b64Encode(rawId)
+        val ret = JSONObject()
+        ret.put("id", encodedId)
+        ret.put("rawId", encodedId)
+        ret.put("type", "public-key")
+        ret.put("authenticatorAttachment", authenticatorAttachment)
+        ret.put("response", response.json())
+        ret.put("clientExtensionResults", JSONObject())
 
-    return ret.toString()
-  }
+        return ret.toString()
+    }
 }

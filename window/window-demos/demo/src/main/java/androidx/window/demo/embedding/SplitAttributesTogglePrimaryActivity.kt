@@ -34,8 +34,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalWindowApi::class)
-class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity(),
-    View.OnClickListener {
+class SplitAttributesTogglePrimaryActivity :
+    SplitAttributesToggleMainActivity(), View.OnClickListener {
 
     private lateinit var secondaryActivityIntent: Intent
     private var activityStacks: Set<ActivityStack> = emptySet()
@@ -47,10 +47,7 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
 
         val isRuntimeApiSupported = WindowSdkExtensions.getInstance().extensionVersion >= 3
 
-        secondaryActivityIntent = Intent(
-            this,
-            SplitAttributesToggleSecondaryActivity::class.java
-        )
+        secondaryActivityIntent = Intent(this, SplitAttributesToggleSecondaryActivity::class.java)
 
         if (intent.getBooleanExtra(EXTRA_LAUNCH_SECONDARY, false)) {
             startActivity(secondaryActivityIntent)
@@ -77,11 +74,12 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
             animationBackgroundDropdown.visibility = View.VISIBLE
             viewBinding.animationBackgroundDivider.visibility = View.VISIBLE
             viewBinding.animationBackgroundTextView.visibility = View.VISIBLE
-            animationBackgroundDropdown.adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
-            )
+            animationBackgroundDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
+                )
             animationBackgroundDropdown.onItemSelectedListener = this
         }
 
@@ -95,11 +93,12 @@ class SplitAttributesTogglePrimaryActivity : SplitAttributesToggleMainActivity()
                     .onEach { updateUiFromRules() }
                     .collect { splitInfoList ->
                         finishSecondaryActivitiesButton.isEnabled = splitInfoList.isNotEmpty()
-                        activityStacks = splitInfoList.mapTo(mutableSetOf()) { splitInfo ->
-                            splitInfo.getTheOtherActivityStack(
-                                this@SplitAttributesTogglePrimaryActivity
-                            )
-                        }
+                        activityStacks =
+                            splitInfoList.mapTo(mutableSetOf()) { splitInfo ->
+                                splitInfo.getTheOtherActivityStack(
+                                    this@SplitAttributesTogglePrimaryActivity
+                                )
+                            }
                     }
             }
         }

@@ -32,10 +32,7 @@ class BeginCreatePasswordRequestTest {
     @Test
     fun constructor_success() {
         BeginCreatePasswordCredentialRequest(
-            CallingAppInfo(
-                "sample_package_name",
-                SigningInfo()
-            ),
+            CallingAppInfo("sample_package_name", SigningInfo()),
             Bundle()
         )
     }
@@ -46,13 +43,13 @@ class BeginCreatePasswordRequestTest {
         expectedCandidateQueryBundle.putString("key", "value")
         val expectedPackageName = "sample_package_name"
         val expectedSigningInfo = SigningInfo()
-        val expectedCallingAppInfo = CallingAppInfo(
-            expectedPackageName,
-            expectedSigningInfo
-        )
+        val expectedCallingAppInfo = CallingAppInfo(expectedPackageName, expectedSigningInfo)
 
-        val request = BeginCreatePasswordCredentialRequest(
-            expectedCallingAppInfo, expectedCandidateQueryBundle)
+        val request =
+            BeginCreatePasswordCredentialRequest(
+                expectedCallingAppInfo,
+                expectedCandidateQueryBundle
+            )
 
         equals(request.candidateQueryData, expectedCandidateQueryBundle)
         assertThat(request.callingAppInfo?.packageName).isEqualTo(expectedPackageName)
@@ -63,10 +60,7 @@ class BeginCreatePasswordRequestTest {
     fun constructor_createFrom_success() {
         BeginCreatePasswordCredentialRequest.createFrom(
             Bundle(),
-            CallingAppInfo(
-                "sample_package_name",
-                SigningInfo()
-            ),
+            CallingAppInfo("sample_package_name", SigningInfo()),
         )
     }
 

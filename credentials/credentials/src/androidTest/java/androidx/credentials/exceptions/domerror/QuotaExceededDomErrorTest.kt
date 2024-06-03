@@ -34,8 +34,7 @@ class QuotaExceededDomErrorTest {
     @Test
     fun getter_success() {
         val error = QuotaExceededError()
-        val expectedType = QuotaExceededError
-            .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_QUOTA_EXCEEDED_ERROR
+        val expectedType = QuotaExceededError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_QUOTA_EXCEEDED_ERROR
         Truth.assertThat(error.type).isEqualTo(expectedType)
     }
 }

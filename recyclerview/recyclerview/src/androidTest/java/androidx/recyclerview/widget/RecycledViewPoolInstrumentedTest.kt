@@ -37,18 +37,12 @@ class RecycledViewPoolInstrumentedTest {
         // One activity launch per test class
         @ClassRule
         @JvmField
-        var mActivityRule = ResettableActivityScenarioRule(
-            TestActivity::class.java
-        )
+        var mActivityRule = ResettableActivityScenarioRule(TestActivity::class.java)
     }
 
     @Test
     fun attachToWindow_setAdapter() {
-        doTest(
-            Step.AttachToWindow to 0,
-            Step.SetAdapter to 1,
-            Step.SetPool to 1
-        )
+        doTest(Step.AttachToWindow to 0, Step.SetAdapter to 1, Step.SetPool to 1)
     }
 
     @Test
@@ -116,12 +110,13 @@ class RecycledViewPoolInstrumentedTest {
         lateinit var rv2: RecyclerView
         lateinit var pool: RecyclerView.RecycledViewPool
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            parent = LinearLayout(activity).also {
-                ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
+            parent =
+                LinearLayout(activity).also {
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
             activity.setContentView(parent)
 
             rv1 = RecyclerView(activity)
@@ -163,12 +158,13 @@ class RecycledViewPoolInstrumentedTest {
         lateinit var rv: RecyclerView
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            parent = LinearLayout(activity).also {
-                ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
+            parent =
+                LinearLayout(activity).also {
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
             activity.setContentView(parent)
 
             rv = RecyclerView(activity)
@@ -196,13 +192,12 @@ class RecycledViewPoolInstrumentedTest {
         }
 
         // Remove the adapter, make sure it goes back to 0
-        InstrumentationRegistry.getInstrumentation().runOnMainSync {
-            rv.adapter = null
-        }
+        InstrumentationRegistry.getInstrumentation().runOnMainSync { rv.adapter = null }
         assertThat(rv.attachCount).isEqualTo(0)
     }
 
-    private val activity get() = mActivityRule.getActivity()
+    private val activity
+        get() = mActivityRule.getActivity()
 
     private inner class TestAdapter : RecyclerView.Adapter<TestAdapter.ViewHolder>() {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -211,8 +206,7 @@ class RecycledViewPoolInstrumentedTest {
             return ViewHolder(View(activity))
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        }
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {}
 
         override fun getItemCount(): Int = 10
     }

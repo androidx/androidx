@@ -45,13 +45,12 @@ open class SplitActivityList : AppCompatActivity() {
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
             // It automatically restarts the block when the lifecycle is STARTED again.
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                splitController.splitInfoList(this@SplitActivityList)
-                    .collect { newSplitInfos ->
-                        withContext(Dispatchers.Main) {
-                            findViewById<View>(R.id.infoButton).visibility =
-                                if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
-                        }
+                splitController.splitInfoList(this@SplitActivityList).collect { newSplitInfos ->
+                    withContext(Dispatchers.Main) {
+                        findViewById<View>(R.id.infoButton).visibility =
+                            if (newSplitInfos.isEmpty()) View.VISIBLE else View.GONE
                     }
+                }
             }
         }
     }

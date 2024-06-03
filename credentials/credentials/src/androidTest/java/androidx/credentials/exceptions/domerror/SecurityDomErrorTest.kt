@@ -33,8 +33,7 @@ class SecurityDomErrorTest {
     @Test
     fun getter_success() {
         val error = SecurityError()
-        val expectedType =
-            SecurityError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_SECURITY_ERROR
+        val expectedType = SecurityError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_SECURITY_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

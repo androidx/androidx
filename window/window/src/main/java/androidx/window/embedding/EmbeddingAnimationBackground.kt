@@ -30,24 +30,18 @@ abstract class EmbeddingAnimationBackground private constructor() {
 
     /**
      * An {@link EmbeddingAnimationBackground} to specify of using a developer-defined color as the
-     * animation background.
-     * Only opaque background is supported.
+     * animation background. Only opaque background is supported.
      *
      * @see EmbeddingAnimationBackground.createColorBackground
      */
-    class ColorBackground internal constructor(
-        /**
-         * [ColorInt] to represent the color to use as the background color.
-         */
-        @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong())
-        @ColorInt
-        val color: Int
+    class ColorBackground
+    internal constructor(
+        /** [ColorInt] to represent the color to use as the background color. */
+        @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong()) @ColorInt val color: Int
     ) : EmbeddingAnimationBackground() {
 
         init {
-            require(Color.alpha(color) == 255) {
-                "Background color must be opaque"
-            }
+            require(Color.alpha(color) == 255) { "Background color must be opaque" }
         }
 
         override fun toString() = "ColorBackground{color:${Integer.toHexString(color)}}"
@@ -67,9 +61,7 @@ abstract class EmbeddingAnimationBackground private constructor() {
         override fun toString() = "DefaultBackground"
     }
 
-    /**
-     * Methods that create various [EmbeddingAnimationBackground].
-     */
+    /** Methods that create various [EmbeddingAnimationBackground]. */
     companion object {
 
         /**
@@ -80,27 +72,21 @@ abstract class EmbeddingAnimationBackground private constructor() {
          * @param color [ColorInt] of an opaque color.
          * @return the [ColorBackground] representing the [color].
          * @throws IllegalArgumentException if the [color] is not opaque.
-         *
-         * @see [DEFAULT] for the default value, which means to use the
-         * current theme window background color.
+         * @see [DEFAULT] for the default value, which means to use the current theme window
+         *   background color.
          */
         @JvmStatic
         fun createColorBackground(
-            @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong())
-            @ColorInt
-            color: Int
+            @IntRange(from = Color.BLACK.toLong(), to = Color.WHITE.toLong()) @ColorInt color: Int
         ): ColorBackground = ColorBackground(color)
 
         /**
-         * The special [EmbeddingAnimationBackground] to represent the default value,
-         * which means to use the current theme window background color.
+         * The special [EmbeddingAnimationBackground] to represent the default value, which means to
+         * use the current theme window background color.
          */
-        @JvmField
-        val DEFAULT: EmbeddingAnimationBackground = DefaultBackground()
+        @JvmField val DEFAULT: EmbeddingAnimationBackground = DefaultBackground()
 
-        /**
-         * Returns an [EmbeddingAnimationBackground] with the given [color]
-         */
+        /** Returns an [EmbeddingAnimationBackground] with the given [color] */
         internal fun buildFromValue(@ColorInt color: Int): EmbeddingAnimationBackground {
             return if (Color.alpha(color) != 255) {
                 // Treat any non-opaque color as the default.
