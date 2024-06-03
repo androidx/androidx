@@ -59,6 +59,7 @@ import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.mocks.MockConsumer
+import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
@@ -539,9 +540,8 @@ class VideoRecordingTest(
         val imageCapture = ImageCapture.Builder().build()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture))
 
-        val videoFile = File.createTempFile("camerax-video", ".tmp").apply { deleteOnExit() }
-        val imageFile =
-            File.createTempFile("camerax-image-capture", ".tmp").apply { deleteOnExit() }
+        val videoFile = temporaryFolder.newFile()
+        val imageFile = temporaryFolder.newFile()
         latchForVideoSaved = CountDownLatch(1)
         latchForVideoRecording = CountDownLatch(5)
 
@@ -561,10 +561,35 @@ class VideoRecordingTest(
 
         // Verify.
         verifyRecordingResult(videoFile)
+    }
 
-        // Cleanup.
-        videoFile.delete()
-        imageFile.delete()
+    @Test
+    fun recordingWithPreviewAndFlashImageCapture() {
+        // Pre-check and arrange
+        val imageCapture = ImageCapture.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture))
+
+        val videoFile = temporaryFolder.newFile()
+        val imageFile = temporaryFolder.newFile()
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(
+                lifecycleOwner,
+                cameraSelector,
+                preview,
+                imageCapture,
+                videoCapture
+            )
+        }
+
+        // Act.
+        completeVideoRecording(videoCapture, videoFile)
+        completeImageCapture(imageCapture, imageFile, useFlash = true)
+
+        // Verify.
+        verifyRecordingResult(videoFile)
     }
 
     @Test
@@ -1157,8 +1182,23 @@ class VideoRecordingTest(
             .isFalse()
     }
 
-    private fun completeImageCapture(imageCapture: ImageCapture, imageFile: File) {
+    private fun completeImageCapture(
+        imageCapture: ImageCapture,
+        imageFile: File,
+        useFlash: Boolean = false
+    ) {
         val savedCallback = ImageSavedCallback()
+
+        if (useFlash) {
+            if (cameraSelector.lensFacing == CameraSelector.LENS_FACING_FRONT) {
+                imageCapture.screenFlash = MockScreenFlash()
+                imageCapture.flashMode = ImageCapture.FLASH_MODE_SCREEN
+            } else {
+                imageCapture.flashMode = ImageCapture.FLASH_MODE_ON
+            }
+        } else {
+            imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
+        }
 
         imageCapture.takePicture(
             ImageCapture.OutputFileOptions.Builder(imageFile).build(),
@@ -1166,6 +1206,9 @@ class VideoRecordingTest(
             savedCallback
         )
         savedCallback.verifyCaptureResult()
+
+        // Just in case same imageCapture is bound to rear camera later
+        imageCapture.screenFlash = null
     }
 
     data class ExpectedRotation(val contentRotation: Int, val metadataRotation: Int)
