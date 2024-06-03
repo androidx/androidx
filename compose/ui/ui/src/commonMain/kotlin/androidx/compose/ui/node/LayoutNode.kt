@@ -1431,13 +1431,6 @@ internal class LayoutNode(
         if (isAttached) {
             invalidateSemantics()
         }
-        releaseLayers()
-    }
-
-    private fun releaseLayers() {
-        forEachCoordinatorIncludingInner {
-            it.releaseLayer()
-        }
     }
 
     override fun onRelease() {
