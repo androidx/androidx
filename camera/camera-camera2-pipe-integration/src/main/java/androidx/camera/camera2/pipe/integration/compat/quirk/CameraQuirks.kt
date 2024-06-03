@@ -110,10 +110,10 @@ constructor(
             quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
         }
         if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()) {
-            quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
+            quirks.add(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk())
         }
         if (TemporalNoiseQuirk.isEnabled(cameraMetadata)) {
-            quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
+            quirks.add(TemporalNoiseQuirk())
         }
 
         Quirks(quirks)
