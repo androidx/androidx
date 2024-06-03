@@ -187,6 +187,8 @@ private val testCollectionNavType: NavType<List<TestType>> =
             bundle.putStringArray(key, serializeAsValues(value).toTypedArray())
         }
 
+        override fun emptyCollection(): List<TestType> = emptyList()
+
         override fun get(bundle: Bundle, key: String): List<TestType> {
             return bundle.getStringArray(key)!!.map {
                 val args = it.split(".")
