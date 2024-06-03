@@ -16,6 +16,7 @@
 
 package androidx.work.multiprocess
 
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,6 +28,7 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
+import androidx.work.forRemoteWorkRequest
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
@@ -36,6 +38,7 @@ import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME
+import androidx.work.usingRemoteService
 import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -150,6 +153,23 @@ public class RemoteCoroutineWorkerTest {
         wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
+    }
+
+    @Test
+    @MediumTest
+    public fun testSwitchRemoteProcess() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        val request = buildRequest<RemoteSuccessWorker>()
+        val packageName = "PACKAGE_NAME"
+        val className = "CLASS_NAME"
+        val data = request.workSpec.input.usingRemoteService(ComponentName(packageName, className))
+        assertEquals(data.forRemoteWorkRequest(), true)
+        assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME), packageName)
+        assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_CLASS_NAME), className)
     }
 
     private inline fun <reified T : ListenableWorker> buildRequest(): OneTimeWorkRequest {
