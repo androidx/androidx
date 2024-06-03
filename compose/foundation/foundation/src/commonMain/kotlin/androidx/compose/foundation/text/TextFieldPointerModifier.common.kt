@@ -50,7 +50,7 @@ internal fun Modifier.defaultTextFieldPointer(
     .updateSelectionTouchMode { state.isInTouchMode = it }
     .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
         requestFocusAndShowKeyboardIfNeeded(state, focusRequester, !readOnly)
-        if (state.hasFocus) {
+        if (state.hasFocus && enabled) {
             if (state.handleState != HandleState.Selection) {
                 state.layoutResult?.let { layoutResult ->
                     TextFieldDelegate.setCursorOffset(
