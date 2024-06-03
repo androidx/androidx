@@ -47,7 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 @RequiresApi(Build.VERSION_CODES.M)
 internal class GraphicsLayerV23(
     ownerView: View,
-    override val ownerId: Long,
     private val canvasHolder: CanvasHolder = CanvasHolder(),
     private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
 ) : GraphicsLayerImpl {

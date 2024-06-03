@@ -124,31 +124,32 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
     override fun createGraphicsLayer(): GraphicsLayer {
         synchronized(lock) {
             val ownerId = getUniqueDrawingId(ownerView)
-            val layerImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                GraphicsLayerV29(ownerId)
-            } else if (isRenderNodeCompatible && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                try {
-                    GraphicsLayerV23(ownerView, ownerId)
-                } catch (_: Throwable) {
-                    // If we ever failed to create an instance of the RenderNode stub based
-                    // GraphicsLayer, always fallback to creation of View based layers as it is
-                    // unlikely that subsequent attempts to create a GraphicsLayer with RenderNode
-                    // stubs would be successful.
-                    isRenderNodeCompatible = false
-                    GraphicsViewLayer(
-                        obtainViewLayerContainer(ownerView),
-                        ownerId
-                    )
-                }
+            val reusedLayer = layerManager.takeFromCache(ownerId)
+            val layer = if (reusedLayer != null) {
+                reusedLayer
             } else {
-                GraphicsViewLayer(
-                    obtainViewLayerContainer(ownerView),
-                    ownerId
-                )
+                val layerImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    GraphicsLayerV29()
+                } else if (isRenderNodeCompatible &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ) {
+                    try {
+                        GraphicsLayerV23(ownerView)
+                    } catch (_: Throwable) {
+                        // If we ever failed to create an instance of the RenderNode stub based
+                        // GraphicsLayer, always fallback to creation of View based layers as it is
+                        // unlikely that subsequent attempts to create a GraphicsLayer with RenderNode
+                        // stubs would be successful.
+                        isRenderNodeCompatible = false
+                        GraphicsViewLayer(obtainViewLayerContainer(ownerView))
+                    }
+                } else {
+                    GraphicsViewLayer(obtainViewLayerContainer(ownerView))
+                }
+                GraphicsLayer(layerImpl, layerManager, ownerId)
             }
-            return GraphicsLayer(layerImpl, layerManager).also { layer ->
-                layerManager.persist(layer)
-            }
+            layerManager.persist(layer)
+            return layer
         }
     }
 
