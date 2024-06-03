@@ -16,27 +16,33 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.scene.getConstraintsToFillParent
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.SetComposingRegionCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import androidx.compose.ui.window.KeyboardEventHandler
@@ -63,6 +69,7 @@ internal class UIKitTextInputService(
     private var currentImeOptions: ImeOptions? = null
     private var currentImeActionHandler: ((ImeAction) -> Unit)? = null
     private var textUIView: IntermediateTextInputUIView? = null
+    private var textLayoutResult : TextLayoutResult? = null
 
     /**
      * Workaround to prevent calling textWillChange, textDidChange, selectionWillChange, and
@@ -190,6 +197,25 @@ internal class UIKitTextInputService(
             Key.Backspace -> handleBackspace(event)
             else -> false
         }
+    }
+
+    override fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
+        textLayoutResult: TextLayoutResult,
+        textFieldToRootTransform: (Matrix) -> Unit,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) {
+        super.updateTextLayoutResult(
+            textFieldValue,
+            offsetMapping,
+            textLayoutResult,
+            textFieldToRootTransform,
+            innerTextFieldBounds,
+            decorationBoxBounds
+        )
+        this.textLayoutResult = textLayoutResult
     }
 
     private fun handleEnterKey(event: KeyEvent): Boolean {
@@ -332,6 +358,28 @@ internal class UIKitTextInputService(
     }
 
     private fun createSkikoInput(value: TextFieldValue) = object : IOSSkikoInput {
+
+        private var floatingCursorTranslation : Offset? = null
+
+        override fun beginFloatingCursor(offset: DpOffset) {
+            val cursorPos = getCursorPos() ?: getState()?.selection?.start ?: return
+            val cursorRect = textLayoutResult?.getCursorRect(cursorPos) ?: return
+            floatingCursorTranslation = cursorRect.center - offset.toOffset(densityProvider())
+        }
+
+        override fun updateFloatingCursor(offset: DpOffset) {
+            val translation = floatingCursorTranslation ?: return
+            val offsetPx = offset.toOffset(densityProvider())
+            val pos = textLayoutResult
+                ?.getOffsetForPosition(offsetPx + translation) ?: return
+
+            sendEditCommand(SetSelectionCommand(pos, pos))
+        }
+
+        override fun endFloatingCursor() {
+            floatingCursorTranslation = null
+        }
+
         /**
          * A Boolean value that indicates whether the text-entry object has any text.
          * https://developer.apple.com/documentation/uikit/uikeyinput/1614457-hastext
