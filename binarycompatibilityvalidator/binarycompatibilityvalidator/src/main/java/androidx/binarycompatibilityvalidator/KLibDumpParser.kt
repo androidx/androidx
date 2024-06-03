@@ -103,18 +103,17 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
 
     private fun parseDeclaration(parentQualifiedName: AbiQualifiedName?): AbiDeclaration? {
         // if the line begins with a comment, we may need to parse the current target list
-        if (cursor.parseSymbol("^\\/\\/") != null) {
-            if (cursor.parseSymbol("Targets: ") != null) {
+        if (cursor.parseCommentMarker() != null) {
+            if (cursor.hasTargets()) {
                 // There are never targets within targets, so when we encounter a new directive we
                 // always reset our current targets
                 val targets = cursor.parseTargets()
                 targets.forEach { abiInfoByTarget.putIfAbsent(it, MutableAbiInfo()) }
                 currentTargetNames.clear()
                 currentTargetNames.addAll(targets)
-            } else if (cursor.parseSymbol("Library unique name: ") != null) {
-                cursor.parseSymbol("<")
+            } else if (cursor.hasUniqueName()) {
                 val uniqueName =
-                    cursor.parseSymbol("[a-zA-Z\\-\\.:]+")
+                    cursor.parseUniqueName()
                         ?: throw parseException("Failed to parse library unique name")
                 currentTargets.forEach { it.uniqueName = uniqueName }
             }
@@ -150,7 +149,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         val superTypes = cursor.parseSuperTypes()
 
         val childDeclarations =
-            if (cursor.parseSymbol("^\\{") != null) {
+            if (cursor.parseOpenClassBody() != null) {
                 cursor.nextLine()
                 parseChildDeclarations(abiQualifiedName)
             } else {
@@ -243,7 +242,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
         val childDeclarations = mutableListOf<AbiDeclaration>()
         // end of parent container is marked by a closing bracket, collect all declarations
         // until we see one.
-        while (cursor.parseSymbol("^(\\s+)?\\}", peek = true) == null) {
+        while (cursor.parseCloseClassBody(peek = true) == null) {
             parseDeclaration(parentQualifiedName)?.let { childDeclarations.add(it) }
         }
         cursor.nextLine()
@@ -308,8 +307,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
                     AbiCompoundName(parentQualifiedName.relativeName.value + ".<init>")
                 )
             } ?: throw parseException("Cannot parse constructor outside of class context")
-        cursor.parseSymbol("constructor")
-        cursor.parseSymbol("<init>")
+        cursor.parseConstructorName()
         val valueParameters =
             cursor.parseValueParameters()
                 ?: throw parseException("Couldn't parse value parameters for constructor")
