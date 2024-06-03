@@ -26,6 +26,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
@@ -34,7 +36,9 @@ import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -358,19 +362,117 @@ class OffsetTest {
     }
 
     @Test
-    fun contentNotRedrawnWhenOffsetPxChanges() {
-        var contentRedrawsCount = 0
-        var offset by mutableStateOf(0f)
+    fun updateOffsetDp_doesNotRemeasure() {
+        with(rule.density) {
+            var measureCount = 0
+            var placeCount = 0
+            var drawCount = 0
+            var positionX = 0
+            val callbackModifiers =
+                Modifier.onLayout(
+                        onRemeasured = { measureCount++ },
+                        onPlaced = { coordinates ->
+                            positionX = coordinates.positionInRoot().x.roundToInt()
+                            placeCount++
+                        }
+                    )
+                    .drawBehind { drawCount++ }
+            var offset by mutableStateOf(10.dp)
+            rule.setContent {
+                Box(
+                    Modifier.testTag("box")
+                        .requiredSize(10.dp)
+                        .offset(x = offset, y = 0.dp)
+                        .then(callbackModifiers)
+                ) {}
+            }
+
+            rule.onNodeWithTag("box").assertExists()
+            rule.runOnIdle {
+                assertEquals(positionX, 10.dp.roundToPx())
+                assertEquals(measureCount, 1)
+                assertEquals(placeCount, 1)
+                assertEquals(drawCount, 1)
+            }
+
+            rule.runOnIdle { offset = 20.dp }
+
+            rule.runOnIdle {
+                assertEquals(positionX, 20.dp.roundToPx())
+                assertEquals(measureCount, 1)
+                assertEquals(placeCount, 2)
+                assertEquals(drawCount, 2)
+            }
+        }
+    }
+
+    @Test
+    fun updateOffsetPx_doesNotRemeasureAndDoesNotRedraw() {
+        var measureCount = 0
+        var placeCount = 0
+        var drawCount = 0
+        var positionX = 0
+        val callbackModifiers =
+            Modifier.onLayout(
+                    onRemeasured = { measureCount++ },
+                    onPlaced = { coordinates ->
+                        positionX = coordinates.positionInRoot().x.roundToInt()
+                        placeCount++
+                    }
+                )
+                .drawBehind { drawCount++ }
+        var offset by mutableStateOf<Density.() -> IntOffset>({ IntOffset(10, 0) })
         rule.setContent {
             Box(
-                Modifier.requiredSize(10.dp)
-                    .offset { IntOffset(offset.roundToInt(), 0) }
-                    .drawBehind { contentRedrawsCount++ }
-            )
+                Modifier.testTag("box")
+                    .requiredSize(10.dp)
+                    .wrapContentSize(Alignment.TopStart)
+                    .offset(offset = offset)
+                    .then(callbackModifiers)
+            ) {}
         }
 
-        rule.runOnIdle { offset = 5f }
+        rule.onNodeWithTag("box").assertExists()
+        rule.runOnIdle {
+            assertEquals(positionX, 10)
+            assertEquals(measureCount, 1)
+            assertEquals(placeCount, 1)
+            assertEquals(drawCount, 1)
+        }
 
-        rule.runOnIdle { assertEquals(1, contentRedrawsCount) }
+        rule.runOnIdle { offset = { IntOffset(20, 0) } }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertEquals(positionX, 20)
+            assertEquals(measureCount, 1)
+            assertEquals(placeCount, 2)
+            assertEquals(drawCount, 1) // No redraw due the use of a graphics layer
+        }
+    }
+}
+
+fun Modifier.onLayout(onRemeasured: () -> Unit, onPlaced: (LayoutCoordinates) -> Unit) =
+    this then OnLayoutNodeElement(onRemeasured, onPlaced)
+
+data class OnLayoutNodeElement(
+    val onRemeasured: () -> Unit,
+    val onPlaced: (LayoutCoordinates) -> Unit
+) : ModifierNodeElement<OnLayoutNode>() {
+    override fun create() = OnLayoutNode(onRemeasured, onPlaced)
+
+    override fun update(node: OnLayoutNode) {}
+}
+
+class OnLayoutNode(
+    val onRemeasuredCallback: () -> Unit,
+    val onPlacedCallback: (LayoutCoordinates) -> Unit
+) : LayoutAwareModifierNode, Modifier.Node() {
+    override fun onRemeasured(size: IntSize) {
+        onRemeasuredCallback()
+    }
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        onPlacedCallback(coordinates)
     }
 }
