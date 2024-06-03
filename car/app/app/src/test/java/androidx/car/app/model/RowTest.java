@@ -216,6 +216,14 @@ public class RowTest {
     }
 
     @Test
+    public void clickDelegate() {
+        OnClickDelegate onClickDelegate = mock(OnClickDelegate.class);
+        Row row = new Row.Builder().setTitle("Title").setOnClickDelegate(onClickDelegate).build();
+
+        assertThat(row.getOnClickDelegate()).isEqualTo(onClickDelegate);
+    }
+
+    @Test
     public void addAction() {
         CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
