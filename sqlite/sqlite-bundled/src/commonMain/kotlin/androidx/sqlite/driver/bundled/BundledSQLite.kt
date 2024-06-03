@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver
+package androidx.sqlite.driver.bundled
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
-import cnames.structs.sqlite3
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.UShortVar
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.toKStringFromUtf16
-import sqlite3.SQLITE_OPEN_CREATE
-import sqlite3.SQLITE_OPEN_FULLMUTEX
-import sqlite3.SQLITE_OPEN_MEMORY
-import sqlite3.SQLITE_OPEN_NOFOLLOW
-import sqlite3.SQLITE_OPEN_NOMUTEX
-import sqlite3.SQLITE_OPEN_READONLY
-import sqlite3.SQLITE_OPEN_READWRITE
-import sqlite3.SQLITE_OPEN_URI
-import sqlite3.sqlite3_errmsg16
 
-/** The flags constant that can be used with [NativeSQLiteDriver.open]. */
+const val SQLITE_OPEN_READONLY = 0x00000001
+const val SQLITE_OPEN_READWRITE = 0x00000002
+const val SQLITE_OPEN_CREATE = 0x00000004
+const val SQLITE_OPEN_URI = 0x00000040
+const val SQLITE_OPEN_MEMORY = 0x00000080
+const val SQLITE_OPEN_NOMUTEX = 0x00008000
+const val SQLITE_OPEN_FULLMUTEX = 0x00010000
+const val SQLITE_OPEN_NOFOLLOW = 0x01000000
+
+/** The flags constant that can be used with [BundledSQLiteDriver.open]. */
 @IntDef(
     flag = true,
     value =
@@ -46,12 +41,8 @@ import sqlite3.sqlite3_errmsg16
             SQLITE_OPEN_NOMUTEX,
             SQLITE_OPEN_FULLMUTEX,
             SQLITE_OPEN_NOFOLLOW
-        ],
+        ]
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class OpenFlag
-
-internal fun CPointer<sqlite3>.getErrorMsg(): String? {
-    return sqlite3_errmsg16(this)?.reinterpret<UShortVar>()?.toKStringFromUtf16()
-}
+expect annotation class OpenFlag()

@@ -155,7 +155,7 @@ androidXMultiplatform {
             )
             // add our JNI sources, i.e. the SQLite bindings
             nativeCompilation.sources.from(
-                    fileTree("src/androidJvmCommonMain/jni").matching { include "**/*.cpp" }
+                    fileTree("src/jvmAndroidMain/jni").matching { include "**/*.cpp" }
             )
             // statically include the output of SQLite compilation
             nativeCompilation.include(sqliteCompilation)
@@ -198,7 +198,7 @@ androidXMultiplatform {
         //                                 commonMain
         //              ┌───────────────────────────────────────────┐
         //              ▼                                           ▼
-        //     androidJvmCommonMain                             nativeMain
+        //       jvmAndroidMain                                 nativeMain
         //     ┌────────────────┐                       ┌──────────┬────────────┐
         //     │                │                       │          │            │
         //     ▼                ▼                       ▼          ▼            ▼
@@ -209,15 +209,14 @@ androidXMultiplatform {
                 api(project(":sqlite:sqlite"))
             }
         }
-        androidJvmCommonMain {
-            // common code between android and jvm
+        jvmAndroidMain {
             dependsOn(commonMain)
         }
         jvmMain {
-            dependsOn(androidJvmCommonMain)
+            dependsOn(jvmAndroidMain)
         }
         androidMain {
-            dependsOn(androidJvmCommonMain)
+            dependsOn(jvmAndroidMain)
         }
         nativeMain {
             dependsOn(commonMain)
