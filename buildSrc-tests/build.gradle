@@ -81,15 +81,15 @@ androidx {
 
 // Also do style checking of the buildSrc project from within this project
 // We run that from this project so that it doesn't block other projects while it runs
-def ktlintDir = file("../buildSrc")
+def ktfmtDir = file("../buildSrc")
 def subdirs = ["plugins", "private", "public"]
 
 tasks["ktCheck"].configure({ t ->
-    t.overrideDirectory = ktlintDir
+    t.overrideDirectory = ktfmtDir
     t.overrideSubdirectories = subdirs
 })
 tasks["ktFormat"].configure({ t ->
-    t.overrideDirectory = ktlintDir
+    t.overrideDirectory = ktfmtDir
     t.overrideSubdirectories = subdirs
 })
 
