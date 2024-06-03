@@ -23,23 +23,22 @@ package androidx.metrics.performance
  *
  * @property frameStartNanos The time at which this frame began (in nanoseconds)
  * @property frameDurationUiNanos The time spent in the UI portion of this frame (in nanoseconds).
- * This is essentially the time spent on the UI thread to draw this frame, but does
- * not include any time spent on the RenderThread.
+ *   This is essentially the time spent on the UI thread to draw this frame, but does not include
+ *   any time spent on the RenderThread.
  * @property frameDurationCpuNanos The time spent in the non-GPU portions of this frame (in
- * nanoseconds).  This includes the time spent on the UI thread [frameDurationUiNanos] plus time
- * spent on the RenderThread.
+ *   nanoseconds). This includes the time spent on the UI thread [frameDurationUiNanos] plus time
+ *   spent on the RenderThread.
  * @property frameDurationTotalNanos The total time spent rendering this frame (in nanoseconds),
- * which includes both CPU and GPU processing.
+ *   which includes both CPU and GPU processing.
  * @property frameOverrunNanos The amount of time past the frame deadline that this frame took to
- * complete. A positive value indicates some jank, a negative value indicates that the frame was
- * complete within the given deadline.
- * @property isJank Whether this frame was determined to be janky, meaning that its
- * duration exceeds the duration determined by the system to indicate jank (@see
- * [JankStats.jankHeuristicMultiplier]).
- * @property states The UI/app state during this frame.
- * This is the information set by the app, or by other library code, that can be analyzed
- * later to determine the UI state that was current when jank occurred.
- *
+ *   complete. A positive value indicates some jank, a negative value indicates that the frame was
+ *   complete within the given deadline.
+ * @property isJank Whether this frame was determined to be janky, meaning that its duration exceeds
+ *   the duration determined by the system to indicate jank (@see
+ *   [JankStats.jankHeuristicMultiplier]).
+ * @property states The UI/app state during this frame. This is the information set by the app, or
+ *   by other library code, that can be analyzed later to determine the UI state that was current
+ *   when jank occurred.
  * @see JankStats.jankHeuristicMultiplier
  * @see PerformanceMetricsState.putState
  */
@@ -51,17 +50,24 @@ class FrameDataApi31(
     frameOverrunNanos: Long,
     isJank: Boolean,
     states: List<StateInfo>
-) : FrameDataApi24(frameStartNanos, frameDurationUiNanos,
-    frameDurationCpuNanos, isJank, states) {
+) : FrameDataApi24(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank, states) {
 
     var frameDurationTotalNanos = frameDurationTotalNanos
         private set
+
     var frameOverrunNanos = frameOverrunNanos
         private set
 
     override fun copy(): FrameData {
-        return FrameDataApi31(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos,
-            frameDurationTotalNanos, frameOverrunNanos, isJank, ArrayList(states))
+        return FrameDataApi31(
+            frameStartNanos,
+            frameDurationUiNanos,
+            frameDurationCpuNanos,
+            frameDurationTotalNanos,
+            frameOverrunNanos,
+            isJank,
+            ArrayList(states)
+        )
     }
 
     internal fun update(
@@ -72,8 +78,7 @@ class FrameDataApi31(
         frameOverrunNanos: Long,
         isJank: Boolean
     ) {
-        super.update(frameStartNanos, frameDurationUiNanos,
-            frameDurationCpuNanos, isJank)
+        super.update(frameStartNanos, frameDurationUiNanos, frameDurationCpuNanos, isJank)
         this.frameDurationTotalNanos = frameDurationTotalNanos
         this.frameOverrunNanos = frameOverrunNanos
     }
