@@ -92,7 +92,8 @@ public fun CircularProgressIndicator(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier
-            .progressSemantics(progress)
+            // trimming progress to 2 decimal digits
+            .progressSemantics(Math.round(progress * 100) / 100.0f)
             .size(ButtonCircularIndicatorDiameter)
             .focusable()
             .drawWithCache {
