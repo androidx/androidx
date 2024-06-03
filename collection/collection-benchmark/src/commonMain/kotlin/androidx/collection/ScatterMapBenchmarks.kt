@@ -121,6 +121,18 @@ internal class ScatterMapComputeBenchmark(private val dataSet: Array<String>) :
     }
 }
 
+internal class ScatterMapInsertRemoveBenchmark(private val dataSet: Array<Int?>) :
+    CollectionBenchmark {
+    private val map = MutableScatterMap<Int?, Int?>()
+
+    override fun measuredBlock() {
+        for (testValue in dataSet) {
+            map[testValue] = testValue
+            map.remove(testValue)
+        }
+    }
+}
+
 internal fun createDataSet(size: Int): Array<String> =
     Array(size) { index -> (index * Random.Default.nextFloat()).toString() }
 

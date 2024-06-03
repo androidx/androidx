@@ -720,8 +720,7 @@ public class MutableIntSet(initialCapacity: Int = DefaultScatterCapacity) : IntS
      */
     private fun adjustStorage() {
         if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
-            // TODO: Avoid resize and drop deletes instead
-            resizeStorage(nextCapacity(_capacity))
+            removeDeletedMarkers()
         } else {
             resizeStorage(nextCapacity(_capacity))
         }
@@ -746,6 +745,23 @@ public class MutableIntSet(initialCapacity: Int = DefaultScatterCapacity) : IntS
                 newElements[index] = previousElement
             }
         }
+    }
+
+    private fun removeDeletedMarkers() {
+        val m = metadata
+        val capacity = _capacity
+        var removedDeletes = 0
+
+        // TODO: this can be done in a more efficient way
+        for (i in 0 until capacity) {
+            val slot = readRawMetadata(m, i)
+            if (slot == Deleted) {
+                writeMetadata(i, Empty)
+                removedDeletes++
+            }
+        }
+
+        growthLimit += removedDeletes
     }
 
     /**

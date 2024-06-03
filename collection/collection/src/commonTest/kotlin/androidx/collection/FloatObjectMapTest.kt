@@ -765,4 +765,15 @@ class FloatObjectMapTest {
         assertTrue(map.all { key, value -> key < 7f && value.isNotEmpty() })
         assertFalse(map.all { key, _ -> key < 6f })
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableFloatObjectMap<String>()
+
+        for (i in 0..1000000) {
+            map[i.toFloat()] = i.toString()
+            map.remove(i.toFloat())
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }

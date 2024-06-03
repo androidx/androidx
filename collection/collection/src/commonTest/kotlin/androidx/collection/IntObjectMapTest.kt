@@ -765,4 +765,15 @@ class IntObjectMapTest {
         assertTrue(map.all { key, value -> key < 7 && value.isNotEmpty() })
         assertFalse(map.all { key, _ -> key < 6 })
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableIntObjectMap<String>()
+
+        for (i in 0..1000000) {
+            map[i.toInt()] = i.toString()
+            map.remove(i.toInt())
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }
