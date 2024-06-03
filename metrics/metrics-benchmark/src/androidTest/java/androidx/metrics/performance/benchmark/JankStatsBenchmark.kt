@@ -42,19 +42,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Idea
- * Want to test per-frame performance. This means need to test what happens when frame data
- * is sent with and without PerformanceMetricsState. Should also test setting state
- * (regular and single frame).
- * Because frame data is received asynchronously, should instrument JankStats and PerformanceMetrics
- * to allow the key methods to be called from outside (@TestApi)
+ * Idea Want to test per-frame performance. This means need to test what happens when frame data is
+ * sent with and without PerformanceMetricsState. Should also test setting state (regular and single
+ * frame). Because frame data is received asynchronously, should instrument JankStats and
+ * PerformanceMetrics to allow the key methods to be called from outside (@TestApi)
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class JankStatsBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -66,7 +63,7 @@ class JankStatsBenchmark {
     lateinit var textview: TextView
 
     object frameListener : JankStats.OnFrameListener {
-        override fun onFrame(volatileFrameData: FrameData) { }
+        override fun onFrame(volatileFrameData: FrameData) {}
     }
 
     @Before
@@ -74,10 +71,7 @@ class JankStatsBenchmark {
         activityRule.runOnUiThread {
             textview = activityRule.activity.findViewById(R.id.textview)
             metricsStateHolder = PerformanceMetricsState.getHolderForHierarchy(textview)
-            jankStats = JankStats.createAndTrack(
-                activityRule.activity.window,
-                frameListener
-            )
+            jankStats = JankStats.createAndTrack(activityRule.activity.window, frameListener)
             jankStatsImpl = JankStatsInternalsForTesting(jankStats)
         }
     }
@@ -95,9 +89,7 @@ class JankStatsBenchmark {
     @UiThreadTest
     @Test
     fun setStateOverAndOver() {
-        benchmarkRule.measureRepeated {
-            metricsStateHolder.state?.putState("Activity", "activity")
-        }
+        benchmarkRule.measureRepeated { metricsStateHolder.state?.putState("Activity", "activity") }
     }
 
     @UiThreadTest
@@ -117,9 +109,7 @@ class JankStatsBenchmark {
     @Test
     fun getFrameData() {
         metricsStateHolder.state?.putState("Activity", "activity")
-        benchmarkRule.measureRepeated {
-            jankStatsImpl.getFrameData()
-        }
+        benchmarkRule.measureRepeated { jankStatsImpl.getFrameData() }
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -133,10 +123,11 @@ class JankStatsBenchmark {
         ) {
             var frameMetrics: FrameMetrics? = null
             val frameMetricsLatch = CountDownLatch(1)
-            val listener = Window.OnFrameMetricsAvailableListener { _, metrics, _ ->
-                frameMetrics = metrics
-                frameMetricsLatch.countDown()
-            }
+            val listener =
+                Window.OnFrameMetricsAvailableListener { _, metrics, _ ->
+                    frameMetrics = metrics
+                    frameMetricsLatch.countDown()
+                }
             // First have to get a FrameMetrics object, which we cannot create ourselves.
             // Instead, we will enable FrameMetrics on the window and wait to receive a callback
             val thread = HandlerThread("FrameMetricsAggregator")
@@ -150,9 +141,7 @@ class JankStatsBenchmark {
             }
             frameMetricsLatch.await(2, TimeUnit.SECONDS)
             if (frameMetrics != null) {
-                benchmarkRule.measureRepeated {
-                    jankStatsImpl.getFrameData(frameMetrics!!)
-                }
+                benchmarkRule.measureRepeated { jankStatsImpl.getFrameData(frameMetrics!!) }
             }
         }
     }
@@ -170,9 +159,7 @@ class JankStatsBenchmark {
         metricsStateHolder.state?.putState("Activity", "activity")
         val frameData = jankStatsImpl.getFrameData()
         if (frameData != null) {
-            benchmarkRule.measureRepeated {
-                jankStatsImpl.logFrameData(frameData)
-            }
+            benchmarkRule.measureRepeated { jankStatsImpl.logFrameData(frameData) }
         }
     }
 }

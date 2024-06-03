@@ -54,8 +54,8 @@ class JankStatsTest {
     private val NUM_FRAMES = 10
 
     /**
-     * On some older APIs and emulators, frames may occasionally take longer than predicted
-     * jank. We check against this MIN duration to avoid flaky tests.
+     * On some older APIs and emulators, frames may occasionally take longer than predicted jank. We
+     * check against this MIN duration to avoid flaky tests.
      */
     private val MIN_JANK_NS = 100000000
 
@@ -83,9 +83,7 @@ class JankStatsTest {
         assert(PerformanceMetricsState.getHolderForHierarchy(delayedView).state == metricsState)
     }
 
-    /**
-     * Test adding/removing listeners while inside the listener callback (on the same thread)
-     */
+    /** Test adding/removing listeners while inside the listener callback (on the same thread) */
     @Test
     fun testConcurrentListenerModifications() {
         lateinit var jsSecond: JankStats
@@ -185,7 +183,8 @@ class JankStatsTest {
         // number of frames received instead.
         assertEquals(
             "numJankFrames != numFrames",
-            latchedListener.numFrames, latchedListener.numJankFrames
+            latchedListener.numFrames,
+            latchedListener.numJankFrames
         )
     }
 
@@ -232,11 +231,17 @@ class JankStatsTest {
         // - Ensure that frameStart +  for that frameData is greater than insertTime
         // - Ensure that that state exists only once in the list
 
-        assertEquals("Should be exactly one occurrence of SingleFrameState",
-            1, checkSingleStateExistence(testState, latchedListener.jankData, insertTime))
+        assertEquals(
+            "Should be exactly one occurrence of SingleFrameState",
+            1,
+            checkSingleStateExistence(testState, latchedListener.jankData, insertTime)
+        )
         synchronized(secondListenerFrameData) {
-            assertEquals("Should be exactly one occurrence of SingleFrameState", 1,
-                checkSingleStateExistence(testState, secondListenerFrameData, insertTime))
+            assertEquals(
+                "Should be exactly one occurrence of SingleFrameState",
+                1,
+                checkSingleStateExistence(testState, secondListenerFrameData, insertTime)
+            )
         }
 
         jankStats2.isTrackingEnabled = false
@@ -244,8 +249,10 @@ class JankStatsTest {
         latchedListener.reset()
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals(0, numSecondListenerCalls)
-        assertTrue("Removal of second listener should not have removed first",
-            latchedListener.jankData.size > 0)
+        assertTrue(
+            "Removal of second listener should not have removed first",
+            latchedListener.jankData.size > 0
+        )
 
         // Now make sure that extra listeners can be added concurrently from other threads
         latchedListener.reset()
@@ -253,20 +260,13 @@ class JankStatsTest {
         var numNewListeners = 0
         lateinit var poster: Runnable
         poster = Runnable {
-            JankStats.createAndTrack(
-                delayedActivity.window,
-                secondListener
-            )
+            JankStats.createAndTrack(delayedActivity.window, secondListener)
             ++numNewListeners
             if (numNewListeners < 100) {
                 delayedView.postDelayed(poster, 10)
             }
         }
-        scenario.onActivity { _ ->
-            listenerPostingThread.run {
-                poster.run()
-            }
-        }
+        scenario.onActivity { _ -> listenerPostingThread.run { poster.run() } }
         listenerPostingThread.start()
         // add listeners concurrently - no asserts here, just testing whether we
         // avoid any concurrency issues with adding and using multiple listeners
@@ -274,9 +274,9 @@ class JankStatsTest {
     }
 
     /**
-     * Ensure that there is only one occurrence of a given StateInfo entry. This is used to
-     * validate that SingleFrameState does the right thing - inserts into the current frame and
-     * removes it immediately.
+     * Ensure that there is only one occurrence of a given StateInfo entry. This is used to validate
+     * that SingleFrameState does the right thing - inserts into the current frame and removes it
+     * immediately.
      */
     fun checkSingleStateExistence(
         singleState: StateInfo,
@@ -288,9 +288,10 @@ class JankStatsTest {
             for (state in item.states) {
                 if (state.equals(singleState)) {
                     numOccurrences++
-                    assertTrue("State be added before frame end time",
-                        (item.frameStartNanos + item.frameDurationUiNanos) >
-                            insertionTimeNanos)
+                    assertTrue(
+                        "State be added before frame end time",
+                        (item.frameStartNanos + item.frameDurationUiNanos) > insertionTimeNanos
+                    )
                 }
             }
         }
@@ -307,9 +308,11 @@ class JankStatsTest {
 
         // FrameMetrics sometimes drops a frame, so the total number of
         // jankData items might be less than NUM_FRAMES
-        assertEquals("There should be ${latchedListener.numFrames} frames " +
+        assertEquals(
+            "There should be ${latchedListener.numFrames} frames " +
                 "with jank data, not ${latchedListener.jankData.size}",
-            latchedListener.numFrames, latchedListener.jankData.size
+            latchedListener.numFrames,
+            latchedListener.jankData.size
         )
         latchedListener.reset()
 
@@ -317,7 +320,8 @@ class JankStatsTest {
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals(
             "multiplier 20, extremeMs 0: numJankFrames should equal 0",
-            0, latchedListener.numJankFrames
+            0,
+            latchedListener.numJankFrames
         )
     }
 
@@ -338,11 +342,12 @@ class JankStatsTest {
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals(
             "frameDelay 100: There should be ${latchedListener.numFrames} frames with" +
-                "jank data", latchedListener.numFrames, latchedListener.jankData.size
+                "jank data",
+            latchedListener.numFrames,
+            latchedListener.jankData.size
         )
         var item0: FrameData = latchedListener.jankData[0]
-        assertEquals("There should be 3 states at frame 0", 3,
-            item0.states.size)
+        assertEquals("There should be 3 states at frame 0", 3, item0.states.size)
         for (state in item0.states) {
             // Test that every state is in the states set above
             assertThat(state, Matchers.isIn(listOf(state0, state1, state2)))
@@ -355,13 +360,9 @@ class JankStatsTest {
         // Now test the rest of the frames, which should not include singleFrameState state2
         for (i in 1 until latchedListener.numFrames) {
             val item = latchedListener.jankData[i]
-            assertEquals("There should be 2 states at frame $i", 2,
-                item.states.size)
+            assertEquals("There should be 2 states at frame $i", 2, item.states.size)
             for (state in item.states) {
-                assertThat(
-                    state,
-                    Matchers.either(Matchers.`is`(state0)).or(Matchers.`is`(state1))
-                )
+                assertThat(state, Matchers.either(Matchers.`is`(state0)).or(Matchers.`is`(state1)))
             }
         }
 
@@ -400,9 +401,7 @@ class JankStatsTest {
         latchedListener.reset()
     }
 
-    /**
-     * Data structure to hold per-frame state data to be injected during the test
-     */
+    /** Data structure to hold per-frame state data to be injected during the test */
     data class FrameStateInputData(
         val addSFStates: List<Pair<String, String>> = emptyList(),
         val addStates: List<Pair<String, String>> = emptyList(),
@@ -410,28 +409,28 @@ class JankStatsTest {
     )
 
     /**
-     * Utility function which
-     * is used by tests which require the frame pipeline to be empty when they
-     * start. When the activity first starts, there are usually a couple of frames drawn.
+     * Utility function which is used by tests which require the frame pipeline to be empty when
+     * they start. When the activity first starts, there are usually a couple of frames drawn.
      * Depending on when those frames are drawn relative to when the JankStats object and
-     * OnFrameListener are set up, there can be old frame data still being set to JankStats
-     * after the test has started, which causes problems with a test not getting the result
-     * that it should. The workaround is to force these initial frames to draw before the test
-     * begins, so that any data used by the test will only land on frames after the test begins
-     * instead of these old activity-creation frames.
+     * OnFrameListener are set up, there can be old frame data still being set to JankStats after
+     * the test has started, which causes problems with a test not getting the result that it
+     * should. The workaround is to force these initial frames to draw before the test begins, so
+     * that any data used by the test will only land on frames after the test begins instead of
+     * these old activity-creation frames.
      */
-     private fun initFramePipeline() {
+    private fun initFramePipeline() {
         val latch = CountDownLatch(10)
         var numFrames = 10
-        val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
-            override fun doFrame(frameTimeNanos: Long) {
-                --numFrames
-                latch.countDown()
-                if (numFrames > 0) {
-                    Choreographer.getInstance().postFrameCallback(this)
+        val callback: Choreographer.FrameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    --numFrames
+                    latch.countDown()
+                    if (numFrames > 0) {
+                        Choreographer.getInstance().postFrameCallback(this)
+                    }
                 }
             }
-        }
         delayedActivityRule.getScenario().onActivity {
             Choreographer.getInstance().postFrameCallback(callback)
         }
@@ -449,57 +448,58 @@ class JankStatsTest {
         // handled inside DelayedView. //-Comments above each item indicate what the resulting
         // state should be in that frame, which is checked in the asserts below
         // TODO: make immutable, copy to mutable list for delayedView
-        var perFrameStateData = mutableListOf(
-            // 0: A:0
-            JankStatsTest.FrameStateInputData(
-                addStates = listOf("stateNameA" to "0"),
-            ),
-            // 1: A:0
-            JankStatsTest.FrameStateInputData(),
-            // 2: A:1
-            JankStatsTest.FrameStateInputData(
-                addStates = listOf("stateNameA" to "1"),
-            ),
-            // 3: A:2
-            JankStatsTest.FrameStateInputData(
-                addStates = listOf("stateNameA" to "2"),
-            ),
-            // 4: A:2
-            JankStatsTest.FrameStateInputData(
-                removeStates = listOf("stateNameA"),
-            ),
-            // 5: [nothing]
-            JankStatsTest.FrameStateInputData(),
-            // 6: A:0, B:10
-            JankStatsTest.FrameStateInputData(
-                addStates = listOf("stateNameA" to "0", "stateNameB" to "10"),
-            ),
-            // 7: A:0, B:10, C:100
-            JankStatsTest.FrameStateInputData(
-                addSFStates = listOf("stateNameC" to "100"),
-            ),
-            // 8: A:0, B:10
-            JankStatsTest.FrameStateInputData(),
-            // 9: A:0, B:10
-            JankStatsTest.FrameStateInputData(
-                removeStates = listOf("stateNameA", "stateNameB"),
-            ),
-            // 10: empty
-            JankStatsTest.FrameStateInputData(),
-            // 11: A:1
-            JankStatsTest.FrameStateInputData(
-                addStates = listOf("stateNameA" to "0", "stateNameA" to "1"),
-            ),
-            // 12-16: empty, just to allow extra frames to pulse
-            // Run more than the exact number of frames we have states for. Sometimes the system
-            // isn't done running all of the frames in which these states should go by the
-            // time we've run that number of frames.
-            JankStatsTest.FrameStateInputData(),
-            JankStatsTest.FrameStateInputData(),
-            JankStatsTest.FrameStateInputData(),
-            JankStatsTest.FrameStateInputData(),
-            JankStatsTest.FrameStateInputData(),
-        )
+        var perFrameStateData =
+            mutableListOf(
+                // 0: A:0
+                JankStatsTest.FrameStateInputData(
+                    addStates = listOf("stateNameA" to "0"),
+                ),
+                // 1: A:0
+                JankStatsTest.FrameStateInputData(),
+                // 2: A:1
+                JankStatsTest.FrameStateInputData(
+                    addStates = listOf("stateNameA" to "1"),
+                ),
+                // 3: A:2
+                JankStatsTest.FrameStateInputData(
+                    addStates = listOf("stateNameA" to "2"),
+                ),
+                // 4: A:2
+                JankStatsTest.FrameStateInputData(
+                    removeStates = listOf("stateNameA"),
+                ),
+                // 5: [nothing]
+                JankStatsTest.FrameStateInputData(),
+                // 6: A:0, B:10
+                JankStatsTest.FrameStateInputData(
+                    addStates = listOf("stateNameA" to "0", "stateNameB" to "10"),
+                ),
+                // 7: A:0, B:10, C:100
+                JankStatsTest.FrameStateInputData(
+                    addSFStates = listOf("stateNameC" to "100"),
+                ),
+                // 8: A:0, B:10
+                JankStatsTest.FrameStateInputData(),
+                // 9: A:0, B:10
+                JankStatsTest.FrameStateInputData(
+                    removeStates = listOf("stateNameA", "stateNameB"),
+                ),
+                // 10: empty
+                JankStatsTest.FrameStateInputData(),
+                // 11: A:1
+                JankStatsTest.FrameStateInputData(
+                    addStates = listOf("stateNameA" to "0", "stateNameA" to "1"),
+                ),
+                // 12-16: empty, just to allow extra frames to pulse
+                // Run more than the exact number of frames we have states for. Sometimes the system
+                // isn't done running all of the frames in which these states should go by the
+                // time we've run that number of frames.
+                JankStatsTest.FrameStateInputData(),
+                JankStatsTest.FrameStateInputData(),
+                JankStatsTest.FrameStateInputData(),
+                JankStatsTest.FrameStateInputData(),
+                JankStatsTest.FrameStateInputData(),
+            )
         // expectedResults holds the values of the states which we would expect to see in
         // a normal test run.
         // This list is currently unused due to flaky test issues related to race conditions
@@ -507,30 +507,37 @@ class JankStatsTest {
         // deterministically insert and then test against data landing in specific frames.
         // Leaving this here for future reference if we want to make the tests more robust
         // eventually.
-        val expectedResults = listOf(
-            mapOf("stateNameA" to "0"),
-            mapOf("stateNameA" to "0"),
-            mapOf("stateNameA" to "1"),
-            mapOf("stateNameA" to "2"),
-            mapOf("stateNameA" to "2"),
-            emptyMap(),
-            mapOf("stateNameA" to "0", "stateNameB" to "10"),
-            mapOf("stateNameA" to "0", "stateNameB" to "10", "stateNameC" to "100"),
-            mapOf("stateNameA" to "0", "stateNameB" to "10"),
-            mapOf("stateNameA" to "0", "stateNameB" to "10"),
-            emptyMap(),
-            mapOf("stateNameA" to "1"),
-        )
+        val expectedResults =
+            listOf(
+                mapOf("stateNameA" to "0"),
+                mapOf("stateNameA" to "0"),
+                mapOf("stateNameA" to "1"),
+                mapOf("stateNameA" to "2"),
+                mapOf("stateNameA" to "2"),
+                emptyMap(),
+                mapOf("stateNameA" to "0", "stateNameB" to "10"),
+                mapOf("stateNameA" to "0", "stateNameB" to "10", "stateNameC" to "100"),
+                mapOf("stateNameA" to "0", "stateNameB" to "10"),
+                mapOf("stateNameA" to "0", "stateNameB" to "10"),
+                emptyMap(),
+                mapOf("stateNameA" to "1"),
+            )
 
         resetFrameStates()
-        runDelayTest(frameDelay = 0, numFrames = perFrameStateData.size,
-            latchedListener, perFrameStateData)
+        runDelayTest(
+            frameDelay = 0,
+            numFrames = perFrameStateData.size,
+            latchedListener,
+            perFrameStateData
+        )
 
         // There might be one or two dropped frames, check that we have nearly the number
         // expected
-        assertTrue("There should be at least ${expectedResults.size - 2} frames of data" +
-            "but there were ${latchedListener.jankData.size}",
-            (latchedListener.jankData.size > expectedResults.size - 2))
+        assertTrue(
+            "There should be at least ${expectedResults.size - 2} frames of data" +
+                "but there were ${latchedListener.jankData.size}",
+            (latchedListener.jankData.size > expectedResults.size - 2)
+        )
 
         // A more flexible way to check for the above, accounting for very minor frame boundary
         // collisions which could cause states to be off by a frame or so, is to check
@@ -540,17 +547,17 @@ class JankStatsTest {
         // stateNameC: none, 100, none
         // Even this runs into problems, however, so disabling checks in this test for now.
 
-//        checkComplexFrameStates("stateNameA",
-//            arrayOf("0", "1", "2", null, "0", null, "1"))
-//        checkComplexFrameStates("stateNameB", arrayOf<String?>(null, "10", null))
-//        checkComplexFrameStates("stateNameC", arrayOf<String?>(null, "100", null))
+        //        checkComplexFrameStates("stateNameA",
+        //            arrayOf("0", "1", "2", null, "0", null, "1"))
+        //        checkComplexFrameStates("stateNameB", arrayOf<String?>(null, "10", null))
+        //        checkComplexFrameStates("stateNameC", arrayOf<String?>(null, "100", null))
     }
 
     /**
-     * Currently unused - this function checks the given frame data against a set of known
-     * states, in order. This works in general, but occasionally one of the states is wrong
-     * (due to multi-threaded race conditions with the frameMetrics thread, I suspect), so
-     * not used for now. Leaving it here in case we want more robust testing in the future.
+     * Currently unused - this function checks the given frame data against a set of known states,
+     * in order. This works in general, but occasionally one of the states is wrong (due to
+     * multi-threaded race conditions with the frameMetrics thread, I suspect), so not used for now.
+     * Leaving it here in case we want more robust testing in the future.
      */
     private fun checkComplexFrameStates(stateName: String, stateValues: Array<String?>) {
         var stateValuesIndex = 0
@@ -569,8 +576,7 @@ class JankStatsTest {
                         currStateValue = state.value
                         break
                     } else {
-                        assertEquals("Next state value not correct",
-                            currStateValue, state.value)
+                        assertEquals("Next state value not correct", currStateValue, state.value)
                         matched = true
                     }
                 }
@@ -594,7 +600,7 @@ class JankStatsTest {
         if (expectedResult.size != testResultStates.size) return false
         for (state in testResultStates) {
             if (state.value != expectedResult.get(state.key)) {
-               return false
+                return false
             }
         }
         return true
@@ -606,9 +612,9 @@ class JankStatsTest {
      * pre-date the current time, which is when we might be setting/removing state.
      *
      * To ensure that the right thing happens, call this function prior to setting any frame state.
-     * It will run frames through the system until the frameData start time is after the
-     * current time when this function is called. Then it will reset [latchedListener] to clear
-     * it of any state data just processed.
+     * It will run frames through the system until the frameData start time is after the current
+     * time when this function is called. Then it will reset [latchedListener] to clear it of any
+     * state data just processed.
      */
     private fun resetFrameStates() {
         try {
@@ -619,17 +625,17 @@ class JankStatsTest {
     }
 
     /**
-     * When we add or remove a frame state, it records the time for that request, then waits for
-     * a later frame starting after that time to actually add/remove those states. This sometimes
-     * breaks when there is an existing frame still to be processed and we only wait for that
-     * single frame to pulse. Because the frame started before the state request(s), they are not
+     * When we add or remove a frame state, it records the time for that request, then waits for a
+     * later frame starting after that time to actually add/remove those states. This sometimes
+     * breaks when there is an existing frame still to be processed and we only wait for that single
+     * frame to pulse. Because the frame started before the state request(s), they are not
      * added/removed as expected and tests can fail.
      *
      * The solution is to pulse frames until we see a frame happen after the current time, which
-     * should be sufficient (since this function should only be called after the state requests
-     * have been made, thus before the current time, thus before the frame we are waiting for).
-     * This function does just that; pulses frames until one has a start time after the time
-     * when this function is called. Then we record the state settings for that frame and return.
+     * should be sufficient (since this function should only be called after the state requests have
+     * been made, thus before the current time, thus before the frame we are waiting for). This
+     * function does just that; pulses frames until one has a start time after the time when this
+     * function is called. Then we record the state settings for that frame and return.
      */
     private fun syncFrameStates() {
         val currentNanos = System.nanoTime()
@@ -689,8 +695,11 @@ class JankStatsTest {
             if (latch == null) {
                 throw Exception("latch not set in LatchedListener")
             } else {
-                if (volatileFrameData.isJank && volatileFrameData.frameDurationUiNanos >
-                        (MIN_JANK_NS * jankStats.jankHeuristicMultiplier)) {
+                if (
+                    volatileFrameData.isJank &&
+                        volatileFrameData.frameDurationUiNanos >
+                            (MIN_JANK_NS * jankStats.jankHeuristicMultiplier)
+                ) {
                     this.numJankFrames++
                 }
                 this.jankData.add(volatileFrameData.copy())

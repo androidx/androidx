@@ -24,16 +24,12 @@ import androidx.fragment.app.Fragment
 import androidx.metrics.performance.PerformanceMetricsState
 import androidx.recyclerview.widget.RecyclerView
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
+/** A simple [Fragment] subclass as the second destination in the navigation. */
 class MessageListFragment : Fragment() {
 
     private val metricsStateCache = MetricsStateCache()
 
-    val messageList: Array<String> = Array<String>(100) {
-        "Message #" + it
-    }
+    val messageList: Array<String> = Array<String>(100) { "Message #" + it }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,17 +43,19 @@ class MessageListFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.MessageList)
         recyclerView.addOnAttachStateChangeListener(metricsStateCache)
         recyclerView.adapter = MessageListAdapter(messageList)
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    metricsStateCache.state?.putState("RecyclerView", "Dragging")
-                } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-                    metricsStateCache.state?.putState("RecyclerView", "Settling")
-                } else {
-                    metricsStateCache.state?.removeState("RecyclerView")
+        recyclerView.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                        metricsStateCache.state?.putState("RecyclerView", "Dragging")
+                    } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+                        metricsStateCache.state?.putState("RecyclerView", "Settling")
+                    } else {
+                        metricsStateCache.state?.removeState("RecyclerView")
+                    }
                 }
             }
-        })
+        )
     }
 
     class MetricsStateCache : View.OnAttachStateChangeListener {

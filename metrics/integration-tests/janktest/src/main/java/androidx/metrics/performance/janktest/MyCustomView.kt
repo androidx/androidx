@@ -21,37 +21,38 @@ import android.util.AttributeSet
 import android.view.View
 
 /**
- * This custom view is used to inject an artificial, random delay during drawing, to simulate
- * jank on the UI thread.
+ * This custom view is used to inject an artificial, random delay during drawing, to simulate jank
+ * on the UI thread.
  */
 class MyCustomView : View {
     constructor(context: Context?) : super(context) {}
+
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {}
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
+
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int
+    ) : super(context, attrs, defStyleAttr)
 
     override fun onDraw(canvas: Canvas) {
         /**
-         * Inject random delay to cause jank in the app.
-         * For any given item, there should be a 30% chance of jank (>32ms), and a 2% chance of
-         * extreme jank (>500ms).
-         * Regular jank will be between 32 and 82ms, extreme from 500-700ms.
+         * Inject random delay to cause jank in the app. For any given item, there should be a 30%
+         * chance of jank (>32ms), and a 2% chance of extreme jank (>500ms). Regular jank will be
+         * between 32 and 82ms, extreme from 500-700ms.
          */
         val probability = Math.random()
         if (probability > .7) {
             val delay: Long
-            delay = if (probability > .98) {
-                500 + (Math.random() * 200).toLong()
-            } else {
-                32 + (Math.random() * 50).toLong()
-            }
+            delay =
+                if (probability > .98) {
+                    500 + (Math.random() * 200).toLong()
+                } else {
+                    32 + (Math.random() * 50).toLong()
+                }
             try {
                 Thread.sleep(delay)
-            } catch (e: Exception) {
-            }
+            } catch (e: Exception) {}
         }
         super.onDraw(canvas)
     }

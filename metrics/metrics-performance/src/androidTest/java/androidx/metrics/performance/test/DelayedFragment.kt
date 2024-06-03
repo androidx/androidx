@@ -23,9 +23,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
+/** A simple [Fragment] subclass as the default destination in the navigation. */
 public class DelayedFragment : Fragment() {
 
     lateinit var delayedView: DelayedView

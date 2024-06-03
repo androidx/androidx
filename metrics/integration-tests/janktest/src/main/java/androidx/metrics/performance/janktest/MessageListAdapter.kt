@@ -29,12 +29,12 @@ class MessageListAdapter(val messageList: Array<String>) :
     class MessageHeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageHeaderTV =
             itemView.findViewById<android.widget.TextView>(R.id.messageHeader)
+
         fun bind(headerText: String) {
             itemView.setOnClickListener {
                 val bundle = bundleOf("title" to headerText)
-                Navigation.findNavController(it).navigate(
-                    R.id.action_MessageList_to_messageContent, bundle
-                )
+                Navigation.findNavController(it)
+                    .navigate(R.id.action_MessageList_to_messageContent, bundle)
             }
             messageHeaderTV.text = headerText
         }
@@ -42,8 +42,7 @@ class MessageListAdapter(val messageList: Array<String>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageHeaderViewHolder {
         return MessageHeaderViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.message_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.message_item, parent, false)
         )
     }
 

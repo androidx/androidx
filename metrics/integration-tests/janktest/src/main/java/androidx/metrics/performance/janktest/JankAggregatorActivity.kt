@@ -29,11 +29,11 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 
 /**
- * This activity shows how to use JankStatsAggregator, a class in this test directory layered
- * on top of JankStats which aggregates the per-frame data. Instead of receiving jank data
- * per frame (which would happen by using JankStats directly), the report listener only
- * receives data when a report is issued, either when the activity goes into the background
- * or if JankStatsAggregator issues the report itself.
+ * This activity shows how to use JankStatsAggregator, a class in this test directory layered on top
+ * of JankStats which aggregates the per-frame data. Instead of receiving jank data per frame (which
+ * would happen by using JankStats directly), the report listener only receives data when a report
+ * is issued, either when the activity goes into the background or if JankStatsAggregator issues the
+ * report itself.
  */
 class JankAggregatorActivity : AppCompatActivity() {
 
@@ -65,8 +65,10 @@ class JankAggregatorActivity : AppCompatActivity() {
             totalFrames: Int,
             jankFrameData: List<FrameData>
         ) {
-            println("Jank Report ($reason), totalFrames = $totalFrames, " +
-                "jankFrames = ${jankFrameData.size}")
+            println(
+                "Jank Report ($reason), totalFrames = $totalFrames, " +
+                    "jankFrames = ${jankFrameData.size}"
+            )
             for (frameData in jankFrameData) {
                 println("$frameData")
             }

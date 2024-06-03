@@ -16,15 +16,13 @@
 package androidx.metrics.performance
 
 /**
- * This class holds the core logic for logging and reporting JankStats data, along
- * with an implementation of frame timing based on capabilities of the platform prior
- * to API level 24 (when FrameMetrics was introduced).
+ * This class holds the core logic for logging and reporting JankStats data, along with an
+ * implementation of frame timing based on capabilities of the platform prior to API level 24 (when
+ * FrameMetrics was introduced).
  */
-internal open class JankStatsBaseImpl(
-    val jankStats: JankStats
-) {
+internal open class JankStatsBaseImpl(val jankStats: JankStats) {
 
-    open fun setupFrameTimer(enable: Boolean) { }
+    open fun setupFrameTimer(enable: Boolean) {}
 
     companion object {
         const val NANOS_PER_MS = 1_000_000

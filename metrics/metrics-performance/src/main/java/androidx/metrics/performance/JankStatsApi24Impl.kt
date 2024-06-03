@@ -25,10 +25,10 @@ import androidx.annotation.RequiresApi
 import kotlin.math.max
 
 /**
- * Subclass of JankStatsBaseImpl records frame timing data for API 24 and later,
- * using FrameMetrics (which was introduced in API 24). Jank data is collected by
- * setting a [Window.addOnFrameMetricsAvailableListener]
- * on the Window associated with the Activity being tracked.
+ * Subclass of JankStatsBaseImpl records frame timing data for API 24 and later, using FrameMetrics
+ * (which was introduced in API 24). Jank data is collected by setting a
+ * [Window.addOnFrameMetricsAvailableListener] on the Window associated with the Activity being
+ * tracked.
  */
 @RequiresApi(24)
 internal open class JankStatsApi24Impl(
@@ -58,10 +58,11 @@ internal open class JankStatsApi24Impl(
             val startTime = max(getFrameStartTime(frameMetrics), prevEnd)
             // ignore historical data gathered before we started listening
             if (startTime >= listenerAddedTime && startTime != prevStart) {
-                val expectedDuration = getExpectedFrameDuration(frameMetrics) *
-                    jankStats.jankHeuristicMultiplier
-                jankStats.logFrameData(getFrameData(startTime, expectedDuration.toLong(),
-                    frameMetrics))
+                val expectedDuration =
+                    getExpectedFrameDuration(frameMetrics) * jankStats.jankHeuristicMultiplier
+                jankStats.logFrameData(
+                    getFrameData(startTime, expectedDuration.toLong(), frameMetrics)
+                )
                 prevStart = startTime
             }
         }
@@ -71,12 +72,13 @@ internal open class JankStatsApi24Impl(
         expectedDuration: Long,
         frameMetrics: FrameMetrics
     ): FrameDataApi24 {
-        val uiDuration = frameMetrics.getMetric(FrameMetrics.UNKNOWN_DELAY_DURATION) +
-            frameMetrics.getMetric(FrameMetrics.INPUT_HANDLING_DURATION) +
-            frameMetrics.getMetric(FrameMetrics.ANIMATION_DURATION) +
-            frameMetrics.getMetric(FrameMetrics.LAYOUT_MEASURE_DURATION) +
-            frameMetrics.getMetric(FrameMetrics.DRAW_DURATION) +
-            frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)
+        val uiDuration =
+            frameMetrics.getMetric(FrameMetrics.UNKNOWN_DELAY_DURATION) +
+                frameMetrics.getMetric(FrameMetrics.INPUT_HANDLING_DURATION) +
+                frameMetrics.getMetric(FrameMetrics.ANIMATION_DURATION) +
+                frameMetrics.getMetric(FrameMetrics.LAYOUT_MEASURE_DURATION) +
+                frameMetrics.getMetric(FrameMetrics.DRAW_DURATION) +
+                frameMetrics.getMetric(FrameMetrics.SYNC_DURATION)
         prevEnd = startTime + uiDuration
         metricsStateHolder.state?.getIntervalStates(startTime, prevEnd, stateInfo)
         val isJank = uiDuration > expectedDuration
@@ -120,23 +122,17 @@ internal open class JankStatsApi24Impl(
     private fun Window.removeFrameMetricsListenerDelegate(
         delegate: Window.OnFrameMetricsAvailableListener
     ) {
-        val delegator = decorView.getTag(R.id.metricsDelegator) as
-            DelegatingFrameMetricsListener?
-        with(delegator) {
-            this?.remove(delegate, this@removeFrameMetricsListenerDelegate)
-        }
+        val delegator = decorView.getTag(R.id.metricsDelegator) as DelegatingFrameMetricsListener?
+        with(delegator) { this?.remove(delegate, this@removeFrameMetricsListenerDelegate) }
     }
 
     /**
-     * This function returns the current list of FrameMetricsListener delegates.
-     * If no such list exists, it will create it, and add a root listener which
-     * delegates to that list.
+     * This function returns the current list of FrameMetricsListener delegates. If no such list
+     * exists, it will create it, and add a root listener which delegates to that list.
      */
     @RequiresApi(24)
-    private fun Window.getOrCreateFrameMetricsListenerDelegator():
-        DelegatingFrameMetricsListener {
-        var delegator = decorView.getTag(R.id.metricsDelegator) as
-            DelegatingFrameMetricsListener?
+    private fun Window.getOrCreateFrameMetricsListenerDelegator(): DelegatingFrameMetricsListener {
+        var delegator = decorView.getTag(R.id.metricsDelegator) as DelegatingFrameMetricsListener?
         if (delegator == null) {
             val delegates = mutableListOf<Window.OnFrameMetricsAvailableListener>()
             delegator = DelegatingFrameMetricsListener(delegates)
@@ -155,10 +151,10 @@ internal open class JankStatsApi24Impl(
 }
 
 /**
- * To avoid having multiple frame metrics listeners for a given window (if the client
- * creates multiple JankStats instances on that window), we use a single listener and
- * delegate out to the multiple listeners provided by the client. This single instance
- * and the list of delegates are cached in view tags in the DecorView for the window.
+ * To avoid having multiple frame metrics listeners for a given window (if the client creates
+ * multiple JankStats instances on that window), we use a single listener and delegate out to the
+ * multiple listeners provided by the client. This single instance and the list of delegates are
+ * cached in view tags in the DecorView for the window.
  */
 @RequiresApi(24)
 private class DelegatingFrameMetricsListener(
@@ -174,12 +170,12 @@ private class DelegatingFrameMetricsListener(
 
     /**
      * It is possible for the delegates list to be modified concurrently (adding/removing items
-     * while also iterating through the list). To prevent this, we synchronize on this instance.
-     * It is also possible for the same thread to do both operations, causing reentrance into
-     * that synchronization block. However, the only way that should happen is if the list is
-     * being iterated on (which is called from the FrameMetrics thread, not accessible to the
-     * JankStats client) and, in any of those delegate listeners, the delegates list is modified
-     * (by calling JankStats.isTrackingEnabled()). In this case, we cache the request in one of the
+     * while also iterating through the list). To prevent this, we synchronize on this instance. It
+     * is also possible for the same thread to do both operations, causing reentrance into that
+     * synchronization block. However, the only way that should happen is if the list is being
+     * iterated on (which is called from the FrameMetrics thread, not accessible to the JankStats
+     * client) and, in any of those delegate listeners, the delegates list is modified (by calling
+     * JankStats.isTrackingEnabled()). In this case, we cache the request in one of the
      * toBeAdded/Removed lists and return. When iteration is complete, we handle those requests.
      * This would not be sufficient if those operations could happen randomly on the same thread,
      * but the order should also be as described above (with add/remove nested inside iteration).
@@ -187,7 +183,6 @@ private class DelegatingFrameMetricsListener(
      * Iteration and add/remove could also happen randomly and concurrently on different threads,
      * but in that case the synchronization block around both accesses should suffice.
      */
-
     override fun onFrameMetricsAvailable(
         window: Window?,
         frameMetrics: FrameMetrics?,
