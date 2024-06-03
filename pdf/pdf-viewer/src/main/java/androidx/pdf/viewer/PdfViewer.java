@@ -342,12 +342,13 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         return mPdfViewer;
     }
 
+    @Nullable
     public static Screen getScreen() {
         return sScreen;
     }
 
     @VisibleForTesting
-    public static void setScreenForTest(Context context) {
+    public static void setScreenForTest(@NonNull Context context) {
         sScreen = new Screen(context);
     }
 

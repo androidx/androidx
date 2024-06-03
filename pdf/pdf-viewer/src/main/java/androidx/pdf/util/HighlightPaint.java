@@ -17,14 +17,12 @@
 package androidx.pdf.util;
 
 import android.graphics.Color;
-import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.viewer.PdfViewer;
 
 /**
  * Paint objects used for highlighting in various contexts.
@@ -32,8 +30,6 @@ import androidx.pdf.viewer.PdfViewer;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class HighlightPaint {
 
-    private static final int OUTLINED_WIDTH_DP = 3;
-    private static final int OUTLINE_CORNER_RADIUS_DP = 1;
     private static final int DARKEN_ALPHA = 0x80;
 
     /** Used when the user selects some text. Light blue as per default Android selection color. */
@@ -83,24 +79,6 @@ public final class HighlightPaint {
         paint.setStyle(Style.FILL);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
         paint.setARGB(255, r, g, b);
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        return paint;
-    }
-
-    /**
-     * Creates an outline-only Paint that uses PorterDuff.Mode.MULTIPLY, meaning it darkens the
-     * light
-     * areas of the destination but leaves dark areas mostly unchanged, like a fluorescent
-     * highlighter.
-     */
-    private static Paint createOutlinedPaint(int r, int g, int b, int a) {
-        Paint paint = new Paint();
-        Screen screen = PdfViewer.getScreen();
-        paint.setStrokeWidth(screen.pxFromDp(OUTLINED_WIDTH_DP));
-        paint.setStyle(Style.STROKE);
-        paint.setPathEffect(new CornerPathEffect(screen.pxFromDp(OUTLINE_CORNER_RADIUS_DP)));
-        paint.setARGB(a, r, g, b);
         paint.setAntiAlias(true);
         paint.setDither(true);
         return paint;

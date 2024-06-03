@@ -149,7 +149,7 @@ public class WeakPdfLoaderCallbacks implements PdfLoaderCallbacks {
     }
 
     @Override
-    public void setPageGotoLinks(int pageNum, List<GotoLink> links) {
+    public void setPageGotoLinks(int pageNum, @NonNull List<GotoLink> links) {
         PdfLoaderCallbacks callbacks = getCallbacks();
         if (callbacks != null) {
             callbacks.setPageGotoLinks(pageNum, links);

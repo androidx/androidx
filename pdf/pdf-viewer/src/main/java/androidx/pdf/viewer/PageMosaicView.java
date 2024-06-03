@@ -111,7 +111,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
 
     /** Return the goto link corresponding to the given point. */
     @Nullable
-    public GotoLinkDestination getGotoDestination(Point p) {
+    public GotoLinkDestination getGotoDestination(@NonNull Point p) {
         if (mGotoLinks != null) {
             for (GotoLink link : mGotoLinks) {
                 if (link.getBounds() != null) {
@@ -150,10 +150,11 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     }
 
     @Override
-    public void setPageGotoLinks(@NonNull List<GotoLink> links) {
+    public void setPageGotoLinks(@Nullable List<GotoLink> links) {
         mGotoLinks = links;
     }
 
+    @NonNull
     @Override
     public View asView() {
         return this;

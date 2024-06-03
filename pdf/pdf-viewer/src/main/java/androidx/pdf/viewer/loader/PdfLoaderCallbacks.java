@@ -78,7 +78,7 @@ public interface PdfLoaderCallbacks {
     void setPageUrlLinks(int pageNum, @NonNull LinkRects result);
 
     /** This is called in response to getPageGotoLinks. */
-    void setPageGotoLinks(int pageNum, List<GotoLink> links);
+    void setPageGotoLinks(int pageNum, @NonNull List<GotoLink> links);
 
     /**
      * This is called in response to a call to {@link PdfLoader#cloneWithoutSecurity}.

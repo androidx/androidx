@@ -80,9 +80,9 @@ public class PageLinksView extends LinearLayout {
     }
 
     /** Set page goto links. */
-    public void setPageGotoLinks(List<GotoLink> links) {
+    public void setPageGotoLinks(@Nullable List<GotoLink> links) {
         mGotoLinks = links;
-        if (!links.isEmpty() && mTouchHelper == null) {
+        if (links != null && !links.isEmpty() && mTouchHelper == null) {
             this.mTouchHelper = new PageTouchHelper();
             ViewCompat.setAccessibilityDelegate(this, mTouchHelper);
         }

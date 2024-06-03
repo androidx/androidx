@@ -67,7 +67,7 @@ public class PageViewFactory {
         void setPageUrlLinks(@Nullable LinkRects links);
 
         /** Set page goto links. */
-        void setPageGotoLinks(List<GotoLink> links);
+        void setPageGotoLinks(@Nullable List<GotoLink> links);
 
         /**
          * Returns the base view that implements this interface.

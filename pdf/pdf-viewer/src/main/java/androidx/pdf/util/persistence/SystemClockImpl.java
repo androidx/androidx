@@ -65,8 +65,6 @@ public final class SystemClockImpl implements Clock {
     // This actually *reduces* the number of classes in an optimized build by allowing
     // Clock+SystemClockImpl to be removed.
     private static final class ElapsedRealtimeNanosImpl {
-        /** Number of nanoseconds in a single millisecond. */
-        private static final long NS_IN_MS = 1_000_000L;
 
         static long elapsedRealtimeNanos() {
             return SystemClock.elapsedRealtimeNanos();
