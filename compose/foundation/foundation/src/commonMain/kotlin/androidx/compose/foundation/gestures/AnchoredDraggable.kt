@@ -1059,7 +1059,17 @@ suspend fun <T> AnchoredDraggableState<T>.animateToWithDecay(
                     if (canDecayToTarget) {
                         debugLog { "Decay animation is used" }
                         AnimationState(prev, velocity).animateDecay(decayAnimationSpec) {
-                            if (abs(value) >= abs(targetOffset)) {
+                            // This covers a few different cases:
+                            // 1) currentOffset < targetOffset
+                            //    a) prev < targetOffset -> continue animation
+                            //    b) prev > targetOffset -> cancel as target reached
+                            // 2) currentOffset > targetOffset
+                            //    a) prev > targetOffset -> continue animation
+                            //    b) prev < targetOffset -> cancel as target reached
+                            if (
+                                (value < targetOffset && prev > targetOffset) ||
+                                    (value > targetOffset && prev < targetOffset)
+                            ) {
                                 val finalValue = value.coerceToTarget(targetOffset)
                                 dragTo(finalValue, this.velocity)
                                 remainingVelocity = if (this.velocity.isNaN()) 0f else this.velocity
