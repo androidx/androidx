@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver.test
+package androidx.sqlite.driver.bundled
 
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import kotlin.io.path.createTempFile
-import kotlin.io.path.pathString
-
-class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
-
-    override val driverType = TestDriverType.BUNDLED
-
-    override fun getDatabaseFileName(): String {
-        return createTempFile("test.db").also { it.toFile().deleteOnExit() }.pathString
-    }
-
-    override fun getDriver(): BundledSQLiteDriver {
-        return BundledSQLiteDriver()
-    }
-}
+actual typealias OpenFlag = androidx.sqlite.driver.OpenFlag

@@ -16,14 +16,37 @@
 
 package androidx.sqlite.driver.test
 
-import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.random.Random
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import platform.posix.remove
 
 class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
 
+    private val filename = "/tmp/test-${Random.nextInt()}.db"
+
     override val driverType = TestDriverType.BUNDLED
 
-    override fun getDriver(): SQLiteDriver {
+    override fun getDatabaseFileName(): String = filename
+
+    override fun getDriver(): BundledSQLiteDriver {
         return BundledSQLiteDriver()
+    }
+
+    @BeforeTest
+    fun before() {
+        deleteDatabaseFile()
+    }
+
+    @AfterTest
+    fun after() {
+        deleteDatabaseFile()
+    }
+
+    private fun deleteDatabaseFile() {
+        remove(filename)
+        remove("$filename-wal")
+        remove("$filename-shm")
     }
 }
