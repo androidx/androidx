@@ -15,11 +15,9 @@
  */
 
 @file:JvmName("NavControllerKt")
-@file:SuppressLint("NullAnnotationGroup")
 
 package androidx.navigation
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -548,9 +546,9 @@ public actual open class NavController(
      */
     @MainThread
     @JvmOverloads
-    public inline fun <reified T : Any> popBackStack(
+    public actual inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean
     ): Boolean {
         val id = serializer<T>().hashCode()
         requireNotNull(findDestinationFromRoot(id)) {
@@ -577,10 +575,10 @@ public actual open class NavController(
      */
     @MainThread
     @JvmOverloads
-    public fun <T : Any> popBackStack(
+    public actual fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean
     ): Boolean {
         val popped = popBackStackInternal(route, inclusive, saveState)
         // Only return true if the pop succeeded and we've dispatched
@@ -893,7 +891,7 @@ public actual open class NavController(
      * @return true if the saved state of the stack associated with [T] was cleared.
      */
     @MainThread
-    public inline fun <reified T : Any> clearBackStack(): Boolean =
+    public actual inline fun <reified T : Any> clearBackStack(): Boolean =
         clearBackStack(serializer<T>().hashCode())
 
     /**
@@ -908,7 +906,7 @@ public actual open class NavController(
      */
     @OptIn(InternalSerializationApi::class)
     @MainThread
-    public fun <T : Any> clearBackStack(route: T): Boolean {
+    public actual fun <T : Any> clearBackStack(route: T): Boolean {
         // route contains arguments so we need to generate and clear with the populated route
         // rather than clearing based on route pattern
         val finalRoute = generateRouteFilled(route)
@@ -2418,7 +2416,7 @@ public actual open class NavController(
      * @throws IllegalArgumentException if the given route is invalid
      */
     @MainThread
-    public fun <T : Any> navigate(route: T, builder: NavOptionsBuilder.() -> Unit) {
+    public actual fun <T : Any> navigate(route: T, builder: NavOptionsBuilder.() -> Unit) {
         navigate(route, navOptions(builder))
     }
 
@@ -2439,10 +2437,10 @@ public actual open class NavController(
      */
     @MainThread
     @JvmOverloads
-    public fun <T : Any> navigate(
+    public actual fun <T : Any> navigate(
         route: T,
-        navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
     ) {
         val finalRoute = generateRouteFilled(route)
         navigate(
@@ -2706,7 +2704,7 @@ public actual open class NavController(
      * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
+    public actual inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
         val id = serializer<T>().hashCode()
         requireNotNull(findDestinationFromRoot(id)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
@@ -2733,7 +2731,7 @@ public actual open class NavController(
      * target NavBackStackEntry's [NavDestination] must have been created with route from [KClass].
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
-    public fun <T : Any> getBackStackEntry(route: T): NavBackStackEntry {
+    public actual fun <T : Any> getBackStackEntry(route: T): NavBackStackEntry {
         // route contains arguments so we need to generate the populated route
         // rather than getting entry based on route pattern
         val finalRoute = generateRouteFilled(route)

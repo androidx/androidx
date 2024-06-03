@@ -19,6 +19,7 @@ import androidx.core.bundle.Bundle
 
 internal expect class NavBackStackEntryState(entry: NavBackStackEntry) {
     val id: String
+    val destinationId: Int
     val args: Bundle?
     val savedState: Bundle
 }

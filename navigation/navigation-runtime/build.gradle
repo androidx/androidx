@@ -30,8 +30,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("JetbrainsAndroidXPlugin")
     alias(libs.plugins.kotlinSerialization)
+    id("JetbrainsAndroidXPlugin")
 }
 
 JetbrainsAndroidXPlugin.applyAndConfigure(project)
@@ -76,6 +76,7 @@ kotlin {
                 api project(":savedstate:savedstate")
 
                 api(libs.kotlinStdlib)
+                implementation(libs.kotlinSerializationCore)
             }
         }
 
@@ -94,7 +95,6 @@ kotlin {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.activity:activity-ktx:1.7.1")
-                implementation(libs.kotlinSerializationCore)
             }
         }
 

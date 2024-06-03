@@ -16,11 +16,9 @@
 
 @file:JvmName("ActivityNavigatorDestinationBuilderKt")
 @file:Suppress("NOTHING_TO_INLINE")
-@file:SuppressLint("NullAnnotationGroup") // b/331484152
 
 package androidx.navigation
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context

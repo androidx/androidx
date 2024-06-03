@@ -25,7 +25,7 @@ import androidx.lifecycle.Lifecycle
 @SuppressLint("BanParcelableUsage")
 internal actual class NavBackStackEntryState : Parcelable {
     actual val id: String
-    val destinationId: Int
+    actual val destinationId: Int
     actual val args: Bundle?
     actual val savedState: Bundle
 
