@@ -87,11 +87,13 @@ import androidx.compose.material3.samples.IconButtonSample
 import androidx.compose.material3.samples.IconToggleButtonSample
 import androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
 import androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
+import androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.InputChipSample
 import androidx.compose.material3.samples.InputChipWithAvatarSample
 import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
+import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
@@ -958,11 +960,25 @@ val ProgressIndicatorsExamples =
             LinearProgressIndicatorSample()
         },
         Example(
+            name = ::LinearWavyProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            LinearWavyProgressIndicatorSample()
+        },
+        Example(
             name = ::IndeterminateLinearProgressIndicatorSample.name,
             description = ProgressIndicatorsExampleDescription,
             sourceUrl = ProgressIndicatorsExampleSourceUrl
         ) {
             IndeterminateLinearProgressIndicatorSample()
+        },
+        Example(
+            name = ::IndeterminateLinearWavyProgressIndicatorSample.name,
+            description = ProgressIndicatorsExampleDescription,
+            sourceUrl = ProgressIndicatorsExampleSourceUrl
+        ) {
+            IndeterminateLinearWavyProgressIndicatorSample()
         },
         Example(
             name = ::CircularProgressIndicatorSample.name,
