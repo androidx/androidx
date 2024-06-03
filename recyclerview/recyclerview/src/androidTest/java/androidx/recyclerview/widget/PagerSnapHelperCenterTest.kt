@@ -21,8 +21,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Small integration tests that verifies that [PagerSnapHelper] works as intended in regards to
- * how "center" is defined.
+ * Small integration tests that verifies that [PagerSnapHelper] works as intended in regards to how
+ * "center" is defined.
  *
  * @see BaseSnapHelperCenterTest
  */

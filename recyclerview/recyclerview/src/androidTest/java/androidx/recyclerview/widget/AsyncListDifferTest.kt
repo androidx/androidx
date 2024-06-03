@@ -246,24 +246,25 @@ class AsyncListDifferTest {
         // provides access to differ, which must be constructed after callback
         val differAccessor = arrayOf<AsyncListDiffer<*>?>(null)
 
-        val callback = object : ListUpdateCallback {
+        val callback =
+            object : ListUpdateCallback {
 
-            override fun onInserted(position: Int, count: Int) {
-                assertEquals(expectedCount[0], differAccessor[0]!!.currentList.size)
-            }
+                override fun onInserted(position: Int, count: Int) {
+                    assertEquals(expectedCount[0], differAccessor[0]!!.currentList.size)
+                }
 
-            override fun onRemoved(position: Int, count: Int) {
-                assertEquals(expectedCount[0], differAccessor[0]!!.currentList.size)
-            }
+                override fun onRemoved(position: Int, count: Int) {
+                    assertEquals(expectedCount[0], differAccessor[0]!!.currentList.size)
+                }
 
-            override fun onMoved(fromPosition: Int, toPosition: Int) {
-                fail("not expected")
-            }
+                override fun onMoved(fromPosition: Int, toPosition: Int) {
+                    fail("not expected")
+                }
 
-            override fun onChanged(position: Int, count: Int, payload: Any?) {
-                fail("not expected")
+                override fun onChanged(position: Int, count: Int, payload: Any?) {
+                    fail("not expected")
+                }
             }
-        }
 
         val differ = createDiffer(callback)
         differAccessor[0] = differ
@@ -293,8 +294,8 @@ class AsyncListDifferTest {
         val differ = createDiffer()
 
         @Suppress("UNCHECKED_CAST")
-        val listener = mock(AsyncListDiffer.ListListener::class.java)
-            as AsyncListDiffer.ListListener<String>
+        val listener =
+            mock(AsyncListDiffer.ListListener::class.java) as AsyncListDiffer.ListListener<String>
         differ.addListListener(listener)
 
         val callback = mock(Runnable::class.java)
@@ -355,33 +356,35 @@ class AsyncListDifferTest {
     }
 
     companion object {
-        private val STRING_DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                // items are the same if first char is the same
-                return oldItem[0] == newItem[0]
-            }
-
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun getChangePayload(oldItem: String, newItem: String): Any? {
-                if (newItem.startsWith(oldItem)) {
-                    // new string is appended, return added portion on the end
-                    return newItem.subSequence(oldItem.length, newItem.length)
+        private val STRING_DIFF_CALLBACK =
+            object : DiffUtil.ItemCallback<String>() {
+                override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                    // items are the same if first char is the same
+                    return oldItem[0] == newItem[0]
                 }
-                return null
+
+                override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                    return oldItem == newItem
+                }
+
+                override fun getChangePayload(oldItem: String, newItem: String): Any? {
+                    if (newItem.startsWith(oldItem)) {
+                        // new string is appended, return added portion on the end
+                        return newItem.subSequence(oldItem.length, newItem.length)
+                    }
+                    return null
+                }
             }
-        }
 
-        private val IGNORE_CALLBACK = object : ListUpdateCallback {
-            override fun onInserted(position: Int, count: Int) {}
+        private val IGNORE_CALLBACK =
+            object : ListUpdateCallback {
+                override fun onInserted(position: Int, count: Int) {}
 
-            override fun onRemoved(position: Int, count: Int) {}
+                override fun onRemoved(position: Int, count: Int) {}
 
-            override fun onMoved(fromPosition: Int, toPosition: Int) {}
+                override fun onMoved(fromPosition: Int, toPosition: Int) {}
 
-            override fun onChanged(position: Int, count: Int, payload: Any?) {}
-        }
+                override fun onChanged(position: Int, count: Int, payload: Any?) {}
+            }
     }
 }

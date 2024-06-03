@@ -37,13 +37,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ScrollBenchmark {
 
-    /**
-     * TrivialAdapter recreated each time, since it's stateful: [TrivialAdapter.disableReuse]
-     */
+    /** TrivialAdapter recreated each time, since it's stateful: [TrivialAdapter.disableReuse] */
     private lateinit var trivialAdapter: TrivialAdapter
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -123,9 +120,9 @@ class ScrollBenchmark {
 
         // Displays *many* items, each 500px tall, with many children
         forceInflate {
-            val vg: ViewGroup = LayoutInflater.from(it.context).inflate(
-                R.layout.item_viewgroup, it, false
-            ) as ViewGroup
+            val vg: ViewGroup =
+                LayoutInflater.from(it.context).inflate(R.layout.item_viewgroup, it, false)
+                    as ViewGroup
             for (i in 1..5) {
                 val parent = LinearLayout(it.context)
                 parent.layoutParams =
@@ -157,16 +154,12 @@ private class ZeroSizePool : RecyclerView.RecycledViewPool() {
 
 private class TrivialViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-/**
- * Displays *many* items, each 100px tall, with minimal inflation/bind work.
- */
+/** Displays *many* items, each 100px tall, with minimal inflation/bind work. */
 private open class TrivialAdapter : RecyclerView.Adapter<TrivialViewHolder>() {
     var disableReuse = false
 
     open var inflater: (ViewGroup) -> View = {
-        LayoutInflater.from(it.context).inflate(
-            R.layout.item_view, it, false
-        )
+        LayoutInflater.from(it.context).inflate(R.layout.item_view, it, false)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrivialViewHolder {

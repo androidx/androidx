@@ -51,98 +51,102 @@ internal class GridLayoutManagerSnappingTest(
 
     @Test
     @Throws(Throwable::class)
-    fun snapOnScrollSameView() = runBlocking(Dispatchers.Main) {
-        val config = mConfig.clone() as Config
-        val recyclerView = setupBasic(config)
-        awaitFirstLayout(recyclerView)
-        setupSnapHelper()
+    fun snapOnScrollSameView() =
+        runBlocking(Dispatchers.Main) {
+            val config = mConfig.clone() as Config
+            val recyclerView = setupBasic(config)
+            awaitFirstLayout(recyclerView)
+            setupSnapHelper()
 
-        // Record the current center view.
-        val view = findCenterView()
-        assertCenterAligned(view)
+            // Record the current center view.
+            val view = findCenterView()
+            assertCenterAligned(view)
 
-        val scrollDistance = getViewDimension(view) / 2 - 1
-        val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
-        mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
-        awaitScrollAndSnapIdle(25)
+            val scrollDistance = getViewDimension(view) / 2 - 1
+            val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
+            mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
+            awaitScrollAndSnapIdle(25)
 
-        // Views have not changed
-        val viewAfterFling = findCenterView()
-        Assert.assertSame("The view should NOT have scrolled", view, viewAfterFling)
-        assertCenterAligned(viewAfterFling)
-    }
-
-    @Test
-    @Throws(Throwable::class)
-    fun snapOnScrollNextItem() = runBlocking(Dispatchers.Main) {
-        val config = mConfig.clone() as Config
-        val recyclerView = setupBasic(config)
-        awaitFirstLayout(recyclerView)
-        setupSnapHelper()
-
-        // Record the current center view.
-        val view = findCenterView()
-        assertCenterAligned(view)
-        val viewText = (view as TextView?)!!.getText()
-        val scrollDistance = getViewDimension(view) + 1
-        val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
-        mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
-        awaitScrollAndSnapIdle(25)
-
-        val viewAfterScroll = findCenterView()
-        val viewAfterFlingText = (viewAfterScroll as TextView?)!!.getText()
-        Assert.assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText)
-        assertCenterAligned(viewAfterScroll)
-    }
+            // Views have not changed
+            val viewAfterFling = findCenterView()
+            Assert.assertSame("The view should NOT have scrolled", view, viewAfterFling)
+            assertCenterAligned(viewAfterFling)
+        }
 
     @Test
     @Throws(Throwable::class)
-    fun snapOnFlingSameView() = runBlocking(Dispatchers.Main) {
-        val config = mConfig.clone() as Config
-        val recyclerView = setupBasic(config)
-        awaitFirstLayout(recyclerView)
-        setupSnapHelper()
+    fun snapOnScrollNextItem() =
+        runBlocking(Dispatchers.Main) {
+            val config = mConfig.clone() as Config
+            val recyclerView = setupBasic(config)
+            awaitFirstLayout(recyclerView)
+            setupSnapHelper()
 
-        // Record the current center view.
-        val view = findCenterView()
-        assertCenterAligned(view)
+            // Record the current center view.
+            val view = findCenterView()
+            assertCenterAligned(view)
+            val viewText = (view as TextView?)!!.getText()
+            val scrollDistance = getViewDimension(view) + 1
+            val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
+            mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
+            awaitScrollAndSnapIdle(25)
 
-        // Velocity small enough to not scroll to the next view.
-        val velocity = (1.000001 * mRecyclerView.minFlingVelocity).toInt()
-        val velocityDir = if (mReverseScroll) -velocity else velocity
-        mGlm.expectIdleState(2)
-        Assert.assertTrue(fling(velocityDir, velocityDir))
-        awaitScrollAndSnapIdle(25)
-        val viewAfterFling = findCenterView()
-        Assert.assertSame("The view should NOT have scrolled", view, viewAfterFling)
-        assertCenterAligned(viewAfterFling)
-    }
+            val viewAfterScroll = findCenterView()
+            val viewAfterFlingText = (viewAfterScroll as TextView?)!!.getText()
+            Assert.assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText)
+            assertCenterAligned(viewAfterScroll)
+        }
 
     @Test
     @Throws(Throwable::class)
-    fun snapOnFlingNextView() = runBlocking(Dispatchers.Main) {
-        val config = mConfig.clone() as Config
-        val recyclerView = setupBasic(config)
-        awaitFirstLayout(recyclerView)
-        setupSnapHelper()
+    fun snapOnFlingSameView() =
+        runBlocking(Dispatchers.Main) {
+            val config = mConfig.clone() as Config
+            val recyclerView = setupBasic(config)
+            awaitFirstLayout(recyclerView)
+            setupSnapHelper()
 
-        // Record the current center view.
-        val view = findCenterView()
-        assertCenterAligned(view)
-        val viewText = (view as TextView?)!!.getText()
+            // Record the current center view.
+            val view = findCenterView()
+            assertCenterAligned(view)
 
-        // Velocity high enough to scroll beyond the current view.
-        val velocity = (0.25 * mRecyclerView.maxFlingVelocity).toInt()
-        val velocityDir = if (mReverseScroll) -velocity else velocity
-        mGlm.expectIdleState(1)
-        Assert.assertTrue(fling(velocityDir, velocityDir))
-        awaitScrollAndSnapIdle(25)
+            // Velocity small enough to not scroll to the next view.
+            val velocity = (1.000001 * mRecyclerView.minFlingVelocity).toInt()
+            val velocityDir = if (mReverseScroll) -velocity else velocity
+            mGlm.expectIdleState(2)
+            Assert.assertTrue(fling(velocityDir, velocityDir))
+            awaitScrollAndSnapIdle(25)
+            val viewAfterFling = findCenterView()
+            Assert.assertSame("The view should NOT have scrolled", view, viewAfterFling)
+            assertCenterAligned(viewAfterFling)
+        }
 
-        val viewAfterFling = findCenterView()
-        val viewAfterFlingText = (viewAfterFling as TextView?)!!.getText()
-        Assert.assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText)
-        assertCenterAligned(viewAfterFling)
-    }
+    @Test
+    @Throws(Throwable::class)
+    fun snapOnFlingNextView() =
+        runBlocking(Dispatchers.Main) {
+            val config = mConfig.clone() as Config
+            val recyclerView = setupBasic(config)
+            awaitFirstLayout(recyclerView)
+            setupSnapHelper()
+
+            // Record the current center view.
+            val view = findCenterView()
+            assertCenterAligned(view)
+            val viewText = (view as TextView?)!!.getText()
+
+            // Velocity high enough to scroll beyond the current view.
+            val velocity = (0.25 * mRecyclerView.maxFlingVelocity).toInt()
+            val velocityDir = if (mReverseScroll) -velocity else velocity
+            mGlm.expectIdleState(1)
+            Assert.assertTrue(fling(velocityDir, velocityDir))
+            awaitScrollAndSnapIdle(25)
+
+            val viewAfterFling = findCenterView()
+            val viewAfterFlingText = (viewAfterFling as TextView?)!!.getText()
+            Assert.assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText)
+            assertCenterAligned(viewAfterFling)
+        }
 
     private suspend fun setupSnapHelper() {
         val snapHelper: SnapHelper = LinearSnapHelper()
@@ -166,11 +170,12 @@ internal class GridLayoutManagerSnappingTest(
     }
 
     private fun getViewDimension(view: View?): Int {
-        val helper: OrientationHelper = if (mGlm.canScrollHorizontally()) {
-            OrientationHelper.createHorizontalHelper(mGlm)
-        } else {
-            OrientationHelper.createVerticalHelper(mGlm)
-        }
+        val helper: OrientationHelper =
+            if (mGlm.canScrollHorizontally()) {
+                OrientationHelper.createHorizontalHelper(mGlm)
+            } else {
+                OrientationHelper.createVerticalHelper(mGlm)
+            }
         return helper.getDecoratedMeasurement(view)
     }
 
@@ -184,6 +189,7 @@ internal class GridLayoutManagerSnappingTest(
 
     private val rvCenterX: Int
         get() = getWidthMinusPadding(mRecyclerView) / 2 + mRecyclerView.getPaddingLeft()
+
     private val rvCenterY: Int
         get() = getHeightMinusPadding(mRecyclerView) / 2 + mRecyclerView.paddingTop
 
@@ -199,12 +205,16 @@ internal class GridLayoutManagerSnappingTest(
         if (mGlm.canScrollHorizontally()) {
             Assert.assertEquals(
                 "The child should align with the center of the parent",
-                rvCenterX.toFloat(), getViewCenterX(view).toFloat(), 1f
+                rvCenterX.toFloat(),
+                getViewCenterX(view).toFloat(),
+                1f
             )
         } else {
             Assert.assertEquals(
                 "The child should align with the center of the parent",
-                rvCenterY.toFloat(), getViewCenterY(view).toFloat(), 1f
+                rvCenterY.toFloat(),
+                getViewCenterY(view).toFloat(),
+                1f
             )
         }
     }
@@ -247,6 +257,7 @@ internal class GridLayoutManagerSnappingTest(
         setRecyclerView(recyclerView)
         mGlm.awaitLayout(2)
     }
+
     private suspend fun WrappedGridLayoutManager.awaitLayout(seconds: Int) {
         runInterruptible(Dispatchers.IO) {
             mLayoutLatch.await((seconds * if (DEBUG) 1000 else 1).toLong(), TimeUnit.SECONDS)

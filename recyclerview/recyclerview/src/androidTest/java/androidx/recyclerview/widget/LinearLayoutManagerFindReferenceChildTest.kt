@@ -68,15 +68,16 @@ class LinearLayoutManagerFindReferenceChildTest(
         setupByConfig(config, true, createLayoutParams(), createLayoutParams())
 
         val targetPosition = if (config.mStackFromEnd) config.mItemCount - 2 else 1
-        val expectedReferenceChildPosition = if (childOffset <= 0) {
-            // With no childOffset, the first view is completely out of bounds and the second
-            // view should be the reference child
-            targetPosition
-        } else {
-            // With a childOffset, the last few pixels of the first view are in bounds, so the
-            // first view should be the reference child
-            if (config.mStackFromEnd) config.mItemCount - 1 else 0
-        }
+        val expectedReferenceChildPosition =
+            if (childOffset <= 0) {
+                // With no childOffset, the first view is completely out of bounds and the second
+                // view should be the reference child
+                targetPosition
+            } else {
+                // With a childOffset, the last few pixels of the first view are in bounds, so the
+                // first view should be the reference child
+                if (config.mStackFromEnd) config.mItemCount - 1 else 0
+            }
 
         // Given an RV that is scrolled to start with the second view,
         // or if childOffset > 0, scrolled to start with the last pixels of the first view ..
@@ -127,8 +128,13 @@ class LinearLayoutManagerFindReferenceChildTest(
             layoutFromEnd: Boolean,
             traverseChildrenInReverseOrder: Boolean
         ): View {
-            val referenceChild = super
-                .findReferenceChild(recycler, state, layoutFromEnd, traverseChildrenInReverseOrder)
+            val referenceChild =
+                super.findReferenceChild(
+                    recycler,
+                    state,
+                    layoutFromEnd,
+                    traverseChildrenInReverseOrder
+                )
             recordedReferenceChildren.add(getPosition(referenceChild))
             return referenceChild
         }

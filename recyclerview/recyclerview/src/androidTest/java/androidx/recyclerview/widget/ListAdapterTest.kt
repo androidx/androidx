@@ -36,14 +36,13 @@ class ListAdapterTest {
     private val mainThread = TestExecutor()
     private val diffThread = TestExecutor()
 
-    private val differConfig = AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-        .setBackgroundThreadExecutor(diffThread)
-        .build()
+    private val differConfig =
+        AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
+            .setBackgroundThreadExecutor(diffThread)
+            .build()
 
-    inner class Adapter(
-        private val onChanged: AsyncListDiffer.ListListener<String>? = null
-
-    ) : ListAdapter<String, RecyclerView.ViewHolder>(differConfig) {
+    inner class Adapter(private val onChanged: AsyncListDiffer.ListListener<String>? = null) :
+        ListAdapter<String, RecyclerView.ViewHolder>(differConfig) {
         init {
             mDiffer.mMainThreadExecutor = mainThread
         }
@@ -68,8 +67,8 @@ class ListAdapterTest {
     @Test
     fun initialState() {
         @Suppress("UNCHECKED_CAST")
-        val listener = mock(AsyncListDiffer.ListListener::class.java)
-            as AsyncListDiffer.ListListener<String>
+        val listener =
+            mock(AsyncListDiffer.ListListener::class.java) as AsyncListDiffer.ListListener<String>
 
         val adapter = Adapter(listener)
         assertEquals(0, adapter.itemCount)
@@ -107,8 +106,8 @@ class ListAdapterTest {
     fun callbacks() {
         val callback = mock(Runnable::class.java)
         @Suppress("UNCHECKED_CAST")
-        val listener = mock(AsyncListDiffer.ListListener::class.java)
-            as AsyncListDiffer.ListListener<String>
+        val listener =
+            mock(AsyncListDiffer.ListListener::class.java) as AsyncListDiffer.ListListener<String>
 
         val adapter = Adapter(listener)
 
@@ -161,14 +160,15 @@ class ListAdapterTest {
     }
 
     companion object {
-        private val STRING_DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
-            }
+        private val STRING_DIFF_CALLBACK =
+            object : DiffUtil.ItemCallback<String>() {
+                override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                    return oldItem == newItem
+                }
 
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
+                override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                    return oldItem == newItem
+                }
             }
-        }
     }
 }
