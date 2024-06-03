@@ -121,11 +121,12 @@ def regenerate_packages_kt_file(packages):
         '    packageName.fold(0) { hash, char -> hash * 31 + char.code }.absoluteValue\n\n'
     )
     system_packages_val = (
-        'val systemPackages = intSetOf(\n'
-        '    -1,\n'
+        'val systemPackages =\n'
+        '    intSetOf(\n'
+        '        -1,\n'
         '%s\n'
-        ')\n' % (
-            '\n'.join(['    packageNameHash("' + package + '"),' for package in packages])
+        '    )\n' % (
+            '\n'.join(['        packageNameHash("' + package + '"),' for package in packages])
         )
     )
     with open(kt_file, 'w') as file:
