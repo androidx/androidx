@@ -46,6 +46,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 
 internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
@@ -168,6 +169,7 @@ constructor(
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
     private val useCaseGraphConfig: UseCaseGraphConfig,
+    private val useCaseThreads: UseCaseThreads,
 ) : UseCaseCameraRequestControl {
     private val graph = useCaseGraphConfig.graph
 
@@ -193,20 +195,16 @@ constructor(
     ): Deferred<Unit> =
         runIfNotClosed {
             synchronized(lock) {
-                    debug { "[$type] Add request option: $values" }
-                    infoBundleMap
-                        .getOrPut(type) { InfoBundle() }
-                        .let {
-                            it.options.addAllCaptureRequestOptionsWithPriority(
-                                values,
-                                optionPriority
-                            )
-                            it.tags.putAll(tags)
-                            it.listeners.addAll(listeners)
-                        }
-                    infoBundleMap.merge()
-                }
-                .updateCameraStateAsync()
+                debug { "[$type] Add request option: $values" }
+                infoBundleMap
+                    .getOrPut(type) { InfoBundle() }
+                    .let {
+                        it.options.addAllCaptureRequestOptionsWithPriority(values, optionPriority)
+                        it.tags.putAll(tags)
+                        it.listeners.addAll(listeners)
+                    }
+                infoBundleMap.merge().updateCameraStateAsync()
+            }
         } ?: canceledResult
 
     override fun setConfigAsync(
@@ -220,22 +218,21 @@ constructor(
     ): Deferred<Unit> =
         runIfNotClosed {
             synchronized(lock) {
-                    debug { "[$type] Set config: ${config?.toParameters()}" }
-                    infoBundleMap[type] =
-                        InfoBundle(
-                            Camera2ImplConfig.Builder().apply {
-                                config?.let { insertAllOptions(it) }
-                            },
-                            tags.toMutableMap(),
-                            listeners.toMutableSet(),
-                            template,
-                        )
-                    infoBundleMap.merge()
-                }
-                .updateCameraStateAsync(
-                    streams = streams,
-                    sessionConfig = sessionConfig,
-                )
+                debug { "[$type] Set config: ${config?.toParameters()}" }
+                infoBundleMap[type] =
+                    InfoBundle(
+                        Camera2ImplConfig.Builder().apply { config?.let { insertAllOptions(it) } },
+                        tags.toMutableMap(),
+                        listeners.toMutableSet(),
+                        template,
+                    )
+                infoBundleMap
+                    .merge()
+                    .updateCameraStateAsync(
+                        streams = streams,
+                        sessionConfig = sessionConfig,
+                    )
+            }
         } ?: canceledResult
 
     override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> =
@@ -388,29 +385,37 @@ constructor(
             tags.forEach { (tagKey, tagValue) -> tagBundle.putTag(tagKey, tagValue) }
         }
 
+    /** Updates the [UseCaseCameraState] with latest value of [infoBundleMap]. */
+    @GuardedBy("lock")
     private fun InfoBundle.updateCameraStateAsync(
         streams: Set<StreamId>? = null,
         sessionConfig: SessionConfig? = null,
     ): Deferred<Unit> =
-        runIfNotClosed {
-            capturePipeline.template =
-                if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
-                    template!!.value
-                } else {
-                    DEFAULT_REQUEST_TEMPLATE
-                }
+        useCaseThreads.sequentialScope.async {
+            // The sequentialScope.async here ensures state.updateAsync is called outside
+            // synchronization lock, but still in-order
+            runIfNotClosed {
+                capturePipeline.template =
+                    if (template != null && template!!.value != TEMPLATE_TYPE_NONE) {
+                        template!!.value
+                    } else {
+                        DEFAULT_REQUEST_TEMPLATE
+                    }
 
-            state.updateAsync(
-                parameters = options.build().toParameters(),
-                appendParameters = false,
-                internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
-                appendInternalParameters = false,
-                streams = streams,
-                template = template,
-                listeners = listeners,
-                sessionConfig = sessionConfig,
-            )
-        } ?: canceledResult
+                state
+                    .updateAsync(
+                        parameters = options.build().toParameters(),
+                        appendParameters = false,
+                        internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
+                        appendInternalParameters = false,
+                        streams = streams,
+                        template = template,
+                        listeners = listeners,
+                        sessionConfig = sessionConfig,
+                    )
+                    .await()
+            } ?: canceledResult
+        }
 
     private inline fun <R> runIfNotClosed(block: () -> R): R? {
         return if (!closed) block() else null
