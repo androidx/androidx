@@ -54,7 +54,7 @@ class BaselineProfileTest {
     fun startupBaselineProfile() =
         baselineRule.collect(
             packageName = PACKAGE_NAME,
-            includeInStartupProfile = true,
+            includeInStartupProfile = false,
             maxIterations = 1,
             profileBlock = {
                 startActivityAndWait(Intent(ACTION))

@@ -1499,6 +1499,33 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             assertThat(notFound).isEqualTo(requiredLines)
         }
     }
+
+    @Test
+    fun testMergeArtAndStartupProfilesShouldDependOnProfileGeneration() {
+        projectSetup.producer.setupWithFreeAndPaidFlavors(
+            freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+            paidReleaseProfileLines = listOf(Fixtures.CLASS_2_METHOD_1, Fixtures.CLASS_2),
+        )
+
+        arrayOf(
+                Pair(true, true),
+                Pair(true, false),
+                Pair(false, true),
+            )
+            .forEach { (saveInSrc, automaticGenerationDuringBuild) ->
+                projectSetup.consumer.setup(
+                    androidPlugin = ANDROID_APPLICATION_PLUGIN,
+                    flavors = true,
+                    baselineProfileBlock =
+                        """
+                saveInSrc = $saveInSrc
+                automaticGenerationDuringBuild = $automaticGenerationDuringBuild
+            """
+                            .trimIndent()
+                )
+                gradleRunner.build("generateFreeReleaseBaselineProfile", "assembleFreeRelease") {}
+            }
+    }
 }
 
 @RunWith(JUnit4::class)
