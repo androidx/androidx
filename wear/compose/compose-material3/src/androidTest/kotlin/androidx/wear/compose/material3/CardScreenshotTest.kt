@@ -101,24 +101,6 @@ class CardScreenshotTest {
     fun app_card_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { sampleAppCard() }
 
     @Test
-    fun app_card_image_background() = verifyScreenshot {
-        sampleAppCard(
-            colors =
-                CardDefaults.imageCardColors(
-                    containerPainter =
-                        CardDefaults.imageWithScrimBackgroundPainter(
-                            backgroundImagePainter =
-                                painterResource(
-                                    id =
-                                        androidx.wear.compose.material3.test.R.drawable
-                                            .backgroundimage1
-                                )
-                        )
-                )
-        )
-    }
-
-    @Test
     fun title_card_ltr() =
         verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { sampleTitleCard() }
 

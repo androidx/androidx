@@ -20,19 +20,25 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -100,7 +106,7 @@ fun Card(
     CardImpl(
         onClick = onClick,
         typography = CardTokens.ContentTypography.value,
-        modifier = modifier.minimumInteractiveComponentSize(),
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
         colors = colors,
         border = border,
@@ -140,6 +146,10 @@ fun Card(
  * Example of an [AppCard] with icon:
  *
  * @sample androidx.wear.compose.material3.samples.AppCardWithIconSample
+ *
+ * Example of an [AppCard] with image [content]:
+ *
+ * @sample androidx.wear.compose.material3.samples.AppCardWithImageSample
  *
  * Example of an outlined [AppCard]:
  *
@@ -190,28 +200,42 @@ fun AppCard(
     time: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.AppCard(
+    androidx.wear.compose.materialcore.Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
-        shape = shape,
         containerPainter = colors.containerPainter,
         border = border,
         contentPadding = contentPadding,
-        appImage = appImage?.let { { appImage() } },
         interactionSource = interactionSource,
+        role = null,
+        shape = shape,
         ripple = rippleOrFallbackImplementation(),
-        appName = {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.appNameColor,
-                LocalTextStyle provides CardTokens.AppNameTypography.value,
+    ) {
+        Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                appName()
-            }
-        },
-        time =
-            time?.let {
-                {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    appImage?.let {
+                        appImage()
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.appNameColor,
+                        LocalTextStyle provides CardTokens.AppNameTypography.value,
+                    ) {
+                        appName()
+                    }
+                }
+
+                time?.let {
+                    Spacer(Modifier.width(6.dp))
                     CompositionLocalProvider(
                         LocalContentColor provides colors.timeColor,
                         LocalTextStyle provides CardTokens.TimeTypography.value,
@@ -219,16 +243,21 @@ fun AppCard(
                         time()
                     }
                 }
-            },
-        title = {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.titleColor,
-                LocalTextStyle provides CardTokens.TitleTypography.value,
-            ) {
-                title()
             }
-        },
-        content = {
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                content = {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleColor,
+                        LocalTextStyle provides CardTokens.TitleTypography.value,
+                    ) {
+                        title()
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides colors.contentColor,
                 LocalTextStyle provides CardTokens.ContentTypography.value,
@@ -236,7 +265,7 @@ fun AppCard(
                 content()
             }
         }
-    )
+    }
 }
 
 /**
@@ -259,11 +288,15 @@ fun AppCard(
  *
  * Example of a [TitleCard] with a background image:
  *
- * @sample androidx.wear.compose.material3.samples.TitleCardWithImageSample
+ * @sample androidx.wear.compose.material3.samples.TitleCardWithImageBackgroundSample
  *
  * Example of a [TitleCard] with [time], [title] and [subtitle]:
  *
  * @sample androidx.wear.compose.material3.samples.TitleCardWithSubtitleAndTimeSample
+ *
+ * Example of a [TitleCard] with images [content]:
+ *
+ * @sample androidx.wear.compose.material3.samples.TitleCardWithMultipleImagesSample
  *
  * Example of an outlined [TitleCard]:
  *
@@ -328,7 +361,7 @@ fun TitleCard(
 
     androidx.wear.compose.materialcore.Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
         containerPainter = colors.containerPainter,
         border = border,
@@ -343,22 +376,22 @@ fun TitleCard(
                 timeWithTextStyle()
                 Spacer(modifier = Modifier.height(4.dp))
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.titleColor,
-                    LocalTextStyle provides CardTokens.TitleTypography.value,
-                ) {
-                    title()
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                Row(Modifier.weight(1f)) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleColor,
+                        LocalTextStyle provides CardTokens.TitleTypography.value,
+                    ) {
+                        title()
+                    }
                 }
                 if (content != null) {
-                    Spacer(modifier = Modifier.weight(1.0f))
+                    Spacer(modifier = Modifier.width(4.dp))
                     timeWithTextStyle()
                 }
             }
             content?.let {
+                Spacer(modifier = Modifier.height(2.dp))
                 CompositionLocalProvider(
                     values =
                         arrayOf(
@@ -369,13 +402,18 @@ fun TitleCard(
                 )
             }
             subtitle?.let {
-                Spacer(modifier = Modifier.height(if (content != null) 2.dp else 4.dp))
+                Spacer(
+                    modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp)
+                )
                 CompositionLocalProvider(
                     LocalContentColor provides colors.subtitleColor,
                     LocalTextStyle provides CardTokens.SubtitleTypography.value
                 ) {
                     subtitle()
                 }
+            }
+            if (colors.containerPainter.isImagePainter()) {
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
@@ -433,7 +471,7 @@ fun OutlinedCard(
     CardImpl(
         onClick = onClick,
         typography = OutlinedCardTokens.ContentTypography.value,
-        modifier = modifier,
+        modifier = modifier.cardSizeModifier(),
         enabled = enabled,
         colors = colors,
         border = border,
@@ -566,7 +604,7 @@ object CardDefaults {
     @Composable
     fun imageWithScrimBackgroundPainter(
         backgroundImagePainter: Painter,
-        backgroundImageScrimBrush: Brush = SolidColor(OverlayScrimColor)
+        backgroundImageScrimBrush: Brush = SolidColor(overlayScrimColor)
     ): Painter {
         return ImageWithScrimPainter(
             imagePainter = backgroundImagePainter,
@@ -586,10 +624,16 @@ object CardDefaults {
         borderWidth: Dp = OutlinedCardTokens.BorderWidth
     ): BorderStroke = BorderStroke(borderWidth, outlineColor)
 
-    private val CardHorizontalPadding = 10.dp
-    private val CardVerticalPadding = 10.dp
+    private val CardHorizontalPadding = 12.dp
+    private val CardVerticalPadding = 12.dp
 
-    private val OverlayScrimColor: Color = Color(0x99202124)
+    private val overlayScrimColor: Color
+        @ReadOnlyComposable
+        @Composable
+        get() =
+            ImageCardTokens.OverlayScrimColor.value.copy(
+                alpha = ImageCardTokens.OverlayScrimOpacity
+            )
 
     /** The default content padding used by [Card] */
     val ContentPadding: PaddingValues =
@@ -631,6 +675,12 @@ object CardDefaults {
                     .also { defaultOutlinedCardColorsCached = it }
         }
 }
+
+@Composable
+private fun Modifier.cardSizeModifier(): Modifier =
+    defaultMinSize(minHeight = CardTokens.ContainerMinHeight).height(IntrinsicSize.Min)
+
+private fun Painter.isImagePainter() = intrinsicSize != Size.Unspecified
 
 /**
  * Represents Colors used in [Card]. Unlike other Material 3 components, Cards do not change their

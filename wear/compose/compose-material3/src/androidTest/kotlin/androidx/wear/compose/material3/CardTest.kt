@@ -163,7 +163,7 @@ class CardTest {
 
     @Test
     fun gives_base_card_with_text_minimum_height(): Unit =
-        rule.verifyHeight(48.dp) {
+        rule.verifyHeight(64.dp) {
             Card(
                 onClick = {},
             ) {
@@ -210,8 +210,8 @@ class CardTest {
         val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedAppColor = MaterialTheme.colorScheme.onSurfaceVariant
-            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedAppColor = MaterialTheme.colorScheme.onSurface
+            expectedTimeColor = MaterialTheme.colorScheme.onSurface
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
@@ -244,7 +244,7 @@ class CardTest {
         val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedTimeColor = MaterialTheme.colorScheme.onSurface
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             expectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
@@ -275,7 +275,7 @@ class CardTest {
         val testBackground = Color.White
 
         rule.setContentWithTheme {
-            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedTimeColor = MaterialTheme.colorScheme.onSurface
             expectedSubtitleColor = MaterialTheme.colorScheme.tertiary
             expectedTitleColor = MaterialTheme.colorScheme.onSurface
             Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
@@ -399,8 +399,8 @@ class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedAppTextStyle = MaterialTheme.typography.labelSmall
-            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
+            expectedAppTextStyle = MaterialTheme.typography.titleSmall
+            expectedTimeTextStyle = MaterialTheme.typography.bodyMedium
             expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
@@ -430,7 +430,7 @@ class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
+            expectedTimeTextStyle = MaterialTheme.typography.bodyMedium
             expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
@@ -461,8 +461,8 @@ class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedAppTextStyle = MaterialTheme.typography.labelSmall
-            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
+            expectedAppTextStyle = MaterialTheme.typography.titleSmall
+            expectedTimeTextStyle = MaterialTheme.typography.bodyMedium
             expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
