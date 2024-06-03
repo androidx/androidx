@@ -132,10 +132,14 @@ actual class GraphicsLayer internal constructor(
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerSizeSample
      */
     actual var size: IntSize = IntSize.Zero
-        internal set(value) {
+        private set(value) {
             if (field != value) {
                 field = value
                 setPosition(topLeft, value)
+                if (roundRectOutlineSize.isUnspecified) {
+                    outlineDirty = true
+                    configureOutline()
+                }
             }
         }
 
@@ -390,8 +394,7 @@ actual class GraphicsLayer internal constructor(
      * for use cases where only the [topLeft] is desired to be changed
      */
     private fun setPosition(topLeft: IntOffset, size: IntSize) {
-        impl.setPosition(topLeft, size)
-        this.outlineDirty = true
+        impl.setPosition(topLeft.x, topLeft.y, size)
     }
 
     /**
@@ -413,12 +416,7 @@ actual class GraphicsLayer internal constructor(
         size: IntSize,
         block: DrawScope.() -> Unit
     ) {
-        if (this.size != size) {
-            setPosition(topLeft, size)
-            this.size = size
-            outlineDirty = true
-            configureOutline()
-        }
+        this.size = size
         this.density = density
         this.layoutDirection = layoutDirection
         this.drawBlock = block
@@ -515,9 +513,6 @@ actual class GraphicsLayer internal constructor(
 
         recreateDisplayListIfNeeded()
 
-        if (pivotOffset.isUnspecified) {
-            impl.pivotOffset = Offset(size.width / 2f, size.height / 2f)
-        }
         configureOutline()
         val useZ = shadowElevation > 0f
         if (useZ) {
@@ -1007,7 +1002,7 @@ internal interface GraphicsLayerImpl {
     /**
      * @see GraphicsLayer.setPosition
      */
-    fun setPosition(topLeft: IntOffset, size: IntSize)
+    fun setPosition(x: Int, y: Int, size: IntSize)
 
     /**
      * @see GraphicsLayer.setPathOutline
