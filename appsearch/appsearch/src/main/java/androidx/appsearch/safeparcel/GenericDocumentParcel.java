@@ -155,6 +155,14 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
         mParentTypes = parentTypes;
     }
 
+    /** Returns the {@link GenericDocumentParcel} object from the given {@link GenericDocument}. */
+    @NonNull
+    public static GenericDocumentParcel fromGenericDocument(
+            @NonNull GenericDocument genericDocument) {
+        Objects.requireNonNull(genericDocument);
+        return genericDocument.getDocumentParcel();
+    }
+
     private static Map<String, PropertyParcel> createPropertyMapFromPropertyArray(
             @NonNull List<PropertyParcel> properties) {
         Objects.requireNonNull(properties);
@@ -278,7 +286,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
         @Nullable private List<String> mParentTypes;
 
         /**
-         * Creates a new {@link GenericDocument.Builder}.
+         * Creates a new {@link GenericDocumentParcel.Builder}.
          *
          * <p>Document IDs are unique within a namespace.
          *
