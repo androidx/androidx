@@ -25,4 +25,6 @@ internal object ImageCardTokens {
     val SubtitleColor = ColorSchemeKeyTokens.Tertiary
     val TimeColor = ColorSchemeKeyTokens.OnBackground
     val TitleColor = ColorSchemeKeyTokens.OnBackground
+    val OverlayScrimColor = ColorSchemeKeyTokens.Background
+    val OverlayScrimOpacity = 0.5f
 }
