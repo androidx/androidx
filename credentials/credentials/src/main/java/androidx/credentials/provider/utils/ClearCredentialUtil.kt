@@ -27,14 +27,17 @@ import androidx.credentials.provider.ProviderClearCredentialStateRequest
 class ClearCredentialUtil {
     companion object {
         @JvmStatic
-        internal fun convertToJetpackRequest(request: ClearCredentialStateRequest):
-            ProviderClearCredentialStateRequest {
+        internal fun convertToJetpackRequest(
+            request: ClearCredentialStateRequest
+        ): ProviderClearCredentialStateRequest {
 
             return ProviderClearCredentialStateRequest(
                 CallingAppInfo(
                     request.callingAppInfo.packageName,
                     request.callingAppInfo.signingInfo,
-                    request.callingAppInfo.origin))
+                    request.callingAppInfo.origin
+                )
+            )
         }
     }
 }

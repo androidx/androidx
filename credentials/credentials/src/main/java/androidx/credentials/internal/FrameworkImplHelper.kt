@@ -36,9 +36,7 @@ import androidx.credentials.R
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class FrameworkImplHelper {
     companion object {
-        /**
-         * Take the create request's `credentialData` and add SDK specific values to it.
-         */
+        /** Take the create request's `credentialData` and add SDK specific values to it. */
         @JvmStatic
         fun getFinalCreateCredentialData(
             request: CreateCredentialRequest,
@@ -70,27 +68,28 @@ class FrameworkImplHelper {
             response: android.credentials.GetCredentialResponse
         ): GetCredentialResponse {
             val credential = response.credential
-            return GetCredentialResponse(
-                Credential.createFrom(
-                    credential.type, credential.data
-                )
-            )
+            return GetCredentialResponse(Credential.createFrom(credential.type, credential.data))
         }
 
         @JvmStatic
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        fun convertGetRequestToFrameworkClass(request: GetCredentialRequest):
-            android.credentials.GetCredentialRequest {
-            val builder = android.credentials.GetCredentialRequest.Builder(
-                GetCredentialRequest.toRequestDataBundle(request)
-            )
+        fun convertGetRequestToFrameworkClass(
+            request: GetCredentialRequest
+        ): android.credentials.GetCredentialRequest {
+            val builder =
+                android.credentials.GetCredentialRequest.Builder(
+                    GetCredentialRequest.toRequestDataBundle(request)
+                )
             request.credentialOptions.forEach {
                 builder.addCredentialOption(
                     android.credentials.CredentialOption.Builder(
-                        it.type, it.requestData, it.candidateQueryData
-                    ).setIsSystemProviderRequired(
-                        it.isSystemProviderRequired
-                    ).setAllowedProviders(it.allowedProviders).build()
+                            it.type,
+                            it.requestData,
+                            it.candidateQueryData
+                        )
+                        .setIsSystemProviderRequired(it.isSystemProviderRequired)
+                        .setAllowedProviders(it.allowedProviders)
+                        .build()
                 )
             }
             setOriginForGetRequest(request, builder)

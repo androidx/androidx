@@ -18,14 +18,15 @@ package androidx.credentials.exceptions
 
 /**
  * During the get credential flow, this is thrown when configurations are mismatched for the
- * provider, typically indicating the provider dependency is missing in the manifest or some
- * system service is not enabled.
+ * provider, typically indicating the provider dependency is missing in the manifest or some system
+ * service is not enabled.
  *
  * @see GetCredentialException
  */
-class GetCredentialProviderConfigurationException @JvmOverloads constructor(
-    errorMessage: CharSequence? = null
-) : GetCredentialException(TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {
+class GetCredentialProviderConfigurationException
+@JvmOverloads
+constructor(errorMessage: CharSequence? = null) :
+    GetCredentialException(TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION, errorMessage) {
     internal companion object {
         internal const val TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION =
             "androidx.credentials.TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION"

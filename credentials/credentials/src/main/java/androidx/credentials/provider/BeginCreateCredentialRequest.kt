@@ -25,14 +25,11 @@ import androidx.credentials.provider.utils.BeginCreateCredentialUtil
 /**
  * Abstract request class for beginning a create credential request.
  *
- * This class is to be extended by structured create credential requests
- * such as [BeginCreatePasswordCredentialRequest].
+ * This class is to be extended by structured create credential requests such as
+ * [BeginCreatePasswordCredentialRequest].
  */
-abstract class BeginCreateCredentialRequest constructor(
-    val type: String,
-    val candidateQueryData: Bundle,
-    val callingAppInfo: CallingAppInfo?
-) {
+abstract class BeginCreateCredentialRequest
+constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo: CallingAppInfo?) {
     @RequiresApi(34)
     private object Api34Impl {
         private const val REQUEST_KEY = "androidx.credentials.provider.BeginCreateCredentialRequest"
@@ -49,10 +46,11 @@ abstract class BeginCreateCredentialRequest constructor(
         @JvmStatic
         @DoNotInline
         fun fromBundle(bundle: Bundle): BeginCreateCredentialRequest? {
-            val frameworkRequest = bundle.getParcelable(
-                REQUEST_KEY,
-                android.service.credentials.BeginCreateCredentialRequest::class.java
-            )
+            val frameworkRequest =
+                bundle.getParcelable(
+                    REQUEST_KEY,
+                    android.service.credentials.BeginCreateCredentialRequest::class.java
+                )
             if (frameworkRequest != null) {
                 return BeginCreateCredentialUtil.convertToJetpackRequest(frameworkRequest)
             }
@@ -62,9 +60,9 @@ abstract class BeginCreateCredentialRequest constructor(
 
     companion object {
         /**
-         * Helper method to convert the class to a parcelable [Bundle], in case the class
-         * instance needs to be sent across a process. Consumers of this method should use
-         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
+         * Helper method to convert the class to a parcelable [Bundle], in case the class instance
+         * needs to be sent across a process. Consumers of this method should use [fromBundle] to
+         * reconstruct the class instance back from the bundle returned here.
          */
         @JvmStatic
         fun asBundle(request: BeginCreateCredentialRequest): Bundle {
@@ -76,8 +74,8 @@ abstract class BeginCreateCredentialRequest constructor(
         }
 
         /**
-         * Helper method to convert a [Bundle] retrieved through [asBundle], back
-         * to an instance of [BeginCreateCredentialRequest].
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back to an instance of
+         * [BeginCreateCredentialRequest].
          */
         @JvmStatic
         fun fromBundle(bundle: Bundle): BeginCreateCredentialRequest? {

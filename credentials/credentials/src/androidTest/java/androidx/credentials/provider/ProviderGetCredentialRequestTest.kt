@@ -35,32 +35,16 @@ class ProviderGetCredentialRequestTest {
     @Test
     fun constructor_success() {
         ProviderGetCredentialRequest(
-            listOf(
-                createFrom(
-                    "type", Bundle(),
-                    Bundle(), true,
-                    emptySet()
-                )
-            ), CallingAppInfo(
-                "name",
-                SigningInfo()
-            )
+            listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
+            CallingAppInfo("name", SigningInfo())
         )
     }
 
     @Test
     fun constructor_createFrom_success() {
         ProviderGetCredentialRequest.createFrom(
-            listOf(
-                createFrom(
-                    "type", Bundle(),
-                    Bundle(), true,
-                    emptySet()
-                )
-            ), CallingAppInfo(
-                "name",
-                SigningInfo()
-            )
+            listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
+            CallingAppInfo("name", SigningInfo())
         )
     }
 
@@ -76,33 +60,29 @@ class ProviderGetCredentialRequestTest {
         val expectedRequestData = Bundle()
         expectedRequestData.putString(expectedRequestKey, expectedRequestValue)
         val expectedRequireSystemProvider = true
-        val expectedAllowedProviders: Set<ComponentName> = setOf(
-            ComponentName("pkg", "cls"),
-            ComponentName("pkg2", "cls2")
-        )
+        val expectedAllowedProviders: Set<ComponentName> =
+            setOf(ComponentName("pkg", "cls"), ComponentName("pkg2", "cls2"))
 
-        val providerGetCredentialRequest = ProviderGetCredentialRequest(
-            listOf(
-                createFrom(
-                    expectedType,
-                    expectedRequestData,
-                    expectedCandidateQueryData,
-                    expectedRequireSystemProvider,
-                    expectedAllowedProviders
-                )
-            ),
-            CallingAppInfo(
-                "name",
-                SigningInfo()
+        val providerGetCredentialRequest =
+            ProviderGetCredentialRequest(
+                listOf(
+                    createFrom(
+                        expectedType,
+                        expectedRequestData,
+                        expectedCandidateQueryData,
+                        expectedRequireSystemProvider,
+                        expectedAllowedProviders
+                    )
+                ),
+                CallingAppInfo("name", SigningInfo())
             )
-        )
         val actualCredentialOptionsList = providerGetCredentialRequest.credentialOptions
         assertThat(actualCredentialOptionsList.size).isEqualTo(1)
         val actualType = actualCredentialOptionsList[0].type
         val actualRequestValue =
             actualCredentialOptionsList[0].requestData.getString(expectedRequestKey)
-        val actualQueryValue = actualCredentialOptionsList[0].candidateQueryData
-            .getString(expectedQueryKey)
+        val actualQueryValue =
+            actualCredentialOptionsList[0].candidateQueryData.getString(expectedQueryKey)
         val actualRequireSystemProvider = actualCredentialOptionsList[0].isSystemProviderRequired
 
         assertThat(actualType).isEqualTo(expectedType)
@@ -117,17 +97,11 @@ class ProviderGetCredentialRequestTest {
     fun getter_signingInfo() {
         val expectedPackageName = "cool.security.package"
 
-        val providerGetCredentialRequest = ProviderGetCredentialRequest(
-            listOf(
-                createFrom(
-                    "type", Bundle(),
-                    Bundle(), true, emptySet()
-                )
-            ), CallingAppInfo(
-                expectedPackageName,
-                SigningInfo()
+        val providerGetCredentialRequest =
+            ProviderGetCredentialRequest(
+                listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
+                CallingAppInfo(expectedPackageName, SigningInfo())
             )
-        )
         val actualPackageName = providerGetCredentialRequest.callingAppInfo.packageName
 
         assertThat(actualPackageName).isEqualTo(expectedPackageName)

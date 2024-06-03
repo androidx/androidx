@@ -27,27 +27,27 @@ import org.junit.runner.RunWith
 @SmallTest
 class FidoPublicKeyCredentialTest {
 
-  class TestAuthenticatorResponse() : AuthenticatorResponse {
-    override var clientJson = JSONObject()
+    class TestAuthenticatorResponse() : AuthenticatorResponse {
+        override var clientJson = JSONObject()
 
-    override fun json(): JSONObject {
-      val response = JSONObject()
-      response.put("test", "response")
-      return response
+        override fun json(): JSONObject {
+            val response = JSONObject()
+            response.put("test", "response")
+            return response
+        }
     }
-  }
 
-  @Test
-  fun constructor() {
-    val rawId = byteArrayOf(1)
-    val encodedId = WebAuthnUtils.b64Encode(rawId)
+    @Test
+    fun constructor() {
+        val rawId = byteArrayOf(1)
+        val encodedId = WebAuthnUtils.b64Encode(rawId)
 
-    val cred = FidoPublicKeyCredential(rawId, TestAuthenticatorResponse(), "attachment")
-    val output = JSONObject(cred.json())
-    assertThat(output.getString("id")).isEqualTo(encodedId)
-    assertThat(output.getString("rawId")).isEqualTo(encodedId)
-    assertThat(output.getString("type")).isEqualTo("public-key")
-    assertThat(output.getString("authenticatorAttachment")).isEqualTo("attachment")
-    assertThat(output.getString("response")).isEqualTo("{\"test\":\"response\"}")
-  }
+        val cred = FidoPublicKeyCredential(rawId, TestAuthenticatorResponse(), "attachment")
+        val output = JSONObject(cred.json())
+        assertThat(output.getString("id")).isEqualTo(encodedId)
+        assertThat(output.getString("rawId")).isEqualTo(encodedId)
+        assertThat(output.getString("type")).isEqualTo("public-key")
+        assertThat(output.getString("authenticatorAttachment")).isEqualTo("attachment")
+        assertThat(output.getString("response")).isEqualTo("{\"test\":\"response\"}")
+    }
 }

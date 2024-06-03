@@ -21,8 +21,8 @@ import androidx.credentials.CredentialManager
 /**
  * Represents a custom error thrown during a create flow with [CredentialManager].
  *
- * If you get this custom exception, you should match its [type] against exception constants
- * defined in any third-party sdk with which you used to make the
+ * If you get this custom exception, you should match its [type] against exception constants defined
+ * in any third-party sdk with which you used to make the
  * [androidx.credentials.CreateCredentialRequest], and then handle it according to the sdk
  * recommendation.
  *
@@ -30,10 +30,10 @@ import androidx.credentials.CredentialManager
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [type] is null
  */
-class CreateCredentialCustomException @JvmOverloads constructor(
-    override val type: String,
-    errorMessage: CharSequence? = null
-) : CreateCredentialException(type, errorMessage) {
+class CreateCredentialCustomException
+@JvmOverloads
+constructor(override val type: String, errorMessage: CharSequence? = null) :
+    CreateCredentialException(type, errorMessage) {
     init {
         require(type.isNotEmpty()) { "type must not be empty" }
     }

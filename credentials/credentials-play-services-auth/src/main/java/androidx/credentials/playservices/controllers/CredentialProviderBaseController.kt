@@ -31,22 +31,20 @@ import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.gms.common.api.CommonStatusCodes
 
-/**
- * Holds all non type specific details shared by the controllers.
- */
+/** Holds all non type specific details shared by the controllers. */
 internal open class CredentialProviderBaseController(private val context: Context) {
     companion object {
 
         // Common retryable status codes from the play modules found
         // https://developers.google.com/android/reference/com/google/android/gms/common/api/CommonStatusCodes
-        val retryables: Set<Int> = setOf(
-            CommonStatusCodes.NETWORK_ERROR,
-            CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL
-        )
+        val retryables: Set<Int> =
+            setOf(
+                CommonStatusCodes.NETWORK_ERROR,
+                CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL
+            )
 
         // Generic controller request code used by all controllers
-        @JvmStatic
-        protected val CONTROLLER_REQUEST_CODE: Int = 1
+        @JvmStatic protected val CONTROLLER_REQUEST_CODE: Int = 1
 
         /** -- Used to avoid reflection, these constants map errors from HiddenActivity -- */
         const val GET_CANCELED = "GET_CANCELED_TAG"
@@ -97,8 +95,10 @@ internal open class CredentialProviderBaseController(private val context: Contex
         const val RESULT_RECEIVER_TAG = "RESULT_RECEIVER"
 
         /** Shuttles back exceptions only related to the hidden activity that can't be parceled */
-        internal fun getCredentialExceptionTypeToException(typeName: String?, msg: String?):
-            GetCredentialException {
+        internal fun getCredentialExceptionTypeToException(
+            typeName: String?,
+            msg: String?
+        ): GetCredentialException {
             return when (typeName) {
                 GET_CANCELED -> {
                     GetCredentialCancellationException(msg)
@@ -115,8 +115,10 @@ internal open class CredentialProviderBaseController(private val context: Contex
             }
         }
 
-        internal fun createCredentialExceptionTypeToException(typeName: String?, msg: String?):
-            CreateCredentialException {
+        internal fun createCredentialExceptionTypeToException(
+            typeName: String?,
+            msg: String?
+        ): CreateCredentialException {
             return when (typeName) {
                 CREATE_CANCELED -> {
                     CreateCredentialCancellationException(msg)
@@ -131,9 +133,7 @@ internal open class CredentialProviderBaseController(private val context: Contex
         }
     }
 
-    fun <T : ResultReceiver?> toIpcFriendlyResultReceiver(
-        resultReceiver: T
-    ): ResultReceiver? {
+    fun <T : ResultReceiver?> toIpcFriendlyResultReceiver(resultReceiver: T): ResultReceiver? {
         val parcel: Parcel = Parcel.obtain()
         resultReceiver!!.writeToParcel(parcel, 0)
         parcel.setDataPosition(0)
@@ -148,12 +148,8 @@ internal open class CredentialProviderBaseController(private val context: Contex
         typeTag: String
     ) {
         hiddenIntent.putExtra(TYPE_TAG, typeTag)
-        hiddenIntent.putExtra(ACTIVITY_REQUEST_CODE_TAG,
-            CONTROLLER_REQUEST_CODE
-        )
-        hiddenIntent.putExtra(
-            RESULT_RECEIVER_TAG,
-            toIpcFriendlyResultReceiver(resultReceiver))
+        hiddenIntent.putExtra(ACTIVITY_REQUEST_CODE_TAG, CONTROLLER_REQUEST_CODE)
+        hiddenIntent.putExtra(RESULT_RECEIVER_TAG, toIpcFriendlyResultReceiver(resultReceiver))
         hiddenIntent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
     }
 }

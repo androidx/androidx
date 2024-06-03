@@ -29,43 +29,37 @@ import androidx.annotation.RestrictTo
 import java.util.Collections
 
 /**
- * An entry on the selector, denoting that the provider service is locked and authentication
- * is needed to proceed.
+ * An entry on the selector, denoting that the provider service is locked and authentication is
+ * needed to proceed.
  *
- * Providers should set this entry when the provider app is locked, and no credentials can
- * be returned.
- * Providers must set the [PendingIntent] that leads to their unlock activity. When the user
- * selects this entry, the corresponding [PendingIntent] is fired and the unlock activity is
+ * Providers should set this entry when the provider app is locked, and no credentials can be
+ * returned. Providers must set the [PendingIntent] that leads to their unlock activity. When the
+ * user selects this entry, the corresponding [PendingIntent] is fired and the unlock activity is
  * invoked.
  *
- * When the user is done with the authentication flow and the provider has  credential entries
- * to return, provider must call [android.app.Activity.setResult] with the result code as
- * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared
- * by setting [BeginGetCredentialResponse] using
- * [PendingIntentHandler.setBeginGetCredentialResponse], or by setting
- * [androidx.credentials.exceptions.GetCredentialException] using
- * [PendingIntentHandler.setGetCredentialException] before ending the activity.
- * If the provider does not have a credential, or an exception to return, provider must call
+ * When the user is done with the authentication flow and the provider has credential entries to
+ * return, provider must call [android.app.Activity.setResult] with the result code as
+ * [android.app.Activity.RESULT_OK], and the [android.content.Intent] data that has been prepared by
+ * setting [BeginGetCredentialResponse] using [PendingIntentHandler.setBeginGetCredentialResponse],
+ * or by setting [androidx.credentials.exceptions.GetCredentialException] using
+ * [PendingIntentHandler.setGetCredentialException] before ending the activity. If the provider does
+ * not have a credential, or an exception to return, provider must call
  * [android.app.Activity.setResult] with the result code as [android.app.Activity.RESULT_CANCELED].
  * Setting the result code to [android.app.Activity.RESULT_CANCELED] will re-surface the selector,
  * with this authentication action labeled as having no valid credentials.
  *
- * @constructor constructs an instance of [AuthenticationAction]
- *
  * @param title the title to be shown with this entry on the account selector UI
- * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
- * entry, must be created with a unique request code per entry,
- * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
- * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
- * times
- *
- * @see android.service.credentials.BeginGetCredentialResponse
- * for more usage details.
- *
+ * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this entry,
+ *   must be created with a unique request code per entry, with flag [PendingIntent.FLAG_MUTABLE] to
+ *   allow the Android system to attach the final request, and NOT with flag
+ *   [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
+ * @constructor constructs an instance of [AuthenticationAction]
  * @throws NullPointerException If the [pendingIntent] or [title] is null
  * @throws IllegalArgumentException If the [title] is empty
+ * @see android.service.credentials.BeginGetCredentialResponse for more usage details.
  */
-class AuthenticationAction constructor(
+class AuthenticationAction
+constructor(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
 ) {
@@ -78,18 +72,13 @@ class AuthenticationAction constructor(
      *
      * @param title the title to be displayed with this authentication action entry
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with a unique request code per entry,
-     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
-     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
-     * times
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      */
-    class Builder constructor(
-        private val title: CharSequence,
-        private val pendingIntent: PendingIntent
-    ) {
-        /**
-         * Builds an instance of [AuthenticationAction]
-         */
+    class Builder
+    constructor(private val title: CharSequence, private val pendingIntent: PendingIntent) {
+        /** Builds an instance of [AuthenticationAction] */
         fun build(): AuthenticationAction {
             return AuthenticationAction(title, pendingIntent)
         }
@@ -98,8 +87,9 @@ class AuthenticationAction constructor(
     @RequiresApi(34)
     private object Api34Impl {
         @JvmStatic
-        fun fromAction(authenticationAction: android.service.credentials.Action):
-            AuthenticationAction? {
+        fun fromAction(
+            authenticationAction: android.service.credentials.Action
+        ): AuthenticationAction? {
             val slice = authenticationAction.slice
             return fromSlice(slice)
         }
@@ -122,30 +112,25 @@ class AuthenticationAction constructor(
         fun toSlice(authenticationAction: AuthenticationAction): Slice {
             val title = authenticationAction.title
             val pendingIntent = authenticationAction.pendingIntent
-            val sliceBuilder = Slice.Builder(
-                Uri.EMPTY, SliceSpec(
-                    SLICE_SPEC_TYPE,
-                    SLICE_SPEC_REVISION
-                )
-            )
+            val sliceBuilder =
+                Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, SLICE_SPEC_REVISION))
             sliceBuilder
                 .addAction(
                     pendingIntent,
                     Slice.Builder(sliceBuilder)
                         .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                         .build(),
-                    /*subType=*/null
+                    /*subType=*/ null
                 )
-                .addText(title, /*subType=*/null, listOf(SLICE_HINT_TITLE))
+                .addText(title, /* subType= */ null, listOf(SLICE_HINT_TITLE))
             return sliceBuilder.build()
         }
 
         /**
          * Returns an instance of [AuthenticationAction] derived from a [Slice] object.
          *
-         * @param slice the [Slice] object that contains the information required for
-         * constructing an instance of this class.
-         *
+         * @param slice the [Slice] object that contains the information required for constructing
+         *   an instance of this class.
          */
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
@@ -175,16 +160,17 @@ class AuthenticationAction constructor(
          * [AuthenticationAction] class
          *
          * Note that this API is not needed in a general credential retrieval flow that is
-         * implemented using this jetpack library, where you are only required to construct
-         * an instance of [AuthenticationAction] to populate the [BeginGetCredentialResponse],
-         * along with setting other entries.
+         * implemented using this jetpack library, where you are only required to construct an
+         * instance of [AuthenticationAction] to populate the [BeginGetCredentialResponse], along
+         * with setting other entries.
          *
          * @param authenticationAction the instance of framework action class to be converted
          */
         @JvmStatic
         @RequiresApi(34)
-        fun fromAction(authenticationAction: android.service.credentials.Action):
-            AuthenticationAction? {
+        fun fromAction(
+            authenticationAction: android.service.credentials.Action
+        ): AuthenticationAction? {
             if (Build.VERSION.SDK_INT >= 34) {
                 return Api34Impl.fromAction(authenticationAction)
             }

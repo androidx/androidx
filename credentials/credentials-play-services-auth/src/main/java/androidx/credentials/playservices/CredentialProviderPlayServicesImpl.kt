@@ -44,16 +44,13 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import java.util.concurrent.Executor
 
-/**
- * Entry point of all credential manager requests to the play-services-auth
- * module.
- */
+/** Entry point of all credential manager requests to the play-services-auth module. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("deprecation")
 class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 
-    @VisibleForTesting
-    var googleApiAvailability = GoogleApiAvailability.getInstance()
+    @VisibleForTesting var googleApiAvailability = GoogleApiAvailability.getInstance()
+
     override fun onGetCredential(
         context: Context,
         request: GetCredentialRequest,
@@ -61,15 +58,15 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         executor: Executor,
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) { return }
+        if (cancellationReviewer(cancellationSignal)) {
+            return
+        }
         if (isGetSignInIntentRequest(request)) {
-            CredentialProviderGetSignInIntentController(context).invokePlayServices(
-                request, callback, executor, cancellationSignal
-            )
+            CredentialProviderGetSignInIntentController(context)
+                .invokePlayServices(request, callback, executor, cancellationSignal)
         } else {
-            CredentialProviderBeginSignInController(context).invokePlayServices(
-                request, callback, executor, cancellationSignal
-            )
+            CredentialProviderBeginSignInController(context)
+                .invokePlayServices(request, callback, executor, cancellationSignal)
         }
     }
 
@@ -81,38 +78,38 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         executor: Executor,
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) { return }
+        if (cancellationReviewer(cancellationSignal)) {
+            return
+        }
         when (request) {
             is CreatePasswordRequest -> {
-                CredentialProviderCreatePasswordController.getInstance(
-                    context).invokePlayServices(
-                    request,
-                    callback,
-                    executor,
-                    cancellationSignal)
+                CredentialProviderCreatePasswordController.getInstance(context)
+                    .invokePlayServices(request, callback, executor, cancellationSignal)
             }
             is CreatePublicKeyCredentialRequest -> {
-                CredentialProviderCreatePublicKeyCredentialController.getInstance(
-                    context).invokePlayServices(
-                    request,
-                    callback,
-                    executor,
-                    cancellationSignal)
+                CredentialProviderCreatePublicKeyCredentialController.getInstance(context)
+                    .invokePlayServices(request, callback, executor, cancellationSignal)
             }
             else -> {
                 throw UnsupportedOperationException(
                     "Create Credential request is unsupported, not password or " +
-                        "publickeycredential")
+                        "publickeycredential"
+                )
             }
         }
     }
+
     override fun isAvailableOnDevice(): Boolean {
         val resultCode = isGooglePlayServicesAvailable(context)
         val isSuccessful = resultCode == ConnectionResult.SUCCESS
         if (!isSuccessful) {
             val connectionResult = ConnectionResult(resultCode)
-            Log.w(TAG, "Connection with Google Play Services was not " +
-                "successful. Connection result is: " + connectionResult.toString())
+            Log.w(
+                TAG,
+                "Connection with Google Play Services was not " +
+                    "successful. Connection result is: " +
+                    connectionResult.toString()
+            )
         }
         return isSuccessful
     }
@@ -123,7 +120,9 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     // (see GoogleApiAvailability.getInstance()) so we cannot recreate the connection to retry.
     private fun isGooglePlayServicesAvailable(context: Context): Int {
         return googleApiAvailability.isGooglePlayServicesAvailable(
-            context, /*minApkVersion=*/ MIN_GMS_APK_VERSION)
+            context,
+            /*minApkVersion=*/ MIN_GMS_APK_VERSION
+        )
     }
 
     override fun onClearCredential(
@@ -132,23 +131,31 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         executor: Executor,
         callback: CredentialManagerCallback<Void?, ClearCredentialException>
     ) {
-        if (cancellationReviewer(cancellationSignal)) { return }
+        if (cancellationReviewer(cancellationSignal)) {
+            return
+        }
         Identity.getSignInClient(context)
             .signOut()
             .addOnSuccessListener {
-                cancellationReviewerWithCallback(cancellationSignal, {
-                    Log.i(TAG, "During clear credential, signed out successfully!")
-                    executor.execute { callback.onResult(null) }
-                })
+                cancellationReviewerWithCallback(
+                    cancellationSignal,
+                    {
+                        Log.i(TAG, "During clear credential, signed out successfully!")
+                        executor.execute { callback.onResult(null) }
+                    }
+                )
             }
             .addOnFailureListener { e ->
                 run {
-                    cancellationReviewerWithCallback(cancellationSignal, {
-                        Log.w(TAG, "During clear credential sign out failed with $e")
-                        executor.execute {
-                            callback.onError(ClearCredentialUnknownException(e.message))
+                    cancellationReviewerWithCallback(
+                        cancellationSignal,
+                        {
+                            Log.w(TAG, "During clear credential sign out failed with $e")
+                            executor.execute {
+                                callback.onError(ClearCredentialUnknownException(e.message))
+                            }
                         }
-                    })
+                    )
                 }
             }
     }
@@ -158,8 +165,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
 
         // This points to the min APK version of GMS that contains required changes
         // to make passkeys work well
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val MIN_GMS_APK_VERSION = 230815045
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val MIN_GMS_APK_VERSION = 230815045
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,
@@ -170,9 +176,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
             }
         }
 
-        internal fun cancellationReviewer(
-            cancellationSignal: CancellationSignal?
-        ): Boolean {
+        internal fun cancellationReviewer(cancellationSignal: CancellationSignal?): Boolean {
             if (cancellationSignal != null) {
                 if (cancellationSignal.isCanceled) {
                     Log.i(TAG, "the flow has been canceled")

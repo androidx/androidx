@@ -19,12 +19,11 @@ package androidx.credentials.exceptions.domerrors
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
  * exception contains a constraint_err from the fido spec, indicating that some mutation operation
- * occurring during a transaction failed by not satisfying constraints. The
- * fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
+ * occurring during a transaction failed by not satisfying constraints. The fido spec can be found
+ * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class ConstraintError :
-    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR) {
+class ConstraintError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_CONSTRAINT_ERROR: String =
             "androidx.credentials.TYPE_CONSTRAINT_ERROR"

@@ -35,8 +35,8 @@ import org.junit.runner.RunWith
 class ActionTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
-    private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
-        PendingIntent.FLAG_IMMUTABLE)
+    private val mPendingIntent =
+        PendingIntent.getActivity(mContext, 0, mIntent, PendingIntent.FLAG_IMMUTABLE)
 
     @Test
     fun constructor_success() {
@@ -53,7 +53,9 @@ class ActionTest {
         Assert.assertThrows(
             "Expected empty title to throw IllegalArgumentException",
             IllegalArgumentException::class.java
-        ) { Action("", mPendingIntent, SUBTITLE) }
+        ) {
+            Action("", mPendingIntent, SUBTITLE)
+        }
     }
 
     @Test

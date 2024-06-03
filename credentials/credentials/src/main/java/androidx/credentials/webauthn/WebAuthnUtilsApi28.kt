@@ -24,12 +24,12 @@ import java.security.MessageDigest
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(28)
 internal class WebAuthnUtilsApi28 {
-  companion object {
-    fun appInfoToOrigin(info: CallingAppInfo): String {
-      val cert = info.signingInfo.apkContentsSigners[0].toByteArray()
-      val md = MessageDigest.getInstance("SHA-256")
-      val certHash = md.digest(cert)
-      return "android:apk-key-hash:${WebAuthnUtils.b64Encode(certHash)}"
+    companion object {
+        fun appInfoToOrigin(info: CallingAppInfo): String {
+            val cert = info.signingInfo.apkContentsSigners[0].toByteArray()
+            val md = MessageDigest.getInstance("SHA-256")
+            val certHash = md.digest(cert)
+            return "android:apk-key-hash:${WebAuthnUtils.b64Encode(certHash)}"
+        }
     }
-  }
 }

@@ -17,7 +17,7 @@
 package androidx.credentials.internal
 
 /**
- * Internal exception used to indicate a parsing error while converting from a framework type to
- * a jetpack type.
+ * Internal exception used to indicate a parsing error while converting from a framework type to a
+ * jetpack type.
  */
 internal class FrameworkClassParsingException : Exception()

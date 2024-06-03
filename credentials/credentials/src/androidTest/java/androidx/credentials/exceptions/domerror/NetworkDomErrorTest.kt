@@ -33,8 +33,7 @@ class NetworkDomErrorTest {
     @Test
     fun getter_success() {
         val error = NetworkError()
-        val expectedType =
-            NetworkError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NETWORK_ERROR
+        val expectedType = NetworkError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NETWORK_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

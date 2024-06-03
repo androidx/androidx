@@ -38,11 +38,11 @@ class TestUtils {
         }
 
         /**
-         * Given a superset and a subset json, this figures out if the subset can be found
-         * within the superset by recursively checking for values that exist in the subset
-         * also existing in the superset in the same format. Note this means that the superset
-         * is always equal to or larger than the subset json but should contain every key and
-         * **sub-value** pair found in the subset. I.e. for example:
+         * Given a superset and a subset json, this figures out if the subset can be found within
+         * the superset by recursively checking for values that exist in the subset also existing in
+         * the superset in the same format. Note this means that the superset is always equal to or
+         * larger than the subset json but should contain every key and **sub-value** pair found in
+         * the subset. I.e. for example:
          * ```
          * storeA = {a : {b : 2,  c : 2, d : 2, e : {x : 3, y : 3, z : 3} }, q: 5}
          * storeB = {a : {b : 2, d : 2, e : {x : 3} }, q : 5}
@@ -54,16 +54,19 @@ class TestUtils {
          * required.
          *
          * @param superset the superset json that should have all the keys and values and subvalues
-         * that the subset contains as well as new keys and values/subvalues the subset does not
-         * contain
+         *   that the subset contains as well as new keys and values/subvalues the subset does not
+         *   contain
          * @param subset the subset json that should have equal to or less keys and subvalues than
-         * the superset
+         *   the superset
          * @param requiredKeys the fixed required keys for this test
          * @return a boolean indicating if the subset was truly a subset of the superset it was
-         * tested with
+         *   tested with
          */
-        fun isSubsetJson(superset: JSONObject, subset: JSONObject, requiredKeys: JSONObject):
-            Boolean {
+        fun isSubsetJson(
+            superset: JSONObject,
+            subset: JSONObject,
+            requiredKeys: JSONObject
+        ): Boolean {
             val keys = requiredKeys.keys()
             for (key in keys) {
                 if (!superset.has(key) || !subset.has(key)) {
@@ -74,14 +77,18 @@ class TestUtils {
                 val values = subset.get(key)
                 val superValues = superset.get(key)
 
-                if ((values::class.java != superValues::class.java || values::class.java !=
-                        requiredValues::class.java) && requiredValues !is Boolean
+                if (
+                    (values::class.java != superValues::class.java ||
+                        values::class.java != requiredValues::class.java) &&
+                        requiredValues !is Boolean
                 ) {
                     return false
                 }
                 if (requiredValues is JSONObject) {
-                    if (!isSubsetJson(
-                            superValues as JSONObject, values as JSONObject,
+                    if (
+                        !isSubsetJson(
+                            superValues as JSONObject,
+                            values as JSONObject,
                             requiredValues
                         )
                     ) {
@@ -111,8 +118,9 @@ class TestUtils {
             return setValue
         }
 
-        /** True if the two Bundles contain the same elements, and false otherwise. Borrowed from
-         * the credentials package.
+        /**
+         * True if the two Bundles contain the same elements, and false otherwise. Borrowed from the
+         * credentials package.
          */
         @Suppress("DEPRECATION")
         fun equals(a: Bundle, b: Bundle): Boolean {
@@ -139,18 +147,31 @@ class TestUtils {
         }
 
         @JvmStatic
-        val ConnectionResultFailureCases = arrayListOf(
-            ConnectionResult.UNKNOWN, ConnectionResult.API_DISABLED, ConnectionResult.CANCELED,
-            ConnectionResult.API_DISABLED_FOR_CONNECTION, ConnectionResult.API_UNAVAILABLE,
-            ConnectionResult.DEVELOPER_ERROR, ConnectionResult.INTERNAL_ERROR,
-            ConnectionResult.INTERRUPTED, ConnectionResult.INVALID_ACCOUNT,
-            ConnectionResult.LICENSE_CHECK_FAILED, ConnectionResult.NETWORK_ERROR,
-            ConnectionResult.RESOLUTION_ACTIVITY_NOT_FOUND, ConnectionResult.RESOLUTION_REQUIRED,
-            ConnectionResult.RESTRICTED_PROFILE, ConnectionResult.SERVICE_DISABLED,
-            ConnectionResult.SERVICE_INVALID, ConnectionResult.SERVICE_MISSING,
-            ConnectionResult.SERVICE_MISSING_PERMISSION, ConnectionResult.SERVICE_UPDATING,
-            ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED, ConnectionResult.SIGN_IN_FAILED,
-            ConnectionResult.SIGN_IN_REQUIRED, ConnectionResult.TIMEOUT
-        )
+        val ConnectionResultFailureCases =
+            arrayListOf(
+                ConnectionResult.UNKNOWN,
+                ConnectionResult.API_DISABLED,
+                ConnectionResult.CANCELED,
+                ConnectionResult.API_DISABLED_FOR_CONNECTION,
+                ConnectionResult.API_UNAVAILABLE,
+                ConnectionResult.DEVELOPER_ERROR,
+                ConnectionResult.INTERNAL_ERROR,
+                ConnectionResult.INTERRUPTED,
+                ConnectionResult.INVALID_ACCOUNT,
+                ConnectionResult.LICENSE_CHECK_FAILED,
+                ConnectionResult.NETWORK_ERROR,
+                ConnectionResult.RESOLUTION_ACTIVITY_NOT_FOUND,
+                ConnectionResult.RESOLUTION_REQUIRED,
+                ConnectionResult.RESTRICTED_PROFILE,
+                ConnectionResult.SERVICE_DISABLED,
+                ConnectionResult.SERVICE_INVALID,
+                ConnectionResult.SERVICE_MISSING,
+                ConnectionResult.SERVICE_MISSING_PERMISSION,
+                ConnectionResult.SERVICE_UPDATING,
+                ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED,
+                ConnectionResult.SIGN_IN_FAILED,
+                ConnectionResult.SIGN_IN_REQUIRED,
+                ConnectionResult.TIMEOUT
+            )
     }
 }

@@ -18,13 +18,11 @@ package androidx.credentials.exceptions.domerrors
 
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
- * exception contains a data_clone_err from the fido spec, indicating the object cannot be
- * cloned. The fido spec can be found
- * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
+ * exception contains a data_clone_err from the fido spec, indicating the object cannot be cloned.
+ * The fido spec can be found [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class DataCloneError :
-    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DATA_CLONE_ERROR) {
+class DataCloneError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DATA_CLONE_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DATA_CLONE_ERROR: String =
             "androidx.credentials.TYPE_DATA_CLONE_ERROR"

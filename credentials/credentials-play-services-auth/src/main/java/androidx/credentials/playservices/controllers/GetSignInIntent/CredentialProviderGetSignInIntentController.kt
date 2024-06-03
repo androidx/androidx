@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("deprecation")
+
 package androidx.credentials.playservices.controllers.GetSignInIntent
 
 import android.content.Context
@@ -48,54 +49,50 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import java.util.concurrent.Executor
 
-/**
- * A controller to handle the GetSignInIntent flow with play services.
- */
+/** A controller to handle the GetSignInIntent flow with play services. */
 internal class CredentialProviderGetSignInIntentController(private val context: Context) :
-    CredentialProviderController<GetCredentialRequest, GetSignInIntentRequest,
-        SignInCredential, GetCredentialResponse, GetCredentialException>(context) {
+    CredentialProviderController<
+        GetCredentialRequest,
+        GetSignInIntentRequest,
+        SignInCredential,
+        GetCredentialResponse,
+        GetCredentialException
+    >(context) {
 
-    /**
-     * The callback object state, used in the protected handleResponse method.
-     */
+    /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting
     lateinit var callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
 
-    /**
-     * The callback requires an executor to invoke it.
-     */
-    @VisibleForTesting
-    lateinit var executor: Executor
+    /** The callback requires an executor to invoke it. */
+    @VisibleForTesting lateinit var executor: Executor
 
     /**
      * The cancellation signal, which is shuttled around to stop the flow at any moment prior to
      * returning data.
      */
-    @VisibleForTesting
-    private var cancellationSignal: CancellationSignal? = null
+    @VisibleForTesting private var cancellationSignal: CancellationSignal? = null
 
-    private val resultReceiver = object : ResultReceiver(
-        Handler(Looper.getMainLooper())
-    ) {
-        public override fun onReceiveResult(
-            resultCode: Int,
-            resultData: Bundle
-        ) {
-            if (maybeReportErrorFromResultReceiver(
-                    resultData,
-                 CredentialProviderBaseController.Companion::getCredentialExceptionTypeToException,
-                    executor = executor,
-                    callback = callback,
-                    cancellationSignal
+    private val resultReceiver =
+        object : ResultReceiver(Handler(Looper.getMainLooper())) {
+            public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                if (
+                    maybeReportErrorFromResultReceiver(
+                        resultData,
+                        CredentialProviderBaseController.Companion::
+                            getCredentialExceptionTypeToException,
+                        executor = executor,
+                        callback = callback,
+                        cancellationSignal
+                    )
                 )
-            ) return
-            handleResponse(
-                resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
-                resultCode,
-                resultData.getParcelable(RESULT_DATA_TAG)
-            )
+                    return
+                handleResponse(
+                    resultData.getInt(ACTIVITY_REQUEST_CODE_TAG),
+                    resultCode,
+                    resultData.getParcelable(RESULT_DATA_TAG)
+                )
+            }
         }
-    }
 
     override fun invokePlayServices(
         request: GetCredentialRequest,
@@ -123,9 +120,7 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
             when (e) {
                 is GetCredentialUnsupportedException ->
                     cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                        this.executor.execute {
-                            this.callback.onError(e)
-                        }
+                        this.executor.execute { this.callback.onError(e) }
                     }
                 else ->
                     cancelOrCallbackExceptionOrResult(cancellationSignal) {
@@ -140,8 +135,9 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
     }
 
     @VisibleForTesting
-    public override fun convertRequestToPlayServices(request: GetCredentialRequest):
-        GetSignInIntentRequest {
+    public override fun convertRequestToPlayServices(
+        request: GetCredentialRequest
+    ): GetSignInIntentRequest {
         if (request.credentialOptions.count() != 1) {
             throw GetCredentialUnsupportedException(
                 "GetSignInWithGoogleOption cannot be combined with other options."
@@ -155,8 +151,9 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
             .build()
     }
 
-    override fun convertResponseToCredentialManager(response: SignInCredential):
-        GetCredentialResponse {
+    override fun convertResponseToCredentialManager(
+        response: SignInCredential
+    ): GetCredentialResponse {
         var cred: Credential? = null
         if (response.googleIdToken != null) {
             cred = createGoogleIdCredential(response)
@@ -214,25 +211,21 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
             )
             return
         }
-        if (maybeReportErrorResultCodeGet(
+        if (
+            maybeReportErrorResultCodeGet(
                 resultCode,
                 { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
-                { e ->
-                    this.executor.execute {
-                        this.callback.onError(e)
-                    }
-                },
+                { e -> this.executor.execute { this.callback.onError(e) } },
                 cancellationSignal
             )
-        ) return
+        )
+            return
         try {
             val signInCredential =
                 Identity.getSignInClient(context).getSignInCredentialFromIntent(data)
             val response = convertResponseToCredentialManager(signInCredential)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                this.executor.execute {
-                    this.callback.onResult(response)
-                }
+                this.executor.execute { this.callback.onResult(response) }
             }
         } catch (e: ApiException) {
             var exception: GetCredentialException = GetCredentialUnknownException(e.message)
@@ -242,23 +235,17 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
                 exception = GetCredentialInterruptedException(e.message)
             }
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute {
-                    callback.onError(exception)
-                }
+                executor.execute { callback.onError(exception) }
             }
             return
         } catch (e: GetCredentialException) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute {
-                    callback.onError(e)
-                }
+                executor.execute { callback.onError(e) }
             }
         } catch (t: Throwable) {
             val e = GetCredentialUnknownException(t.message)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                executor.execute {
-                    callback.onError(e)
-                }
+                executor.execute { callback.onError(e) }
             }
         }
     }
@@ -274,7 +261,7 @@ internal class CredentialProviderGetSignInIntentController(private val context: 
          */
         @JvmStatic
         fun getInstance(context: Context): CredentialProviderGetSignInIntentController {
-                return CredentialProviderGetSignInIntentController(context)
-            }
+            return CredentialProviderGetSignInIntentController(context)
+        }
     }
 }

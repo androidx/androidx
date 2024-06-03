@@ -34,27 +34,30 @@ import androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED
 import androidx.biometric.BiometricPrompt.ERROR_VENDOR
 
 /**
- * This acts as a parameter hint for what [BiometricPrompt]'s error constants should be.
- * You can learn more about the constants from [BiometricPrompt] to utilize best practices.
+ * This acts as a parameter hint for what [BiometricPrompt]'s error constants should be. You can
+ * learn more about the constants from [BiometricPrompt] to utilize best practices.
  *
  * @see BiometricPrompt
  */
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
-@IntDef(value = [
-    ERROR_CANCELED,
-    ERROR_HW_NOT_PRESENT,
-    ERROR_HW_UNAVAILABLE,
-    ERROR_LOCKOUT,
-    ERROR_LOCKOUT_PERMANENT,
-    ERROR_NO_BIOMETRICS,
-    ERROR_NO_DEVICE_CREDENTIAL,
-    ERROR_NO_SPACE,
-    ERROR_SECURITY_UPDATE_REQUIRED,
-    ERROR_TIMEOUT,
-    ERROR_UNABLE_TO_PROCESS,
-    ERROR_USER_CANCELED,
-    ERROR_VENDOR
-])
+@IntDef(
+    value =
+        [
+            ERROR_CANCELED,
+            ERROR_HW_NOT_PRESENT,
+            ERROR_HW_UNAVAILABLE,
+            ERROR_LOCKOUT,
+            ERROR_LOCKOUT_PERMANENT,
+            ERROR_NO_BIOMETRICS,
+            ERROR_NO_DEVICE_CREDENTIAL,
+            ERROR_NO_SPACE,
+            ERROR_SECURITY_UPDATE_REQUIRED,
+            ERROR_TIMEOUT,
+            ERROR_UNABLE_TO_PROCESS,
+            ERROR_USER_CANCELED,
+            ERROR_VENDOR
+        ]
+)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class AuthenticationErrorTypes

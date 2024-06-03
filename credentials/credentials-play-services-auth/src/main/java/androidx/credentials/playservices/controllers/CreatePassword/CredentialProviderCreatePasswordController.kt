@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("deprecation")
+
 package androidx.credentials.playservices.controllers.CreatePassword
 
 import android.content.Context
@@ -40,27 +41,22 @@ import com.google.android.gms.auth.api.identity.SavePasswordRequest
 import com.google.android.gms.auth.api.identity.SignInPassword
 import java.util.concurrent.Executor
 
-/**
- * A controller to handle the CreatePassword flow with play services.
- */
+/** A controller to handle the CreatePassword flow with play services. */
 internal class CredentialProviderCreatePasswordController(private val context: Context) :
     CredentialProviderController<
         CreatePasswordRequest,
         SavePasswordRequest,
         Unit,
         CreateCredentialResponse,
-        CreateCredentialException>(context) {
+        CreateCredentialException
+    >(context) {
 
-    /**
-     * The callback object state, used in the protected handleResponse method.
-     */
+    /** The callback object state, used in the protected handleResponse method. */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    private lateinit var callback: CredentialManagerCallback<CreateCredentialResponse,
-        CreateCredentialException>
+    private lateinit var callback:
+        CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
 
-    /**
-     * The callback requires an executor to invoke it.
-     */
+    /** The callback requires an executor to invoke it. */
     private lateinit var executor: Executor
 
     /**
@@ -70,20 +66,23 @@ internal class CredentialProviderCreatePasswordController(private val context: C
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private var cancellationSignal: CancellationSignal? = null
 
-    private val resultReceiver = object : ResultReceiver(
-        Handler(Looper.getMainLooper())
-    ) {
-        public override fun onReceiveResult(
-            resultCode: Int,
-            resultData: Bundle
-        ) {
-            if (maybeReportErrorFromResultReceiver(resultData,
-                    CredentialProviderBaseController
-                        .Companion::createCredentialExceptionTypeToException,
-                    executor = executor, callback = callback, cancellationSignal)) return
-            handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode)
+    private val resultReceiver =
+        object : ResultReceiver(Handler(Looper.getMainLooper())) {
+            public override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                if (
+                    maybeReportErrorFromResultReceiver(
+                        resultData,
+                        CredentialProviderBaseController.Companion::
+                            createCredentialExceptionTypeToException,
+                        executor = executor,
+                        callback = callback,
+                        cancellationSignal
+                    )
+                )
+                    return
+                handleResponse(resultData.getInt(ACTIVITY_REQUEST_CODE_TAG), resultCode)
+            }
         }
-    }
 
     override fun invokePlayServices(
         request: CreatePasswordRequest,
@@ -106,42 +105,59 @@ internal class CredentialProviderCreatePasswordController(private val context: C
         try {
             context.startActivity(hiddenIntent)
         } catch (e: Exception) {
-            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
-                this.callback.onError(
-                    CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+            cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                this.executor.execute {
+                    this.callback.onError(
+                        CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)
+                    )
+                }
+            }
         }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int) {
         if (uniqueRequestCode != CONTROLLER_REQUEST_CODE) {
-            Log.w(TAG, "Returned request code " +
-                "$CONTROLLER_REQUEST_CODE which does not match what was given $uniqueRequestCode")
+            Log.w(
+                TAG,
+                "Returned request code " +
+                    "$CONTROLLER_REQUEST_CODE which does not match what was given $uniqueRequestCode"
+            )
             return
         }
-        if (maybeReportErrorResultCodeCreate(resultCode,
-                { s, f -> cancelOrCallbackExceptionOrResult(s, f) }, { e -> this.executor.execute {
-                    this.callback.onError(e) } }, cancellationSignal)) return
+        if (
+            maybeReportErrorResultCodeCreate(
+                resultCode,
+                { s, f -> cancelOrCallbackExceptionOrResult(s, f) },
+                { e -> this.executor.execute { this.callback.onError(e) } },
+                cancellationSignal
+            )
+        )
+            return
         val response: CreateCredentialResponse = convertResponseToCredentialManager(Unit)
-        cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
-            this.callback.onResult(response) } }
+        cancelOrCallbackExceptionOrResult(cancellationSignal) {
+            this.executor.execute { this.callback.onResult(response) }
+        }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public override fun convertRequestToPlayServices(request: CreatePasswordRequest):
-        SavePasswordRequest {
-        return SavePasswordRequest.builder().setSignInPassword(
-            SignInPassword(request.id, request.password)
-        ).build()
+    public override fun convertRequestToPlayServices(
+        request: CreatePasswordRequest
+    ): SavePasswordRequest {
+        return SavePasswordRequest.builder()
+            .setSignInPassword(SignInPassword(request.id, request.password))
+            .build()
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    public override fun convertResponseToCredentialManager(response: Unit):
-        CreateCredentialResponse {
+    public override fun convertResponseToCredentialManager(
+        response: Unit
+    ): CreateCredentialResponse {
         return CreatePasswordResponse()
     }
 
     companion object {
         private const val TAG = "CreatePassword"
+
         /**
          * Factory method for [CredentialProviderCreatePasswordController].
          *
@@ -149,9 +165,8 @@ internal class CredentialProviderCreatePasswordController(private val context: C
          * @return a credential provider controller for CreatePasswordController
          */
         @JvmStatic
-        fun getInstance(context: Context):
-            CredentialProviderCreatePasswordController {
-                return CredentialProviderCreatePasswordController(context)
+        fun getInstance(context: Context): CredentialProviderCreatePasswordController {
+            return CredentialProviderCreatePasswordController(context)
         }
     }
 }

@@ -19,8 +19,8 @@ package androidx.credentials
 import android.view.View
 
 /**
- * Request to be set on an Android [View], which will be invoked when the [View] is
- * focused/clicked by the user.
+ * Request to be set on an Android [View], which will be invoked when the [View] is focused/clicked
+ * by the user.
  *
  * Note that the [callback] only handles a final [GetCredentialResponse] and no errors are
  * propagated to the callback.
@@ -28,9 +28,9 @@ import android.view.View
  * See [View.setPendingCredentialRequest] for details on how this request will be used.
  *
  * @property request the [GetCredentialRequest] to be invoked when a given view on which this
- * request is set is focused
- * @property callback the callback on which the final [GetCredentialResponse] is returned, after
- * the user has made its selections
+ *   request is set is focused
+ * @property callback the callback on which the final [GetCredentialResponse] is returned, after the
+ *   user has made its selections
  */
 class PendingGetCredentialRequest(
     val request: GetCredentialRequest,

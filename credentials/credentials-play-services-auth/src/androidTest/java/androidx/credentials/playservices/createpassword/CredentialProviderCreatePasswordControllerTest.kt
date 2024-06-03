@@ -34,47 +34,38 @@ import org.junit.runner.RunWith
 class CredentialProviderCreatePasswordControllerTest {
     @Test
     fun convertResponseToCredentialManager_unitInput_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         val expectedResponseType = CreatePasswordResponse().type
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualResponse = getInstance(activity!!).convertResponseToCredentialManager(Unit)
 
-            val actualResponse = getInstance(activity!!)
-                .convertResponseToCredentialManager(Unit)
-
-            assertThat(actualResponse.type)
-                .isEqualTo(expectedResponseType)
+            assertThat(actualResponse.type).isEqualTo(expectedResponseType)
             assertThat(equals(actualResponse.data, Bundle.EMPTY)).isTrue()
         }
     }
 
     @Test
     fun convertRequestToPlayServices_createPasswordRequest_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         val expectedId = "LM"
         val expectedPassword = "SodaButton"
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
+            val actualRequest =
+                getInstance(activity!!)
+                    .convertRequestToPlayServices(
+                        CreatePasswordRequest(expectedId, expectedPassword)
+                    )
+                    .signInPassword
 
-            val actualRequest = getInstance(activity!!)
-                .convertRequestToPlayServices(CreatePasswordRequest(
-                        expectedId, expectedPassword)).signInPassword
-
-            assertThat(actualRequest.password)
-                .isEqualTo(expectedPassword)
+            assertThat(actualRequest.password).isEqualTo(expectedPassword)
             assertThat(actualRequest.id).isEqualTo(expectedId)
         }
     }
 
     @Test
     fun duplicateGetInstance_shouldBeUnequal() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-
             val firstInstance = getInstance(activity!!)
             val secondInstance = getInstance(activity)
             assertThat(firstInstance).isNotEqualTo(secondInstance)

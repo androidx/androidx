@@ -34,9 +34,7 @@ class NotReadableDomErrorTest {
     @Test
     fun getter_success() {
         val error = NotReadableError()
-        val expectedType =
-            NotReadableError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_ERROR
+        val expectedType = NotReadableError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_READABLE_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

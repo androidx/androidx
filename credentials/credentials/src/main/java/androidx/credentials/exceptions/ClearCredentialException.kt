@@ -20,16 +20,16 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 
 /**
- * Represents an error thrown during a clear flow with Credential Manager. See
- * [CredentialManager] for more details on how Exceptions work for Credential Manager flows.
+ * Represents an error thrown during a clear flow with Credential Manager. See [CredentialManager]
+ * for more details on how Exceptions work for Credential Manager flows.
  *
  * @see CredentialManager
  * @see ClearCredentialInterruptedException
  * @see ClearCredentialUnknownException
  */
-abstract class ClearCredentialException @JvmOverloads internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val type: String,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open val errorMessage: CharSequence? = null
+abstract class ClearCredentialException
+@JvmOverloads
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null
 ) : Exception(errorMessage?.toString())

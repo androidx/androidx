@@ -33,8 +33,8 @@ import androidx.annotation.RestrictTo
  *
  * If you opt to use this, the meta-data provided through the [CreateEntry] or [CredentialEntry]
  * will be shown along with a biometric / device credential capture mechanism, on a single dialog,
- * hence avoiding navigation through multiple screens. When user confirmation is retrieved
- * through the aforementioned biometric / device capture mechanism, the [android.app.PendingIntent]
+ * hence avoiding navigation through multiple screens. When user confirmation is retrieved through
+ * the aforementioned biometric / device capture mechanism, the [android.app.PendingIntent]
  * associated with the entry is invoked, and the flow continues as explained in [CreateEntry] or
  * [CredentialEntry].
  *
@@ -46,55 +46,51 @@ import androidx.annotation.RestrictTo
  * counterparts, and in some cases, provide a more useful abstraction.
  *
  * @property allowedAuthenticators specifies the type(s) of authenticators that may be invoked by
- * the [BiometricPrompt] to authenticate the user, defaults to [BIOMETRIC_WEAK] if
- * not set
+ *   the [BiometricPrompt] to authenticate the user, defaults to [BIOMETRIC_WEAK] if not set
  * @property cryptoObject a crypto object to be unlocked after successful authentication; When set,
- * the value of [allowedAuthenticators] must be [BIOMETRIC_STRONG] or else
- * an [IllegalArgumentException] is thrown
- *
+ *   the value of [allowedAuthenticators] must be [BIOMETRIC_STRONG] or else an
+ *   [IllegalArgumentException] is thrown
  * @throws IllegalArgumentException if [cryptoObject] is not null, and the [allowedAuthenticators]
- * is not set to [BIOMETRIC_STRONG]
- *
+ *   is not set to [BIOMETRIC_STRONG]
  * @see Authenticators
  * @see BiometricManager.Authenticators
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class BiometricPromptData internal constructor(
+class BiometricPromptData
+internal constructor(
     val cryptoObject: BiometricPrompt.CryptoObject? = null,
     val allowedAuthenticators: @AuthenticatorTypes Int = BIOMETRIC_WEAK,
     private var isCreatedFromBundle: Boolean = false,
 ) {
 
     /**
-     * Biometric prompt data that can be optionally used by you to provide information needed for the
-     * system to show a biometric prompt directly embedded into the Credential Manager selector.
+     * Biometric prompt data that can be optionally used by you to provide information needed for
+     * the system to show a biometric prompt directly embedded into the Credential Manager selector.
      *
      * If you opt to use this, the meta-data provided through the [CreateEntry] or [CredentialEntry]
-     * will be shown along with a biometric / device credential capture mechanism, on a single dialog,
-     * hence avoiding navigation through multiple screens. When user confirmation is retrieved
-     * through the aforementioned biometric / device capture mechanism, the [android.app.PendingIntent]
-     * associated with the entry is invoked, and the flow continues as explained in [CreateEntry] or
-     * [CredentialEntry].
+     * will be shown along with a biometric / device credential capture mechanism, on a single
+     * dialog, hence avoiding navigation through multiple screens. When user confirmation is
+     * retrieved through the aforementioned biometric / device capture mechanism, the
+     * [android.app.PendingIntent] associated with the entry is invoked, and the flow continues as
+     * explained in [CreateEntry] or [CredentialEntry].
      *
      * Note that the value of [allowedAuthenticators] together with the features of a given device,
-     * determines whether a biometric auth or a device credential mechanism will / can be shown. It is
-     * recommended you use [Authenticators] to select these values, though you can find equivalent
-     * behaviour from usage of [BiometricManager.Authenticators]. This documentation will refer to
-     * [Authenticators] constants, which easily map to their [BiometricManager.Authenticators]
-     * counterparts, and in some cases, provide a more useful abstraction.
+     * determines whether a biometric auth or a device credential mechanism will / can be shown. It
+     * is recommended you use [Authenticators] to select these values, though you can find
+     * equivalent behaviour from usage of [BiometricManager.Authenticators]. This documentation will
+     * refer to [Authenticators] constants, which easily map to their
+     * [BiometricManager.Authenticators] counterparts, and in some cases, provide a more useful
+     * abstraction.
      *
      * If you opt to use this constructor, you are confirming you are not building from a slice.
      *
      * @param allowedAuthenticators specifies the type(s) of authenticators that may be invoked by
-     * the [BiometricPrompt] to authenticate the user, defaults to [BIOMETRIC_WEAK] if
-     * not set
+     *   the [BiometricPrompt] to authenticate the user, defaults to [BIOMETRIC_WEAK] if not set
      * @param cryptoObject a crypto object to be unlocked after successful authentication; When set,
-     * the value of [allowedAuthenticators] must be [BIOMETRIC_STRONG] or else
-     * an [IllegalArgumentException] is thrown
-     *
-     * @throws IllegalArgumentException If [cryptoObject] is not null, and the [allowedAuthenticators]
-     * is not set to [BIOMETRIC_STRONG]
-     *
+     *   the value of [allowedAuthenticators] must be [BIOMETRIC_STRONG] or else an
+     *   [IllegalArgumentException] is thrown
+     * @throws IllegalArgumentException If [cryptoObject] is not null, and the
+     *   [allowedAuthenticators] is not set to [BIOMETRIC_STRONG]
      * @see Authenticators
      * @see BiometricManager.Authenticators
      */
@@ -142,26 +138,27 @@ class BiometricPromptData internal constructor(
                 if (!bundle.containsKey(BUNDLE_HINT_ALLOWED_AUTHENTICATORS)) {
                     throw IllegalArgumentException("Bundle lacks allowed authenticator key.")
                 }
-                BiometricPromptData(allowedAuthenticators = bundle.getInt(
-                    BUNDLE_HINT_ALLOWED_AUTHENTICATORS), isCreatedFromBundle = true)
+                BiometricPromptData(
+                    allowedAuthenticators = bundle.getInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS),
+                    isCreatedFromBundle = true
+                )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
         }
 
-        /**
-         * Returns a [Bundle] that contains the [BiometricPromptData] representation.
-         */
+        /** Returns a [Bundle] that contains the [BiometricPromptData] representation. */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun toBundle(biometricPromptData: BiometricPromptData): Bundle? {
             val bundle = Bundle()
-            val biometricPromptMap: MutableMap<String, Int?> = mutableMapOf(
-                BUNDLE_HINT_ALLOWED_AUTHENTICATORS to biometricPromptData.allowedAuthenticators,
-                // TODO(b/325469910) : Use the proper opId method when available
-                BUNDLE_HINT_CRYPTO_OP_ID to Integer.MIN_VALUE
-            )
+            val biometricPromptMap: MutableMap<String, Int?> =
+                mutableMapOf(
+                    BUNDLE_HINT_ALLOWED_AUTHENTICATORS to biometricPromptData.allowedAuthenticators,
+                    // TODO(b/325469910) : Use the proper opId method when available
+                    BUNDLE_HINT_CRYPTO_OP_ID to Integer.MIN_VALUE
+                )
             biometricPromptMap.forEach {
                 if (it.value != null) {
                     bundle.putInt(it.key, it.value!!)
@@ -181,13 +178,14 @@ class BiometricPromptData internal constructor(
             return true
         }
 
-        private val ALLOWED_AUTHENTICATOR_VALUES = setOf(
-            BIOMETRIC_STRONG,
-            BIOMETRIC_WEAK,
-            DEVICE_CREDENTIAL,
-            BIOMETRIC_STRONG or DEVICE_CREDENTIAL,
-            BIOMETRIC_WEAK or DEVICE_CREDENTIAL
-        )
+        private val ALLOWED_AUTHENTICATOR_VALUES =
+            setOf(
+                BIOMETRIC_STRONG,
+                BIOMETRIC_WEAK,
+                DEVICE_CREDENTIAL,
+                BIOMETRIC_STRONG or DEVICE_CREDENTIAL,
+                BIOMETRIC_WEAK or DEVICE_CREDENTIAL
+            )
     }
 
     /** Builder for constructing an instance of [BiometricPromptData] */
@@ -200,7 +198,7 @@ class BiometricPromptData internal constructor(
          * authentication. If opting to pass in a value for cryptoObject, it must not be null.
          *
          * @param cryptoObject the [CryptoObject] to be associated with this biometric
-         * authentication flow
+         *   authentication flow
          */
         fun setCryptoObject(cryptoObject: CryptoObject?): Builder {
             this.cryptoObject = cryptoObject
@@ -209,18 +207,16 @@ class BiometricPromptData internal constructor(
 
         /**
          * Specifies the type(s) of authenticators that may be invoked to authenticate the user.
-         * Available authenticator types are
-         * defined in [Authenticators] and can be combined via bitwise OR. Defaults to
-         * [BIOMETRIC_WEAK].
+         * Available authenticator types are defined in [Authenticators] and can be combined via
+         * bitwise OR. Defaults to [BIOMETRIC_WEAK].
          *
-         * If this method is used and no authenticator of any of the specified types is
-         * available at the time an error code will be supplied as part of
-         * [android.content.Intent] that will be launched by the
-         * containing [CredentialEntry] or [CreateEntry]'s corresponding
+         * If this method is used and no authenticator of any of the specified types is available at
+         * the time an error code will be supplied as part of [android.content.Intent] that will be
+         * launched by the containing [CredentialEntry] or [CreateEntry]'s corresponding
          * [android.app.PendingIntent].
          *
-         * @param allowedAuthenticators A bit field representing all valid authenticator types
-         *                              that may be invoked by the Credential Manager selector.
+         * @param allowedAuthenticators A bit field representing all valid authenticator types that
+         *   may be invoked by the Credential Manager selector.
          */
         fun setAllowedAuthenticators(allowedAuthenticators: @AuthenticatorTypes Int): Builder {
             this.allowedAuthenticators = allowedAuthenticators
@@ -231,7 +227,7 @@ class BiometricPromptData internal constructor(
          * Builds the [BiometricPromptData] instance.
          *
          * @throws IllegalArgumentException If [cryptoObject] is not null, and the
-         * [allowedAuthenticators] is not set to [BIOMETRIC_STRONG]
+         *   [allowedAuthenticators] is not set to [BIOMETRIC_STRONG]
          */
         fun build(): BiometricPromptData {
             if (cryptoObject != null && allowedAuthenticators != null) {

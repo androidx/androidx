@@ -26,15 +26,12 @@ class PendingGetCredentialRequestTest {
     @Test
     @RequiresApi(35)
     fun constructor_setAndGetRequestThroughViewTag() {
-        val request = GetCredentialRequest.Builder()
-            .setCredentialOptions(listOf(GetPasswordOption()))
-            .build()
+        val request =
+            GetCredentialRequest.Builder().setCredentialOptions(listOf(GetPasswordOption())).build()
 
-        val pendingGetCredentialRequest = PendingGetCredentialRequest(
-            request
-        ) { _: GetCredentialResponse? -> }
+        val pendingGetCredentialRequest =
+            PendingGetCredentialRequest(request) { _: GetCredentialResponse? -> }
 
-        assertThat(pendingGetCredentialRequest.request)
-            .isSameInstanceAs(request)
+        assertThat(pendingGetCredentialRequest.request).isSameInstanceAs(request)
     }
 }

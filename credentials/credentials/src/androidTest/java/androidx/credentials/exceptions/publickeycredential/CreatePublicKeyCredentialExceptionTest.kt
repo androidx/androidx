@@ -63,13 +63,12 @@ class CreatePublicKeyCredentialExceptionTest {
         val expectedDomError: DomError = DataCloneError()
         val expectedType =
             CreatePublicKeyCredentialDomException.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
-                SEPARATOR + expectedDomError.type
+                SEPARATOR +
+                expectedDomError.type
 
         val exception = createFrom(expectedType, expectedMessage)
 
-        assertThat(exception).isInstanceOf(
-            CreatePublicKeyCredentialDomException::class.java
-        )
+        assertThat(exception).isInstanceOf(CreatePublicKeyCredentialDomException::class.java)
         assertThat((exception as CreatePublicKeyCredentialDomException).domError)
             .isInstanceOf(DataCloneError::class.java)
         assertThat(exception.type).isEqualTo(expectedType)
@@ -83,9 +82,7 @@ class CreatePublicKeyCredentialExceptionTest {
 
         val exception = createFrom(expectedType, expectedMessage)
 
-        assertThat(exception).isInstanceOf(
-            CreateCredentialCustomException::class.java
-        )
+        assertThat(exception).isInstanceOf(CreateCredentialCustomException::class.java)
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.message).isEqualTo(expectedMessage)
     }

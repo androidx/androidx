@@ -35,8 +35,7 @@ class AbortDomErrorTest {
     @Test
     fun getter_success() {
         val error = AbortError()
-        val expectedType =
-            AbortError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_ERROR
+        val expectedType = AbortError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_ABORT_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

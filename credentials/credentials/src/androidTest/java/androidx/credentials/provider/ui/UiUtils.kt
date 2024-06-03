@@ -37,24 +37,17 @@ class UiUtils {
     companion object {
         private val sContext = ApplicationProvider.getApplicationContext<Context>()
         private val sIntent = Intent()
-        private val sPendingIntent = PendingIntent.getActivity(
-            sContext, 0, sIntent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        private val sPendingIntent =
+            PendingIntent.getActivity(sContext, 0, sIntent, PendingIntent.FLAG_IMMUTABLE)
         private val ACCOUNT_NAME: CharSequence = "account_name"
         private const val DESCRIPTION = "description"
         private const val PASSWORD_COUNT = 10
         private const val PUBLIC_KEY_CREDENTIAL_COUNT = 10
         private const val TOTAL_COUNT = 10
         private const val LAST_USED_TIME = 10L
-        private val ICON = Icon.createWithBitmap(
-            Bitmap.createBitmap(
-                100, 100, Bitmap.Config.ARGB_8888
-            )
-        )
-        private val BEGIN_OPTION = BeginGetPasswordOption(
-            setOf(), Bundle.EMPTY, "id"
-        )
+        private val ICON =
+            Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+        private val BEGIN_OPTION = BeginGetPasswordOption(setOf(), Bundle.EMPTY, "id")
 
         /**
          * Generates a default authentication action entry that can be used for tests around the
@@ -66,8 +59,7 @@ class UiUtils {
         }
 
         /**
-         * Generates a default action entry that can be used for tests around the provider
-         * objects.
+         * Generates a default action entry that can be used for tests around the provider objects.
          */
         @JvmStatic
         fun constructActionEntry(title: CharSequence, subtitle: CharSequence): Action {
@@ -81,12 +73,7 @@ class UiUtils {
         @JvmStatic
         @Suppress("DEPRECATION")
         fun constructPasswordCredentialEntryDefault(username: CharSequence): CredentialEntry {
-            return PasswordCredentialEntry(
-                sContext,
-                username,
-                sPendingIntent,
-                BEGIN_OPTION
-            )
+            return PasswordCredentialEntry(sContext, username, sPendingIntent, BEGIN_OPTION)
         }
 
         /**
@@ -98,8 +85,8 @@ class UiUtils {
         }
 
         /**
-         * Generates a create entry with known inputs for accountName and description in order
-         * to test proper formation.
+         * Generates a create entry with known inputs for accountName and description in order to
+         * test proper formation.
          *
          * @param accountName the account name associated with the create entry
          * @param description the description associated with the create entry
@@ -108,15 +95,14 @@ class UiUtils {
         fun constructCreateEntryWithSimpleParams(
             accountName: CharSequence,
             description: CharSequence
-        ):
-            CreateEntry {
-            return CreateEntry.Builder(accountName, sPendingIntent).setDescription(description)
+        ): CreateEntry {
+            return CreateEntry.Builder(accountName, sPendingIntent)
+                .setDescription(description)
                 .build()
         }
 
         @JvmStatic
-        fun constructRemoteEntry():
-            RemoteEntry {
+        fun constructRemoteEntry(): RemoteEntry {
             return RemoteEntry(sPendingIntent)
         }
     }

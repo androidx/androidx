@@ -36,8 +36,8 @@ import org.junit.runner.RunWith
 class BiometricPromptDataTest {
     @Test
     fun construct_cryptoObjectStrongAllowedAuthenticator_success() {
-        val biometricPromptData = BiometricPromptData(TEST_CRYPTO_OBJECT,
-            TEST_ALLOWED_AUTHENTICATOR)
+        val biometricPromptData =
+            BiometricPromptData(TEST_CRYPTO_OBJECT, TEST_ALLOWED_AUTHENTICATOR)
 
         assertThat(biometricPromptData.allowedAuthenticators).isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
         assertThat(biometricPromptData.cryptoObject).isEqualTo(TEST_CRYPTO_OBJECT)
@@ -47,9 +47,10 @@ class BiometricPromptDataTest {
     fun construct_cryptoObjectNullAuthenticatorNotProvided_successWithWeakAuthenticator() {
         val expectedAuthenticator = BiometricManager.Authenticators.BIOMETRIC_WEAK
 
-        val biometricPromptData = BiometricPromptData(
-            null,
-        )
+        val biometricPromptData =
+            BiometricPromptData(
+                null,
+            )
 
         assertThat(biometricPromptData.cryptoObject).isNull()
         assertThat(biometricPromptData.allowedAuthenticators).isEqualTo(expectedAuthenticator)
@@ -62,9 +63,7 @@ class BiometricPromptDataTest {
                 "IllegalArgumentException",
             java.lang.IllegalArgumentException::class.java
         ) {
-            BiometricPromptData(
-                TEST_CRYPTO_OBJECT
-            )
+            BiometricPromptData(TEST_CRYPTO_OBJECT)
         }
     }
 
@@ -101,9 +100,11 @@ class BiometricPromptDataTest {
 
     @Test
     fun build_setCryptoObjectWithStrongAuthenticatorOnly_success() {
-        val actualBiometricPromptData = BiometricPromptData.Builder()
-            .setCryptoObject(TEST_CRYPTO_OBJECT)
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG).build()
+        val actualBiometricPromptData =
+            BiometricPromptData.Builder()
+                .setCryptoObject(TEST_CRYPTO_OBJECT)
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
 
         assertThat(actualBiometricPromptData.cryptoObject).isEqualTo(TEST_CRYPTO_OBJECT)
         assertThat(actualBiometricPromptData.allowedAuthenticators)
@@ -112,8 +113,10 @@ class BiometricPromptDataTest {
 
     @Test
     fun build_setAllowedAuthenticator_success() {
-        val actualBiometricPromptData = BiometricPromptData.Builder()
-            .setAllowedAuthenticators(TEST_ALLOWED_AUTHENTICATOR).build()
+        val actualBiometricPromptData =
+            BiometricPromptData.Builder()
+                .setAllowedAuthenticators(TEST_ALLOWED_AUTHENTICATOR)
+                .build()
 
         assertThat(actualBiometricPromptData.allowedAuthenticators)
             .isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
@@ -122,12 +125,10 @@ class BiometricPromptDataTest {
     @Test
     fun build_setInvalidAllowedAuthenticator_success() {
         assertThrows(
-            "Expected builder invalid allowed authenticator to throw " +
-                "IllegalArgumentException",
+            "Expected builder invalid allowed authenticator to throw " + "IllegalArgumentException",
             java.lang.IllegalArgumentException::class.java
         ) {
-            BiometricPromptData.Builder()
-                .setAllowedAuthenticators(-10000).build()
+            BiometricPromptData.Builder().setAllowedAuthenticators(-10000).build()
         }
     }
 
@@ -142,8 +143,8 @@ class BiometricPromptDataTest {
         val actualBiometricPromptData = BiometricPromptData.fromBundle(inputBundle)
 
         assertThat(actualBiometricPromptData).isNotNull()
-        assertThat(actualBiometricPromptData!!.allowedAuthenticators).isEqualTo(
-            TEST_ALLOWED_AUTHENTICATOR)
+        assertThat(actualBiometricPromptData!!.allowedAuthenticators)
+            .isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
     }
 
     // TODO(b/325469910) : Use the proper opId / CryptoObject structure when available
@@ -158,8 +159,8 @@ class BiometricPromptDataTest {
         val actualBiometricPromptData = BiometricPromptData.fromBundle(inputBundle)
 
         assertThat(actualBiometricPromptData).isNotNull()
-        assertThat(actualBiometricPromptData!!.allowedAuthenticators).isEqualTo(
-            unrecognizedAuthenticator)
+        assertThat(actualBiometricPromptData!!.allowedAuthenticators)
+            .isEqualTo(unrecognizedAuthenticator)
     }
 
     @Test
@@ -177,22 +178,22 @@ class BiometricPromptDataTest {
 
     @Test
     fun toBundle_success() {
-        val testBiometricPromptData = BiometricPromptData(TEST_CRYPTO_OBJECT,
-            TEST_ALLOWED_AUTHENTICATOR)
+        val testBiometricPromptData =
+            BiometricPromptData(TEST_CRYPTO_OBJECT, TEST_ALLOWED_AUTHENTICATOR)
         val expectedOpId = Integer.MIN_VALUE
 
         val actualBundle = BiometricPromptData.toBundle(testBiometricPromptData)
 
         assertThat(actualBundle).isNotNull()
-        assertThat(actualBundle!!.getInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS)).isEqualTo(
-            TEST_ALLOWED_AUTHENTICATOR)
+        assertThat(actualBundle!!.getInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS))
+            .isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
         assertThat(actualBundle.getInt(BUNDLE_HINT_CRYPTO_OP_ID)).isEqualTo(expectedOpId)
     }
 
     private companion object {
         private val TEST_CRYPTO_OBJECT = BiometricPrompt.CryptoObject(NullCipher())
 
-        private const val TEST_ALLOWED_AUTHENTICATOR = BiometricManager
-            .Authenticators.BIOMETRIC_STRONG
+        private const val TEST_ALLOWED_AUTHENTICATOR =
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
     }
 }

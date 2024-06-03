@@ -25,6 +25,7 @@ import org.junit.Test
 class IdentityKeyTest {
 
     var sRandom: Random = Random()
+
     private fun randBytes(numBytes: Int): ByteArray {
         val bytes = ByteArray(numBytes)
         sRandom.nextBytes(bytes)
@@ -57,11 +58,13 @@ class IdentityKeyTest {
         for (i in 1..10) {
             val prf = randBytes(32)
             val identityKey =
-                IdentityKey.createFromPrf(prf, /* salt= */null,
-                IdentityKey.IDENTITY_KEY_TYPE_ED25519)
+                IdentityKey.createFromPrf(
+                    prf,
+                    /* salt= */ null,
+                    IdentityKey.IDENTITY_KEY_TYPE_ED25519
+                )
             val identityKey2 =
-                IdentityKey.createFromPrf(prf, ByteArray(32),
-                IdentityKey.IDENTITY_KEY_TYPE_ED25519)
+                IdentityKey.createFromPrf(prf, ByteArray(32), IdentityKey.IDENTITY_KEY_TYPE_ED25519)
 
             assertThat(identityKey).isEqualTo(identityKey2)
         }
@@ -77,10 +80,12 @@ class IdentityKeyTest {
         like a test vector. Even if the two values get out of sync, what we care about is the Base64
         format, as the PRF output is fully random-looking by definition.
          */
-        val prfOutput = Base64.decode("f2HM0TolWHyYJ/+LQDW8N2vRdE0+risMV/tIKXQdj7tVKdGChdJuMyz1" +
-                "/iX7x4y3GvHLlmja1A8qCsKsekW22Q==",
-            Base64.DEFAULT
-        )
+        val prfOutput =
+            Base64.decode(
+                "f2HM0TolWHyYJ/+LQDW8N2vRdE0+risMV/tIKXQdj7tVKdGChdJuMyz1" +
+                    "/iX7x4y3GvHLlmja1A8qCsKsekW22Q==",
+                Base64.DEFAULT
+            )
         val salt = ByteArray(32)
         val expectedPrivKeyHex = "bccdec572ae1be6b3c3f3473781965a1935d2614c928f5430b79188950658ad6"
         val expectedPubKeyHex = "23fa91da0af9edefae9c53c584f933f3d02f934aebddb70511adac91f255afda"

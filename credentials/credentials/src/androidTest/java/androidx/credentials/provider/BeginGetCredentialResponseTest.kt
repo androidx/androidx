@@ -49,17 +49,14 @@ class BeginGetCredentialResponseTest {
         val expectedType = PasswordCredential.TYPE_PASSWORD_CREDENTIAL
         val expectedUsername = "f35"
 
-        val response = BeginGetCredentialResponse(
-            listOf(
-                constructPasswordCredentialEntryDefault(
-                    expectedUsername
-                )
+        val response =
+            BeginGetCredentialResponse(
+                listOf(constructPasswordCredentialEntryDefault(expectedUsername))
             )
-        )
         val actualSize = response.credentialEntries.size
         val actualType = response.credentialEntries[0].type
-        val actualUsername = (response.credentialEntries[0] as PasswordCredentialEntry)
-            .username.toString()
+        val actualUsername =
+            (response.credentialEntries[0] as PasswordCredentialEntry).username.toString()
 
         assertThat(actualSize).isEqualTo(expectedSize)
         assertThat(actualType).isEqualTo(expectedType)
@@ -72,10 +69,11 @@ class BeginGetCredentialResponseTest {
         val expectedTitle = "boeing"
         val expectedSubtitle = "737max"
 
-        val response = BeginGetCredentialResponse(
-            emptyList(),
-            listOf(constructActionEntry(expectedTitle, expectedSubtitle))
-        )
+        val response =
+            BeginGetCredentialResponse(
+                emptyList(),
+                listOf(constructActionEntry(expectedTitle, expectedSubtitle))
+            )
         val actualSize = response.actions.size
         val actualTitle = response.actions[0].title.toString()
         val actualSubtitle = response.actions[0].subtitle.toString()
@@ -90,11 +88,12 @@ class BeginGetCredentialResponseTest {
         val expectedSize = 1
         val expectedTitle = "boeing"
 
-        val response = BeginGetCredentialResponse(
-            emptyList(), emptyList(), listOf(
-                constructAuthenticationActionEntry(expectedTitle)
+        val response =
+            BeginGetCredentialResponse(
+                emptyList(),
+                emptyList(),
+                listOf(constructAuthenticationActionEntry(expectedTitle))
             )
-        )
         val actualSize = response.authenticationActions.size
         val actualTitle = response.authenticationActions[0].title.toString()
 
@@ -105,10 +104,8 @@ class BeginGetCredentialResponseTest {
     @Test
     fun getter_remoteEntry_null() {
         val expectedRemoteEntry: RemoteEntry? = null
-        val response = BeginGetCredentialResponse(
-            emptyList(), emptyList(), emptyList(),
-            expectedRemoteEntry
-        )
+        val response =
+            BeginGetCredentialResponse(emptyList(), emptyList(), emptyList(), expectedRemoteEntry)
         val actualRemoteEntry = response.remoteEntry
 
         assertThat(actualRemoteEntry).isEqualTo(expectedRemoteEntry)
@@ -117,10 +114,8 @@ class BeginGetCredentialResponseTest {
     @Test
     fun getter_remoteEntry_nonNull() {
         val expectedRemoteEntry = constructRemoteEntryDefault()
-        val response = BeginGetCredentialResponse(
-            emptyList(), emptyList(), emptyList(),
-            expectedRemoteEntry
-        )
+        val response =
+            BeginGetCredentialResponse(emptyList(), emptyList(), emptyList(), expectedRemoteEntry)
         val actualRemoteEntry = response.remoteEntry
 
         assertThat(actualRemoteEntry).isEqualTo(expectedRemoteEntry)

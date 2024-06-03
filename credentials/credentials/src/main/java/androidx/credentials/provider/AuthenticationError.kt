@@ -23,24 +23,23 @@ import java.util.Objects
 import org.jetbrains.annotations.VisibleForTesting
 
 /**
- * Error returned from the Biometric Prompt flow that is executed
- * by [androidx.credentials.CredentialManager] after the user
- * makes a selection on the Credential Manager account selector.
+ * Error returned from the Biometric Prompt flow that is executed by
+ * [androidx.credentials.CredentialManager] after the user makes a selection on the Credential
+ * Manager account selector.
  *
- * @property errorCode the error code denoting what kind of error
- * was encountered while the biometric prompt flow failed, must
- * be one of the error codes defined in
- * [androidx.biometric.BiometricPrompt] such as
- * [androidx.biometric.BiometricPrompt.ERROR_HW_UNAVAILABLE]
- * or
- * [androidx.biometric.BiometricPrompt.ERROR_TIMEOUT]
- * @property errorMsg the message associated with the [errorCode] in the
- * form that can be displayed on a UI.
- *
+ * @property errorCode the error code denoting what kind of error was encountered while the
+ *   biometric prompt flow failed, must be one of the error codes defined in
+ *   [androidx.biometric.BiometricPrompt] such as
+ *   [androidx.biometric.BiometricPrompt.ERROR_HW_UNAVAILABLE] or
+ *   [androidx.biometric.BiometricPrompt.ERROR_TIMEOUT]
+ * @property errorMsg the message associated with the [errorCode] in the form that can be displayed
+ *   on a UI.
  * @see AuthenticationErrorTypes
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AuthenticationError @JvmOverloads constructor(
+class AuthenticationError
+@JvmOverloads
+constructor(
     val errorCode: @AuthenticationErrorTypes Int,
     val errorMsg: CharSequence? = null,
 ) {
@@ -60,36 +59,37 @@ class AuthenticationError @JvmOverloads constructor(
         // but should it arrive for any reason, is handled properly. This way
         // providers can be confident the Jetpack codes alone are enough.
         @VisibleForTesting
-        internal val biometricFrameworkToJetpackErrorMap = linkedMapOf(
-            BiometricPrompt.BIOMETRIC_ERROR_CANCELED to androidx.biometric.BiometricPrompt
-                .ERROR_CANCELED,
-            BiometricPrompt.BIOMETRIC_ERROR_HW_NOT_PRESENT to androidx.biometric.BiometricPrompt
-                .ERROR_HW_NOT_PRESENT,
-            BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE to androidx.biometric.BiometricPrompt
-                .ERROR_HW_UNAVAILABLE,
-            BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT to androidx.biometric.BiometricPrompt
-                .ERROR_LOCKOUT,
-            BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT_PERMANENT to androidx.biometric.BiometricPrompt
-                .ERROR_LOCKOUT_PERMANENT,
-            BiometricPrompt.BIOMETRIC_ERROR_NO_BIOMETRICS to androidx.biometric.BiometricPrompt
-                .ERROR_NO_BIOMETRICS,
-            BiometricPrompt.BIOMETRIC_ERROR_NO_DEVICE_CREDENTIAL to androidx.biometric
-                .BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL,
-            BiometricPrompt.BIOMETRIC_ERROR_NO_SPACE to androidx.biometric.BiometricPrompt
-                .ERROR_NO_SPACE,
-            BiometricPrompt.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED to androidx.biometric
-                .BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED,
-            BiometricPrompt.BIOMETRIC_ERROR_TIMEOUT to androidx.biometric.BiometricPrompt
-                .ERROR_TIMEOUT,
-            BiometricPrompt.BIOMETRIC_ERROR_UNABLE_TO_PROCESS to androidx.biometric.BiometricPrompt
-                .ERROR_UNABLE_TO_PROCESS,
-            BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED to androidx.biometric.BiometricPrompt
-                .ERROR_USER_CANCELED,
-            BiometricPrompt.BIOMETRIC_ERROR_VENDOR to androidx.biometric.BiometricPrompt
-                .ERROR_VENDOR
-            // TODO(b/340334264) : Add NEGATIVE_BUTTON from FW once avail, or wrap this in
-            // a credential manager specific error.
-        )
+        internal val biometricFrameworkToJetpackErrorMap =
+            linkedMapOf(
+                BiometricPrompt.BIOMETRIC_ERROR_CANCELED to
+                    androidx.biometric.BiometricPrompt.ERROR_CANCELED,
+                BiometricPrompt.BIOMETRIC_ERROR_HW_NOT_PRESENT to
+                    androidx.biometric.BiometricPrompt.ERROR_HW_NOT_PRESENT,
+                BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE to
+                    androidx.biometric.BiometricPrompt.ERROR_HW_UNAVAILABLE,
+                BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT to
+                    androidx.biometric.BiometricPrompt.ERROR_LOCKOUT,
+                BiometricPrompt.BIOMETRIC_ERROR_LOCKOUT_PERMANENT to
+                    androidx.biometric.BiometricPrompt.ERROR_LOCKOUT_PERMANENT,
+                BiometricPrompt.BIOMETRIC_ERROR_NO_BIOMETRICS to
+                    androidx.biometric.BiometricPrompt.ERROR_NO_BIOMETRICS,
+                BiometricPrompt.BIOMETRIC_ERROR_NO_DEVICE_CREDENTIAL to
+                    androidx.biometric.BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL,
+                BiometricPrompt.BIOMETRIC_ERROR_NO_SPACE to
+                    androidx.biometric.BiometricPrompt.ERROR_NO_SPACE,
+                BiometricPrompt.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED to
+                    androidx.biometric.BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED,
+                BiometricPrompt.BIOMETRIC_ERROR_TIMEOUT to
+                    androidx.biometric.BiometricPrompt.ERROR_TIMEOUT,
+                BiometricPrompt.BIOMETRIC_ERROR_UNABLE_TO_PROCESS to
+                    androidx.biometric.BiometricPrompt.ERROR_UNABLE_TO_PROCESS,
+                BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED to
+                    androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED,
+                BiometricPrompt.BIOMETRIC_ERROR_VENDOR to
+                    androidx.biometric.BiometricPrompt.ERROR_VENDOR
+                // TODO(b/340334264) : Add NEGATIVE_BUTTON from FW once avail, or wrap this in
+                // a credential manager specific error.
+            )
 
         internal fun convertFrameworkBiometricErrorToJetpack(frameworkCode: Int): Int {
             // Ignoring getOrDefault to allow this object down to API 21
@@ -108,26 +108,29 @@ class AuthenticationError @JvmOverloads constructor(
          * API or the jetpack [androidx.biometric.BiometricPrompt] API is used through
          * [isFrameworkBiometricPrompt].
          *
-         * @param uiErrorCode the error code used to create this error instance, typically using
-         * the [androidx.biometric.BiometricPrompt]'s constants if conversion isn't desired, or
-         * [android.hardware.biometrics.BiometricPrompt]'s constants if conversion *is* desired.
-         * @param uiErrorMessage the message associated with the [uiErrorCode] in the
-         * form that can be displayed on a UI.
+         * @param uiErrorCode the error code used to create this error instance, typically using the
+         *   [androidx.biometric.BiometricPrompt]'s constants if conversion isn't desired, or
+         *   [android.hardware.biometrics.BiometricPrompt]'s constants if conversion *is* desired.
+         * @param uiErrorMessage the message associated with the [uiErrorCode] in the form that can
+         *   be displayed on a UI.
          * @param isFrameworkBiometricPrompt the bit indicating whether or not this error code
-         * requires conversion or not, set to true by default
+         *   requires conversion or not, set to true by default
          * @return an authentication error that has properly handled conversion of the err code
          */
-        @JvmOverloads @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmOverloads
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal fun createFrom(
             uiErrorCode: Int,
             uiErrorMessage: CharSequence,
             isFrameworkBiometricPrompt: Boolean = true,
         ): AuthenticationError =
             AuthenticationError(
-                errorCode = if (isFrameworkBiometricPrompt)
-                    convertFrameworkBiometricErrorToJetpack(uiErrorCode) else uiErrorCode,
+                errorCode =
+                    if (isFrameworkBiometricPrompt)
+                        convertFrameworkBiometricErrorToJetpack(uiErrorCode)
+                    else uiErrorCode,
                 errorMsg = uiErrorMessage,
-        )
+            )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -135,8 +138,7 @@ class AuthenticationError @JvmOverloads constructor(
             return true
         }
         if (other is AuthenticationError) {
-            return this.errorCode == other.errorCode &&
-                this.errorMsg == other.errorMsg
+            return this.errorCode == other.errorCode && this.errorMsg == other.errorMsg
         }
         return false
     }
