@@ -30,8 +30,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 
 /**
- * This activity shows the basic usage of JankStats, from creating and enabling it to track
- * a view hierarchy, to setting application state on JankStats, to receiving and logging per-frame
+ * This activity shows the basic usage of JankStats, from creating and enabling it to track a view
+ * hierarchy, to setting application state on JankStats, to receiving and logging per-frame
  * callbacks with jank data.
  */
 class JankLoggingActivity : AppCompatActivity() {

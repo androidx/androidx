@@ -8,8 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.metrics.performance.PerformanceMetricsState
 
-class DelayedView(context: Context?, attrs: AttributeSet?) :
-    View(context, attrs) {
+class DelayedView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
     var delayMs: Long = 0
     var repetitions: Int = 0
@@ -18,7 +17,7 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
     val textPaint = Paint()
 
     init {
-       textPaint.textSize = 50f
+        textPaint.textSize = 50f
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -26,13 +25,13 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
         if (delayMs > 0) {
             try {
                 Thread.sleep(delayMs)
-            } catch (_: Exception) {
-            }
+            } catch (_: Exception) {}
         }
-        val randomColor: Int = 0xff000000.toInt() or
-            (((Math.random() * 127) + 128).toInt() shl 16) or
-            (((Math.random() * 127) + 128).toInt() shl 8) or
-            ((Math.random() * 127) + 128).toInt()
+        val randomColor: Int =
+            0xff000000.toInt() or
+                (((Math.random() * 127) + 128).toInt() shl 16) or
+                (((Math.random() * 127) + 128).toInt() shl 8) or
+                ((Math.random() * 127) + 128).toInt()
         textPaint.setColor(Color.BLACK)
 
         canvas.drawColor(randomColor)
