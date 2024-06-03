@@ -876,6 +876,21 @@ package androidx.car.app.media {
 
 }
 
+package androidx.car.app.media.model {
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
+    method public androidx.car.app.model.Header? getHeader();
+  }
+
+  public static final class MediaPlaybackTemplate.Builder {
+    ctor public MediaPlaybackTemplate.Builder();
+    ctor public MediaPlaybackTemplate.Builder(androidx.car.app.media.model.MediaPlaybackTemplate);
+    method public androidx.car.app.media.model.MediaPlaybackTemplate build();
+    method public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setHeader(androidx.car.app.model.Header?);
+  }
+
+}
+
 package androidx.car.app.mediaextensions {
 
   public final class MediaBrowserExtras {
