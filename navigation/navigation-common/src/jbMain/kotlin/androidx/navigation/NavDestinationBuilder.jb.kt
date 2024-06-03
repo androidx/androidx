@@ -26,31 +26,16 @@ import kotlin.reflect.KType
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 
-/**
- * DSL for constructing a new [NavDestination]
- */
 @NavDestinationDsl
-public actual open class NavDestinationBuilder<out D : NavDestination>
-
-/**
- * DSL for constructing a new [NavDestination] with a unique route.
- *
- * @param navigator navigator used to create the destination
- * @param route the destination's unique route
- *
- * @return the newly constructed [NavDestination]
- */
-public actual constructor(
-    /**
-     * The navigator the destination was created from
-     */
+public actual open class NavDestinationBuilder<out D : NavDestination> internal constructor(
     protected actual val navigator: Navigator<out D>,
-
-    /**
-     * The destination's unique route.
-     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val id: Int,
     public actual val route: String?
 ) {
+    public actual constructor(navigator: Navigator<out D>, route: String?) :
+        this(navigator, -1, route)
+
     @OptIn(InternalSerializationApi::class)
     public actual constructor(
         navigator: Navigator<out D>,
@@ -58,6 +43,7 @@ public actual constructor(
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : this(
         navigator,
+        route?.serializer()?.hashCode() ?: -1,
         route?.serializer()?.generateRoutePattern(typeMap)
     ) {
         route?.apply {
@@ -70,16 +56,10 @@ public actual constructor(
 
     private lateinit var typeMap: Map<KType, NavType<*>>
 
-    /**
-     * The descriptive label of the destination
-     */
     public actual var label: CharSequence? = null
 
     private var arguments = mutableMapOf<String, NavArgument>()
 
-    /**
-     * Add a [NavArgument] to this destination.
-     */
     public actual fun argument(name: String, argumentBuilder: NavArgumentBuilder.() -> Unit) {
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
     }
@@ -150,9 +130,6 @@ public actual constructor(
     @Suppress("BuilderSetStyle")
     protected actual open fun instantiateDestination(): D = navigator.createDestination()
 
-    /**
-     * Build the NavDestination by calling [Navigator.createDestination].
-     */
     public actual open fun build(): D {
         return instantiateDestination().also { destination ->
             destination.label = label
@@ -164,6 +141,9 @@ public actual constructor(
             }
             if (route != null) {
                 destination.route = route
+            }
+            if (id != -1) {
+                destination.id = id
             }
         }
     }

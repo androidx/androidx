@@ -88,13 +88,20 @@ public actual open class NavDestination actual constructor(
 
     public actual constructor(navigator: Navigator<out NavDestination>) : this(navigator.name)
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var id: Int = 0
+
     public actual var route: String? = null
         set(route) {
-            if (field == route) return
-            require(route == null || route.isNotBlank()) { "Cannot have an empty route" }
+            if (route == null) {
+                id = 0
+            } else {
+                require(route.isNotBlank()) { "Cannot have an empty route" }
+                val internalRoute = createRoute(route)
+                id = internalRoute.hashCode()
+                addDeepLink(internalRoute)
+            }
             deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == createRoute(field) })
-            val internalRoute = createRoute(route)
-            addDeepLink(internalRoute)
             field = route
         }
 
@@ -219,13 +226,15 @@ public actual open class NavDestination actual constructor(
                     other._arguments[it.key] == it.value
             }
 
-        return route == other.route &&
+        return id == other.id &&
+            route == other.route &&
             equalDeepLinks &&
             equalArguments
     }
 
     override fun hashCode(): Int {
-        var result = route.hashCode()
+        var result = id
+        result = 31 * result + route.hashCode()
         deepLinks.forEach {
             result = 31 * result + it.uriPattern.hashCode()
             result = 31 * result + it.action.hashCode()
@@ -239,7 +248,12 @@ public actual open class NavDestination actual constructor(
     }
 
     public actual companion object {
-        private fun createRoute(route: String?): String =
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun getDisplayName(id: Int): String = "0x${id.toString(16)}"
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createRoute(route: String?): String =
             if (route != null) "multiplatform-app://androidx.navigation/$route" else ""
 
         @JvmStatic
@@ -253,6 +267,6 @@ public actual open class NavDestination actual constructor(
         @OptIn(InternalSerializationApi::class)
         @JvmStatic
         public actual fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean =
-            route.serializer().generateRoutePattern() == this.route
+            route.serializer().hashCode() == id
     }
 }

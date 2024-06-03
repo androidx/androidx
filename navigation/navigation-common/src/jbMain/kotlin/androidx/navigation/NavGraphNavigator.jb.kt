@@ -58,23 +58,31 @@ public actual open class NavGraphNavigator actual constructor(
         val destination = entry.destination as NavGraph
         // contains restored args or args passed explicitly as startDestinationArgs
         var args = entry.arguments
+        val startId = destination.startDestinationId
         val startRoute = destination.startDestinationRoute
-        check(startRoute != null) {
+        check(startId != 0 || startRoute != null) {
             ("no start destination defined via app:startDestination for ${destination.displayName}")
         }
-        val startDestination = destination.findNode(startRoute, false)
+        val startDestination = if (startRoute != null) {
+            destination.findNode(startRoute, false)
+        } else {
+            destination.findNode(startId, false)
+        }
         requireNotNull(startDestination) {
+            val dest = destination.startDestDisplayName
             throw IllegalArgumentException(
-                "navigation destination $startRoute is not a direct child of this NavGraph"
+                "navigation destination $dest is not a direct child of this NavGraph"
             )
         }
-        val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
-        if (matchingArgs != null && !matchingArgs.isEmpty()) {
-            val bundle = Bundle()
-            // we need to add args from startRoute, but it should not override existing args
-            bundle.putAll(matchingArgs)
-            args?.let { bundle.putAll(it) }
-            args = bundle
+        if (startRoute != null) {
+            val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
+            if (matchingArgs != null && !matchingArgs.isEmpty()) {
+                val bundle = Bundle()
+                // we need to add args from startRoute, but it should not override existing args
+                bundle.putAll(matchingArgs)
+                args?.let { bundle.putAll(it) }
+                args = bundle
+            }
         }
 
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(

@@ -17,7 +17,7 @@
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
-import androidx.navigation.serialization.generateRoutePattern
+import androidx.navigation.NavDestination.Companion.createRoute
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
@@ -26,11 +26,12 @@ import kotlinx.serialization.serializer
 public actual class NavOptions internal constructor(
     private val singleTop: Boolean,
     private val restoreState: Boolean,
-    popUpToRoute: String?,
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val popUpToId: Int,
     private val popUpToInclusive: Boolean,
     private val popUpToSaveState: Boolean,
 ) {
-    public actual var popUpToRoute: String? = popUpToRoute
+    public actual var popUpToRoute: String? = null
         private set
 
     public actual var popUpToRouteClass: KClass<*>? = null
@@ -38,6 +39,22 @@ public actual class NavOptions internal constructor(
 
     public actual var popUpToRouteObject: Any? = null
         private set
+
+    internal constructor(
+        singleTop: Boolean,
+        restoreState: Boolean,
+        popUpToRoute: String?,
+        popUpToInclusive: Boolean,
+        popUpToSaveState: Boolean,
+    ) : this(
+        singleTop = singleTop,
+        restoreState = restoreState,
+        popUpToId = createRoute(popUpToRoute).hashCode(),
+        popUpToInclusive = popUpToInclusive,
+        popUpToSaveState = popUpToSaveState
+    ) {
+        this.popUpToRoute = popUpToRoute
+    }
 
     /**
      * NavOptions stores special options for navigate actions
@@ -48,11 +65,11 @@ public actual class NavOptions internal constructor(
         restoreState: Boolean,
         popUpToRouteClass: KClass<*>?,
         popUpToInclusive: Boolean,
-        popUpToSaveState: Boolean
+        popUpToSaveState: Boolean,
     ) : this(
         singleTop = singleTop,
         restoreState = restoreState,
-        popUpToRoute = popUpToRouteClass!!.serializer().generateRoutePattern(),
+        popUpToId = popUpToRouteClass!!.serializer().hashCode(),
         popUpToInclusive = popUpToInclusive,
         popUpToSaveState = popUpToSaveState
     ) {
@@ -68,11 +85,11 @@ public actual class NavOptions internal constructor(
         restoreState: Boolean,
         popUpToRouteObject: Any,
         popUpToInclusive: Boolean,
-        popUpToSaveState: Boolean
+        popUpToSaveState: Boolean,
     ) : this(
         singleTop = singleTop,
         restoreState = restoreState,
-        popUpToRoute = popUpToRouteObject::class.serializer().generateRoutePattern(),
+        popUpToId = popUpToRouteObject::class.serializer().hashCode(),
         popUpToInclusive = popUpToInclusive,
         popUpToSaveState = popUpToSaveState
     ) {
@@ -100,6 +117,7 @@ public actual class NavOptions internal constructor(
         if (other == null || other !is NavOptions) return false
         return singleTop == other.singleTop &&
             restoreState == other.restoreState &&
+            popUpToId == other.popUpToId &&
             popUpToRoute == other.popUpToRoute &&
             popUpToRouteClass == other.popUpToRouteClass &&
             popUpToRouteObject == other.popUpToRouteObject &&
@@ -110,6 +128,7 @@ public actual class NavOptions internal constructor(
     override fun hashCode(): Int {
         var result = if (shouldLaunchSingleTop()) 1 else 0
         result = 31 * result + if (shouldRestoreState()) 1 else 0
+        result = 31 * result + popUpToId
         result = 31 * result + popUpToRoute.hashCode()
         result = 31 * result + popUpToRouteClass.hashCode()
         result = 31 * result + popUpToRouteObject.hashCode()
@@ -128,7 +147,7 @@ public actual class NavOptions internal constructor(
         if (restoreState) {
             sb.append("restoreState ")
         }
-        if (popUpToRoute != null) {
+        if (popUpToRoute != null || popUpToId != -1) {
             sb.append("popUpTo(")
             if (popUpToRoute != null) {
                 sb.append(popUpToRoute)
@@ -137,7 +156,7 @@ public actual class NavOptions internal constructor(
             } else if (popUpToRouteObject != null) {
                 sb.append(popUpToRouteObject)
             } else {
-                sb.append("null")
+                sb.append(NavDestination.getDisplayName(popUpToId))
             }
             if (popUpToInclusive) {
                 sb.append(" inclusive")
@@ -153,6 +172,7 @@ public actual class NavOptions internal constructor(
     public actual class Builder {
         private var singleTop = false
         private var restoreState = false
+        private var popUpToId = -1
         private var popUpToRoute: String? = null
         private var popUpToRouteClass: KClass<*>? = null
         private var popUpToRouteObject: Any? = null
@@ -176,6 +196,7 @@ public actual class NavOptions internal constructor(
             saveState: Boolean
         ): Builder {
             popUpToRoute = route
+            popUpToId = -1
             popUpToInclusive = inclusive
             popUpToSaveState = saveState
             return this
@@ -200,6 +221,7 @@ public actual class NavOptions internal constructor(
             saveState: Boolean
         ): Builder {
             popUpToRouteClass = klass
+            popUpToId = -1
             popUpToInclusive = inclusive
             popUpToSaveState = saveState
             return this
@@ -235,7 +257,10 @@ public actual class NavOptions internal constructor(
                     popUpToRouteObject!!, popUpToInclusive, popUpToSaveState,
                 )
             } else {
-                throw IllegalStateException()
+                NavOptions(
+                    singleTop, restoreState,
+                    popUpToId, popUpToInclusive, popUpToSaveState,
+                )
             }
         }
     }

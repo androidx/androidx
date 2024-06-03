@@ -25,6 +25,7 @@ import kotlinx.serialization.serializer
 @NavDestinationDsl
 public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     public actual val provider: NavigatorProvider
+    private var startDestinationId: Int = 0
     private var startDestinationRoute: String? = null
     private var startDestinationClass: KClass<*>? = null
     private var startDestinationObject: Any? = null
@@ -75,9 +76,13 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     @OptIn(InternalSerializationApi::class)
     override fun build(): NavGraph = super.build().also { navGraph ->
         navGraph.addDestinations(destinations)
-        if (startDestinationRoute == null &&
+        if (startDestinationId == 0 && startDestinationRoute == null &&
             startDestinationClass == null && startDestinationObject == null) {
-            throw IllegalStateException("You must set a start destination route")
+            if (route != null) {
+                throw IllegalStateException("You must set a start destination route")
+            } else {
+                throw IllegalStateException("You must set a start destination id")
+            }
         }
         if (startDestinationRoute != null) {
             navGraph.setStartDestination(startDestinationRoute!!)
@@ -86,7 +91,7 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         } else if (startDestinationObject != null) {
             navGraph.setStartDestination(startDestinationObject!!)
         } else {
-            throw IllegalStateException()
+            navGraph.setStartDestination(startDestinationId)
         }
     }
 }

@@ -28,6 +28,13 @@ public actual class NavOptionsBuilder {
     @set:Suppress("SetterReturnsThis", "GetterSetterNames")
     public actual var restoreState: Boolean = false
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var popUpToId: Int = -1
+        internal set(value) {
+            field = value
+            inclusive = false
+        }
+
     public actual var popUpToRoute: String? = null
         private set(value) {
             if (value != null) {
@@ -36,6 +43,9 @@ public actual class NavOptionsBuilder {
                 inclusive = false
             }
         }
+
+    private var inclusive = false
+    private var saveState = false
 
     @get:Suppress("GetterOnBuilder")
     public actual var popUpToRouteClass: KClass<*>? = null
@@ -55,11 +65,10 @@ public actual class NavOptionsBuilder {
             }
         }
 
-    private var inclusive = false
-    private var saveState = false
 
     public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRoute = route
+        popUpToId = -1
         val builder = PopUpToBuilder().apply(popUpToBuilder)
         inclusive = builder.inclusive
         saveState = builder.saveState
@@ -81,6 +90,7 @@ public actual class NavOptionsBuilder {
         popUpToBuilder: PopUpToBuilder.() -> Unit
     ) {
         popUpToRouteClass = klass
+        popUpToId = -1
         popUpToRoute = null
         val builder = PopUpToBuilder().apply(popUpToBuilder)
         inclusive = builder.inclusive
@@ -91,6 +101,7 @@ public actual class NavOptionsBuilder {
     @Suppress("BuilderSetStyle", "MissingJvmstatic")
     public actual fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRouteObject = route
+        popUpToId = -1
         popUpToRoute = null
         val builder = PopUpToBuilder().apply(popUpToBuilder)
         inclusive = builder.inclusive
@@ -100,6 +111,14 @@ public actual class NavOptionsBuilder {
     internal actual fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
         setRestoreState(restoreState)
-        setPopUpTo(popUpToRoute, inclusive, saveState)
+        if (popUpToRoute != null) {
+            setPopUpTo(popUpToRoute, inclusive, saveState)
+        } else if (popUpToRouteClass != null) {
+            setPopUpTo(popUpToRouteClass!!, inclusive, saveState)
+        } else if (popUpToRouteObject != null) {
+            setPopUpTo(popUpToRouteObject!!, inclusive, saveState)
+        } else {
+            setPopUpTo(popUpToId, inclusive, saveState)
+        }
     }.build()
 }

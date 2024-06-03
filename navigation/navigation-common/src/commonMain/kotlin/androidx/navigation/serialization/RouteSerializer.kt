@@ -44,7 +44,6 @@ import kotlinx.serialization.serializer
  * @param [path] The base path to append arguments to. If null, base path defaults to
  * [KSerializer.descriptor].serialName.
  */
-@PublishedApi // FIXME: Do not publish this function
 internal fun <T> KSerializer<T>.generateRoutePattern(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
     path: String? = null,

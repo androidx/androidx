@@ -182,6 +182,10 @@ public expect open class NavGraph(
     public var startDestinationRoute: String?
         private set
 
+    public val startDestDisplayName: String
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        get
+
     public companion object {
         /**
          * Finds the actual start destination of the graph, handling cases where the graph's starting
