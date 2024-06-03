@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
@@ -49,15 +51,22 @@ class App(
 
     @Composable
     private fun ScreenContent(screen: Screen, navController: NavController) {
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
         val currentBackStack = remember(screen) { navController.currentBackStack.value }
-        val firstEntry = remember(screen) { navController.previousBackStackEntry == null }
         screen.Content(
             title = currentBackStack.drop(1)
                 .joinToString("/") { it.destination.route ?: it.destination.displayName },
             navigate = { navController.navigate(it) },
-            back = if (!firstEntry) {
-                { navController.popBackStack() }
-            } else null
+            back = back@{
+                // Filter multi-click by current lifecycle state: it's not [RESUMED] in case if
+                // a navigation transaction is in progress or the window is not focused.
+                if (lifecycle.currentState < Lifecycle.State.RESUMED) {
+                    return@back
+                }
+                if (navController.previousBackStackEntry != null) {
+                    navController.popBackStack()
+                }
+            }
         )
     }
 }
