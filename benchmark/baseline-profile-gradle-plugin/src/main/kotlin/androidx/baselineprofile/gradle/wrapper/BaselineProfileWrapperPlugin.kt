@@ -37,8 +37,8 @@ class BaselineProfileWrapperPlugin : Plugin<Project> {
         project.pluginManager.withPlugin("com.android.application") {
 
             // Applies profile consumer and app target plugins
-            project.pluginManager.apply(BaselineProfileConsumerPlugin::class.java)
             project.pluginManager.apply(BaselineProfileAppTargetPlugin::class.java)
+            project.pluginManager.apply(BaselineProfileConsumerPlugin::class.java)
         }
 
         // If this module is a library module
