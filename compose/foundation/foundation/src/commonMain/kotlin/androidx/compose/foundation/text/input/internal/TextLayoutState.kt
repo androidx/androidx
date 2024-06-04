@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -93,12 +94,14 @@ internal class TextLayoutState {
         textStyle: TextStyle,
         singleLine: Boolean,
         softWrap: Boolean,
+        keyboardOptions: KeyboardOptions,
     ) {
         layoutCache.updateNonMeasureInputs(
             textFieldState = textFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
             softWrap = softWrap,
+            keyboardOptions = keyboardOptions,
         )
     }
 

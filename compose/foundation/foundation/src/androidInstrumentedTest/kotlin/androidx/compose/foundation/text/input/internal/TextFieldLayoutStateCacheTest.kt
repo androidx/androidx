@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.graphics.Typeface
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -69,6 +71,7 @@ class TextFieldLayoutStateCacheTest {
     private var textStyle = TextStyle()
     private var singleLine = false
     private var softWrap = false
+    private var keyboardOptions = KeyboardOptions.Default
     private var cache = TextFieldLayoutStateCache()
     private var density = Density(1f, 1f)
     private var layoutDirection = LayoutDirection.Ltr
@@ -192,6 +195,22 @@ class TextFieldLayoutStateCacheTest {
     fun updateNonMeasureInputs_invalidatesSnapshot_whenSoftWrapChanged() {
         assertInvalidationsOnChange(1) {
             softWrap = !softWrap
+            updateNonMeasureInputs()
+        }
+    }
+
+    @Test
+    fun updateNonMeasureInputs_invalidatesSnapshot_whenKeyboardTypePhoneChanged() {
+        assertInvalidationsOnChange(1) {
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            updateNonMeasureInputs()
+        }
+    }
+
+    @Test
+    fun updateNonMeasureInputs_doesNotInvalidateSnapshot_whenKeyboardTypeNotPhoneChanged() {
+        assertInvalidationsOnChange(0) {
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             updateNonMeasureInputs()
         }
     }
@@ -879,7 +898,8 @@ class TextFieldLayoutStateCacheTest {
             textFieldState = transformedTextFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
-            softWrap = softWrap
+            softWrap = softWrap,
+            keyboardOptions = keyboardOptions
         )
     }
 

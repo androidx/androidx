@@ -165,7 +165,7 @@ internal class TextFieldDecoratorModifierNode(
     var filter: InputTransformation?,
     var enabled: Boolean,
     var readOnly: Boolean,
-    keyboardOptions: KeyboardOptions,
+    var keyboardOptions: KeyboardOptions,
     var keyboardActionHandler: KeyboardActionHandler?,
     var singleLine: Boolean,
     var interactionSource: MutableInteractionSource
@@ -345,10 +345,6 @@ internal class TextFieldDecoratorModifierNode(
             )
         )
 
-    var keyboardOptions: KeyboardOptions =
-        keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
-        private set
-
     /**
      * Needs to be kept separate from a window focus so we can restart an input session when the
      * window receives the focus back. Element can stay focused even if the window loses its focus.
@@ -418,8 +414,8 @@ internal class TextFieldDecoratorModifierNode(
         interactionSource: MutableInteractionSource
     ) {
         // Find the diff: current previous and new values before updating current.
-        val previousWriteable = this.enabled && !this.readOnly
-        val writeable = enabled && !readOnly
+        val previousEditable = this.editable
+        val editable = enabled && !readOnly
 
         val previousEnabled = this.enabled
         val previousTextFieldState = this.textFieldState
@@ -434,7 +430,7 @@ internal class TextFieldDecoratorModifierNode(
         this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
-        this.keyboardOptions = keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
+        this.keyboardOptions = keyboardOptions
         this.keyboardActionHandler = keyboardActionHandler
         this.singleLine = singleLine
         this.interactionSource = interactionSource
@@ -442,21 +438,24 @@ internal class TextFieldDecoratorModifierNode(
         // React to diff.
         // Something about the session changed, restart the session.
         if (
-            writeable != previousWriteable ||
+            editable != previousEditable ||
                 textFieldState != previousTextFieldState ||
-                // compare with the new keyboardOptions that's merged
-                this.keyboardOptions != previousKeyboardOptions
+                keyboardOptions != previousKeyboardOptions
         ) {
-            if (writeable && isFocused) {
+            if (editable && isFocused) {
                 // The old session will be implicitly disposed.
                 startInputSession(fromTap = false)
-            } else if (!writeable) {
+            } else if (!editable) {
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
             }
         }
 
-        if (previousEnabled != enabled) {
+        if (
+            enabled != previousEnabled ||
+                editable != previousEditable ||
+                keyboardOptions.imeActionOrDefault != previousKeyboardOptions.imeActionOrDefault
+        ) {
             invalidateSemantics()
         }
 
