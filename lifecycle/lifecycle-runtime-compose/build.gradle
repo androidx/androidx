@@ -72,18 +72,6 @@ androidXMultiplatform {
     }
 }
 
-dependencies {
-    // Starting from Lifecycle 2.8.0-alpha03 and Compose UI 1.7.0-alpha05,
-    // LocalLifecycleOwner is located in lifecycle-runtime-compose. Using
-    // Lifecycle 2.8.0+ with Compose UI 1.6 or older may cause runtime
-    // issues due to this change.
-    constraints {
-        commonMainImplementation("androidx.compose.ui:ui:1.7.0-beta01") {
-            because 'prevents a runtime error with LocalLifecycleOwner'
-        }
-    }
-}
-
 androidx {
     name = "Lifecycle Runtime Compose"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
