@@ -18,9 +18,10 @@ package androidx.benchmark
 
 import android.os.Parcel
 import android.os.Process
+import androidx.annotation.RestrictTo
 
-internal object UserInfo {
-
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+object UserInfo {
     val currentUserId: Int
         get() {
             Overrides.currentUserId?.let {
