@@ -140,7 +140,7 @@ public class SupportedOutputSizesSorter {
             Size maxResolution = ((ImageOutputConfig) useCaseConfig).getMaxResolution(null);
             int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
             // Applies the high resolution settings onto the resolution candidate list.
-            if (!useCaseConfig.isHigResolutionDisabled(false)) {
+            if (!useCaseConfig.isHighResolutionDisabled(false)) {
                 candidateSizes = applyHighResolutionSettings(candidateSizes,
                         resolutionSelector, useCaseConfig.getInputFormat());
             }
