@@ -37,28 +37,33 @@ public class SearchIntentStatsTest {
         int queryCorrectionType = SearchIntentStats.QUERY_CORRECTION_TYPE_ABANDONMENT;
 
         // Clicks associated with the search intent.
-        final ClickStats clickStats0 = new ClickStats.Builder()
-                .setTimestampMillis(10L)
-                .setTimeStayOnResultMillis(20L)
-                .setResultRankInBlock(30)
-                .setResultRankGlobal(40)
-                .build();
-        final ClickStats clickStats1 = new ClickStats.Builder()
-                .setTimestampMillis(11L)
-                .setTimeStayOnResultMillis(21L)
-                .setResultRankInBlock(31)
-                .setResultRankGlobal(41)
-                .build();
+        final ClickStats clickStats0 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(10L)
+                        .setTimeStayOnResultMillis(20L)
+                        .setResultRankInBlock(30)
+                        .setResultRankGlobal(40)
+                        .setIsGoodClick(false)
+                        .build();
+        final ClickStats clickStats1 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(11L)
+                        .setTimeStayOnResultMillis(21L)
+                        .setResultRankInBlock(31)
+                        .setResultRankGlobal(41)
+                        .setIsGoodClick(true)
+                        .build();
 
-        final SearchIntentStats searchIntentStats = new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
-                .setDatabase(TEST_DATA_BASE)
-                .setPrevQuery(prevQuery)
-                .setCurrQuery(currQuery)
-                .setTimestampMillis(searchIntentTimestampMillis)
-                .setNumResultsFetched(numResultsFetched)
-                .setQueryCorrectionType(queryCorrectionType)
-                .addClicksStats(clickStats0, clickStats1)
-                .build();
+        final SearchIntentStats searchIntentStats =
+                new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
+                        .setDatabase(TEST_DATA_BASE)
+                        .setPrevQuery(prevQuery)
+                        .setCurrQuery(currQuery)
+                        .setTimestampMillis(searchIntentTimestampMillis)
+                        .setNumResultsFetched(numResultsFetched)
+                        .setQueryCorrectionType(queryCorrectionType)
+                        .addClicksStats(clickStats0, clickStats1)
+                        .build();
 
         assertThat(searchIntentStats.getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
         assertThat(searchIntentStats.getDatabase()).isEqualTo(TEST_DATA_BASE);
@@ -72,24 +77,29 @@ public class SearchIntentStatsTest {
 
     @Test
     public void testBuilder_addClicksStats_byCollection() {
-        final ClickStats clickStats0 = new ClickStats.Builder()
-                .setTimestampMillis(10L)
-                .setTimeStayOnResultMillis(20L)
-                .setResultRankInBlock(30)
-                .setResultRankGlobal(40)
-                .build();
-        final ClickStats clickStats1 = new ClickStats.Builder()
-                .setTimestampMillis(11L)
-                .setTimeStayOnResultMillis(21L)
-                .setResultRankInBlock(31)
-                .setResultRankGlobal(41)
-                .build();
+        final ClickStats clickStats0 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(10L)
+                        .setTimeStayOnResultMillis(20L)
+                        .setResultRankInBlock(30)
+                        .setResultRankGlobal(40)
+                        .setIsGoodClick(false)
+                        .build();
+        final ClickStats clickStats1 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(11L)
+                        .setTimeStayOnResultMillis(21L)
+                        .setResultRankInBlock(31)
+                        .setResultRankGlobal(41)
+                        .setIsGoodClick(true)
+                        .build();
         Set<ClickStats> clicksStats = ImmutableSet.of(clickStats0, clickStats1);
 
-        final SearchIntentStats searchIntentStats = new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
-                .setDatabase(TEST_DATA_BASE)
-                .addClicksStats(clicksStats)
-                .build();
+        final SearchIntentStats searchIntentStats =
+                new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
+                        .setDatabase(TEST_DATA_BASE)
+                        .addClicksStats(clicksStats)
+                        .build();
 
         assertThat(searchIntentStats.getClicksStats()).containsExactlyElementsIn(clicksStats);
     }
@@ -102,36 +112,43 @@ public class SearchIntentStatsTest {
         int numResultsFetched = 2;
         int queryCorrectionType = SearchIntentStats.QUERY_CORRECTION_TYPE_ABANDONMENT;
 
-        final ClickStats clickStats0 = new ClickStats.Builder()
-                .setTimestampMillis(10L)
-                .setTimeStayOnResultMillis(20L)
-                .setResultRankInBlock(30)
-                .setResultRankGlobal(40)
-                .build();
-        final ClickStats clickStats1 = new ClickStats.Builder()
-                .setTimestampMillis(11L)
-                .setTimeStayOnResultMillis(21L)
-                .setResultRankInBlock(31)
-                .setResultRankGlobal(41)
-                .build();
+        final ClickStats clickStats0 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(10L)
+                        .setTimeStayOnResultMillis(20L)
+                        .setResultRankInBlock(30)
+                        .setResultRankGlobal(40)
+                        .setIsGoodClick(false)
+                        .build();
+        final ClickStats clickStats1 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(11L)
+                        .setTimeStayOnResultMillis(21L)
+                        .setResultRankInBlock(31)
+                        .setResultRankGlobal(41)
+                        .setIsGoodClick(true)
+                        .build();
 
-        SearchIntentStats.Builder builder = new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
-                .setDatabase(TEST_DATA_BASE)
-                .setPrevQuery(prevQuery)
-                .setCurrQuery(currQuery)
-                .setTimestampMillis(searchIntentTimestampMillis)
-                .setNumResultsFetched(numResultsFetched)
-                .setQueryCorrectionType(queryCorrectionType)
-                .addClicksStats(clickStats0, clickStats1);
+        SearchIntentStats.Builder builder =
+                new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
+                        .setDatabase(TEST_DATA_BASE)
+                        .setPrevQuery(prevQuery)
+                        .setCurrQuery(currQuery)
+                        .setTimestampMillis(searchIntentTimestampMillis)
+                        .setNumResultsFetched(numResultsFetched)
+                        .setQueryCorrectionType(queryCorrectionType)
+                        .addClicksStats(clickStats0, clickStats1);
 
         final SearchIntentStats searchIntentStats0 = builder.build();
 
-        final ClickStats clickStats2 = new ClickStats.Builder()
-                .setTimestampMillis(12L)
-                .setTimeStayOnResultMillis(22L)
-                .setResultRankInBlock(32)
-                .setResultRankGlobal(42)
-                .build();
+        final ClickStats clickStats2 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(12L)
+                        .setTimeStayOnResultMillis(22L)
+                        .setResultRankInBlock(32)
+                        .setResultRankGlobal(42)
+                        .setIsGoodClick(true)
+                        .build();
         builder.addClicksStats(clickStats2);
 
         final SearchIntentStats searchIntentStats1 = builder.build();
@@ -154,8 +171,8 @@ public class SearchIntentStatsTest {
         assertThat(searchIntentStats1.getTimestampMillis()).isEqualTo(searchIntentTimestampMillis);
         assertThat(searchIntentStats1.getNumResultsFetched()).isEqualTo(numResultsFetched);
         assertThat(searchIntentStats1.getQueryCorrectionType()).isEqualTo(queryCorrectionType);
-        assertThat(searchIntentStats1.getClicksStats()).containsExactly(
-                clickStats0, clickStats1, clickStats2);
+        assertThat(searchIntentStats1.getClicksStats())
+                .containsExactly(clickStats0, clickStats1, clickStats2);
     }
 
     @Test
@@ -166,36 +183,43 @@ public class SearchIntentStatsTest {
         int numResultsFetched = 2;
         int queryCorrectionType = SearchIntentStats.QUERY_CORRECTION_TYPE_ABANDONMENT;
 
-        final ClickStats clickStats0 = new ClickStats.Builder()
-                .setTimestampMillis(10L)
-                .setTimeStayOnResultMillis(20L)
-                .setResultRankInBlock(30)
-                .setResultRankGlobal(40)
-                .build();
-        final ClickStats clickStats1 = new ClickStats.Builder()
-                .setTimestampMillis(11L)
-                .setTimeStayOnResultMillis(21L)
-                .setResultRankInBlock(31)
-                .setResultRankGlobal(41)
-                .build();
+        final ClickStats clickStats0 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(10L)
+                        .setTimeStayOnResultMillis(20L)
+                        .setResultRankInBlock(30)
+                        .setResultRankGlobal(40)
+                        .setIsGoodClick(false)
+                        .build();
+        final ClickStats clickStats1 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(11L)
+                        .setTimeStayOnResultMillis(21L)
+                        .setResultRankInBlock(31)
+                        .setResultRankGlobal(41)
+                        .setIsGoodClick(true)
+                        .build();
 
-        SearchIntentStats.Builder builder = new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
-                .setDatabase(TEST_DATA_BASE)
-                .setPrevQuery(prevQuery)
-                .setCurrQuery(currQuery)
-                .setTimestampMillis(searchIntentTimestampMillis)
-                .setNumResultsFetched(numResultsFetched)
-                .setQueryCorrectionType(queryCorrectionType)
-                .addClicksStats(ImmutableSet.of(clickStats0, clickStats1));
+        SearchIntentStats.Builder builder =
+                new SearchIntentStats.Builder(TEST_PACKAGE_NAME)
+                        .setDatabase(TEST_DATA_BASE)
+                        .setPrevQuery(prevQuery)
+                        .setCurrQuery(currQuery)
+                        .setTimestampMillis(searchIntentTimestampMillis)
+                        .setNumResultsFetched(numResultsFetched)
+                        .setQueryCorrectionType(queryCorrectionType)
+                        .addClicksStats(ImmutableSet.of(clickStats0, clickStats1));
 
         final SearchIntentStats searchIntentStats0 = builder.build();
 
-        final ClickStats clickStats2 = new ClickStats.Builder()
-                .setTimestampMillis(12L)
-                .setTimeStayOnResultMillis(22L)
-                .setResultRankInBlock(32)
-                .setResultRankGlobal(42)
-                .build();
+        final ClickStats clickStats2 =
+                new ClickStats.Builder()
+                        .setTimestampMillis(12L)
+                        .setTimeStayOnResultMillis(22L)
+                        .setResultRankInBlock(32)
+                        .setResultRankGlobal(42)
+                        .setIsGoodClick(true)
+                        .build();
         builder.addClicksStats(ImmutableSet.of(clickStats2));
 
         final SearchIntentStats searchIntentStats1 = builder.build();
@@ -218,7 +242,7 @@ public class SearchIntentStatsTest {
         assertThat(searchIntentStats1.getTimestampMillis()).isEqualTo(searchIntentTimestampMillis);
         assertThat(searchIntentStats1.getNumResultsFetched()).isEqualTo(numResultsFetched);
         assertThat(searchIntentStats1.getQueryCorrectionType()).isEqualTo(queryCorrectionType);
-        assertThat(searchIntentStats1.getClicksStats()).containsExactly(
-                clickStats0, clickStats1, clickStats2);
+        assertThat(searchIntentStats1.getClicksStats())
+                .containsExactly(clickStats0, clickStats1, clickStats2);
     }
 }

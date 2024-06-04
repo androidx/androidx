@@ -23,9 +23,12 @@ import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
+import androidx.appsearch.localstorage.stats.SearchIntentStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
+
+import java.util.List;
 
 /**
  * An interface for implementing client-defined logging AppSearch operations stats.
@@ -78,6 +81,9 @@ public interface AppSearchLogger {
      * Logs {@link SchemaMigrationStats}
      */
     void logStats(@NonNull SchemaMigrationStats stats);
+
+    /** Logs a collection of {@link SearchIntentStats} */
+    void logStats(@NonNull List<SearchIntentStats> searchIntentsStats);
 
     // TODO(b/173532925) Add remaining logStats once we add all the stats.
 }

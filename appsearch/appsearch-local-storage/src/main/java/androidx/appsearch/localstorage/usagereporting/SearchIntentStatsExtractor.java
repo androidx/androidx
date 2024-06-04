@@ -62,28 +62,18 @@ public final class SearchIntentStatsExtractor {
             10L * 60 * 1000;
 
     /**
+     * Threshold for marking good click (compared with {@code timeStayOnResultMillis}), in
+     * millisecond. A good click means the user spent decent amount of time on the clicked result
+     * document.
+     */
+    private static final long GOOD_CLICK_TIME_STAY_ON_RESULT_THRESHOLD_MILLIS = 2000L;
+
+    /**
      * Threshold for backspace count to become query abandonment. If the user hits backspace for at
      * least QUERY_ABANDONMENT_BACKSPACE_COUNT times, then the query correction type will be
      * determined as abandonment.
      */
     private static final int QUERY_ABANDONMENT_BACKSPACE_COUNT = 2;
-
-    @NonNull
-    private final String mPackageName;
-    @Nullable
-    private final String mDatabase;
-
-    /**
-     * Constructs {@link SearchIntentStatsExtractor} with the caller's package and database name.
-     *
-     * @param packageName The package name of the caller.
-     * @param database    The database name of the caller.
-     */
-    public SearchIntentStatsExtractor(@NonNull String packageName, @Nullable String database) {
-        Objects.requireNonNull(packageName);
-        mPackageName = packageName;
-        mDatabase = database;
-    }
 
     /**
      * Returns the query correction type between the previous and current search actions.
@@ -132,10 +122,14 @@ public final class SearchIntentStatsExtractor {
      * search intent metrics, this function will try to group the given taken actions into several
      * search intents, and yield a {@link SearchIntentStats} for each search intent.
      *
+     * @param packageName The package name of the caller.
+     * @param database The database name of the caller.
      * @param genericDocuments a list of taken actions in generic document form.
      */
     @NonNull
     public List<SearchIntentStats> extract(
+            @NonNull String packageName,
+            @Nullable String database,
             @NonNull List<GenericDocument> genericDocuments) {
         Objects.requireNonNull(genericDocuments);
 
@@ -213,7 +207,13 @@ public final class SearchIntentStatsExtractor {
 
             // Now we get a valid search intent (the current search action + a list of click actions
             // associated with it). Extract metrics and add SearchIntentStats.
-            result.add(createSearchIntentStats(currSearchAction, clickActions, prevSearchAction));
+            result.add(
+                    createSearchIntentStats(
+                            packageName,
+                            database,
+                            currSearchAction,
+                            clickActions,
+                            prevSearchAction));
             prevSearchAction = currSearchAction;
         }
         return result;
@@ -224,11 +224,13 @@ public final class SearchIntentStatsExtractor {
      * click actions, and the previous search action (in generic document form).
      */
     private SearchIntentStats createSearchIntentStats(
+            @NonNull String packageName,
+            @Nullable String database,
             @NonNull SearchActionGenericDocument currSearchAction,
             @NonNull List<ClickActionGenericDocument> clickActions,
             @Nullable SearchActionGenericDocument prevSearchAction) {
-        SearchIntentStats.Builder builder = new SearchIntentStats.Builder(mPackageName)
-                .setDatabase(mDatabase)
+        SearchIntentStats.Builder builder = new SearchIntentStats.Builder(packageName)
+                .setDatabase(database)
                 .setTimestampMillis(currSearchAction.getCreationTimestampMillis())
                 .setCurrQuery(currSearchAction.getQuery())
                 .setNumResultsFetched(currSearchAction.getFetchedResultCount())
@@ -246,11 +248,19 @@ public final class SearchIntentStatsExtractor {
      * Creates a {@link ClickStats} object from the given click action (in generic document form).
      */
     private ClickStats createClickStats(ClickActionGenericDocument clickAction) {
+        // A click is considered good if:
+        // - The user spent decent amount of time on the clicked document.
+        // - OR the client didn't provide timeStayOnResultMillis. In this case, the value will be 0.
+        boolean isGoodClick =
+                clickAction.getTimeStayOnResultMillis() <= 0
+                        || clickAction.getTimeStayOnResultMillis()
+                        >= GOOD_CLICK_TIME_STAY_ON_RESULT_THRESHOLD_MILLIS;
         return new ClickStats.Builder()
                 .setTimestampMillis(clickAction.getCreationTimestampMillis())
                 .setResultRankInBlock(clickAction.getResultRankInBlock())
                 .setResultRankGlobal(clickAction.getResultRankGlobal())
                 .setTimeStayOnResultMillis(clickAction.getTimeStayOnResultMillis())
+                .setIsGoodClick(isGoodClick)
                 .build();
     }
 

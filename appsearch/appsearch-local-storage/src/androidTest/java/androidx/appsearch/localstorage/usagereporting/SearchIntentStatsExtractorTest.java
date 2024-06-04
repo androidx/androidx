@@ -36,70 +36,79 @@ public class SearchIntentStatsExtractorTest {
     @Test
     public void testExtract() {
         // Create search action and click action generic documents.
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("tes")
-                .setFetchedResultCount(20)
-                .build();
-        GenericDocument clickAction1 = new ClickActionGenericDocument.Builder(
-                "namespace", "click1", "builtin:ClickAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("tes")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(2)
-                .setTimeStayOnResultMillis(512)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc1")
-                .build();
-        GenericDocument clickAction2 = new ClickActionGenericDocument.Builder(
-                "namespace", "click2", "builtin:ClickAction")
-                .setCreationTimestampMillis(3000)
-                .setQuery("tes")
-                .setResultRankInBlock(3)
-                .setResultRankGlobal(6)
-                .setTimeStayOnResultMillis(1024)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc2")
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(5000)
-                .setQuery("test")
-                .setFetchedResultCount(10)
-                .build();
-        GenericDocument clickAction3 = new ClickActionGenericDocument.Builder(
-                "namespace", "click3", "builtin:ClickAction")
-                .setCreationTimestampMillis(6000)
-                .setQuery("test")
-                .setResultRankInBlock(2)
-                .setResultRankGlobal(4)
-                .setTimeStayOnResultMillis(512)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc3")
-                .build();
-        GenericDocument clickAction4 = new ClickActionGenericDocument.Builder(
-                "namespace", "click4", "builtin:ClickAction")
-                .setCreationTimestampMillis(7000)
-                .setQuery("test")
-                .setResultRankInBlock(4)
-                .setResultRankGlobal(8)
-                .setTimeStayOnResultMillis(256)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc4")
-                .build();
-        GenericDocument clickAction5 = new ClickActionGenericDocument.Builder(
-                "namespace", "click5", "builtin:ClickAction")
-                .setCreationTimestampMillis(8000)
-                .setQuery("test")
-                .setResultRankInBlock(6)
-                .setResultRankGlobal(12)
-                .setTimeStayOnResultMillis(1024)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc5")
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("tes")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument clickAction1 =
+                new ClickActionGenericDocument.Builder("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("tes")
+                        .setResultRankInBlock(1)
+                        .setResultRankGlobal(2)
+                        .setTimeStayOnResultMillis(512)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc1")
+                        .build();
+        GenericDocument clickAction2 =
+                new ClickActionGenericDocument.Builder("namespace", "click2", "builtin:ClickAction")
+                        .setCreationTimestampMillis(3000)
+                        .setQuery("tes")
+                        .setResultRankInBlock(3)
+                        .setResultRankGlobal(6)
+                        .setTimeStayOnResultMillis(1024)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc2")
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(5000)
+                        .setQuery("test")
+                        .setFetchedResultCount(10)
+                        .build();
+        GenericDocument clickAction3 =
+                new ClickActionGenericDocument.Builder("namespace", "click3", "builtin:ClickAction")
+                        .setCreationTimestampMillis(6000)
+                        .setQuery("test")
+                        .setResultRankInBlock(2)
+                        .setResultRankGlobal(4)
+                        .setTimeStayOnResultMillis(512)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc3")
+                        .build();
+        GenericDocument clickAction4 =
+                new ClickActionGenericDocument.Builder("namespace", "click4", "builtin:ClickAction")
+                        .setCreationTimestampMillis(7000)
+                        .setQuery("test")
+                        .setResultRankInBlock(4)
+                        .setResultRankGlobal(8)
+                        .setTimeStayOnResultMillis(256)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc4")
+                        .build();
+        GenericDocument clickAction5 =
+                new ClickActionGenericDocument.Builder("namespace", "click5", "builtin:ClickAction")
+                        .setCreationTimestampMillis(8000)
+                        .setQuery("test")
+                        .setResultRankInBlock(6)
+                        .setResultRankGlobal(12)
+                        .setTimeStayOnResultMillis(2048)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc5")
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, clickAction1, clickAction2,
-                searchAction2, clickAction3, clickAction4, clickAction5);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(
+                        searchAction1,
+                        clickAction1,
+                        clickAction2,
+                        searchAction2,
+                        clickAction3,
+                        clickAction4,
+                        clickAction5);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         assertThat(result).hasSize(2);
         // Search intent 0
@@ -117,11 +126,13 @@ public class SearchIntentStatsExtractorTest {
         assertThat(result.get(0).getClicksStats().get(0).getResultRankGlobal()).isEqualTo(2);
         assertThat(result.get(0).getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(512);
+        assertThat(result.get(0).getClicksStats().get(0).isGoodClick()).isFalse();
         assertThat(result.get(0).getClicksStats().get(1).getTimestampMillis()).isEqualTo(3000);
         assertThat(result.get(0).getClicksStats().get(1).getResultRankInBlock()).isEqualTo(3);
         assertThat(result.get(0).getClicksStats().get(1).getResultRankGlobal()).isEqualTo(6);
         assertThat(result.get(0).getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(1024);
+        assertThat(result.get(0).getClicksStats().get(1).isGoodClick()).isFalse();
 
         // Search intent 1
         assertThat(result.get(1).getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -138,51 +149,56 @@ public class SearchIntentStatsExtractorTest {
         assertThat(result.get(1).getClicksStats().get(0).getResultRankGlobal()).isEqualTo(4);
         assertThat(result.get(1).getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(512);
+        assertThat(result.get(1).getClicksStats().get(0).isGoodClick()).isFalse();
         assertThat(result.get(1).getClicksStats().get(1).getTimestampMillis()).isEqualTo(7000);
         assertThat(result.get(1).getClicksStats().get(1).getResultRankInBlock()).isEqualTo(4);
         assertThat(result.get(1).getClicksStats().get(1).getResultRankGlobal()).isEqualTo(8);
         assertThat(result.get(1).getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(256);
+        assertThat(result.get(1).getClicksStats().get(1).isGoodClick()).isFalse();
         assertThat(result.get(1).getClicksStats().get(2).getTimestampMillis()).isEqualTo(8000);
         assertThat(result.get(1).getClicksStats().get(2).getResultRankInBlock()).isEqualTo(6);
         assertThat(result.get(1).getClicksStats().get(2).getResultRankGlobal()).isEqualTo(12);
         assertThat(result.get(1).getClicksStats().get(2).getTimeStayOnResultMillis())
-                .isEqualTo(1024);
+                .isEqualTo(2048);
+        assertThat(result.get(1).getClicksStats().get(2).isGoodClick()).isTrue();
     }
 
     @Test
     public void testExtract_shouldSkipUnknownActionTypeDocuments() {
         // Create search action and click action generic documents.
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("tes")
-                .setFetchedResultCount(20)
-                .build();
-        GenericDocument clickAction1 = new GenericDocument.Builder<>(
-                "namespace", "click1", "builtin:ClickAction")
-                .setCreationTimestampMillis(2000)
-                .setPropertyString("query", "tes")
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc1")
-                .setPropertyLong("resultRankInBlock", 1)
-                .setPropertyLong("resultRankGlobal", 2)
-                .setPropertyLong("timeStayOnResultMillis", 512)
-                .build();
-        GenericDocument clickAction2 = new ClickActionGenericDocument.Builder(
-                "namespace", "click2", "builtin:ClickAction")
-                .setCreationTimestampMillis(3000)
-                .setQuery("tes")
-                .setResultRankInBlock(3)
-                .setResultRankGlobal(6)
-                .setTimeStayOnResultMillis(1024)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc2")
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("tes")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument clickAction1 =
+                new GenericDocument.Builder<>("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setPropertyString("query", "tes")
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc1")
+                        .setPropertyLong("resultRankInBlock", 1)
+                        .setPropertyLong("resultRankGlobal", 2)
+                        .setPropertyLong("timeStayOnResultMillis", 512)
+                        .build();
+        GenericDocument clickAction2 =
+                new ClickActionGenericDocument.Builder("namespace", "click2", "builtin:ClickAction")
+                        .setCreationTimestampMillis(3000)
+                        .setQuery("tes")
+                        .setResultRankInBlock(3)
+                        .setResultRankGlobal(6)
+                        .setTimeStayOnResultMillis(1024)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc2")
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, clickAction1, clickAction2);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, clickAction1, clickAction2);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // Since clickAction1 doesn't have property "actionType", it should be skipped without
         // throwing any exception.
@@ -201,6 +217,7 @@ public class SearchIntentStatsExtractorTest {
         assertThat(result.get(0).getClicksStats().get(0).getResultRankGlobal()).isEqualTo(6);
         assertThat(result.get(0).getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(1024);
+        assertThat(result.get(0).getClicksStats().get(0).isGoodClick()).isFalse();
     }
 
 // @exportToFramework:startStrip()
@@ -254,7 +271,7 @@ public class SearchIntentStatsExtractorTest {
                         .setReferencedQualifiedId("pkg$db/ns#doc5")
                         .setResultRankInBlock(6)
                         .setResultRankGlobal(12)
-                        .setTimeStayOnResultMillis(1024)
+                        .setTimeStayOnResultMillis(2048)
                         .build();
 
         // Use PutDocumentsRequest taken action API to convert document class to GenericDocument.
@@ -263,9 +280,10 @@ public class SearchIntentStatsExtractorTest {
                         searchAction2, clickAction3, clickAction4, clickAction5)
                 .build();
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(
-                        putDocumentsRequest.getTakenActionGenericDocuments());
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE,
+                                putDocumentsRequest.getTakenActionGenericDocuments());
 
         assertThat(result).hasSize(2);
         // Search intent 0
@@ -283,11 +301,13 @@ public class SearchIntentStatsExtractorTest {
         assertThat(result.get(0).getClicksStats().get(0).getResultRankGlobal()).isEqualTo(2);
         assertThat(result.get(0).getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(512);
+        assertThat(result.get(0).getClicksStats().get(0).isGoodClick()).isFalse();
         assertThat(result.get(0).getClicksStats().get(1).getTimestampMillis()).isEqualTo(3000);
         assertThat(result.get(0).getClicksStats().get(1).getResultRankInBlock()).isEqualTo(3);
         assertThat(result.get(0).getClicksStats().get(1).getResultRankGlobal()).isEqualTo(6);
         assertThat(result.get(0).getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(1024);
+        assertThat(result.get(0).getClicksStats().get(1).isGoodClick()).isFalse();
 
         // Search intent 1
         assertThat(result.get(1).getPackageName()).isEqualTo(TEST_PACKAGE_NAME);
@@ -304,57 +324,67 @@ public class SearchIntentStatsExtractorTest {
         assertThat(result.get(1).getClicksStats().get(0).getResultRankGlobal()).isEqualTo(4);
         assertThat(result.get(1).getClicksStats().get(0).getTimeStayOnResultMillis())
                 .isEqualTo(512);
+        assertThat(result.get(1).getClicksStats().get(0).isGoodClick()).isFalse();
         assertThat(result.get(1).getClicksStats().get(1).getTimestampMillis()).isEqualTo(7000);
         assertThat(result.get(1).getClicksStats().get(1).getResultRankInBlock()).isEqualTo(4);
         assertThat(result.get(1).getClicksStats().get(1).getResultRankGlobal()).isEqualTo(8);
         assertThat(result.get(1).getClicksStats().get(1).getTimeStayOnResultMillis())
                 .isEqualTo(256);
+        assertThat(result.get(1).getClicksStats().get(1).isGoodClick()).isFalse();
         assertThat(result.get(1).getClicksStats().get(2).getTimestampMillis()).isEqualTo(8000);
         assertThat(result.get(1).getClicksStats().get(2).getResultRankInBlock()).isEqualTo(6);
         assertThat(result.get(1).getClicksStats().get(2).getResultRankGlobal()).isEqualTo(12);
         assertThat(result.get(1).getClicksStats().get(2).getTimeStayOnResultMillis())
-                .isEqualTo(1024);
+                .isEqualTo(2048);
+        assertThat(result.get(1).getClicksStats().get(2).isGoodClick()).isTrue();
     }
 // @exportToFramework:endStrip()
 
     @Test
     public void testExtract_detectAndSkipSearchNoise_appendNewCharacters() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("t")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("te")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction3 = new SearchActionGenericDocument.Builder(
-                "namespace", "search3", "builtin:SearchAction")
-                .setCreationTimestampMillis(3000)
-                .setQuery("tes")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction4 = new SearchActionGenericDocument.Builder(
-                "namespace", "search4", "builtin:SearchAction")
-                .setCreationTimestampMillis(3001)
-                .setQuery("test")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction5 = new SearchActionGenericDocument.Builder(
-                "namespace", "search5", "builtin:SearchAction")
-                .setCreationTimestampMillis(10000)
-                .setQuery("testing")
-                .setFetchedResultCount(0)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("te")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction3 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search3", "builtin:SearchAction")
+                        .setCreationTimestampMillis(3000)
+                        .setQuery("tes")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction4 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search4", "builtin:SearchAction")
+                        .setCreationTimestampMillis(3001)
+                        .setQuery("test")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction5 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search5", "builtin:SearchAction")
+                        .setCreationTimestampMillis(10000)
+                        .setQuery("testing")
+                        .setFetchedResultCount(0)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2, searchAction3, searchAction4, searchAction5);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(
+                        searchAction1, searchAction2, searchAction3, searchAction4, searchAction5);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // searchAction2, searchAction3 should be considered as noise since they're intermediate
         // search actions with no clicks. The extractor should create search intents only for the
@@ -393,42 +423,49 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_detectAndSkipSearchNoise_deleteCharacters() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("testing")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("test")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction3 = new SearchActionGenericDocument.Builder(
-                "namespace", "search3", "builtin:SearchAction")
-                .setCreationTimestampMillis(3000)
-                .setQuery("tes")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction4 = new SearchActionGenericDocument.Builder(
-                "namespace", "search4", "builtin:SearchAction")
-                .setCreationTimestampMillis(3001)
-                .setQuery("te")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction5 = new SearchActionGenericDocument.Builder(
-                "namespace", "search5", "builtin:SearchAction")
-                .setCreationTimestampMillis(10000)
-                .setQuery("t")
-                .setFetchedResultCount(0)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("testing")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("test")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction3 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search3", "builtin:SearchAction")
+                        .setCreationTimestampMillis(3000)
+                        .setQuery("tes")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction4 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search4", "builtin:SearchAction")
+                        .setCreationTimestampMillis(3001)
+                        .setQuery("te")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction5 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search5", "builtin:SearchAction")
+                        .setCreationTimestampMillis(10000)
+                        .setQuery("t")
+                        .setFetchedResultCount(0)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2, searchAction3, searchAction4, searchAction5);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(
+                        searchAction1, searchAction2, searchAction3, searchAction4, searchAction5);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // searchAction2, searchAction3 should be considered as noise since they're intermediate
         // search actions with no clicks. The extractor should create search intents only for the
@@ -467,30 +504,34 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_occursAfterThresholdShouldNotBeSearchNoise() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("t")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(3001)
-                .setQuery("te")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction3 = new SearchActionGenericDocument.Builder(
-                "namespace", "search3", "builtin:SearchAction")
-                .setCreationTimestampMillis(10000)
-                .setQuery("test")
-                .setFetchedResultCount(0)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(3001)
+                        .setQuery("te")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction3 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search3", "builtin:SearchAction")
+                        .setCreationTimestampMillis(10000)
+                        .setQuery("test")
+                        .setFetchedResultCount(0)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2, searchAction3);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, searchAction2, searchAction3);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // searchAction2 should not be considered as noise since it occurs after the threshold from
         // searchAction1 (and therefore not intermediate search actions).
@@ -528,36 +569,41 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_nonPrefixQueryStringShouldNotBeSearchNoise() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("apple")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(1500)
-                .setQuery("application")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction3 = new SearchActionGenericDocument.Builder(
-                "namespace", "search3", "builtin:SearchAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("email")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction4 = new SearchActionGenericDocument.Builder(
-                "namespace", "search4", "builtin:SearchAction")
-                .setCreationTimestampMillis(10000)
-                .setQuery("google")
-                .setFetchedResultCount(0)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("apple")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1500)
+                        .setQuery("application")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction3 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search3", "builtin:SearchAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("email")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction4 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search4", "builtin:SearchAction")
+                        .setCreationTimestampMillis(10000)
+                        .setQuery("google")
+                        .setFetchedResultCount(0)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2, searchAction3, searchAction4);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, searchAction2, searchAction3, searchAction4);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // searchAction2 and searchAction3 should not be considered as noise since neither query
         // string is a prefix of the previous one (and therefore not intermediate search actions).
@@ -605,24 +651,27 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_lastSearchActionShouldNotBeSearchNoise() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("t")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("te")
-                .setFetchedResultCount(0)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("te")
+                        .setFetchedResultCount(0)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, searchAction2);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // searchAction2 should not be considered as noise since it is the last search action (and
         // therefore not an intermediate search action).
@@ -650,30 +699,34 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_lastSearchActionOfRelatedSearchSequenceShouldNotBeSearchNoise() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("t")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("te")
-                .setFetchedResultCount(0)
-                .build();
-        GenericDocument searchAction3 = new SearchActionGenericDocument.Builder(
-                "namespace", "search3", "builtin:SearchAction")
-                .setCreationTimestampMillis(602001)
-                .setQuery("test")
-                .setFetchedResultCount(0)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("te")
+                        .setFetchedResultCount(0)
+                        .build();
+        GenericDocument searchAction3 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search3", "builtin:SearchAction")
+                        .setCreationTimestampMillis(602001)
+                        .setQuery("test")
+                        .setFetchedResultCount(0)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2, searchAction3);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, searchAction2, searchAction3);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // searchAction2 should not be considered as noise:
         // - searchAction3 is independent from searchAction2.
@@ -713,39 +766,43 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_withClickActionShouldNotBeSearchNoise() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("t")
-                .setFetchedResultCount(20)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(2000)
-                .setQuery("te")
-                .setFetchedResultCount(10)
-                .build();
-        GenericDocument clickAction1 = new ClickActionGenericDocument.Builder(
-                "namespace", "click1", "builtin:ClickAction")
-                .setCreationTimestampMillis(2050)
-                .setQuery("te")
-                .setResultRankInBlock(1)
-                .setResultRankGlobal(2)
-                .setTimeStayOnResultMillis(512)
-                .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc1")
-                .build();
-        GenericDocument searchAction3 = new SearchActionGenericDocument.Builder(
-                "namespace", "search3", "builtin:SearchAction")
-                .setCreationTimestampMillis(10000)
-                .setQuery("test")
-                .setFetchedResultCount(5)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(2000)
+                        .setQuery("te")
+                        .setFetchedResultCount(10)
+                        .build();
+        GenericDocument clickAction1 =
+                new ClickActionGenericDocument.Builder("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2050)
+                        .setQuery("te")
+                        .setResultRankInBlock(1)
+                        .setResultRankGlobal(2)
+                        .setTimeStayOnResultMillis(512)
+                        .setPropertyString("referencedQualifiedId", "pkg$db/ns#doc1")
+                        .build();
+        GenericDocument searchAction3 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search3", "builtin:SearchAction")
+                        .setCreationTimestampMillis(10000)
+                        .setQuery("test")
+                        .setFetchedResultCount(5)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2, clickAction1, searchAction3);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, searchAction2, clickAction1, searchAction3);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // Even though searchAction2 is an intermediate search action, it should not be considered
         // as noise since there is at least 1 valid click action associated with it.
@@ -783,24 +840,27 @@ public class SearchIntentStatsExtractorTest {
 
     @Test
     public void testExtract_detectIndependentSearchIntent() {
-        GenericDocument searchAction1 = new SearchActionGenericDocument.Builder(
-                "namespace", "search1", "builtin:SearchAction")
-                .setCreationTimestampMillis(1000)
-                .setQuery("t")
-                .setFetchedResultCount(20)
-                .build();
-        GenericDocument searchAction2 = new SearchActionGenericDocument.Builder(
-                "namespace", "search2", "builtin:SearchAction")
-                .setCreationTimestampMillis(601001)
-                .setQuery("te")
-                .setFetchedResultCount(10)
-                .build();
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument searchAction2 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search2", "builtin:SearchAction")
+                        .setCreationTimestampMillis(601001)
+                        .setQuery("te")
+                        .setFetchedResultCount(10)
+                        .build();
 
-        List<GenericDocument> takenActionGenericDocuments = Arrays.asList(
-                searchAction1, searchAction2);
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, searchAction2);
 
-        List<SearchIntentStats> result = new SearchIntentStatsExtractor(
-                TEST_PACKAGE_NAME, TEST_DATABASE).extract(takenActionGenericDocuments);
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
 
         // Since time difference between searchAction1 and searchAction2 exceeds the threshold,
         // searchAction2 should be considered as an independent search intent.
@@ -824,6 +884,128 @@ public class SearchIntentStatsExtractorTest {
         assertThat(result.get(1).getQueryCorrectionType())
                 .isEqualTo(SearchIntentStats.QUERY_CORRECTION_TYPE_FIRST_QUERY);
         assertThat(result.get(1).getClicksStats()).isEmpty();
+    }
+
+    @Test
+    public void testExtract_shouldSetIsGoodClick() {
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument clickAction1 =
+                new ClickActionGenericDocument.Builder("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setTimeStayOnResultMillis(2001)
+                        .build();
+        GenericDocument clickAction2 =
+                new ClickActionGenericDocument.Builder("namespace", "click2", "builtin:ClickAction")
+                        .setCreationTimestampMillis(4500)
+                        .setTimeStayOnResultMillis(1999)
+                        .build();
+        GenericDocument clickAction3 =
+                new ClickActionGenericDocument.Builder("namespace", "click3", "builtin:ClickAction")
+                        .setCreationTimestampMillis(7000)
+                        .setTimeStayOnResultMillis(1)
+                        .build();
+        GenericDocument clickAction4 =
+                new ClickActionGenericDocument.Builder("namespace", "click4", "builtin:ClickAction")
+                        .setCreationTimestampMillis(7500)
+                        .setTimeStayOnResultMillis(2000)
+                        .build();
+
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(
+                        searchAction1, clickAction1, clickAction2, clickAction3, clickAction4);
+
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getClicksStats()).hasSize(4);
+
+        assertThat(result.get(0).getClicksStats().get(0).getTimeStayOnResultMillis())
+                .isEqualTo(2001);
+        assertThat(result.get(0).getClicksStats().get(0).isGoodClick()).isTrue();
+
+        assertThat(result.get(0).getClicksStats().get(1).getTimeStayOnResultMillis())
+                .isEqualTo(1999);
+        assertThat(result.get(0).getClicksStats().get(1).isGoodClick()).isFalse();
+
+        assertThat(result.get(0).getClicksStats().get(2).getTimeStayOnResultMillis()).isEqualTo(1);
+        assertThat(result.get(0).getClicksStats().get(2).isGoodClick()).isFalse();
+
+        assertThat(result.get(0).getClicksStats().get(3).getTimeStayOnResultMillis())
+                .isEqualTo(2000);
+        assertThat(result.get(0).getClicksStats().get(3).isGoodClick()).isTrue();
+    }
+
+    @Test
+    public void testExtract_unsetTimeStayOnResultShouldBeGoodClick() {
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument clickAction1 =
+                new ClickActionGenericDocument.Builder("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .build();
+
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, clickAction1);
+
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getClicksStats()).hasSize(1);
+
+        assertThat(result.get(0).getClicksStats().get(0).getTimeStayOnResultMillis()).isEqualTo(0);
+        assertThat(result.get(0).getClicksStats().get(0).isGoodClick()).isTrue();
+    }
+
+    @Test
+    public void testExtract_nonPositiveTimeStayOnResultShouldBeGoodClick() {
+        GenericDocument searchAction1 =
+                new SearchActionGenericDocument.Builder(
+                        "namespace", "search1", "builtin:SearchAction")
+                        .setCreationTimestampMillis(1000)
+                        .setQuery("t")
+                        .setFetchedResultCount(20)
+                        .build();
+        GenericDocument clickAction1 =
+                new ClickActionGenericDocument.Builder("namespace", "click1", "builtin:ClickAction")
+                        .setCreationTimestampMillis(2000)
+                        .setTimeStayOnResultMillis(-1)
+                        .build();
+        GenericDocument clickAction2 =
+                new ClickActionGenericDocument.Builder("namespace", "click2", "builtin:ClickAction")
+                        .setCreationTimestampMillis(3000)
+                        .setTimeStayOnResultMillis(0)
+                        .build();
+
+        List<GenericDocument> takenActionGenericDocuments =
+                Arrays.asList(searchAction1, clickAction1, clickAction2);
+
+        List<SearchIntentStats> result =
+                new SearchIntentStatsExtractor()
+                        .extract(TEST_PACKAGE_NAME, TEST_DATABASE, takenActionGenericDocuments);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getClicksStats()).hasSize(2);
+
+        assertThat(result.get(0).getClicksStats().get(0).getTimeStayOnResultMillis()).isEqualTo(-1);
+        assertThat(result.get(0).getClicksStats().get(0).isGoodClick()).isTrue();
+
+        assertThat(result.get(0).getClicksStats().get(1).getTimeStayOnResultMillis()).isEqualTo(0);
+        assertThat(result.get(0).getClicksStats().get(1).isGoodClick()).isTrue();
     }
 
     @Test

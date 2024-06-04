@@ -27,17 +27,21 @@ public class ClickStatsTest {
         long timeStayOnResultMillis = 2L;
         int resultRankInBlock = 3;
         int resultRankGlobal = 4;
+        boolean isGoodClick = false;
 
-        final ClickStats clickStats = new ClickStats.Builder()
-                .setTimestampMillis(timestampMillis)
-                .setTimeStayOnResultMillis(timeStayOnResultMillis)
-                .setResultRankInBlock(resultRankInBlock)
-                .setResultRankGlobal(resultRankGlobal)
-                .build();
+        final ClickStats clickStats =
+                new ClickStats.Builder()
+                        .setTimestampMillis(timestampMillis)
+                        .setTimeStayOnResultMillis(timeStayOnResultMillis)
+                        .setResultRankInBlock(resultRankInBlock)
+                        .setResultRankGlobal(resultRankGlobal)
+                        .setIsGoodClick(isGoodClick)
+                        .build();
 
         assertThat(clickStats.getTimestampMillis()).isEqualTo(timestampMillis);
         assertThat(clickStats.getTimeStayOnResultMillis()).isEqualTo(timeStayOnResultMillis);
         assertThat(clickStats.getResultRankInBlock()).isEqualTo(resultRankInBlock);
         assertThat(clickStats.getResultRankGlobal()).isEqualTo(resultRankGlobal);
+        assertThat(clickStats.isGoodClick()).isEqualTo(isGoodClick);
     }
 }

@@ -38,12 +38,15 @@ public class ClickStats {
 
     private final int mResultRankGlobal;
 
+    private final boolean mIsGoodClick;
+
     ClickStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
         mTimestampMillis = builder.mTimestampMillis;
         mTimeStayOnResultMillis = builder.mTimeStayOnResultMillis;
         mResultRankInBlock = builder.mResultRankInBlock;
         mResultRankGlobal = builder.mResultRankGlobal;
+        mIsGoodClick = builder.mIsGoodClick;
     }
 
     /** Returns the click action timestamp in milliseconds since Unix epoch. */
@@ -66,6 +69,15 @@ public class ClickStats {
         return mResultRankGlobal;
     }
 
+    /**
+     * Returns whether this click is a good click or not.
+     *
+     * @see Builder#isGoodClick
+     */
+    public boolean isGoodClick() {
+        return mIsGoodClick;
+    }
+
     /** Builder for {@link ClickStats} */
     public static final class Builder {
         private long mTimestampMillis;
@@ -75,6 +87,8 @@ public class ClickStats {
         private int mResultRankInBlock;
 
         private int mResultRankGlobal;
+
+        private boolean mIsGoodClick = true;
 
         /** Sets the click action timestamp in milliseconds since Unix epoch. */
         @CanIgnoreReturnValue
@@ -105,6 +119,30 @@ public class ClickStats {
         @NonNull
         public Builder setResultRankGlobal(int resultRankGlobal) {
             mResultRankGlobal = resultRankGlobal;
+            return this;
+        }
+
+        /**
+         * Sets the flag indicating whether the click is good or not.
+         *
+         * <p>A good click means the user is satisfied by the clicked document. The caller should
+         * define its own criteria and set this field accordingly.
+         *
+         * <p>The default value is true if unset. We should treat it as a good click by default if
+         * the caller didn't specify or could not determine for several reasons:
+         *
+         * <ul>
+         *   <li>It may be difficult for the caller to determine if the user is satisfied by the
+         *       clicked document or not.
+         *   <li>AppSearch collects search quality metrics that are related to number of good
+         *       clicks. We don't want to demote the quality score aggressively by the undetermined
+         *       ones.
+         * </ul>
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setIsGoodClick(boolean isGoodClick) {
+            mIsGoodClick = isGoodClick;
             return this;
         }
 
