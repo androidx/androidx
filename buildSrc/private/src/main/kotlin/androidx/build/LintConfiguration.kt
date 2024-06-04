@@ -18,6 +18,7 @@ package androidx.build
 
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.Lint
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
@@ -46,7 +47,8 @@ fun Project.configureLint() {
             is LibraryPlugin -> configureAndroidProjectForLint(isLibrary = true)
             is KotlinMultiplatformAndroidPlugin ->
                 configureAndroidMultiplatformProjectForLint(
-                    extensions.getByType<AndroidXMultiplatformExtension>().agpKmpExtension
+                    extensions.getByType<AndroidXMultiplatformExtension>().agpKmpExtension,
+                    extensions.getByType<KotlinMultiplatformAndroidComponentsExtension>()
                 )
             // Only configure non-multiplatform Java projects via JavaPlugin. Multiplatform
             // projects targeting Java (e.g. `jvm { withJava() }`) are configured via
@@ -81,11 +83,14 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
     }
 
 private fun Project.configureAndroidMultiplatformProjectForLint(
-    extension: KotlinMultiplatformAndroidTarget
+    extension: KotlinMultiplatformAndroidTarget,
+    componentsExtension: KotlinMultiplatformAndroidComponentsExtension
 ) {
-    // The lintAnalyze task is used by `androidx-studio-integration-lint.sh`.
-    tasks.register("lintAnalyze") { task -> task.enabled = false }
-    configureLint(extension.lint, true)
+    componentsExtension.finalizeDsl {
+        // The lintAnalyze task is used by `androidx-studio-integration-lint.sh`.
+        tasks.register("lintAnalyze") { task -> task.enabled = false }
+        configureLint(extension.lint, isLibrary = true)
+    }
 }
 
 /** Android Lint configuration entry point for non-Android projects. */
