@@ -46,6 +46,10 @@ actual constructor(@JvmField actual val startVersion: Int, @JvmField actual val 
      * This method is already called inside a transaction and that transaction might actually be a
      * composite transaction of all necessary `Migration`s.
      *
+     * This function is only called when Room is configured without a driver. If a driver is set
+     * using [androidx.room.RoomDatabase.Builder.setDriver], then only the version that receives a
+     * [SQLiteConnection] is called.
+     *
      * @param db The database instance
      * @throws NotImplementedError if migrate(SQLiteConnection) is not overridden.
      */
