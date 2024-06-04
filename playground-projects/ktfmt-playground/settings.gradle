@@ -25,7 +25,7 @@ plugins {
 playground {
     setupPlayground("../..")
     selectProjectsFromAndroidX({ name ->
-        // don't include anything, this is used to run ktlint on CI
+        // don't include anything, this is used to run ktfmt on CI
         return false
     })
 }
