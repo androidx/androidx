@@ -47,6 +47,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.tasks.TaskContainer
 
 /**
  * This is the consumer plugin for baseline profile generation. In order to generate baseline
@@ -436,16 +437,23 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                 if (isApplicationModule()) {
                     // Defines a function to apply the baseline profile source sets to a variant.
                     fun applySourceSets(variantName: String) {
-                        val taskName = camelCase("merge", variantName, "artProfile")
-                        project.tasks.namedOrNull<Task>(taskName)?.configure { t ->
-                            // This causes a circular task dependency when the producer points to
-                            // a consumer that does not have the appTarget plugin. (b/272851616)
-                            if (automaticGeneration) {
-                                t.dependsOn(copyTaskProvider)
-                            } else {
-                                t.mustRunAfter(copyTaskProvider)
+
+                        // These dependencies causes a circular task dependency when the producer
+                        // points to a consumer that does not have the appTarget plugin.
+                        // Note that on old versions of AGP these tasks may not exist.
+                        listOfNotNull(
+                                project.tasks.taskMergeArtProfile(variantName),
+                                project.tasks.taskMergeStartupProfile(variantName)
+                            )
+                            .forEach {
+                                it.configure { t ->
+                                    if (automaticGeneration) {
+                                        t.dependsOn(copyTaskProvider)
+                                    } else {
+                                        t.mustRunAfter(copyTaskProvider)
+                                    }
+                                }
                             }
-                        }
                     }
 
                     afterVariants {
@@ -591,6 +599,12 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             }
         }
     }
+
+    fun TaskContainer.taskMergeArtProfile(variantName: String) =
+        project.tasks.namedOrNull<Task>("merge", variantName, "artProfile")
+
+    fun TaskContainer.taskMergeStartupProfile(variantName: String) =
+        project.tasks.namedOrNull<Task>("merge", variantName, "startupProfile")
 
     private fun createConfigurationForVariant(variant: Variant, mainConfiguration: Configuration) =
         configurationManager.maybeCreate(
