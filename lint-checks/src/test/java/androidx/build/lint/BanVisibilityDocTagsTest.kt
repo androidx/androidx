@@ -58,7 +58,6 @@ public class HideClass {
     fun `Detection of Hide tag in Javadoc`() {
         val input = arrayOf(fileWithHideInJavadoc)
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/HideClass.java:4: Error: @hide is not allowed in documentation [BanHideTag]
@@ -73,7 +72,6 @@ src/HideClass.java:14: Error: @hide is not allowed in documentation [BanHideTag]
 3 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -103,7 +101,6 @@ public class SuppressClass {
     fun `Detection of Suppress tag in Kdoc`() {
         val input = arrayOf(fileWithSuppressInKdoc)
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/SuppressClass.kt:4: Error: @suppress is not allowed in documentation [BanSuppressTag]
@@ -118,7 +115,6 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
 3 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

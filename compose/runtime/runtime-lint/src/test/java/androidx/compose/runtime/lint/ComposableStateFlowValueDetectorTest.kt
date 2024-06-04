@@ -29,7 +29,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ComposableStateFlowValueDetector]. */
@@ -285,4 +284,3 @@ src/androidx/compose/runtime/foo/TestFlow.kt:56: Error: StateFlow.value should n
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

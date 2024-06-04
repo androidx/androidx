@@ -24,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
 
@@ -328,4 +327,3 @@ src/test/NodeUnderTest.kt:16: Error: Reading staticLocalInt lazily will only acc
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

@@ -42,7 +42,6 @@ class BuildPropParserTest {
                     platform/prebuilts/androidx/external 28219bd26d4ef59e133a85189404db8e73ec0f70
                     platform/prebuilts/androidx/internal dbbb264e785643cb8089c3a5ed7f8b25c4207738
                     platform/prebuilts/checkstyle c52010acac9b638f45f66747762cc0ad187c1e39
-                    platform/prebuilts/ktlint 9a3378cb74a0ab30433181a60371673cb6eb5643
                     platform/tools/external/gradle 29b86bd23797fe0873ffe18f12907cd5eea5d427
                     platform/tools/repohooks bbc97c1419402c3d0297189c2d34228cbb60c2e6
                 """.trimIndent(),

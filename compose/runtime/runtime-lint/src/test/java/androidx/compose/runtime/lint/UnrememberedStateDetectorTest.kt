@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [UnrememberedStateDetector]. */
@@ -526,4 +525,3 @@ src/androidx/compose/runtime/foo/{.kt:56: Error: Creating a state object during 
             )
     }
 }
-/* ktlint-enable max-line-length */

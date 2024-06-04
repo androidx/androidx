@@ -136,7 +136,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 val error = "${config.apiMethod}(Lifecycle.State.STARTED) { }"
                 Error(error = error, curlyCharacters = error.length, indent = 4, wrongLine = "13")
             }
-        /* ktlint-disable max-line-length */
+
         return """
             src/foo/$className.kt:$wrongLine: Error: Wrong usage of repeatOnLifecycle from $className.${config.lifecycleMethod}. [RepeatOnLifecycleWrongUsage]
             ${" ".repeat(indent)}$error
@@ -150,7 +150,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
            1 errors, 0 warnings
         */
-        /* ktlint-enable max-line-length */
+
     }
 
     private fun fragmentTemplate(

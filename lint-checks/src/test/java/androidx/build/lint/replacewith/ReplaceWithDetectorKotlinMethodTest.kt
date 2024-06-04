@@ -31,7 +31,6 @@ class ReplaceWithDetectorKotlinMethodTest {
                 javaSample("replacewith.StaticKotlinMethodExplicitClassJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Information: Replacement available [ReplaceWith]
@@ -49,7 +48,6 @@ Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replac
 +         this.toString();
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -62,13 +60,11 @@ Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replac
                 ktSample("replacewith.StaticKotlinMethodExplicitClassKotlin")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 No warnings.
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

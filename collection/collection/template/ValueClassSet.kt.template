@@ -23,9 +23,6 @@
     "PrivatePropertyName",
     "NOTHING_TO_INLINE",
     "UnusedImport",
-    "ktlint:standard:import-ordering",
-    "ktlint:standard:max-line-length",
-    "ktlint:standard:no-unused-imports",
 )
 
 package PACKAGE

@@ -51,7 +51,6 @@ class RxWorkerSetProgressDetectorTest {
             )
             .issues(RxWorkerSetProgressDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/App.kt:8: Error: setProgress is deprecated. Use setCompletableProgress instead. [UseRxSetProgress2]
@@ -70,6 +69,5 @@ class RxWorkerSetProgressDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

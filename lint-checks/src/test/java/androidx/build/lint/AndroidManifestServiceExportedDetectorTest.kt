@@ -33,7 +33,6 @@ class AndroidManifestServiceExportedDetectorTest :
     fun `Detect missing exported=true declaration in service tag`() {
         val input = arrayOf(manifestSample())
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingServiceExportedEqualsTrue]
@@ -42,7 +41,6 @@ AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingSe
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

@@ -35,7 +35,6 @@ class BanUncheckedReflectionTest :
     fun `Detection of unchecked reflection in real-world Java sources`() {
         val input = arrayOf(javaSample("androidx.sample.core.app.ActivityRecreator"), RestrictTo)
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
@@ -47,7 +46,6 @@ src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke re
 2 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -56,7 +54,6 @@ src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke re
     fun `Detection of unchecked reflection in real-world Kotlin sources`() {
         val input = arrayOf(ktSample("androidx.sample.core.app.ActivityRecreatorKt"), RestrictTo)
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/sample/core/app/ActivityRecreatorKt.kt:172: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
@@ -68,7 +65,6 @@ src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke re
 2 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         lint().files(*input).run().expect(expected)
     }
@@ -78,13 +74,11 @@ src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke re
         val input =
             arrayOf(javaSample("androidx.sample.core.app.ActivityRecreatorChecked"), RestrictTo)
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 No warnings.
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

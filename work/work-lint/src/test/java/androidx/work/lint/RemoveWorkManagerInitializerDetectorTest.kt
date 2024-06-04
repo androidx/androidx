@@ -168,7 +168,6 @@ class RemoveWorkManagerInitializerDetectorTest {
                 )
                 .indented()
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 // Manifest file
@@ -189,7 +188,6 @@ class RemoveWorkManagerInitializerDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -235,7 +233,6 @@ class RemoveWorkManagerInitializerDetectorTest {
                 )
                 .indented()
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 // Manifest file
@@ -256,7 +253,6 @@ class RemoveWorkManagerInitializerDetectorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -304,7 +300,6 @@ class RemoveWorkManagerInitializerDetectorTest {
                 )
                 .indented()
 
-        /* ktlint-disable max-line-length */
         lint()
             .files(
                 // Manifest file
@@ -317,6 +312,5 @@ class RemoveWorkManagerInitializerDetectorTest {
             .issues(RemoveWorkManagerInitializerDetector.ISSUE)
             .run()
             .expectClean()
-        /* ktlint-enable max-line-length */
     }
 }

@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
 /** Test for [ComposableLambdaParameterDetector]. */
@@ -334,4 +333,3 @@ Fix for src/androidx/compose/ui/foo/test.kt line 14: Rename text to content:
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

@@ -1465,7 +1465,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     // succeed.
                     pendingWallpaperInstance =
                         InteractiveInstanceManager
-                            .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance( // ktlint-disable max-line-length
+                            .setParameterlessEngineOrTakePendingWallpaperInteractiveWatchFaceInstance(
                                 this
                             )
                 }

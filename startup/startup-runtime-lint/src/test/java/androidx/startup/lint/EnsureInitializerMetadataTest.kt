@@ -35,7 +35,6 @@ class EnsureInitializerMetadataTest {
             .files(INITIALIZER, TEST_INITIALIZER)
             .issues(EnsureInitializerMetadataDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/TestInitializer.kt:5: Error: Every Initializer needs to be accompanied by a corresponding <meta-data> entry in the AndroidManifest.xml file. [EnsureInitializerMetadata]
@@ -45,7 +44,6 @@ class EnsureInitializerMetadataTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test

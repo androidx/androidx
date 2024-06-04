@@ -59,7 +59,6 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/main/kotlin/androidx/test/test.kt:6: Error: Prelease SDK check isAtLeastU cannot be called as this project has a versioned dependency on androidx.core:core [PrereleaseSdkCoreDependency]
@@ -68,7 +67,6 @@ class PrereleaseSdkCoreDependencyDetectorTest :
             1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -128,7 +126,6 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                 ),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
             src/main/kotlin/androidx/test/test.kt:6: Error: Prelease SDK check isAtLeastSv2 cannot be called as this project has a versioned dependency on androidx.core:core [PrereleaseSdkCoreDependency]
@@ -137,7 +134,6 @@ class PrereleaseSdkCoreDependencyDetectorTest :
             1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

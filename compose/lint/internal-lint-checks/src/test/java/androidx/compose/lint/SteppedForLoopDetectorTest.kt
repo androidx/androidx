@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 class SteppedForLoopDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = SteppedForLoopDetector()
@@ -269,4 +268,3 @@ src/test/test.kt:20: Error: stepping the integer range by 2L. [SteppedForLoop]
             )
     }
 }
-/* ktlint-enable max-line-length */

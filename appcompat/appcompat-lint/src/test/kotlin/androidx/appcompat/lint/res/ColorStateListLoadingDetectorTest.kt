@@ -116,7 +116,7 @@ class ColorStateListLoadingDetectorTest {
 
         // We expect the call to Resources.getColorStateList to be flagged to use ContextCompat
         // loading
-        /* ktlint-disable max-line-length */
+
         lint()
             .files(Stubs.APPCOMPAT_ACTIVITY, Stubs.COLOR_STATE_LIST, manifest, customActivity)
             .issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
@@ -131,7 +131,6 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -179,7 +178,7 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
 
         // We expect the call to Resources.getColorStateList to be flagged to use AppCompatResources
         // loading
-        /* ktlint-disable max-line-length */
+
         lint()
             .files(Stubs.APPCOMPAT_ACTIVITY, Stubs.COLOR_STATE_LIST, manifest, customActivity)
             .issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
@@ -194,6 +193,5 @@ src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorSta
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

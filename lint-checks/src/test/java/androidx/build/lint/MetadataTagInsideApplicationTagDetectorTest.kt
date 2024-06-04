@@ -33,7 +33,6 @@ class MetadataTagInsideApplicationTagDetectorTest :
     fun `Detect usage of metadata tag inside application tag`() {
         val input = arrayOf(manifestSample())
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 AndroidManifest.xml:19: Error: Detected <application>-level meta-data tag. [MetadataTagInsideApplicationTag]
@@ -42,7 +41,6 @@ AndroidManifest.xml:19: Error: Detected <application>-level meta-data tag. [Meta
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

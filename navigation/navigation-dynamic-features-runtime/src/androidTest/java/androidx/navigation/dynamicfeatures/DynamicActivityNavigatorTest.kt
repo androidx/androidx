@@ -33,8 +33,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when` as mockWhen
 
-/* ktlint-enable unused-imports */
-
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 public class DynamicActivityNavigatorTest {

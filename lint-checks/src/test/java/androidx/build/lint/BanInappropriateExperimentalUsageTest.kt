@@ -47,7 +47,6 @@ class BanInappropriateExperimentalUsageTest :
 
     @Test
     fun `Check if annotation is always allowed`() {
-        /* ktlint-disable max-line-length */
 
         // These annotations are used in AndroidX
         assertTrue(isAnnotationAlwaysAllowed("com.google.devtools.ksp.KspExperimental"))
@@ -65,12 +64,11 @@ class BanInappropriateExperimentalUsageTest :
 
         assertFalse(isAnnotationAlwaysAllowed("androidx.foo.bar"))
         assertFalse(isAnnotationAlwaysAllowed("com.google.foo.bar"))
-        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun `getLibraryFromPath should return correct Maven coordinates`() {
-        /* ktlint-disable max-line-length */
+
         val paging =
             getMavenCoordinatesFromPath(
                 "/path/to/checkout/out/androidx/paging/paging-common/build/libs/paging-common-3.2.0-alpha01.jar"
@@ -79,7 +77,6 @@ class BanInappropriateExperimentalUsageTest :
             getMavenCoordinatesFromPath(
                 "/path/to/checkout/out/androidx/room/room-compiler-processing/build/libs/room-compiler-processing-2.5.0-alpha02.jar"
             )
-        /* ktlint-enable max-line-length */
 
         assertNotNull(paging!!)
         assertEquals("androidx.paging", paging.groupId)
@@ -112,13 +109,11 @@ class BanInappropriateExperimentalUsageTest :
                         .indented(),
                 )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 No warnings.
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(provider).expect(expected)
     }
@@ -140,13 +135,11 @@ No warnings.
                         .indented(),
                 )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 No warnings.
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(provider).expect(expected)
     }
@@ -154,7 +147,6 @@ No warnings.
     @Test
     fun `Test cross-module Experimental usage via Gradle model`() {
 
-        /* ktlint-disable max-line-length */
         val provider =
             project()
                 .name("provider")
@@ -182,7 +174,6 @@ No warnings.
                         )
                         .indented(),
                 )
-        /* ktlint-enable max-line-length */
 
         val consumer =
             project()
@@ -201,7 +192,6 @@ No warnings.
                         .indented(),
                 )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:35: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
@@ -216,22 +206,21 @@ No warnings.
 ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:50: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @kotlin.OptIn(
     ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:59: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:58: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @kotlin.OptIn(
     ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:69: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:66: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:74: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:71: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @androidx.annotation.OptIn(
     ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:83: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:79: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
     @androidx.annotation.OptIn(
     ^
 8 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(provider, consumer).expect(expected)
     }
@@ -239,7 +228,6 @@ No warnings.
     @Test
     fun `Test cross-module Experimental usage in alpha via Gradle model`() {
 
-        /* ktlint-disable max-line-length */
         val provider =
             project()
                 .name("provider")
@@ -268,7 +256,6 @@ No warnings.
                         )
                         .indented(),
                 )
-        /* ktlint-enable max-line-length */
 
         val consumer =
             project()
@@ -288,13 +275,11 @@ No warnings.
                         .indented(),
                 )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 No warnings.
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(provider, consumer).expect(expected)
     }

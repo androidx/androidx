@@ -301,7 +301,7 @@ public class UserStyleSettingWithStringResourcesTest {
 
     @Test
     @Suppress("deprecation")
-    public fun complicationsUserStyleSettingWireFormatRoundTrip_noScreenReaderName_filledByDisplayName() { // ktlint-disable max-line-length
+    public fun complicationsUserStyleSettingWireFormatRoundTrip_noScreenReaderName_filledByDisplayName() {
         val complicationSetting =
             ComplicationSlotsUserStyleSetting(
                 UserStyleSetting.Id("complications_style_setting1"),

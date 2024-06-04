@@ -27,7 +27,7 @@ class ColorStateListAlphaDetectorTest {
         // We expect the definition of the color state list to be flagged since it has
         // app:alpha but no android:alpha on one of the entries. We also expect a matching
         // fix to add android:alpha attribute with the same value as the existing app:alpha one.
-        /* ktlint-disable max-line-length */
+
         lint()
             .files(Stubs.COLOR_STATE_LIST)
             .issues(ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA)
@@ -49,6 +49,5 @@ Fix for res/color/color_state_list.xml line 4: Set alpha="?android:disabledAlpha
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

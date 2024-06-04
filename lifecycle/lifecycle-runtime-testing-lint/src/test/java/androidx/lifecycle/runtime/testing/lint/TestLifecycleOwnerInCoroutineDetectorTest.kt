@@ -294,4 +294,3 @@ src/example/foo/test.kt:13: Error: Incorrect use of currentState property inside
             .expectClean()
     }
 }
-/* ktlint-enable max-line-length */

@@ -26,7 +26,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.runner.RunWith
 
-/* ktlint-disable max-line-length */
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PathSvgTest {
@@ -193,8 +192,6 @@ class PathSvgTest {
         assertPathEquals(original, path)
     }
 }
-
-/* ktlint-enable max-line-length */
 
 private fun assertPathEquals(a: Path, b: Path) {
     val ita = a.iterator()

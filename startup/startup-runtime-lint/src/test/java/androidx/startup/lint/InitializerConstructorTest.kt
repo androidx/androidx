@@ -70,7 +70,6 @@ class InitializerConstructorTest {
             .files(INITIALIZER, component)
             .issues(InitializerConstructorDetector.ISSUE)
             .run()
-            /* ktlint-disable max-line-length */
             .expect(
                 """
                 src/com/example/TestInitializer.kt:5: Error: Missing Initializer no-arg constructor [EnsureInitializerNoArgConstr]
@@ -80,6 +79,5 @@ class InitializerConstructorTest {
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

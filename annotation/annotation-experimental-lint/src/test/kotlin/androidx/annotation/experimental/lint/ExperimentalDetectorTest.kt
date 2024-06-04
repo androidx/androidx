@@ -50,7 +50,6 @@ class ExperimentalDetectorTest {
                 javaSample("sample.experimental.UseJavaExperimentalFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/experimental/UseJavaExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
@@ -127,7 +126,6 @@ Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@
 +     @ExperimentalLocation
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
@@ -156,7 +154,6 @@ Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@
                 lintConfig
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
@@ -171,7 +168,6 @@ src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declara
 3 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -187,7 +183,6 @@ src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declara
                 ktSample("sample.experimental.UseJavaExperimentalFromKt")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/experimental/UseJavaExperimentalFromKt.kt:27: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
@@ -264,7 +259,6 @@ Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 54: Add '@samp
 +     @ExperimentalLocation
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
@@ -282,7 +276,6 @@ Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 54: Add '@samp
                 javaSample("sample.experimental.UseKtExperimentalFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/experimental/UseKtExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTimeKt or @OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class) [UnsafeOptInUsageError]
@@ -403,7 +396,6 @@ Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sa
 +     @ExperimentalDateTime
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expectFixDiffs(expectedFix).expect(expected)
     }
@@ -418,7 +410,6 @@ Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sa
                 javaSample("sample.experimental.UseJavaPackageFromJava")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/experimental/UseJavaPackageFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
@@ -436,7 +427,6 @@ src/sample/experimental/UseJavaPackageFromJava.java:52: Error: This declaration 
 4 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -451,7 +441,6 @@ src/sample/experimental/UseJavaPackageFromJava.java:52: Error: This declaration 
                 ktSample("sample.experimental.UseJavaPackageFromKt")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/sample/experimental/UseJavaPackageFromKt.kt:29: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
@@ -469,7 +458,6 @@ src/sample/experimental/UseJavaPackageFromKt.kt:51: Error: This declaration is o
 4 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -559,7 +547,6 @@ src/sample/experimental/UseJavaPackageFromKt.kt:51: Error: This declaration is o
         check(*input).expectClean()
     }
 
-    /* ktlint-disable max-line-length */
     companion object {
         /**
          * [TestFile] containing Experimental.kt from the experimental annotation library.
@@ -659,5 +646,4 @@ src/sample/experimental/UseJavaPackageFromKt.kt:51: Error: This declaration is o
                     "pys4OgCGehbu7QMAAA=="
             )
     }
-    /* ktlint-enable max-line-length */
 }

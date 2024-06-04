@@ -37,7 +37,6 @@ class BanKeepAnnotationTest :
                 javaSample("androidx.KeepAnnotationUsageJava"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanKeepAnnotation]
@@ -46,7 +45,6 @@ src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanK
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }
@@ -58,7 +56,6 @@ src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanK
                 ktSample("androidx.KeepAnnotationUsageKotlin"),
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/androidx/KeepAnnotationUsageKotlin.kt:21: Error: Uses @Keep annotation [BanKeepAnnotation]
@@ -67,7 +64,6 @@ src/androidx/KeepAnnotationUsageKotlin.kt:21: Error: Uses @Keep annotation [BanK
 1 errors, 0 warnings
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
     }

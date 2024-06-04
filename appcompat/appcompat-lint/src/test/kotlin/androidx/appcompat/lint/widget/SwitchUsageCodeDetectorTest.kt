@@ -42,7 +42,7 @@ class SwitchUsageCodeDetectorTest {
                 .within("src")
 
         // We expect the class extending the core Switch widget to be flagged
-        /* ktlint-disable max-line-length */
+
         TestLintTask.lint()
             .files(customSwitchClass)
             .issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
@@ -56,7 +56,6 @@ class CustomSwitch(context: Context): Switch(context)
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -83,7 +82,7 @@ class CustomSwitch(context: Context): Switch(context)
                 .within("src")
 
         // We expect the class instantiating the core Switch widget to be flagged
-        /* ktlint-disable max-line-length */
+
         TestLintTask.lint()
             .files(Stubs.APPCOMPAT_ACTIVITY, customSwitchClass)
             .issues(SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE)
@@ -97,6 +96,5 @@ src/com/example/CustomActivity.kt:9: Warning: Use SwitchCompat from AppCompat or
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }

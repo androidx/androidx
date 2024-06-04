@@ -31,7 +31,6 @@ class ReplaceWithDetectorFieldTest {
                 javaSample("replacewith.StaticFieldExplicitClass")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/StaticFieldExplicitClass.java:25: Information: Replacement available [ReplaceWith]
@@ -49,7 +48,6 @@ Fix for src/replacewith/StaticFieldExplicitClass.java line 25: Replace with `Vie
 +         System.out.println(View.AUTOFILL_HINT_NAME);
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -62,7 +60,6 @@ Fix for src/replacewith/StaticFieldExplicitClass.java line 25: Replace with `Vie
                 javaSample("replacewith.StaticFieldImplicitClass")
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/replacewith/StaticFieldImplicitClass.java:27: Information: Replacement available [ReplaceWith]
@@ -80,7 +77,6 @@ Fix for src/replacewith/StaticFieldImplicitClass.java line 27: Replace with `Vie
 +         System.out.println(View.AUTOFILL_HINT_NAME);
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

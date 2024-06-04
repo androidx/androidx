@@ -42,7 +42,6 @@ class MissingJvmDefaultWithCompatibilityDetectorTest :
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/InterfaceWithDefaultMethod.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it has a stable method with a default implementation [MissingJvmDefaultWithCompatibility]
@@ -57,7 +56,6 @@ Autofix for src/java/androidx/InterfaceWithDefaultMethod.kt line 4: Annotate wit
 @@ -4 +4
 +                 @JvmDefaultWithCompatibility
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -77,7 +75,6 @@ Autofix for src/java/androidx/InterfaceWithDefaultMethod.kt line 4: Annotate wit
                 )
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it has a stable method with a parameter with a default value [MissingJvmDefaultWithCompatibility]
@@ -92,7 +89,6 @@ Autofix for src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt li
 @@ -4 +4
 +                 @JvmDefaultWithCompatibility
         """
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -125,7 +121,6 @@ Autofix for src/java/androidx/InterfaceWithMethodWithDefaultParameterValue.kt li
                 Stubs.JvmDefaultWithCompatibility
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/InterfaceWithoutAnnotation.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it implements an interface which uses this annotation [MissingJvmDefaultWithCompatibility]
@@ -141,7 +136,6 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
 +                 @JvmDefaultWithCompatibility
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
@@ -226,7 +220,6 @@ Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate wit
                 Stubs.OptIn
             )
 
-        /* ktlint-disable max-line-length */
         val expected =
             """
 src/java/androidx/InterfaceWithStableAndUnstableMethods.kt:4: Error: This interface must be annotated with @JvmDefaultWithCompatibility because it has a stable method with a default implementation [MissingJvmDefaultWithCompatibility]
@@ -242,7 +235,6 @@ Autofix for src/java/androidx/InterfaceWithStableAndUnstableMethods.kt line 4: A
 +                 @JvmDefaultWithCompatibility
         """
                 .trimIndent()
-        /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

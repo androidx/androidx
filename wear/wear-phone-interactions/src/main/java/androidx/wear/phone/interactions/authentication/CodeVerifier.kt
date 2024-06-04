@@ -22,14 +22,12 @@ import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.util.Base64
 
-/* ktlint-disable max-line-length */
 /**
  * Authorisation code verifier.
  *
  * Related specifications:
  * [Proof Key for Code Exchange by OAuth Public Clients (RFC 7636).](https://tools.ietf.org/html/rfc7636)
  */
-/* ktlint-enable max-line-length */
 @RequiresApi(Build.VERSION_CODES.O)
 public class CodeVerifier {
     private companion object {

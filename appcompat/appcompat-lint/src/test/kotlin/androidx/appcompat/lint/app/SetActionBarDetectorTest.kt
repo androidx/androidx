@@ -79,7 +79,7 @@ class SetActionBarDetectorTest {
 
         // We expect the class extending the AppCompatActivity widget to be flagged
         // in setActionBar call
-        /* ktlint-disable max-line-length */
+
         TestLintTask.lint()
             .files(Stubs.APPCOMPAT_ACTIVITY, customActivityClass)
             .issues(SetActionBarDetector.USING_CORE_ACTION_BAR)
@@ -93,7 +93,6 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatActivity.setSupportAc
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 
     @Test
@@ -122,7 +121,7 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatActivity.setSupportAc
 
         // We expect the class extending the AppCompatActivity widget to be flagged
         // in setActionBar call
-        /* ktlint-disable max-line-length */
+
         TestLintTask.lint()
             .files(Stubs.APPCOMPAT_ACTIVITY, customActivityClass)
             .issues(SetActionBarDetector.USING_CORE_ACTION_BAR)
@@ -136,6 +135,5 @@ src/com/example/CustomActivity.kt:11: Warning: Use AppCompatActivity.setSupportA
                 """
                     .trimIndent()
             )
-        /* ktlint-enable max-line-length */
     }
 }
