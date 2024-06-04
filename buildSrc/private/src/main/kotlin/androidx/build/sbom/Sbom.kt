@@ -135,7 +135,6 @@ fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTask): Lis
         return listOf() // we don't publish integration tests
     if (taskName.startsWith("zip") && taskName.contains("ResultsOf") && taskName.contains("Test"))
         return listOf() // we don't publish test results
-    if (projectPath == ":compose:compiler:compiler" && taskName == "embeddedPlugin") return listOf()
 
     // ShadowJar tasks have a `configurations` property that lists the configurations that
     // are inputs to the task, but they don't also list file inputs

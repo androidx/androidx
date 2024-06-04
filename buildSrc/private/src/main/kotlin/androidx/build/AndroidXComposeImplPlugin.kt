@@ -190,10 +190,12 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
                 pluginVersionToml
             } else {
                 // use exact project path instead of subprojects.find, it is faster
-                val compilerProject =
-                    project.rootProject.resolveProject(":compose:compiler:compiler")
+                val compilerProject = project.rootProject.resolveProject(":compose")
                 val compilerMavenDirectory =
-                    File(compilerProject.projectDir, "compose-compiler-snapshot-repository")
+                    File(
+                        compilerProject.projectDir,
+                        "compiler/compose-compiler-snapshot-repository"
+                    )
                 if (!compilerMavenDirectory.exists()) {
                     pluginVersionToml
                 } else {
@@ -208,18 +210,7 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             }
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
-            if (project.isComposeCompilerUnpinned()) {
-                if (ProjectLayoutType.isPlayground(project)) {
-                    AndroidXPlaygroundRootImplPlugin.projectOrArtifact(
-                        project.rootProject,
-                        ":compose:compiler:compiler"
-                    )
-                } else {
-                    project.rootProject.resolveProject(":compose:compiler:compiler")
-                }
-            } else {
-                "androidx.compose.compiler:compiler:$versionToUse"
-            }
+            "androidx.compose.compiler:compiler:$versionToUse"
         )
 
         val kotlinPluginProvider =

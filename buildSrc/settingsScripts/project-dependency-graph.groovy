@@ -263,7 +263,6 @@ class ProjectDependencyGraph {
                     links.add(matcherInspection.group(1))
                 }
                 if (composePlugin.matcher(line).find()) {
-                    links.add(":compose:compiler:compiler")
                     links.add(":compose:lint:internal-lint-checks")
                 }
                 if (publishedLibrary.matcher(line).find()) {
