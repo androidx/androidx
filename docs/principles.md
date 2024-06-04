@@ -103,8 +103,8 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 ### 10. Released using a clearly-defined process
 
 -   Follow Semantic Versioning and pre-release revision guidelines where each
-    library moves through alpha, beta, and rc revisions to gain feedback and
-    ensure stability
+    library moves through alpha, beta, and RC revisions in a timely manner to
+    gain feedback and ensure stability
 
 ### 11. Well-documented
 
