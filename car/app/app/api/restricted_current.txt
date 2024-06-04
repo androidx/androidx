@@ -2361,6 +2361,7 @@ package androidx.car.app.versioning {
     field public static final int LEVEL_5 = 5; // 0x5
     field public static final int LEVEL_6 = 6; // 0x6
     field public static final int LEVEL_7 = 7; // 0x7
+    field public static final int LEVEL_8 = 8; // 0x8
   }
 
 }
