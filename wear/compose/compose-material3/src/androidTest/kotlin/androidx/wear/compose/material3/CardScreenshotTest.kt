@@ -119,6 +119,18 @@ class CardScreenshotTest {
         }
 
     @Test
+    fun title_card_without_time_and_with_subtitle_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            TitleCard(
+                enabled = true,
+                onClick = {},
+                title = { Text("TitleCard") },
+                subtitle = { Text("Subtitle") },
+                modifier = Modifier.testTag(TEST_TAG),
+            )
+        }
+
+    @Test
     fun title_card_with_time_and_subtitle_disabled() =
         verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
             sampleTitleCardWithTimeAndSubtitle(enabled = false)

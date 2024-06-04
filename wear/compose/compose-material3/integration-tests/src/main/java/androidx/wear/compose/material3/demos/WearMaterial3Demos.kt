@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.content.Context
+import android.widget.Toast
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
@@ -101,3 +103,11 @@ val WearMaterial3Demos =
             ComposableDemo("Settings Demo") { SettingsDemo() }
         )
     )
+
+internal fun showOnClickToast(context: Context) {
+    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+}
+
+internal fun showOnLongClickToast(context: Context) {
+    Toast.makeText(context, "Long clicked", Toast.LENGTH_SHORT).show()
+}

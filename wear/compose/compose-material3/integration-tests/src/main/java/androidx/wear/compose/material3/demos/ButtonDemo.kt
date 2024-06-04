@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.material3.demos
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -414,12 +412,4 @@ private fun Multiline3SlotButton(
         enabled = enabled,
         colors = colors,
     )
-}
-
-private fun showOnClickToast(context: Context) {
-    Toast.makeText(context, "onClick triggered", Toast.LENGTH_SHORT).show()
-}
-
-private fun showOnLongClickToast(context: Context) {
-    Toast.makeText(context, "onLongClick triggered", Toast.LENGTH_SHORT).show()
 }
