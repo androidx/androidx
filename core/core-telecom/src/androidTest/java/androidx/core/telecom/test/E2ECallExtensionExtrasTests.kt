@@ -42,7 +42,6 @@ import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -101,7 +100,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/327695134
     fun testCapabilityExchangeIncoming_V2() {
         setUpV2TestWithExtensions()
         addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
@@ -115,7 +113,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/327695134
     fun testCapabilityExchangeOutgoing_V2() {
         setUpV2TestWithExtensions()
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
@@ -133,7 +130,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/327695134
     fun testCapabilityExchangeIncoming_BackwardsCompat() {
         setUpBackwardsCompatTest()
         addAndVerifyCallExtensionTypeE2E(
@@ -148,7 +144,6 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
-    @Ignore //  b/327695134
     fun testCapabilityExchangeOutgoing_BackwardsCompat() {
         setUpBackwardsCompatTest()
         addAndVerifyCallExtensionTypeE2E(
@@ -205,10 +200,10 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     private fun assertCallExtraOrProperty(call: Call) {
         // Call details should be present at this point
         val callDetails = call.details!!
-        if (TestUtils.buildIsAtLeastU()) {
+        if (Utils.hasPlatformV2Apis()) {
             if (TestUtils.buildIsAtLeastV()) {
                 assertTrue(callDetails.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL))
-            } else if (Utils.hasPlatformV2Apis()) {
+            } else {
                 // Wait for capability exchange to complete before verifying the extension level:
                 runBlocking { waitOnInCallServiceToReachXCallCompats(1) }
                 assertEquals(
